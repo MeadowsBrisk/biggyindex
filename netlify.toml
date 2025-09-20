@@ -1,0 +1,73 @@
+[build]
+  command = "yarn build"
+  publish = ".next"
+
+[build.environment]
+  VOTE_WINDOW_HOURS = "24"
+  VOTE_HASH_SALT = "24a9935fabe80c4d07f7e06a904bf16ea1e2a67752798c30e762d35685580bf9"
+  VOTE_IP_MAX = "500"
+  VOTE_DEBUG = "1"
+  NODE_VERSION = "20"
+
+[template.environment]
+  VOTE_WINDOW_HOURS = "24"
+  VOTE_HASH_SALT = "24a9935fabe80c4d07f7e06a904bf16ea1e2a67752798c30e762d35685580bf9"
+  VOTE_IP_MAX = "500"
+  VOTE_DEBUG = "1"  # Enable verbose vote debug logging during troubleshooting
+
+# Global functions configuration
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = [
+    "axios",
+  "http-cookie-agent",
+  "agent-base",
+    "tough-cookie",
+  "node-fetch",
+    "@netlify/blobs",
+    "@netlify/neon",
+    "yargs",
+    "p-queue"
+  ]
+
+# Functions (Next.js pages/api are auto-detected)
+# Add any specific function configuration overrides here if needed in future.
+
+[functions."site-index"]
+  # Run the indexing function every 10 minutes (on the hour and half past)
+  schedule = "*/15 * * * *"
+  # Ensure the raw script & its data file are packaged with the function so spawning works.
+  included_files = [
+  "scripts/indexer/**",
+  # Include aggregated supplement so embedAggregates can require it at runtime on Netlify (outdated: exclusively using Blobs rather than FS now)
+  "public/item-crawler/index-supplement.js",
+  # If you generate per-run artifacts (debug, items, share-links), you can optionally include them too:
+  # "public/item-crawler/**"
+    ]
+
+[functions."item-crawler-background"]
+  # Schedule the long-running background crawler instead of the sync function
+  schedule = "20 */1 * * *"
+  node_bundler = "esbuild"
+  [functions."item-crawler-background".environment]
+  CRAWLER_PERSIST = "blobs"
+  CRAWLER_BLOBS_PREFIX = "item-crawler/"
+  #CRAWLER_ALT_BLOBS_PREFIX = "data/item-crawler/"
+  CRAWLER_MIGRATE_EAGER = "false"
+  CRAWLER_BLOBS_AUTH = "explicit"
+  #CRAWLER_MIGRATE_SEED_LIMIT = "25"
+  #CRAWLER_MAX_PARALLEL = "1"
+  included_files = [
+    "scripts/item-crawler/crawl-items.js",
+    "scripts/item-crawler/fetch/**",
+    "scripts/item-crawler/parse/**",
+    "scripts/item-crawler/persistence/**",
+    "scripts/item-crawler/util/**",
+    "scripts/item-crawler/env/**",
+    "public/indexed_items.json",
+    "node_modules/p-queue/**"
+  ]
+
+[functions."crawler-control"]
+  # Lightweight control plane for the crawler (set/clear stop flag)
+  node_bundler = "esbuild"
