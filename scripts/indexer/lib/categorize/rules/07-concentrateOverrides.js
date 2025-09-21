@@ -31,15 +31,21 @@ function concentrateMidOverridesRule(ctx) {
     }
   }
 
-  // Gummies with D9/Distillate should be Edibles, not Concentrates
-  if (/(gummy|gummies)/.test(text) && /(delta 9|delta-9|delta9|d9|distillate|distilate)/.test(text)) {
+  // Gummies with D9/Distillate/RSO should be Edibles, not Concentrates
+  if (/(gummie|gummy|gummies)/.test(text) && (/(delta 9|delta-9|delta9|d9|distillate|distilate|rso)/.test(text) || /\b\d{2,4}\s?mg\b/.test(text))) {
     scores.Edibles = (scores.Edibles || 0) + 8;
     if (scores.Concentrates) { scores.Concentrates -= 7; if (scores.Concentrates <= 0) delete scores.Concentrates; }
   }
 
-  // NEW: Confection listings (candy/sweets/drops/pieces) infused with concentrates (e.g., shatter)
+  // Edible cones without concentrate tokens but clear edible context (chocolate cones + mg or packs)
+  if (/(baked\s+cones|chocolate\s+cone(s)?)/.test(text) && /(\b\d{2,4}\s?mg\b|\bpack(s)?\b|\b\d+\s?x\b)/.test(text)) {
+    scores.Edibles = (scores.Edibles || 0) + 7;
+    if (scores.Flower) { scores.Flower -= 5; if (scores.Flower <= 0) delete scores.Flower; }
+  }
+
+  // NEW: Confection listings (candy/sweets/drops/pieces/cones) infused with concentrates (e.g., shatter)
   // Redirect to Edibles and demote Concentrates
-  if (/(candy|sweet|sweets|drops|pieces|gummy|gummies)/.test(text) && /(shatter|wax|rosin|crumble|badder|batter|diamonds|distillate|distilate|live resin|rso|thca|thc-a|extract)/.test(text)) {
+  if (/(candy|sweet|sweets|drops|pieces|gummy|gummies|cone|cones)/.test(text) && /(shatter|wax|rosin|crumble|badder|batter|diamonds|distillate|distilate|live resin|rso|thca|thc-a|extract)/.test(text)) {
     scores.Edibles = (scores.Edibles || 0) + 7;
     if (scores.Concentrates) { scores.Concentrates -= 6; if (scores.Concentrates <= 0) delete scores.Concentrates; }
     const mgPotency2 = /\b\d{2,4}\s?mg\b/.test(text);
@@ -94,6 +100,11 @@ function concentrateLatePrecedenceRule(ctx) {
         if (scores.Flower) { scores.Flower -= 3; if (scores.Flower <= 0) delete scores.Flower; }
       }
     }
+  // Name-only crystalline should still give a nudge to Concentrates to overcome strain prose when paired with concentrate lexicon elsewhere
+  if (/(\bcrystalline\b|\bcrystal\b)/.test(nameLower)) {
+    scores.Concentrates = (scores.Concentrates || 0) + 8;
+    if (scores.Flower) { scores.Flower -= 6; if (scores.Flower <= 0) delete scores.Flower; }
+  }
   // Name-based concentrate forms (shatter/wax/rosin/badder/batter/crumble/sauce) strongly indicate Concentrates
   if (/(shatter|wax|rosin|badder|batter|crumble|sauce|terp\s*sauce)/.test(nameLower)) {
     scores.Concentrates = (scores.Concentrates || 0) + 7;

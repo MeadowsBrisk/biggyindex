@@ -34,6 +34,12 @@ function antibioticLineageRule(ctx) {
     if (scores.Edibles) { scores.Edibles -= 10; if (scores.Edibles <= 0) delete scores.Edibles; }
     if (scores.Flower) { scores.Flower -= 4; if (scores.Flower <= 0) delete scores.Flower; }
   }
+  // Wakefulness agents (modafinil/modvigil) -> Other; demote Edibles
+  if (/(modafinil|modvigil)\b/.test(text)) {
+    scores.Other = (scores.Other || 0) + 10;
+    if (scores.Edibles) { scores.Edibles -= 8; if (scores.Edibles <= 0) delete scores.Edibles; }
+    if (scores.Flower) { scores.Flower -= 2; if (scores.Flower <= 0) delete scores.Flower; }
+  }
   // Lineage cross biasing Flower & suppressing Edibles if no ingestion forms
   const lineage = /(\(|\b)(?:[^)]{0,40})\bx\s+[^)]{2,40}\)|\bbx[0-9]\b|\bf[0-9]\b|\blineage\b|\bgenetics\b/;
   const trueIngestion = /(gummy|gummies|chocolate|brownie|cereal bar|nerd rope|capsule|capsules|tablet|tablets|wonky bar|infused|delight)/;

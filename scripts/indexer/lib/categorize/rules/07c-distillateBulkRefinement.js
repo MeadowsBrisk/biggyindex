@@ -52,6 +52,15 @@ function distillateBulkRefinementRule(ctx) {
     }
   }
 
+  // CBD Oil specific: if name/desc indicate CBD oil bottle size without vape hardware, treat as Tincture
+  const cbdOilBottle = /(cbd\s+oil)\b/.test(text) && /(\b\d{1,3}\s?ml\b|\b15\s?ml\b|\b30\s?ml\b)/.test(text);
+  const hardwareTokens2 = /(cart|carts|cartridge|cartridges|disposable|disposables|pod|pods|pen|pens|battery|ccell|510\b|device)/;
+  if (cbdOilBottle && !hardwareTokens2.test(text)) {
+    scores.Tincture = (scores.Tincture || 0) + 8;
+    if (scores.Vapes) { scores.Vapes -= 6; if (scores.Vapes <= 0) delete scores.Vapes; }
+    if (scores.Concentrates) { scores.Concentrates -= 4; if (scores.Concentrates <= 0) delete scores.Concentrates; }
+  }
+
   // --- Bulk distillate vs vape hardware refinement (requires distillate / d9 tokens) ---
   const distTok = /(distillate|distilate|delta 9|delta-9|delta9|d9|crystalline|thca|thc-a)/;
   if (!distTok.test(text)) return; // fast exit for non-distillate listings (oral wellness already handled above)
