@@ -8,8 +8,8 @@ const TAXONOMY = {
       "flower", "bud", "buds", "budds", "nug", "nuggs", "nugs", "haze", "hybrid", "tops", "rs11", "budget", "mids", "shake", "trim", "popcorn", "zkittlez", "zkittles", "diesel", "marijuana", "strain", "strains", "indica", "sativa", "exotic", "exotics", "cali", "cookies", "runtz", "sherb", "sherbert", "sherbet", "cake", "blueberry", "cheese", "trainwreck", "wedding", "mochi", "gumball", "limoncello", "indoor", "outdoor", "greenhouse",
       // Added common strain family variants
       "dawg", "stardawg", "chemdawg", "gelato", "gelatti",
-      // Reported strain names
-      "strawberry banana", "brian berry cough"
+  // Reported strain names
+  "strawberry banana", "brian berry cough", "do si dos", "dosidos", "dosi dos", "zoap"
     ],
     children: {
       Haze: ["haze"],
@@ -55,7 +55,7 @@ const TAXONOMY = {
       Frozen: ["frozen"],
       Kief: ["kief", "pollen", "unpressed", "powdery"],
       Moonrocks: ["moonrock", "moonrocks", "moon rock", "moon rocks", "dipped"],
-      DrySift: ["dry sift", "dry-sift", "drysift", "sift", "dry filtered", "dry-filtered"],
+  DrySift: ["dry sift", "dry-sift", "drysift", "sift", "dry filtered", "dry-filtered", "drytek", "dry tek"],
       Black: ["black"],
       TripleFiltered: ["triple filtered", "triple-filtered", "triple sifted", "3x filtered", "3x", "x3"],
       "120u": ["120u", "120 micron", "120 microns", "120µ", "120μ"],
@@ -104,12 +104,12 @@ const TAXONOMY = {
   },
   Edibles: {
     keywords: [
-      "edible", "edibles", "wonky bar", "brownie", "capsule", "capsules", "gummy", "gummies", "chocolate", "chocolates", "wonka", "cubes", "chunks", "sugar-coated", "sugar coated", "cluster", "nerd rope", "nerd ropes", "cereal bar", "coconut oil", "cannabutter", "canna butter", "canna chocolate", "milk", "belgian", "coconut oil capsules", "angel delight", "rolos", "rolo", "candy", "sweets", "drops", "candy drops", "pineapple chunks", "pineapple", "cola cubes", "cola", "bears", "bear", "gummy bear", "gummy bears", "happy bears", "nerd", "infused", "vegan", "vegan-friendly", "caps", "capsules", "canna coconut oil", "cannabis oil", "cannabis-infused", "cannabis infused", "nutella", "cannabis nutella", "canna nutella", "honey", "canna honey", "cannabis honey"
+      "edible", "edibles", "wonky bar", "brownie", "capsule", "capsules", "tablet", "tablets", "gummy", "gummies", "chocolate", "chocolates", "wonka", "cubes", "chunks", "sugar-coated", "sugar coated", "cluster", "nerd rope", "nerd ropes", "cereal bar", "coconut oil", "cannabutter", "canna butter", "canna chocolate", "milk", "belgian", "coconut oil capsules", "angel delight", "rolos", "rolo", "candy", "sweets", "drops", "candy drops", "pineapple chunks", "pineapple", "cola cubes", "cola", "bears", "bear", "gummy bear", "gummy bears", "happy bears", "nerd", "infused", "vegan", "vegan-friendly", "caps", "capsules", "canna coconut oil", "cannabis oil", "cannabis-infused", "cannabis infused", "nutella", "cannabis nutella", "canna nutella", "honey", "canna honey", "cannabis honey"
     ],
     children: {
       Chocolate: ["chocolate", "chocolates", "wonky bar", "canna chocolate", "belgian", "milk"],
       Gummies: ["gummy", "gummies", "gummy bear", "gummy bears", "happy bears", "bears"],
-      Capsules: ["capsule", "capsules", "caps", "coconut oil capsules"],
+      Capsules: ["capsule", "capsules", "caps", "coconut oil capsules", "tablet", "tablets"],
       Candy: ["candy", "sweet", "sweets", "drops", "candy drops", "cola cubes", "cola", "pineapple chunks", "pineapple", "cubes", "chunks"],
       Bars: ["cereal bar"],
       ButterOil: ["cannabutter", "canna butter", "coconut oil", "canna coconut oil"],

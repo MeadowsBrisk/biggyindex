@@ -7,6 +7,11 @@
 
 function hashEarlyOverridesRule(ctx) {
   const { text, scores } = ctx;
+  // Heuristic: listings phrased as "landed some [sherb/sherbet/sherbert]" often correspond to hash products in this dataset
+  if (/landed\s+some\s+(?:sunset\s+)?sherb(?:ert|et)?\b/.test(text)) {
+    scores.Hash = (scores.Hash || 0) + 4;
+    if (scores.Flower) { scores.Flower -= 3; if (scores.Flower <= 0) delete scores.Flower; }
+  }
   // Hash vs Edibles / Concentrates fix for 'hash concentrate'
   if (/hash concentrate/.test(text)) {
     scores.Hash = (scores.Hash || 0) + 5;
@@ -30,6 +35,11 @@ function hashEarlyOverridesRule(ctx) {
       scores.Hash = (scores.Hash || 0) + 2;
     }
   }
+  // Drytek/drytech is a hash/dry sift style -> bias Hash and demote Concentrates
+  if (/\bdry\s?tek\b|\bdry\s?tech\b/.test(text)) {
+    scores.Hash = (scores.Hash || 0) + 6;
+    if (scores.Concentrates) { scores.Concentrates -= 4; if (scores.Concentrates <= 0) delete scores.Concentrates; }
+  }
 }
 
 function templeBallsRule(ctx) {
@@ -41,9 +51,15 @@ function templeBallsRule(ctx) {
 }
 
 function hashPrecedenceRule(ctx) {
-  const { text, scores, name } = ctx;
+  const { text, scores, name, subsByCat } = ctx;
+  // Diamond infused flower often refers to moonrocks; steer to Hash.Moonrocks
+  if (/diamond\s+infused\s+flower|infused\s+flower.*diamond|diamond\s+flower/.test(text)) {
+    scores.Hash = (scores.Hash || 0) + 6;
+    if (scores.Flower) { scores.Flower -= 6; if (scores.Flower <= 0) delete scores.Flower; }
+    (subsByCat.Hash ||= new Set()).add('Moonrocks');
+  }
   if (scores.Hash && scores.Flower) {
-    const hashSignals = /(\bhash\b|hashish|dry sift|dry-sift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush)/;
+    const hashSignals = /(\bhash\b|hashish|dry sift|dry-sift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush|\b120u\b|120\s*(?:micron|microns|µ|μ))/;
     if (hashSignals.test(text)) {
       scores.Hash += 5;
       scores.Flower -= 5;
@@ -57,6 +73,11 @@ function hashPrecedenceRule(ctx) {
         if (scores.Flower <= 0) delete scores.Flower;
       }
     }
+  }
+  // Minimal strain-only titles like 'SUNSET SHERBET' sometimes are hash drops; nudge Hash slightly to avoid 'Other'
+  const nameLower = (name || '').toLowerCase();
+  if (/^\s*[a-z][a-z\s]+$/.test(nameLower) && /sherb|sherbet|sherbert/.test(nameLower) && !/gummy|vape|cart|bar|chocolate|capsule|tablet/.test(text)) {
+    scores.Hash = (scores.Hash || 0) + 2;
   }
 }
 

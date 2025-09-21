@@ -45,6 +45,7 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 
 03-fallbackBoosts.js
 - Generic boosts for hash/flower/edible/vape tokens; mushroom + LSD/DMT psychedelic boosts; edible spread/oil special; mad honey override to Other.
+- Notes: LSD cues include `lsd|acid|dmt`; separate LSD-specific handling also exists in 04-psychedelicOverrides for edible contexts.
 
 05b-prerollRefinement.js
 - Removes Flower.PreRolls in shake/trim/dust/popcorn usage or descriptive usage phrases ("perfect for joints" etc.).
@@ -52,6 +53,7 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 
 04-psychedelicOverrides.js
 - Aggregated mushroom edible/microdose/grow overrides. Demotes Edibles when mushroom edible context appears without cannabis edible signals. Adds microdose-only handling (no explicit mushroom token, no cannabis-edible signals) to boost Psychedelics and demote Edibles.
+- NEW: LSD “paper” override. Triggers on `lsd|acid|blotter|tab|paper|lucy|albert hofmann` and, if edible terms (gummies/choc/etc.) are present, strongly boosts Psychedelics.Paper and demotes Edibles to classify LSD candies correctly.
 
 05-ediblesVsFlowerDisambiguation.js
 - Dessert strain disambiguation: demote Edibles if only dessert-like tokens + strong flower context and no ingestion tokens; boosts Flower slightly.
@@ -60,6 +62,7 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 - hashEarlyOverridesRule: hash concentrate phrase, Simpson Kush strong boost, decarb hash, candyish hash context adjustments.
 - templeBallsRule: temple ball(s) decisive Hash.
 - hashPrecedenceRule: late bias Hash over Flower if explicit hash signals or name contains 'hash'. Includes 'hashish' as an explicit signal.
+- NEW: Recognizes `120u`/`120 micron` explicitly as strong Hash signal. Maps “diamond infused flower” to Hash and tags Moonrocks subcategory (demotes Flower).
 
 11-seedsListings.js (NEW)
 - seedsListingsRule: Listings with clear seed context (title/text mentions seeds plus seedbank/seedbay/feminized/autoflower/germination or pack hints like "ten pack") are steered to Other and Flower is demoted. Placed late, before final precedence.
@@ -68,12 +71,18 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 - concentrateEarlyOverridesRule: crumble false-positive demotion when only flower context.
 - concentrateMidOverridesRule: distillate candy bar listings -> Edibles redirect. Also redirects confection listings (candy/sweets/drops/pieces) that include concentrate signals (e.g., shatter/rosin/distillate) to Edibles and demotes Concentrates.
 - concentrateLatePrecedenceRule: multi-part logic (live resin tincture guard, strong name-based concentrate, sugar/crystal demotion with expanded flower-context signals, guarded generic boost vs Flower, edible ingestion suppression, multi-strong-token scaling).
+- Updates:
+    - Mid: Includes gummies in confection ingestion patterns for redirect when infused with concentrates.
+    - Late: Boosts Concentrates for `crystalline/crystal` and sugar when concentrate indicators present; name-based sugar also nudges Concentrates over Flower.
+    - THC Syrup without vape hardware now classifies as Concentrates (demotes Flower/Vapes).
+    - Syringe/applicator (e.g., 1g applicator) boosts Concentrates and demotes Flower.
 
 07b-edibleSauceRefinement.js
 - Distinguishes confection sauce (wonky/oompa/gourmet + mg or confection tokens) vs terp/live resin sauce.
 
 08-vapeOverrides.js
 - Hardware detection, additional synergy boosts (cart + distillate/resin), concentrate demotion in pure vape contexts, potency dominance, subcategory tagging, cryo cured diamonds special case.
+- NEW: Treats `HTFSE` and `Liquid Diamonds` as vape contexts; adds Vapes.LiveResin subcategory and biases toward Vapes even without explicit hardware tokens (while still allowing stronger hardware synergy boosts to stack).
 
 09-medicalOverrides.js
 - medicalEarlyRule: antibiotic presence demotes Flower when only generic strain references.
@@ -82,6 +91,7 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 10-ediblesFalsePositiveDemotion.js
 - Generic sweet words with strong flower context + no ingestion forms -> demote Edibles, boost Flower.
 - Spread/oil explicit cannabis qualifiers re-boost Edibles; special strong dominance for "cannabis coconut oil".
+- Updated ingestion forms include `tablet|tablets` to correctly recognize edible tablets.
 
 90-precedenceResolution.js
 - Final tie-breaking and Other guard (requires explicit Other keyword). Subcategories narrowed to chosen primary.
@@ -91,9 +101,9 @@ File: lib/categorize/scoreBoard.js
 - Functions: add(cat, pts, reason), demote(cat, pts, reason), set, remove, importFinal, snapshot, trace.
 - NOT yet used inside rules; rules mutate plain scores object directly (historical parity constraint).
 - To integrate without behaviour change:
-  1. Create adapter in pipeline to wrap scores mutations (monkey patch set/add/demote) logging reasons.
-  2. Replace direct arithmetic (scores.X += N) with helper calls incrementally, running full regression tests after each batch.
-  3. Expose debug mode: runCategorizationPipeline(name, desc, { trace: true }) returning { primary, subcategories, trace }.
+    1. Create adapter in pipeline to wrap scores mutations (monkey patch set/add/demote) logging reasons.
+    2. Replace direct arithmetic (scores.X += N) with helper calls incrementally, running full regression tests after each batch.
+    3. Expose debug mode: runCategorizationPipeline(name, desc, { trace: true }) returning { primary, subcategories, trace }.
 - DO NOT partially convert a single rule file; convert whole rule to avoid missing reason lines.
 
 ## Taxonomy Structure Snapshot (baseTaxonomy.js)
@@ -106,6 +116,7 @@ Parent Categories & notable child groups:
 - Vapes: Disposable, Cartridge, Distillate, LiveResin, Battery
 - Concentrates: Wax, Shatter, Rosin, RSO, Oil, Sugar, Piatella, Distillates, Pots
 - Edibles: Chocolate, Gummies, Capsules, Candy, Bars, ButterOil, Treats, InfusedOil, Spreads
+- Edibles keywords now include `tablet` and `tablets`; child `Capsules` includes tablets.
 - Psychedelics: Spirit, Paper, Mushrooms, Grow, Microdose
 - Other: (mad honey, modafinil, blister, erectile, box, antibiotic, respiratory, doxycycline)
 
@@ -139,6 +150,8 @@ Notes:
 ## Open Technical Debt Items
 - Bulk Distillate vs Vape: Implemented (07c-distillateBulkRefinement) – in absence of hardware tokens AND presence of bulk sizing / purity / syringe signals, favors Concentrates Distillates. Lives just before concentrateLatePrecedenceRule so earlier vape boosts can still assert when valid.
 - Tincture Oral Wellness: Detect explicit ingestion disclaimers ("FOR ORAL APPLICATION ONLY", "DO NOT SMOKE OR VAPE") and force Tincture dominance when distillate + MCT + oral verbs present.
+- Vape fallback contexts: HTFSE/Liquid Diamonds are used as vape shorthand and are now covered; continue to watch for false positives in non-vape diamond contexts.
+- Edibles tablets: taxonomy and ingestion patterns updated; consider adding specific “Tablets” subcategory if future UI needs differentiation.
 
 (Add completed implementations below this line when done.)
 
@@ -240,8 +253,8 @@ concentrateLatePrecedenceRule (07-concentrateOverrides tail)
 - Name-based strong concentrate booster (if listing name includes "concentrate").
 - Sugar / crystal Flower context demotion: prevents sugar/crystalline adjectives from forcing Concentrates without other concentrate indicators.
 - Generic concentrate boost vs Flower with guard rails:
-  - Suppress boost in tincture context unless strong concentrate tokens.
-  - Suppress/demote in edible ingestion context (gummy, chocolate, etc.) unless strong concentrate tokens present.
+    - Suppress boost in tincture context unless strong concentrate tokens.
+    - Suppress/demote in edible ingestion context (gummy, chocolate, etc.) unless strong concentrate tokens present.
 - Additional multi-strong-token scaling to push Concentrates above Flower as needed.
 
 precedenceResolutionRule (90-precedenceResolution)
@@ -260,6 +273,15 @@ precedenceResolutionRule (90-precedenceResolution)
 - Concentrates mislabelled as Flower (Biscotti Wax/Resin, Zkittlez Concentrate) -> now Concentrates.
 - Edible oils/spreads (cannabis coconut oil / nutella / honey) -> Edibles.
 - Simpson Kush -> Hash.
+- LSD “Lucy” gummies -> Psychedelics.Paper (not Edibles).
+- Bulk D9 distillate (syringe/ml/CAT3/COA) -> Concentrates.Distillates (not Vapes/Edibles).
+- Gummies infused with shatter/rosin/distillate -> Edibles (not Concentrates).
+- HTFSE/Liquid Diamonds 2ml -> Vapes.LiveResin (not Flower).
+- Crystalline items -> Concentrates (not Flower).
+- 120u hash -> Hash (not Flower).
+- Diamond infused flower -> Hash.Moonrocks (not Flower).
+- THC Syrup -> Concentrates (not Flower).
+- THC Tablets -> Edibles (not Flower/Concentrates).
 - Multi-strain high-potency vape listing (e.g. THC VAPE 1000mg) -> Vapes.
 - PreRoll false positives (shake/trim/dust, Thai Stick) removed.
 - Flavor Packs Raw Cones with moonrocks mention -> Flower + PreRolls only (no Hash).
@@ -276,7 +298,7 @@ Provided examples (2025‑09) indicate several pure distillate bulk listings mis
 - "D9+Terpenes" / "D9 + Terp Syringes" fill-your-own hardware
 - "1L of 96%THC D9 Distillate" (bulk ingredient)
 - "D9 Distillate from California" (ingredient)
-Desired: Concentrates primary unless explicit vape hardware context (carts, cartridges, disposable devices) strongly present.
+  Desired: Concentrates primary unless explicit vape hardware context (carts, cartridges, disposable devices) strongly present.
 
 Tincture example needing correct Tincture classification:
 - "Pumpjack wellness oil: THC & CBD" with explicit oral usage instructions and ingredients (MCT oil, distillate, terpenes) – should remain / become Tincture not Vapes or Concentrates.
@@ -309,8 +331,8 @@ Gap: No unified single source test aggregator referencing one canonical array of
 ## Adding a New Rule – Checklist
 1. Write failing test(s) first capturing real-world misclassification examples.
 2. Choose minimal insertion point in RULE_SEQUENCE respecting semantic phase:
-   - Early base fix? Place just after fallbackBoosts.
-   - Narrow category refinement? Place before late concentrate/tie-break steps.
+    - Early base fix? Place just after fallbackBoosts.
+    - Narrow category refinement? Place before late concentrate/tie-break steps.
 3. Guard triggers with both positive AND negative conditions (avoid drift).
 4. Add regression tests for both the corrected case and an adjacent near miss.
 5. Run all tests (scripts/indexer/test-all.js) and ensure zero unexpected category shifts.
@@ -322,8 +344,8 @@ Gap: No unified single source test aggregator referencing one canonical array of
 - Snapshot hashing of classification outputs to detect silent drift.
 - Externalize heuristic weights (JSON or env-config) to adapt without code changes.
 - Additional tests for:
-  - "live resin tincture + distillate" hybrid names.
-  - Negative test ensuring "terp sauce" never becomes Edibles even with candy adjectives present.
+    - "live resin tincture + distillate" hybrid names.
+    - Negative test ensuring "terp sauce" never becomes Edibles even with candy adjectives present.
 
 ## Implementation Pointers
 - Always search for existing token handling before adding new regex (grep across rules and taxonomy) to avoid duplication.

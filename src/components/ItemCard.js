@@ -144,7 +144,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
           break;
         }
       }
-    }, { threshold: 0, rootMargin: '0px 0px -20% 0px' });
+    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
     observer.observe(el);
     // Fallback: after 1500ms, force enter if still visible (guards against missed intersection edge cases)
     fallbackRef.current = setTimeout(() => {

@@ -5,7 +5,7 @@
 function ediblesFalsePositiveDemotionRule(ctx) {
   const { text, scores } = ctx;
   if (!scores.Edibles) return;
-  const trueEdibleForms = /(gummy|gummies|choco|chocolate|brownie|capsule|capsules|cannabutter|canna butter|coconut oil|cannabis oil|cereal bar|nerd rope|rope|ropes|bar\b|bars\b|wonky bar|infused|delight)/;
+  const trueEdibleForms = /(gummy|gummies|choco|chocolate|brownie|capsule|capsules|tablet|tablets|cannabutter|canna butter|coconut oil|cannabis oil|cereal bar|nerd rope|rope|ropes|bar\b|bars\b|wonky bar|infused|delight)/;
   const genericSweet = /(sweet|candy)/;
   const strongFlowerContext = /(\bstrain\b|\bstrains\b|\bhybrid\b|indica|sativa|\bcali\b|exotic|exotics|\bflower\b|bud|buds)/;
   if (!trueEdibleForms.test(text) && genericSweet.test(text) && strongFlowerContext.test(text)) {

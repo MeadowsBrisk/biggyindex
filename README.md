@@ -1,6 +1,9 @@
 # LittleBiggy Items Index — Indexer, Crawler, and UI
 
-An independent, lightweight index of public listings on LittleBiggy, with improved search, categorization, and browsing experience. The index does not sell anything. It surfaces public data and links back to the original seller pages.
+[Biggy Index](https://lbindex.vip)
+
+An independent, lightweight index of public listings on LittleBiggy, with search, categorization, and an improved UI. The index does not sell anything. It surfaces public data and links back to the original seller pages.
+
 
 ## What’s in this repository
 - Indexer (Node/serverless): Fetches public listings, normalizes fields, categorizes items, and writes static JSON artifacts under `public/`.
@@ -18,10 +21,11 @@ An independent, lightweight index of public listings on LittleBiggy, with improv
     - Supports filesystem or Netlify blobs.
 
 2) Crawler (enrichment) → `scripts/item-crawler/*`
-	- Adds per‑item details when available: share/referral link, shipping options and summary range, description, and a reviews snapshot.
+	- Adds per‑item details when available: shipping options and summary range, description, and a reviews snapshot.
+    - Calls review API a few times per day to keep reviews fresh. Only does a full scan when an item is new or detected as updated by the indexer.
 	- Writes:
 	  - `public/item-crawler/items/<refNum>.json` (one file per item)
-	  - `public/item-crawler/index-supplement.js` (aggregated share + shipping range map)
+	  - `public/item-crawler/index-supplement.js` (aggregated share + shipping range map, fed back into the indexer so the main index can show shipping min/max)
 	- When running in Netlify Functions, persistence can use Netlify Blobs; locally it falls back to filesystem.
 
 3) UI → `src/pages/*`
@@ -93,4 +97,3 @@ Environment variables:
 - `VOTE_HASH_SALT` (set a secure random string in production)
 - `VOTE_IP_MAX` (reserved for future rate limiting)
 
-For more, see `docs/endorsements_plan.md`.

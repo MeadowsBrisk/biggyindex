@@ -15,11 +15,12 @@ function distillateBulkRefinementRule(ctx) {
 
   // --- Oral wellness / tincture ingestion override (run regardless of distillate presence) ---
   // Trigger when oral application disclaimers + MCT oil + cannabinoid/distillate tokens present
-  const oralContext = /(for oral application|for oral applications|oral application|oral only|for oral use|oral use only|do not smoke|do not vape|sublingual|under the tongue|drops per|approx\s+\d+\s+drops)/;
-  const mctOil = /mct\s+oil|\bmct\b/;
-  const cannabinoidTokens = /(distillate|distilate|cbd|thc|cbg|cbn)/; // broaden so CBD-only wellness oils still qualify
+  const oralContext = /(for oral application|for oral applications|oral application|oral only|for oral use|oral use only|do not smoke|do not vape|sublingual|under the tongue|drops per|approx\s+\d+\s+drops|ingest|ingestion)/;
+  const mctOil = /mct\s+oil|\bmct\b|coconut\s+oil|extra\s+virgin\s+coconut\s+oil/;
+  const cannabinoidTokens = /(distillate|distilate|cbd|thc|cbg|cbn|full\s*spectrum)/; // broaden so CBD-only wellness oils still qualify
+  const edibleOilAdjuncts = /(lecithin|sunflower lecithin)/;
   const hasOralTinctureSignals = (oralContext.test(text) || /for oral/.test(text)) && mctOil.test(text) && cannabinoidTokens.test(text);
-  if (hasOralTinctureSignals) {
+  if (hasOralTinctureSignals || (mctOil.test(text) && edibleOilAdjuncts.test(text) && /(shatter|rosin|rso)/.test(text))) {
     // Strongly boost Tincture
     scores.Tincture = (scores.Tincture || 0) + 10; // ensure dominance over Vapes/Concentrates base
     // Hard demote Vapes if present and there is no real hardware token (just disclaimers)
@@ -27,12 +28,17 @@ function distillateBulkRefinementRule(ctx) {
     const disclaimerOnlyVape = /(do not smoke|do not vape|not for vaping|not for smoking)/.test(text) && !hardwareTokens.test(text);
     if (scores.Vapes && disclaimerOnlyVape) { scores.Vapes -= 999; if (scores.Vapes <= 0) delete scores.Vapes; }
     // Demote Concentrates unless strong dab-only context (avoid harming true dab tincture hybrids)
-    const strongConcDistinct = /(wax|shatter|crumble|badder|batter|rosin|rso|diamonds|thca|thc-a|piatella|cold cure|slab|extract)/.test(text);
+  const strongConcDistinct = /(wax|shatter|crumble|badder|batter|rosin|rso|diamonds|thca|thc-a|piatella|cold cure|slab|extract)/.test(text);
     const dabOnly = /(dab|dabbing)/.test(text) && !hardwareTokens.test(text);
     if (scores.Concentrates && !dabOnly) {
       const demoteAmt = strongConcDistinct ? 6 : 5;
       scores.Concentrates -= demoteAmt;
       if (scores.Concentrates <= 0) delete scores.Concentrates;
+    }
+    // Demote Edibles in oral tincture context (e.g., 'drops per bottle' can falsely add Candy/Drops)
+    if (scores.Edibles) {
+      scores.Edibles -= 9;
+      if (scores.Edibles <= 0) delete scores.Edibles;
     }
     // Guarantee Tincture strictly exceeds any surviving Concentrates / Vapes
     if (scores.Concentrates && scores.Tincture <= scores.Concentrates) {
@@ -41,10 +47,13 @@ function distillateBulkRefinementRule(ctx) {
     if (scores.Vapes && scores.Tincture <= scores.Vapes) {
       scores.Tincture = scores.Vapes + 2;
     }
+    if (scores.Edibles && scores.Tincture <= scores.Edibles) {
+      scores.Tincture = scores.Edibles + 2;
+    }
   }
 
   // --- Bulk distillate vs vape hardware refinement (requires distillate / d9 tokens) ---
-  const distTok = /(distillate|distilate|delta 9|delta-9|delta9|d9)/;
+  const distTok = /(distillate|distilate|delta 9|delta-9|delta9|d9|crystalline|thca|thc-a)/;
   if (!distTok.test(text)) return; // fast exit for non-distillate listings (oral wellness already handled above)
 
   // NEW: Purity / quality disclaimers often indicate ingredient bulk distillate (not hardware) even without size metrics
@@ -64,7 +73,7 @@ function distillateBulkRefinementRule(ctx) {
   const mlPattern = /\b\d{1,4}(?:\.\d+)?\s?(?:ml|mL)\b/;
   const litrePattern = /\b\d(?:\.\d+)?\s?(?:l|litre|liter)\b/; // restrict to 1-9L to reduce false positives
   const mlRange = /\b\d{1,3}\s?ml\s?-\s?\d{1,3}\s?ml\b/;
-  const syringe = /syringe|syringes/;
+  const syringe = /syringe|syringes|applicator|applicators/;
   const bulkWords = /\b(bulk|jar|jars)\b/;
   const fillPhrases = /(fill (straight )?into|fill your (own )?vapes?|refill|top up)/;
 
@@ -74,6 +83,12 @@ function distillateBulkRefinementRule(ctx) {
     const ingredientContext = (!hardwareTokens.test(text)) || syringe.test(text) || fillPhrases.test(text) || largeBulk;
     if (ingredientContext) {
       scores.Concentrates = (scores.Concentrates || 0) + (largeBulk ? 7 : 5);
+      // Mark Distillates subtype when applicable
+      if (/(distillate|distilate|delta 9|delta-9|delta9|d9)/.test(text)) {
+        (subsByCat.Concentrates ||= new Set()).add('Distillates');
+      }
+      // Demote Edibles if present (bulk ingredient listings are not ready-to-eat edibles)
+      if (scores.Edibles) { scores.Edibles -= 6; if (scores.Edibles <= 0) delete scores.Edibles; }
       const hardwareOnlySale = hardwareTokens.test(text) && !syringe.test(text) && !fillPhrases.test(text) && !largeBulk;
       if (scores.Vapes && !hardwareOnlySale) {
         scores.Vapes -= largeBulk ? 999 : 4; // large bulk: obliterate vape classification (generic vape mention only)

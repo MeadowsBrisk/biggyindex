@@ -13,9 +13,12 @@ function psychedelicOverridesRule(ctx) {
   const edibleFormRegex = /(chocolate|choc|gummy|gummies|capsule|capsules|caps\b|bar\b|bars\b|brownie|cacao|cocoa)/;
   const growRegex = /(grow kit|grow kits|grow your own|heat mat|heat mats|flow unit|flow units|spawn|substrate)/;
   const microdoseRegex = /(micro ?dose|microdose|microdoses|microdosing|micro-dosing|micro-doses)/;
+  // LSD/paper override cues – push Psychedelics over Edibles even when edible words appear
+  const lsdCues = /(\blsd\b|\bacid\b|\bblotter\b|\btab\b|\bpaper\b|\blucy\b|albert\s+h[oa]f+mann?)/;
 
   const hasMushroom = mushroomRegex.test(text);
   const hasEdibleForm = edibleFormRegex.test(text);
+  const hasLsd = lsdCues.test(text);
 
   if (hasMushroom) {
     (subsByCat.Psychedelics ||= new Set()).add('Mushrooms');
@@ -60,6 +63,13 @@ function psychedelicOverridesRule(ctx) {
       scores.Psychedelics = (scores.Psychedelics || 0) + 6;
       if (scores.Edibles) { scores.Edibles -= 6; if (scores.Edibles <= 0) delete scores.Edibles; }
     }
+  }
+
+  // NEW: LSD cues including 'lucy' or Hofmann + edible form words: force Paper psychedelics, demote Edibles
+  if (hasLsd) {
+    (subsByCat.Psychedelics ||= new Set()).add('Paper');
+    scores.Psychedelics = (scores.Psychedelics || 0) + (hasEdibleForm ? 10 : 6);
+    if (scores.Edibles && hasEdibleForm) { scores.Edibles -= 9; if (scores.Edibles <= 0) delete scores.Edibles; }
   }
 }
 

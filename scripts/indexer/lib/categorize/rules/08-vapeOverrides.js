@@ -13,8 +13,8 @@ function vapeOverridesRule(ctx) {
   const vapeDeliveryRegex = /(\b(vape|vapes|cart|carts|cartridge|cartridges|disposable|disposables|ccell|kera|vision box|510\s*thread|510\b|preheat|voltage|extract vape cart|vape cart|pen|pens|pod|pods|device)\b)/;
   if (vapeDeliveryRegex.test(sanitized)) {
     scores.Vapes = (scores.Vapes || 0) + 6;
-    const hasCartToken = /(cart|carts|cartridge|cartridges|510)/.test(sanitized);
-    const hasResinOrDist = /(live resin|distillate|distilate|delta 9|delta-9|delta9|d9)/.test(sanitized);
+  const hasCartToken = /(cart|carts|cartridge|cartridges|510)/.test(sanitized);
+  const hasResinOrDist = /(live resin|distillate|distilate|delta 9|delta-9|delta9|d9|htfse|liquid\s+diamonds?)/.test(sanitized);
     if (hasCartToken && hasResinOrDist) {
       scores.Vapes += 4;
       if (scores.Flower) { scores.Flower -= 2; if (scores.Flower <= 0) delete scores.Flower; }
@@ -28,7 +28,7 @@ function vapeOverridesRule(ctx) {
     const disposableLike = /disposable|disposables/.test(sanitized);
     if (cartLike) (subsByCat.Vapes ||= new Set()).add('Cartridge');
     if (disposableLike) (subsByCat.Vapes ||= new Set()).add('Disposable');
-    if (/live resin/.test(sanitized)) (subsByCat.Vapes ||= new Set()).add('LiveResin');
+  if (/live resin|htfse/.test(sanitized)) (subsByCat.Vapes ||= new Set()).add('LiveResin');
     if (/distillate|distilate|delta 9|delta-9|delta9|d9/.test(sanitized)) (subsByCat.Vapes ||= new Set()).add('Distillate');
 
     // Potency mg pattern & multiple vape tokens -> stronger vape dominance
@@ -45,6 +45,14 @@ function vapeOverridesRule(ctx) {
         if (scores.Flower) { scores.Flower -= 4; if (scores.Flower <= 0) delete scores.Flower; }
       }
     }
+  }
+  // Fallback: HTFSE or Liquid Diamonds context alone often implies vape content
+  if (/(htfse|liquid\s+diamonds?)/.test(text)) {
+    const smallMl = /\b(0\.5|1|2|2\.0|2\.2|2\.5|3)\s?ml\b|\bml\b/.test(text);
+    scores.Vapes = (scores.Vapes || 0) + (smallMl ? 9 : 7);
+    (subsByCat.Vapes ||= new Set()).add('LiveResin');
+    if (scores.Flower) { scores.Flower -= (smallMl ? 7 : 5); if (scores.Flower <= 0) delete scores.Flower; }
+    if (scores.Concentrates) { scores.Concentrates -= (smallMl ? 6 : 3); if (scores.Concentrates <= 0) delete scores.Concentrates; }
   }
   // Special cryo cured diamonds -> treat as Vapes (legacy user directive)
   if (/cryo\s+cured\s+diamonds/.test(text)) {
