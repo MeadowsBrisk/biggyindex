@@ -1,5 +1,5 @@
 {
-  "name": "little",
+  "name": "biggyindex",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,10 +13,7 @@
     "baseline:update": "node scripts/indexer/create-baseline.js --update",
     "test:index": "node scripts/indexer/test-all.js",
     "gifs": "node scripts/gif-processor/process-gifs.js",
-    "crawl:items": "node scripts/item-crawler/crawl-items.js",
-  "test:shipping": "node scripts/item-crawler/tests/shippingParse.test.js",
-    "migrate:public-to-blobs": "node scripts/item-crawler/migrate-public-to-blobs.js",
-    "blobs:put-dummy": "node scripts/tools/put-dummy-blob.js"
+    "crawl:items": "node scripts/item-crawler/crawl-items.js"
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.10",

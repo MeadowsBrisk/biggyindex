@@ -29,7 +29,8 @@ function antibioticLineageRule(ctx) {
     if (scores.Edibles) { scores.Edibles -= 8; if (scores.Edibles <= 0) delete scores.Edibles; }
   }
   // Erectile dysfunction and related medications -> Other; demote Edibles hard
-  if (/(tadalafil|sildenafil|vardenafil|avanafil|dapoxetine|levitra|cialis|viagra|erectile\s+dysfunction|ed\b)/.test(text)) {
+  // NOTE: Do NOT match bare 'ed' as it collides with common words ending in 'ed' (e.g., 'reduced', 'red').
+  if (/(tadalafil|sildenafil|vardenafil|avanafil|dapoxetine|levitra|cialis|viagra|erectile\s+dysfunction)/.test(text)) {
     scores.Other = (scores.Other || 0) + 10;
     if (scores.Edibles) { scores.Edibles -= 10; if (scores.Edibles <= 0) delete scores.Edibles; }
     if (scores.Flower) { scores.Flower -= 4; if (scores.Flower <= 0) delete scores.Flower; }
