@@ -4,7 +4,7 @@
 
 function ediblesFalsePositiveDemotionRule(ctx) {
   const { text, scores, subsByCat } = ctx;
-  const trueEdibleForms = /(gummy|gummies|gummie|gummies? bears?|mints?|mint|choco|chocolate|brownie|capsule|capsules|tablet|tablets|cannabutter|canna butter|coconut oil|cannabis oil|cereal bar|nerd rope|rope|ropes|bar\b|bars\b|wonky bar|infused|delight|cone|cones|chocolate cone|chocolate cones|candy drops|drops)/;
+  const trueEdibleForms = /(gummy|gummies|gummie|gummies? bears?|mints?|mint|chew|chews|choco|chocolate|brownie|capsule|capsules|tablet|tablets|cannabutter|canna butter|coconut oil|cannabis oil|cereal bar|nerd rope|rope|ropes|bar\b|bars\b|wonky bar|infused|delight|cone|cones|chocolate cone|chocolate cones|candy drops|drops)/;
   const genericSweet = /(sweet|candy)/;
   const strongFlowerContext = /(\bstrain\b|\bstrains\b|\bhybrid\b|indica|sativa|\bcali\b|exotic|exotics|\bflower\b|bud|buds)/;
   const addonOnly = /(add-?on|add on)\s+\d{2,4}\s?mg\s+edibles?/.test(text);
@@ -36,8 +36,12 @@ function ediblesFalsePositiveDemotionRule(ctx) {
       if (subsByCat.Flower.size === 0) delete subsByCat.Flower;
     }
   }
-  // Cannabis-infused mints -> Edibles, not Other/Hash
-  const mintsEdible = /(mint|mints)\b/.test(text) && /(cannabis|cannabis[- ]?infused|thc\b|petra)/.test(text);
+  // Cannabis-infused mints -> Edibles, not Other/Hash (avoid strain 'Kush Mints' false positives)
+  const hasMints = /\bmints?\b/.test(text);
+  const isKushMints = /\bkush\s+mints?\b/.test(text);
+  const petraOrInfused = /(petra|cannabis[- ]?infused)/.test(text);
+  const thcWithMg = /\bthc\b/.test(text) && /\b\d{2,4}\s?mg\b/.test(text);
+  const mintsEdible = hasMints && !isKushMints && (petraOrInfused || thcWithMg);
   if (mintsEdible) {
     scores.Edibles = (scores.Edibles || 0) + 12;
     if (scores.Flower) { scores.Flower -= 8; if (scores.Flower <= 0) delete scores.Flower; }

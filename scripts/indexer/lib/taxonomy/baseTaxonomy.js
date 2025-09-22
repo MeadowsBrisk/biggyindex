@@ -5,17 +5,17 @@ const TAXONOMY = {
   Tips: { keywords: ["tip jar", "tip", "tips"], children: {} },
   Flower: {
     keywords: [
-      "flower", "bud", "buds", "budds", "nug", "nuggs", "nugs", "haze", "hybrid", "tops", "rs11", "budget", "mids", "shake", "trim", "popcorn", "zkittlez", "zkittles", "diesel", "marijuana", "strain", "strains", "indica", "sativa", "exotic", "exotics", "cali", "cookies", "runtz", "sherb", "sherbert", "sherbet", "cake", "blueberry", "cheese", "trainwreck", "wedding", "mochi", "gumball", "limoncello", "indoor", "outdoor", "greenhouse",
+      "flower", "bud", "buds", "budds", "nug", "nuggs", "nugs", "haze", "hybrid", "tops", "rs11", "budget", "mids", "shake", "trim", "popcorn", "zkittlez", "zkittles", "diesel", "marijuana", "strain", "strains", "indica", "sativa", "exotic", "exotics", "cali", "puffport", "cookies", "runtz", "sherb", "sherbert", "sherbet", "cake", "blueberry", "cheese", "trainwreck", "wedding", "mochi", "gumball", "limoncello", "indoor", "outdoor", "greenhouse",
       // Added common strain family variants
       "dawg", "stardawg", "chemdawg", "gelato", "gelatti",
   // Reported strain names
-  "strawberry banana", "brian berry cough", "do si dos", "dosidos", "dosi dos", "zoap"
+  "strawberry banana", "brian berry cough", "do si dos", "dosidos", "dosi dos", "zoap", "skittles", "mac 1",
     ],
     children: {
       Haze: ["haze"],
       Kush: ["kush"],
       rs11: ["rs11"],
-      Zkittlez: ["zkittlez", "zkittles"],
+      Zkittlez: ["zkittlez", "zkittles", "skittles"],
       OG: [" og ", "og "],
       Diesel: ["diesel"],
       Shake: ["shake", "trim", "popcorn"],
@@ -26,7 +26,7 @@ const TAXONOMY = {
       ],
       // New: Dispensary-style imports (packs/jars/brands)
       Imported: [
-        "dispensary jar", "dispensary jars", "dispensary pack", "dispensary packs",
+        "dispensary jar", "dispensary jars", "dispensary pack", "dispensary packs", "3.5g pack",
         "jungle boys", "alien labs", "wizard trees", "doja", "connected", "the ten co", "don merfos", "cali", "california",
         "imported directly", "directly imported", "imported loose"
       ],
@@ -104,7 +104,7 @@ const TAXONOMY = {
   },
   Edibles: {
     keywords: [
-      "edible", "edibles", "wonky bar", "brownie", "capsule", "capsules", "tablet", "tablets", "gummy", "gummies", "chocolate", "chocolates", "wonka", "cubes", "chunks", "sugar-coated", "sugar coated", "cluster", "nerd rope", "nerd ropes", "cereal bar", "coconut oil", "cannabutter", "canna butter", "canna chocolate", "milk", "belgian", "coconut oil capsules", "angel delight", "rolos", "rolo", "candy", "sweets", "drops", "candy drops", "pineapple chunks", "pineapple", "cola cubes", "cola", "bears", "bear", "gummy bear", "gummy bears", "happy bears", "nerd", "infused", "vegan", "vegan-friendly", "caps", "capsules", "canna coconut oil", "cannabis oil", "cannabis-infused", "cannabis infused", "nutella", "cannabis nutella", "canna nutella", "honey", "canna honey", "cannabis honey"
+  "edible", "edibles", "wonky bar", "brownie", "capsule", "capsules", "tablet", "tablets", "gummy", "gummies", "chocolate", "chocolates", "wonka", "cubes", "chunks", "sugar-coated", "sugar coated", "cluster", "nerd rope", "nerd ropes", "cereal bar", "coconut oil", "cannabutter", "canna butter", "canna chocolate", "milk", "belgian", "coconut oil capsules", "angel delight", "rolos", "rolo", "candy", "sweets", "drops", "candy drops", "pineapple chunks", "pineapple", "cola cubes", "cola", "bears", "bear", "gummy bear", "gummy bears", "happy bears", "nerd", "infused", "vegan", "vegan-friendly", "caps", "capsules", "canna coconut oil", "cannabis oil", "cannabis-infused", "cannabis infused", "nutella", "cannabis nutella", "canna nutella", "honey", "canna honey", "cannabis honey", "chew", "chews", "cheeba chews"
     ],
     children: {
       Chocolate: ["chocolate", "chocolates", "wonky bar", "canna chocolate", "belgian", "milk"],
@@ -120,7 +120,7 @@ const TAXONOMY = {
   },
   Psychedelics: {
     keywords: [
-      "lsd", "acid", "blotter", "tab", "dmt", "ayahuasca", "changa", "paper", "spirit", "magic", "micro-doses", "micro dose", "microdose", "microdoses", "microdosing", "420 this week", "the deep dive", "spirit vape", "Leisure Time", "The Deep Dive", "Laser Focus", "True Mic",  "lucy", "diamonds", "cubensis", "penis envy", "golden teacher", "treasure coast", "albino", "grow kit", "grow kits", "grow your own"
+      "lsd", "acid", "blotter", "tab", "dmt", "ayahuasca", "changa", "paper", "spirit", "micro-doses", "micro dose", "microdose", "microdoses", "microdosing", "420 this week", "the deep dive", "spirit vape", "Leisure Time", "The Deep Dive", "Laser Focus", "True Mic",  "lucy", "diamonds", "cubensis", "penis envy", "golden teacher", "treasure coast", "albino", "grow kit", "grow kits", "grow your own"
     ],
     children: {
       Spirit: ["dmt", "ayahuasca", "420 this week", "spirit vape"],
