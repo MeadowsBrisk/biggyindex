@@ -209,6 +209,13 @@ async function upsertSellerImages(outputDir, delta){
         if (fs.existsSync(file)) current = JSON.parse(fs.readFileSync(file, 'utf8')) || {};
       } catch { current = {}; }
     }
+    // Determine if delta actually changes anything
+    let changed = false;
+    for (const [k, v] of Object.entries(delta)) {
+      if (typeof v !== 'string' || !v) continue; // ignore empty
+      if (!current || current[k] !== v) { changed = true; break; }
+    }
+    if (!changed) return false; // no-op
     const merged = { ...(current||{}), ...(delta||{}) };
     writeSellerImages(outputDir, merged);
     return true;

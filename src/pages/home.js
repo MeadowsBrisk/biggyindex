@@ -166,7 +166,7 @@ export async function getStaticProps() {
       sellersLeaderboard: sellersLeaderboardRaw ?? null,
       sellersIndex: sellers ?? null,
     },
-    revalidate: 86400,
+    revalidate: 900,
   };
 }
 

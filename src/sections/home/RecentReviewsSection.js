@@ -210,15 +210,6 @@ export default function RecentReviewsSection({ reviews }) {
           <p className="mt-4 text-base text-slate-600 dark:text-white/70">
             Straight from LittleBiggy shoppers — scroll the latest ratings, delivery speeds, and buyer notes pulled from the combined feed.
           </p>
-          <div className="mt-6 flex justify-center">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-950 shadow shadow-emerald-500/30 transition hover:-translate-y-0.5 hover:bg-emerald-400"
-            >
-              Browse items
-              <span aria-hidden>→</span>
-            </Link>
-          </div>
         </motion.div>
 
         <motion.div
