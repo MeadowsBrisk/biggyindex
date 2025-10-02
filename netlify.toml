@@ -81,6 +81,7 @@
   CRAWLER_BLOBS_PREFIX = "seller-crawler/"
   CRAWLER_BLOBS_AUTH = "explicit"
   SELLER_CRAWLER_MAX_PARALLEL = "5"
+  SELLER_CRAWLER_REVIEW_REFRESH_HOURS = "4"
   included_files = [
     "scripts/seller-crawler/crawl-sellers.js",
     "scripts/seller-crawler/aggregation/**",
@@ -95,7 +96,8 @@
     "scripts/item-crawler/persistence/cookieStore.js",
     "scripts/item-crawler/persistence/stateStore.js",
     "scripts/item-crawler/util/logger.js",
-    "scripts/item-crawler/util/delay.js"
+    "scripts/item-crawler/util/delay.js",
+    "node_modules/p-queue/**"
   ]
 
 [functions."crawler-control"]

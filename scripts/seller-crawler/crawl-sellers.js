@@ -575,8 +575,8 @@ async function main() {
   if (!env.dryRun) {
     // Skip aggregate writes for targeted scans (--ids) since they require full data
     const isTargetedScan = !!argv.ids;
-    
-    if (!isTargetedScan) {
+    const nothingProcessed = processedSellers.size === 0;
+    if (!isTargetedScan && !nothingProcessed) {
       try {
         // Process recent reviews and media aggregates
         const { trimmedReviews, trimmedMedia } = await processRecentAggregates({
@@ -629,8 +629,10 @@ async function main() {
       } catch (e) {
         log.warn(`[recent] aggregate writes failed: ${e.message}`);
       }
-    } else {
+    } else if (isTargetedScan) {
       log.info('[aggregates] Skipping aggregate writes for targeted scan (--ids)');
+    } else if (nothingProcessed) {
+      log.info('[aggregates] Skipping aggregate writes: nothing processed this run');
     }
     try { await saveStateAsync({ outputDir: env.outputDir, state, persistence }); } catch {}
     try { writeShareLinks(env.outputDir, shareLinks); } catch {}

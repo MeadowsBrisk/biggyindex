@@ -59,11 +59,37 @@ function writeRecentReviews(outputDir, list){
   try {
     const payload = Array.isArray(list) ? list : [];
     if (persistence && persistence.mode === 'blobs') {
-      persistence.writeJson('recent-reviews.json', payload);
+      (async () => {
+        try {
+          if (!payload.length) {
+            // Don't clobber existing non-empty recent list with empty
+            const existing = await persistence.readJson('recent-reviews.json');
+            if (Array.isArray(existing) && existing.length > 0) {
+              try { log.info('[recent] skip write: empty recent-reviews would overwrite non-empty existing'); } catch {}
+              return;
+            }
+          }
+          await persistence.writeJson('recent-reviews.json', payload);
+        } catch (e) {
+          try { await persistence.writeJson('recent-reviews.json', payload); } catch {}
+        }
+      })();
       return;
     }
     ensureDir(outputDir);
-    fs.writeFileSync(path.join(outputDir,'recent-reviews.json'), JSON.stringify(payload,null,2),'utf8');
+    try {
+      const file = path.join(outputDir,'recent-reviews.json');
+      if (!payload.length && fs.existsSync(file)) {
+        try {
+          const existing = JSON.parse(fs.readFileSync(file,'utf8'));
+          if (Array.isArray(existing) && existing.length > 0) {
+            try { log.info('[recent] skip write: empty recent-reviews would overwrite non-empty existing (fs)'); } catch {}
+            return;
+          }
+        } catch {}
+      }
+      fs.writeFileSync(file, JSON.stringify(payload,null,2),'utf8');
+    } catch (e) { throw e; }
   } catch (e) { log.warn(`writeRecentReviews failed ${e.message}`); }
 }
 
@@ -71,11 +97,36 @@ function writeRecentMedia(outputDir, list){
   try {
     const payload = Array.isArray(list) ? list : [];
     if (persistence && persistence.mode === 'blobs') {
-      persistence.writeJson('recent-media.json', payload);
+      (async () => {
+        try {
+          if (!payload.length) {
+            const existing = await persistence.readJson('recent-media.json');
+            if (Array.isArray(existing) && existing.length > 0) {
+              try { log.info('[recent] skip write: empty recent-media would overwrite non-empty existing'); } catch {}
+              return;
+            }
+          }
+          await persistence.writeJson('recent-media.json', payload);
+        } catch (e) {
+          try { await persistence.writeJson('recent-media.json', payload); } catch {}
+        }
+      })();
       return;
     }
     ensureDir(outputDir);
-    fs.writeFileSync(path.join(outputDir,'recent-media.json'), JSON.stringify(payload,null,2),'utf8');
+    try {
+      const file = path.join(outputDir,'recent-media.json');
+      if (!payload.length && fs.existsSync(file)) {
+        try {
+          const existing = JSON.parse(fs.readFileSync(file,'utf8'));
+          if (Array.isArray(existing) && existing.length > 0) {
+            try { log.info('[recent] skip write: empty recent-media would overwrite non-empty existing (fs)'); } catch {}
+            return;
+          }
+        } catch {}
+      }
+      fs.writeFileSync(file, JSON.stringify(payload,null,2),'utf8');
+    } catch (e) { throw e; }
   } catch (e) { log.warn(`writeRecentMedia failed ${e.message}`); }
 }
 
