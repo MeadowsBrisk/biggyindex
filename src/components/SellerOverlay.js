@@ -327,6 +327,7 @@ export default function SellerOverlay() {
               <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 custom-scroll">
                 <ReviewsList
                   reviews={reviews}
+                  max={reviews.length}
                   fullTimeAgo={(ts) => (ts ? timeAgo(ts) : '')}
                   loading={loading}
                   error={error}

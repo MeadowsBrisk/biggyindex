@@ -68,7 +68,7 @@ export async function getStaticProps() {
   // Build recent items from compact aggregate only
   const recentItems = {
     added: (recentItemsCompact?.added || [])
-      .map((it) => mapItemForCard(it, it.metaLabel || "Seen", it.createdAt || null))
+      .map((it) => mapItemForCard(it, it.metaLabel || "Added", it.createdAt || null))
       .slice(0, RECENT_ITEMS_LIMIT),
     updated: (recentItemsCompact?.updated || [])
       .map((it) => mapItemForCard(it, it.metaLabel || "Updated", it.createdAt || null))

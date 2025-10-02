@@ -18,7 +18,7 @@ function buildRecentItemsCompact(processedItems, limit = 25) {
     .filter((it) => it && (it.firstSeenAt || it.lastUpdatedAt) && it.name)
     .sort((a, b) => (Date.parse(b.firstSeenAt || b.lastUpdatedAt || 0) || 0) - (Date.parse(a.firstSeenAt || a.lastUpdatedAt || 0) || 0))
     .slice(0, RECENT_LIMIT)
-    .map((it) => mapForRecent(it, 'Seen', it.firstSeenAt ?? it.lastUpdatedAt ?? null));
+    .map((it) => mapForRecent(it, 'Added', it.firstSeenAt ?? it.lastUpdatedAt ?? null));
   const recentlyUpdated = [...processedItems]
     .filter((it) => it && it.lastUpdatedAt && it.name && (!it.firstSeenAt || it.lastUpdatedAt !== it.firstSeenAt))
     .sort((a, b) => (Date.parse(b.lastUpdatedAt || 0) || 0) - (Date.parse(a.lastUpdatedAt || 0) || 0))

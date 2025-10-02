@@ -222,7 +222,7 @@ export default function RecentItemsSection({ items }) {
                               <div className="min-w-0">
                                 <div className="truncate font-semibold text-slate-700 dark:text-white/80">{item.sellerName}</div>
                                 <div className="text-[10px] text-slate-500 dark:text-white/60">
-                                  {(item.metaLabel || "Seen")} {" "}
+                                  {(item.metaLabel || "Added")} {" "}
                                   <span suppressHydrationWarning>{mounted && item.createdAt ? timeAgo(item.createdAt) : ""}</span>
                                 </div>
                               </div>
