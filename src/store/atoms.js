@@ -66,6 +66,7 @@ export const selectedSubcategoriesAtom = atom([]); // array of strings
 export const selectedShipFromAtom = atomWithStorage("shipFrom", []); // array of codes
 // Free shipping only toggle (persisted). When enabled we include ONLY items explicitly detected as free (cost 0) and exclude unknown/paid.
 export const freeShippingOnlyAtom = atomWithStorage("freeShippingOnly", false);
+export const shipFromPinnedAtom = atomWithStorage("filterPinnedShipFrom", false);
 
 const _categoryAtom = atom("All");
 export const categoryAtom = atom(
@@ -75,8 +76,10 @@ export const categoryAtom = atom(
     // reset selected subcategories when category changes
     set(selectedSubcategoriesAtom, []);
     // reset price range to full bounds on category change (use null sentinels)
-    set(priceRangeAtom, { min: null, max: null });
-    set(priceRangeUserSetAtom, false); // auto reset user-set flag
+    if (!get(priceFilterPinnedAtom)) {
+      set(priceRangeAtom, { min: null, max: null });
+      set(priceRangeUserSetAtom, false); // auto reset user-set flag
+    }
   }
 );
 
@@ -89,6 +92,8 @@ export const searchQueryAtom = atom("");
 // Excluded sellers by name (case-insensitive compare in filter)
 export const excludedSellersAtom = atomWithStorage("excludedSellers", []);
 export const includedSellersAtom = atomWithStorage("includedSellers", []);
+export const excludedSellersPinnedAtom = atomWithStorage("filterPinnedExcluded", false);
+export const includedSellersPinnedAtom = atomWithStorage("filterPinnedIncluded", false);
 
 // Manifest data (categories and price bounds) loaded at runtime
 export const manifestAtom = atom({ totalItems: 0, minPrice: null, maxPrice: null, categories: {} });
@@ -97,6 +102,7 @@ export const manifestAtom = atom({ totalItems: 0, minPrice: null, maxPrice: null
 export const priceRangeAtom = atom({ min: 0, max: Infinity });
 // New atom tracking whether user explicitly adjusted price range (vs automatic category clamp)
 export const priceRangeUserSetAtom = atom(false);
+export const priceFilterPinnedAtom = atomWithStorage("filterPinnedPrice", false);
 
 // Normalized price range (clamped to current bounds; fallback to bounds on invalid persisted values)
 export const normalizedPriceRangeAtom = atom((get) => {
@@ -293,6 +299,24 @@ export const displayCurrencyAtom = atomWithStorage("displayCurrency", "GBP");
 export const expandedRefNumAtom = atom(null); // string | null
 // Legacy alias (will deprecate) for any early code referencing id-based expansion
 export const expandedItemIdAtom = expandedRefNumAtom;
+// Seller overlay (numeric id)
+export const expandedSellerIdAtom = atom(null);
+// Overlay z-index coordination: track stacking history
+export const topOverlayAtom = atom([]);
+export const pushOverlayAtom = atom(null, (get, set, layer) => {
+  const stack = [...(get(topOverlayAtom) || [])];
+  const next = stack.filter((item) => item !== layer);
+  next.push(layer);
+  set(topOverlayAtom, next);
+});
+export const popOverlayAtom = atom(null, (get, set, layer) => {
+  const stack = [...(get(topOverlayAtom) || [])].filter((item) => item !== layer);
+  set(topOverlayAtom, stack);
+});
+export const topOverlayTopAtom = atom((get) => {
+  const stack = get(topOverlayAtom);
+  return stack.length ? stack[stack.length - 1] : 'none';
+});
 
 // Sorting
 export const sortKeyAtom = atomWithStorage("sortKey", "hotness"); // hotness | firstSeen | name | reviewsCount | reviewsRating | price | endorsements | arrival
@@ -386,6 +410,11 @@ export const activeFiltersCountAtom = atom((get) => {
   const norm = get(normalizedPriceRangeAtom);
   const userSetPrice = get(priceRangeUserSetAtom);
   const freeShipOnly = get(freeShippingOnlyAtom);
+  const selectedShips = get(selectedShipFromAtom) || [];
+  const shipPinned = !!get(shipFromPinnedAtom);
+  const pricePinned = !!get(priceFilterPinnedAtom);
+  const includePinned = !!get(includedSellersPinnedAtom);
+  const excludePinned = !!get(excludedSellersPinnedAtom);
   const minActive = userSetPrice && norm.min > norm.boundMin;
   const maxActive = userSetPrice && norm.max < norm.boundMax;
   let count = 0;
@@ -393,26 +422,34 @@ export const activeFiltersCountAtom = atom((get) => {
   if (subs.length > 0) count++;
   if (query) count++;
   if (favOnly) count++;
-  if (included.length > 0) count++;
-  if (excluded.length > 0) count++;
-  if (minActive || maxActive) count++;
-  if (freeShipOnly) count++;
+  if (included.length > 0 && !includePinned) count++;
+  if (excluded.length > 0 && !excludePinned) count++;
+  if ((minActive || maxActive) && !pricePinned) count++;
+  if ((freeShipOnly || (Array.isArray(selectedShips) && selectedShips.length > 0)) && !shipPinned) count++;
   return count;
 });
 
 export const resetFiltersAtom = atom(null, (get, set) => {
   const bounds = get(priceBoundsAtom); // capture current (may be narrow until new items load)
+  const shipPinned = get(shipFromPinnedAtom);
+  const pricePinned = get(priceFilterPinnedAtom);
+  const includePinned = get(includedSellersPinnedAtom);
+  const excludePinned = get(excludedSellersPinnedAtom);
   set(categoryAtom, 'All');
   set(selectedSubcategoriesAtom, []);
   set(searchQueryAtom, '');
-  set(includedSellersAtom, []);
-  set(excludedSellersAtom, []);
+  if (!includePinned) set(includedSellersAtom, []);
+  if (!excludePinned) set(excludedSellersAtom, []);
   set(favouritesOnlyAtom, false);
-  set(selectedShipFromAtom, []);
-  set(freeShippingOnlyAtom, false);
+  if (!shipPinned) {
+    set(selectedShipFromAtom, []);
+    set(freeShippingOnlyAtom, false);
+  }
   // Use null sentinels so UI + filters interpret as "full range" and auto-expand when global data arrives
-  set(priceRangeAtom, { min: null, max: null });
-  set(priceRangeUserSetAtom, false);
+  if (!pricePinned) {
+    set(priceRangeAtom, { min: null, max: null });
+    set(priceRangeUserSetAtom, false);
+  }
 });
 
 // Thumbnail aspect ratio
@@ -426,6 +463,7 @@ export const categoryLiveCountsAtom = atom((get) => {
   const manifest = get(manifestAtom);
   const selectedShips = get(selectedShipFromAtom);
   const freeShipOnly = get(freeShippingOnlyAtom);
+  const shipPinned = get(shipFromPinnedAtom);
   const query = (get(searchQueryAtom) || '').trim().toLowerCase();
   const favouritesOnly = get(favouritesOnlyAtom);
   const favouriteIds = favouritesOnly ? (get(favouritesAtom) || []) : [];
@@ -504,6 +542,7 @@ export const subcategoryLiveCountsAtom = atom((get) => {
   const allItemsFull = get(allItemsAtom);
   const itemsSource = Array.isArray(allItemsFull) && allItemsFull.length > 0 ? allItemsFull : get(itemsAtom);
   const selectedShips = get(selectedShipFromAtom);
+  const shipPinned = get(shipFromPinnedAtom);
   const freeShipOnly = get(freeShippingOnlyAtom);
   const query = (get(searchQueryAtom) || '').trim().toLowerCase();
   const favouritesOnly = get(favouritesOnlyAtom);

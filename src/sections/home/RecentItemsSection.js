@@ -78,7 +78,7 @@ export default function RecentItemsSection({ items }) {
   }, [activeTab, added, updated, fallbackMap]);
 
   return (
-    <section className="bg-slate-100 py-20 xl:pb-0 transition-colors duration-300 dark:bg-slate-950">
+    <section className="bg-slate-100 py-20 xl:pb-30 transition-colors duration-300 dark:bg-slate-950">
       <div className="mx-auto w-full px-4 sm:px-6 lg:px-12 xl:px-16 overflow-hidden">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

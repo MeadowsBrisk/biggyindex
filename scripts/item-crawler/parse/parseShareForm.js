@@ -11,11 +11,12 @@ function parseShareForm(html) {
       return m ? m[1] : undefined;
     };
     const contextRefNum = getVal('contextRefNum');
-    if (!contextRefNum) return null; // essential
+    const contextId = getVal('contextId'); // user (seller) id form uses contextId
+    if (!contextRefNum && !contextId) return null; // need at least one
     const _sourcePage = getVal('_sourcePage');
     const __fp = getVal('__fp');
-    const contextType = getVal('contextType') || 'ITEM';
-    return { contextRefNum, _sourcePage, __fp, contextType };
+    const contextType = getVal('contextType') || (contextId ? 'SUBJECT' : 'ITEM');
+    return { contextRefNum, contextId, _sourcePage, __fp, contextType };
   } catch { return null; }
 }
 module.exports = { parseShareForm };

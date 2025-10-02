@@ -1,16 +1,18 @@
 import { useAtom } from "jotai";
-import { priceRangeAtom, activePriceBoundsAtom, priceRangeUserSetAtom } from "@/store/atoms";
+import { priceRangeAtom, activePriceBoundsAtom, priceRangeUserSetAtom, priceFilterPinnedAtom } from "@/store/atoms";
 import cn from "@/app/cn";
 import * as Slider from "@radix-ui/react-slider";
 import { useCallback, useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { displayCurrencyAtom, exchangeRatesAtom } from '@/store/atoms';
 import { currencySymbol } from '@/lib/priceDisplay';
+import FilterPinButton from "@/components/FilterPinButton";
 
 export default function PriceRange() {
   const [activeBounds] = useAtom(activePriceBoundsAtom);
   const [range, setRange] = useAtom(priceRangeAtom);
   const [userSet, setUserSet] = useAtom(priceRangeUserSetAtom);
+  const [pinned, setPinned] = useAtom(priceFilterPinnedAtom);
   const displayCurrency = useAtomValue(displayCurrencyAtom);
   const rates = useAtomValue(exchangeRatesAtom);
   const usdRate = (rates && typeof rates['USD'] === 'number' && rates['USD'] > 0) ? rates['USD'] : null;
@@ -18,6 +20,7 @@ export default function PriceRange() {
   const activeMin = activeBounds.min ?? 0;
   const activeMax = activeBounds.max ?? 0;
   const first = useRef(true);
+  const showPin = pinned || userSet;
 
   const clamp = (val, lo, hi) => {
     if (val == null || val === '') return lo;
@@ -108,14 +111,21 @@ export default function PriceRange() {
         <span>{sym}{displayedMinView}</span>
         <span className="px-1 opacity-50">–</span>
         <span>{sym}{displayedMaxView}</span>
-        {showReset && (
-          <button
-            type="button"
-            onClick={() => commit(activeMin, activeMax, true)}
-            className="ml-auto text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
-          >Reset</button>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {showReset && (
+            <button
+              type="button"
+              onClick={() => commit(activeMin, activeMax, true)}
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+            >Reset</button>
+          )}
+        </div>
       </div>
+      {showPin && (
+        <div className="mb-2 flex justify-end absolute top-2 right-2 w-5 h-4">
+          <FilterPinButton pinned={pinned} onToggle={() => setPinned(!pinned)} label="price range" />
+        </div>
+      )}
       {singleBand ? (
         <div className="text-[11px] text-gray-500 dark:text-gray-500">Fixed price</div>
       ) : (

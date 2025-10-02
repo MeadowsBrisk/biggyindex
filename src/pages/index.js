@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { expandedRefNumAtom } from '@/store/atoms';
 import dynamic from 'next/dynamic';
 const ItemDetailOverlay = dynamic(() => import('@/components/ItemDetailOverlay'), { ssr: false });
+const SellerOverlay = dynamic(() => import('@/components/SellerOverlay'), { ssr: false });
 import SortControls from "@/components/filters/SortControls";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
 import AnimatedLogoHeader from '@/components/AnimatedLogoHeader';
@@ -30,30 +31,59 @@ export default function Home() {
   const router = useRouter();
   const setItems = useSetAtom(setItemsAtom);
   const [expandedRef, setExpandedRef] = useAtom(expandedRefNumAtom);
+  const [isRouting, setIsRouting] = React.useState(false);
+  const refHydrated = React.useRef(false);
+
+  React.useEffect(() => {
+    router.prefetch('/home').catch(() => {});
+
+    const handleStart = (url) => {
+      if (url === '/home') setIsRouting(true);
+    };
+    const handleDone = () => setIsRouting(false);
+
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleDone);
+    router.events.on('routeChangeError', handleDone);
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleDone);
+      router.events.off('routeChangeError', handleDone);
+    };
+  }, [router]);
 
   // Reflect overlay state in URL (shallow routing) and open from URL param
+  // Keep overlay atom in sync with ?ref param on first load
   useEffect(() => {
     if (!router.isReady) return;
-    const current = typeof router.query.ref === 'string' ? router.query.ref : null;
-    if (expandedRef && expandedRef !== current) {
-  router.push({ pathname: router.pathname, query: { ...router.query, ref: expandedRef } }, undefined, { shallow: true, scroll: false });
-    } else if (!expandedRef && current) {
-      // If overlay closed, drop ref from URL
-      const { ref, ...rest } = router.query;
-  // If we're currently on a dynamic ref route (e.g. "/[ref]" or "/item/[ref]"),
-  // navigating to that pathname without the required param will throw an interpolation error.
-  // In that case, route back to the index path ("/") instead.
-  const isDynamicRefPath = typeof router.pathname === 'string' && router.pathname.includes('[ref]');
-  const targetPathname = isDynamicRefPath ? '/' : router.pathname;
-  router.push({ pathname: targetPathname, query: rest }, undefined, { shallow: true, scroll: false });
-    }
-  }, [expandedRef, router]);
+    const currentRef = typeof router.query.ref === 'string' ? router.query.ref : null;
 
+    if (!refHydrated.current && router.isReady) {
+      refHydrated.current = true;
+      if (currentRef && !expandedRef) {
+        setExpandedRef(currentRef);
+        return;
+      }
+    }
+
+    if (expandedRef && expandedRef !== currentRef) {
+      router.replace({ pathname: router.pathname, query: { ...router.query, ref: expandedRef } }, undefined, { shallow: true, scroll: false });
+    } else if (!expandedRef && currentRef) {
+      const { ref, ...rest } = router.query;
+      const targetPath = router.pathname.includes('[ref]') ? '/' : router.pathname;
+      router.replace({ pathname: targetPath, query: rest }, undefined, { shallow: true, scroll: false });
+    }
+  }, [expandedRef, router, setExpandedRef]);
+
+  // Global scroll-to-top event (e.g., when clicking "Show items" from seller overlay)
   useEffect(() => {
-    if (!router.isReady) return;
-    const current = typeof router.query.ref === 'string' ? router.query.ref : null;
-    if (current) setExpandedRef(current);
-  }, [router.isReady, router.query.ref, setExpandedRef]);
+    const onScrollTop = () => {
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    };
+    window.addEventListener('lb:scroll-top', onScrollTop);
+    return () => window.removeEventListener('lb:scroll-top', onScrollTop);
+  }, []);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const [sorted] = useAtom(sortedItemsAtom);
   const [manifest, setManifest] = useAtom(manifestAtom);
@@ -261,6 +291,11 @@ export default function Home() {
         )}
       />
       <ToastHost />
+      {isRouting && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-white/70 backdrop-blur-sm dark:bg-slate-900/70">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+        </div>
+      )}
       <div className="flex gap-6">
         <Sidebar />
         <div className="flex-1">
@@ -298,6 +333,7 @@ export default function Home() {
       {/*  Renable soon */}
       <InfoButton />
       <ItemDetailOverlay />
+      <SellerOverlay />
     </div>
   );
 }

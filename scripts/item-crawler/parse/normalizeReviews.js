@@ -1,6 +1,6 @@
 // Normalize raw review objects into consistent shape with segments array.
 // NOTE: Plain concatenated text field removed to avoid duplication (segments already hold text).
-function normalizeReviews(rawReviews, { captureMedia = true } = {}) {
+function normalizeReviews(rawReviews, { captureMedia = true, includeItem = false, includeAuthor = true } = {}) {
   if (!Array.isArray(rawReviews)) return [];
   return rawReviews.map(r => {
     const segments = [];
@@ -32,15 +32,23 @@ function normalizeReviews(rawReviews, { captureMedia = true } = {}) {
         }
       }
     }
-    return {
+    const out = {
       id: r.id,
       created: r.created,
       rating: r.rating,
       daysToArrive: r.daysToArrive,
-      authorId: r.author && r.author.id || null,
       flags: r.flags || 0,
       segments
     };
+
+    if (includeItem && r.item && typeof r.item === 'object') {
+      out.item = {
+        refNum: r.item.refNum || null,
+        name: r.item.name || null,
+        id: r.item.id != null ? r.item.id : null
+      };
+    }
+    return out;
   });
 }
 module.exports = { normalizeReviews };

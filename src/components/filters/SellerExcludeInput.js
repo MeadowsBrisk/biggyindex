@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
 import { useAtom } from "jotai";
-import { itemsAtom, excludedSellersAtom } from "@/store/atoms";
+import { itemsAtom, excludedSellersAtom, excludedSellersPinnedAtom } from "@/store/atoms";
 import cn from "@/app/cn";
+import FilterPinButton from "@/components/FilterPinButton";
 
 export default function SellerExcludeInput() {
   const [items] = useAtom(itemsAtom);
   const [excluded, setExcluded] = useAtom(excludedSellersAtom);
+  const [pinned, setPinned] = useAtom(excludedSellersPinnedAtom);
+  const showPin = pinned || excluded.length > 0;
   const [input, setInput] = useState("");
 
   const sellers = useMemo(() => Array.from(new Set(items.map((i) => i.sellerName).filter(Boolean))).sort((a,b)=>a.localeCompare(b)), [items]);
@@ -26,7 +29,11 @@ export default function SellerExcludeInput() {
 
   return (
     <div>
-      {/*<div className="text-sm font-medium mb-2">Exclude sellers</div>*/}
+      {showPin && (
+        <div className="mb-2 flex justify-end absolute top-2 right-2 w-5 h-4">
+          <FilterPinButton pinned={pinned} onToggle={() => setPinned(!pinned)} label="exclude sellers" />
+        </div>
+      )}
       <div className="flex gap-2 mb-2 relative">
         <input
           className={cn("w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2")}

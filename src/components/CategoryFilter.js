@@ -1,8 +1,9 @@
 import { useAtom, useAtomValue } from "jotai";
-import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom } from "@/store/atoms";
+import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom } from "@/store/atoms";
 import cn from "@/app/cn";
 import { useCallback, useMemo } from 'react';
 import { countryLabel } from '@/lib/countries';
+import FilterPinButton from "@/components/FilterPinButton";
 
 export default function CategoryFilter() {
   const [manifest] = useAtom(manifestAtom);
@@ -15,6 +16,7 @@ export default function CategoryFilter() {
   const shipFromOptions = useAtomValue(shipFromOptionsAtom);
   const [selectedShips, setSelectedShips] = useAtom(selectedShipFromAtom);
   const [freeShipOnly, setFreeShipOnly] = useAtom(freeShippingOnlyAtom);
+  const [shipPinned, setShipPinned] = useAtom(shipFromPinnedAtom);
 
   const desiredOrder = ["Flower","Hash","Edibles","Concentrates","Vapes","Tincture","Psychedelics"]; // preferred ordering
   const rawCats = Object.keys(manifest.categories || {}).filter(c => c !== 'Tips');
@@ -69,6 +71,8 @@ export default function CategoryFilter() {
   };
   const onKeySub = (e, sub) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSub(sub); } };
   const clearSubs = () => setSelectedSubs([]);
+
+  const showShipPin = shipPinned || (Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly;
 
   return (
     <div className="space-y-4">
@@ -182,11 +186,16 @@ export default function CategoryFilter() {
       {/* Ships from */}
       {Array.isArray(shipFromOptions) && shipFromOptions.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
             <div className="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Ships from</div>
-            {selectedShips.length > 0 && (
-              <button type="button" onClick={() => setSelectedShips([])} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Clear</button>
-            )}
+            <div className="flex items-center gap-2">
+              {selectedShips.length > 0 && (
+                <button type="button" onClick={() => setSelectedShips([])} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Clear</button>
+              )}
+              {showShipPin && (
+                <FilterPinButton pinned={shipPinned} onToggle={() => setShipPinned(!shipPinned)} label="shipping filters" />
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {orderedShipOptions.map(code => {

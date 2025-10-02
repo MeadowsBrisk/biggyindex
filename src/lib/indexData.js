@@ -94,3 +94,53 @@ export async function getSnapshotMeta() {
   if (strict) return null;
   return readFsJSON('snapshot_meta.json') || null;
 }
+
+export async function getRecentReviews() {
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('seller-crawler/recent-reviews.json');
+  if (blob) return blob;
+  if (strict) return [];
+  return readFsJSON('seller-crawler/recent-reviews.json') || [];
+}
+
+export async function getRecentMedia() {
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('seller-crawler/recent-media.json');
+  if (blob) return blob;
+  if (strict) return [];
+  return readFsJSON('seller-crawler/recent-media.json') || [];
+}
+
+export async function getSellersLeaderboard() {
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('seller-crawler/sellers-leaderboard.json');
+  if (blob) return blob;
+  if (strict) return null;
+  return readFsJSON('seller-crawler/sellers-leaderboard.json') || null;
+}
+
+export async function getSellerImages() {
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('seller-crawler/seller-images.json');
+  if (blob) return blob;
+  if (strict) return {};
+  return readFsJSON('seller-crawler/seller-images.json') || {};
+}
+
+export async function getRecentItemsCompact() {
+  // Compact aggregate for home page: { added: [...], updated: [...] }
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('data/recent-items.json');
+  if (blob) return blob;
+  if (strict) return { added: [], updated: [] };
+  return readFsJSON('data/recent-items.json') || { added: [], updated: [] };
+}
+
+export async function getItemImageLookup() {
+  // Small lookup map for item images to support recent reviews thumbnails without full dataset
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('data/item-image-lookup.json');
+  if (blob) return blob;
+  if (strict) return { byRef: {}, byId: {} };
+  return readFsJSON('data/item-image-lookup.json') || { byRef: {}, byId: {} };
+}

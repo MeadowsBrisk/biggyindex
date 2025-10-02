@@ -115,9 +115,9 @@ function parseQuantity(description) {
     const pos = m.index;
     if (!label) {
       counts.push({ num, labelOriginal: null, labelCanonical: null, pos });
-    } else if (/^(mg|milligram|milligrams)$/.test(label)) {
+    } else if (/^(mg|milligram|milligrams|mil)$/.test(label)) {
       dosages.push({ num, unit: 'mg', pos });
-    } else if (/^(g|gram|grams)$/.test(label)) {
+    } else if (/^(g|gram|grams|gs)$/.test(label)) {
       dosages.push({ num, unit: 'g', pos });
     } else if (/^(kg|kilogram|kilograms|kilo|kilos)$/.test(label)) {
       dosages.push({ num, unit: 'kg', pos });

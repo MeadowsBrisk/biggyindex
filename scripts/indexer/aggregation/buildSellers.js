@@ -15,6 +15,7 @@ function buildSellers(processedItems, sellerReviewSummaries) {
       const stats = sid != null ? sellerReviewSummaries?.[String(sid)] : null;
       sellersMap.set(key, {
         id: sid,
+        sellerRef: null,
         name: sname,
         url: buildSellerUrl(sname, sid),
         online: i.sellerOnline || null,

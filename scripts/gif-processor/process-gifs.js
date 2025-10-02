@@ -7,11 +7,14 @@
         /public/gif-cache/videos/<hash>.mp4
   - Maintains /public/gif-cache/gif-map.json
   flags: --video
+  run with: node scripts/gif-processor/process-gifs.js --video
 */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+// Load NETLIFY_* from .env for local blob access (mirrors indexer)
+try { require('../indexer/lib/env/loadEnv').loadIndexerEnv(); } catch {}
 const { config: C } = require('./lib/args');
 const { logger } = require('./lib/logger');
 const { detectFfmpeg, transcodeMp4 } = require('./lib/ffmpeg');
@@ -36,6 +39,32 @@ function rel(p){
 const loadMap = () => { try { return JSON.parse(fs.readFileSync(MAP_FILE,'utf8')); } catch { return {}; } };
 const saveMap = (obj) => { if (C.DRY_RUN) return; fs.writeFileSync(MAP_FILE, JSON.stringify(obj,null,2)); };
 function pLimit(n){ let active=0; const q=[]; const next=()=>{ if(!q.length||active>=n) return; active++; const {fn,res,rej}=q.shift(); Promise.resolve().then(fn).then(v=>{active--;res(v);next();}).catch(e=>{active--;rej(e);next();}); }; return fn=> new Promise((res,rej)=>{ q.push({fn,res,rej}); process.nextTick(next); }); }
+
+function resolvePersistMode(){
+  const raw = process.env.INDEXER_PERSIST || process.env.CRAWLER_PERSIST || process.env.PERSIST_MODE || 'auto';
+  return String(raw).trim().toLowerCase();
+}
+
+async function readItemsFromBlobs() {
+  try {
+    const mod = await import('@netlify/blobs').catch(()=>null);
+    if (!mod) return null;
+    const { getStore } = mod;
+    const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID || process.env.BLOBS_SITE_ID;
+    const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN || process.env.BLOBS_TOKEN;
+    let store = null;
+    if (siteID && token) {
+      try { store = getStore({ name: 'site-index', siteID, token, consistency: 'strong' }); } catch {}
+    }
+    if (!store) {
+      try { store = getStore({ name: 'site-index', consistency: 'strong' }); } catch {}
+    }
+    if (!store) return null;
+    const val = await store.get('indexed_items.json');
+    if (!val) return null;
+    try { return JSON.parse(val); } catch { return null; }
+  } catch { return null; }
+}
 
 async function processOne(url, ffmpegInfo){
   const h = hashUrl(url);
@@ -117,8 +146,26 @@ async function main(){
     L.log(`[gif] ffmpeg available=${info.available} cmd=${info.cmd} reason=${info.reason}`);
     return;
   }
-  if (!fs.existsSync(DATA_FILE)) { console.error('indexed_items.json missing'); process.exit(1); }
-  let items=[]; try { items = JSON.parse(fs.readFileSync(DATA_FILE,'utf8')); if(!Array.isArray(items)) throw new Error('not array'); } catch(e){ console.error('Parse failed:', e.message); process.exit(1); }
+  let items = [];
+  const persistMode = resolvePersistMode();
+  const preferBlobs = persistMode === 'blobs';
+  if (preferBlobs) {
+    const fromBlob = await readItemsFromBlobs();
+    if (Array.isArray(fromBlob) && fromBlob.length >= 0) {
+      items = fromBlob;
+    } else if (fs.existsSync(DATA_FILE)) {
+      try { items = JSON.parse(fs.readFileSync(DATA_FILE,'utf8')); } catch {}
+    }
+  } else {
+    if (fs.existsSync(DATA_FILE)) {
+      try { items = JSON.parse(fs.readFileSync(DATA_FILE,'utf8')); } catch {}
+    } else {
+      // Optional: blob fallback in auto mode
+      const fromBlob = await readItemsFromBlobs();
+      if (Array.isArray(fromBlob)) items = fromBlob;
+    }
+  }
+  if (!Array.isArray(items)) { console.error('indexed_items.json missing or invalid (blobs/fs)'); process.exit(1); }
 
   const urls = new Set();
   for (const it of items) {
@@ -127,7 +174,7 @@ async function main(){
   }
   let list = Array.from(urls);
   if (C.LIMIT > 0) list = list.slice(0, C.LIMIT);
-  L.log(`[gif] discovered=${list.length} force=${C.FORCE} posterFormat=${C.POSTER_FORMAT}`);
+  L.log(`[gif] discovered=${list.length} force=${C.FORCE} posterFormat=${C.POSTER_FORMAT} source=${preferBlobs?'blobs':'fs'}`);
   if (!list.length) return;
 
   ensureDir(CACHE_DIR); ensureDir(POSTER_DIR); if (C.WANT_VIDEO && !C.POSTER_ONLY) ensureDir(VIDEO_DIR);

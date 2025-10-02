@@ -4,8 +4,28 @@ export function formatBritishDateTime(value) {
   if (!value) return "";
   const d = new Date(value);
   if (isNaN(d)) return "";
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  try {
+    const dtf = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    const parts = Object.fromEntries(dtf.formatToParts(d).map((p) => [p.type, p.value]));
+    const dd = parts.day || "01";
+    const MM = parts.month || "01";
+    const yyyy = parts.year || "1970";
+    const hh = parts.hour || "00";
+    const mm = parts.minute || "00";
+    return `${dd}/${MM}/${yyyy}, ${hh}:${mm}`;
+  } catch {
+    // fallback to UTC to remain deterministic
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}, ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+  }
 }
 
 export function timeAgo(dateStr) {
@@ -24,7 +44,11 @@ export function timeAgo(dateStr) {
   if (day < 7) return `${day}d ago`;
   const weeks = Math.floor(day / 7);
   if (weeks < 4) return `${weeks}w ago`;
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  try {
+    return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', timeZone: 'Europe/London' }).format(d);
+  } catch {
+    return d.toUTCString().slice(5, 16); // e.g., "29 Sep 2025"
+  }
 }
 
 // Decode basic HTML entities (&amp;, &quot;, &#x2026;, etc.) into plain text for display

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { motion, useReducedMotion, useAnimation } from 'framer-motion';
 
 const TITLE = 'Biggy Index';
@@ -65,30 +66,32 @@ export default function AnimatedLogoHeader({ className = '', rightSlot = null })
   }, [reduce, braceControls]);
   return (
   <header className={`flex items-center gap-3 mb-6 ${className}`}>
-      <motion.div
-        className="relative flex items-center justify-center h-10 w-7 select-none top-[-3px]"
-        variants={wrapperVariants}
-        initial="hidden"
-        animate="show"
-        custom={reduce}
-      >
-        <motion.span
-          className="text-[1.9em] text-gray-900 dark:text-gray-100"
-          variants={braceVariants}
-          custom={{ side: 'left', reduce }}
+      <Link href="/home" className="relative inline-flex h-10 w-7 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 rounded-md" aria-label="Go to homepage">
+        <motion.div
+          className="relative flex h-full w-full items-center justify-center select-none top-[-3px]"
+          variants={wrapperVariants}
           initial="hidden"
-          animate={braceControls}
-          style={{ fontWeight: 600, position: 'absolute' }}
-        >{'{'}</motion.span>
-        <motion.span
-          className="text-[1.9em] text-gray-900 dark:text-gray-100"
-          variants={braceVariants}
-          custom={{ side: 'right', reduce }}
-          initial="hidden"
-          animate={braceControls}
-          style={{ fontWeight: 600, position: 'absolute' }}
-        >{'}'}</motion.span>
-      </motion.div>
+          animate="show"
+          custom={reduce}
+        >
+          <motion.span
+            className="text-[1.9em] text-gray-900 dark:text-gray-100"
+            variants={braceVariants}
+            custom={{ side: 'left', reduce }}
+            initial="hidden"
+            animate={braceControls}
+            style={{ fontWeight: 600, position: 'absolute' }}
+          >{'{'}</motion.span>
+          <motion.span
+            className="text-[1.9em] text-gray-900 dark:text-gray-100"
+            variants={braceVariants}
+            custom={{ side: 'right', reduce }}
+            initial="hidden"
+            animate={braceControls}
+            style={{ fontWeight: 600, position: 'absolute' }}
+          >{'}'}</motion.span>
+        </motion.div>
+      </Link>
   <motion.h1
         className="text-2xl font-heading font-semibold tracking-tight text-gray-900 dark:text-gray-100 leading-none select-none"
         initial="hidden"

@@ -68,6 +68,34 @@
     "node_modules/p-queue/**"
   ]
 
+[functions."seller-crawler-background"]
+  # Background seller crawler runs every 4 hours, offset from item crawler by 1h
+  schedule = "50 1/4 * * *"
+  node_bundler = "esbuild"
+  [functions."seller-crawler-background".environment]
+  CRAWLER_PERSIST = "blobs"
+  SELLER_CRAWLER_PERSIST = "blobs"
+  SELLER_CRAWLER_BLOBS_PREFIX = "seller-crawler/"
+  CRAWLER_BLOBS_PREFIX = "seller-crawler/"
+  CRAWLER_BLOBS_AUTH = "explicit"
+  SELLER_CRAWLER_MAX_PARALLEL = "3"
+  included_files = [
+    "scripts/seller-crawler/crawl-sellers.js",
+    "scripts/seller-crawler/aggregation/**",
+    "scripts/seller-crawler/env/**",
+    "scripts/seller-crawler/fetch/**",
+    "scripts/seller-crawler/parse/**",
+    "scripts/seller-crawler/persistence/**",
+    "scripts/seller-crawler/util/**",
+    "scripts/item-crawler/auth/**",
+    "scripts/item-crawler/fetch/httpClient.js",
+    "scripts/item-crawler/persistence/blobStore.js",
+    "scripts/item-crawler/persistence/cookieStore.js",
+    "scripts/item-crawler/persistence/stateStore.js",
+    "scripts/item-crawler/util/logger.js",
+    "scripts/item-crawler/util/delay.js"
+  ]
+
 [functions."crawler-control"]
   # Lightweight control plane for the crawler (set/clear stop flag)
   node_bundler = "esbuild"

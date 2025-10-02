@@ -61,6 +61,13 @@ function concentrateMidOverridesRule(ctx) {
 
 function concentrateLatePrecedenceRule(ctx) {
   const { text, scores, name } = ctx;
+  if (/\bnug\s*run\b/.test(text)) {
+    scores.Concentrates = (scores.Concentrates || 0) + 6;
+    if (scores.Flower) {
+      scores.Flower -= 5;
+      if (scores.Flower <= 0) delete scores.Flower;
+    }
+  }
   // Live resin tincture context handling: avoid misclassifying as Concentrates when it's clearly a tincture
   const hasTinctureWord = /\btincture(s)?\b/.test(text);
   if (hasTinctureWord && /live resin/.test(text)) {

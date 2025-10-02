@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { getBlobsStore } = require('./seenStore');
 
-async function persistDatasets({ processedItems, sellers, manifest, byCategory, snapshotMeta, storeRef, IS_FUNCTION, seen }) {
+async function persistDatasets({ processedItems, sellers, manifest, byCategory, snapshotMeta, storeRef, IS_FUNCTION, seen, recentItems, itemImageLookup }) {
 	let store = storeRef;
 	if (!store) {
 		try { store = await getBlobsStore(); } catch {}
@@ -17,6 +17,8 @@ async function persistDatasets({ processedItems, sellers, manifest, byCategory, 
 				...Array.from(byCategory.entries()).map(([cat, arr]) => store.set(`data/items-${cat.toLowerCase()}.json`, JSON.stringify(arr))),
 				store.set('seen.json', JSON.stringify(seen)),
 				store.set('snapshot_meta.json', JSON.stringify(snapshotMeta)),
+				store.set('data/recent-items.json', JSON.stringify(recentItems || { added: [], updated: [] })),
+				store.set('data/item-image-lookup.json', JSON.stringify(itemImageLookup || { byRef: {}, byId: {} })),
 			]);
 			blobPersisted = true;
 			console.log('[persist] Datasets persisted to Netlify Blobs (env=' + (IS_FUNCTION ? 'function' : 'build') + ')');
@@ -40,6 +42,8 @@ async function persistDatasets({ processedItems, sellers, manifest, byCategory, 
 			await upsert('sellers', sellers);
 			await upsert('manifest', manifest);
 			await upsert('seen', seen);
+			await upsert('recent_items', recentItems || { added: [], updated: [] });
+			await upsert('item_image_lookup', itemImageLookup || { byRef: {}, byId: {} });
 			for (const [cat, arr] of byCategory.entries()) {
 				await upsert(`cat_${cat.toLowerCase()}`, arr);
 			}

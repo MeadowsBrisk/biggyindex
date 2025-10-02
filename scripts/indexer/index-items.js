@@ -48,6 +48,8 @@ const { normalizeVariants, buildSignature } = require('./pricing/variants');
 const { buildItemUrl, buildSellerUrl } = require('./util/urls');
 const { buildSellers } = require('./aggregation/buildSellers');
 const { buildAndWriteManifest } = require('./persistence/writeManifest');
+const { buildRecentItemsCompact } = require('./aggregation/buildRecentItemsCompact');
+const { buildItemImageLookup } = require('./aggregation/buildItemImageLookup');
 
 // Normalize a country name/value into a 2-letter lowercase code (best-effort).
 // (country normalization removed; we now store source-provided shipsFrom text)
@@ -57,7 +59,7 @@ const { buildAndWriteManifest } = require('./persistence/writeManifest');
 async function main() {
   try {
   const { loadSeen } = require('./persistence/seenStore');
-  const { seen: loadedSeen, store, scriptsDataDir, seenPath, loadedFromBlob, baselineSeeding, merged } = await loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT });
+  const { seen: loadedSeen, store, scriptsDataDir, seenPath, loadedFromBlob, baselineSeeding, merged, persistMode, preferBlobPersist } = await loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT });
   let seen = loadedSeen;
 
   // Fetch items (extracted helper)
@@ -166,15 +168,31 @@ async function main() {
 
   const { manifest, byCategory } = buildAndWriteManifest({ processedItems, OUTPUT_DIR });
 
+  // Build compact recent items aggregate and full image lookup using modular builders
+  const recentItemsCompact = buildRecentItemsCompact(processedItems, 25);
+  const imageLookup = buildItemImageLookup(processedItems);
+
     try { if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true }); } catch {}
     try { fs.writeFileSync(ITEMS_OUTPUT, JSON.stringify(processedItems, null, 2), "utf8"); } catch (e) { console.warn('Could not write indexed_items.json:', e.message); }
+    // FS fallback for recent items aggregate
+    try {
+      const dir = path.join(OUTPUT_DIR, 'data');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'recent-items.json'), JSON.stringify(recentItemsCompact, null, 2), 'utf8');
+      // FS fallback for item image lookup map
+      fs.writeFileSync(path.join(dir, 'item-image-lookup.json'), JSON.stringify(imageLookup, null, 2), 'utf8');
+    } catch (e) { console.warn('Could not write data/recent-items.json or item-image-lookup.json:', e.message); }
     // New: write snapshot meta (used for ETag/Last-Modified in API)
     const snapshotMeta = { updatedAt: new Date().toISOString(), itemsCount: processedItems.length, version: Date.now().toString(36) };
     try { fs.writeFileSync(path.join(OUTPUT_DIR, 'snapshot_meta.json'), JSON.stringify(snapshotMeta, null, 2), 'utf8'); } catch (e) { console.warn('Could not write snapshot_meta.json:', e.message); }
     try {
-      if (IS_FUNCTION) {
+      if (IS_FUNCTION || preferBlobPersist) {
         // Skip local FS write; persist to Netlify Blobs below
-        console.log('[seen] Skipping local seen.json write (read-only FS); persisting to Netlify Blobs');
+        if (IS_FUNCTION) {
+          console.log('[seen] Skipping local seen.json write (read-only FS); persisting to Netlify Blobs');
+        } else if (preferBlobPersist) {
+          console.log('[seen] Skipping local seen.json write (persistMode=blobs)');
+        }
       } else {
         if (!fs.existsSync(scriptsDataDir)) fs.mkdirSync(scriptsDataDir, { recursive: true });
         fs.writeFileSync(seenPath, JSON.stringify(seen, null, 2), 'utf8');
@@ -185,7 +203,7 @@ async function main() {
   try { fs.writeFileSync(SELLERS_OUTPUT, JSON.stringify(sellers, null, 2), "utf8"); } catch (e) { console.warn('Could not write sellers.json:', e.message); }
   // Persist seen.json to blobs separately (after local file) so dataset helper needn't duplicate migration logic
   const { persistSeen } = require('./persistence/seenStore');
-  try { await persistSeen(store, seen, { loadedFromBlob, merged }); console.log('[seen] Persisted seen.json to Netlify Blobs'); } catch {}
+  try { await persistSeen(store, seen, { loadedFromBlob, merged, persistMode }); console.log('[seen] Persisted seen.json to Netlify Blobs'); } catch {}
 
     // Persist datasets (extracted to helper)
     const { persistDatasets } = require('./persistence/outputs');
@@ -198,6 +216,8 @@ async function main() {
       storeRef: store,
       IS_FUNCTION,
       seen,
+      recentItems: recentItemsCompact,
+      itemImageLookup: imageLookup,
     });
 
     console.log(

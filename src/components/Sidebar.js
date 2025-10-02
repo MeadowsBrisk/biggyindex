@@ -25,7 +25,7 @@ function Section({ title, children }) {
   return (
     <motion.section
       variants={itemVariants}
-      className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 shadow-sm"
+      className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 shadow-sm relative"
     >
       {title && <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">{title}</h3>}
       {children}
@@ -75,7 +75,7 @@ export default function Sidebar() {
         <Section title="Category"><CategoryFilter /></Section>
         <Section title="Price"><PriceRange /></Section>
         <Section title="Include Sellers"><SellerIncludeInput /></Section>
-  <Section title="Exclude Sellers"><SellerExcludeInput /></Section>
+        <Section title="Exclude Sellers"><SellerExcludeInput /></Section>
         <InfoButton />
       </motion.aside>
     );

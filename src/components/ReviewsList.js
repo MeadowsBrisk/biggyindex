@@ -53,7 +53,7 @@ function renderParagraphs(text){
 
 export const REVIEWS_DISPLAY_LIMIT = 100;
 
-export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_LIMIT, onImageClick }){
+export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_LIMIT, onImageClick, renderItemLink }){
   if (!Array.isArray(reviews) || !reviews.length) return null;
   return (
     <ul className="space-y-2 text-sm pr-1 group">
@@ -83,6 +83,11 @@ export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_
               </div>
               <span className="text-[10px] opacity-70 shrink-0 whitespace-nowrap">{timeStr}</span>
             </div>
+            {renderItemLink && r.item && (
+              <div className="mb-1 text-[11px] opacity-75">
+                {renderItemLink(r)}
+              </div>
+            )}
             {hasText && (
               <div className="mb-2 [&>*:last-child]:mb-0">
                 {renderParagraphs(text) || null}

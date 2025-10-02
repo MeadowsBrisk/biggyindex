@@ -1,6 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
+function resolvePersistMode() {
+	const raw = process.env.INDEXER_PERSIST
+		|| process.env.INDEX_PERSIST
+		|| process.env.CRAWLER_PERSIST
+		|| process.env.PERSIST_MODE
+		|| 'auto';
+	return String(raw).trim().toLowerCase();
+}
+
 async function getBlobsStore() {
 	try {
 		const { getStore } = await import('@netlify/blobs');
@@ -23,6 +32,8 @@ async function getBlobsStore() {
 }
 
 async function loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT }) {
+	const persistMode = resolvePersistMode();
+	const preferBlobPersist = persistMode === 'blobs';
 	const scriptsDataDir = IS_FUNCTION ? path.join(RUNTIME_WRITABLE_ROOT, 'scripts', 'data') : path.join(process.cwd(), 'scripts', 'data');
 	const seenPath = path.join(scriptsDataDir, 'seen.json');
 	let seen = {};
@@ -65,7 +76,11 @@ async function loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT }) {
 				try { await store.set('seen.json', JSON.stringify(seen)); console.log('[seen] Seeded initial seen.json to blob store (baseline)'); } catch (seedErr) { console.warn('[seen] Failed to seed initial blob seen.json:', seedErr.message); }
 			}
 		} else {
-			console.log('[seen] Blob store unavailable (cannot merge existing snapshot)');
+			if (preferBlobPersist) {
+				console.warn('[seen] Persist mode is "blobs" but blob store unavailable; falling back to filesystem data');
+			} else {
+				console.log('[seen] Blob store unavailable (cannot merge existing snapshot)');
+			}
 		}
 	} catch (e) { console.warn('[seen] Blob merge failed:', e.message); }
 
@@ -79,11 +94,16 @@ async function loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT }) {
 		}
 	}
 	seen = out;
-	return { seen, store, scriptsDataDir, seenPath, loadedFromBlob, baselineSeeding, merged };
+	return { seen, store, scriptsDataDir, seenPath, loadedFromBlob, baselineSeeding, merged, persistMode, preferBlobPersist };
 }
 
-async function persistSeen(store, seen, { loadedFromBlob, merged }) {
-	if (!store) return;
+async function persistSeen(store, seen, { loadedFromBlob, merged, persistMode } = {}) {
+	if (!store) {
+		if ((persistMode || resolvePersistMode()) === 'blobs') {
+			console.warn('[seen] Persist mode "blobs" but no blob store available; remote persistence skipped');
+		}
+		return;
+	}
 	try {
 		if (merged && loadedFromBlob) {
 			try {
@@ -99,4 +119,4 @@ async function persistSeen(store, seen, { loadedFromBlob, merged }) {
 	} catch (e) { console.warn('[seen] persistence failed:', e.message); }
 }
 
-module.exports = { loadSeen, persistSeen, getBlobsStore };
+module.exports = { loadSeen, persistSeen, getBlobsStore, resolvePersistMode };

@@ -14,6 +14,7 @@ import {
   selectedSubcategoriesAtom,
   includedSellersAtom,
   excludedSellersAtom,
+  isLoadingAtom,
 } from '@/store/atoms';
 import { useItemDetail } from '@/hooks/useItemDetail';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
@@ -79,10 +80,10 @@ export default function ItemDetailOverlay() {
   
   const { detail, loading, error, reload } = useItemDetail(refNum);
   useBodyScrollLock(!!refNum);
-  const close = useCallback(() => {
+  const close = useCallback(({ skipScroll } = {}) => {
     const current = refNum;
     setRefNum(null);
-    if (typeof document !== 'undefined' && current) {
+    if (typeof document !== 'undefined' && current && !skipScroll) {
       try {
         const esc = (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') ? CSS.escape : (s => String(s).replace(/"/g, '\\"'));
         const el = document.querySelector(`[data-ref="${esc(String(current))}"]`);
@@ -121,9 +122,15 @@ export default function ItemDetailOverlay() {
       if (refNum) close();
     };
     window.addEventListener('popstate', onPop);
+    const onCloseReq = (evt) => {
+      const skipScroll = evt && typeof evt === 'object' && evt.detail && evt.detail.skipScroll;
+      if (refNum) close({ skipScroll });
+    };
+    window.addEventListener('lb:close-item-overlay', onCloseReq);
     return () => {
       window.removeEventListener('lb:zoom-will-balance-back', onZoomBalance);
       window.removeEventListener('popstate', onPop);
+      window.removeEventListener('lb:close-item-overlay', onCloseReq);
     };
   }, [refNum, close, zoomOpen]);
 
@@ -177,6 +184,21 @@ export default function ItemDetailOverlay() {
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];
+  const resolvedSellerName = useMemo(() => {
+    if (typeof detail?.sellerName === 'string' && detail.sellerName) return detail.sellerName;
+    if (detail?.seller && typeof detail.seller.name === 'string' && detail.seller.name) return detail.seller.name;
+    if (typeof baseItem?.sellerName === 'string' && baseItem.sellerName) return baseItem.sellerName;
+    return '';
+  }, [detail, baseItem]);
+  const resolvedSellerUrl = useMemo(() => {
+    if (typeof detail?.sellerUrl === 'string' && detail.sellerUrl) return detail.sellerUrl;
+    if (detail?.seller && typeof detail.seller.url === 'string' && detail.seller.url) return detail.seller.url;
+    if (typeof baseItem?.sellerUrl === 'string' && baseItem.sellerUrl) return baseItem.sellerUrl;
+    if (typeof baseItem?.url === 'string' && baseItem.url) return baseItem.url;
+    return null;
+  }, [detail, baseItem]);
+  const resolvedSellerOnline = baseItem?.sellerOnline || detail?.sellerOnline || null;
+  const hasSellerInfo = resolvedSellerName.trim().length > 0;
 
   // Reset selection state when opening a different item to avoid stale selections
   useEffect(() => {
@@ -224,6 +246,15 @@ export default function ItemDetailOverlay() {
   const name = decodeEntities(baseItem?.name || detail?.name || 'Item');
   const description = detail?.descriptionFull || baseItem?.description || '';
   const reviews = detail?.reviews || [];
+  const globalLoading = useAtomValue(isLoadingAtom);
+  const hasVariants = Array.isArray(detail?.variants) ? detail.variants.length > 0 : Array.isArray(baseItem?.variants) ? baseItem.variants.length > 0 : false;
+  const hasImages = images.length > 0;
+  const showUnavailableBanner = Boolean(
+    !loading && !globalLoading && !error && detail && 
+    Array.isArray(detail.variants) && detail.variants.length === 0 &&
+    (!Array.isArray(detail.imageUrls) || detail.imageUrls.length === 0) &&
+    !detail.imageUrl
+  );
   const [reviewGallery, setReviewGallery] = useState(null); // review image zoom state
   const reviewMeta = detail?.reviewsMeta;
   const category = baseItem?.category || null;
@@ -501,11 +532,11 @@ export default function ItemDetailOverlay() {
                   <div className="min-w-0">
                     <h2 className="font-semibold text-base text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
                     <div className="mt-1 flex items-center flex-wrap gap-2 text-[11px] text-gray-600 dark:text-gray-300">
-                      {baseItem?.sellerName && (
+                      {hasSellerInfo && (
                         <>
                           <span className="italic opacity-90">Seller:</span>
-                          <SellerInfoBadge sellerName={baseItem.sellerName} sellerUrl={baseItem.sellerUrl || baseItem.url} sellerOnline={baseItem.sellerOnline} />
-                          <SellerFilterButtons sellerName={baseItem.sellerName} />
+                          <SellerInfoBadge sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline} />
+                          <SellerFilterButtons sellerName={resolvedSellerName} />
                         </>
                       )}
                       {shipsFrom && (
@@ -787,11 +818,11 @@ export default function ItemDetailOverlay() {
                 <div className="min-w-0">
                   <h2 className="font-semibold text-lg md:text-xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
                   <div className="mt-1 flex items-center flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
-                    {baseItem?.sellerName && (
+                    {hasSellerInfo && (
                       <>
                         <span className="italic opacity-90">Seller:</span>
-                        <SellerInfoBadge sellerName={baseItem.sellerName} sellerUrl={baseItem.sellerUrl || baseItem.url} sellerOnline={baseItem.sellerOnline} />
-                        <SellerFilterButtons sellerName={baseItem.sellerName} />
+                        <SellerInfoBadge sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline} />
+                        <SellerFilterButtons sellerName={resolvedSellerName} />
                       </>
                     )}
                     {shipsFrom && (
@@ -822,6 +853,13 @@ export default function ItemDetailOverlay() {
                   <span className="ml-1">
                     {[category, ...(subcategories || [])].filter(Boolean).join(', ')}
                   </span>
+                </div>
+              )}
+              {showUnavailableBanner && (
+                <div className="mt-2 text-xs text-orange-600 dark:text-orange-400 bg-orange-100/80 dark:bg-orange-950/40 border border-orange-300/70 dark:border-orange-700/60 rounded-md px-2 py-1.5 flex flex-wrap items-center gap-2 max-w-xl">
+                  <span className="inline-flex items-center justify-center w-2 h-2 rounded-full bg-orange-500 dark:bg-orange-400" />
+                  <span className="font-semibold">Item unavailable</span>
+                  <span className="opacity-80">This listing is no longer available on LittleBiggy. Displayed data is archival and may be incomplete.</span>
                 </div>
               )}
               </div>
@@ -979,7 +1017,7 @@ export default function ItemDetailOverlay() {
           />
           {/* Floating biggy button (shipping info removed per design) */}
           {biggyLink && (
-            <div className="pointer-events-none absolute right-3 bottom-25  md:bottom-3 xl:right-10">
+            <div className="pointer-events-none absolute right-3 bottom-3 md:bottom-3 xl:right-10">
               <a
                 href={biggyLink}
                 target="_blank"

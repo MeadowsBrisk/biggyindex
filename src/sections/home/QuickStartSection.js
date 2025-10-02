@@ -144,7 +144,7 @@ export default function QuickStartSection() {
             <EmphasisCard
               icon={<ShieldCheck className="h-4 w-4" />}
               title="Pro tip"
-              description="Buy a few pounds more than you need and round up. That extra buffer covers network fees."
+              description="Buy a few pounds more than you need and round up. That extra buffer covers network fees or crypto volatility."
             />
           </StepContentWrapper>
         ),

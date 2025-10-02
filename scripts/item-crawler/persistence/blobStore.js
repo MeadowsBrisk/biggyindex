@@ -34,7 +34,11 @@ function fsRead(baseDir, key) {
 async function initPersistence({ persistMode='auto', blobsStore='site-index', blobsPrefix='item-crawler/', outputDir='public/item-crawler', log = console } = {}) {
   const apiAvailable = !!(await ensureBlobs());
   let mode = persistMode;
-  if (persistMode === 'auto') mode = apiAvailable && process.env.NETLIFY ? 'blobs' : 'fs';
+  // Detect if explicit auth is present (allows using Blobs outside Netlify builds)
+  const siteIDProbe = process.env.NETLIFY_SITE_ID || process.env.SITE_ID || process.env.BLOBS_SITE_ID;
+  const tokenProbe = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN || process.env.BLOBS_TOKEN;
+  const haveExplicitAuth = !!(siteIDProbe && tokenProbe);
+  if (persistMode === 'auto') mode = apiAvailable && (process.env.NETLIFY || haveExplicitAuth) ? 'blobs' : 'fs';
   if (mode === 'blobs' && !apiAvailable) mode = 'fs';
   // Track which auth path is active
   let authMode = 'none'; // 'explicit' | 'env' | 'none'
@@ -157,7 +161,67 @@ async function initPersistence({ persistMode='auto', blobsStore='site-index', bl
   async function writeItem(itemData) { return writeJson(`items/${itemData.refNum}.json`, itemData); }
   async function readItem(refNum) { return readJson(`items/${refNum}.json`); }
 
-  return { mode, authMode: () => authMode, tokenSource: () => tokenSource, writeJson, readJson, writeItem, readItem };
+  async function listKeys(prefix = '') {
+    const normPrefix = String(prefix || '');
+    if (mode === 'blobs') {
+      const store = (storeCache || storeCache);
+      if (!store || typeof store.list !== 'function') return [];
+      const out = [];
+      const fullPrefix = (blobsPrefix || '') + normPrefix;
+      let cursor = undefined;
+      try {
+        while (true) {
+          const res = await store.list({ prefix: fullPrefix || undefined, cursor });
+          if (!res) break;
+          const collected = [];
+          if (Array.isArray(res)) {
+            collected.push(...res);
+          } else {
+            if (Array.isArray(res.blobs)) collected.push(...res.blobs.map(b => (b && (b.key || b.name || b.id)) || '')); // netlify typical
+            if (Array.isArray(res.keys)) collected.push(...res.keys);
+            if (Array.isArray(res.items)) collected.push(...res.items.map(b => (b && (b.key || b.name || b.id)) || ''));
+            // Fallback: object with enumerable string values
+            if (!res.blobs && !res.keys && !res.items && typeof res === 'object') {
+              const own = Object.keys(res).filter(k => typeof res[k] === 'string');
+              if (own.length && own.length < 1000) collected.push(...own);
+            }
+          }
+          for (const k of collected) {
+            if (typeof k !== 'string' || !k) continue;
+            let rel = k;
+            if (rel.startsWith(blobsPrefix)) rel = rel.slice(blobsPrefix.length);
+            out.push(rel);
+          }
+          cursor = res.cursor || res.nextCursor || null;
+          if (!cursor) break;
+        }
+      } catch {
+        // ignore listing errors; return whatever we have
+      }
+      // Deduplicate
+      return Array.from(new Set(out));
+    } else {
+      // FS mode: list keys under outputDir/prefix and return relative paths using forward slashes
+      const results = [];
+      try {
+        const base = path.join(outputDir, normPrefix.replace(/\//g, path.sep));
+        if (!fs.existsSync(base)) return results;
+        function walk(dir, relBase) {
+          const ents = fs.readdirSync(dir, { withFileTypes: true });
+          for (const ent of ents) {
+            const abs = path.join(dir, ent.name);
+            const rel = path.join(relBase, ent.name).replace(/\\+/g, '/');
+            if (ent.isDirectory()) walk(abs, rel);
+            else results.push(rel);
+          }
+        }
+        walk(base, normPrefix.replace(/\\+/g, '/'));
+      } catch {}
+      return results;
+    }
+  }
+
+  return { mode, authMode: () => authMode, tokenSource: () => tokenSource, writeJson, readJson, writeItem, readItem, listKeys };
 }
 
 module.exports = { initPersistence };

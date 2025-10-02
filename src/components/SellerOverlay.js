@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { expandedSellerIdAtom, expandedRefNumAtom, includedSellersAtom, excludedSellersAtom, pushOverlayAtom, popOverlayAtom, topOverlayTopAtom } from '@/store/atoms';
 import { useSellerDetail } from '@/hooks/useSellerDetail';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
-import ReviewsList from '@/components/ReviewsList';
+import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
 import { decodeEntities, timeAgo } from '@/lib/format';
 import ImageZoomPreview from '@/components/ImageZoomPreview';
 import SellerIncludeExclude from '@/components/item-detail/SellerIncludeExclude';
@@ -14,15 +15,17 @@ import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewSco
 import { loadSellersIndex, getCachedSellerById } from '@/lib/sellersIndex';
 
 export default function SellerOverlay() {
+  const router = useRouter();
   const [sellerId, setSellerId] = useAtom(expandedSellerIdAtom);
   const { detail, loading, error, reload } = useSellerDetail(sellerId);
-  const [, setItemRef] = useAtom(expandedRefNumAtom);
+  const [currentItemRef, setItemRef] = useAtom(expandedRefNumAtom);
   const [included, setIncluded] = useAtom(includedSellersAtom);
   const [excluded, setExcluded] = useAtom(excludedSellersAtom);
   useBodyScrollLock(!!sellerId);
   const backdropRef = useRef(null);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [openPreviewSignal, setOpenPreviewSignal] = useState(null);
+  const [reviewGallery, setReviewGallery] = useState(null);
   const topOverlay = useAtomValue(topOverlayTopAtom);
   const topOverlayRef = React.useRef(topOverlay);
   useEffect(() => { topOverlayRef.current = topOverlay; }, [topOverlay]);
@@ -30,14 +33,28 @@ export default function SellerOverlay() {
   const popOverlay = useSetAtom(popOverlayAtom);
 
   const close = useCallback(() => {
+    setReviewGallery(null);
+    setOpenPreviewSignal(null);
+    setZoomOpen(false);
+    // If we are on /seller/[id], normalize the URL back to root (preserve ?ref if item overlay is open)
+    try {
+      if (router?.pathname && router.pathname.includes('/seller/')) {
+        const url = currentItemRef ? `/?ref=${encodeURIComponent(currentItemRef)}` : '/';
+        // Use history.replaceState to avoid Next.js navigation that retriggers page mounts/animations
+        if (typeof window !== 'undefined' && window.history?.replaceState) {
+          window.history.replaceState({ __sellerOverlayClosed: true }, '', url);
+        }
+      }
+    } catch {}
     setSellerId(null);
     popOverlay('seller');
-  }, [setSellerId, popOverlay]);
+  }, [router, currentItemRef, setSellerId, popOverlay]);
 
   // Layered back handling: close seller overlay first
   useEffect(() => {
     if (!sellerId) {
-      popOverlay('seller');
+      setReviewGallery(null);
+      setOpenPreviewSignal(null);
       return;
     }
     try { window.history.pushState({ __sellerOverlay: true }, '', window.location.href); } catch {}
@@ -136,19 +153,16 @@ export default function SellerOverlay() {
     if (!isIncluded) setIncluded([...included, lowerSeller]);
     setSellerId(null);
     popOverlay('seller');
-    setTimeout(() => {
-      try { window.dispatchEvent(new CustomEvent('lb:close-item-overlay', { detail: { skipScroll: true } })); } catch {}
-    }, 0);
+    try { window.dispatchEvent(new CustomEvent('lb:close-item-overlay', { detail: { skipScroll: true } })); } catch {}
     setTimeout(() => {
       try { window.dispatchEvent(new CustomEvent('lb:scroll-top')); } catch {}
       try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
     }, 30);
   };
 
-  if (!sellerId) return null;
-
   return (
     <AnimatePresence>
+      {sellerId && (
       <motion.div
         key="seller-backdrop"
         ref={backdropRef}
@@ -176,7 +190,7 @@ export default function SellerOverlay() {
 
           <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-3 md:gap-4 p-3 md:p-4">
             {/* Left column: image + meta + manifesto */}
-            <div className="min-w-0 min-h-0 md:overflow-y-auto md:pr-1 custom-scroll pb-16">
+            <div className="min-w-0 min-h-0 md:overflow-y-auto md:pr-1 custom-scroll">
               <div className="flex items-start gap-3">
                 <div className="shrink-0">
                   <button
@@ -258,7 +272,7 @@ export default function SellerOverlay() {
             </div>
 
             {/* Right column: reviews */}
-            <div className="min-w-0 min-h-0 flex flex-col pb-16">
+            <div className="min-w-0 min-h-0 flex flex-col relative">
               <div className="sticky top-0 z-0 bg-white/85 dark:bg-[#0f1725]/85 backdrop-blur border-b border-gray-200/70 dark:border-gray-700/60 py-2 mb-2">
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Reviews snapshot</h3>
                 <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
@@ -276,12 +290,23 @@ export default function SellerOverlay() {
                 </div>
                 {ratingStats.total > 0 && (
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {ratingStats.recentNegatives > 0 && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" title={`${ratingStats.recentNegatives} low-rated review${ratingStats.recentNegatives === 1 ? '' : 's'} in latest batch`}>
-                        <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
-                        {ratingStats.recentNegatives} recent low ratings
-                      </span>
-                    )}
+                  {ratingStats.recentNegatives > 0 && (
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                        ratingStats.recentNegatives > 6
+                          ? "bg-red-500/15 text-red-700 dark:bg-red-500/20 dark:text-red-200"
+                          : "bg-amber-500/15 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200"
+                      )}
+                      title={`${ratingStats.recentNegatives} low-rated review${ratingStats.recentNegatives === 1 ? '' : 's'} in latest batch`}
+                    >
+                      <span className={cn(
+                        "inline-block h-2 w-2 rounded-full",
+                        ratingStats.recentNegatives > 6 ? "bg-red-500" : "bg-amber-500"
+                      )} />
+                      {ratingStats.recentNegatives} recent low ratings
+                    </span>
+                  )}
                     {ratingStats.buckets.map(bucket => {
                       const { rating, count } = bucket;
                       const badgeClass = panelClassForReviewScore(rating);
@@ -299,32 +324,91 @@ export default function SellerOverlay() {
                   </div>
                 )}
               </div>
-              <div className="flex-1 min-h-0 overflow-auto pr-1 pb-16 custom-scroll">
+              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 custom-scroll">
                 <ReviewsList
                   reviews={reviews}
                   fullTimeAgo={(ts) => (ts ? timeAgo(ts) : '')}
                   loading={loading}
                   error={error}
                   reload={reload}
+                  renderItemLink={(r) => {
+                    const ref = r?.item?.refNum || String(r?.item?.id || '');
+                    const externalUrl = typeof r?.itemUrl === 'string' && r.itemUrl ? r.itemUrl : null;
+                    if (!ref && !externalUrl) return null;
+                    const name = r?.item?.name || 'View item';
+                    const isInternal = Boolean(ref);
+                    const handleClick = (e) => {
+                      if (!isInternal) return; // allow normal navigation for external links
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSellerId(null);
+                      popOverlay('seller');
+                      pushOverlay('item');
+                      setItemRef(ref);
+                    };
+                    const href = isInternal ? `/?ref=${encodeURIComponent(ref)}` : externalUrl;
+                    const linkClass = isInternal
+                      ? "underline decoration-dotted underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500"
+                      : "hover:underline focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500";
+                    return (
+                      <a
+                        href={href}
+                        className={linkClass}
+                        onClick={handleClick}
+                        target={isInternal ? undefined : "_blank"}
+                        rel={isInternal ? undefined : "noopener noreferrer"}
+                        title={name}
+                      >{name}</a>
+                    );
+                  }}
+                  onImageClick={(images, index) => {
+                    if (!Array.isArray(images) || images.length === 0) return;
+                    setOpenPreviewSignal(null);
+                    setReviewGallery({ images, index, ts: Date.now(), guard: sellerId });
+                  }}
                 />
+                {!loading && reviews.length > 0 && (() => {
+                  const total = detail?.reviewsMeta?.summary?.numberOfReviews ?? reviews.length;
+                  const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
+                  if (!isTruncated || !shareLink) return null;
+                  return (
+                    <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-3">
+                      Read more reviews at:
+                    </div>
+                  );
+                })()}
+                <div className="pb-15" />
               </div>
+              {shareLink && (
+                <div className="pointer-events-none absolute right-3 xl:right-5 bottom-3">
+                  <a
+                    href={shareLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
+                  >
+                    <span>Biggy store</span>
+                    <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
+                  </a>
+                </div>
+              )}
+              {reviewGallery && Array.isArray(reviewGallery.images) && reviewGallery.images.length > 0 && (
+                <ImageZoomPreview
+                  key={`seller-${sellerId}-review-gallery-${reviewGallery.ts}`}
+                  imageUrl={reviewGallery.images[reviewGallery.index]}
+                  imageUrls={reviewGallery.images}
+                  alt={`${name} review media`}
+                  openSignal={reviewGallery}
+                  hideTrigger
+                  guardKey={sellerId}
+                  onOpenChange={(open) => { if (!open) setReviewGallery(null); setZoomOpen(open); }}
+                />
+              )}
             </div>
           </div>
         </motion.div>
-        {shareLink && (
-          <div className="pointer-events-none absolute right-3 bottom-3">
-            <a
-              href={shareLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
-            >
-              <span>Biggy store</span>
-              <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
-            </a>
-          </div>
-        )}
       </motion.div>
+      )}
     </AnimatePresence>
   );
 }

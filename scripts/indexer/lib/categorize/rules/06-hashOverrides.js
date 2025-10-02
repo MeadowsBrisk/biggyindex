@@ -52,6 +52,26 @@ function templeBallsRule(ctx) {
 
 function hashPrecedenceRule(ctx) {
   const { text, scores, name, subsByCat } = ctx;
+  const nameLower = (name || '').toLowerCase();
+  const textHasFullMelt = /\bfull\s*-?\s*melt\b/.test(text);
+  if (textHasFullMelt) {
+    scores.Hash = (scores.Hash || 0) + 7;
+    if (scores.Flower) {
+      scores.Flower -= 6;
+      if (scores.Flower <= 0) delete scores.Flower;
+    }
+  }
+
+  const gooInName = /\bgoo\b/.test(nameLower);
+  const gooInText = /\bgoo\b/.test(text);
+  const edibleContext = /(gummy|gummies|chocolate|candy|edible|cake|cookie|brownie|chew|chews|sweet|sweets|drink|syrup|capsule|capsules|tablet|tablets)/;
+  if ((gooInName || gooInText) && !edibleContext.test(text)) {
+    scores.Hash = (scores.Hash || 0) + 6;
+    if (scores.Flower) {
+      scores.Flower -= 4;
+      if (scores.Flower <= 0) delete scores.Flower;
+    }
+  }
   // Diamond infused flower often refers to moonrocks; steer to Hash.Moonrocks
   if (/diamond\s+infused\s+flower|infused\s+flower.*diamond|diamond\s+flower/.test(text)) {
     scores.Hash = (scores.Hash || 0) + 6;
@@ -59,14 +79,14 @@ function hashPrecedenceRule(ctx) {
     (subsByCat.Hash ||= new Set()).add('Moonrocks');
   }
   if (scores.Hash && scores.Flower) {
-    const hashSignals = /(\bhash\b|hashish|dry sift|dry-sift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush|\b120u\b|120\s*(?:micron|microns|µ|μ))/;
+    const hashSignals = /(\bhash\b|hashish|dry sift|dry-sift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush|\b120u\b|120\s*(?:micron|microns|µ|μ)|\bfull\s*-?\s*melt\b|\bgoo\b)/;
     if (hashSignals.test(text)) {
       scores.Hash += 5;
       scores.Flower -= 5;
       if (scores.Flower <= 0) delete scores.Flower;
     }
     // Additional safeguard: if the NAME itself contains 'hash' ensure Hash wins over Flower-heavy genetic descriptors
-    if (/\bhash\b/.test((name || '').toLowerCase())) {
+    if (/\bhash\b/.test(nameLower)) {
       scores.Hash += 4; // strong nudge
       if (scores.Flower) {
         scores.Flower -= 2;
@@ -75,9 +95,20 @@ function hashPrecedenceRule(ctx) {
     }
   }
   // Minimal strain-only titles like 'SUNSET SHERBET' sometimes are hash drops; nudge Hash slightly to avoid 'Other'
-  const nameLower = (name || '').toLowerCase();
   if (/^\s*[a-z][a-z\s]+$/.test(nameLower) && /sherb|sherbet|sherbert/.test(nameLower) && !/gummy|vape|cart|bar|chocolate|capsule|tablet/.test(text)) {
     scores.Hash = (scores.Hash || 0) + 2;
+  }
+
+  if (/\btruffle(s)?\b/.test(text) && scores.Hash) {
+    const strongHashContext = /(\bhash\b|hashish|dry sift|dry-sift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush|\b120u\b|120\s*(?:micron|microns|µ|μ)|\bfull\s*-?\s*melt\b|\bgoo\b)/;
+    const flowerSignals = /(\bflower\b|\bbud\b|\bbuds\b|\bstrain\b|\bstrains\b|indica|sativa|hybrid|terp|terps|flavour|flavor|smoke|nug|nugs)/;
+    if (!strongHashContext.test(text) && flowerSignals.test(text)) {
+      scores.Hash -= 6;
+      if (scores.Hash <= 0) {
+        delete scores.Hash;
+      }
+      scores.Flower = (scores.Flower || 0) + 5;
+    }
   }
 }
 
