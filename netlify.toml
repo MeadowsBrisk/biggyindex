@@ -70,7 +70,9 @@
 
 [functions."seller-crawler-background"]
   # Background seller crawler runs every 4 hours, offset from item crawler by 1h
-  schedule = "50 1/4 * * *"
+  #schedule = "50 1/4 * * *"
+  schedule = "50 * * * *"
+
   node_bundler = "esbuild"
   [functions."seller-crawler-background".environment]
   CRAWLER_PERSIST = "blobs"
