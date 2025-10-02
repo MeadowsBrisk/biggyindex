@@ -71,7 +71,7 @@
 [functions."seller-crawler-background"]
   # Background seller crawler runs every 4 hours, offset from item crawler by 1h
   #schedule = "50 1/4 * * *"
-  schedule = "50 * * * *"
+  schedule = "*/30 * * * *"
 
   node_bundler = "esbuild"
   [functions."seller-crawler-background".environment]
@@ -80,7 +80,7 @@
   SELLER_CRAWLER_BLOBS_PREFIX = "seller-crawler/"
   CRAWLER_BLOBS_PREFIX = "seller-crawler/"
   CRAWLER_BLOBS_AUTH = "explicit"
-  SELLER_CRAWLER_MAX_PARALLEL = "3"
+  SELLER_CRAWLER_MAX_PARALLEL = "5"
   included_files = [
     "scripts/seller-crawler/crawl-sellers.js",
     "scripts/seller-crawler/aggregation/**",
