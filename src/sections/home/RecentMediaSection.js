@@ -202,7 +202,7 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
   return (
     <CardWrapper
       {...cardProps}
-      className={`group relative block shrink-0 overflow-hidden rounded-xl ${isTouchViewport ? "" : "max-h-[420px]"}`}
+      className={`group relative block shrink-0 overflow-hidden rounded-xl xl:rounded-none ${isTouchViewport ? "" : "max-h-[420px]"}`}
       style={isTouchViewport ? undefined : { width: `${baseWidth}vw`, height: tileHeight }}
     >
       <div className={`${isTouchViewport ? "relative" : "absolute inset-0"} flex`} style={isTouchViewport ? { height: tileHeight } : undefined}>
