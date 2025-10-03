@@ -20,7 +20,6 @@ export function proxyImage(url) {
   }
   // Skip already proxied URLs
   if (url.startsWith('https://serveproxy.com/?url=') || 
-      url.includes('/api/image-proxy?url=') ||
       url.includes('/cf-image-proxy?url=')) return url;
   
   try {
