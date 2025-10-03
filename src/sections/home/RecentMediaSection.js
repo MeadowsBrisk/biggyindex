@@ -232,7 +232,7 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
           <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/40 to-transparent px-6 py-6 text-white opacity-0 translate-y-4 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">{entry.sellerName}</p>
             <p className="mt-1 text-lg font-semibold">{entry.itemName}</p>
-            {entry.text && <p className="mt-3 max-h-28 overflow-hidden text-sm leading-relaxed text-white/85 line-clamp-4">{entry.text}</p>}
+            {entry.text && <p className="mt-3 max-h-28 overflow-hidden text-sm leading-relaxed text-white/85 max-w-xl">{entry.text}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-white/70">
               {entry.rating != null && <span>{entry.rating}/10 rating</span>}
               {daysLabel && <span>{daysLabel}</span>}

@@ -38,6 +38,7 @@ import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewSco
 import formatDescription from '@/lib/formatDescription';
 import { favouriteAccent } from '@/theme/favouriteAccent';
 import { countryLabelFromSource } from '@/lib/countries';
+import { proxyImage } from '@/lib/images';
 import cn from '@/app/cn';
 import ShareMenu from '@/components/ShareMenu';
 import EndorseButton from '@/components/EndorseButton';
@@ -484,7 +485,7 @@ export default function ItemDetailOverlay() {
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={src}
+                            src={proxyImage(src)}
                             alt={name}
                             loading={idx === 0 ? 'eager' : 'lazy'}
                             decoding="async"
@@ -525,7 +526,7 @@ export default function ItemDetailOverlay() {
                             title={`Image ${idx + 1}`}
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={src} alt="thumb" className="w-full h-full object-cover" />
+                            <img src={proxyImage(src)} alt="thumb" className="w-full h-full object-cover" />
                           </button>
                         </SwiperSlide>
                       ))}
