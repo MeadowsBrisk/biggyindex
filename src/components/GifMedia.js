@@ -9,7 +9,7 @@ import cn from '@/app/cn';
 // GifMedia simplified: no per-item play/pause button. Uses poster only when global pause active.
 export function GifMedia({ url, alt, className, onOpenPreview }) {
   const pauseGlobal = useAtomValue(pauseGifsAtom);
-  const { loading, hasEntry, posterProxied } = useGifAsset(url);
+  const { loading, hasEntry, posterProxied, video } = useGifAsset(url);
 
   // Source selection
   const gifSrc = useMemo(() => proxyImage(url), [url]);
@@ -29,17 +29,45 @@ export function GifMedia({ url, alt, className, onOpenPreview }) {
           onOpenPreview && 'cursor-zoom-in'
         )}
       >
-        <img
-          src={showPoster ? posterSrc : gifSrc}
-          alt={alt || ''}
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          className={cn(
-            'w-full h-full object-cover select-none',
-            onOpenPreview && 'cursor-zoom-in transform-gpu transition-transform duration-300 ease-out group-hover:scale-[1.06]'
-          )}
-        />
+        {showPoster ? (
+          <img
+            src={posterSrc}
+            alt={alt || ''}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className={cn(
+              'w-full h-full object-cover select-none',
+              onOpenPreview && 'cursor-zoom-in transform-gpu transition-transform duration-300 ease-out group-hover:scale-[1.06]'
+            )}
+          />
+        ) : video ? (
+          <video
+            src={video}
+            poster={posterSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            draggable={false}
+            className={cn(
+              'w-full h-full object-cover select-none',
+              onOpenPreview && 'cursor-zoom-in transform-gpu transition-transform duration-300 ease-out group-hover:scale-[1.06]'
+            )}
+          />
+        ) : (
+          <img
+            src={gifSrc}
+            alt={alt || ''}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className={cn(
+              'w-full h-full object-cover select-none',
+              onOpenPreview && 'cursor-zoom-in transform-gpu transition-transform duration-300 ease-out group-hover:scale-[1.06]'
+            )}
+          />
+        )}
       </Wrapper>
 
       {/* GIF badge */}
