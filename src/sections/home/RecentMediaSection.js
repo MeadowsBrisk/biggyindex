@@ -4,6 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
 import { proxyImage } from "@/lib/images";
@@ -80,18 +84,30 @@ export default function RecentMediaSection({ mediaEntries }) {
 function MediaStrip({ entries, perImageWidth, tileHeight, isTouchViewport }) {
   if (isTouchViewport) {
     return (
-      <div className="relative mt-14 w-full overflow-x-auto pb-6">
-        <div className="flex gap-4 px-6 touch-pan-x snap-x snap-mandatory">
+      <div className="relative mt-14 w-full">
+        <Swiper
+          modules={[Navigation, Autoplay]}
+          slidesPerView={1.15}
+          centeredSlides
+          spaceBetween={16}
+          breakpoints={{
+            640: { slidesPerView: 1.5, centeredSlides: false, spaceBetween: 20 },
+            1024: { slidesPerView: 2, centeredSlides: false, spaceBetween: 24 },
+          }}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          className="pb-6"
+        >
           {entries.map((entry, index) => (
-            <MediaTile
-              key={`${entry.id}-touch-${index}`}
-              entry={entry}
-              perImageWidth={perImageWidth}
-              tileHeight={tileHeight}
-              isTouchViewport
-            />
+            <SwiperSlide key={`${entry.id}-touch-${index}`}>
+              <MediaTile
+                entry={entry}
+                perImageWidth={perImageWidth}
+                tileHeight={tileHeight}
+                isTouchViewport
+              />
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </div>
     );
   }
@@ -186,8 +202,8 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
   return (
     <CardWrapper
       {...cardProps}
-      className={`group relative block shrink-0 overflow-hidden ${isTouchViewport ? "snap-center" : "max-h-[420px]"}`}
-      style={isTouchViewport ? { width: `${touchWidth}vw` } : { width: `${baseWidth}vw`, height: tileHeight }}
+      className={`group relative block shrink-0 overflow-hidden rounded-xl ${isTouchViewport ? "" : "max-h-[420px]"}`}
+      style={isTouchViewport ? undefined : { width: `${baseWidth}vw`, height: tileHeight }}
     >
       <div className={`${isTouchViewport ? "relative" : "absolute inset-0"} flex`} style={isTouchViewport ? { height: tileHeight } : undefined}>
         {entry.images.slice(0, 3).map((imageUrl, idx) => (
@@ -230,7 +246,7 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
       {/* Mobile/Tablet: content below image */}
       {isTouchViewport && (
         <div className="bg-white/95 dark:bg-slate-900/95 border-t border-slate-200 dark:border-white/10">
-          <div className="px-4 pt-3 pb-2 max-h-44 overflow-y-auto">
+          <div className="px-4 pt-3 pb-2 h-44 overflow-y-auto">
             <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400 font-semibold">{entry.sellerName}</p>
             <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{entry.itemName}</p>
             {entry.text && (

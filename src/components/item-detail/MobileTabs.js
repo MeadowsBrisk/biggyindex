@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
 import VanIcon from '@/app/assets/svg/van.svg';
@@ -35,7 +35,23 @@ export default function MobileTabs({
   displayName,
   leadImage,
 }) {
-  const [tab, setTab] = useState('prices');
+  // Load persisted tab choice or default to 'description'
+  const [tab, setTab] = useState(() => {
+    if (typeof window === 'undefined') return 'description';
+    try {
+      const saved = localStorage.getItem('itemDetailMobileTab');
+      return (saved && ['prices', 'description', 'reviews'].includes(saved)) ? saved : 'description';
+    } catch {
+      return 'description';
+    }
+  });
+  
+  // Persist tab choice when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('itemDetailMobileTab', tab);
+    } catch {}
+  }, [tab]);
   const [selectionMode, setSelectionMode] = useState(false);
   // Auto-select preferred shipping when enabling includeShipping
   React.useEffect(() => {

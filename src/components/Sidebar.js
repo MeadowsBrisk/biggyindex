@@ -88,7 +88,7 @@ export default function Sidebar() {
         <button
           type="button"
           aria-label="Open filters"
-          className="fixed left-0 top-0 bottom-0 z-30 w-10 max-w-10 bg-transparent focus:outline-none"
+          className="fixed left-0 top-17 bottom-0 z-30 w-10 max-w-10 bg-transparent focus:outline-none bg-green"
           onClick={() => setOpen(true)}
         >
           <span className="sr-only">Open filters</span>

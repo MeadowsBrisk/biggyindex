@@ -362,7 +362,7 @@ export default function SellerOverlay() {
                       >{name}</a>
                     );
                   }}
-                  onImageClick={(images, index) => {
+                  onImageClick={(src, images, index) => {
                     if (!Array.isArray(images) || images.length === 0) return;
                     setOpenPreviewSignal(null);
                     setReviewGallery({ images, index, ts: Date.now(), guard: sellerId });

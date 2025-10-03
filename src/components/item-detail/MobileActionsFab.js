@@ -2,6 +2,7 @@ import React from 'react';
 import cn from '@/app/cn';
 import StarIcon from '@/app/assets/svg/star.svg';
 import EndorseButton from '@/components/EndorseButton';
+import ShareMenu from '@/components/ShareMenu';
 
 export default function MobileActionsFab({
   baseItem,
@@ -12,6 +13,8 @@ export default function MobileActionsFab({
   fabRef,
   shareBtnRef,
   setShareOpen,
+  shareOpen,
+  shareUrl,
   favouriteAccent,
 }) {
   return (
@@ -55,26 +58,34 @@ export default function MobileActionsFab({
         >
           <StarIcon className="w-5 h-5" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} />
         </button>
-        <button
-          ref={shareBtnRef}
-          type="button"
-          onMouseDown={(e)=>e.stopPropagation()}
-          onTouchStart={(e)=>e.stopPropagation()}
-          onClick={() => { setShareOpen(v=>!v); }}
+        <div
           className={cn(
-            'absolute left-0 bottom-0 w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/95 text-gray-700 dark:bg-gray-800/95 dark:text-gray-200 shadow flex items-center justify-center',
-            fabOpen ? 'translate-x-[8px] translate-y-[-92px] opacity-100' : 'translate-x-0 translate-y-0 opacity-0 pointer-events-none',
-            'transition-all duration-200'
+            'absolute left-0 bottom-0 transition-all duration-200',
+            fabOpen ? 'translate-x-[8px] translate-y-[-92px] opacity-100' : 'translate-x-0 translate-y-0 opacity-0 pointer-events-none'
           )}
-          title="Share"
-          aria-label="Share"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-            <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/>
-            <path d="M12 16V3"/>
-            <path d="M8 7l4-4 4 4"/>
-          </svg>
-        </button>
+          <div className="relative">
+          <button
+            ref={shareBtnRef}
+            type="button"
+            onMouseDown={(e)=>e.stopPropagation()}
+            onTouchStart={(e)=>e.stopPropagation()}
+            onClick={() => { setShareOpen(v=>!v); }}
+            className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white/95 text-gray-700 dark:bg-gray-800/95 dark:text-gray-200 shadow flex items-center justify-center"
+            title="Share"
+            aria-label="Share"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+              <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/>
+              <path d="M12 16V3"/>
+              <path d="M8 7l4-4 4 4"/>
+            </svg>
+          </button>
+          {shareOpen && (
+            <ShareMenu url={shareUrl} title={baseItem?.name || 'Item'} onClose={() => setShareOpen(false)} />
+          )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -281,7 +281,14 @@ export default function ItemDetailOverlay() {
   const fabRef = useRef(null);
   useEffect(() => { setFabOpen(false); }, [refNum]);
   useEffect(() => {
-    function onDocDown(e){ if(!shareOpen) return; const t=e.target; const inBtn = shareBtnRef.current && shareBtnRef.current.contains(t); if(!inBtn) setShareOpen(false); }
+    function onDocDown(e){ 
+      if(!shareOpen) return; 
+      const t=e.target; 
+      const inBtn = shareBtnRef.current && shareBtnRef.current.contains(t);
+      // Also check if click is within ShareMenu (it stops propagation but we need to check containment)
+      const inMenu = t.closest('[role="menu"]');
+      if(!inBtn && !inMenu) setShareOpen(false); 
+    }
     document.addEventListener('mousedown', onDocDown);
     return () => document.removeEventListener('mousedown', onDocDown);
   }, [shareOpen]);
@@ -1013,6 +1020,8 @@ export default function ItemDetailOverlay() {
             fabRef={fabRef}
             shareBtnRef={shareBtnRef}
             setShareOpen={setShareOpen}
+            shareOpen={shareOpen}
+            shareUrl={shareUrl}
             favouriteAccent={favouriteAccent}
           />
           {/* Floating biggy button (shipping info removed per design) */}
