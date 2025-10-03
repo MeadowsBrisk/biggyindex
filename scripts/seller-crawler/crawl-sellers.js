@@ -567,6 +567,7 @@ async function main() {
       } catch (e) {
         runMeta.errors++;
         log.warn(`[seller ${it.sellerId}] failed: ${e.message}`);
+        // Don't add to processedSellers on failure so aggregates can preserve previous data
       }
     });
   }
@@ -605,9 +606,68 @@ async function main() {
         const leaderboardLimitEnv = Number.parseInt(process.env.SELLER_CRAWLER_LEADERBOARD_LIMIT || '', 10);
         const leaderboardLimit = Number.isFinite(leaderboardLimitEnv) && leaderboardLimitEnv > 0 ? leaderboardLimitEnv : 10;
         
+        // Load existing leaderboard to preserve sellers not processed this run
+        let existingLeaderboard = null;
+        try {
+          if (persistence && persistence.mode === 'blobs') {
+            existingLeaderboard = await persistence.readJson('sellers-leaderboard.json');
+          } else {
+            const file = path.join(env.outputDir, 'sellers-leaderboard.json');
+            if (fs.existsSync(file)) {
+              existingLeaderboard = JSON.parse(fs.readFileSync(file, 'utf8'));
+            }
+          }
+        } catch (e) {
+          log.debug(`[leaderboard] failed to load existing: ${e.message}`);
+        }
+
+        // Merge existing allRatings with current run's data (preserve sellers not in current run)
+        const mergedAllRatings = new Map();
+        if (existingLeaderboard && Array.isArray(existingLeaderboard.top)) {
+          for (const entry of existingLeaderboard.top) {
+            if (entry?.sellerId && !allRatings.has(entry.sellerId)) {
+              // Preserve seller from previous run if not in current run
+              mergedAllRatings.set(entry.sellerId, {
+                sellerId: entry.sellerId,
+                sellerName: entry.sellerName || sellerNameById.get(entry.sellerId) || null,
+                imageUrl: entry.imageUrl || null,
+                url: entry.url || null,
+                positive: entry.positive || 0,
+                negative: entry.negative || 0,
+                total: entry.total || 0,
+                lastCreated: entry.lastReviewAt || 0,
+              });
+            }
+          }
+        }
+        if (existingLeaderboard && Array.isArray(existingLeaderboard.bottom)) {
+          for (const entry of existingLeaderboard.bottom) {
+            if (entry?.sellerId && !allRatings.has(entry.sellerId) && !mergedAllRatings.has(entry.sellerId)) {
+              mergedAllRatings.set(entry.sellerId, {
+                sellerId: entry.sellerId,
+                sellerName: entry.sellerName || sellerNameById.get(entry.sellerId) || null,
+                imageUrl: entry.imageUrl || null,
+                url: entry.url || null,
+                positive: entry.positive || 0,
+                negative: entry.negative || 0,
+                total: entry.total || 0,
+                lastCreated: entry.lastReviewAt || 0,
+              });
+            }
+          }
+        }
+        // Overlay current run's data (takes precedence)
+        for (const [sellerId, data] of allRatings.entries()) {
+          mergedAllRatings.set(sellerId, data);
+        }
+        const preservedCount = mergedAllRatings.size - allRatings.size;
+        if (preservedCount > 0) {
+          log.info(`[leaderboard] preserved ${preservedCount} seller(s) from previous run not in current dataset`);
+        }
+
         const { top: topAll, bottom: bottomAll, metadata } = computeLeaderboard({
           weeklyPositives,
-          allRatings,
+          allRatings: mergedAllRatings,
           sellerNameById,
           config: {
             useWeek,
@@ -617,7 +677,7 @@ async function main() {
             priorTotal: 40,
           },
         });
-        const recent = computeRecentSellers({ state, allRatings, sellerNameById, limit: 10 });
+        const recent = computeRecentSellers({ state, allRatings: mergedAllRatings, sellerNameById, limit: 10 });
         
         writeSellersLeaderboard(env.outputDir, {
           generatedAt: new Date().toISOString(),
