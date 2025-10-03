@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { proxyImage } from '@/lib/images';
 
 export default function ItemImageTooltip({ imageUrl, itemName, fallbackText, children }) {
@@ -13,6 +12,9 @@ export default function ItemImageTooltip({ imageUrl, itemName, fallbackText, chi
   const hideTimeoutRef = useRef(null);
   const showDelayRef = useRef(null);
   const rafRef = useRef(null);
+  
+  // Memoize proxied URL to avoid recalculation on every render
+  const proxiedImageUrl = useMemo(() => imageUrl ? proxyImage(imageUrl) : null, [imageUrl]);
 
   const updatePosition = useCallback((e) => {
     const clientX = e?.clientX ?? 0;
@@ -80,9 +82,9 @@ export default function ItemImageTooltip({ imageUrl, itemName, fallbackText, chi
             >
               <motion.div initial={{ opacity: 0, scale: 0.9, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: -4 }} transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}>
                 <div className="relative rounded-xl border border-slate-200 bg-white/95 p-1 shadow-xl shadow-slate-900/15 backdrop-blur-md dark:border-white/20 dark:bg-slate-800/95 dark:shadow-black/40">
-                  {imageUrl ? (
+                  {proxiedImageUrl ? (
                     <div className="relative h-[180px] w-[180px] overflow-hidden rounded-lg bg-slate-100 ring-2 ring-slate-200 dark:bg-slate-700 dark:ring-white/10 sm:h-[300px] sm:w-[300px]">
-                      <Image src={proxyImage(imageUrl)} alt={itemName || 'Item image'} fill className="object-cover" sizes="(max-width: 639px) 180px, 300px" unoptimized />
+                      <img src={proxiedImageUrl} alt={itemName || 'Item image'} loading="eager" decoding="async" className="h-full w-full object-cover" />
                     </div>
                   ) : (
                     <div className="max-w-[260px] rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800/95 dark:text-slate-200 dark:ring-white/20">

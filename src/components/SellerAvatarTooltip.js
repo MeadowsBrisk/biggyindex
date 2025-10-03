@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { proxyImage } from '@/lib/images';
 
 function getInitials(name) {
@@ -19,6 +18,9 @@ export default function SellerAvatarTooltip({ sellerName, sellerImageUrl, childr
   const hideTimeoutRef = useRef(null);
   const showDelayRef = useRef(null);
   const rafRef = useRef(null);
+  
+  // Memoize proxied URL to avoid recalculation on every render
+  const proxiedImageUrl = useMemo(() => sellerImageUrl ? proxyImage(sellerImageUrl) : null, [sellerImageUrl]);
 
   const updatePosition = useCallback((e) => {
     // Position the bubble so its bottom-center is at the cursor (then translateY(-100%) puts it above)
@@ -114,14 +116,13 @@ export default function SellerAvatarTooltip({ sellerName, sellerImageUrl, childr
               >
                 <div className="relative flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-2 py-1 shadow-xl shadow-slate-900/15 backdrop-blur-md dark:border-white/20 dark:bg-slate-800/95 dark:shadow-black/40">
                   <div className="relative h-[150px] w-[150px] shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700 ring-2 ring-slate-200 dark:ring-white/10">
-                    {sellerImageUrl ? (
-                      <Image
-                        src={proxyImage(sellerImageUrl)}
+                    {proxiedImageUrl ? (
+                      <img
+                        src={proxiedImageUrl}
                         alt={sellerName}
-                        fill
-                        className="object-cover"
-                        sizes="150px"
-                        unoptimized
+                        loading="eager"
+                        decoding="async"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-2xl font-semibold uppercase text-slate-400 dark:text-slate-500">
