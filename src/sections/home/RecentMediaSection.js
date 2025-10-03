@@ -186,10 +186,10 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
   return (
     <CardWrapper
       {...cardProps}
-      className={`group relative block max-h-[420px] shrink-0 overflow-hidden ${isTouchViewport ? "snap-center" : ""}`}
-      style={{ width: `${isTouchViewport ? touchWidth : baseWidth}vw`, height: tileHeight }}
+      className={`group relative block shrink-0 overflow-hidden ${isTouchViewport ? "snap-center" : "max-h-[420px]"}`}
+      style={isTouchViewport ? { width: `${touchWidth}vw` } : { width: `${baseWidth}vw`, height: tileHeight }}
     >
-      <div className="absolute inset-0 flex">
+      <div className={`${isTouchViewport ? "relative" : "absolute inset-0"} flex`} style={isTouchViewport ? { height: tileHeight } : undefined}>
         {entry.images.slice(0, 3).map((imageUrl, idx) => (
           <div
             key={`${entry.id}-img-${idx}`}
@@ -207,26 +207,45 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
           </div>
         ))}
       </div>
-      <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/25" aria-hidden />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" aria-hidden />
+      {/* Desktop: overlay hover effect */}
+      {!isTouchViewport && (
+        <>
+          <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/25" aria-hidden />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" aria-hidden />
+          <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/40 to-transparent px-6 py-6 text-white opacity-0 translate-y-4 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">{entry.sellerName}</p>
+            <p className="mt-1 text-lg font-semibold">{entry.itemName}</p>
+            {entry.text && <p className="mt-3 max-h-28 overflow-hidden text-sm leading-relaxed text-white/85 line-clamp-4">{entry.text}</p>}
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-white/70">
+              {entry.rating != null && <span>{entry.rating}/10 rating</span>}
+              {daysLabel && <span>{daysLabel}</span>}
+              {capturedLabel && <span>{capturedLabel}</span>}
+              {relativeLabel && <span>{relativeLabel}</span>}
+            </div>
+          </div>
+        </>
+      )}
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-black/60 px-5 py-4 text-sm font-semibold text-white transition duration-200 group-hover:opacity-0 group-hover:translate-y-2">
-        <span className="text-white/90">{entry.itemName}</span>
-        <span className="ml-2 text-xs font-medium uppercase tracking-[0.18em] text-white/60">{entry.sellerName}</span>
-      </div>
-
-      <div className="pointer-events-none absolute inset-0 z-20 flex translate-y-4 flex-col justify-end bg-gradient-to-t from-black/85 via-black/40 to-transparent px-6 py-6 text-white opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-        <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">{entry.sellerName}</p>
-        <p className="mt-1 text-lg font-semibold">{entry.itemName}</p>
-        {entry.text && <p className="mt-3 max-h-28 overflow-hidden text-sm leading-relaxed text-white/85 max-w-[20em] xl:max-w-[40em]">{entry.text}</p>}
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-white/70">
-          {entry.rating != null && <span>{entry.rating}/10 rating</span>}
-          {daysLabel && <span>{daysLabel}</span>}
-          {capturedLabel && <span>{capturedLabel}</span>}
-          {relativeLabel && <span>{relativeLabel}</span>}
+      {/* Mobile/Tablet: content below image */}
+      {isTouchViewport && (
+        <div className="bg-white/95 dark:bg-slate-900/95 border-t border-slate-200 dark:border-white/10">
+          <div className="px-4 pt-3 pb-2 max-h-44 overflow-y-auto">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400 font-semibold">{entry.sellerName}</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{entry.itemName}</p>
+            {entry.text && (
+              <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-white/80">
+                {entry.text}
+              </p>
+            )}
+          </div>
+          <div className="px-4 pb-3 pt-2 border-t border-slate-200/50 dark:border-white/5 flex flex-wrap items-center gap-2 text-[10px] text-slate-600 dark:text-white/60 font-medium">
+            {entry.rating != null && <span className="text-emerald-600 dark:text-emerald-400">{entry.rating}/10</span>}
+            {daysLabel && <span>{daysLabel}</span>}
+            {relativeLabel && <span>{relativeLabel}</span>}
+          </div>
         </div>
-      </div>
+      )}
     </CardWrapper>
   );
 }

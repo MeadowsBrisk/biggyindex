@@ -138,7 +138,7 @@ function LeaderboardPanel({ variant, title, subtitle, items, emptyMessage, mount
   return (
     <div
       className={cn(
-        "h-full rounded-3xl border p-6 shadow-xl transition-colors duration-300",
+        "h-full rounded-3xl border p-4 sm:p-6 shadow-xl transition-colors duration-300",
         styles.container
       )}
     >
@@ -180,31 +180,47 @@ function LeaderboardPanel({ variant, title, subtitle, items, emptyMessage, mount
             return (
               <li
                 key={entry.id}
-                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm transition-colors duration-200 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-black/30"
+                className="relative rounded-2xl border border-slate-200/70 bg-white/80 p-3 sm:p-4 shadow-sm transition-colors duration-200 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-black/30"
               >
-                <div className="flex items-start gap-4">
-                  <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold", styles.rank)}>
-                    #{entry.rank}
-                  </div>
-                  {entry.imageUrl ? (
-                    <SellerAvatarTooltip sellerName={entry.sellerName} sellerImageUrl={entry.imageUrl}>
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 dark:border-white/15 dark:bg-white/10">
-                        <Image
-                          src={proxyImage(entry.imageUrl)}
-                          alt={`${entry.sellerName} avatar`}
-                          fill
-                          sizes="48px"
-                          className="object-cover"
-                        />
-                      </div>
-                    </SellerAvatarTooltip>
-                  ) : (
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-100 text-xs font-semibold uppercase text-slate-500 dark:border-white/15 dark:bg-white/10 dark:text-white/70">
-                      {initials}
-                    </div>
+                {/* Rating badges - top right on mobile */}
+                <div className="absolute right-3 top-3 sm:hidden flex flex-col items-end gap-0.5">
+                  {avgLabel && (
+                    <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold shadow-sm shadow-slate-900/5 dark:shadow-black/30", styles.score)} title="Overall average rating">
+                      {avgLabel}
+                    </span>
                   )}
-                  <div className="flex-1">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  {scoreLabel && (
+                    <span className="text-[9px] font-medium text-slate-500 dark:text-white/60" title="Bayesian smoothed score">
+                      {scoreLabel}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className={cn("flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold", styles.rank)}>
+                      #{entry.rank}
+                    </div>
+                    {entry.imageUrl ? (
+                      <SellerAvatarTooltip sellerName={entry.sellerName} sellerImageUrl={entry.imageUrl}>
+                        <div className="relative h-10 w-10 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 dark:border-white/15 dark:bg-white/10">
+                          <Image
+                            src={proxyImage(entry.imageUrl)}
+                            alt={`${entry.sellerName} avatar`}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        </div>
+                      </SellerAvatarTooltip>
+                    ) : (
+                      <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-slate-100 text-xs font-semibold uppercase text-slate-500 dark:border-white/15 dark:bg-white/10 dark:text-white/70">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 pr-10 sm:pr-0">
+                    <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         {entry.sellerId ? (
                           <Link
@@ -234,10 +250,11 @@ function LeaderboardPanel({ variant, title, subtitle, items, emptyMessage, mount
                           <span className="text-sm font-semibold text-slate-900 dark:text-white">{entry.sellerName}</span>
                         )}
                         {entry.total != null && (
-                          <p className="text-xs text-slate-500 dark:text-white/60">{entry.total} reviews sampled</p>
+                          <p className="text-[11px] text-slate-500 dark:text-white/60">{entry.total} reviews sampled</p>
                         )}
                       </div>
-                      <div className="flex flex-col items-end gap-1">
+                      {/* Desktop rating badges */}
+                      <div className="hidden sm:flex flex-col items-end gap-1">
                         {avgLabel && (
                           <span className={cn("rounded-full px-3 py-1 text-sm font-bold shadow-sm shadow-slate-900/5 dark:shadow-black/30", styles.score)} title="Overall average rating">
                             {avgLabel}
@@ -250,7 +267,7 @@ function LeaderboardPanel({ variant, title, subtitle, items, emptyMessage, mount
                         )}
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-medium text-slate-500 dark:text-white/60">
+                    <div className="mt-1.5 sm:mt-3 flex flex-wrap items-center gap-x-2.5 sm:gap-x-4 gap-y-0.5 sm:gap-y-1 text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-white/60">
                       {entry.positive != null && (
                         <span className="text-emerald-600 dark:text-emerald-300">+{entry.positive} positive</span>
                       )}
@@ -263,11 +280,11 @@ function LeaderboardPanel({ variant, title, subtitle, items, emptyMessage, mount
                       )}
                       {entry.total != null && <span>Total {entry.total}</span>}
                       {entry.lastReviewAt && (
-                        <span>
+                        <span className="w-full sm:w-auto">
                           Last review
                           <span suppressHydrationWarning> {lastRelative || ""}</span>
                           {lastAbsolute && (
-                            <span className="ml-1 text-[10px] text-slate-400 dark:text-white/50">({lastAbsolute})</span>
+                            <span className="ml-1 text-[9px] sm:text-[10px] text-slate-400 dark:text-white/50">({lastAbsolute})</span>
                           )}
                         </span>
                       )}
@@ -375,13 +392,13 @@ export default function SellerLeaderboardSection({ leaderboard, sellersIndex }) 
 
   return (
     <section className="bg-gradient-to-b from-slate-100 via-slate-50 to-white py-24 transition-colors duration-300 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950">
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <div className="rounded-3xl border border-slate-200 bg-white/90 shadow-xl dark:border-white/10 dark:bg-white/[0.06]">
           <button
             type="button"
             aria-expanded={expanded}
             onClick={() => setExpanded((v) => !v)}
-            className="flex w-full items-center justify-between gap-4 p-6 text-left"
+            className="flex w-full items-center justify-between gap-3 p-4 sm:p-6 text-left"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
@@ -416,7 +433,7 @@ export default function SellerLeaderboardSection({ leaderboard, sellersIndex }) 
             transition={{ duration: 0.2 }}
             style={{ overflow: 'hidden' }}
           >
-            <div className="px-6 pb-6">
+            <div className="px-4 pb-4 sm:px-6 sm:pb-6">
               <div className="grid gap-6 pt-2 lg:grid-cols-2">
                 <LeaderboardPanel
                   variant="top"

@@ -111,7 +111,7 @@ export default function HeroSection({ stats }) {
         <div className="pointer-events-none absolute -right-24 bottom-20 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl dark:bg-blue-500/10" />
       </motion.div>
       <div className="relative mx-auto flex min-h-[70vh] max-w-6xl flex-col justify-center gap-12 px-6 py-16 lg:flex-row lg:items-center lg:py-24">
-        <motion.div {...fadeInUp({ distance: 24, trigger: "animate" })} className="max-w-2xl text-balance text-center lg:text-left">
+        <motion.div {...fadeInUp({ distance: 24, trigger: "animate" })} className="mx-auto max-w-2xl text-balance text-center lg:mx-0 lg:max-w-xl lg:text-left">
           <AnimatedLogoHeader className="justify-center text-slate-900 dark:text-white lg:justify-start" />
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80">
             Find what you’re looking for
@@ -119,10 +119,10 @@ export default function HeroSection({ stats }) {
           <h1 className="mt-6 text-4xl font-bold leading-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
             An index for the<br /> <span className="text-emerald-500">420</span> marketplace
           </h1>
-          <p className="mt-5 max-w-xl text-base text-slate-700 dark:text-white/75 sm:text-lg">
+          <p className="mt-5 mx-auto max-w-xl text-base text-slate-700 dark:text-white/75 sm:text-lg lg:mx-0">
             Browse LittleBiggy faster with smarter search, tidy categories, and quick stats tailored for UK buyers.
           </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row lg:items-start">
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
             <Link
               href="/"
               className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-6 py-3 text-base font-semibold text-slate-950 shadow-lg shadow-emerald-500/40 transition hover:-translate-y-0.5 hover:bg-emerald-400"
@@ -144,7 +144,7 @@ export default function HeroSection({ stats }) {
 
         <motion.div
           {...fadeInUp({ distance: 24, delay: 0.1, trigger: "animate" })}
-          className="w-full max-w-md rounded-3xl border border-white/50 bg-white/80 p-6 shadow-lg shadow-emerald-500/10 backdrop-blur transition-colors duration-300 dark:border-white/15 dark:bg-white/[0.06]"
+          className="mx-auto w-full max-w-md rounded-3xl border border-white/50 bg-white/80 p-6 shadow-lg shadow-emerald-500/10 backdrop-blur transition-colors duration-300 dark:border-white/15 dark:bg-white/[0.06] lg:mx-0"
         >
           <dl className="space-y-5 text-sm text-slate-600 dark:text-white/65">
             <div className="flex items-center justify-between">

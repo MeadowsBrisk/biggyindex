@@ -214,7 +214,7 @@ export default function RecentReviewsSection({ reviews }) {
 
         <motion.div
           {...fadeInUp({ trigger: "view", viewportAmount: 0.4, delay: 0.05 })}
-          className="mt-16 rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-xl shadow-slate-900/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/30"
+          className="mt-16 rounded-3xl border border-slate-200 bg-white/95 p-4 sm:p-8 shadow-xl shadow-slate-900/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/30"
         >
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4 dark:border-white/10">
             <div>
@@ -272,20 +272,20 @@ function ReviewRow({ review }) {
       className={cn(
         "relative rounded-2xl border transition-colors duration-200 backdrop-blur-sm",
         hasText
-          ? `${panelClass} p-5 shadow-sm hover:shadow dark:shadow-black/30`
-          : `border-dashed ${panelClass} px-4 py-3 text-sm font-medium`,
-        (hasItemImage || showPlaceholder) && "pr-24"
+          ? `${panelClass} p-4 sm:p-5 shadow-sm hover:shadow dark:shadow-black/30`
+          : `border-dashed ${panelClass} px-3 sm:px-4 py-2 sm:py-3 text-sm font-medium`,
+        (hasItemImage || showPlaceholder) && "sm:pr-24"
       )}
     >
       {(hasItemImage || showPlaceholder) && (
-        <div className="absolute right-5 top-5 hidden sm:block">
+        <div className="absolute right-4 top-4 sm:right-5 sm:top-5">
           <ItemImageTooltip
             imageUrl={review.itemImageUrl}
             itemName={review.itemName}
             fallbackText="Image not indexed. Item may no longer be available"
           >
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm dark:border-white/20 dark:bg-white/10">
-              <div className="relative h-16 w-16">
+              <div className="relative h-12 w-12 sm:h-16 sm:w-16">
                 {hasItemImage ? (
                   <Image
                     src={proxyImage(review.itemImageUrl)}
@@ -319,7 +319,7 @@ function ReviewRow({ review }) {
         </div>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-3 pt-5 sm:pt-0">
         {review.itemName && (
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
             {review.refNum ? (
