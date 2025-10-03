@@ -1,6 +1,6 @@
 // Image-related utilities
 
-// Proxy image URLs via Cloudflare Worker (fastest), Netlify Edge, or Serveproxy CDN
+// Proxy image URLs via Cloudflare Worker, Netlify Edge, or Serveproxy CDN
 // - Skips non-strings
 // - Skips already proxied URLs
 // - Skips local same-origin paths (/ or same host) to avoid needless round trip
@@ -24,21 +24,15 @@ export function proxyImage(url) {
       url.includes('/cf-image-proxy?url=')) return url;
   
   try {
-    // Use Cloudflare Worker for GIFs and PNGs (fastest, no size limit, global edge)
-    // TODO: Set up Cloudflare Worker at /cf-image-proxy route
-    // For now, fallback to Netlify Edge
+    // Use Cloudflare Worker for GIFs and PNGs (no size limit, global edge cache)
     if (/\.(gif|png)(?:$|[?#])/i.test(url)) {
       if (typeof window !== 'undefined') {
-        // Uncomment when Cloudflare Worker is deployed:
-        // return `${window.location.origin}/cf-image-proxy?url=${encodeURIComponent(url)}`;
-        
-        // Current: Netlify Edge Function
-        return `${window.location.origin}/api/image-proxy?url=${encodeURIComponent(url)}`;
+        return `${window.location.origin}/cf-image-proxy?url=${encodeURIComponent(url)}`;
       }
       // SSR fallback - return original
       return url;
     }
-    // Use Serveproxy for JPGs/WebP (faster, 3MB limit is fine for these)
+    // Use Serveproxy for JPGs/WebP (3MB limit is fine for these)
     return `https://serveproxy.com/?url=${encodeURIComponent(url)}`;
   } catch {
     return url;

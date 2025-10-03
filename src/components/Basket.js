@@ -12,6 +12,9 @@ import {
   expandedRefNumAtom,
 } from '@/store/atoms';
 import { displayCurrencyAtom } from '@/store/atoms';
+import { changeBasketVariantAtom } from '@/store/atoms';
+import { useItemDetailLazy } from '@/hooks/useItemDetail';
+import { itemsAtom } from '@/store/atoms';
 
 export default function Basket() {
   const [open, setOpen] = useState(false);
@@ -25,6 +28,8 @@ export default function Basket() {
   const rates = useAtomValue(exchangeRatesAtom) || {};
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const displayCurrency = useAtomValue(displayCurrencyAtom);
+  const itemsAll = useAtomValue(itemsAtom) || [];
+  const changeVariant = useSetAtom(changeBasketVariantAtom);
   const usdRate = typeof rates['USD'] === 'number' && rates['USD'] > 0 ? rates['USD'] : null;
   const headerBtnRef = useRef(null);
   const fabBtnRef = useRef(null);
@@ -148,72 +153,28 @@ export default function Basket() {
 
           <div className="p-3 space-y-4">
             {groups.map((g, gi) => {
+              const lines = g.items.map((it, idx) => (
+                <BasketLine
+                  key={(it.id ?? it.refNum ?? 'x') + '-' + (it.variantId ?? idx)}
+                  it={it}
+                  idx={idx}
+                  usdRate={usdRate}
+                  displayCurrency={displayCurrency}
+                  setQty={setQty}
+                  removeItem={removeItem}
+                  setRefNum={setRefNum}
+                  itemsAll={itemsAll}
+                  changeVariant={changeVariant}
+                />
+              ));
+              // compute sums for this seller group
               let itemsUsd = 0; // sum of USD-priced lines
               let itemsGbpLegacy = 0; // sum of legacy GBP-priced lines
-              const lines = g.items.map((it, idx) => {
-                const unitGbp = typeof it?.priceUSD === 'number'
-                  ? (usdRate ? it.priceUSD / usdRate : it.priceUSD)
-                  : (typeof it?.priceGBP === 'number' ? it.priceGBP : 0);
+              for (const it of g.items) {
                 const q = typeof it?.qty === 'number' ? it.qty : 1;
-                const lineGbp = unitGbp * q;
-                const lineDisplay = displayCurrency === 'USD'
-                  ? (typeof it?.priceUSD === 'number' ? (it.priceUSD * q) : (typeof it?.priceGBP === 'number' && usdRate ? (it.priceGBP * usdRate * q) : (it.priceGBP * q)))
-                  : lineGbp;
-                if (typeof it?.priceUSD === 'number') itemsUsd += it.priceUSD * q; else if (typeof it?.priceGBP === 'number') itemsGbpLegacy += it.priceGBP * q;
-                const detailHref = it.refNum ? `/?ref=${encodeURIComponent(it.refNum)}` : '#';
-                const biggyHref = it.biggyLink || null;
-                return (
-                  <li key={(it.id ?? it.refNum ?? 'x') + '-' + (it.variantId ?? idx)} className="flex items-center gap-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50">
-                    {it.imageUrl ? (
-                      <a
-                        href={detailHref}
-                        className="shrink-0"
-                        title="View details"
-                        onClick={(e) => {
-                          if (!it.refNum) return;
-                          e.preventDefault();
-                          setRefNum(String(it.refNum));
-                          try {
-                            const url = new URL(window.location.href);
-                            url.searchParams.set('ref', String(it.refNum));
-                            window.history.pushState({}, '', url.toString());
-                          } catch {}
-                          setOpen(false);
-                        }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={it.imageUrl} alt="thumb" className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700" />
-                      </a>
-                    ) : (
-                      <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      {biggyHref ? (
-                        <a href={biggyHref} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline truncate" title={`${it.name} (opens Biggy)`}>{it.name}</a>
-                      ) : (
-                        <a href={detailHref} className="text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline truncate" title={it.name}>{it.name}</a>
-                      )}
-                      {it.variantDesc && <div className="text-[11px] text-gray-600 dark:text-gray-300 truncate" title={it.variantDesc}>{it.variantDesc}</div>}
-                      <div className="mt-1 flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={1}
-                          value={q}
-                          onChange={(e) => setQty({ id: it.id ?? it.refNum, variantId: it.variantId, qty: Number(e.target.value) })}
-                          className="w-16 h-7 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2"
-                        />
-                        <div className="ml-auto text-sm font-semibold text-gray-900 dark:text-gray-100">{displayCurrency === 'USD' ? `$${lineDisplay.toFixed(2)}` : `£${lineDisplay.toFixed(2)}`}</div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem({ id: it.id ?? it.refNum, variantId: it.variantId })}
-                      className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
-                      title="Remove"
-                    >×</button>
-                  </li>
-                );
-              });
+                if (typeof it?.priceUSD === 'number') itemsUsd += it.priceUSD * q;
+                else if (typeof it?.priceGBP === 'number') itemsGbpLegacy += it.priceGBP * q;
+              }
               const shipUsd = (g.includeShip && typeof g.shipUsd === 'number') ? g.shipUsd : 0;
               const shipGbp = usdRate ? shipUsd / usdRate : shipUsd;
               const itemsGbp = itemsGbpLegacy + (usdRate ? itemsUsd / usdRate : itemsUsd);
@@ -321,5 +282,120 @@ export default function Basket() {
         </button>
       )}
     </div>
+  );
+}
+
+function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, setRefNum, itemsAll, changeVariant }) {
+  const unitGbp = typeof it?.priceUSD === 'number'
+    ? (usdRate ? it.priceUSD / usdRate : it.priceUSD)
+    : (typeof it?.priceGBP === 'number' ? it.priceGBP : 0);
+  const q = typeof it?.qty === 'number' ? it.qty : 1;
+  const lineGbp = unitGbp * q;
+  const lineDisplay = displayCurrency === 'USD'
+    ? (typeof it?.priceUSD === 'number' ? (it.priceUSD * q) : (typeof it?.priceGBP === 'number' && usdRate ? (it.priceGBP * usdRate * q) : (it.priceGBP * q)))
+    : lineGbp;
+  const detailHref = it.refNum ? `/?ref=${encodeURIComponent(it.refNum)}` : '#';
+  const biggyHref = it.biggyLink || null;
+  const ref = it.refNum || it.id;
+  const { detail } = useItemDetailLazy(String(ref), false);
+  const base = itemsAll.find(b => (b.refNum && String(b.refNum) === String(ref)) || (b.id && String(b.id) === String(ref))) || null;
+  const variantList = Array.isArray(detail?.variants) && detail.variants.length > 0
+    ? detail.variants
+    : (Array.isArray(base?.variants) ? base.variants : []);
+
+  return (
+    <li className="flex items-center gap-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50">
+      {it.imageUrl ? (
+        <a
+          href={detailHref}
+          className="shrink-0"
+          title="View details"
+          onClick={(e) => {
+            if (!it.refNum) return;
+            e.preventDefault();
+            setRefNum(String(it.refNum));
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.set('ref', String(it.refNum));
+              window.history.pushState({}, '', url.toString());
+            } catch {}
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={it.imageUrl} alt="thumb" className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700" />
+        </a>
+      ) : (
+        <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700" />
+      )}
+      <div className="min-w-0 flex-1">
+        {biggyHref ? (
+          <a href={biggyHref} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline truncate" title={`${it.name} (opens Biggy)`}>{it.name}</a>
+        ) : (
+          <a href={detailHref} className="text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline truncate" title={it.name}>{it.name}</a>
+        )}
+        <div className="flex items-center gap-2">
+          {it.variantDesc && <div className="text-[11px] text-gray-600 dark:text-gray-300 truncate" title={it.variantDesc}>{it.variantDesc}</div>}
+          {Array.isArray(variantList) && variantList.length > 0 && (
+            <details className="relative">
+              <summary className="text-[11px] text-blue-700 dark:text-blue-300 hover:underline cursor-pointer select-none">Change</summary>
+              <div className="absolute z-10 mt-1 w-[260px] max-h-56 overflow-auto custom-scroll bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg p-1">
+                <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {variantList.map((v, vi) => {
+                    const vid = v.id ?? vi;
+                    const isActive = String(vid) === String(it.variantId);
+                    const desc = v.description || v.desc || `Variant ${vi + 1}`;
+                    const baseAmount = typeof v.baseAmount === 'number' ? v.baseAmount : (typeof v.priceUSD === 'number' ? v.priceUSD : null);
+                    return (
+                      <li key={vid}>
+                        <button
+                          type="button"
+                          disabled={isActive}
+                          onClick={() => {
+                            changeVariant({
+                              id: it.id ?? it.refNum,
+                              variantId: it.variantId,
+                              next: {
+                                variantId: vid,
+                                variantDesc: desc,
+                                priceUSD: baseAmount,
+                              },
+                            });
+                          }}
+                          className={cn(
+                            'w-full text-left px-2 py-1.5 text-[12px] hover:bg-gray-100 dark:hover:bg-gray-800 rounded flex items-center justify-between',
+                            isActive ? 'opacity-60 cursor-default' : ''
+                          )}
+                        >
+                          <span className="truncate pr-2">{desc}</span>
+                          {typeof baseAmount === 'number' && (
+                            <span className="shrink-0 font-mono text-[11px] text-gray-700 dark:text-gray-300">${baseAmount.toFixed(2)} USD</span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </details>
+          )}
+        </div>
+        <div className="mt-1 flex items-center gap-2">
+          <input
+            type="number"
+            min={1}
+            value={q}
+            onChange={(e) => setQty({ id: it.id ?? it.refNum, variantId: it.variantId, qty: Number(e.target.value) })}
+            className="w-16 h-7 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2"
+          />
+          <div className="ml-auto text-sm font-semibold text-gray-900 dark:text-gray-100">{displayCurrency === 'USD' ? `$${lineDisplay.toFixed(2)}` : `£${lineDisplay.toFixed(2)}`}</div>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => removeItem({ id: it.id ?? it.refNum, variantId: it.variantId })}
+        className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+        title="Remove"
+      >×</button>
+    </li>
   );
 }

@@ -6,33 +6,24 @@ export default async (request, context) => {
     return new Response('Missing url parameter', { status: 400 });
   }
 
+  // Validate URL
   try {
-    // Try to use cached response first
-    const cacheKey = new Request(imageUrl);
-    const cache = caches.default;
-    let response = await cache.match(cacheKey);
+    new URL(imageUrl);
+  } catch {
+    return new Response('Invalid URL', { status: 400 });
+  }
 
-    if (!response) {
-      // Fetch the image from the source
-      response = await fetch(imageUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        },
-        cf: {
-          cacheTtl: 31536000,
-          cacheEverything: true
-        }
-      });
-
-      if (!response.ok) {
-        return new Response('Failed to fetch image', { status: response.status });
+  try {
+    // Fetch the image from the source
+    const response = await fetch(imageUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
       }
+    });
 
-      // Clone response before caching
-      const clonedResponse = response.clone();
-      
-      // Cache the response
-      context.waitUntil(cache.put(cacheKey, clonedResponse));
+    if (!response.ok) {
+      return new Response(`Failed to fetch image: ${response.status} ${response.statusText}`, { status: response.status });
     }
 
     // Forward the image with strong caching headers
@@ -40,9 +31,8 @@ export default async (request, context) => {
       status: response.status,
       headers: {
         'Content-Type': response.headers.get('Content-Type') || 'image/jpeg',
-        'Cache-Control': 'public, max-age=31536000, s-maxage=31536000, immutable',
+        'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*',
-        'CDN-Cache-Control': 'max-age=31536000',
         'Netlify-CDN-Cache-Control': 'public, max-age=31536000, durable',
       }
     });

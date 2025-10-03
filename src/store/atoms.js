@@ -718,6 +718,39 @@ export const setBasketQtyAtom = atom(null, (get, set, { id, variantId, qty }) =>
   }
 });
 
+// Action: change the variant for an existing basket line (optionally merge if target exists)
+// payload: { id, variantId, next: { variantId, variantDesc, priceUSD, priceGBP? } }
+export const changeBasketVariantAtom = atom(null, (get, set, { id, variantId, next }) => {
+  const items = Array.isArray(get(basketAtom)) ? [...get(basketAtom)] : [];
+  const keyId = String(id ?? '');
+  const keyVar = String(variantId ?? '');
+  const i = items.findIndex(it => String(it.id ?? it.refNum ?? '') === keyId && String(it.variantId ?? '') === keyVar);
+  if (i < 0) return; // nothing to change
+  const line = items[i];
+  const targetVar = String(next?.variantId ?? '');
+  if (!targetVar) return;
+  // If another line already uses the target variant for the same item, merge quantities and remove current
+  const j = items.findIndex((it, idx) => idx !== i && String(it.id ?? it.refNum ?? '') === keyId && String(it.variantId ?? '') === targetVar);
+  if (j >= 0) {
+    const q1 = typeof line.qty === 'number' ? line.qty : 1;
+    const q2 = typeof items[j].qty === 'number' ? items[j].qty : 1;
+    items[j] = { ...items[j], qty: q1 + q2 };
+    items.splice(i, 1);
+    set(basketAtom, items);
+    return;
+  }
+  // Update in place
+  items[i] = {
+    ...line,
+    variantId: next.variantId,
+    variantDesc: next.variantDesc ?? line.variantDesc,
+    // prefer USD storage, clear GBP legacy if USD provided
+    priceUSD: typeof next.priceUSD === 'number' ? next.priceUSD : (typeof next.priceGBP === 'number' ? null : line.priceUSD ?? null),
+    priceGBP: typeof next.priceUSD === 'number' ? null : (typeof next.priceGBP === 'number' ? next.priceGBP : line.priceGBP ?? null),
+  };
+  set(basketAtom, items);
+});
+
 // Action: clear
 export const clearBasketAtom = atom(null, (get, set) => set(basketAtom, []));
 
