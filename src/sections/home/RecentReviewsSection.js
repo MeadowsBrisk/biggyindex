@@ -287,12 +287,12 @@ function ReviewRow({ review }) {
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm dark:border-white/20 dark:bg-white/10">
               <div className="relative h-12 w-12 sm:h-16 sm:w-16">
                 {hasItemImage ? (
-                  <Image
+                  <img
                     src={proxyImage(review.itemImageUrl)}
                     alt={`${review.itemName} image`}
-                    fill
-                    className="object-cover"
-                    sizes="64px"
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-white/5 dark:to-white/10" aria-label="No image available" />
@@ -362,7 +362,7 @@ function ReviewRow({ review }) {
                 key={`${review.id}-img-${idx}`}
                 className="relative h-20 w-20 overflow-hidden rounded-xl border border-slate-300/70 bg-slate-100 dark:border-white/20 dark:bg-white/10"
               >
-                <Image src={proxyImage(src)} alt="Review media" fill className="object-cover" sizes="80px" />
+                <img src={proxyImage(src)} alt="Review media" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               </div>
             ))}
           </div>

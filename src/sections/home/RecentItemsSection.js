@@ -190,12 +190,12 @@ export default function RecentItemsSection({ items }) {
                         >
                           <div className="relative aspect-square md:aspect-[350/280] w-full overflow-hidden border-b border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5 rounded-[6px] overflow-hidden">
                             {item.imageUrl ? (
-                              <Image
+                              <img
                                 src={proxyImage(item.imageUrl)}
                                 alt={item.name}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 70vw, 300px"
+                                loading="lazy"
+                                decoding="async"
+                                className="absolute inset-0 h-full w-full object-cover"
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 dark:text-white/40">No image</div>
@@ -211,7 +211,7 @@ export default function RecentItemsSection({ items }) {
                               <SellerAvatarTooltip sellerName={item.sellerName} sellerImageUrl={item.sellerImageUrl}>
                                 <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-slate-100 dark:bg-white/10 cursor-pointer">
                                   {item.sellerImageUrl ? (
-                                    <Image src={proxyImage(item.sellerImageUrl)} alt={item.sellerName} fill className="object-cover" sizes="48px" />
+                                    <img src={proxyImage(item.sellerImageUrl)} alt={item.sellerName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                   ) : (
                                     <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase text-slate-400 dark:text-white/50">
                                       {getInitials(item.sellerName)}

@@ -211,13 +211,12 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
             key={`${entry.id}-img-${idx}`}
             className="relative" style={{ width: `${100 / Math.min(entry.images.length, 3)}%` }}
           >
-            <Image
+            <img
               src={proxyImage(imageUrl)}
               alt={entry.itemName}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-              sizes="(max-width: 640px) 80vw, (max-width: 1024px) 65vw, 48vw"
-              priority={false}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
             />
             <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-white/10 dark:bg-black/40" aria-hidden />
           </div>
