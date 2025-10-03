@@ -473,7 +473,7 @@ export const categoryLiveCountsAtom = atom((get) => {
   const { boundMin, boundMax } = norm;
   const minFilter = norm.min;
   const maxFilter = norm.max;
-  if ((!Array.isArray(allItemsFull) || allItemsFull.length === 0) && manifest && manifest.totalItems && manifest.totalItems > (itemsSource?.length || 0) && (!Array.isArray(selectedShips) || selectedShips.length === 0) && !freeShipOnly) {
+  if ((!Array.isArray(allItemsFull) || allItemsFull.length === 0) && manifest && manifest.totalItems && manifest.totalItems > (itemsSource?.length || 0) && (!Array.isArray(selectedShips) || selectedShips.length === 0) && !freeShipOnly && includedSellers.length === 0) {
     const counts = { __total: manifest.totalItems };
     for (const [cat, info] of Object.entries(manifest.categories || {})) {
       if (cat === 'Tips') continue;

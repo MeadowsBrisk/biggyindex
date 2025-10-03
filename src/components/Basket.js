@@ -345,6 +345,13 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                     const isActive = String(vid) === String(it.variantId);
                     const desc = v.description || v.desc || `Variant ${vi + 1}`;
                     const baseAmount = typeof v.baseAmount === 'number' ? v.baseAmount : (typeof v.priceUSD === 'number' ? v.priceUSD : null);
+                    // Convert to display currency
+                    const displayAmount = baseAmount != null
+                      ? (displayCurrency === 'USD' ? baseAmount : (usdRate ? baseAmount / usdRate : baseAmount))
+                      : null;
+                    const priceLabel = displayAmount != null
+                      ? (displayCurrency === 'USD' ? `$${displayAmount.toFixed(2)}` : `£${displayAmount.toFixed(2)}`)
+                      : null;
                     return (
                       <li key={vid}>
                         <button
@@ -367,8 +374,8 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                           )}
                         >
                           <span className="truncate pr-2">{desc}</span>
-                          {typeof baseAmount === 'number' && (
-                            <span className="shrink-0 font-mono text-[11px] text-gray-700 dark:text-gray-300">${baseAmount.toFixed(2)} USD</span>
+                          {priceLabel && (
+                            <span className="shrink-0 font-mono text-[11px] text-gray-700 dark:text-gray-300">{priceLabel}</span>
                           )}
                         </button>
                       </li>

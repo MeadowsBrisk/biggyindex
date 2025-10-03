@@ -20,13 +20,18 @@ export function proxyImage(url) {
   }
   // Skip already proxied URLs
   if (url.startsWith('https://serveproxy.com/?url=') || 
+      url.includes('/api/image-proxy?url=') ||
       url.includes('/cf-image-proxy?url=')) return url;
   
   try {
     // Use Cloudflare Worker for GIFs and PNGs (no size limit, global edge cache)
     if (/\.(gif|png)(?:$|[?#])/i.test(url)) {
       if (typeof window !== 'undefined') {
-        return `${window.location.origin}/cf-image-proxy?url=${encodeURIComponent(url)}`;
+        // Always use production Cloudflare Worker (even in dev)
+        // Local dev doesn't have the worker running
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const proxyBase = isDev ? 'https://lbindex.vip' : window.location.origin;
+        return `${proxyBase}/cf-image-proxy?url=${encodeURIComponent(url)}`;
       }
       // SSR fallback - return original
       return url;

@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from "jotai";
-import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom } from "@/store/atoms";
+import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
 import cn from "@/app/cn";
 import { useCallback, useMemo } from 'react';
 import { countryLabel } from '@/lib/countries';
@@ -17,6 +17,7 @@ export default function CategoryFilter() {
   const [selectedShips, setSelectedShips] = useAtom(selectedShipFromAtom);
   const [freeShipOnly, setFreeShipOnly] = useAtom(freeShippingOnlyAtom);
   const [shipPinned, setShipPinned] = useAtom(shipFromPinnedAtom);
+  const includedSellers = useAtomValue(includedSellersAtom) || [];
 
   const desiredOrder = ["Flower","Hash","Edibles","Concentrates","Vapes","Tincture","Psychedelics"]; // preferred ordering
   const rawCats = Object.keys(manifest.categories || {}).filter(c => c !== 'Tips');
@@ -31,8 +32,8 @@ export default function CategoryFilter() {
     for (const cat of rawCats) {
       const live = liveCounts ? liveCounts[cat] : null;
       const manifestCount = manifest.categories?.[cat]?.count || 0;
-      // When a shipping filter is active, do not fall back to manifest counts; show 0 when no live count.
-      if ((Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly) {
+      // When a shipping filter or seller include filter is active, do not fall back to manifest counts; show 0 when no live count.
+      if ((Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly || includedSellers.length > 0) {
         out[cat] = typeof live === 'number' ? live : 0;
       } else {
         out[cat] = typeof live === 'number' ? live : manifestCount;
@@ -40,7 +41,7 @@ export default function CategoryFilter() {
     }
     out.__total = (liveCounts && typeof liveCounts.__total === 'number') ? liveCounts.__total : (manifest.totalItems || 0);
     return out;
-  }, [rawCats, liveCounts, manifest, selectedShips]);
+  }, [rawCats, liveCounts, manifest, selectedShips, freeShipOnly, includedSellers]);
 
   // Hide empty categories (count === 0) and keep preferred ordering
   const categories = useMemo(() => {

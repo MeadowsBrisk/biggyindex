@@ -92,12 +92,14 @@ export default function ZoomSlide({
                         loop
                         muted
                         playsInline
-                        className="max-h-full max-w-full w-auto block select-none object-contain" />
+                        style={{ maxHeight: '90vh', maxWidth: '90vw' }}
+                        className="w-auto h-auto block select-none object-contain" />
                     ) : (
                       <img
                         src={displaySrc}
                         alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
-                        className="max-h-full max-w-full w-auto block select-none object-contain"
+                        style={{ maxHeight: '90vh', maxWidth: '90vw' }}
+                        className="w-auto h-auto block select-none object-contain"
                         draggable={false}
                         loading="eager"
                         decoding="async"
@@ -107,7 +109,8 @@ export default function ZoomSlide({
                     <img
                       src={displaySrc}
                       alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
-                      className="max-h-full max-w-full w-auto block select-none object-contain"
+                      style={{ maxHeight: '90vh', maxWidth: '90vw' }}
+                      className="w-auto h-auto block select-none object-contain"
                       draggable={false}
                       loading="eager"
                       decoding="async"
