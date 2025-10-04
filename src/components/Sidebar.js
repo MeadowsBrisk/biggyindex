@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
 import { useAtom } from "jotai";
-import { activeFiltersCountAtom, resetFiltersAtom } from "@/store/atoms";
+import { activeFiltersCountAtom, resetFiltersAtom, sellerAnalyticsOpenAtom } from "@/store/atoms";
 
 // Animation variants
 const containerVariants = {
@@ -39,6 +39,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const [activeCount] = useAtom(activeFiltersCountAtom);
   const [, resetFilters] = useAtom(resetFiltersAtom);
+  const [, setAnalyticsOpen] = useAtom(sellerAnalyticsOpenAtom);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -76,6 +77,14 @@ export default function Sidebar() {
         <Section title="Price"><PriceRange /></Section>
         <Section title="Include Sellers"><SellerIncludeInput /></Section>
         <Section title="Exclude Sellers"><SellerExcludeInput /></Section>
+        <motion.button
+          variants={itemVariants}
+          type="button"
+          onClick={() => setAnalyticsOpen(true)}
+          className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+        >
+          Sellers
+        </motion.button>
         <InfoButton />
       </motion.aside>
     );
@@ -142,6 +151,14 @@ export default function Sidebar() {
                 <Section title="Price"><PriceRange /></Section>
                 <Section title="Include Sellers"><SellerIncludeInput /></Section>
                 <Section title="Exclude Sellers"><SellerExcludeInput /></Section>
+                <motion.button
+                  variants={itemVariants}
+                  type="button"
+                  onClick={() => { setAnalyticsOpen(true); setOpen(false); }}
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                >
+                  Sellers
+                </motion.button>
                 <InfoButton />
               </motion.div>
             </motion.aside>

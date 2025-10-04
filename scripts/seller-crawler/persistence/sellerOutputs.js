@@ -225,6 +225,60 @@ async function upsertSellerImages(outputDir, delta){
   }
 }
 
-module.exports = { setPersistence, writePerSeller, writeShareLinks, writeRunMeta, writeRecentReviews, writeRecentMedia, writeSellersLeaderboard, writeSellerImages, upsertSellerImages };
+/**
+ * Write seller analytics aggregate
+ * @param {string} outputDir - Output directory (FS mode)
+ * @param {Object} analytics - Analytics aggregate object
+ */
+function writeSellerAnalytics(outputDir, analytics) {
+  try {
+    const payload = analytics && typeof analytics === 'object' ? analytics : { generatedAt: new Date().toISOString(), totalSellers: 0, dataVersion: 1, sellers: [] };
+    
+    if (persistence && persistence.mode === 'blobs') {
+      // Write to Blobs
+      try { persistence.writeJson('seller-analytics.json', payload); } catch (e) { log.warn(`Blob write seller-analytics failed: ${e.message}`); }
+      // Also mirror to public/ so Next.js can serve it
+      try {
+        const publicDir = path.join(process.cwd(), 'public');
+        ensureDir(publicDir);
+        fs.writeFileSync(path.join(publicDir, 'seller-analytics.json'), JSON.stringify(payload, null, 2), 'utf8');
+      } catch (e) { log.warn(`FS mirror seller-analytics to public/ failed: ${e.message}`); }
+      return;
+    }
+    
+    // FS mode: write to public/
+    const publicDir = path.join(process.cwd(), 'public');
+    ensureDir(publicDir);
+    fs.writeFileSync(path.join(publicDir, 'seller-analytics.json'), JSON.stringify(payload, null, 2), 'utf8');
+  } catch (e) {
+    log.warn(`writeSellerAnalytics failed ${e.message}`);
+  }
+}
+
+/**
+ * Read existing seller analytics aggregate
+ * @returns {Promise<Object|null>} Analytics object or null
+ */
+async function readSellerAnalytics() {
+  try {
+    if (persistence && persistence.mode === 'blobs') {
+      return await persistence.readJson('seller-analytics.json');
+    }
+    
+    // FS mode: read from public/
+    const publicDir = path.join(process.cwd(), 'public');
+    const file = path.join(publicDir, 'seller-analytics.json');
+    if (fs.existsSync(file)) {
+      const content = fs.readFileSync(file, 'utf8');
+      return JSON.parse(content);
+    }
+    return null;
+  } catch (e) {
+    log.warn(`readSellerAnalytics failed ${e.message}`);
+    return null;
+  }
+}
+
+module.exports = { setPersistence, writePerSeller, writeShareLinks, writeRunMeta, writeRecentReviews, writeRecentMedia, writeSellersLeaderboard, writeSellerImages, upsertSellerImages, writeSellerAnalytics, readSellerAnalytics };
 
 

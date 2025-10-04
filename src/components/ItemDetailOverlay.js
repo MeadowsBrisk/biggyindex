@@ -1027,7 +1027,7 @@ export default function ItemDetailOverlay() {
           />
           {/* Floating biggy button (shipping info removed per design) */}
           {biggyLink && (
-            <div className="pointer-events-none absolute right-3 bottom-3 md:bottom-3 xl:right-10">
+            <div className="pointer-events-none absolute right-3 bottom-25 md:right-3 md:bottom-3 md:bottom-3 xl:right-10">
               <a
                 href={biggyLink}
                 target="_blank"

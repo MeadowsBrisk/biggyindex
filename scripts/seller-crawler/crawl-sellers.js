@@ -17,12 +17,13 @@ const { fetchSellerReviewsPaged } = require('./fetch/fetchSellerReviewsPaged');
 const { fetchSellerShareLink } = require('./fetch/fetchSellerShareLink');
 const { extractSellerImageUrl, extractOnlineAndJoined } = require('./parse/sellerMetaExtractor');
 const { fetchSellerUserSummary } = require('./fetch/fetchSellerUserSummary');
-const { setPersistence: setSellerPersistence, writePerSeller, writeRunMeta, writeShareLinks, writeRecentReviews, writeRecentMedia, writeSellersLeaderboard, upsertSellerImages } = require('./persistence/sellerOutputs');
+const { setPersistence: setSellerPersistence, writePerSeller, writeRunMeta, writeShareLinks, writeRecentReviews, writeRecentMedia, writeSellersLeaderboard, upsertSellerImages, writeSellerAnalytics, readSellerAnalytics } = require('./persistence/sellerOutputs');
 const { loadStateAsync, saveStateAsync } = require('../item-crawler/persistence/stateStore');
 const { loadCookieJar, saveCookieJar, listCookies } = require('../item-crawler/persistence/cookieStore');
 const { decideSellerCrawlKind } = require('./util/decideSellerCrawlKind');
 const { processRecentAggregates } = require('./aggregation/processRecentAggregates');
 const { computeLeaderboard } = require('./aggregation/computeLeaderboard');
+const { computeSellerAnalytics, loadExistingAnalytics, updateAnalyticsAggregate } = require('./aggregation/computeSellerAnalytics');
 
 function computeRecentSellers({ state, allRatings, sellerNameById, limit = 10 }) {
   // Wilson score helper (same as leaderboard) with priors for fairness
@@ -299,6 +300,7 @@ async function main() {
 
   const sellerNameById = new Map(work.map((s) => [s.sellerId, s.sellerName || null]));
   const processedSellers = new Set();
+  const sellerReviewsMap = new Map(); // Track reviews for analytics computation
   const total = work.length;
   let completed = 0;
   async function loadPersistedSellerData(sellerId) {
@@ -533,6 +535,20 @@ async function main() {
           crawlMeta: { kind: decision.kind, at: nowIso }
         };
         writePerSeller(env.outputDir, sellerData);
+        
+        // Store reviews and metadata for analytics computation
+        if (reviews && reviews.length > 0) {
+          sellerReviewsMap.set(sellerId, {
+            reviews,
+            sellerMeta: {
+              sellerId,
+              sellerName: sellerData.sellerName || '',
+              sellerUrl: sellerData.sellerUrl || '',
+              imageUrl: sellerData.sellerImageUrl || ''
+            }
+          });
+        }
+        
         // Incrementally upsert seller image into aggregate if present (covers targeted runs and new sellers)
         try {
           if (sellerData.sellerImageUrl) {
@@ -686,6 +702,46 @@ async function main() {
           bottom: bottomAll,
           recent,
         });
+
+        // Compute seller analytics (cumulative long-term performance tracking)
+        try {
+          log.info('[analytics] Computing seller analytics...');
+          
+          // Load existing analytics aggregate
+          const existingAnalytics = await loadExistingAnalytics({ readSellerAnalytics });
+          const existingSellersMap = new Map(
+            (existingAnalytics.sellers || []).map(s => [s.sellerId, s])
+          );
+          
+          // Compute analytics for each processed seller with reviews
+          const updatedSellerRecords = new Map();
+          for (const [sellerId, { reviews, sellerMeta }] of sellerReviewsMap.entries()) {
+            try {
+              const existing = existingSellersMap.get(sellerId) || null;
+              
+              const analytics = computeSellerAnalytics({
+                sellerId,
+                reviews,
+                sellerMeta,
+                existing
+              });
+              
+              updatedSellerRecords.set(sellerId, analytics);
+            } catch (e) {
+              log.warn(`[analytics] Failed to compute for seller ${sellerId}: ${e.message}`);
+            }
+          }
+          
+          // Update aggregate with new records
+          const updatedAggregate = updateAnalyticsAggregate(existingAnalytics, updatedSellerRecords);
+          
+          // Write to Blob and public/
+          writeSellerAnalytics(env.outputDir, updatedAggregate);
+          
+          log.info(`[analytics] Updated analytics for ${updatedSellerRecords.size} seller(s), total ${updatedAggregate.totalSellers} in aggregate`);
+        } catch (e) {
+          log.warn(`[analytics] Failed to compute seller analytics: ${e.message}`);
+        }
       } catch (e) {
         log.warn(`[recent] aggregate writes failed: ${e.message}`);
       }

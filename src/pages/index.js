@@ -13,6 +13,7 @@ import { expandedRefNumAtom } from '@/store/atoms';
 import dynamic from 'next/dynamic';
 const ItemDetailOverlay = dynamic(() => import('@/components/ItemDetailOverlay'), { ssr: false });
 const SellerOverlay = dynamic(() => import('@/components/SellerOverlay'), { ssr: false });
+const SellerAnalyticsModal = dynamic(() => import('@/components/SellerAnalyticsModal'), { ssr: false });
 import SortControls from "@/components/filters/SortControls";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
 import AnimatedLogoHeader from '@/components/AnimatedLogoHeader';
@@ -334,6 +335,7 @@ export default function Home() {
       <InfoButton />
       <ItemDetailOverlay />
       <SellerOverlay />
+      <SellerAnalyticsModal />
     </div>
   );
 }

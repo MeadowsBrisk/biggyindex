@@ -9,6 +9,7 @@
 //   --keep=key1,key2      Comma separated keys to preserve (never deleted)
 //   --batch=25            Concurrency batch size (default 20)
 //   --store=site-index    Override store name
+//node scripts/clear-blobs.js --prefix=path/to/key.json --confirm
 //node scripts/clear-blobs.js --confirm
 'use strict';
 
