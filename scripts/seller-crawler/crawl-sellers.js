@@ -26,7 +26,7 @@ const { computeLeaderboard } = require('./aggregation/computeLeaderboard');
 
 function computeRecentSellers({ state, allRatings, sellerNameById, limit = 10 }) {
   // Wilson score helper (same as leaderboard) with priors for fairness
-  const computeWilsonScore = (positive, total, priorPositive = 20, priorTotal = 40) => {
+  const computeWilsonScore = (positive, total, priorPositive = 35, priorTotal = 40) => {
     const pHat = (positive + priorPositive) / (total + priorTotal);
     const z = 1.96;
     const denom = 1 + (z * z) / (total + priorTotal);
@@ -673,7 +673,7 @@ async function main() {
             useWeek,
             leaderboardLimit,
             minBottomNegatives,
-            priorPositive: 20,
+            priorPositive: 35,  // 87.5% baseline - optimistic but fair for quality marketplace
             priorTotal: 40,
           },
         });

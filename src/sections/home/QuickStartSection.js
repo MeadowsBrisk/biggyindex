@@ -127,7 +127,7 @@ export default function QuickStartSection() {
         renderContent: () => (
           <StepContentWrapper>
             <p>
-              Think of Bitcoin as the special currency Littlebiggy accepts. Buy a small amount now so you are ready when you find something you like.
+              LittleBiggy only accepts Bitcoin. You'll need to set up a way to buy some if you haven't already, so that you're ready to start ordering items.
             </p>
             <div>
               <p className="font-semibold text-slate-900 dark:text-white">Easiest way</p>

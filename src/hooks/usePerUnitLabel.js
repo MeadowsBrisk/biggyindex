@@ -96,7 +96,7 @@ function parseQuantity(description) {
   if (leadingDosage) {
     const num = parseFloat(leadingDosage[1]);
     const lab = leadingDosage[2];
-    if (/^(g|gram|grams)$/.test(lab)) return { qty: num, unit: 'g' };
+    if (/^(g|gram|grams|gs)$/.test(lab)) return { qty: num, unit: 'g' };
     if (/^(kg|kilogram|kilograms|kilo|kilos)$/.test(lab)) return { qty: num * 1000, unit: 'g' };
     if (/^(ml|milliliter|milliliters)$/.test(lab)) return { qty: num, unit: 'ml' };
     // mg: allow later edible logic to potentially convert to per-item

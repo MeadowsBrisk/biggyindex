@@ -149,8 +149,14 @@ export default function CategoryFilter() {
       {/* Subcategories */}
       {category && category !== 'All' && (() => {
         const subObj = manifest.categories?.[category]?.subcategories || {};
-  const subKeys = Object.keys(subObj);
+        const subKeys = Object.keys(subObj);
         if (subKeys.length === 0) return null; // hide section entirely when no subcategories
+        // Filter subcategories: when seller filter is active, only show those with live counts > 0
+        const hasActiveFilters = (Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly || includedSellers.length > 0;
+        const visibleSubKeys = hasActiveFilters
+          ? subKeys.filter(sub => (liveSubCounts && typeof liveSubCounts[sub] === 'number' && liveSubCounts[sub] > 0))
+          : subKeys;
+        if (visibleSubKeys.length === 0) return null; // hide section if no visible subcategories
         return (
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -160,7 +166,7 @@ export default function CategoryFilter() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              {subKeys.map(sub => {
+              {visibleSubKeys.map(sub => {
                 const active = selectedSubs.includes(sub);
                 const count = (liveSubCounts && typeof liveSubCounts[sub] === 'number') ? liveSubCounts[sub] : (subObj[sub] || 0);
                 return (

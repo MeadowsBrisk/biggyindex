@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import cn from '@/app/cn';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -286,6 +287,13 @@ export default function Basket() {
 }
 
 function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, setRefNum, itemsAll, changeVariant }) {
+  const [variantSelectorOpen, setVariantSelectorOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const variantSelectorRef = useRef(null);
+  
+  useEffect(() => { setMounted(true); }, []);
+  
   const unitGbp = typeof it?.priceUSD === 'number'
     ? (usdRate ? it.priceUSD / usdRate : it.priceUSD)
     : (typeof it?.priceGBP === 'number' ? it.priceGBP : 0);
@@ -302,6 +310,54 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
   const variantList = Array.isArray(detail?.variants) && detail.variants.length > 0
     ? detail.variants
     : (Array.isArray(base?.variants) ? base.variants : []);
+
+  // Update position when opening
+  useEffect(() => {
+    if (variantSelectorOpen && variantSelectorRef.current) {
+      const rect = variantSelectorRef.current.getBoundingClientRect();
+      const basketPanel = document.getElementById('basket-panel');
+      const panelRect = basketPanel?.getBoundingClientRect();
+      
+      const dropdownWidth = 260;
+      const top = rect.bottom + 4;
+      
+      // Position dropdown near the button, but ensure it doesn't overflow the basket panel
+      let left = rect.left;
+      
+      if (panelRect) {
+        // If dropdown would extend beyond basket panel's right edge, shift it left
+        const rightEdge = left + dropdownWidth;
+        if (rightEdge > panelRect.right - 8) {
+          left = panelRect.right - dropdownWidth - 8;
+        }
+        // If dropdown would extend beyond basket panel's left edge, shift it right
+        if (left < panelRect.left + 8) {
+          left = panelRect.left + 8;
+        }
+      } else {
+        // Fallback: ensure it stays within viewport
+        left = Math.max(8, Math.min(left, window.innerWidth - dropdownWidth - 8));
+      }
+      
+      setDropdownPos({ top, left });
+    }
+  }, [variantSelectorOpen]);
+
+  // Close variant selector on outside click
+  useEffect(() => {
+    if (!variantSelectorOpen) return;
+    const onDown = (e) => {
+      if (variantSelectorRef.current && !variantSelectorRef.current.contains(e.target)) {
+        setVariantSelectorOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('touchstart', onDown, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('touchstart', onDown);
+    };
+  }, [variantSelectorOpen]);
 
   return (
     <li className="flex items-center gap-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50">
@@ -333,12 +389,19 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
         ) : (
           <a href={detailHref} className="text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline truncate" title={it.name}>{it.name}</a>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {it.variantDesc && <div className="text-[11px] text-gray-600 dark:text-gray-300 truncate" title={it.variantDesc}>{it.variantDesc}</div>}
           {Array.isArray(variantList) && variantList.length > 0 && (
-            <details className="relative">
-              <summary className="text-[11px] text-blue-700 dark:text-blue-300 hover:underline cursor-pointer select-none">Change</summary>
-              <div className="absolute z-10 mt-1 w-[260px] max-h-56 overflow-auto custom-scroll bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg p-1">
+            <div className="relative shrink-0" ref={variantSelectorRef}>
+              <button
+                type="button"
+                onClick={() => setVariantSelectorOpen(!variantSelectorOpen)}
+                className="text-[11px] text-blue-700 dark:text-blue-300 hover:underline cursor-pointer select-none"
+              >
+                Change
+              </button>
+              {mounted && variantSelectorOpen && createPortal(
+                <div className="fixed z-[100] w-[260px] max-h-56 overflow-auto custom-scroll bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg p-1" style={{ top: `${dropdownPos.top}px`, left: `${dropdownPos.left}px` }}>
                 <ul className="divide-y divide-gray-100 dark:divide-gray-800">
                   {variantList.map((v, vi) => {
                     const vid = v.id ?? vi;
@@ -367,6 +430,7 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                                 priceUSD: baseAmount,
                               },
                             });
+                            setVariantSelectorOpen(false);
                           }}
                           className={cn(
                             'w-full text-left px-2 py-1.5 text-[12px] hover:bg-gray-100 dark:hover:bg-gray-800 rounded flex items-center justify-between',
@@ -382,8 +446,9 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                     );
                   })}
                 </ul>
-              </div>
-            </details>
+              </div>, document.body
+              )}
+            </div>
           )}
         </div>
         <div className="mt-1 flex items-center gap-2">
