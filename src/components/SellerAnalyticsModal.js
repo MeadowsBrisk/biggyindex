@@ -55,7 +55,7 @@ export default function SellerAnalyticsModal() {
     setLoading(true);
     setError(null);
     
-    fetch('/seller-analytics.json')
+    fetch('/api/index/seller-analytics')
       .then(res => {
         if (!res.ok) throw new Error('Failed to load analytics');
         return res.json();

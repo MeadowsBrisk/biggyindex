@@ -127,6 +127,14 @@ export async function getSellerImages() {
   return readFsJSON('seller-crawler/seller-images.json') || {};
 }
 
+export async function getSellerAnalytics() {
+  const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
+  const blob = await readBlobJSON('seller-crawler/seller-analytics.json');
+  if (blob) return blob;
+  if (strict) return { sellers: [], totalSellers: 0, dataVersion: 1 };
+  return readFsJSON('seller-analytics.json') || { sellers: [], totalSellers: 0, dataVersion: 1 };
+}
+
 export async function getRecentItemsCompact() {
   // Compact aggregate for home page: { added: [...], updated: [...] }
   const strict = /^1|true|yes|on|strict$/i.test(String(process.env.REQUIRE_BLOBS_FRONTEND || ''));
