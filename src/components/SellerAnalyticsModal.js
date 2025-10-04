@@ -40,6 +40,7 @@ export default function SellerAnalyticsModal() {
   const [open, setOpen] = useAtom(sellerAnalyticsOpenAtom);
   const setExpandedSeller = useSetAtom(expandedSellerIdAtom);
   const [analytics, setAnalytics] = useState(null);
+  const [sellersIndex, setSellersIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('totalReviews');
@@ -48,20 +49,27 @@ export default function SellerAnalyticsModal() {
   // Lock body scroll when modal is open
   useBodyScrollLock(open);
 
-  // Fetch analytics data
+  // Fetch analytics data and sellers index
   useEffect(() => {
     if (!open) return;
     
     setLoading(true);
     setError(null);
     
-    fetch('/api/index/seller-analytics')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to load analytics');
-        return res.json();
-      })
-      .then(data => {
-        setAnalytics(data);
+    Promise.all([
+      fetch('/api/index/seller-analytics').then(res => res.ok ? res.json() : null),
+      fetch('/api/index/sellers').then(res => res.ok ? res.json() : null)
+    ])
+      .then(([analyticsData, sellersData]) => {
+        setAnalytics(analyticsData);
+        // Create a map for quick lookup by seller ID
+        if (sellersData?.sellers) {
+          const map = new Map();
+          sellersData.sellers.forEach(s => {
+            if (s.id) map.set(s.id, s);
+          });
+          setSellersIndex(map);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -216,7 +224,10 @@ export default function SellerAnalyticsModal() {
                       const positiveRate = seller.lifetime?.totalReviews > 0
                         ? ((seller.lifetime.positiveCount / seller.lifetime.totalReviews) * 100).toFixed(1)
                         : '0.0';
-                      const lastSeenLabel = formatLastSeen(seller.lastSeenAt);
+                      
+                      // Get online status from sellers index (already formatted: "today", "yesterday", etc.)
+                      const sellerInfo = sellersIndex?.get(seller.sellerId);
+                      const lastSeenLabel = sellerInfo?.online || formatLastSeen(seller.lastSeenAt);
                       
                       return (
                         <tr
