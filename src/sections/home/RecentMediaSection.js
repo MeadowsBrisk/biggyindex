@@ -94,7 +94,7 @@ function MediaStrip({ entries, perImageWidth, tileHeight, isTouchViewport }) {
             640: { slidesPerView: 1.5, centeredSlides: false, spaceBetween: 20 },
             1024: { slidesPerView: 2, centeredSlides: false, spaceBetween: 24 },
           }}
-          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          autoplay={{ delay: 4000, disableOnInteraction: true }}
           className="pb-6"
         >
           {entries.map((entry, index) => (

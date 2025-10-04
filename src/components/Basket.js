@@ -401,7 +401,13 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                 Change
               </button>
               {mounted && variantSelectorOpen && createPortal(
-                <div className="fixed z-[100] w-[260px] max-h-56 overflow-auto custom-scroll bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg p-1" style={{ top: `${dropdownPos.top}px`, left: `${dropdownPos.left}px` }}>
+                <div 
+                  className="fixed z-[100] w-[260px] max-h-56 overflow-auto custom-scroll bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg p-1" 
+                  style={{ top: `${dropdownPos.top}px`, left: `${dropdownPos.left}px` }}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
                 <ul className="divide-y divide-gray-100 dark:divide-gray-800">
                   {variantList.map((v, vi) => {
                     const vid = v.id ?? vi;

@@ -163,7 +163,7 @@ export default function RecentItemsSection({ items }) {
                   3400: { slidesPerView: 7, centeredSlides: false, spaceBetween: 24 },
                 }}
                 style={{ overflow: 'visible' }}
-                autoplay={{ delay: 5000, disableOnInteraction: false }}
+                autoplay={{ delay: 5000, disableOnInteraction: true }}
                 onSwiper={(swiper) => {
                   setIsBeginning(swiper.isBeginning);
                   setIsEnd(swiper.isEnd);
