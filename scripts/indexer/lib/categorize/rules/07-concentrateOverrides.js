@@ -61,6 +61,13 @@ function concentrateMidOverridesRule(ctx) {
 
 function concentrateLatePrecedenceRule(ctx) {
   const { text, scores, name } = ctx;
+  // High-alcohol infused beverage (e.g., Lemonchillo / Limoncello style 40% alcohol + mg) should classify as Other per user directive
+  if (/\b(lem(?:on)?c?h?ill?o|limon?c?h?ell?o)\b/.test(text) && /(40%\s*alcohol|\b\d{2,4}\s?mg\b)/.test(text)) {
+    // Strongly bias toward Other; treat as infused beverage
+    scores.Other = (scores.Other || 0) + 12;
+    if (scores.Concentrates) { scores.Concentrates -= 10; if (scores.Concentrates <= 0) delete scores.Concentrates; }
+    if (scores.Edibles) { scores.Edibles -= 6; if (scores.Edibles <= 0) delete scores.Edibles; }
+  }
   if (/\bnug\s*run\b/.test(text)) {
     scores.Concentrates = (scores.Concentrates || 0) + 6;
     if (scores.Flower) {

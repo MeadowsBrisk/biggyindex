@@ -157,6 +157,9 @@ export default function SellerAnalyticsModal() {
                   {analytics.totalSellers} sellers tracked • Updated {new Date(analytics.generatedAt).toLocaleDateString()}
                 </p>
               )}
+                   {/* <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                Only counting indexed reviews.
+            </p> */}
             </div>
             <button
               onClick={() => setOpen(false)}

@@ -291,6 +291,34 @@ precedenceResolutionRule (90-precedenceResolution)
 - Live resin tincture listing -> Tincture (not Concentrates).
 - THC Gummies -> Edibles.
 
+### Updates (2025-10-05)
+Recent rule adjustments (implemented with accompanying regression tests) – this section documents only deltas since the last committed version of this file:
+
+1. Hash Signal Expansion
+    - Added plain `drysift` variant to late hash signal handling (previous taxonomy already listed DrySift as child but regex now matches single-word variant in broader contexts).
+    - Ensures listings like “Premium Drysift” classify as Hash with DrySift subcategory; “triple filtered” pattern continues to surface TripleFiltered subcategory.
+
+2. Vape Hardware & Quantity Heuristics (08-vapeOverrides.js)
+    - Battery-only listings (no cart/distillate tokens) now recognized via tokens: `battery`, `batteries`, `buttonless`, `hands-free`, `palm pro`, `pure one` -> Vapes primary + Battery subcategory.
+    - Multi-cart quantity detection added (patterns like `24x0.5ml`, `6x0.5ml`, `10 x 1ml`, `5x1g`, or `0.5 ml cartridges`) combined with a flavour / strain menu (gelato, zkittlez, kush, mimosa, grape, cake, nerdz, runtz, etc.) or explicit phrase `cartridges in stock` -> forces Vapes dominance with Cartridge subcategory.
+    - Multi-cart booster now runs even if an earlier vape score exists (additive); adds proportional scaling based on number of distinct flavour/strain tokens (≥2 adds +3, ≥4 adds +6, plus stronger Flower demotion).
+    - Additional list-style cues (`***`, `●`, bullet characters, hyphen lines) slightly reinforce vape dominance in multi-flavour menus.
+
+3. Lemonchillo / Limoncello High-Alcohol Beverage Override (07-concentrateOverrides.js)
+    - Strong pattern: `(lemonchillo|lemoncillo|limoncello|limonchello)` + either `40% alcohol` or potency mg (`\b\d{2,4} mg\b`) now classifies as Other (infused beverage) instead of Concentrates or Edibles.
+    - Implementation sharply boosts Other (+12) and aggressively demotes Concentrates (-10) and Edibles (-6) to prevent drift back when concentrate tokens appear (e.g., `D9`).
+
+4. Test Suite Additions / Adjustments
+    - Added `test-user-listed-fixes-2.js` covering: Premium Drysift (Hash), two Buttonless Battery variants (Vapes.Battery), Lemonchillo beverage (Other), and multi-cart cartridge listings (Vapes.Cartridge dominance for `24x0.5ml cartridges`, `6x0.5ml`).
+    - Updated `test-distillate-refinement.js` expectation for Lemonchillo from Concentrates -> Other.
+    - Existing user-listed regression file (`test-user-listed-fixes.js`) remains green post changes.
+
+5. Risk / Guard Notes
+    - Multi-cart heuristic is intentionally aggressive; potential future false positives (e.g., non-vape bundle using similar `Nx0.5g` pattern) should add negative guards or require explicit vape/cart/cartridge tokens if encountered.
+    - Beverage override heavily penalizes Concentrates; verify future genuine concentrate listings referencing limoncello terpenes without alcohol % are not unintentionally diverted (current regex requires alcohol % or mg potency plus beverage name variant, making this low risk).
+
+Regression Goal: All new heuristics are now backed by explicit tests so future modifications to vape or concentrate rules must update or preserve these cases.
+
 ## Newly Reported (Pending) Misclassifications
 Provided examples (2025‑09) indicate several pure distillate bulk listings misclassified as Vapes instead of Concentrates:
 - "D9 Distillate - 98%+ 10ml-100ml" (+ variants)

@@ -79,7 +79,7 @@ function hashPrecedenceRule(ctx) {
     (subsByCat.Hash ||= new Set()).add('Moonrocks');
   }
   if (scores.Hash && scores.Flower) {
-    const hashSignals = /(\bhash\b|hashish|dry sift|dry-sift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush|\b120u\b|120\s*(?:micron|microns|µ|μ)|\bfull\s*-?\s*melt\b|\bgoo\b)/;
+    const hashSignals = /(\bhash\b|hashish|dry sift|dry-sift|drysift|dry filtered|dry-filtered|static sift|static hash|piatella|kief|pollen|moonrock|moon rock|temple ball|temple balls|mousse hash|simpson kush|\b120u\b|120\s*(?:micron|microns|µ|μ)|\bfull\s*-?\s*melt\b|\bgoo\b)/;
     if (hashSignals.test(text)) {
       scores.Hash += 5;
       scores.Flower -= 5;
