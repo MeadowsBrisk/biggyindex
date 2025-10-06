@@ -105,20 +105,53 @@ async function main() {
             numberOfReviews: ir.numberOfReviews ?? null,
           }
         : null;
-      // Compute signature to detect changes
+      // Compute signature to detect changes (structural diff reasons derived below)
       const sig = buildSignature(item, variants);
       let lastUpdatedAt = seen[id]?.lastUpdatedAt || null;
+      let lastUpdateReason = seen[id]?.lastUpdateReason || null;
       if (seen[id]?.sig) {
         if (seen[id].sig !== sig) {
-          // Only mark update if this is not the initial baseline seeding from repo to empty blob
+          // Derive a simple reason string by diffing salient fields
+          const priorSigObj = (() => { try { return JSON.parse(seen[id].sig); } catch { return {}; } })();
+          const nextSigObj = (() => { try { return JSON.parse(sig); } catch { return {}; } })();
+          const reasons = [];
+          // Price changes (min/max) from normalized variants
+          const prevVariantsSig = priorSigObj.variantsSig || '';
+          const nextVariantsSig = nextSigObj.variantsSig || '';
+          if (prevVariantsSig !== nextVariantsSig) {
+            // finer grained variant reasons
+            const prevSet = new Set((prevVariantsSig ? prevVariantsSig.split(';') : []).filter(Boolean));
+            const nextSet = new Set((nextVariantsSig ? nextVariantsSig.split(';') : []).filter(Boolean));
+            let added = 0, removed = 0, priceChanged = 0;
+            for (const sigPart of nextSet) if (!prevSet.has(sigPart)) added++;
+            for (const sigPart of prevSet) if (!nextSet.has(sigPart)) removed++;
+            // crude detection of price changes: compare descriptions presence ignoring amounts
+            const norm = (s) => s.split('|')[0];
+            const prevDescMap = {};
+            for (const p of prevSet) { const d = norm(p); (prevDescMap[d] = prevDescMap[d] || []).push(p); }
+            for (const n of nextSet) {
+              const d = norm(n);
+              if (prevDescMap[d] && !prevSet.has(n)) priceChanged++; // same description different amount
+            }
+            if (priceChanged) reasons.push(priceChanged === 1 ? 'Price changed' : 'Prices changed');
+            if (added) reasons.push(added === 1 ? 'Variant added' : added + ' variants added');
+            if (removed) reasons.push(removed === 1 ? 'Variant removed' : removed + ' variants removed');
+            if (!priceChanged && !added && !removed) reasons.push('Variants updated');
+          }
+          if ((priorSigObj.description || '') !== (nextSigObj.description || '')) reasons.push('Description changed');
+            // Image count change
+          if ((priorSigObj.images || 0) !== (nextSigObj.images || 0)) reasons.push('Images changed');
+          // Only mark update if not baseline seeding
           if (!(baselineSeeding && hadExisting && !loadedFromBlob)) {
             lastUpdatedAt = new Date().toISOString();
+            if (reasons.length) lastUpdateReason = reasons.join(', ');
+            else lastUpdateReason = 'Content changed';
           }
         }
       }
-  // Preserve existing firstSeenAt or default to now if undefined (matches prior behavior)
-  seen[id] = { firstSeenAt: (seen[id] && seen[id].firstSeenAt) ? seen[id].firstSeenAt : nowIso, lastUpdatedAt, sig };
-      return { id, refNum, name, description, sellerId: item?.seller?.id ?? item?.sellerId ?? null, sellerName: item?.seller?.name ?? '', sellerUrl: buildSellerUrl(item?.seller?.name ?? '', item?.seller?.id ?? item?.sellerId ?? null), sellerOnline: item?.seller?.online || null, url: buildItemUrl(item), imageUrl: (getImageUrls(item.images)[0] || getImageUrl(item.images)), imageUrls: getImageUrls(item.images), category, subcategories, shipsFrom, priceMin, priceMax, variants: variantsOut, reviewStats: (itemReviewSummaries?.[String(id)] ? { averageRating: itemReviewSummaries[String(id)].averageRating ?? null, averageDaysToArrive: itemReviewSummaries[String(id)].averageDaysToArrive ?? null, numberOfReviews: itemReviewSummaries[String(id)].numberOfReviews ?? null } : null), hotness, firstSeenAt: seen[id].firstSeenAt, lastUpdatedAt };
+      // Preserve existing firstSeenAt or default to now if undefined (matches prior behavior)
+      seen[id] = { firstSeenAt: (seen[id] && seen[id].firstSeenAt) ? seen[id].firstSeenAt : nowIso, lastUpdatedAt, sig, lastUpdateReason };
+      return { id, refNum, name, description, sellerId: item?.seller?.id ?? item?.sellerId ?? null, sellerName: item?.seller?.name ?? '', sellerUrl: buildSellerUrl(item?.seller?.name ?? '', item?.seller?.id ?? item?.sellerId ?? null), sellerOnline: item?.seller?.online || null, url: buildItemUrl(item), imageUrl: (getImageUrls(item.images)[0] || getImageUrl(item.images)), imageUrls: getImageUrls(item.images), category, subcategories, shipsFrom, priceMin, priceMax, variants: variantsOut, reviewStats: (itemReviewSummaries?.[String(id)] ? { averageRating: itemReviewSummaries[String(id)].averageRating ?? null, averageDaysToArrive: itemReviewSummaries[String(id)].averageDaysToArrive ?? null, numberOfReviews: itemReviewSummaries[String(id)].numberOfReviews ?? null } : null), hotness, firstSeenAt: seen[id].firstSeenAt, lastUpdatedAt, lastUpdateReason };
     }).filter(Boolean);
 
   // Inject aggregated crawler data (share + shipping price range) if available (extracted helper)

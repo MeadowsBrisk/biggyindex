@@ -64,8 +64,14 @@ async function loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT }) {
 						const cur = seen[id];
 						let changed = false;
 						if (rec.firstSeenAt && (!cur.firstSeenAt || rec.firstSeenAt < cur.firstSeenAt)) { cur.firstSeenAt = rec.firstSeenAt; changed = true; }
-						if (rec.lastUpdatedAt && (!cur.lastUpdatedAt || rec.lastUpdatedAt > cur.lastUpdatedAt)) { cur.lastUpdatedAt = rec.lastUpdatedAt; changed = true; }
+						if (rec.lastUpdatedAt && (!cur.lastUpdatedAt || rec.lastUpdatedAt > cur.lastUpdatedAt)) {
+							cur.lastUpdatedAt = rec.lastUpdatedAt; changed = true;
+							// If we adopt a newer lastUpdatedAt from blob, also adopt its reason when present
+							if (rec.lastUpdateReason) cur.lastUpdateReason = rec.lastUpdateReason;
+						}
 						if (rec.sig && !cur.sig) { cur.sig = rec.sig; changed = true; }
+						// Adopt lastUpdateReason if we don't have one yet (even without timestamp bump)
+						if (rec.lastUpdateReason && !cur.lastUpdateReason) { cur.lastUpdateReason = rec.lastUpdateReason; changed = true; }
 						if (changed) mergedUpdated++;
 				}
 				console.log('[seen] Merged blob snapshot: +' + mergedAdded + ' new, ' + mergedUpdated + ' updated');
@@ -88,9 +94,14 @@ async function loadSeen({ IS_FUNCTION, RUNTIME_WRITABLE_ROOT }) {
 	const out = {};
 	for (const [key, val] of Object.entries(seen || {})) {
 		if (val && typeof val === 'object') {
-			out[key] = { firstSeenAt: val.firstSeenAt || val.firstSeen || null, lastUpdatedAt: val.lastUpdatedAt ?? null, sig: val.sig || null };
+			out[key] = {
+				firstSeenAt: val.firstSeenAt || val.firstSeen || null,
+				lastUpdatedAt: val.lastUpdatedAt ?? null,
+				sig: val.sig || null,
+				lastUpdateReason: val.lastUpdateReason || null,
+			};
 		} else if (typeof val === 'string') {
-			out[key] = { firstSeenAt: val, lastUpdatedAt: null, sig: null };
+			out[key] = { firstSeenAt: val, lastUpdatedAt: null, sig: null, lastUpdateReason: null };
 		}
 	}
 	seen = out;
