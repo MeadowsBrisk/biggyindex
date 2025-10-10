@@ -177,11 +177,6 @@ export default function HomeLanding({ stats, recentItems, recentReviews, recentM
     name: "Biggy Index",
     url: SITE_URL,
     inLanguage: "en-GB",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
   };
 
   const faqJsonLd = {

@@ -108,7 +108,7 @@ async function main() {
       // Compute signature to detect changes (structural diff reasons derived below)
       const sig = buildSignature(item, variants);
       let lastUpdatedAt = seen[id]?.lastUpdatedAt || null;
-      let lastUpdateReason = seen[id]?.lastUpdateReason || null;
+          let lastUpdateReason = seen[id]?.lastUpdateReason || null;
       if (seen[id]?.sig) {
         if (seen[id].sig !== sig) {
           // Derive a simple reason string by diffing salient fields
@@ -135,7 +135,7 @@ async function main() {
             }
             if (priceChanged) reasons.push(priceChanged === 1 ? 'Price changed' : 'Prices changed');
             if (added) reasons.push(added === 1 ? 'Variant added' : added + ' variants added');
-            if (removed) reasons.push(removed === 1 ? 'Variant removed' : removed + ' variants removed');
+            if (removed) reasons.push(removed === 1 ? 'Variant sold out' : removed + ' variants removed');
             if (!priceChanged && !added && !removed) reasons.push('Variants updated');
           }
           if ((priorSigObj.description || '') !== (nextSigObj.description || '')) reasons.push('Description changed');
@@ -202,9 +202,13 @@ async function main() {
   const { manifest, byCategory } = buildAndWriteManifest({ processedItems, OUTPUT_DIR });
 
   // Build compact recent items aggregate and full image lookup using modular builders
-  const recentItemsCompact = buildRecentItemsCompact(processedItems, 25);
-  const imageLookup = buildItemImageLookup(processedItems);
-
+                if (priceChanged) reasons.push('Price changed');
+                if (added || removed) {
+                  const label = (added && removed)
+                    ? `+${added} / -${removed} variants`
+                    : (added ? `+${added} variants` : `-${removed} variants`);
+                  reasons.push(label);
+                }
     try { if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true }); } catch {}
     try { fs.writeFileSync(ITEMS_OUTPUT, JSON.stringify(processedItems, null, 2), "utf8"); } catch (e) { console.warn('Could not write indexed_items.json:', e.message); }
     // FS fallback for recent items aggregate

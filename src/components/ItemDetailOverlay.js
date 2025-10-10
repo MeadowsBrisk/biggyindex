@@ -262,6 +262,19 @@ export default function ItemDetailOverlay() {
   const subcategories = Array.isArray(baseItem?.subcategories) ? baseItem.subcategories : [];
   const shipsFrom = baseItem?.shipsFrom || null;
   const lastUpdatedAt = baseItem?.lastUpdatedAt || null;
+  const lastUpdateReason = baseItem?.lastUpdateReason || null;
+  const compactUpdateReason = useMemo(() => {
+    if (!lastUpdateReason || typeof lastUpdateReason !== 'string') return '';
+    let s = lastUpdateReason;
+    // Normalize some older forms to compact variant summary
+    s = s.replace(/\b(\d+) variants added\b/gi, '+$1 variants');
+    s = s.replace(/\b(\d+) variants removed\b/gi, '-$1 variants');
+    s = s.replace(/\bVariant added\b/gi, '+1 variant');
+    s = s.replace(/\bVariant removed\b/gi, '-1 variant');
+    // Coalesce "+N variants, -M variants" -> "+N / -M variants"
+    s = s.replace(/\+([0-9]+) variants, -([0-9]+) variants/gi, '+$1 / -$2 variants');
+    return s;
+  }, [lastUpdateReason]);
   const createdAt = baseItem?.firstSeenAt || detail?.createdAt || null;
   const shippingRange = (() => {
     const { minShip, maxShip } = baseItem || {};
@@ -551,7 +564,7 @@ export default function ItemDetailOverlay() {
                         <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" />{countryLabelFromSource(String(shipsFrom))}</span>
                       )}
                       {lastUpdatedAt ? (
-                        <span className="text-[10px] opacity-70">Updated {timeAgo(Date.parse(lastUpdatedAt))}</span>
+                        <span className="text-[10px] opacity-70">Updated {timeAgo(Date.parse(lastUpdatedAt))}{compactUpdateReason ? ` (${compactUpdateReason})` : ''}</span>
                       ) : createdAt ? (
                         <span className="text-[10px] opacity-70">Created {timeAgo(Date.parse(createdAt))}</span>
                       ) : null}
@@ -837,7 +850,7 @@ export default function ItemDetailOverlay() {
                       <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" />{countryLabelFromSource(String(shipsFrom))}</span>
                     )}
                     {lastUpdatedAt ? (
-                      <span className="text-[11px] opacity-70 2xl:mt-[2px]">Updated {timeAgo(Date.parse(lastUpdatedAt))}</span>
+                      <span className="text-[11px] opacity-70 2xl:mt-[2px]">Updated {timeAgo(Date.parse(lastUpdatedAt))}{compactUpdateReason ? ` (${compactUpdateReason})` : ''}</span>
                     ) : createdAt ? (
                       <span className="text-[11px] opacity-70 2xl:mt-[2px]">Created {timeAgo(Date.parse(createdAt))}</span>
                     ) : null}
