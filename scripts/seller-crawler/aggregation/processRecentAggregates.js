@@ -1,18 +1,12 @@
 /**
  * Process and aggregate recent reviews and media for output
- */
-
-/**
- * Process recent review and media candidates into sorted, trimmed lists
  * @param {Object} params
  * @param {Array} params.recentReviewCand - Array of review candidates
  * @param {Array} params.recentMediaCand - Array of media candidates
  * @param {Map} params.sellerNameById - Map of seller IDs to names
  * @param {Set} params.processedSellers - Set of already processed seller IDs
  * @param {Function} params.loadPersistedSellerData - Function to load seller data by ID
- * @param {Object} params.limits - Limit configuration
- * @param {number} params.limits.recentReviewsLimit - Max recent reviews to keep
- * @param {number} params.limits.recentMediaLimit - Max recent media to keep
+ * @param {Object} params.env - Environment configuration with recentReviewsLimit and recentMediaLimit
  * @returns {Promise<Object>} { trimmedReviews: Array, trimmedMedia: Array }
  */
 async function processRecentAggregates({
@@ -21,9 +15,8 @@ async function processRecentAggregates({
   sellerNameById,
   processedSellers,
   loadPersistedSellerData,
-  limits,
+  env,
 }) {
-  const { recentReviewsLimit = 50, recentMediaLimit = 20 } = limits;
 
   // Find sellers missing names
   const sellerIdsMissing = new Set();
@@ -62,8 +55,8 @@ async function processRecentAggregates({
     .map(normalizeEntry)
     .sort((a, b) => (b.created || 0) - (a.created || 0));
 
-  const trimmedReviews = sortedReviews.slice(0, recentReviewsLimit);
-  const trimmedMedia = sortedMedia.slice(0, recentMediaLimit);
+  const trimmedReviews = sortedReviews.slice(0, env.recentReviewsLimit);
+  const trimmedMedia = sortedMedia.slice(0, env.recentMediaLimit);
 
   return { trimmedReviews, trimmedMedia };
 }

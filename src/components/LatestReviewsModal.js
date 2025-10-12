@@ -13,20 +13,8 @@ import cn from "@/app/cn";
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
 
 // Modal state atom is imported from atoms.js
-
-function useBodyScrollLock(locked) {
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    if (locked) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [locked]);
-}
+// Import the shared hook that keeps scrollbar visible
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 function formatArrival(days) {
   if (days == null || Number.isNaN(days)) return null;
@@ -236,7 +224,7 @@ export default function LatestReviewsModal() {
       ? combinedReviews.filter(review => review.images && review.images.length > 0)
       : combinedReviews;
     
-    return filtered.slice(0, 100); // Limit to 100 most recent
+    return filtered.slice(0, 200); // Limit to 200 most recent (matches SELLER_CRAWLER_RECENT_REVIEWS_LIMIT)
   }, [combinedReviews, showOnlyWithImages]);
 
   const handleImageClick = (imageUrl, allImages, startIndex) => {
@@ -401,8 +389,8 @@ function ReviewRow({ review, onImageClick }) {
       className={cn(
         "relative rounded-xl border transition-colors duration-200",
         hasText
-          ? `${panelClass} p-3.5 shadow-sm hover:shadow`
-          : `border-dashed ${panelClass} px-3 py-2 text-sm font-medium`
+          ? `${panelClass} p-3.5 shadow-sm hover:shadow min-h-[80px]`
+          : `border-dashed ${panelClass} px-3 py-2 text-sm font-medium min-h-[80px]`
       )}
     >
       {/* Item thumbnail (top right) */}

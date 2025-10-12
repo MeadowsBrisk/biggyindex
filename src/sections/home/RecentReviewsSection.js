@@ -13,7 +13,7 @@ import cn from "@/app/cn";
 import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
 import ItemImageTooltip from "@/components/ItemImageTooltip";
 
-const MAX_REVIEWS = 100;
+const MAX_REVIEWS = 200; 
 
 function formatPostedLabel(isoString) {
   if (!isoString) return "Posted just now";

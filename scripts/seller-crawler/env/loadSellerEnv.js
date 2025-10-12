@@ -42,6 +42,11 @@ function loadSellerEnv(overrides = {}) {
   const recentReviewsLimit = toInt(env.SELLER_CRAWLER_RECENT_REVIEWS_LIMIT, 200);
   const recentMediaLimit = toInt(env.SELLER_CRAWLER_RECENT_MEDIA_LIMIT, 50);
 
+  // Leaderboard configuration (key settings only)
+  const leaderboardWindowDays = toInt(env.SELLER_CRAWLER_LEADERBOARD_WINDOW_DAYS, 10);
+  const leaderboardLimit = toInt(env.SELLER_CRAWLER_LEADERBOARD_LIMIT, 10);
+  const leaderboardMinNegatives = toInt(env.SELLER_CRAWLER_LEADERBOARD_MIN_NEGATIVES, 2);
+
   const persistMode = String(pick(env.CRAWLER_PERSIST, 'auto'));
   const blobsStore = String(pick(env.CRAWLER_BLOBS_STORE, 'site-index'));
   const blobsPrefix = String(pick(env.SELLER_CRAWLER_BLOBS_PREFIX, 'seller-crawler/'));
@@ -72,6 +77,9 @@ function loadSellerEnv(overrides = {}) {
     captureMedia,
     recentReviewsLimit,
     recentMediaLimit,
+    leaderboardWindowDays,
+    leaderboardLimit,
+    leaderboardMinNegatives,
     persistMode,
     blobsStore,
     blobsPrefix,

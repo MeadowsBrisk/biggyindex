@@ -292,11 +292,7 @@ async function main() {
   const recentMediaCand = [];
   const weeklyPositives = new Map(); // sellerId -> { sellerId, sellerName, positive: number, total: number, ratings: Map, lastCreated: number }
   const allRatings = new Map(); // sellerId -> { sellerId, sellerName, imageUrl, url, positive, negative, total, lastCreated }
-  const leaderboardWindowDaysEnv = Number.parseInt(process.env.SELLER_CRAWLER_LEADERBOARD_WINDOW_DAYS || '', 10);
-  const leaderboardWindowDays = Number.isFinite(leaderboardWindowDaysEnv) && leaderboardWindowDaysEnv > 0 ? leaderboardWindowDaysEnv : 10;
-  const leaderboardWindowSeconds = leaderboardWindowDays * 24 * 60 * 60;
-  const minNegativesEnv = Number.parseInt(process.env.SELLER_CRAWLER_LEADERBOARD_MIN_NEGATIVES || '', 10);
-  const minBottomNegatives = Number.isFinite(minNegativesEnv) && minNegativesEnv > 0 ? minNegativesEnv : 2;
+  const leaderboardWindowSeconds = env.leaderboardWindowDays * 24 * 60 * 60;
 
   const sellerNameById = new Map(work.map((s) => [s.sellerId, s.sellerName || null]));
   const processedSellers = new Set();
@@ -602,10 +598,7 @@ async function main() {
           sellerNameById,
           processedSellers,
           loadPersistedSellerData,
-          limits: {
-            recentReviewsLimit: Number.isFinite(env.recentReviewsLimit) ? env.recentReviewsLimit : 50,
-            recentMediaLimit: Number.isFinite(env.recentMediaLimit) ? env.recentMediaLimit : 20,
-          },
+          env,
         });
         
         writeRecentReviews(env.outputDir, trimmedReviews);
@@ -614,14 +607,6 @@ async function main() {
         runMeta.recentMediaWritten = trimmedMedia.length;
 
         // Compute seller leaderboards
-        const useWeek = (() => {
-          const v = String(process.env.SELLER_CRAWLER_LEADERBOARD_WEEK_ONLY || '').toLowerCase();
-          return v === '1' || v === 'true' || v === 'yes';
-        })();
-        
-        const leaderboardLimitEnv = Number.parseInt(process.env.SELLER_CRAWLER_LEADERBOARD_LIMIT || '', 10);
-        const leaderboardLimit = Number.isFinite(leaderboardLimitEnv) && leaderboardLimitEnv > 0 ? leaderboardLimitEnv : 10;
-        
         // Load existing leaderboard to preserve sellers not processed this run
         let existingLeaderboard = null;
         try {
@@ -685,13 +670,9 @@ async function main() {
           weeklyPositives,
           allRatings: mergedAllRatings,
           sellerNameById,
-          config: {
-            useWeek,
-            leaderboardLimit,
-            minBottomNegatives,
-            priorPositive: 35,  // 87.5% baseline - optimistic but fair for quality marketplace
-            priorTotal: 40,
-          },
+          leaderboardLimit: env.leaderboardLimit,
+          minBottomNegatives: env.leaderboardMinNegatives,
+          useWeek: false,  // Can be made configurable later if needed
         });
         const recent = computeRecentSellers({ state, allRatings: mergedAllRatings, sellerNameById, limit: 10 });
         

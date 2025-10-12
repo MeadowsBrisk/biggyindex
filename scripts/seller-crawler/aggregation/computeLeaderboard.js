@@ -8,22 +8,15 @@
  * @param {Map} params.weeklyPositives - Map of seller weekly review data
  * @param {Map} params.allRatings - Map of all seller rating data
  * @param {Map} params.sellerNameById - Map of seller IDs to names
- * @param {Object} params.config - Configuration options
- * @param {boolean} params.config.useWeek - Whether to use weekly data vs all data
- * @param {number} params.config.leaderboardLimit - Number of sellers in each list
- * @param {number} params.config.minBottomNegatives - Minimum negatives for bottom list
- * @param {number} params.config.priorPositive - Bayesian prior positive reviews
- * @param {number} params.config.priorTotal - Bayesian prior total reviews
+ * @param {number} params.leaderboardLimit - Number of sellers in each list
+ * @param {number} params.minBottomNegatives - Minimum negatives for bottom list
+ * @param {boolean} params.useWeek - Whether to use weekly data vs all data
  * @returns {Object} { top: Array, bottom: Array, metadata: Object }
  */
-function computeLeaderboard({ weeklyPositives, allRatings, sellerNameById, config }) {
-  const {
-    useWeek = false,
-    leaderboardLimit = 10,
-    minBottomNegatives = 2,
-    priorPositive = 20,
-    priorTotal = 40,
-  } = config;
+function computeLeaderboard({ weeklyPositives, allRatings, sellerNameById, leaderboardLimit = 10, minBottomNegatives = 2, useWeek = false }) {
+  // Algorithm constants (tuned for quality marketplace)
+  const priorPositive = 35;  // 87.5% baseline - optimistic but fair
+  const priorTotal = 40;
 
   // Wilson lower bound with Bayesian prior for fairness
   const computeWilsonScore = (positive, total) => {
