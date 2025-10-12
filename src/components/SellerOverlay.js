@@ -154,6 +154,7 @@ export default function SellerOverlay() {
     setSellerId(null);
     popOverlay('seller');
     try { window.dispatchEvent(new CustomEvent('lb:close-item-overlay', { detail: { skipScroll: true } })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('lb:close-reviews-modal')); } catch {}
     setTimeout(() => {
       try { window.dispatchEvent(new CustomEvent('lb:scroll-top')); } catch {}
       try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
@@ -169,7 +170,7 @@ export default function SellerOverlay() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={`fixed inset-0 ${topOverlay === 'seller' ? 'z-[140]' : 'z-[120]'} bg-black/35 dark:bg-black/45 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-y-auto`}
+        className={`fixed inset-0 ${topOverlay === 'seller' ? 'z-[160]' : 'z-[120]'} bg-black/35 dark:bg-black/45 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-y-auto`}
         onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
       >
         <motion.div
@@ -336,7 +337,7 @@ export default function SellerOverlay() {
                     const ref = r?.item?.refNum || String(r?.item?.id || '');
                     const externalUrl = typeof r?.itemUrl === 'string' && r.itemUrl ? r.itemUrl : null;
                     if (!ref && !externalUrl) return null;
-                    const name = r?.item?.name || 'View item';
+                    const name = decodeEntities(r?.item?.name || 'View item');
                     const isInternal = Boolean(ref);
                     const handleClick = (e) => {
                       if (!isInternal) return; // allow normal navigation for external links
@@ -346,6 +347,7 @@ export default function SellerOverlay() {
                       popOverlay('seller');
                       pushOverlay('item');
                       setItemRef(ref);
+                      try { window.dispatchEvent(new CustomEvent('lb:close-reviews-modal')); } catch {}
                     };
                     const href = isInternal ? `/?ref=${encodeURIComponent(ref)}` : externalUrl;
                     const linkClass = isInternal

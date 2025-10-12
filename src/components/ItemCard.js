@@ -304,8 +304,8 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
     <span className="shrink-0 italic">Seller:</span>
-    <SellerInfoBadge sellerName={sellerName} sellerUrl={sellerUrl || url} sellerOnline={sellerOnline} />
-      <SellerFilterButtons sellerName={sellerName} />
+    <SellerInfoBadge sellerName={decodeEntities(sellerName || '')} sellerUrl={sellerUrl || url} sellerOnline={sellerOnline} />
+      <SellerFilterButtons sellerName={decodeEntities(sellerName || '')} />
             </div>
           </div>
           {Array.isArray(variants) && variants.length > 0 && (

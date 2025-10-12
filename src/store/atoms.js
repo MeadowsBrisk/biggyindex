@@ -303,6 +303,8 @@ export const expandedItemIdAtom = expandedRefNumAtom;
 export const expandedSellerIdAtom = atom(null);
 // Seller analytics modal (boolean)
 export const sellerAnalyticsOpenAtom = atom(false);
+// Latest reviews modal (boolean)
+export const latestReviewsModalOpenAtom = atom(false);
 // Overlay z-index coordination: track stacking history
 export const topOverlayAtom = atom([]);
 export const pushOverlayAtom = atom(null, (get, set, layer) => {

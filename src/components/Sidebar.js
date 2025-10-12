@@ -1,15 +1,14 @@
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
 import PriceRange from "@/components/filters/PriceRange";
-import SellerExcludeInput from "@/components/filters/SellerExcludeInput";
-import SellerIncludeInput from "@/components/filters/SellerIncludeInput";
+import SellerFilter from "@/components/filters/SellerFilter";
 import SortControls from "@/components/filters/SortControls";
 import InfoButton from "@/components/InfoButton";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
 import { useAtom } from "jotai";
-import { activeFiltersCountAtom, resetFiltersAtom, sellerAnalyticsOpenAtom } from "@/store/atoms";
+import { activeFiltersCountAtom, resetFiltersAtom, sellerAnalyticsOpenAtom, latestReviewsModalOpenAtom } from "@/store/atoms";
 
 // Animation variants
 const containerVariants = {
@@ -27,7 +26,7 @@ function Section({ title, children }) {
       variants={itemVariants}
       className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 shadow-sm relative"
     >
-      {title && <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">{title}</h3>}
+      {title && <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">{title}</h3>}
       {children}
     </motion.section>
   );
@@ -40,6 +39,7 @@ export default function Sidebar() {
   const [activeCount] = useAtom(activeFiltersCountAtom);
   const [, resetFilters] = useAtom(resetFiltersAtom);
   const [, setAnalyticsOpen] = useAtom(sellerAnalyticsOpenAtom);
+  const [, setReviewsOpen] = useAtom(latestReviewsModalOpenAtom);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -75,16 +75,25 @@ export default function Sidebar() {
         <Section title="Search"><SearchBar /></Section>
         <Section title="Category"><CategoryFilter /></Section>
         <Section title="Price"><PriceRange /></Section>
-        <Section title="Include Sellers"><SellerIncludeInput /></Section>
-        <Section title="Exclude Sellers"><SellerExcludeInput /></Section>
-        <motion.button
-          variants={itemVariants}
-          type="button"
-          onClick={() => setAnalyticsOpen(true)}
-          className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-        >
-          Sellers
-        </motion.button>
+        <Section title="Sellers"><SellerFilter /></Section>
+        <div className="flex gap-2">
+          <motion.button
+            variants={itemVariants}
+            type="button"
+            onClick={() => setAnalyticsOpen(true)}
+            className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+          >
+            Sellers
+          </motion.button>
+          <motion.button
+            variants={itemVariants}
+            type="button"
+            onClick={() => setReviewsOpen(true)}
+            className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          >
+            Reviews
+          </motion.button>
+        </div>
         <InfoButton />
       </motion.aside>
     );
@@ -149,16 +158,25 @@ export default function Sidebar() {
                 <Section title="Search"><SearchBar /></Section>
                 <Section title="Category"><CategoryFilter /></Section>
                 <Section title="Price"><PriceRange /></Section>
-                <Section title="Include Sellers"><SellerIncludeInput /></Section>
-                <Section title="Exclude Sellers"><SellerExcludeInput /></Section>
-                <motion.button
-                  variants={itemVariants}
-                  type="button"
-                  onClick={() => { setAnalyticsOpen(true); setOpen(false); }}
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                >
-                  Sellers
-                </motion.button>
+                <Section title="Sellers"><SellerFilter /></Section>
+                <div className="flex gap-2">
+                  <motion.button
+                    variants={itemVariants}
+                    type="button"
+                    onClick={() => { setAnalyticsOpen(true); setOpen(false); }}
+                    className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                  >
+                    Sellers
+                  </motion.button>
+                  <motion.button
+                    variants={itemVariants}
+                    type="button"
+                    onClick={() => { setReviewsOpen(true); setOpen(false); }}
+                    className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                  >
+                    Reviews
+                  </motion.button>
+                </div>
                 <InfoButton />
               </motion.div>
             </motion.aside>

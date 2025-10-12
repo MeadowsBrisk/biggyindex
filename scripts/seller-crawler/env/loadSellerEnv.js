@@ -39,8 +39,8 @@ function loadSellerEnv(overrides = {}) {
   const shareRedact = toBool(pick(env.SELLER_CRAWLER_SHARE_REDACT, env.CRAWLER_SHARE_REDACT), false);
   const maxRuntimeMs = toInt(env.SELLER_CRAWLER_MAX_RUNTIME_MS, 900000);
   const captureMedia = toBool(pick(env.SELLER_CRAWLER_CAPTURE_MEDIA, env.CRAWLER_CAPTURE_MEDIA), true);
-  const recentReviewsLimit = toInt(env.SELLER_CRAWLER_RECENT_REVIEWS_LIMIT, 100);
-  const recentMediaLimit = toInt(env.SELLER_CRAWLER_RECENT_MEDIA_LIMIT, 25);
+  const recentReviewsLimit = toInt(env.SELLER_CRAWLER_RECENT_REVIEWS_LIMIT, 200);
+  const recentMediaLimit = toInt(env.SELLER_CRAWLER_RECENT_MEDIA_LIMIT, 50);
 
   const persistMode = String(pick(env.CRAWLER_PERSIST, 'auto'));
   const blobsStore = String(pick(env.CRAWLER_BLOBS_STORE, 'site-index'));

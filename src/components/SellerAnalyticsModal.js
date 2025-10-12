@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
 import SellerAvatarTooltip from '@/components/SellerAvatarTooltip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { formatBritishDateTime, timeAgo } from '@/lib/format';
 
 const SORT_COLUMNS = {
   totalReviews: { key: 'totalReviews', label: 'Reviews', path: 'lifetime.totalReviews' },
@@ -34,6 +35,21 @@ function formatLastSeen(isoDate) {
   if (diffDays < 7) return `${diffDays} days ago`;
   
   return date.toLocaleDateString();
+}
+
+function formatUpdatedAt(isoDate) {
+  if (!isoDate) return '';
+  
+  const relative = timeAgo(isoDate);
+  const formatted = formatBritishDateTime(isoDate);
+  
+  // If timeAgo returns something with "ago", show both
+  // Otherwise just show the formatted date
+  if (relative && relative.includes('ago')) {
+    return `${formatted} (${relative})`;
+  }
+  
+  return formatted;
 }
 
 export default function SellerAnalyticsModal() {
@@ -154,7 +170,7 @@ export default function SellerAnalyticsModal() {
               </h2>
               {analytics && (
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
-                  {analytics.totalSellers} sellers tracked • Updated {new Date(analytics.generatedAt).toLocaleDateString()}
+                  {analytics.totalSellers} sellers tracked • Updated {formatUpdatedAt(analytics.generatedAt)}
                 </p>
               )}
                    {/* <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">

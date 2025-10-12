@@ -186,9 +186,9 @@ export default function ItemDetailOverlay() {
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];
   const resolvedSellerName = useMemo(() => {
-    if (typeof detail?.sellerName === 'string' && detail.sellerName) return detail.sellerName;
-    if (detail?.seller && typeof detail.seller.name === 'string' && detail.seller.name) return detail.seller.name;
-    if (typeof baseItem?.sellerName === 'string' && baseItem.sellerName) return baseItem.sellerName;
+    if (typeof detail?.sellerName === 'string' && detail.sellerName) return decodeEntities(detail.sellerName);
+    if (detail?.seller && typeof detail.seller.name === 'string' && detail.seller.name) return decodeEntities(detail.seller.name);
+    if (typeof baseItem?.sellerName === 'string' && baseItem.sellerName) return decodeEntities(baseItem.sellerName);
     return '';
   }, [detail, baseItem]);
   const resolvedSellerUrl = useMemo(() => {

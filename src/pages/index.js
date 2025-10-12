@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 const ItemDetailOverlay = dynamic(() => import('@/components/ItemDetailOverlay'), { ssr: false });
 const SellerOverlay = dynamic(() => import('@/components/SellerOverlay'), { ssr: false });
 const SellerAnalyticsModal = dynamic(() => import('@/components/SellerAnalyticsModal'), { ssr: false });
+const LatestReviewsModal = dynamic(() => import('@/components/LatestReviewsModal'), { ssr: false });
 import SortControls from "@/components/filters/SortControls";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
 import AnimatedLogoHeader from '@/components/AnimatedLogoHeader';
@@ -336,6 +337,7 @@ export default function Home() {
       <ItemDetailOverlay />
       <SellerOverlay />
       <SellerAnalyticsModal />
+      <LatestReviewsModal />
     </div>
   );
 }

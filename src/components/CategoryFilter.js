@@ -160,7 +160,7 @@ export default function CategoryFilter() {
         return (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Subcategories</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Subcategories</div>
               {selectedSubs.length > 0 && (
                 <button type="button" onClick={clearSubs} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Clear</button>
               )}
@@ -194,7 +194,7 @@ export default function CategoryFilter() {
       {Array.isArray(shipFromOptions) && shipFromOptions.length > 0 && (
         <div>
           <div className="mb-2 flex items-center justify-between gap-2">
-            <div className="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Ships from</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">Ships from</div>
             <div className="flex items-center gap-2">
               {selectedShips.length > 0 && (
                 <button type="button" onClick={() => setSelectedShips([])} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Clear</button>
