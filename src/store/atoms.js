@@ -459,6 +459,10 @@ export const resetFiltersAtom = atom(null, (get, set) => {
 // Thumbnail aspect ratio
 export const thumbnailAspectAtom = atomWithStorage("thumbAspect", "landscape"); // landscape | square | portrait
 
+// Accordion expanded/collapsed state (defaulting to expanded)
+export const priceAccordionOpenAtom = atomWithStorage("accordionPriceOpen", true);
+export const sellersAccordionOpenAtom = atomWithStorage("accordionSellersOpen", true);
+
 // Dynamic per-category counts reflecting current global filters (excluding category/subcategory filters)
 export const categoryLiveCountsAtom = atom((get) => {
   const rates = get(exchangeRatesAtom);

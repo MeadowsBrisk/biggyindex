@@ -4,11 +4,22 @@ import PriceRange from "@/components/filters/PriceRange";
 import SellerFilter from "@/components/filters/SellerFilter";
 import SortControls from "@/components/filters/SortControls";
 import InfoButton from "@/components/InfoButton";
-import { useState, useEffect } from "react";
+import Accordion from "@/components/filters/Accordion";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
-import { useAtom } from "jotai";
-import { activeFiltersCountAtom, resetFiltersAtom, sellerAnalyticsOpenAtom, latestReviewsModalOpenAtom } from "@/store/atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { 
+  activeFiltersCountAtom, 
+  resetFiltersAtom, 
+  sellerAnalyticsOpenAtom, 
+  latestReviewsModalOpenAtom,
+  includedSellersAtom,
+  excludedSellersAtom,
+  priceRangeAtom,
+  priceAccordionOpenAtom,
+  sellersAccordionOpenAtom
+} from "@/store/atoms";
 
 // Animation variants
 const containerVariants = {
@@ -40,6 +51,20 @@ export default function Sidebar() {
   const [, resetFilters] = useAtom(resetFiltersAtom);
   const [, setAnalyticsOpen] = useAtom(sellerAnalyticsOpenAtom);
   const [, setReviewsOpen] = useAtom(latestReviewsModalOpenAtom);
+  
+  // Track individual filter states for badges
+  const includedSellers = useAtomValue(includedSellersAtom);
+  const excludedSellers = useAtomValue(excludedSellersAtom);
+  const priceRange = useAtomValue(priceRangeAtom);
+  
+  const sellerFilterCount = useMemo(() => {
+    return (includedSellers?.length || 0) + (excludedSellers?.length || 0);
+  }, [includedSellers, excludedSellers]);
+  
+  const priceFilterActive = useMemo(() => {
+    const { min, max } = priceRange || {};
+    return (min != null && min > 0) || (max != null && max < Infinity);
+  }, [priceRange]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -74,8 +99,16 @@ export default function Sidebar() {
         </div>
         <Section title="Search"><SearchBar /></Section>
         <Section title="Category"><CategoryFilter /></Section>
-        <Section title="Price"><PriceRange /></Section>
-        <Section title="Sellers"><SellerFilter /></Section>
+        <motion.div variants={itemVariants}>
+          <Accordion title="Price" storageAtom={priceAccordionOpenAtom}>
+            <PriceRange />
+          </Accordion>
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <Accordion title="Sellers" badge={sellerFilterCount || null} storageAtom={sellersAccordionOpenAtom}>
+            <SellerFilter />
+          </Accordion>
+        </motion.div>
         <div className="flex gap-2">
           <motion.button
             variants={itemVariants}
@@ -157,8 +190,16 @@ export default function Sidebar() {
                 <Section title="Sort"><SortControls stack /></Section>
                 <Section title="Search"><SearchBar /></Section>
                 <Section title="Category"><CategoryFilter /></Section>
-                <Section title="Price"><PriceRange /></Section>
-                <Section title="Sellers"><SellerFilter /></Section>
+                <motion.div variants={itemVariants}>
+                  <Accordion title="Price" storageAtom={priceAccordionOpenAtom}>
+                    <PriceRange />
+                  </Accordion>
+                </motion.div>
+                <motion.div variants={itemVariants}>
+                  <Accordion title="Sellers" badge={sellerFilterCount || null} storageAtom={sellersAccordionOpenAtom}>
+                    <SellerFilter />
+                  </Accordion>
+                </motion.div>
                 <div className="flex gap-2">
                   <motion.button
                     variants={itemVariants}
