@@ -18,7 +18,7 @@ export default function SellerFilter() {
   const [excludedPinned, setExcludedPinned] = useAtom(excludedSellersPinnedAtom);
   const [includedPinned, setIncludedPinned] = useAtom(includedSellersPinnedAtom);
   
-  const [mode, setMode] = useState("exclude"); // "include" | "exclude"
+  const [mode, setMode] = useState("include"); // "include" | "exclude"
   const [input, setInput] = useState("");
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0, openAbove: false });
   const [mounted, setMounted] = useState(false);
@@ -94,8 +94,6 @@ export default function SellerFilter() {
   const isIncludeMode = mode === "include";
   const activeList = isIncludeMode ? included : excluded;
   const setActiveList = isIncludeMode ? setIncluded : setExcluded;
-  const activePinned = isIncludeMode ? includedPinned : excludedPinned;
-  const setActivePinned = isIncludeMode ? setIncludedPinned : setExcludedPinned;
 
   const add = (name) => {
     if (!name) return;
@@ -113,60 +111,73 @@ export default function SellerFilter() {
     setActiveList([]);
   };
 
-  const hasAnyFilters = included.length > 0 || excluded.length > 0;
   const hasCurrentModeFilters = activeList.length > 0;
-  const showPin = activePinned || hasAnyFilters;
 
   return (
     <div className="space-y-3">
-      {/* Mode tabs */}
+      {/* Mode tabs with integrated pins */}
       <div className="flex gap-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 p-1">
-        <button
-          type="button"
-          onClick={() => setMode("exclude")}
-          className={cn(
-            "flex-1 rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
-            mode === "exclude"
-              ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          )}
-        >
-          Exclude
-          {excluded.length > 0 && (
-            <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40 px-1.5 text-[10px] font-semibold text-red-700 dark:text-red-300">
-              {excluded.length}
-            </span>
-          )}
-        </button>
         <button
           type="button"
           onClick={() => setMode("include")}
           className={cn(
-            "flex-1 rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
+            "relative flex-1 rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
             mode === "include"
               ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
               : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           )}
         >
-          Include
-          {included.length > 0 && (
-            <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-1.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
-              {included.length}
-            </span>
+          <span className="flex items-center justify-center gap-1.5">
+            Include
+            {included.length > 0 && (
+              <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-1.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                {included.length}
+              </span>
+            )}
+          </span>
+          {/* Pin for include - show if pinned OR (this tab is active AND has sellers) */}
+          {(includedPinned || (mode === "include" && included.length > 0)) && (
+            <div className="absolute right-1 top-1/2 -translate-y-1/2" onClick={(e) => e.stopPropagation()}>
+              <FilterPinButton 
+                asSpan
+                pinned={includedPinned} 
+                onToggle={() => setIncludedPinned(!includedPinned)} 
+                label="include sellers" 
+              />
+            </div>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("exclude")}
+          className={cn(
+            "relative flex-1 rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
+            mode === "exclude"
+              ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          )}
+        >
+          <span className="flex items-center justify-center gap-1.5">
+            Exclude
+            {excluded.length > 0 && (
+              <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40 px-1.5 text-[10px] font-semibold text-red-700 dark:text-red-300">
+                {excluded.length}
+              </span>
+            )}
+          </span>
+          {/* Pin for exclude - show if pinned OR (this tab is active AND has sellers) */}
+          {(excludedPinned || (mode === "exclude" && excluded.length > 0)) && (
+            <div className="absolute right-1 top-1/2 -translate-y-1/2" onClick={(e) => e.stopPropagation()}>
+              <FilterPinButton 
+                asSpan
+                pinned={excludedPinned} 
+                onToggle={() => setExcludedPinned(!excludedPinned)} 
+                label="exclude sellers" 
+              />
+            </div>
           )}
         </button>
       </div>
-
-      {/* Pin button */}
-      {showPin && (
-        <div className="absolute top-2 right-2 flex h-4 w-5 justify-end">
-          <FilterPinButton 
-            pinned={activePinned} 
-            onToggle={() => setActivePinned(!activePinned)} 
-            label={`${mode} sellers`} 
-          />
-        </div>
-      )}
 
       {/* Input and clear button */}
       <div className="flex items-center gap-2">

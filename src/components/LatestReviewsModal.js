@@ -12,8 +12,6 @@ import ImageZoomPreview from "@/components/ImageZoomPreview";
 import cn from "@/app/cn";
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
 
-// Modal state atom is imported from atoms.js
-// Import the shared hook that keeps scrollbar visible
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 function formatArrival(days) {
@@ -338,7 +336,7 @@ export default function LatestReviewsModal() {
           {/* Footer */}
           <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              Reviews refreshed every 4 hours from the LittleBiggy community feed
+              Reviews from LittleBiggy refreshed every 4 hours
             </p>
           </div>
         </motion.div>
