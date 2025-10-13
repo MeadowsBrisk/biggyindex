@@ -1,4 +1,5 @@
 import { getRecentReviews, getSnapshotMeta, getItemImageLookup, getSellerImages } from '@/lib/indexData';
+import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { conditionalJSON } from '@/lib/http/conditional';
 import fs from 'fs';
 import path from 'path';
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
   
   // Enrich reviews with item images and seller images
   const reviews = Array.isArray(reviewsRaw)
-    ? reviewsRaw.slice(0, 100).map((review) => {
+    ? reviewsRaw.slice(0, RECENT_REVIEWS_LIMIT).map((review) => {
         const ref = review?.item?.refNum;
         const itemId = review?.item?.id;
         const imageUrl =

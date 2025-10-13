@@ -12,8 +12,9 @@ import { proxyImage } from "@/lib/images";
 import cn from "@/app/cn";
 import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
 import ItemImageTooltip from "@/components/ItemImageTooltip";
+import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";
 
-const MAX_REVIEWS = 200; 
+const MAX_REVIEWS = RECENT_REVIEWS_LIMIT;
 
 function formatPostedLabel(isoString) {
   if (!isoString) return "Posted just now";

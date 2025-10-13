@@ -11,6 +11,7 @@ import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
 import ImageZoomPreview from "@/components/ImageZoomPreview";
 import cn from "@/app/cn";
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
+import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";
 
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
@@ -221,8 +222,8 @@ export default function LatestReviewsModal() {
     const filtered = showOnlyWithImages 
       ? combinedReviews.filter(review => review.images && review.images.length > 0)
       : combinedReviews;
-    
-    return filtered.slice(0, 200); // Limit to 200 most recent (matches SELLER_CRAWLER_RECENT_REVIEWS_LIMIT)
+
+    return filtered.slice(0, RECENT_REVIEWS_LIMIT); // Keep in sync with seller crawler limit
   }, [combinedReviews, showOnlyWithImages]);
 
   const handleImageClick = (imageUrl, allImages, startIndex) => {

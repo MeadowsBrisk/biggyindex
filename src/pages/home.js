@@ -11,6 +11,7 @@ import RecentMediaSection from "@/sections/home/RecentMediaSection";
 import FaqSection from "@/sections/home/FaqSection";
 import FooterSection from "@/sections/home/FooterSection";
 import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from "@/lib/indexData";
+import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";
 
 const SITE_URL = "https://lbindex.vip";
 // set how many recent items show in each tab
@@ -100,7 +101,7 @@ export async function getStaticProps() {
   }
 
   const recentReviews = Array.isArray(recentReviewsRaw)
-    ? recentReviewsRaw.slice(0, 100).map((review) => {
+    ? recentReviewsRaw.slice(0, RECENT_REVIEWS_LIMIT).map((review) => {
         const ref = review?.item?.refNum;
         const itemId = review?.item?.id;
         const imageUrl =
