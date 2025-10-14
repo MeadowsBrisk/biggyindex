@@ -36,6 +36,14 @@ function hashShippingRange(range){
   return Buffer.from(JSON.stringify(range)).toString('base64').slice(0,16); // short hash
 }
 
+function extractShareCode(link){
+  if (!link) return null;
+  try {
+    const m = String(link).match(/\/link\/([A-Za-z0-9-_]+)/);
+    return m ? m[1] : String(link).trim();
+  } catch { return String(link).trim(); }
+}
+
 // updateAggregated(ctx, { refNum, shareLink?, shippingRange?, nowIso })
 function updateAggregated(ctx, { refNum, shareLink, shippingRange, nowIso }){
   if (!refNum) return { shippingUpdated:false, shareAdded:false };
@@ -48,8 +56,26 @@ function updateAggregated(ctx, { refNum, shareLink, shippingRange, nowIso }){
     ctx.dirty = true;
   }
   const hadShare = !!entry.share;
-  // If new share is provided and differs, adopt it to correct wrong/expired links
-  if (shareLink && shareLink !== entry.share) { entry.share = shareLink; ctx.dirty = true; }
+  if (shareLink && !entry.share) {
+    // Ensure the same share code is not used twice across different refs
+    const newCode = extractShareCode(shareLink);
+    let duplicateOwner = null;
+    if (newCode) {
+      for (const [r, e] of Object.entries(items)) {
+        if (!e || r === String(refNum)) continue;
+        const existingCode = extractShareCode(e.share);
+        if (existingCode && existingCode === newCode) { duplicateOwner = r; break; }
+      }
+    }
+    if (!duplicateOwner) {
+      entry.share = shareLink;
+      ctx.dirty = true;
+    } else {
+      // Skip assigning duplicate share; keep existing owner
+      // Optional: could record a note for diagnostics
+      entry.shareDuplicateOf = duplicateOwner;
+    }
+  }
   let shippingUpdated = false;
   if (shippingRange) {
     const changed = (entry.minShip == null && entry.maxShip == null) || (entry.shippingHash !== shippingHash);
@@ -69,6 +95,32 @@ function updateAggregated(ctx, { refNum, shareLink, shippingRange, nowIso }){
 async function saveAggregated(ctx){
   if (!ctx.dirty) return false;
   ctx.data.generatedAt = new Date().toISOString();
+  // Helper to enforce uniqueness of share codes across items (prefer earliest firstCapturedAt)
+  const enforceUniqueShares = (items) => {
+    try {
+      const byCode = new Map();
+      for (const [ref, entry] of Object.entries(items || {})) {
+        if (!entry || !entry.share) continue;
+        const code = extractShareCode(entry.share);
+        if (!code) continue;
+        const curFirst = Date.parse(entry.firstCapturedAt || '') || Number.POSITIVE_INFINITY;
+        const existing = byCode.get(code);
+        if (!existing) {
+          byCode.set(code, { ref, first: curFirst });
+        } else {
+          // Keep the one with the earliest firstCapturedAt; clear share from the other
+          const prev = items[existing.ref];
+          const prevFirst = existing.first;
+          if (curFirst < prevFirst) {
+            if (prev && prev.share) delete prev.share;
+            byCode.set(code, { ref, first: curFirst });
+          } else {
+            if (entry && entry.share) delete entry.share;
+          }
+        }
+      }
+    } catch {}
+  };
   // Always attempt to write to Blobs first (prefer explicit token), independent of CRAWLER_PERSIST.
   try {
     const { getStore } = await import('@netlify/blobs');
@@ -124,7 +176,13 @@ async function saveAggregated(ctx){
           }
           merged.items[ref] = out;
         }
+        // Enforce unique share codes across merged items
+        enforceUniqueShares(merged.items);
         toWrite = merged;
+      }
+      else {
+        // No base merge; still enforce uniqueness in current dataset
+        enforceUniqueShares(ctx.data.items);
       }
       const json = JSON.stringify(toWrite, null, 2);
       await store.set(prefix + 'index-supplement.json', json, { contentType: 'application/json' });
@@ -141,6 +199,8 @@ async function saveAggregated(ctx){
   const dir = path.dirname(file);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir,{recursive:true});
   const tmp = file + '.tmp';
+  // Enforce uniqueness before writing to filesystem
+  try { enforceUniqueShares(ctx.data.items); } catch {}
   const js = 'module.exports = ' + JSON.stringify(ctx.data, null, 2) + '\n';
   fs.writeFileSync(tmp, js, 'utf8');
   fs.renameSync(tmp, file);

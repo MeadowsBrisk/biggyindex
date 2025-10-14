@@ -30,6 +30,7 @@ async function main() {
   const maxRunMs = Number.parseInt(process.env.CRAWLER_MAX_RUNTIME_MS || '900000', 15); // default 15 minutes
   const argv = yargs(hideBin(process.argv))
     .option('limit',{ type:'number', describe:'Limit items processed' })
+    .option('offset',{ type:'number', describe:'Skip first N items (for range processing)' })
     .option('ids',{ type:'string', describe:'Comma list of refNums to include' })
     .option('force',{ type:'boolean', default:false, describe:'Force reprocess ignoring resume heuristics' })
     .option('refresh-share',{ type:'boolean', default:false, describe:'Force regenerate share link (ignore cached aggregated share)' })
@@ -160,7 +161,12 @@ async function main() {
   if (env.includeIds) work = work.filter(it => env.includeIds.includes(String(it.refNum||it.id)));
   if (argv.ids) { const filterIds = String(argv.ids).split(',').map(s=>s.trim()).filter(Boolean); work = work.filter(it => filterIds.includes(String(it.refNum||it.id))); }
   const limitEnv = Number.parseInt(process.env.CRAWLER_LIMIT||'', 10);
+  const effectiveOffset = (argv.offset && argv.offset>0) ? argv.offset : 0;
   const effectiveLimit = (argv.limit && argv.limit>0) ? argv.limit : (Number.isFinite(limitEnv) && limitEnv>0 ? limitEnv : null);
+  if (effectiveOffset > 0) {
+    work = work.slice(effectiveOffset);
+    log.info(`[range] Skipping first ${effectiveOffset} items (offset applied)`);
+  }
   if (effectiveLimit) work = work.slice(0, effectiveLimit);
   if (!work.length) { log.warn('No items to process after filters. Exiting.'); return; }
 
@@ -198,19 +204,29 @@ async function main() {
   }
 
   // Cookie jar & session reuse (after persistence init)
-  const cookiePersistPath = path.join(__dirname,'cookies.json');
-  let jar = await loadCookieJar(cookiePersistPath);
-  // Attempt blob-backed cookie load if running in blobs mode and no JWT cookie locally
+  // Priority: Blobs (fresh session) > Filesystem fallback (local dev only)
+  let jar = null;
   if (persistence && persistence.mode === 'blobs') {
     try {
       const blobCookies = await persistence.readJson('cookies/jar.json');
-      if (blobCookies && (!jar || (await listCookies(jar)).every(c=>c.key!=='JWT_USER'))) {
-        // Rehydrate jar from blob snapshot
+      if (blobCookies) {
         const tough = require('tough-cookie');
         await new Promise((res, rej) => tough.CookieJar.deserialize(blobCookies, (err, j) => err?rej(err):(jar=j,res())));
         if (env.logCookies) log.info('[cookies] loaded jar from blobs');
       }
-    } catch(e){ log.debug('[cookies] blob load skip '+e.message); }
+    } catch(e){ log.debug('[cookies] blob load failed: '+e.message); }
+  }
+  // Filesystem fallback only if blobs failed or unavailable (local dev)
+  if (!jar) {
+    const cookiePersistPath = path.join(__dirname,'cookies.json');
+    jar = await loadCookieJar(cookiePersistPath);
+    if (jar && env.logCookies) log.info('[cookies] loaded jar from filesystem (fallback)');
+  }
+  // Create empty jar if still none
+  if (!jar) {
+    const tough = require('tough-cookie');
+    jar = new tough.CookieJar();
+    log.info('[cookies] created new empty jar');
   }
   let preCookies = [];
   try { preCookies = await listCookies(jar); } catch {}
@@ -587,17 +603,23 @@ async function main() {
             share = { link: existingShare, source:'cached' };
             summary.share = 'reused';
             log.debug(`[share] ref=${refNum} reuse cached`);
-            // Show the actual short link in console when reusing cached share
-            try { if (existingShare) log.info(`[share] ref=${refNum} shortLink=${existingShare} source=cached`); } catch {}
+            // Show the actual short link and code in console when reusing cached share
+            try {
+              if (existingShare) {
+                const code = (existingShare.match(/\/link\/([A-Za-z0-9-_]+)/) || [null,null])[1] || existingShare;
+                log.info(`[share] ref=${refNum} shortLink=${existingShare} shortCode=${code} source=cached`);
+              }
+            } catch {}
           } else {
             try {
               // Provide both pre- and post-location-filter HTML (concatenated) to maximize inline detection chances
               const combinedHtml = [lastItemHtml, firstItemHtml].filter(Boolean).join('\n');
-              share = await fetchShareLink({ client, refNum, html: combinedHtml || lastItemHtml, outputDir, retry:true, redact: env.shareRedact });
+              share = await fetchShareLink({ client, jar, refNum, html: combinedHtml || lastItemHtml, outputDir, retry:true, redact: env.shareRedact });
               summary.share = share.link ? (share.source==='http-retry'?'generated(retry)':'generated') : 'none';
-              log.debug(`[share] ref=${refNum} attempt source=${share.source} link=${!!share.link}`);
-              // Show the actual short link in console when a new link is generated
-              try { if (share && share.link) log.info(`[share] ref=${refNum} shortLink=${share.link} source=${share.source}`); } catch {}
+              const shareCode = share && share.link ? ((share.link.match(/\/link\/([A-Za-z0-9-_]+)/) || [null,null])[1] || share.link) : null;
+              log.debug(`[share] ref=${refNum} attempt source=${share.source} link=${!!share.link} code=${shareCode||'none'}`);
+              // Show the actual short link and code in console when a new link is generated
+              try { if (share && share.link) log.info(`[share] ref=${refNum} shortLink=${share.link} shortCode=${shareCode} source=${share.source}`); } catch {}
             } catch(e){ summary.share='error'; log.warn(`[share] ref=${refNum} failed: ${e.message}`); }
           }
         } else if (!env.dryRun) {
@@ -678,16 +700,19 @@ async function main() {
     // Delegate to merge-safe writer
     try { writeShareLinks(outputDir, shareLinks); } catch (e) { log.warn('[share-links] write failed '+e.message); }
     await saveStateAsync({ outputDir, state, persistence });
-    const saved = await saveCookieJar(cookiePersistPath, jar);
-    if (env.logCookies) log.info('[cookies] persisted jar saved='+saved);
+    // Save cookies: prioritize blobs, filesystem only as fallback
     if (persistence && persistence.mode === 'blobs') {
       try {
-        // Serialize jar and store in blobs
         const tough = require('tough-cookie');
         const serialized = await new Promise((res, rej) => jar.serialize((err, json)=> err?rej(err):res(json)));
         await persistence.writeJson('cookies/jar.json', serialized);
-        if (env.logCookies) log.info('[cookies] blob snapshot updated');
-      } catch(e){ log.warn('[cookies] blob snapshot failed '+e.message); }
+        if (env.logCookies) log.info('[cookies] saved to blobs');
+      } catch(e){ log.warn('[cookies] blob save failed: '+e.message); }
+    } else {
+      // Filesystem fallback for local dev
+      const cookiePersistPath = path.join(__dirname,'cookies.json');
+      const saved = await saveCookieJar(cookiePersistPath, jar);
+      if (env.logCookies) log.info('[cookies] saved to filesystem (fallback) saved='+saved);
     }
   }
   runMeta.finishedAt = new Date().toISOString();

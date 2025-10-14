@@ -282,6 +282,7 @@ export default function ItemDetailOverlay() {
     return { minShip, maxShip };
   })();
   const biggyLink = detail?.share?.shortLink || baseItem?.share || baseItem?.url || detail?.url || null;
+  // const biggyLink = baseItem?.url || detail?.url || null;
   // Build shareable overlay link with root /[ref]
   const shareRef = refNum;
   const shareUrl = typeof window !== 'undefined'
