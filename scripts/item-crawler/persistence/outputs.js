@@ -88,9 +88,22 @@ function writeLfHtml(outputDir, refNum, stage, html){ //debug dump of last-fetch
   } catch(e){ log.warn(`[debug] writeLfHtml failed ref=${refNum} ${e.message}`); }
 }
 
+function isShareDebugEnabled(){
+  const v = String(process.env.CRAWLER_DEBUG_SHARE||'').trim().toLowerCase();
+  const flag = ['1','true','yes','on'].includes(v);
+  const lvl = String(process.env.LOG_LEVEL||'').trim().toLowerCase();
+  return flag || lvl === 'debug';
+}
+
 function writeShareDebug(outputDir, refNum, payload) { 
   try {
+    // Only write debug artifacts when explicitly enabled or log level is debug
+    if (!isShareDebugEnabled()) return;
     if (persistence && persistence.mode === 'blobs') {
+      // Write debug payload to blobs so we can inspect in blob-backed runs
+      const safe = String(refNum||'unknown').replace(/[^A-Za-z0-9_-]/g,'_');
+      const key = `debug/share/${safe}.json`;
+      try { persistence.writeJson(key, payload); } catch(e) { /* fall through to FS */ }
       return;
     }
     const dbgDir = path.join(outputDir,'debug','share');

@@ -47,7 +47,7 @@
 
 [functions."item-crawler-background"]
   # Schedule the long-running background crawler instead of the sync function
-  schedule = "40 1/4 * * *"
+  schedule = "55 1/4 * * *"
   node_bundler = "esbuild"
   [functions."item-crawler-background".environment]
   CRAWLER_PERSIST = "blobs"

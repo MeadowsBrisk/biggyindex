@@ -32,6 +32,7 @@ async function main() {
     .option('limit',{ type:'number', describe:'Limit items processed' })
     .option('ids',{ type:'string', describe:'Comma list of refNums to include' })
     .option('force',{ type:'boolean', default:false, describe:'Force reprocess ignoring resume heuristics' })
+    .option('refresh-share',{ type:'boolean', default:false, describe:'Force regenerate share link (ignore cached aggregated share)' })
     .option('dry-run',{ type:'boolean', default:false })
     .option('log-level',{ type:'string', describe:'Logging level (debug|info|warn|error)' })
     .help().argv;
@@ -52,6 +53,7 @@ async function main() {
   }
 
   const env = loadCrawlerEnv({ CRAWLER_DRY_RUN: argv['dry-run'] || undefined, LOG_LEVEL: argv['log-level'] });
+  const refreshShare = (argv['refresh-share'] === true) || (/^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_REFRESH_SHARE||'').trim()));
   log.setLogLevel(env.logLevel);
   log.info(`Start crawl dryRun=${env.dryRun} maxParallel=${env.maxParallel} reviewRetries=${env.reviewRetries}`);
 
@@ -507,13 +509,15 @@ async function main() {
           } catch {}
         }
         let shipping=null;
-        let lastItemHtml = null; // capture to reuse for share link & description
+        let lastItemHtml = null; // capture to reuse for share link & description (prefer latest)
+        let firstItemHtml = null; // capture earliest HTML before any location filter (fallback for share detection)
         if ((env.shipping || true) && !env.dryRun) { // always attempt at least one HTML fetch to enable description extraction
           try {
             let htmlRes = await fetchItemPage({ client, url: it.url, refNum, maxBytes: env.itemHtmlMaxBytes, earlyAbort: env.itemHtmlEarlyAbort });
             if (htmlRes.abortedEarly) { runMeta.htmlEarlyAbort++; summary.htmlEarlyAbort = true; }
             if (htmlRes.truncated) { runMeta.htmlTruncated++; summary.htmlTruncated = true; }
             lastItemHtml = htmlRes.html;
+            firstItemHtml = htmlRes.html;
             if (env.shipping) {
               if (env.captureLfHtml) {
                 try { const ck = await listCookies(jar); if (ck.some(c=>c.key.toLowerCase()==='lf')) writeLfHtml(outputDir, refNum, 'preLoc', htmlRes.html); } catch {}
@@ -578,16 +582,22 @@ async function main() {
         let share = { link:null, source:'none' };
         if (env.fetchShare && !env.dryRun) {
           let existingShare = null;
-          try { if (aggregatedCtx && aggregatedCtx.data && aggregatedCtx.data.items[refNum] && aggregatedCtx.data.items[refNum].share) existingShare = aggregatedCtx.data.items[refNum].share; } catch {}
-          if (existingShare) {
+          try { if (!refreshShare && aggregatedCtx && aggregatedCtx.data && aggregatedCtx.data.items[refNum] && aggregatedCtx.data.items[refNum].share) existingShare = aggregatedCtx.data.items[refNum].share; } catch {}
+          if (existingShare && !refreshShare) {
             share = { link: existingShare, source:'cached' };
             summary.share = 'reused';
             log.debug(`[share] ref=${refNum} reuse cached`);
+            // Show the actual short link in console when reusing cached share
+            try { if (existingShare) log.info(`[share] ref=${refNum} shortLink=${existingShare} source=cached`); } catch {}
           } else {
             try {
-              share = await fetchShareLink({ client, refNum, html: lastItemHtml, outputDir, retry:true, redact: env.shareRedact });
+              // Provide both pre- and post-location-filter HTML (concatenated) to maximize inline detection chances
+              const combinedHtml = [lastItemHtml, firstItemHtml].filter(Boolean).join('\n');
+              share = await fetchShareLink({ client, refNum, html: combinedHtml || lastItemHtml, outputDir, retry:true, redact: env.shareRedact });
               summary.share = share.link ? (share.source==='http-retry'?'generated(retry)':'generated') : 'none';
               log.debug(`[share] ref=${refNum} attempt source=${share.source} link=${!!share.link}`);
+              // Show the actual short link in console when a new link is generated
+              try { if (share && share.link) log.info(`[share] ref=${refNum} shortLink=${share.link} source=${share.source}`); } catch {}
             } catch(e){ summary.share='error'; log.warn(`[share] ref=${refNum} failed: ${e.message}`); }
           }
         } else if (!env.dryRun) {

@@ -48,7 +48,8 @@ function updateAggregated(ctx, { refNum, shareLink, shippingRange, nowIso }){
     ctx.dirty = true;
   }
   const hadShare = !!entry.share;
-  if (shareLink && !entry.share) { entry.share = shareLink; ctx.dirty = true; }
+  // If new share is provided and differs, adopt it to correct wrong/expired links
+  if (shareLink && shareLink !== entry.share) { entry.share = shareLink; ctx.dirty = true; }
   let shippingUpdated = false;
   if (shippingRange) {
     const changed = (entry.minShip == null && entry.maxShip == null) || (entry.shippingHash !== shippingHash);

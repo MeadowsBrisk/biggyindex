@@ -41,7 +41,10 @@ async function fetchItemPage({ client, url, refNum, timeout = 20000, shipsTo, ma
               if (!abortDetected && earlyAbort && received >= earlyAbortMinBytes) {
                 // quick heuristic: if we have both a foldable shipping marker and a share form token, we can stop early
                 const snapshot = Buffer.concat(chunks).toString('utf8');
-                if (/foldable\s+Bp3/i.test(snapshot) && /name="contextRefNum"/i.test(snapshot)) {
+                const hasFoldable = /foldable\s+Bp3/i.test(snapshot);
+                const hasShareToken = /name="contextRefNum"/i.test(snapshot);
+                const hasExpectedRef = refNum ? new RegExp(String(refNum).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(snapshot) : true;
+                if (hasFoldable && hasShareToken && hasExpectedRef) {
                   abortDetected = true;
                   truncated = true; // mark truncated even though early-aborted
                   stream.destroy();
