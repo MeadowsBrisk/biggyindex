@@ -119,6 +119,7 @@ Parent Categories & notable child groups:
 - Edibles keywords now include `tablet` and `tablets`; child `Capsules` includes tablets.
 - Psychedelics: Spirit, Paper, Mushrooms, Grow, Microdose
 - Other: (mad honey, modafinil, blister, erectile, box, antibiotic, respiratory, doxycycline)
+    - Bong (new child; subcategory only – classification is rule-driven using title-only matching)
 
 Notes:
 - Overlapping tokens (e.g. 'live resin', 'distillate') appear across categories to allow context disambiguation via later rules.
@@ -318,6 +319,21 @@ Recent rule adjustments (implemented with accompanying regression tests) – thi
     - Beverage override heavily penalizes Concentrates; verify future genuine concentrate listings referencing limoncello terpenes without alcohol % are not unintentionally diverted (current regex requires alcohol % or mg potency plus beverage name variant, making this low risk).
 
 Regression Goal: All new heuristics are now backed by explicit tests so future modifications to vape or concentrate rules must update or preserve these cases.
+
+### Updates (2025-10-18)
+New paraphernalia handling and a trim refinement:
+
+1. Other → Bong subcategory and rule
+    - Taxonomy: Added `Other.children.Bong` (no keywords; subcategory emission is rule-driven to avoid description false positives).
+    - Rule: `12-otherParaphernalia.js` detects title-only `\bbong(s)?\b`, boosts Other (+12), demotes Flower/Concentrates/Vapes, and tags subcategory `Bong`.
+    - Ordering: Rule placed late (just before precedence) to override incidental concentrate/flower tokens in descriptions.
+    - Precedence guard: `90-precedenceResolution.js` now treats Other as “explicitly matched” if any Other subcategory is set, preventing the guard from discarding a valid Bong classification merely because no Other keyword appears in text.
+    - Tests: `test-bongs-and-trim.js` covers five bong listings; all expect `Other` with `Bong` subcategory.
+
+2. Trim / Sugar Leaf refinement
+    - Expanded Flower.Shake tokens to include `sugar leaf`/`sugarleaf` in taxonomy.
+    - In `07-concentrateOverrides.js` crystalline/sugar false-positive demotion, the strong Flower context now includes `shake|trim|popcorn|sugar leaf`, further demoting Concentrates and boosting Flower when these appear.
+    - Tests: `test-bongs-and-trim.js` includes a “GELATO 41 FIRE TRIM” case → `Flower` with `Shake` subcategory.
 
 ## Newly Reported (Pending) Misclassifications
 Provided examples (2025‑09) indicate several pure distillate bulk listings misclassified as Vapes instead of Concentrates:

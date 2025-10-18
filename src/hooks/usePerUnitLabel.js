@@ -207,6 +207,8 @@ export function usePerUnitLabel() {
     const parsed = parseQuantity(description);
     if (!parsed || !(parsed.qty > 0)) return null;
     const { unit, qty } = parsed;
+    // If it's exactly 1 item, skip showing a redundant per-item price
+    if (unit === 'item' && qty === 1) return null;
     const per = priceAmount / qty;
     if (!isFinite(per)) return null;
     const money = formatMoney(per, currency, { decimals: 2 });

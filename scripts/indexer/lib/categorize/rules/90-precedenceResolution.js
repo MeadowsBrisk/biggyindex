@@ -20,7 +20,8 @@ function precedenceResolutionRule(ctx) {
   }
   const hasPositive = cats.some((c) => (scores[c] || 0) > 0);
   const otherKeywords = (TAXONOMY.Other && TAXONOMY.Other.keywords) || [];
-  const matchedOther = otherKeywords.some(kw => kw && text.includes(String(kw).toLowerCase()));
+  // Treat Other as explicitly matched if either a known Other keyword is present or a subcategory was set (e.g., Bong)
+  const matchedOther = otherKeywords.some(kw => kw && text.includes(String(kw).toLowerCase())) || (subsByCat.Other && (subsByCat.Other.size > 0));
 
   // Catch-all fallback: if nothing scored positively, classify as Other
   if (!hasPositive || !primary) {

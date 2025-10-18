@@ -17,6 +17,7 @@ const { ediblesFalsePositiveDemotionRule } = require('./rules/10-ediblesFalsePos
 const { precedenceResolutionRule } = require('./rules/90-precedenceResolution');
 const { seedsListingsRule } = require('./rules/11-seedsListings');
 const { distillateBulkRefinementRule } = require('./rules/07c-distillateBulkRefinement');
+const { otherParaphernaliaRule } = require('./rules/12-otherParaphernalia');
 
 function escapeRegExp(str) { return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 // Ordered execution matching legacy semantics
@@ -39,6 +40,7 @@ const RULE_SEQUENCE = [
   hashPrecedenceRule,            // precedence adjustments before final resolution
   distillateBulkRefinementRule, // NEW: bulk distillate vs vape hardware & oral wellness disambiguation
   concentrateLatePrecedenceRule, // idem
+  otherParaphernaliaRule,      // NEW: paraphernalia like Bongs (title-only), placed last to override product-category noise
   precedenceResolutionRule       // sets ctx.result
 ];
 

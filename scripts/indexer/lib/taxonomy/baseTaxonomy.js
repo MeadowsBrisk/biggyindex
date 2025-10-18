@@ -18,7 +18,7 @@ const TAXONOMY = {
       Zkittlez: ["zkittlez", "zkittles", "skittles"],
       OG: [" og ", "og "],
       Diesel: ["diesel"],
-      Shake: ["shake", "trim", "popcorn"],
+  Shake: ["shake", "trim", "popcorn", "sugar leaf", "sugarleaf"],
       PreRolls: [
         "pre-roll", "pre-rolls", "pre roll", "pre rolls", "preroll", "prerolls", "prerolled", "pre-rolled", "pre rolled",
         "joint", "joints", "blunt", "blunts", "spliff", "spliffs",
@@ -130,7 +130,9 @@ const TAXONOMY = {
       Microdose: ["microdose", "microdoses", "micro dosing", "micro-dosing", "micro dose", "micro-doses", "microdosing"],
     }
   },
-  Other: { keywords: ["mad honey", "modafinil", "blister", "erectile", "box", "antibiotic", "respiratory", "Doxycycline"], children: {} },
+  Other: { keywords: ["mad honey", "modafinil", "blister", "erectile", "box", "antibiotic", "respiratory", "Doxycycline"], children: {
+    Bong: [] // subcategory only; classification driven by rule using title-only match to avoid description false positives
+  } },
 };
 
 module.exports = { TAXONOMY };

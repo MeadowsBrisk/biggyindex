@@ -148,7 +148,7 @@ function concentrateLatePrecedenceRule(ctx) {
   if (scores.Concentrates) {
     const sugarLike = /(\bsugar\b|\bcrystal(?:line)?\b)/;
     const hasOnlySugarLike = sugarLike.test(text) && !/(wax|shatter|crumble|badder|batter|rosin|live resin|rso|thca|thc-a|diamonds|distillate|distilate|sauce|terp sauce|terpene sauce|piatella|cold cure|slab|extract)/.test(text);
-    const strongFlowerCtx = /(\bflower\b|\bbud|\bbuds|\bstrain\b|\bstrains\b|hybrid|indica|sativa|runtz|sherb|sherbet|zkittlez|diesel|tops|blueberry|cake|frost|frosty|indoor|outdoor|greenhouse|seeds?)/.test(text);
+    const strongFlowerCtx = /(\bflower\b|\bbud|\bbuds|\bstrain\b|\bstrains\b|hybrid|indica|sativa|runtz|sherb|sherbet|zkittlez|diesel|tops|blueberry|cake|frost|frosty|indoor|outdoor|greenhouse|seeds?|shake|trim|pop\s?corn|sugar\s?leaf)/.test(text);
     if (hasOnlySugarLike && strongFlowerCtx) {
       scores.Concentrates -= 6;
       if (scores.Concentrates <= 0) delete scores.Concentrates;
