@@ -30,7 +30,7 @@ let prefetchedAllNonEndorseCache = false;
 
 export async function getStaticProps() { return { props: {}, revalidate: 3600 }; }
 
-export default function Home() {
+export default function Home({ suppressDefaultHead = false }) {
   const router = useRouter();
   const setItems = useSetAtom(setItemsAtom);
   const [expandedRef, setExpandedRef] = useAtom(expandedRefNumAtom);
@@ -278,11 +278,13 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Biggy Index — Curated items, sellers, and reviews</title>
-        <meta name="description" content="Explore curated items across categories, compare sellers, and read reviews. Updated regularly with fresh data and community signals." />
-        <link rel="canonical" href="https://lbindex.vip/" />
-      </Head>
+      {!suppressDefaultHead && (
+        <Head>
+          <title>Biggy Index — items, sellers, and reviews</title>
+          <meta name="description" content="Explore items across categories, compare sellers, and read reviews. Updated regularly with fresh data and community signals." />
+          <link rel="canonical" href="https://lbindex.vip/" />
+        </Head>
+      )}
       <div className="mx-auto max-w-auto p-4">
       <AnimatedLogoHeader
         rightSlot={(

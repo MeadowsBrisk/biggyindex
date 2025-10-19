@@ -93,7 +93,7 @@ export default function SellerIdPage({ seo }) {
           }}
         />
       </Head>
-      <Home />
+  <Home suppressDefaultHead />
     </>
   );
 }

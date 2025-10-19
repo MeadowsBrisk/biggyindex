@@ -81,7 +81,7 @@ export default function ItemRefPage({ seo }) {
           }}
         />
       </Head>
-      <Home />
+  <Home suppressDefaultHead />
     </>
   );
 }

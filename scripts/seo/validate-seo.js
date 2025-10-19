@@ -4,12 +4,13 @@
  * - Validates sitemap index and children return 200 and contain expected URLs
  * - Fetches representative item and seller pages and checks <head> for title, description, canonical, and JSON-LD presence
  *
- * Usage (Windows PowerShell): node scripts/seo/validate-seo.js --base https://lbindex.vip --item 12345 --seller 678
+ * Usage (Windows PowerShell): yarn seo:validate --base https://lbindex.vip --item 12345 --seller 678
  */
 
-import fetch from 'node-fetch';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+'use strict';
+
+const yargs = require('yargs');
+const { hideBin } = require('yargs/helpers');
 
 const argv = yargs(hideBin(process.argv))
   .option('base', { type: 'string', default: 'http://localhost:3000', describe: 'Base URL of the site' })
@@ -26,7 +27,10 @@ function assert(cond, msg) {
 }
 
 async function fetchText(url) {
-  const r = await fetch(url, { redirect: 'manual' });
+  const doFetch = (typeof fetch !== 'undefined')
+    ? fetch
+    : (await import('node-fetch')).default;
+  const r = await doFetch(url, { redirect: 'manual' });
   const text = await r.text();
   return { status: r.status, text, contentType: r.headers.get('content-type') || '' };
 }
@@ -56,7 +60,8 @@ async function validatePage(url, kind) {
   assert(status >= 200 && status < 400, `${kind} page not OK: ${url} -> ${status}`);
   assert(/text\/html/.test(contentType) || contentType === '' /* netlify may omit */, `${kind} content-type unexpected: ${contentType}`);
   const head = extractHead(text);
-  assert(/<title>[^<]+<\/title>/i.test(head), `${kind} missing <title>`);
+  // Allow attributes inside <title ...> and tolerate whitespace
+  assert(/<title(?:\s[^>]*)?>[\s\S]*?<\/title>/i.test(head), `${kind} missing <title>`);
   assert(/<meta[^>]+name="description"/i.test(head), `${kind} missing meta description`);
   assert(/<link[^>]+rel="canonical"/i.test(head), `${kind} missing canonical`);
   assert(/application\/ld\+json/i.test(head), `${kind} missing JSON-LD`);
