@@ -12,7 +12,6 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 
   const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const urls = sellers
-    .filter(s => typeof s?.itemsCount === 'number' ? s.itemsCount > 5 : true)
     .map((s) => {
       const id = s?.id;
       if (id == null) return '';
