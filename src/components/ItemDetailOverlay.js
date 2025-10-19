@@ -283,10 +283,10 @@ export default function ItemDetailOverlay() {
   })();
   const biggyLink = detail?.share?.shortLink || baseItem?.share || baseItem?.url || detail?.url || null;
   // const biggyLink = baseItem?.url || detail?.url || null;
-  // Build shareable overlay link with root /[ref]
+  // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum;
   const shareUrl = typeof window !== 'undefined'
-    ? (new URL(`/${encodeURIComponent(shareRef)}`, window.location.origin)).toString()
+    ? (new URL(`/item/${encodeURIComponent(shareRef)}`, window.location.origin)).toString()
     : '';
   const [shareOpen, setShareOpen] = useState(false);
   const shareBtnRef = useRef(null);

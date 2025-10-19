@@ -119,7 +119,7 @@ Parent Categories & notable child groups:
 - Edibles keywords now include `tablet` and `tablets`; child `Capsules` includes tablets.
 - Psychedelics: Spirit, Paper, Mushrooms, Grow, Microdose
 - Other: (mad honey, modafinil, blister, erectile, box, antibiotic, respiratory, doxycycline)
-    - Bong (new child; subcategory only – classification is rule-driven using title-only matching)
+        - Bongs (new child; subcategory only – classification is rule-driven using title-only matching)
 
 Notes:
 - Overlapping tokens (e.g. 'live resin', 'distillate') appear across categories to allow context disambiguation via later rules.
@@ -323,9 +323,9 @@ Regression Goal: All new heuristics are now backed by explicit tests so future m
 ### Updates (2025-10-18)
 New paraphernalia handling and a trim refinement:
 
-1. Other → Bong subcategory and rule
-    - Taxonomy: Added `Other.children.Bong` (no keywords; subcategory emission is rule-driven to avoid description false positives).
-    - Rule: `12-otherParaphernalia.js` detects title-only `\bbong(s)?\b`, boosts Other (+12), demotes Flower/Concentrates/Vapes, and tags subcategory `Bong`.
+1. Other → Bongs subcategory and rule
+    - Taxonomy: Added `Other.children.Bongs` (no keywords; subcategory emission is rule-driven to avoid description false positives).
+    - Rule: `12-otherParaphernalia.js` detects title-only `\bbong(s)?\b`, boosts Other (+12), demotes Flower/Concentrates/Vapes, and tags subcategory `Bongs`.
     - Ordering: Rule placed late (just before precedence) to override incidental concentrate/flower tokens in descriptions.
     - Precedence guard: `90-precedenceResolution.js` now treats Other as “explicitly matched” if any Other subcategory is set, preventing the guard from discarding a valid Bong classification merely because no Other keyword appears in text.
     - Tests: `test-bongs-and-trim.js` covers five bong listings; all expect `Other` with `Bong` subcategory.

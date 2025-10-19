@@ -131,7 +131,7 @@ const TAXONOMY = {
     }
   },
   Other: { keywords: ["mad honey", "modafinil", "blister", "erectile", "box", "antibiotic", "respiratory", "Doxycycline"], children: {
-    Bong: [] // subcategory only; classification driven by rule using title-only match to avoid description false positives
+    Bongs: [] // subcategory only; classification driven by rule using title-only match to avoid description false positives
   } },
 };
 

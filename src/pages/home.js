@@ -36,6 +36,7 @@ export async function getStaticProps() {
     lastUpdated: snapshotMeta?.updatedAt ?? null,
     categories: manifest?.categories || null,
   };
+  const buildTime = new Date().toISOString();
 
   // Seller images map provided by seller-crawler aggregate
   const sellerImageById = new Map(Object.entries(sellerImagesMap || {}).map(([k, v]) => [Number(k), v]).filter(([id, url]) => Number.isFinite(id) && !!url));
@@ -161,6 +162,7 @@ export async function getStaticProps() {
   return {
     props: {
       stats,
+      buildTime,
       recentItems,
       recentReviews,
       recentMedia,
@@ -171,7 +173,7 @@ export async function getStaticProps() {
   };
 }
 
-export default function HomeLanding({ stats, recentItems, recentReviews, recentMedia, sellersLeaderboard, sellersIndex }) {
+export default function HomeLanding({ stats, buildTime, recentItems, recentReviews, recentMedia, sellersLeaderboard, sellersIndex }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -227,6 +229,15 @@ export default function HomeLanding({ stats, recentItems, recentReviews, recentM
     ],
   };
 
+  const webPageJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Biggy Index – UK Cannabis Listings",
+    dateModified: buildTime,
+    url: `${SITE_URL}/home`,
+    inLanguage: "en-GB",
+  };
+
   return (
     <>
       <Head>
@@ -251,6 +262,7 @@ export default function HomeLanding({ stats, recentItems, recentReviews, recentM
         />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
       </Head>
       <main className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
         <HeroSection stats={stats} />
@@ -263,7 +275,7 @@ export default function HomeLanding({ stats, recentItems, recentReviews, recentM
       <SellerLeaderboardSection leaderboard={sellersLeaderboard} sellersIndex={sellersIndex} />
 
         <FaqSection />
-        <FooterSection />
+        <FooterSection lastCrawlTime={stats?.lastUpdated || null} buildTime={buildTime} />
       </main>
     </>
   );

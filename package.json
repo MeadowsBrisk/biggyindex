@@ -13,7 +13,8 @@
     "baseline:update": "node scripts/indexer/create-baseline.js --update",
     "test:index": "node scripts/indexer/test-all.js",
     "gifs": "node scripts/gif-processor/process-gifs.js",
-    "crawl:items": "node scripts/item-crawler/crawl-items.js"
+    "crawl:items": "node scripts/item-crawler/crawl-items.js",
+    "seo:validate": "node scripts/seo/validate-seo.js"
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.10",

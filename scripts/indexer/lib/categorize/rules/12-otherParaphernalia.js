@@ -11,7 +11,7 @@ function otherParaphernaliaRule(ctx) {
     if (scores.Flower) { scores.Flower -= 8; if (scores.Flower <= 0) delete scores.Flower; }
     if (scores.Concentrates) { scores.Concentrates -= 8; if (scores.Concentrates <= 0) delete scores.Concentrates; }
     if (scores.Vapes) { scores.Vapes -= 6; if (scores.Vapes <= 0) delete scores.Vapes; }
-    (subsByCat.Other ||= new Set()).add('Bong');
+  (subsByCat.Other ||= new Set()).add('Bongs');
   }
 }
 

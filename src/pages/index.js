@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import React from 'react';
+import Head from 'next/head';
 import { useAtom, useSetAtom, useAtomValue } from "jotai";
 import { setItemsAtom, manifestAtom, categoryAtom, isLoadingAtom, sortedItemsAtom } from "@/store/atoms";
 import { setAllItemsAtom, allItemsAtom } from "@/store/atoms";
@@ -276,7 +277,13 @@ export default function Home() {
       : `Showing ${sorted.length} items`;
 
   return (
-    <div className="mx-auto max-w-auto p-4">
+    <>
+      <Head>
+        <title>Biggy Index — Curated items, sellers, and reviews</title>
+        <meta name="description" content="Explore curated items across categories, compare sellers, and read reviews. Updated regularly with fresh data and community signals." />
+        <link rel="canonical" href="https://lbindex.vip/" />
+      </Head>
+      <div className="mx-auto max-w-auto p-4">
       <AnimatedLogoHeader
         rightSlot={(
           <div className="flex items-center gap-2">
@@ -338,6 +345,7 @@ export default function Home() {
       <SellerOverlay />
       <SellerAnalyticsModal />
       <LatestReviewsModal />
-    </div>
+      </div>
+    </>
   );
 }

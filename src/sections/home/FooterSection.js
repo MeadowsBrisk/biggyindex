@@ -5,7 +5,7 @@ import RedditIcon from '@/app/assets/svg/reddit.svg';
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-export default function FooterSection() {
+export default function FooterSection({ lastCrawlTime, buildTime }) {
   const year = new Date().getFullYear();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const footerRef = useRef(null);
@@ -136,7 +136,14 @@ export default function FooterSection() {
         {/* Bottom bar */}
         <div className="relative border-t border-white/10 px-6 py-6 text-center text-xs transition-colors duration-300 dark:border-slate-200/20">
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-white/60 dark:text-slate-500 sm:flex-row sm:justify-center">
-            <span>© {year} Biggy Index.</span>          </div>
+            <span>© {year} Biggy Index.</span>
+            {lastCrawlTime && (
+              <span className="opacity-80">Data last crawled: {new Date(lastCrawlTime).toLocaleString()}</span>
+            )}
+            {buildTime && (
+              <span className="opacity-70">Page refreshed: {new Date(buildTime).toLocaleString()}</span>
+            )}
+          </div>
         </div>
       </div>
     </footer>
