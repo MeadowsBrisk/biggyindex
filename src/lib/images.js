@@ -1,11 +1,15 @@
 // Image-related utilities
 
-// Proxy image URLs via Cloudflare Worker, Netlify Edge, or Serveproxy CDN
+// Toggle: when true, also send JPEG/WebP/others via Cloudflare Worker (disables Serveproxy)
+// Flip to false to restore Serveproxy for JPEG/WebP quickly.
+export const USE_CLOUDFLARE_FOR_JPEG = true;
+
+// Proxy image URLs via Cloudflare Worker or Serveproxy CDN
 // - Skips non-strings
 // - Skips already proxied URLs
 // - Skips local same-origin paths (/ or same host) to avoid needless round trip
 // - Uses Cloudflare Worker for GIFs/PNGs (no size limit, global edge cache)
-// - Uses Serveproxy for JPGs/WebP (3MB limit but fast enough)
+// - Uses Cloudflare Worker for JPGs/WebP when USE_CLOUDFLARE_FOR_JPEG=true; otherwise Serveproxy
 export function proxyImage(url) {
   if (!url || typeof url !== 'string') return url;
   // Skip root-relative or explicit same-origin URLs (poster assets, etc.)
@@ -20,23 +24,33 @@ export function proxyImage(url) {
   }
   // Skip already proxied URLs
   if (url.startsWith('https://serveproxy.com/?url=') || 
-      url.includes('/api/image-proxy?url=') ||
-      url.includes('/cf-image-proxy?url=')) return url;
+    url.includes('/api/image-proxy?url=') ||
+    url.includes('/cf-image-proxy?url=')) return url;
   
   try {
+    // Decide Cloudflare base (dev uses production domain since worker isn't running locally)
+    const getCfBase = () => {
+      if (typeof window === 'undefined') return null;
+      const host = window.location.hostname;
+      const isDev = host === 'localhost' || host === '127.0.0.1';
+      return isDev ? 'https://lbindex.vip' : window.location.origin;
+    };
+
     // Use Cloudflare Worker for GIFs and PNGs (no size limit, global edge cache)
     if (/\.(gif|png)(?:$|[?#])/i.test(url)) {
-      if (typeof window !== 'undefined') {
-        // Always use production Cloudflare Worker (even in dev)
-        // Local dev doesn't have the worker running
-        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const proxyBase = isDev ? 'https://lbindex.vip' : window.location.origin;
-        return `${proxyBase}/cf-image-proxy?url=${encodeURIComponent(url)}`;
-      }
+      const base = getCfBase();
+      if (base) return `${base}/cf-image-proxy?url=${encodeURIComponent(url)}`;
       // SSR fallback - return original
       return url;
     }
-    // Use Serveproxy for JPGs/WebP (3MB limit is fine for these)
+
+    // For JPG/JPEG/WEBP/others: route via Cloudflare when flag enabled; otherwise Serveproxy
+    if (USE_CLOUDFLARE_FOR_JPEG) {
+      const base = getCfBase();
+      if (base) return `${base}/cf-image-proxy?url=${encodeURIComponent(url)}`;
+      return url;
+    }
+    // Legacy path: Serveproxy for JPGs/WebP (3MB limit)
     return `https://serveproxy.com/?url=${encodeURIComponent(url)}`;
   } catch {
     return url;
