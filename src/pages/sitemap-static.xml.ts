@@ -17,6 +17,18 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <priority>1.0</priority>
     <lastmod>${now}</lastmod>
   </url>
+  <url>
+    <loc>${origin}/sellers</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${now}</lastmod>
+  </url>
+  <url>
+    <loc>${origin}/latest-reviews</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${now}</lastmod>
+  </url>
 </urlset>`;
   res.setHeader('Content-Type', 'application/xml');
   res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=3600');
