@@ -29,7 +29,9 @@ export default function ItemRefPage({ seo }) {
     setExpanded(ref || null);
   }, [router.isReady, ref, setExpanded]);
 
-  const title = seo?.name ? `${seo.name} | Biggy Index` : 'Item | Biggy Index';
+  const titleBase = seo?.name ? seo.name : 'Item';
+  const bySuffix = seo?.sellerName ? ` sold by ${seo.sellerName}` : '';
+  const title = `${titleBase}${bySuffix} | Biggy Index`;
   // Sanitize and trim description, optionally prefix with seller name
   const rawDesc = typeof seo?.description === 'string' ? seo.description : '';
   const cleanDesc = rawDesc
