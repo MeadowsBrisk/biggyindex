@@ -118,7 +118,7 @@ export default function MobileTabs({
   }, [basketItems, baseItem]);
   return (
     <div className="mt-3 flex flex-col">
-      <div className="flex rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="flex rounded-md overflow-hidden border border-gray-200 dark:border-gray-700" data-nosnippet>
         {['prices','description','reviews'].map(key => (
           <button
             key={key}

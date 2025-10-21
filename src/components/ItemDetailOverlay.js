@@ -887,7 +887,7 @@ export default function ItemDetailOverlay() {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Description</h3>
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1" data-nosnippet>Description</h3>
                 {loading && !detail && (
                   <div className="animate-pulse space-y-2">
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
@@ -923,7 +923,7 @@ export default function ItemDetailOverlay() {
                   const rightText = (avgDays != null) ? `avg arrival ${Math.round(avgDays) === 1 ? '1 day' : Math.round(avgDays) + ' days'}` : null;
                   return (
                     <div className="mb-2">
-                      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Reviews</h3>
+                      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200" data-nosnippet>Reviews</h3>
                       {(leftTokens.length > 0 || rightText) && (
                         <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
                           <span>{leftTokens.join(' • ')}</span>
@@ -982,7 +982,7 @@ export default function ItemDetailOverlay() {
                 const rightText = (avgDays != null) ? `avg arrival ${Math.round(avgDays) === 1 ? '1 day' : Math.round(avgDays) + ' days'}` : null;
                 return (
                   <div className="mb-2">
-                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Reviews</h3>
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200" data-nosnippet>Reviews</h3>
                     <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
                       <span>{leftTokens.join(' • ')}</span>
                       {rightText && <span className="shrink-0">{rightText}</span>}

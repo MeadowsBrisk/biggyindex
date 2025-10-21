@@ -12,7 +12,7 @@ export async function getStaticProps({ params }) {
   const item = await loadItemForSEO(ref);
   if (!item) return { notFound: true };
   // Keep payload minimal; only used for <Head>
-  return { props: { seo: { ref, name: item.name || '', description: item.description || '', imageUrl: item.imageUrl || null } }, revalidate: 900 };
+  return { props: { seo: { ref, name: item.name || '', description: item.description || '', imageUrl: item.imageUrl || null, sellerName: item.sellerName || null } }, revalidate: 900 };
 }
 
 export async function getStaticPaths() {
@@ -30,7 +30,15 @@ export default function ItemRefPage({ seo }) {
   }, [router.isReady, ref, setExpanded]);
 
   const title = seo?.name ? `${seo.name} | Biggy Index` : 'Item | Biggy Index';
-  const desc = (seo?.description || '').slice(0, 160);
+  // Sanitize and trim description, optionally prefix with seller name
+  const rawDesc = typeof seo?.description === 'string' ? seo.description : '';
+  const cleanDesc = rawDesc
+    .replace(/<[^>]+>/g, ' ') // strip any tags, just in case
+    .replace(/\s+/g, ' ') // collapse whitespace
+    .trim();
+  const baseDesc = cleanDesc ? cleanDesc : (seo?.name ? `${seo.name} item details, pricing and reviews.` : 'Item details, pricing and reviews.');
+  const sellerPrefix = seo?.sellerName ? `${seo.sellerName} · ` : '';
+  const desc = (sellerPrefix + baseDesc).slice(0, 160);
   const canonical = `https://lbindex.vip/item/${encodeURIComponent(seo?.ref || ref || '')}`;
 
   return (
@@ -38,6 +46,13 @@ export default function ItemRefPage({ seo }) {
       <Head>
         <title>{title}</title>
         {desc && <meta name="description" content={desc} />}
+        {desc && <meta property="og:description" content={desc} />}
+        <meta property="og:title" content={title} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        {desc && <meta name="twitter:description" content={desc} />}
         <link rel="canonical" href={canonical} />
         {seo?.imageUrl && <meta property="og:image" content={seo.imageUrl} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
