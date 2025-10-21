@@ -31,7 +31,25 @@ export async function getStaticProps() {
   const sellerImagesMap = await getSellerImages();
 
   const stats = {
-    items: manifest?.totalItems ?? snapshotMeta?.itemsCount ?? null,
+    // Prefer a positive item count: manifest.totalItems -> snapshot_meta.itemsCount -> sum(categories)
+    items: (() => {
+      const fromManifest = Number.isFinite(Number(manifest?.totalItems)) ? Number(manifest.totalItems) : 0;
+      const fromSnapshot = Number.isFinite(Number(snapshotMeta?.itemsCount)) ? Number(snapshotMeta.itemsCount) : 0;
+      // Sum category counts if available
+      let fromCategories = 0;
+      try {
+        if (manifest?.categories && typeof manifest.categories === 'object') {
+          for (const [, info] of Object.entries(manifest.categories)) {
+            const c = typeof info === 'number' ? info : (info && typeof info.count === 'number' ? info.count : 0);
+            if (Number.isFinite(c)) fromCategories += c;
+          }
+        }
+      } catch {}
+      if (fromManifest > 0) return fromManifest;
+      if (fromSnapshot > 0) return fromSnapshot;
+      if (fromCategories > 0) return fromCategories;
+      return null;
+    })(),
     sellers: Array.isArray(sellers) ? sellers.length : null,
     lastUpdated: snapshotMeta?.updatedAt ?? null,
     categories: manifest?.categories || null,

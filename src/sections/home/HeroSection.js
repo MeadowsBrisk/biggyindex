@@ -10,9 +10,8 @@ import CategoryTooltip from "@/components/CategoryTooltip";
 const numberFormatter = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
 
 function formatStat(value, fallback) {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return numberFormatter.format(value);
-  }
+  const n = typeof value === "number" && Number.isFinite(value) ? value : null;
+  if (n != null && n > 0) return numberFormatter.format(n);
   return fallback;
 }
 
