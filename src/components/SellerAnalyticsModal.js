@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAtom, useSetAtom } from 'jotai';
 import { sellerAnalyticsOpenAtom, expandedSellerIdAtom } from '@/store/atoms';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -54,6 +55,7 @@ function formatUpdatedAt(isoDate) {
 
 export default function SellerAnalyticsModal() {
   const [open, setOpen] = useAtom(sellerAnalyticsOpenAtom);
+  const router = useRouter();
   const setExpandedSeller = useSetAtom(expandedSellerIdAtom);
   const [analytics, setAnalytics] = useState(null);
   const [sellersIndex, setSellersIndex] = useState(null);
@@ -94,6 +96,13 @@ export default function SellerAnalyticsModal() {
         setLoading(false);
       });
   }, [open]);
+
+  // If the modal is closed while on its SEO route, normalize back to '/'
+  useEffect(() => {
+    if (!open && router?.pathname === '/sellers') {
+      router.replace('/');
+    }
+  }, [open, router]);
 
   // Sorted sellers
   const sortedSellers = useMemo(() => {

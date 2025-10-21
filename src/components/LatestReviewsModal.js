@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/router";
 import { useAtom, useSetAtom } from "jotai";
 import { latestReviewsModalOpenAtom, expandedSellerIdAtom, pushOverlayAtom } from "@/store/atoms";
 import { motion, AnimatePresence } from "framer-motion";
@@ -120,6 +121,7 @@ function StarRating({ rating }) {
 
 export default function LatestReviewsModal() {
   const [open, setOpen] = useAtom(latestReviewsModalOpenAtom);
+  const router = useRouter();
   const [imagePreviewSignal, setImagePreviewSignal] = useState(null);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -160,6 +162,13 @@ export default function LatestReviewsModal() {
         setLoading(false);
       });
   }, [open]);
+
+  // If the modal is closed while on its SEO route, normalize the URL back to '/'
+  useEffect(() => {
+    if (!open && router?.pathname === '/latest-reviews') {
+      router.replace('/');
+    }
+  }, [open, router]);
 
   // Combine reviews and media entries into a unified list
   const combinedReviews = useMemo(() => {
