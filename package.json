@@ -11,10 +11,12 @@
     "format": "biome format --write",
     "baseline": "node scripts/indexer/create-baseline.js",
     "baseline:update": "node scripts/indexer/create-baseline.js --update",
-    "test:index": "node scripts/indexer/test-all.js",
+    "dev:inngest": "npx inngest-cli@latest dev",
+  "dev:inngest:netlify": "npx inngest-cli@latest dev -u http://127.0.0.1:8888/.netlify/functions/inngest-handler",
     "gifs": "node scripts/gif-processor/process-gifs.js",
     "crawl:items": "node scripts/item-crawler/crawl-items.js",
-    "seo:validate": "node scripts/seo/validate-seo.js"
+    "seo:validate": "node scripts/seo/validate-seo.js",
+    "inggest-dev": "npx inngest-cli@latest dev"
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.10",
@@ -29,6 +31,7 @@
     "gifler": "^0.1.0",
     "gifuct-js": "^2.1.2",
     "http-cookie-agent": "^6.0.5",
+    "inngest": "^3.44.3",
     "jotai": "^2.13.1",
     "lucide-react": "^0.544.0",
     "motion": "^12.0.0",
@@ -48,11 +51,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@netlify/functions": "^5.0.1",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "inngest-cli": "^1.12.1",
+    "netlify-plugin-inngest": "^1.0.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
