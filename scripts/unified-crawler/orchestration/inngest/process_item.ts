@@ -16,9 +16,9 @@ import { extractMarketShipping } from "../../stages/items/shipping";
 export const processItem = inngest.createFunction(
   { 
     id: "process-item",
-    // Concurrency: how many items can process in parallel
-    // Start conservative, increase based on performance
-    concurrency: [{ limit: 20 }],
+    // Concurrency: 5 concurrent items (matches Inngest plan limit)
+    // Upgrade plan to increase for faster processing
+    concurrency: [{ limit: 5 }],
   },
   { event: "item/process" },
   async ({ event, step }) => {
