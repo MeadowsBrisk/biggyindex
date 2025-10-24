@@ -124,17 +124,17 @@ package = "netlify-plugin-inngest"
 # (or a local env file not committed) before running `netlify dev`.
 
 # Route common Inngest probe paths to our handler to avoid 404 noise in dev
-[[redirects]]
-  from = "/api/inngest"
-  to = "/.netlify/functions/inngest-handler"
-  status = 200
+#[[redirects]]
+#  from = "/api/inngest"
+#  to = "/.netlify/functions/inngest-handler"
+#  status = 200
 
-[[redirects]]
-  from = "/.redwood/functions/inngest"
-  to = "/.netlify/functions/inngest-handler"
-  status = 200
+#[[redirects]]
+#  from = "/.redwood/functions/inngest"
+#  to = "/.netlify/functions/inngest-handler"
+#  status = 200
 
-[[redirects]]
-  from = "/x/inngest"
-  to = "/.netlify/functions/inngest-handler"
-  status = 200
+#[[redirects]]
+#  from = "/x/inngest"
+#  to = "/.netlify/functions/inngest-handler"
+#  status = 200

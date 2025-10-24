@@ -9,20 +9,21 @@ const isLocalDev =
 	process.env.INNGEST_DEV === "1" ||
 	process.env.NODE_ENV === "development";
 
-const baseConfig: any = {
-	client: inngest,
-	functions,
-	// Help Inngest Dev discover the correct local path behind Netlify Functions
-	servePath: "/.netlify/functions/inngest-handler",
-};
+const devConfig: any = isLocalDev
+	? {
+			client: inngest,
+			functions,
+			// Help Inngest Dev discover the correct local path behind Netlify Functions
+			servePath: "/.netlify/functions/inngest-handler",
+			signingKey: process.env.INNGEST_SIGNING_KEY,
+			serveHost: process.env.INNGEST_SERVE_HOST,
+			mode: "dev",
+		}
+	: {
+			client: inngest,
+			functions,
+			// In Cloud mode, omit dev-only options entirely
+			mode: "cloud",
+		};
 
-if (isLocalDev) {
-	baseConfig.signingKey = process.env.INNGEST_SIGNING_KEY;
-	baseConfig.serveHost = process.env.INNGEST_SERVE_HOST;
-	baseConfig.mode = "dev";
-} else {
-	// Force Cloud mode explicitly on staging/production so Inngest Cloud can register & authenticate
-	baseConfig.mode = "cloud";
-}
-
-export const handler = serve(baseConfig);
+export const handler = serve(devConfig);
