@@ -385,6 +385,7 @@ export default function MobileTabs({
               onImageClick={(src, images, index) => onReviewImageClick(images, index)}
             />
           )}
+
           {!loading && reviews.length > 0 && (() => {
             const stats = baseItem?.reviewStats;
             const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
