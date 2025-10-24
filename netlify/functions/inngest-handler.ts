@@ -19,6 +19,10 @@ const baseConfig: any = {
 if (isLocalDev) {
 	baseConfig.signingKey = process.env.INNGEST_SIGNING_KEY;
 	baseConfig.serveHost = process.env.INNGEST_SERVE_HOST;
+	baseConfig.mode = "dev";
+} else {
+	// Force Cloud mode explicitly on staging/production so Inngest Cloud can register & authenticate
+	baseConfig.mode = "cloud";
 }
 
 export const handler = serve(baseConfig);
