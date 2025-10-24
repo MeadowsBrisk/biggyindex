@@ -33,9 +33,9 @@
 [[plugins]]
 package = "netlify-plugin-inngest"
 
-  # Ensure the plugin targets our Netlify Function path (not Next.js default /api/inngest)
+  # Point to the background function path (Netlify auto-routes -background suffix)
   [plugins.inputs]
-    path = "/.netlify/functions/inngest-handler"
+    path = "/.netlify/functions/inngest-handler-background"
 
 # Local dev: proxy to the already-running Next.js dev server on port 3000
 [dev]
@@ -121,10 +121,18 @@ package = "netlify-plugin-inngest"
 # INNGEST_EVENT_KEY and INNGEST_SIGNING_KEY should be set in Netlify UI env vars (site settings)
 # For local dev, export INNGEST_SIGNING_KEY and INNGEST_SERVE_HOST in your shell before `netlify dev`
 
-[functions."inngest-handler"]
-  # Ensure the function has access to Inngest env vars for Cloud mode detection
-  # These must be set in Netlify UI site settings (not hardcoded here)
-  # node_bundler = "esbuild"  # inherits from global functions config
+[functions."inngest-handler-background"]
+  # Background function suffix enables 15-minute execution time for long-running Inngest workflows
+  node_bundler = "esbuild"
+  # External modules needed by unified crawler
+  included_files = [
+    "scripts/unified-crawler/**",
+    "scripts/item-crawler/auth/**",
+    "scripts/item-crawler/fetch/**",
+    "scripts/item-crawler/parse/**",
+    "scripts/item-crawler/util/**",
+    "public/indexed_items.json"
+  ]
 
 # Route common Inngest probe paths to our handler to avoid 404 noise in dev
 #[[redirects]]
