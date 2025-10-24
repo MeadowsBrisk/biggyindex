@@ -33,9 +33,9 @@
 [[plugins]]
 package = "netlify-plugin-inngest"
 
-  # Point to the background function path (Netlify auto-routes -background suffix)
+  # Ensure the plugin targets our Netlify Function path (not Next.js default /api/inngest)
   [plugins.inputs]
-    path = "/.netlify/functions/inngest-handler-background"
+    path = "/.netlify/functions/inngest-handler"
 
 # Local dev: proxy to the already-running Next.js dev server on port 3000
 [dev]
@@ -121,8 +121,8 @@ package = "netlify-plugin-inngest"
 # INNGEST_EVENT_KEY and INNGEST_SIGNING_KEY should be set in Netlify UI env vars (site settings)
 # For local dev, export INNGEST_SIGNING_KEY and INNGEST_SERVE_HOST in your shell before `netlify dev`
 
-[functions."inngest-handler-background"]
-  # Background function suffix enables 15-minute execution time for long-running Inngest workflows
+[functions."inngest-handler"]
+  # Regular function - Inngest Cloud handles async execution, not Netlify background functions
   node_bundler = "esbuild"
   # External modules needed by unified crawler
   included_files = [
