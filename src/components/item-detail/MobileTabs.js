@@ -391,7 +391,6 @@ export default function MobileTabs({
             const isTruncated = reviewsTotal > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
             if (!isTruncated || !biggyLink) return null;
             return (
-
               <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
                 Read more reviews at:
               </div>
