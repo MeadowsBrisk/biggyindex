@@ -14,7 +14,6 @@ export function formatSingleGBP(amount) {
   if (r == null) return '';
   return `£${r}`;
 }
-
 // Compute GBP min/max from a list of USD (or mixed currency if future expansion) amounts.
 // current assumption: all values passed are USD unless flagged otherwise.
 export function computeUsdListGBPRange(values, rates) {
