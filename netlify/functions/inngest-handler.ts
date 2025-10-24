@@ -3,13 +3,13 @@ import { functions } from "../../scripts/unified-crawler/orchestration/inngest/h
 import { inngest } from "../../scripts/unified-crawler/orchestration/inngest/client";
 
 // Only enable Dev-specific options (signingKey/serveHost) when running locally.
-// In staging/production, omit these so the handler serves in Cloud mode and can be registered.
+// In staging/production, omit these entirely so the SDK auto-detects Cloud mode.
 const isLocalDev =
 	process.env.NETLIFY_DEV === "true" ||
 	process.env.INNGEST_DEV === "1" ||
 	process.env.NODE_ENV === "development";
 
-const devConfig: any = isLocalDev
+const serveConfig = isLocalDev
 	? {
 			client: inngest,
 			functions,
@@ -17,13 +17,11 @@ const devConfig: any = isLocalDev
 			servePath: "/.netlify/functions/inngest-handler",
 			signingKey: process.env.INNGEST_SIGNING_KEY,
 			serveHost: process.env.INNGEST_SERVE_HOST,
-			mode: "dev",
 		}
 	: {
 			client: inngest,
 			functions,
-			// In Cloud mode, omit dev-only options entirely
-			mode: "cloud",
+			// In Cloud mode, let the SDK auto-detect based on presence of eventKey and signingKey
 		};
 
-export const handler = serve(devConfig);
+export const handler = serve(serveConfig);
