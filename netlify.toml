@@ -117,11 +117,14 @@ package = "netlify-plugin-inngest"
   # Lightweight control plane for the crawler (set/clear stop flag)
   node_bundler = "esbuild"
 
-# Inngest handler function-specific env for local development
+# Inngest handler function-specific configuration
+# INNGEST_EVENT_KEY and INNGEST_SIGNING_KEY should be set in Netlify UI env vars (site settings)
+# For local dev, export INNGEST_SIGNING_KEY and INNGEST_SERVE_HOST in your shell before `netlify dev`
 
-# Note: Do NOT set INNGEST_SIGNING_KEY or INNGEST_SERVE_HOST here for staging/production.
-# Keeping those set forces the handler into Dev mode. For local dev, export them in your shell
-# (or a local env file not committed) before running `netlify dev`.
+[functions."inngest-handler"]
+  # Ensure the function has access to Inngest env vars for Cloud mode detection
+  # These must be set in Netlify UI site settings (not hardcoded here)
+  # node_bundler = "esbuild"  # inherits from global functions config
 
 # Route common Inngest probe paths to our handler to avoid 404 noise in dev
 #[[redirects]]
