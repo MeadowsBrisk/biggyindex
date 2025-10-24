@@ -118,18 +118,10 @@ package = "netlify-plugin-inngest"
   node_bundler = "esbuild"
 
 # Inngest handler function-specific env for local development
-[functions."inngest-handler"]
-  [functions."inngest-handler".environment]
-  # Dummy local signing key for Inngest Dev Server; override in CI/prod
-  INNGEST_SIGNING_KEY = "dev-local-123"
-  # Public host where the handler is served locally via Netlify Dev
-  INNGEST_SERVE_HOST = "http://localhost:8888"
-  # Force filesystem persistence during local dev unless explicitly testing Blobs
-  CRAWLER_PERSIST = "fs"
-  # Do not emit follow-up index events in dev (prevents chained crawlers)
-  INNGEST_ENABLE_INDEX_EVENTS = "0"
-  # Print filesystem blob write paths during local dev for visibility
-  DEBUG_BLOBS_FS = "1"
+
+# Note: Do NOT set INNGEST_SIGNING_KEY or INNGEST_SERVE_HOST here for staging/production.
+# Keeping those set forces the handler into Dev mode. For local dev, export them in your shell
+# (or a local env file not committed) before running `netlify dev`.
 
 # Route common Inngest probe paths to our handler to avoid 404 noise in dev
 [[redirects]]
