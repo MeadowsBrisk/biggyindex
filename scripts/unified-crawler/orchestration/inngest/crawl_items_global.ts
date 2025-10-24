@@ -1,9 +1,11 @@
 import { inngest } from "./client";
 import { buildItemsWorklist } from "../../stages/items/run";
-import { processItemBatch } from "../../stages/items/batch";
-import { ensureAuthedClient } from "../../stages/items/reviews";
 
-// Items crawler: orchestrate per-batch steps to avoid timeout
+/**
+ * Items crawler: build worklist, then fan out to parallel item processors.
+ * Each item processes in its own function with full 30s window.
+ * Inngest handles concurrency and retries automatically.
+ */
 export const crawlItemsGlobal = inngest.createFunction(
   { id: "crawl-items-global" },
   { event: "indexes.updated" },
@@ -13,7 +15,7 @@ export const crawlItemsGlobal = inngest.createFunction(
     try { await (step as any).log?.(`crawl_items_global start markets=${markets.join(',')}`); } catch {}
     console.info(`[inngest] crawl_items_global start markets=${markets.join(',')}`);
     
-    // Step 1: Build worklist (authentication + dedupe) - returns serializable data
+    // Step 1: Build worklist (authentication + dedupe)
     const worklistData = await step.run("items:build-worklist", async () => {
       const wl = await buildItemsWorklist(markets);
       try { 
@@ -41,48 +43,47 @@ export const crawlItemsGlobal = inngest.createFunction(
       };
     });
 
-    // Step 2: Process items in batches (10 items per batch to stay under 30s timeout)
-    const batchSize = 10;
-    const batches = [];
-    for (let i = 0; i < worklistData.sample.length; i += batchSize) {
-      batches.push(worklistData.sample.slice(i, i + batchSize));
-    }
+    // Step 2: Fan out events to process items in parallel
+    // Inngest will invoke process-item function for each event with concurrency control
+    const eventsToSend = worklistData.sample.map(item => ({
+      name: "item/process",
+      data: {
+        itemId: item.id,
+        itemName: item.n,
+        markets: worklistData.presenceRecord[item.id] || [],
+      },
+    }));
 
-    let totalProcessed = 0;
-    for (let i = 0; i < batches.length; i++) {
-      const batch = batches[i];
-      await step.run(`items:batch-${i}`, async () => {
-        // Get fresh authenticated client for this batch
-        const { client } = await ensureAuthedClient();
-        
-        // Convert presenceRecord back to Map for this batch
-        const presenceMap = new Map<string, Set<any>>();
-        Object.entries(worklistData.presenceRecord).forEach(([id, markets]) => {
-          presenceMap.set(id, new Set(markets));
-        });
-        
-        const result = await processItemBatch(batch, presenceMap as any, client);
-        totalProcessed += result.processed;
-        try {
-          await (step as any).log?.(
-            `batch ${i + 1}/${batches.length} processed=${result.processed} total=${totalProcessed}`
-          );
-        } catch {}
-        console.info(
-          `[inngest] batch ${i + 1}/${batches.length} processed=${result.processed} total=${totalProcessed}`
-        );
-        return result;
-      });
-    }
+    await step.run("items:fan-out", async () => {
+      if (eventsToSend.length === 0) {
+        console.info(`[inngest] No items to process (sample empty)`);
+        return { sent: 0 };
+      }
 
-    try { await (step as any).log?.(`crawl_items_global done total=${totalProcessed}`); } catch {}
-    console.info(`[inngest] crawl_items_global done total=${totalProcessed}`);
+      // Send all events at once - Inngest handles parallelism via concurrency settings
+      await inngest.send(eventsToSend);
+      
+      try {
+        await (step as any).log?.(`fanned out ${eventsToSend.length} item events`);
+      } catch {}
+      console.info(`[inngest] fanned out ${eventsToSend.length} item/process events`);
+      
+      return { sent: eventsToSend.length };
+    });
+
+    try { 
+      await (step as any).log?.(
+        `crawl_items_global done - ${eventsToSend.length} items queued for parallel processing`
+      ); 
+    } catch {}
+    console.info(
+      `[inngest] crawl_items_global done - ${eventsToSend.length} items queued for parallel processing`
+    );
     
     return { 
       received: event.data, 
       result: { 
-        totalProcessed,
-        batches: batches.length,
+        itemsQueued: eventsToSend.length,
         counts: worklistData.counts 
       } 
     };
