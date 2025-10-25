@@ -45,7 +45,7 @@
   # Run the indexing function every 10 minutes (on the hour and half past)
   #schedule = "*/15 * * * *"
   # Ensure the raw script & its data file are packaged with the function so spawning works.
-  included_files = [
+  # included_files = [
   #"scripts/indexer/**",
   # Include aggregated supplement so embedAggregates can require it at runtime on Netlify (outdated: exclusively using Blobs rather than FS now)
   #"public/item-crawler/index-supplement.js",
