@@ -7,12 +7,19 @@ import { runSellers } from "../../scripts/unified-crawler/stages/sellers/run";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
-export const handler: Handler = async () => {
+export const handler: Handler = async (event) => {
   const started = Date.now();
   const log = (m: string) => console.log(`[crawler:sellers] ${m}`);
   const err = (m: string) => console.error(`[crawler:sellers] ${m}`);
 
   try {
+    // Guard: allow disabling via env; override with ?force=1
+    const force = event?.queryStringParameters?.force === "1" || event?.queryStringParameters?.force === "true";
+    if (!force && process.env.CRAWLER_UNIFIED_SELLERS !== "1") {
+      log("disabled via CRAWLER_UNIFIED_SELLERS != 1; skipping");
+      return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) } as any;
+    }
+
     if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
 
     const env = loadEnv();

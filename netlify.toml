@@ -30,12 +30,7 @@
     "p-queue"
   ]
 
-[[plugins]]
-package = "netlify-plugin-inngest"
-
-  # Ensure the plugin targets our Netlify Function path (not Next.js default /api/inngest)
-  [plugins.inputs]
-    path = "/.netlify/functions/inngest-handler"
+## (Removed) Inngest plugin — unified crawler now uses Netlify schedules only
 
 # Local dev: proxy to the already-running Next.js dev server on port 3000
 [dev]
@@ -68,6 +63,8 @@ package = "netlify-plugin-inngest"
   ]
   [functions."crawler-items-background".environment]
   CRAWLER_PERSIST = "blobs"
+  # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
+  CRAWLER_UNIFIED_ITEMS = "0"
 
 [functions."crawler-sellers-background"]
   # Sellers stage: every 4 hours, offset by 2 hours from items
@@ -79,6 +76,8 @@ package = "netlify-plugin-inngest"
   ]
   [functions."crawler-sellers-background".environment]
   CRAWLER_PERSIST = "blobs"
+  # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
+  CRAWLER_UNIFIED_SELLERS = "0"
 
 [functions."crawler-control"]
   # Lightweight control plane for the crawler (set/clear stop flag)
@@ -103,35 +102,4 @@ package = "netlify-plugin-inngest"
     "scripts/unified-crawler/**"
   ]
 
-# Inngest handler function-specific configuration
-# INNGEST_EVENT_KEY and INNGEST_SIGNING_KEY should be set in Netlify UI env vars (site settings)
-# For local dev, export INNGEST_SIGNING_KEY and INNGEST_SERVE_HOST in your shell before `netlify dev`
-
-[functions."inngest-handler"]
-  # Regular function - Inngest Cloud handles async execution, not Netlify background functions
-  node_bundler = "esbuild"
-  # External modules needed by unified crawler
-  included_files = [
-    "scripts/unified-crawler/**",
-    "scripts/item-crawler/auth/**",
-    "scripts/item-crawler/fetch/**",
-    "scripts/item-crawler/parse/**",
-    "scripts/item-crawler/util/**",
-    "public/indexed_items.json"
-  ]
-
-# Route common Inngest probe paths to our handler to avoid 404 noise in dev
-#[[redirects]]
-#  from = "/api/inngest"
-#  to = "/.netlify/functions/inngest-handler"
-#  status = 200
-
-#[[redirects]]
-#  from = "/.redwood/functions/inngest"
-#  to = "/.netlify/functions/inngest-handler"
-#  status = 200
-
-#[[redirects]]
-#  from = "/x/inngest"
-#  to = "/.netlify/functions/inngest-handler"
-#  status = 200
+## (Removed) Inngest handler configuration and redirects
