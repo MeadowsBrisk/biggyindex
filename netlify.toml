@@ -61,7 +61,7 @@ package = "netlify-plugin-inngest"
 ### Unified background stages (items and sellers) on separate schedules
 [functions."crawler-items-background"]
   # Items stage: every 4 hours on the hour
-  schedule = "0 */4 * * *"
+  schedule = "0 */5 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -71,7 +71,8 @@ package = "netlify-plugin-inngest"
 
 [functions."crawler-sellers-background"]
   # Sellers stage: every 4 hours, offset by 2 hours from items
-  schedule = "0 2,6,10,14,18,22 * * *"
+  #schedule = "0 2,6,10,14,18,22 * * *"
+  schedule = "0 2,6,10,13,18,22 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -85,7 +86,8 @@ package = "netlify-plugin-inngest"
 
 [functions."crawler-index"]
   # Unified indexer (replacement for legacy site-index). Runs every 15 minutes.
-  schedule = "*/15 * * * *"
+  # 25 for now.
+  schedule = "*/25 * * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
