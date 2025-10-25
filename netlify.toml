@@ -41,17 +41,17 @@
 # Functions (Next.js pages/api are auto-detected)
 # Add any specific function configuration overrides here if needed in future.
 
-[functions."site-index"]
+#[functions."site-index"]
   # Run the indexing function every 10 minutes (on the hour and half past)
-  schedule = "*/15 * * * *"
+  #schedule = "*/15 * * * *"
   # Ensure the raw script & its data file are packaged with the function so spawning works.
   included_files = [
-  "scripts/indexer/**",
+  #"scripts/indexer/**",
   # Include aggregated supplement so embedAggregates can require it at runtime on Netlify (outdated: exclusively using Blobs rather than FS now)
-  "public/item-crawler/index-supplement.js",
+  #"public/item-crawler/index-supplement.js",
   # If you generate per-run artifacts (debug, items, share-links), you can optionally include them too:
   # "public/item-crawler/**"
-    ]
+ #   ]
 
 ### Unified background stages (items and sellers) on separate schedules
 [functions."crawler-items-background"]
