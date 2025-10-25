@@ -58,64 +58,48 @@ package = "netlify-plugin-inngest"
   # "public/item-crawler/**"
     ]
 
-[functions."item-crawler-background"]
-  # Schedule the long-running background crawler instead of the sync function
-  schedule = "55 1/4 * * *"
-  node_bundler = "esbuild"
-  [functions."item-crawler-background".environment]
-  CRAWLER_PERSIST = "blobs"
-  CRAWLER_BLOBS_PREFIX = "item-crawler/"
-  #CRAWLER_ALT_BLOBS_PREFIX = "data/item-crawler/"
-  CRAWLER_MIGRATE_EAGER = "false"
-  CRAWLER_BLOBS_AUTH = "explicit"
-  #CRAWLER_MIGRATE_SEED_LIMIT = "25"
-  #CRAWLER_MAX_PARALLEL = "1"
-  included_files = [
-    "scripts/item-crawler/crawl-items.js",
-    "scripts/item-crawler/fetch/**",
-    "scripts/item-crawler/parse/**",
-    "scripts/item-crawler/persistence/**",
-    "scripts/item-crawler/util/**",
-    "scripts/item-crawler/env/**",
-    "public/indexed_items.json",
-    "node_modules/p-queue/**"
-  ]
-
-[functions."seller-crawler-background"]
-  # Background seller crawler runs every 4 hours, offset from item crawler by 1h
+### Unified background stages (items and sellers) on separate schedules
+[functions."crawler-items-background"]
+  # Items stage: every 4 hours on the hour
   schedule = "0 */4 * * *"
-  #schedule = "*/30 * * * *"
-
   node_bundler = "esbuild"
-  [functions."seller-crawler-background".environment]
-  CRAWLER_PERSIST = "blobs"
-  SELLER_CRAWLER_PERSIST = "blobs"
-  SELLER_CRAWLER_BLOBS_PREFIX = "seller-crawler/"
-  CRAWLER_BLOBS_PREFIX = "seller-crawler/"
-  CRAWLER_BLOBS_AUTH = "explicit"
-  SELLER_CRAWLER_MAX_PARALLEL = "5"
-  SELLER_CRAWLER_REVIEW_REFRESH_HOURS = "4"
   included_files = [
-    "scripts/seller-crawler/crawl-sellers.js",
-    "scripts/seller-crawler/aggregation/**",
-    "scripts/seller-crawler/env/**",
-    "scripts/seller-crawler/fetch/**",
-    "scripts/seller-crawler/parse/**",
-    "scripts/seller-crawler/persistence/**",
-    "scripts/seller-crawler/util/**",
-    "scripts/item-crawler/auth/**",
-    "scripts/item-crawler/fetch/httpClient.js",
-    "scripts/item-crawler/persistence/blobStore.js",
-    "scripts/item-crawler/persistence/cookieStore.js",
-    "scripts/item-crawler/persistence/stateStore.js",
-    "scripts/item-crawler/util/logger.js",
-    "scripts/item-crawler/util/delay.js",
-    "node_modules/p-queue/**"
+    "scripts/unified-crawler/**"
   ]
+  [functions."crawler-items-background".environment]
+  CRAWLER_PERSIST = "blobs"
+
+[functions."crawler-sellers-background"]
+  # Sellers stage: every 4 hours, offset by 2 hours from items
+  schedule = "0 2,6,10,14,18,22 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+  [functions."crawler-sellers-background".environment]
+  CRAWLER_PERSIST = "blobs"
 
 [functions."crawler-control"]
   # Lightweight control plane for the crawler (set/clear stop flag)
   node_bundler = "esbuild"
+
+[functions."crawler-index"]
+  # Unified indexer (replacement for legacy site-index). Runs every 15 minutes.
+  schedule = "*/15 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+  [functions."crawler-index".environment]
+  # Set to 1 when ready to cut over from legacy site-index
+  CRAWLER_UNIFIED_INDEX = "0"
+
+# Orchestrator kept for manual triggers/dev; not scheduled to avoid overlap with stage-specific schedules
+[functions."crawler-all-markets-background"]
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
 
 # Inngest handler function-specific configuration
 # INNGEST_EVENT_KEY and INNGEST_SIGNING_KEY should be set in Netlify UI env vars (site settings)
