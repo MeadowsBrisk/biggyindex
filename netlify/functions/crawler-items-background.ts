@@ -7,6 +7,9 @@ import { listMarkets } from "../../scripts/unified-crawler/shared/env/markets";
 import { buildItemsWorklist } from "../../scripts/unified-crawler/stages/items/run";
 import { processSingleItem } from "../../scripts/unified-crawler/stages/items/processItem";
 import { detectItemChanges } from "../../scripts/unified-crawler/shared/logic/changes";
+import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
+import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
+import { marketStore } from "../../scripts/unified-crawler/shared/env/markets";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
@@ -99,6 +102,17 @@ export const handler: Handler = async (event) => {
     }
 
     log(`done processed=${processed}/${items.length} total=${since(started)}s`);
+
+    // Best-effort run-meta snapshot per first market
+    try {
+      const first = markets[0] as any;
+      const key = Keys.runMeta.market(first);
+      const storeName = marketStore(first, env.stores as any);
+      await appendRunMeta(storeName, key, {
+        scope: `items:${first}`,
+        counts: { processed, planned: items.length },
+      });
+    } catch {}
     return { statusCode: 200, body: JSON.stringify({ ok: true, processed, planned: items.length }) } as any;
   } catch (e: any) {
     err(`fatal ${e?.stack || e?.message || String(e)}`);

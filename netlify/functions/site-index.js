@@ -74,6 +74,19 @@ function summarizeOutputs(root) {
 exports.handler = async function handler(event, context) {
   const started = Date.now();
   console.log('[site-index] Invocation start');
+
+  // Guard: if unified indexer is enabled, skip legacy to avoid duplicate indexing
+  try {
+    const forceLegacy = event?.queryStringParameters?.force_legacy === '1' || event?.queryStringParameters?.force_legacy === 'true';
+    if (!forceLegacy && process.env.CRAWLER_UNIFIED_INDEX === '1') {
+      console.log('[site-index] Skipping: CRAWLER_UNIFIED_INDEX=1 (use ?force_legacy=1 to run)');
+      return {
+        statusCode: 200,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ok: true, skipped: true, reason: 'unified-index-enabled' })
+      };
+    }
+  } catch {}
   const root = findProjectRoot();
   const scriptPath = path.join(root, 'scripts', 'indexer', 'index-items.js');
   const scriptExists = fs.existsSync(scriptPath);
