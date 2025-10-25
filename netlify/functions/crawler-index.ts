@@ -9,14 +9,15 @@ import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
-export const handler: Handler = async () => {
+export const handler: Handler = async (event) => {
   const started = Date.now();
   const log = (m: string) => console.log(`[crawler:index] ${m}`);
   const warn = (m: string) => console.warn(`[crawler:index] ${m}`);
   const errlog = (m: string) => console.error(`[crawler:index] ${m}`);
 
   try {
-    if (process.env.CRAWLER_UNIFIED_INDEX !== "1") {
+    const force = event?.queryStringParameters?.force === "1" || event?.queryStringParameters?.force === "true";
+    if (!force && process.env.CRAWLER_UNIFIED_INDEX !== "1") {
       warn("disabled via CRAWLER_UNIFIED_INDEX != 1; skipping");
       return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) } as any;
     }

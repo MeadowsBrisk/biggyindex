@@ -91,6 +91,7 @@
     "scripts/unified-crawler/**"
   ]
   [functions."crawler-index".environment]
+  CRAWLER_PERSIST = "blobs"
   # Set to 1 when ready to cut over from legacy site-index
   CRAWLER_UNIFIED_INDEX = "0"
 

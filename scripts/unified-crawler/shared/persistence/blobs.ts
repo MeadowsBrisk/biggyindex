@@ -12,10 +12,11 @@ export function getBlobClient(storeName: string): BlobClient {
   const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
   const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.BLOBS_TOKEN;
   const hasBlobsCreds = Boolean(siteID && token);
+  // On Netlify Functions, @netlify/blobs works without explicit tokens; prefer it to avoid read-only FS writes.
   const useBlobs =
     persistMode === "blobs"
-      ? hasBlobsCreds || isNetlify
-      : persistMode === "auto" && isNetlify && hasBlobsCreds;
+      ? (isNetlify || hasBlobsCreds)
+      : (persistMode === "auto" ? isNetlify || hasBlobsCreds : false);
 
   if (useBlobs) {
     // Lazily import Netlify Blobs to avoid bundling issues in non-functions envs
