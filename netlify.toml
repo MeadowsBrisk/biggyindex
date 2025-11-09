@@ -52,32 +52,6 @@
   # "public/item-crawler/**"
  #   ]
 
-### Unified background stages (items and sellers) on separate schedules
-#[functions."crawler-items-background"]
-  # STAGING cadence: every 5 hours on the hour to avoid overlapping with live (which runs every 4h)
-  # Do NOT change to 4h on staging; this is intentionally offset from production.
-  #schedule = "0 */5 * * *"
-  #node_bundler = "esbuild"
-  #included_files = [
-  #  "scripts/unified-crawler/**"
-  #]
-  #[functions."crawler-items-background".environment]
-  #CRAWLER_PERSIST = "blobs"
-  # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
-  #CRAWLER_UNIFIED_ITEMS = "0"
-
-#[functions."crawler-sellers-background"]
-  # STAGING cadence: offset hours chosen to avoid overlapping with live (intentional non-alignment)
-  #schedule = "0 2,6,10,13,18,22 * * *"
-  #node_bundler = "esbuild"
-  #included_files = [
-  #  "scripts/unified-crawler/**"
-  #]
-  #[functions."crawler-sellers-background".environment]
-  #CRAWLER_PERSIST = "blobs"
-  # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
-  #CRAWLER_UNIFIED_SELLERS = "0"
-
 [functions."crawler-control"]
   # Lightweight control plane for the crawler (set/clear stop flag)
   node_bundler = "esbuild"
@@ -113,4 +87,66 @@
   included_files = [
     "scripts/unified-crawler/**"
   ]
+
+# Staggered per-market indexers: each runs every 30 minutes, offset by 1 minute to avoid overlap
+[functions."crawler-index-fr"]
+  # :01 and :31 each hour
+  schedule = "1,31 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+[functions."crawler-index-de"]
+  # :02 and :32 each hour
+  schedule = "2,32 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+[functions."crawler-index-it"]
+  # :03 and :33 each hour
+  schedule = "3,33 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+[functions."crawler-index-pt"]
+  # :04 and :34 each hour
+  schedule = "4,34 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+
+### Unified background stages (items and sellers) on separate schedules
+#[functions."crawler-items-background"]
+  # STAGING cadence: every 5 hours on the hour to avoid overlapping with live (which runs every 4h)
+  # Do NOT change to 4h on staging; this is intentionally offset from production.
+  schedule = "0 */5 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+  #[functions."crawler-items-background".environment]
+  #CRAWLER_PERSIST = "blobs"
+  # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
+  #CRAWLER_UNIFIED_ITEMS = "0"
+
+  
+#[functions."crawler-sellers-background"]
+  # STAGING cadence: offset hours chosen to avoid overlapping with live (intentional non-alignment)
+  schedule = "0 2,6,10,13,18,22 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+  #[functions."crawler-sellers-background".environment]
+  #CRAWLER_PERSIST = "blobs"
+  # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
+  #CRAWLER_UNIFIED_SELLERS = "0"
+
 ## (Removed) Inngest handler configuration and redirects
