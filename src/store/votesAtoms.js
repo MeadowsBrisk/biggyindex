@@ -54,7 +54,7 @@ export const reconcileLocalEndorsementsAtom = atom(null, (get, set) => {
 });
 
 // Early declare offline / sync atoms so endorseActionAtom can reference them safely
-export const votesOfflineModeAtom = atomWithStorage('votesOfflineMode', false);
+export const votesOfflineModeAtom = atomWithStorage('votesOfflineMode', true);
 export const pendingSyncVotesAtom = atomWithStorage('pendingSyncVotes', []); // array of itemIds needing server sync
 
 // Hydrator: when bucket changes, merge cached counts for that bucket into votesAtom if not present
@@ -333,89 +333,12 @@ export const hydrateGlobalEndorsedAtom = atom(null, (get, set) => {
 });
 export const votesRequestedSetAtom = atom(new Set()); // track ids already requested this session
 export const fetchVotesActionAtom = atom(null, async (get, set, ids) => {
-  // Early hydrate permanent endorsements so UI reflects them immediately
+  // No server-backed votes; rely on snapshot ec and local optimistic updates
   set(hydrateGlobalEndorsedAtom);
-  const list = Array.isArray(ids) ? ids.filter(Boolean).map(String) : [];
-  if (list.length === 0) return;
-  const votesMap = get(votesAtom) || {};
-  const requested = new Set(get(votesRequestedSetAtom));
-  const globalList = new Set(Array.isArray(get(globalEndorsedAtom)) ? get(globalEndorsedAtom) : []);
-  // Filter out ids we already have (present) or already requested
-  const missing = list.filter(id => votesMap[id] == null && !requested.has(id));
-  if (missing.length === 0) return; // nothing new needed
-  for (const id of missing) requested.add(id);
-  set(votesRequestedSetAtom, new Set(requested));
-  const batches = [];
-  for (let i = 0; i < missing.length; i += 80) batches.push(missing.slice(i, i + 80));
-  const merged = { ...votesMap };
-  let newBucket = null;
-  let memoryMode = false;
-  for (const batch of batches) {
-    try {
-      const res = await fetch(`/api/endorse?ids=${encodeURIComponent(batch.join(','))}`);
-      if (!res.ok) continue;
-      const data = await res.json();
-      if (data?.mode === 'memory') memoryMode = true;
-      if (data?.votes && typeof data.votes === 'object') {
-        for (const [k, v] of Object.entries(data.votes)) {
-          // In memory mode, avoid overwriting a positive local optimistic value with 0
-          if (memoryMode && v === 0 && merged[k] > 0 && globalList.has(k)) continue;
-          merged[k] = typeof v === 'number' ? v : (merged[k] || 0);
-        }
-      }
-      if (typeof data?.windowBucket === 'number') newBucket = data.windowBucket;
-    } catch {}
-  }
-  set(votesAtom, merged);
-  if (newBucket != null) {
-    const prev = get(windowBucketAtom);
-    set(windowBucketAtom, newBucket);
-    const cache = { ...(get(votesCacheAtom) || {}) };
-    cache[newBucket] = { ...(cache[newBucket] || {}), ...merged };
-    set(votesCacheAtom, cache);
-    set(hydrateVotesFromCacheAtom);
-    if (prev !== newBucket) set(hydrateGlobalEndorsedAtom);
-  }
+  return;
 });
 export const prefetchAllVotesActionAtom = atom(null, async (get, set, ids) => {
-  const list = Array.isArray(ids) ? ids.filter(Boolean).map(String) : [];
-  if (list.length === 0) return;
-  // Reuse filtering logic from fetchVotesActionAtom
-  const votesMap = get(votesAtom) || {};
-  const requested = new Set(get(votesRequestedSetAtom));
-  const globalList = new Set(Array.isArray(get(globalEndorsedAtom)) ? get(globalEndorsedAtom) : []);
-  const missing = list.filter(id => votesMap[id] == null && !requested.has(id));
-  if (missing.length === 0) return;
-  for (const id of missing) requested.add(id);
-  set(votesRequestedSetAtom, new Set(requested));
-  const batches = [];
-  for (let i = 0; i < missing.length; i += 80) batches.push(missing.slice(i, i + 80));
-  const merged = { ...votesMap };
-  let newBucket = null;
-  let memoryMode = false;
-  await Promise.all(batches.map(async (batch) => {
-    try {
-      const res = await fetch(`/api/endorse?ids=${encodeURIComponent(batch.join(','))}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data?.mode === 'memory') memoryMode = true;
-      if (data?.votes && typeof data.votes === 'object') {
-        for (const [k, v] of Object.entries(data.votes)) {
-          if (memoryMode && v === 0 && merged[k] > 0 && globalList.has(k)) continue;
-          merged[k] = typeof v === 'number' ? v : (merged[k] || 0);
-        }
-      }
-      if (typeof data?.windowBucket === 'number') newBucket = data.windowBucket;
-    } catch {}
-  }));
-  set(votesAtom, merged);
-  if (newBucket != null) {
-    const prev = get(windowBucketAtom);
-    set(windowBucketAtom, newBucket);
-    const cache = { ...(get(votesCacheAtom) || {}) };
-    cache[newBucket] = { ...(cache[newBucket] || {}), ...merged };
-    set(votesCacheAtom, cache);
-    set(hydrateVotesFromCacheAtom);
-    if (prev !== newBucket) set(hydrateGlobalEndorsedAtom);
-  }
+  // No server prefetch; counts come from snapshot ec and local state
+  set(hydrateGlobalEndorsedAtom);
+  return;
 });

@@ -4,9 +4,11 @@ import { useAtom } from "jotai";
 import { motion, AnimatePresence } from "framer-motion";
 import { darkModeAtom } from "@/store/atoms";
 import cn from "@/app/cn";
+import { useTranslations } from "next-intl";
 
 export default function ThemeToggle() {
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
+  const t = useTranslations('Theme');
 
   const handleToggle = () => {
     setDarkMode((v) => !v);
@@ -40,10 +42,11 @@ export default function ThemeToggle() {
       whileHover="hover"
       whileTap="tap"
       aria-pressed={darkMode}
+      aria-label={t('toggleTitle')}
       type="button"
-      title="Toggle dark mode"
+      title={t('toggleTitle')}
     >
-      <span className="sr-only">Toggle dark mode</span>
+      <span className="sr-only">{t('toggleSr')}</span>
       <span className="inline-block w-5 h-5">
         <AnimatePresence mode="wait">
           {darkMode ? (
@@ -62,7 +65,7 @@ export default function ThemeToggle() {
       </span>
       <AnimatePresence mode="wait">
         <motion.span key={darkMode ? "dark" : "light"} className="text-xs font-medium" variants={textVariants} initial="initial" animate="animate" exit="exit">
-          {darkMode ? "Dark" : "Light"}
+          {darkMode ? t('dark') : t('light')}
         </motion.span>
       </AnimatePresence>
     </motion.button>

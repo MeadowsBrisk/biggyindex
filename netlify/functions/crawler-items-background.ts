@@ -10,6 +10,7 @@ import { detectItemChanges } from "../../scripts/unified-crawler/shared/logic/ch
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 import { marketStore } from "../../scripts/unified-crawler/shared/env/markets";
+import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
@@ -37,14 +38,21 @@ export const handler: Handler = async (event) => {
     const env = loadEnv();
     const markets = listMarkets(env.markets);
 
+    // Optional: force share refresh via query param
+    const refreshShare = event?.queryStringParameters?.refreshShare === "1" ||
+      event?.queryStringParameters?.forceShare === "1" ||
+      event?.queryStringParameters?.refresh_share === "1" ||
+      event?.queryStringParameters?.refreshShare === "true";
+    if (refreshShare) process.env.CRAWLER_REFRESH_SHARE = "1";
+
     log(`start markets=${markets.join(',')}`);
 
     // Build unified worklist
-    const wl = await buildItemsWorklist(markets as any);
-    log(`worklist unique=${wl.uniqueIds.length} toCrawl=${wl.toCrawl.length} already=${wl.alreadyHave.length} sample=${wl.sample.length}`);
+  const wl = await buildItemsWorklist(markets as any);
+  log(`worklist unique=${wl.uniqueIds.length} toCrawl=${wl.toCrawl.length} already=${wl.alreadyHave.length}`);
 
     // Change detection: decide full vs reviews-only
-    const allItems = wl.uniqueIds.map((id) => ({ id }));
+    const allItems = wl.uniqueIds.map((id) => ({ id, sig: wl.idSig.get(id) }));
     const changeRes = await detectItemChanges(
       { market: markets[0] as any, items: allItems },
       { sharedStoreName: env.stores.shared }
@@ -71,37 +79,142 @@ export const handler: Handler = async (event) => {
       plan.push({ id, markets: marketsFor, mode: "reviews-only" });
     }
 
-    // If empty, fall back to a small round-robin sample
-    if (!plan.length) {
-      for (const s of wl.sample) plan.push({ id: s.id, markets: [s.market], mode: "reviews-only" });
-    }
+    // No sample fallback; process the computed plan and rely on time budget enforcement
+    const items = plan;
+    log(`toProcess=${items.length}`);
 
-    // Respect CRAWLER_ITEMS_SAMPLE cap for safety
-    const limit = Math.max(0, Math.min(env.itemsSampleLimit || 10, plan.length));
-    const items = plan.slice(0, limit);
+    // Concurrency for Netlify background execution
+  const desired = Math.max(1, Number(env.maxParallel || 5));
+    log(`planned=${items.length} concurrency=${desired} (env CRAWLER_MAX_PARALLEL)`);
+
+    // Dynamically load p-queue to manage concurrency
+    const PQueue = (await import("p-queue")).default;
+    const q = new PQueue({ concurrency: desired });
 
     let processed = 0;
-    for (const it of items) {
+    let ok = 0;
+    let fail = 0;
+    let totalMs = 0;
+    let skippedDueToTime = 0;
+
+  const progressEvery = Math.max(10, Math.floor(items.length / 10) || 10);
+
+  // Load aggregates once to avoid per-item blob reads
+  let sharesAgg: Record<string, string> = {};
+  try {
+    const sharedBlob = getBlobClient(env.stores.shared);
+    const map = await sharedBlob.getJSON<any>(Keys.shared.aggregates.shares());
+    if (map && typeof map === 'object') sharesAgg = map as Record<string, string>;
+  } catch {}
+
+  // Aggregate writers: collect updates during run, write once at the end
+  const shareUpdates: Record<string, string> = {};
+  const shipUpdatesByMarket: Record<string, Record<string, { min: number; max: number; free: number }>> = {};
+
+  // Stable position map for progress like (x/N) even under concurrency
+  const total = items.length;
+  const positionById = new Map<string, number>();
+  items.forEach((e, idx) => positionById.set(e.id, idx + 1));
+
+  const runOne = async (it: { id: string; markets: import("../../scripts/unified-crawler/shared/types").MarketCode[]; mode: "full" | "reviews-only" }) => {
+      // Time budget check at execution start
       if (Date.now() > deadline) {
-        warn(`time budget reached; stopping at ${processed}/${items.length}`);
-        break;
+        skippedDueToTime++;
+        return;
       }
+      const t1 = Date.now();
       try {
-        await processSingleItem(
+        const res = await processSingleItem(
           it.id,
           it.markets as import("../../scripts/unified-crawler/shared/types").MarketCode[],
-          { client: wl.client, logPrefix: "[crawler:items]", mode: it.mode }
+          { client: wl.client, logPrefix: "[crawler:items]", mode: it.mode, currentSignature: wl.idSig.get(it.id) || undefined, sharesAgg, forceShare: refreshShare }
         );
+        const ms = Date.now() - t1;
+        totalMs += ms;
         processed++;
-        if (processed % 5 === 0) {
-          log(`progress ${processed}/${items.length} elapsed=${since(started)}s`);
+        if (res?.ok) {
+          ok++;
+          // Collect aggregate updates
+          if (res.shareLink) {
+            shareUpdates[it.id] = res.shareLink;
+          }
+          if (res.shipSummaryByMarket) {
+            for (const [mkt, summary] of Object.entries(res.shipSummaryByMarket)) {
+              if (!shipUpdatesByMarket[mkt]) shipUpdatesByMarket[mkt] = {};
+              shipUpdatesByMarket[mkt][it.id] = summary as any;
+            }
+          }
+        } else {
+          fail++;
+        }
+  const pos = positionById.get(it.id) || processed;
+  console.log(`[crawler:items:time] (${pos}/${total}) id=${it.id} dur=${ms}ms ${(ms / 1000).toFixed(2)}s ok=${res?.ok ? 1 : 0}`);
+        if (processed % progressEvery === 0) {
+          const avg = processed ? Math.round(totalMs / processed) : 0;
+          log(`progress ${processed}/${items.length} ok=${ok} fail=${fail} avg=${avg}ms/item elapsed=${since(started)}s`);
         }
       } catch (e: any) {
-        err(`item error id=${it.id}: ${e?.message || e}`);
+        const ms = Date.now() - t1;
+        totalMs += ms;
+        processed++;
+        fail++;
+  const pos = positionById.get(it.id) || processed;
+  err(`[crawler:items:time] (${pos}/${total}) id=${it.id} error dur=${ms}ms ${e?.message || e}`);
       }
-    }
+    };
 
-    log(`done processed=${processed}/${items.length} total=${since(started)}s`);
+    for (const it of items) q.add(() => runOne(it));
+    await q.onIdle();
+
+    const avg = processed ? Math.round(totalMs / processed) : 0;
+    log(`done processed=${processed}/${items.length} ok=${ok} fail=${fail} skippedDueToTime=${skippedDueToTime} avg=${avg}ms/item total=${since(started)}s`);
+
+    // Write aggregates once per run (best-effort)
+    try {
+      // Shared shares aggregate
+      const sharedBlob = getBlobClient(env.stores.shared);
+      const sharesKey = Keys.shared.aggregates.shares();
+      const existingShares = ((await sharedBlob.getJSON<any>(sharesKey)) || {}) as Record<string, string>;
+      let sharesChanged = false;
+      for (const [id, link] of Object.entries(shareUpdates)) {
+        if (typeof link !== "string" || !link) continue;
+        if (existingShares[id] !== link) {
+          existingShares[id] = link;
+          sharesChanged = true;
+        }
+      }
+      if (sharesChanged) {
+        await sharedBlob.putJSON(sharesKey, existingShares);
+        log(`aggregates: wrote shares (${Object.keys(shareUpdates).length} updates, total ${Object.keys(existingShares).length})`);
+      } else {
+        log(`aggregates: shares unchanged (${Object.keys(shareUpdates).length} candidates)`);
+      }
+
+      // Per-market shipping summary aggregates
+      for (const [mkt, updates] of Object.entries(shipUpdatesByMarket)) {
+        const storeName = marketStore(mkt as any, env.stores as any);
+        const marketBlob = getBlobClient(storeName);
+        const key = Keys.market.aggregates.shipSummary();
+        const existing = ((await marketBlob.getJSON<any>(key)) || {}) as Record<string, { min: number; max: number; free: number }>;
+        let changed = false;
+        for (const [id, summary] of Object.entries(updates)) {
+          const prev = existing[id];
+          const same = prev && prev.min === (summary as any).min && prev.max === (summary as any).max && prev.free === (summary as any).free;
+          if (!same) {
+            existing[id] = summary as any;
+            changed = true;
+          }
+        }
+        if (changed) {
+          await marketBlob.putJSON(key, existing);
+          log(`aggregates: wrote shipSummary for ${mkt} (${Object.keys(updates).length} updates, total ${Object.keys(existing).length})`);
+        } else {
+          log(`aggregates: shipSummary unchanged for ${mkt} (${Object.keys(updates).length} candidates)`);
+        }
+      }
+    } catch (e: any) {
+      warn(`aggregates write failed: ${e?.message || e}`);
+    }
 
     // Best-effort run-meta snapshot per first market
     try {
@@ -110,10 +223,10 @@ export const handler: Handler = async (event) => {
       const storeName = marketStore(first, env.stores as any);
       await appendRunMeta(storeName, key, {
         scope: `items:${first}`,
-        counts: { processed, planned: items.length },
+        counts: { processed, planned: items.length, ok, fail, avgMs: processed ? Math.round(totalMs / processed) : 0 },
       });
     } catch {}
-    return { statusCode: 200, body: JSON.stringify({ ok: true, processed, planned: items.length }) } as any;
+    return { statusCode: 200, body: JSON.stringify({ ok: true, processed, planned: items.length, okCount: ok, failCount: fail }) } as any;
   } catch (e: any) {
     err(`fatal ${e?.stack || e?.message || String(e)}`);
     return { statusCode: 500, body: "error" } as any;

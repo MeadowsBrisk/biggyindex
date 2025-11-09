@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import cn from "@/app/cn";
+import { useTranslations } from 'next-intl';
 
 export function ZoomIconButton({ onClick, label, children, small=false }){
   return (
@@ -24,21 +25,23 @@ export function ZoomButton({ onClick, icon, label, small }){
 }
 
 export function ToggleGifButton({ playing, onToggle, small, disabled }) {
+  const t = useTranslations('Zoom');
   return (
     <ZoomIconButton
       onClick={disabled ? undefined : onToggle}
-      label={playing ? (disabled ? 'GIF paused (global)' : 'Pause GIF') : (disabled ? 'GIF paused (global)' : 'Play GIF')}
+      label={playing ? (disabled ? t('gifPausedGlobal', { default: 'GIF paused (global)' }) : t('pauseGif')) : (disabled ? t('gifPausedGlobal', { default: 'GIF paused (global)' }) : t('playGif'))}
       small={small}
     >
-      <span className={disabled ? 'opacity-60 cursor-not-allowed' : ''}>{playing ? 'Pause' : 'Play'}</span>
+      <span className={disabled ? 'opacity-60 cursor-not-allowed' : ''}>{playing ? t('pause') : t('play')}</span>
     </ZoomIconButton>
   );
 }
 
 export function RotateButton({ dir, onClick }) {
+  const t = useTranslations('Zoom');
   const left = dir === 'left';
   return (
-    <ZoomIconButton onClick={onClick} label={left? 'Rotate left':'Rotate right'}>
+    <ZoomIconButton onClick={onClick} label={left ? t('rotateLeft') : t('rotateRight')}>
       {left ? (
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 1 9 9"/><polyline points="3 12 3 18 9 18"/></svg>
       ) : (

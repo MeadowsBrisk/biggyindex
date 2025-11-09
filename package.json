@@ -5,6 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "index": "node scripts/indexer/index-items.js",
+    "uc": "tsx scripts/unified-crawler/cli.ts",
+    "uc:index": "tsx scripts/unified-crawler/cli.ts --stage=index",
+    "uc:items": "tsx scripts/unified-crawler/cli.ts --stage=items",
+  "uc:sellers": "tsx scripts/unified-crawler/cli.ts --stage=sellers",
+  "uc:pruning": "tsx scripts/unified-crawler/cli.ts --stage=pruning",
+  "uc:migrate-index-meta": "tsx scripts/unified-crawler/tools/migrate-index-metadata.ts",
+    "uc:all": "tsx scripts/unified-crawler/cli.ts --stage=all",
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
@@ -28,7 +35,6 @@
     "gifler": "^0.1.0",
     "gifuct-js": "^2.1.2",
     "http-cookie-agent": "^6.0.5",
-    
     "jotai": "^2.13.1",
     "lucide-react": "^0.544.0",
     "motion": "^12.0.0",
@@ -55,8 +61,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    
+    "@types/yargs": "^17.0.33",
     "tailwindcss": "^4",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

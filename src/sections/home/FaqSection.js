@@ -4,76 +4,8 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
 import ChevronDown from "@/components/icons/ChevronDown";
-
-const aboutQuestions = [
-  {
-    question: "What is the Biggy Index?",
-    answer:
-      "The Biggy Index provides an easier way to browse the LittleBiggy marketplace, with item categorisation, additional sorting options, and other handy tools tailored for UK shoppers.",
-  },
-  {
-    question: "Do you sell or ship items?",
-    answer: "No. Biggy Index is read-only and sends you back to LittleBiggy to complete your order.",
-  },
-  {
-    question: "Where does the data come from?",
-    answer: "The index fetches public LittleBiggy data, normalising categories, pricing summaries, shipping info, reviews and images.",
-  },
-  {
-    question: "How often is it refreshed?",
-    answer: "There are 3 components that refresh at different intervals. The main indexer runs every 15 minutes. The item and seller crawlers run every 4 hours, at separate times to be mindful of LittleBiggy's server.",
-  },
-    {
-    question: "What does First Seen or Updated on items mean?",
-    answer:
-      "First seen/created means that it's the first time the item was indexed by the crawler. This can include items which were on LB before the indexer existed. Updated means that the item was edited by the seller, or that the crawler detected a change (e.g. price, variants, description).",
-  },
-  {
-    question: "What are endorsements?",
-    answer: "Community votes stored via Netlify Blobs highlight popular items without tracking you.",
-  },
-];
-
-const cryptoQuestions = [
-  {
-    question: "What payments does LittleBiggy accept?",
-    answer: "Only Bitcoin - no cards, bank transfers or other cryptocurrencies.",
-  },
-  {
-    question: "How do I buy Bitcoin in the UK?",
-    answer:
-      "Most buyers use Revolut, Monzo, Kraken, or Coinbase. Top up in pounds, purchase the amount of BTC shown at checkout, and allow a few pounds for network or exchanging fees.",
-  },
-  {
-    question: "Do I need my own wallet first?",
-    answer:
-      "You can pay straight from the exchange, but many move BTC into Cake Wallet, Trust Wallet, or similar for extra control or privacy before sending. By law, exchanges need to ask you who you're sending the coins to - so some people prefer buying on exchanges and storing their coins in a private wallet for making purchases.",
-  },
-  {
-    question: "How does Transaxe escrow protect me?",
-    answer:
-      "Your payment goes to a Transaxe escrow address. Sellers have about 80 hours to mark orders as shipped or the funds auto-refund. Disputes open after nine days if needed.",
-  },
-  {
-    question: "Any tips to avoid mistakes?",
-    answer:
-      "Copy-paste the BTC amount and address, add a buffer for fees, and keep screenshots until your parcel arrives. The blockchain cannot undo typos.",
-  },
-    {
-    question: "Why not just use clearnet shops?",
-    answer:
-      "Competition on LittleBiggy keeps quality high and prices honest, whereas clearnet resellers often mark up heavily or ship questionable stock.",
-  },
-  {
-    question: "What about UK legality?",
-    answer: "Cannabis laws still apply. You are responsible for staying within local regulations and verifying every detail on LittleBiggy.",
-  },
-];
-
-const tabs = [
-  { key: "about", label: "About Biggy Index", questions: aboutQuestions },
-  { key: "crypto", label: "LittleBiggy & Bitcoin", questions: cryptoQuestions },
-];
+import { useTranslations } from 'next-intl';
+// Questions and labels are localized via Home translations
 
 function AccordionItem({ question, answer, isOpen, onToggle }) {
   return (
@@ -115,25 +47,35 @@ function AccordionItem({ question, answer, isOpen, onToggle }) {
 
 function Accordion({ questions }) {
   const [openIndex, setOpenIndex] = useState(0);
+  const items = Array.isArray(questions) ? questions : [];
 
   return (
     <div className="flex flex-col gap-3">
-      {questions.map((item, index) => (
-        <AccordionItem
-          key={item.question}
-          question={item.question}
-          answer={item.answer}
-          isOpen={openIndex === index}
-          onToggle={() => setOpenIndex(openIndex === index ? -1 : index)}
-        />
-      ))}
+      {items.map((item, index) => {
+        const question = item?.question ?? item?.q ?? "";
+        const answer = item?.answer ?? item?.a ?? "";
+        return (
+          <AccordionItem
+            key={`${question}-${index}`}
+            question={question}
+            answer={answer}
+            isOpen={openIndex === index}
+            onToggle={() => setOpenIndex(openIndex === index ? -1 : index)}
+          />
+        );
+      })}
     </div>
   );
 }
 
 export default function FaqSection() {
-  const [activeTab, setActiveTab] = useState(tabs[0].key);
-  const currentTab = useMemo(() => tabs.find((tab) => tab.key === activeTab) ?? tabs[0], [activeTab]);
+  const tHome = useTranslations('Home');
+  const tabs = useMemo(() => ([
+    { key: 'about', label: tHome('faq.tabs.about'), questions: tHome.raw('faq.about') || [] },
+    { key: 'crypto', label: tHome('faq.tabs.crypto'), questions: tHome.raw('faq.crypto') || [] },
+  ]), [tHome]);
+  const [activeTab, setActiveTab] = useState('about');
+  const currentTab = useMemo(() => tabs.find((tab) => tab.key === activeTab) ?? tabs[0], [activeTab, tabs]);
 
   return (
     <section className="relative overflow-hidden bg-slate-100 py-20 transition-colors duration-300 dark:bg-slate-950" id="faq">
@@ -143,11 +85,9 @@ export default function FaqSection() {
       </div>
       <div className="relative mx-auto max-w-5xl px-6">
         <div className="text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-white/60">Frequently asked</span>
-          <h2 className="mt-4 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">FAQs for first-time Biggy explorers</h2>
-          <p className="mt-3 text-base text-slate-600 dark:text-white/70">
-            Two quick panels: one about how Biggy Index works, another covering LittleBiggy payments and crypto basics.
-          </p>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-white/60">{tHome('faq.label', { fallback: 'FAQs' })}</span>
+          <h2 className="mt-4 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">{tHome('faq.title', { fallback: 'FAQs for first-time Biggy explorers' })}</h2>
+          <p className="mt-3 text-base text-slate-600 dark:text-white/70">{tHome('faq.subtitle', { fallback: 'Two quick panels: one about how Biggy Index works, another covering LittleBiggy payments and crypto basics.' })}</p>
         </div>
         <div className="mt-10 flex justify-center gap-3">
           {tabs.map((tab) => {

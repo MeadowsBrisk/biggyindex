@@ -1,7 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import type { GetServerSideProps } from 'next';
-export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const origin = 'https://lbindex.vip';
+import { localeFromHost, hostForLocale } from '@/lib/routing';
+export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
+  const host = req?.headers?.host || 'biggyindex.com';
+  const locale = localeFromHost(host);
+  const origin = hostForLocale(locale);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap><loc>${origin}/sitemap-static.xml</loc></sitemap>

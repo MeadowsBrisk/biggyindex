@@ -4,7 +4,10 @@ import { thumbnailAspectAtom } from "@/store/atoms"; // added
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
+import { useTranslations } from 'next-intl';
+
 export default function SortControls({ stack = false }) {
+  const t = useTranslations('Sort');
   const [key, setKey] = useAtom(sortKeyAtom);
   const [dir, setDir] = useAtom(sortDirAtom);
   const [pauseGifs, setPauseGifs] = useAtom(pauseGifsAtom);
@@ -18,21 +21,21 @@ export default function SortControls({ stack = false }) {
   const aspectListRef = useRef(null); // new
 
   const sortOptions = [
-    { value: 'hotness', label: 'Hotness/Bigg (Default)' },
-    { value: 'endorsements', label: 'Endorsements' },
-    { value: 'lastUpdated', label: 'Recently Updated' },
-    { value: 'firstSeen', label: 'First Seen (Newest)' },
-    { value: 'reviewsCount', label: 'Reviews: Count' },
-    { value: 'reviewsRating', label: 'Reviews: Rating' },
-    { value: 'name', label: 'Name' },
-    { value: 'price', label: 'Price' },
-    { value: 'arrival', label: 'Avg Arrival (Days)' }
+    { value: 'hotness', label: t('labels.hotness') },
+    { value: 'endorsements', label: t('labels.endorsements') },
+    { value: 'lastUpdated', label: t('labels.lastUpdated') },
+    { value: 'firstSeen', label: t('labels.firstSeen') },
+    { value: 'reviewsCount', label: t('labels.reviewsCount') },
+    { value: 'reviewsRating', label: t('labels.reviewsRating') },
+    { value: 'name', label: t('labels.name') },
+    { value: 'price', label: t('labels.price') },
+    { value: 'arrival', label: t('labels.arrival') }
   ];
 
   const aspectOptions = [
-    { value: 'landscape', label: 'Wide 16:10' },
-    { value: 'standard', label: 'Square 1:1' },
-    { value: 'portrait', label: 'Tall 2:3' }
+    { value: 'landscape', label: t('aspects.landscape') },
+    { value: 'standard', label: t('aspects.standard') },
+    { value: 'portrait', label: t('aspects.portrait') }
   ];
 
   // Sync active index when key changes
@@ -111,7 +114,7 @@ export default function SortControls({ stack = false }) {
   const interactive = "transition-colors duration-150 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm hover:ring-1 hover:ring-blue-500/20";
 
   const labels = {
-    hotness: 'Hotness', endorsements: 'Endorsements', lastUpdated: 'Recently Updated', firstSeen: 'First Seen', reviewsCount: 'Reviews Count', reviewsRating: 'Reviews Rating', name: 'Name', price: 'Price', arrival: 'Avg Arrival'
+    hotness: t('labels.hotness'), endorsements: t('labels.endorsements'), lastUpdated: t('labels.lastUpdated'), firstSeen: t('labels.firstSeen'), reviewsCount: t('labels.reviewsCount'), reviewsRating: t('labels.reviewsRating'), name: t('labels.name'), price: t('labels.price'), arrival: t('labels.arrival')
   };
 
   const dirIcon = (
@@ -223,7 +226,7 @@ export default function SortControls({ stack = false }) {
   // (Original non-stack return preserved)
   return (
     <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.28, ease: 'easeOut' }}>
-      <span className="sr-only" id="sort-label">Sort by</span>
+  <span className="sr-only" id="sort-label">{t('sortBySr')}</span>
       <div className="flex items-center gap-2">
         {/* Aspect dropdown desktop */}
         <div className="relative">
@@ -234,9 +237,9 @@ export default function SortControls({ stack = false }) {
             aria-expanded={openAspect}
             onClick={() => setOpenAspect(o => !o)}
             className={`inline-flex items-center justify-between gap-1 px-2 h-9 rounded-md ${surface} ${text} text-xs font-medium ${baseRing} ${interactive} w-[5.2rem]`}
-            title="Thumbnail shape"
+            title={t('thumbnailShape')}
           >
-            <span className="truncate">{thumbAspect === 'landscape' ? 'Wide' : thumbAspect === 'portrait' ? 'Tall' : 'Square'}</span>
+            <span className="truncate">{thumbAspect === 'landscape' ? t('aspects.wide') : thumbAspect === 'portrait' ? t('aspects.tall') : t('aspects.square')}</span>
             <svg viewBox="0 0 20 20" fill="currentColor" className={`w-4 h-4 transition-transform ${openAspect ? 'rotate-180' : ''}`}><path d="M5.8 7.3l4.2 4.2 4.2-4.2 1.1 1.1-5.3 5.3-5.3-5.3z" /></svg>
           </button>
           {openAspect && (
@@ -262,10 +265,10 @@ export default function SortControls({ stack = false }) {
         <button type="button" onClick={toggleGifs}
           className={`inline-flex items-center gap-1 px-2 h-9 rounded-md ${surface} ${text} text-xs font-medium ${baseRing} ${interactive}`}
           aria-pressed={pauseGifs}
-          title={pauseGifs ? 'GIFs paused – click to play' : 'Play GIFs – click to pause'}>
+          title={pauseGifs ? t('gifsPausedTitle') : t('gifsPlayTitle')}>
           {gifIcon}
-          <span className="hidden sm:inline">{pauseGifs ? 'Paused' : 'GIFs'}</span>
-          <span className="sm:hidden">GIF</span>
+          <span className="hidden sm:inline">{pauseGifs ? t('gifsPaused') : t('gifs')}</span>
+          <span className="sm:hidden">{t('gif')}</span>
         </button>
         <div className="relative">
           <button
@@ -316,14 +319,14 @@ export default function SortControls({ stack = false }) {
           )}
         </div>
         <button type="button" onClick={toggleDir}
-          aria-label={`Toggle sort direction (currently ${dir === 'asc' ? 'ascending' : 'descending'})`}
-          title={dir === 'asc' ? 'Ascending (click for descending)' : 'Descending (click for ascending)'}
+          aria-label={t('toggleDirAria', { dir: dir === 'asc' ? t('dirAscending') : t('dirDescending') })}
+          title={dir === 'asc' ? t('toggleDirTitleAsc') : t('toggleDirTitleDesc')}
           className={`inline-flex items-center justify-center w-9 h-9 rounded-md ${surface} ${text} ${baseRing} ${interactive}`}
         >
           {dirIcon}
         </button>
       </div>
-      <span className="sr-only">Sorting by {labels[key] || key} in {dir === 'asc' ? 'ascending' : 'descending'} order.</span>
+      <span className="sr-only">{t('sortingBySr', { label: labels[key] || key, dir: dir === 'asc' ? t('dirAscending') : t('dirDescending') })}</span>
     </motion.div>
   );
 }

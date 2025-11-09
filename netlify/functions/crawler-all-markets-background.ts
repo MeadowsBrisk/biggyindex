@@ -78,7 +78,7 @@ export const handler: Handler = async (event) => {
       console.log(`${logPrefix("items")} worklist start`);
       const wl = await buildItemsWorklist(markets as any);
       console.log(
-        `${logPrefix("items")} worklist unique=${wl.uniqueIds.length} toCrawl=${wl.toCrawl.length} already=${wl.alreadyHave.length} sample=${wl.sample.length}`
+        `${logPrefix("items")} worklist unique=${wl.uniqueIds.length} toCrawl=${wl.toCrawl.length} already=${wl.alreadyHave.length}`
       );
 
       // Change detection: decide full vs reviews-only
@@ -102,12 +102,8 @@ export const handler: Handler = async (event) => {
       const plan: Array<{ id: string; markets: string[]; mode: "full" | "reviews-only" }> = [];
       for (const it of fullTargets) plan.push({ ...it, mode: "full" });
       for (const it of reviewsOnlyTargets) plan.push({ ...it, mode: "reviews-only" });
-      if (!plan.length) {
-        // fallback to a small sample
-        for (const s of wl.sample) plan.push({ id: s.id, markets: [s.market], mode: "reviews-only" });
-      }
-      const limit = Math.max(0, Math.min(env.itemsSampleLimit || 10, plan.length));
-      const items = plan.slice(0, limit);
+      // No sample fallback or env-based cap; process full plan within time budget
+      const items = plan;
 
       let processed = 0;
       for (const it of items) {
@@ -129,7 +125,7 @@ export const handler: Handler = async (event) => {
           console.error(`${logPrefix("items")} item error id=${it.id}:`, e?.message || e);
         }
       }
-      console.log(`${logPrefix("items")} processed=${processed}/${items.length}`);
+  console.log(`${logPrefix("items")} processed=${processed}/${items.length}`);
     } catch (e: any) {
       console.error(`${logPrefix("items")} worklist error:`, e?.message || e);
     }

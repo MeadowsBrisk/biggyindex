@@ -4,17 +4,20 @@ import cn from "@/app/cn";
 import * as Slider from "@radix-ui/react-slider";
 import { useCallback, useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
-import { displayCurrencyAtom, exchangeRatesAtom } from '@/store/atoms';
 import { currencySymbol } from '@/lib/priceDisplay';
 import FilterPinButton from "@/components/FilterPinButton";
+import { useTranslations } from 'next-intl';
+import { useDisplayCurrency } from '@/providers/IntlProvider';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 export default function PriceRange() {
+  const t = useTranslations('Sidebar');
   const [activeBounds] = useAtom(activePriceBoundsAtom);
   const [range, setRange] = useAtom(priceRangeAtom);
   const [userSet, setUserSet] = useAtom(priceRangeUserSetAtom);
   const [pinned, setPinned] = useAtom(priceFilterPinnedAtom);
-  const displayCurrency = useAtomValue(displayCurrencyAtom);
-  const rates = useAtomValue(exchangeRatesAtom);
+  const { currency: displayCurrency } = useDisplayCurrency();
+  const rates = useExchangeRates();
   const usdRate = (rates && typeof rates['USD'] === 'number' && rates['USD'] > 0) ? rates['USD'] : null;
   const isUSD = displayCurrency === 'USD' && !!usdRate;
   const activeMin = activeBounds.min ?? 0;
@@ -117,17 +120,17 @@ export default function PriceRange() {
               type="button"
               onClick={() => commit(activeMin, activeMax, true)}
               className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
-            >Reset</button>
+            >{t('reset')}</button>
           )}
         </div>
       </div>
       {showPin && (
         <div className="mb-2 flex justify-end absolute top-2 right-2 w-5 h-4">
-          <FilterPinButton pinned={pinned} onToggle={() => setPinned(!pinned)} label="price range" />
+          <FilterPinButton pinned={pinned} onToggle={() => setPinned(!pinned)} label={t('priceRangePin')} />
         </div>
       )}
       {singleBand ? (
-        <div className="text-[11px] text-gray-500 dark:text-gray-500">Fixed price</div>
+        <div className="text-[11px] text-gray-500 dark:text-gray-500">{t('fixedPrice')}</div>
       ) : (
         <div className="pt-1">
           <Slider.Root
@@ -137,7 +140,7 @@ export default function PriceRange() {
             step={1}
             value={[displayedMinView, displayedMaxView]}
             onValueChange={onSlider}
-            aria-label="Price range"
+            aria-label={t('priceRangeAria')}
           >
             <Slider.Track className="relative h-1 w-full grow rounded bg-gray-200 dark:bg-gray-700">
               <Slider.Range className="absolute h-full rounded bg-blue-600" />
@@ -149,7 +152,7 @@ export default function PriceRange() {
       )}
       <div className="flex items-end justify-between gap-3 pt-1">
         <div className="flex-1 min-w-0">
-      <label htmlFor="price-min" className="block mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Min</label>
+      <label htmlFor="price-min" className="block mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('min')}</label>
           <input
             id="price-min"
             type="number"
@@ -160,9 +163,9 @@ export default function PriceRange() {
             onChange={(e) => onMin(e.target.value)}
           />
         </div>
-        <div className="pb-[5px] select-none text-[10px] font-medium uppercase tracking-wide text-gray-400">to</div>
+        <div className="pb-[5px] select-none text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('to')}</div>
         <div className="flex-1 min-w-0 text-right">
-          <label htmlFor="price-max" className="block mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Max</label>
+          <label htmlFor="price-max" className="block mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('max')}</label>
           <input
             id="price-max"
             type="number"
@@ -174,7 +177,7 @@ export default function PriceRange() {
           />
         </div>
       </div>
-    <div className="text-[10px] text-gray-400 dark:text-gray-500">Bounds {sym}{activeMinView} – {sym}{activeMaxView}</div>
+    <div className="text-[10px] text-gray-400 dark:text-gray-500">{t('bounds', { min: `${sym}${activeMinView}`, max: `${sym}${activeMaxView}` })}</div>
     </div>
   );
 }

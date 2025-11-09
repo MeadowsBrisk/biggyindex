@@ -1,0 +1,28 @@
+/* ItemCard-specific styles. Prefer Tailwind @apply where possible (Tailwind v4). */
+
+/* Hover-reveal for ItemCard controls: staggered on desktop, always visible on touch */
+@media (hover: hover) and (pointer: fine) {
+	.card-controls > * {
+		/* Use utilities for common parts; keep visibility+transition for precise behavior */
+		@apply opacity-0; /* remove translate to prevent vertical jump on hover-out */
+		visibility: hidden;
+		/* Animate opacity; keep visibility delayed so it hides after fade completes */
+		transition: opacity 200ms ease-out, box-shadow 200ms ease-out, visibility 0ms linear 200ms;
+	}
+	/* Always show controls marked as always-show (e.g., favourited star) */
+	.card-controls > *.always-show {
+		@apply opacity-100;
+		visibility: visible;
+	}
+	.group:hover .card-controls > *,
+	.group:focus-within .card-controls > * {
+		@apply opacity-100;
+		visibility: visible;
+	}
+	/* Staggered delays */
+	.group:hover .card-controls > *:nth-child(1),
+	.group:focus-within .card-controls > *:nth-child(1) { transition-delay: 40ms; }
+	.group:hover .card-controls > *:nth-child(2),
+	.group:focus-within .card-controls > *:nth-child(2) { transition-delay: 80ms; }
+}
+

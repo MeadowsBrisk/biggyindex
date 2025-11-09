@@ -8,9 +8,18 @@ export interface BlobClient {
 
 export function getBlobClient(storeName: string): BlobClient {
   const persistMode = process.env.CRAWLER_PERSIST || "auto";
-  const isNetlify = !!process.env.NETLIFY || !!process.env.NETLIFY_SITE_ID;
+  // Only treat NETLIFY=true as running inside Netlify (Functions/Build). Having a SITE_ID locally doesn't mean Blobs implicit auth exists.
+  const isNetlify = !!process.env.NETLIFY;
   const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.BLOBS_TOKEN;
+  // Accept multiple token envs (align with legacy blobStore):
+  // - NETLIFY_BLOBS_TOKEN (preferred)
+  // - NETLIFY_API_TOKEN (commonly used in this repo)
+  // - NETLIFY_AUTH_TOKEN (alt)
+  // - BLOBS_TOKEN (fallback)
+  const token = process.env.NETLIFY_BLOBS_TOKEN
+    || process.env.NETLIFY_API_TOKEN
+    || process.env.NETLIFY_AUTH_TOKEN
+    || process.env.BLOBS_TOKEN;
   const hasBlobsCreds = Boolean(siteID && token);
   // On Netlify Functions, @netlify/blobs works without explicit tokens; prefer it to avoid read-only FS writes.
   const useBlobs =

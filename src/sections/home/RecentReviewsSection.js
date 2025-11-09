@@ -7,48 +7,17 @@ import { motion } from "framer-motion";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
 import { decodeEntities, timeAgo } from "@/lib/format";
+import { relativeCompact } from "@/lib/relativeTimeCompact";
+import { useTranslations } from 'next-intl';
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
 import { proxyImage } from "@/lib/images";
 import cn from "@/app/cn";
 import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
 import ItemImageTooltip from "@/components/ItemImageTooltip";
 import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";
+import { useFormatter } from 'next-intl';
 
 const MAX_REVIEWS = RECENT_REVIEWS_LIMIT;
-
-function formatPostedLabel(isoString) {
-  if (!isoString) return "Posted just now";
-  const date = new Date(isoString);
-  if (Number.isNaN(date.getTime())) return "Posted just now";
-  // Deterministic across SSR/CSR: render in Europe/London regardless of server/client timezone
-  try {
-    const dtf = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/London",
-      hour: "2-digit",
-      minute: "2-digit",
-      year: "2-digit",
-      month: "2-digit",
-      day: "2-digit",
-      hour12: false,
-    });
-    const parts = Object.fromEntries(dtf.formatToParts(date).map((p) => [p.type, p.value]));
-    const hh = parts.hour || "00";
-    const mm = parts.minute || "00";
-    const dd = parts.day || "01";
-    const MM = parts.month || "01";
-    const yy = parts.year || "00";
-    return `Posted ${hh}:${mm} ${dd}/${MM}/${yy}`;
-  } catch {
-    // Fallback: UTC (still deterministic)
-    const pad = (val) => String(val).padStart(2, "0");
-    const hours = pad(date.getUTCHours());
-    const minutes = pad(date.getUTCMinutes());
-    const day = pad(date.getUTCDate());
-    const month = pad(date.getUTCMonth() + 1);
-    const year = String(date.getUTCFullYear()).slice(-2);
-    return `Posted ${hours}:${minutes} ${day}/${month}/${year}`;
-  }
-}
 
 const placeholderReviews = Array.from({ length: MAX_REVIEWS }).map((_, idx) => ({
   id: `placeholder-review-${idx}`,
@@ -174,6 +143,9 @@ function StarRating({ rating }) {
 
 
 export default function RecentReviewsSection({ reviews }) {
+  const tRel = useTranslations('Rel');
+  const tHome = useTranslations('Home');
+  const format = useFormatter();
   const list = useMemo(() => {
     const source = Array.isArray(reviews) && reviews.length ? reviews : placeholderReviews;
     return source
@@ -184,9 +156,9 @@ export default function RecentReviewsSection({ reviews }) {
           id: review?.id ?? `recent-review-${index}`,
           rating: typeof review?.rating === "number" ? review.rating : null,
           daysToArrive: Number.isFinite(review?.daysToArrive) ? review.daysToArrive : null,
-          sellerName: review?.sellerName || "Unknown seller",
+          sellerName: review?.sellerName || tHome('reviews.labels.unknownSeller'),
           sellerId: review?.sellerId ?? review?.seller?.id ?? null,
-          itemName: review?.item?.name || "Unknown item",
+          itemName: review?.item?.name || tHome('reviews.labels.unknownItem'),
           refNum: review?.item?.refNum || null,
           createdAt: review?.created ? resolveCreated(review.created) : null,
           itemImageUrl: review?.itemImageUrl ?? review?.item?.imageUrl ?? null,
@@ -206,11 +178,9 @@ export default function RecentReviewsSection({ reviews }) {
     <section className="bg-gradient-to-b from-white via-white to-slate-100 py-24 xl:pt-16 transition-colors duration-300 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
       <div className="mx-auto max-w-5xl px-6">
         <motion.div {...fadeInUp({ trigger: "view", viewportAmount: 0.45 })} className="text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-white/60">Community pulse</span>
-          <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">Recent reviews</h2>
-          <p className="mt-4 text-base text-slate-600 dark:text-white/70">
-            Straight from LittleBiggy shoppers — scroll the latest ratings, delivery speeds, and buyer notes pulled from the combined feed.
-          </p>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-white/60">{tHome('reviews.header.label')}</span>
+          <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">{tHome('reviews.header.title')}</h2>
+          <p className="mt-4 text-base text-slate-600 dark:text-white/70">{tHome('reviews.header.subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -219,11 +189,11 @@ export default function RecentReviewsSection({ reviews }) {
         >
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4 dark:border-white/10">
             <div>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">Latest buyer feedback</p>
-              <p className="text-xs text-slate-500 dark:text-white/60">{list.length} review{list.length === 1 ? "" : "s"} loaded from the recent feed</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">{tHome('reviews.panel.title')}</p>
+              <p className="text-xs text-slate-500 dark:text-white/60">{tHome('reviews.panel.count', { count: list.length })}</p>
             </div>
             <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
-              Refreshed every 4 hours
+              {tHome('reviews.panel.badge')}
             </span>
           </div>
 
@@ -248,18 +218,33 @@ function resolveCreated(created) {
 }
 
 function ReviewRow({ review }) {
+  const tHome = useTranslations('Home');
+  const format = useFormatter();
+  const tRel = useTranslations('Rel');
   const scoreRaw = typeof review.rating === "number" ? review.rating : null;
   const scoreKey = scoreRaw != null ? Math.min(10, Math.max(1, Math.round(scoreRaw))) : null;
   const panelClass = panelClassForReviewScore(scoreKey);
-  const arrivalLabel = formatArrival(review.daysToArrive);
-  const capturedLabel = review.createdAt ? formatPostedLabel(review.createdAt) : "Posted just now";
+  const arrivalLabel = (() => {
+    const d = review.daysToArrive;
+    if (d == null || Number.isNaN(d)) return null;
+    if (d === 0) return tHome('reviews.arrival.sameDay');
+    if (d === 1) return tHome('reviews.arrival.oneDay');
+    return tHome('reviews.arrival.days', { days: d });
+  })();
+  const capturedLabel = (() => {
+    if (!review.createdAt) return tHome('reviews.labels.postedAt', { date: '' }).trim() || '';
+    const d = new Date(review.createdAt);
+    if (Number.isNaN(d.getTime())) return tHome('reviews.labels.postedAt', { date: '' }).trim() || '';
+    const dateStr = format.dateTime(d, { dateStyle: 'short', timeStyle: 'short' });
+    return tHome('reviews.labels.postedAt', { date: dateStr });
+  })();
   const [relativeLabel, setRelativeLabel] = useState(null);
 
   useEffect(() => {
     if (!review.createdAt) return undefined;
-    setRelativeLabel(timeAgo(review.createdAt));
+  setRelativeLabel(relativeCompact(review.createdAt, tRel));
     const interval = window.setInterval(() => {
-      setRelativeLabel(timeAgo(review.createdAt));
+  setRelativeLabel(relativeCompact(review.createdAt, tRel));
     }, 60_000);
     return () => window.clearInterval(interval);
   }, [review.createdAt]);
@@ -283,7 +268,7 @@ function ReviewRow({ review }) {
           <ItemImageTooltip
             imageUrl={review.itemImageUrl}
             itemName={review.itemName}
-            fallbackText="Image not indexed. Item may no longer be available"
+            fallbackText={tHome('reviews.labels.noImage')}
           >
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm dark:border-white/20 dark:bg-white/10">
               <div className="relative h-12 w-12 sm:h-16 sm:w-16">
@@ -296,7 +281,7 @@ function ReviewRow({ review }) {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-white/5 dark:to-white/10" aria-label="No image available" />
+                  <div className="h-full w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-white/5 dark:to-white/10" aria-label={tHome('reviews.labels.noImage')} />
                 )}
               </div>
             </div>
@@ -336,7 +321,7 @@ function ReviewRow({ review }) {
               <span className="font-semibold text-base md:text-lg">{review.itemName}</span>
             )}
             <span className="ml-2 text-[11px] font-medium text-slate-500 dark:text-white/60">
-              – sold by {review.sellerId ? (
+              {review.sellerId ? (
                 <SellerAvatarTooltip sellerName={review.sellerName} sellerImageUrl={review.sellerImageUrl}>
                   <Link
                     href={`/seller/${review.sellerId}`}
@@ -344,11 +329,11 @@ function ReviewRow({ review }) {
                     rel="noreferrer"
                     className="underline decoration-dotted underline-offset-2 hover:text-emerald-600 dark:hover:text-emerald-400"
                   >
-                    {review.sellerName}
+                    {tHome('reviews.labels.soldBy', { seller: review.sellerName })}
                   </Link>
                 </SellerAvatarTooltip>
               ) : (
-                review.sellerName
+                tHome('reviews.labels.soldBy', { seller: review.sellerName })
               )}
             </span>
           </p>

@@ -10,8 +10,10 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
+import { useTranslations, useFormatter } from 'next-intl';
 import { proxyImage } from "@/lib/images";
 import { timeAgo, formatBritishDateTime } from "@/lib/format";
+import { relativeCompact } from "@/lib/relativeTimeCompact";
 import { useScreenSize } from "@/hooks/useScreenSize";
 
 function normalizeMediaEntries(mediaEntries) {
@@ -40,6 +42,8 @@ function normalizeMediaEntries(mediaEntries) {
 }
 
 export default function RecentMediaSection({ mediaEntries }) {
+  const tHome = useTranslations('Home');
+  const format = useFormatter();
   const entries = useMemo(() => normalizeMediaEntries(mediaEntries), [mediaEntries]);
   if (!entries.length) return null;
 
@@ -63,10 +67,10 @@ export default function RecentMediaSection({ mediaEntries }) {
 
       <div className="relative px-0">
         <motion.div {...fadeInUp({ trigger: "view", viewportAmount: 0.45 })} className="mx-auto max-w-5xl px-6 text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600/80 dark:text-emerald-400/80">Latest snaps</span>
-          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Buyer Images</h2>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600/80 dark:text-emerald-400/80">{tHome('media.latestSnaps')}</span>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">{tHome('media.title')}</h2>
           <p className="mt-4 text-base text-slate-600 dark:text-white/70">
-            Recent photos uploaded alongside community reviews.
+            {tHome('media.subtitle')}
           </p>
         </motion.div>
 
@@ -178,14 +182,20 @@ function MediaStrip({ entries, perImageWidth, tileHeight, isTouchViewport }) {
 }
 
 function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }) {
+  const tHome = useTranslations('Home');
+  const format = useFormatter();
   const daysLabel =
     entry.daysToArrive != null
       ? entry.daysToArrive === 0
-        ? "Arrived same day"
-        : `Arrived in ${entry.daysToArrive} day${entry.daysToArrive === 1 ? "" : "s"}`
+        ? tHome('media.entry.arrival.sameDay')
+        : (entry.daysToArrive === 1
+            ? tHome('media.entry.arrival.oneDay')
+            : tHome('media.entry.arrival.days', { days: entry.daysToArrive }))
       : null;
-  const capturedLabel = entry.createdAt ? formatBritishDateTime(entry.createdAt) : null;
-  const relativeLabel = entry.createdAt ? timeAgo(entry.createdAt) : null;
+  const capturedAbsolute = entry.createdAt ? format.dateTime(new Date(entry.createdAt), { dateStyle: 'medium', timeStyle: 'short' }) : null;
+  const capturedLabel = capturedAbsolute ? tHome('media.entry.captured', { date: capturedAbsolute }) : null;
+  const tRel = useTranslations('Rel');
+  const relativeLabel = entry.createdAt ? relativeCompact(entry.createdAt, tRel) : null;
 
   const CardWrapper = entry.refNum ? Link : "div";
   const cardProps = entry.refNum
@@ -229,11 +239,11 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
           <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/25" aria-hidden />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" aria-hidden />
           <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/40 to-transparent px-6 py-6 text-white opacity-0 translate-y-4 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">{entry.sellerName}</p>
-            <p className="mt-1 text-lg font-semibold">{entry.itemName}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">{entry.sellerName || tHome('reviews.labels.unknownSeller')}</p>
+            <p className="mt-1 text-lg font-semibold">{entry.itemName || tHome('reviews.labels.unknownItem')}</p>
             {entry.text && <p className="mt-3 max-h-28 overflow-hidden text-sm leading-relaxed text-white/85 max-w-xl">{entry.text}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-white/70">
-              {entry.rating != null && <span>{entry.rating}/10 rating</span>}
+              {entry.rating != null && <span>{tHome('media.entry.rating', { value: entry.rating })}</span>}
               {daysLabel && <span>{daysLabel}</span>}
               {capturedLabel && <span>{capturedLabel}</span>}
               {relativeLabel && <span>{relativeLabel}</span>}
@@ -246,8 +256,8 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
       {isTouchViewport && (
         <div className="bg-white/95 dark:bg-slate-900/95 border-t border-slate-200 dark:border-white/10">
           <div className="px-4 pt-3 pb-2 h-44 overflow-y-auto">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400 font-semibold">{entry.sellerName}</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{entry.itemName}</p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400 font-semibold">{entry.sellerName || tHome('reviews.labels.unknownSeller')}</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{entry.itemName || tHome('reviews.labels.unknownItem')}</p>
             {entry.text && (
               <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-white/80">
                 {entry.text}
@@ -255,7 +265,7 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
             )}
           </div>
           <div className="px-4 pb-3 pt-2 border-t border-slate-200/50 dark:border-white/5 flex flex-wrap items-center gap-2 text-[10px] text-slate-600 dark:text-white/60 font-medium">
-            {entry.rating != null && <span className="text-emerald-600 dark:text-emerald-400">{entry.rating}/10</span>}
+            {entry.rating != null && <span className="text-emerald-600 dark:text-emerald-400">{tHome('media.entry.rating', { value: entry.rating })}</span>}
             {daysLabel && <span>{daysLabel}</span>}
             {relativeLabel && <span>{relativeLabel}</span>}
           </div>

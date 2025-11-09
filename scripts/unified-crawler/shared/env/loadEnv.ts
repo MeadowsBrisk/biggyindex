@@ -1,7 +1,7 @@
 // Unified env loader for crawler/orchestrator
 // Centralizes access and prevents leaking secrets in logs.
-
-export type MarketCode = "GB" | "DE" | "FR";
+import type { MarketCode } from "../types";
+export type { MarketCode };
 
 export interface UnifiedEnv {
   markets: MarketCode[];
@@ -13,7 +13,7 @@ export interface UnifiedEnv {
   stores: Record<MarketCode | "shared", string>;
   auth: { username?: string; password?: string };
   inngest: { enabled: boolean; eventKey?: string };
-  itemsSampleLimit: number; // cap how many items to process in pilot runs
+  fullCrawlDays: number; // promote unchanged items older than this to FULL crawl
 }
 
 export function loadEnv(): UnifiedEnv {
@@ -21,6 +21,8 @@ export function loadEnv(): UnifiedEnv {
     "GB",
     "DE",
     "FR",
+    "IT",
+    "PT",
   ];
   return {
     markets,
@@ -45,6 +47,8 @@ export function loadEnv(): UnifiedEnv {
       GB: process.env.GB_STORE || "site-index-gb",
       DE: process.env.DE_STORE || "site-index-de",
       FR: process.env.FR_STORE || "site-index-fr",
+      IT: (process.env as any).IT_STORE || "site-index-it",
+      PT: (process.env as any).PT_STORE || "site-index-pt",
     },
     auth: {
       username:
@@ -56,6 +60,6 @@ export function loadEnv(): UnifiedEnv {
       enabled: process.env.INNGEST_ENABLE_INDEX !== "0",
       eventKey: process.env.INNGEST_EVENT_KEY,
     },
-    itemsSampleLimit: parseInt(process.env.CRAWLER_ITEMS_SAMPLE || "10", 10),
+    fullCrawlDays: parseInt(process.env.CRAWLER_FULL_CRAWL_DAYS || "14", 10),
   };
 }

@@ -1,12 +1,8 @@
 import type { AxiosInstance } from "axios";
 
-// Reuse proven legacy helpers for parity
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { fetchItemPage } = require("../../../item-crawler/fetch/fetchItemPage");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { extractDescription } = require("../../../item-crawler/parse/descriptionExtractor");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { extractLocationTokens } = require("../../../item-crawler/parse/extractLocationTokens");
+import { fetchItemPage } from "../../shared/fetch/fetchItemPage";
+import { extractDescription } from "../../shared/parse/descriptionExtractor";
+import { extractLocationTokens } from "../../shared/parse/extractLocationTokens";
 
 export interface ItemDescriptionResult {
   ok: boolean;
@@ -15,6 +11,7 @@ export interface ItemDescriptionResult {
   meta?: { length?: number; warnings?: string[] };
   ms?: number;
   error?: string;
+  html?: string;
 }
 
 export async function fetchItemDescription(
@@ -33,9 +30,10 @@ export async function fetchItemDescription(
       earlyAbort: true,
       earlyAbortMinBytes: 8192,
     });
-    const desc = extractDescription(page?.html || "");
+    const rawHtml = page?.html || "";
+    const desc = extractDescription(rawHtml);
     if (!desc || !desc.description) {
-      return { ok: false, refNum, error: "no_description", ms: page?.ms };
+      return { ok: false, refNum, error: "no_description", ms: page?.ms, html: rawHtml };
     }
     return {
       ok: true,
@@ -43,6 +41,7 @@ export async function fetchItemDescription(
       description: desc.description,
       meta: desc.meta,
       ms: page?.ms,
+      html: rawHtml,
     };
   } catch (e: any) {
     return { ok: false, refNum, error: e?.message || String(e) };
@@ -52,7 +51,7 @@ export async function fetchItemDescription(
 export interface LocationTokensResult {
   ok: boolean;
   refNum: string;
-  tokens?: Record<string, string>;
+  tokens?: { [k: string]: string };
   error?: string;
 }
 
@@ -63,8 +62,25 @@ export async function getLocationTokens(
 ): Promise<LocationTokensResult> {
   try {
     const { timeoutMs = 20_000 } = opts;
-    const page = await fetchItemPage({ client, refNum, timeout: timeoutMs, maxBytes: 80_000, earlyAbort: true, earlyAbortMinBytes: 8192 });
-    const tokens = extractLocationTokens(page?.html || "");
+    // First attempt: fast streaming fetch
+    let page = await fetchItemPage({ client, refNum, timeout: timeoutMs, maxBytes: 100_000, earlyAbort: true, earlyAbortMinBytes: 8192 });
+    let tokensObj = extractLocationTokens(page?.html || "");
+    let tokens: { [k: string]: string } | undefined = undefined;
+    if (tokensObj && (tokensObj._sourcePage || tokensObj.__fp)) {
+      tokens = {};
+      if (tokensObj._sourcePage) tokens._sourcePage = tokensObj._sourcePage;
+      if (tokensObj.__fp) tokens.__fp = tokensObj.__fp;
+    }
+    if (!tokens || Object.keys(tokens || {}).length === 0) {
+      // Fallback: full fetch (no early abort) to ensure hidden inputs are captured
+      page = await fetchItemPage({ client, refNum, timeout: timeoutMs, maxBytes: 180_000, earlyAbort: false });
+      tokensObj = extractLocationTokens(page?.html || "");
+      if (tokensObj && (tokensObj._sourcePage || tokensObj.__fp)) {
+        tokens = {};
+        if (tokensObj._sourcePage) tokens._sourcePage = tokensObj._sourcePage;
+        if (tokensObj.__fp) tokens.__fp = tokensObj.__fp;
+      }
+    }
     return { ok: true, refNum, tokens };
   } catch (e: any) {
     return { ok: false, refNum, error: e?.message || String(e) };

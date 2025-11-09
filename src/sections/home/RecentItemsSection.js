@@ -10,6 +10,8 @@ import { proxyImage } from "@/lib/images";
 import { timeAgo } from "@/lib/format";
 import { AnimatePresence, motion } from "framer-motion";
 import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
+import { useTranslations } from 'next-intl';
+import { relativeCompact } from "@/lib/relativeTimeCompact";
 
 function getInitials(name) {
   if (!name) return "?";
@@ -17,47 +19,38 @@ function getInitials(name) {
   return parts.slice(0, 2).map((p) => (p[0] || '').toUpperCase()).join("") || "?";
 }
 
-const fallbackItems = [
-  {
-    id: "placeholder-1",
-    name: "Freshly indexed cannabis flower",
-    sellerName: "Vendor pending",
-    category: "Flower",
-    createdAt: null,
-    url: null,
-    imageUrl: null,
-  },
-  {
-    id: "placeholder-2",
-    name: "New concentrates or extracts",
-    sellerName: "Vendor pending",
-    category: "Concentrates",
-    createdAt: null,
-    url: null,
-    imageUrl: null,
-  },
-  {
-    id: "placeholder-3",
-    name: "Recently crawled edibles",
-    sellerName: "Vendor pending",
-    category: "Edibles",
-    createdAt: null,
-    url: null,
-    imageUrl: null,
-  },
-];
+// Fallback items will be localized inside the component
+const FALLBACK_IDS = ["placeholder-1", "placeholder-2", "placeholder-3"];
 
 const tabs = [
-  { key: "added", label: "Recently added" },
-  { key: "updated", label: "Recently updated" },
+  { key: "added", label: "added" },
+  { key: "updated", label: "updated" },
 ];
 
 export default function RecentItemsSection({ items }) {
+  const tHome = useTranslations('Home');
   const { added = [], updated = [] } = items || {};
+  const tRel = useTranslations('Rel');
+  const localizedFallback = useMemo(() => {
+    const names = [
+      tHome('recentItems.fallback.items.0'),
+      tHome('recentItems.fallback.items.1'),
+      tHome('recentItems.fallback.items.2'),
+    ];
+    return FALLBACK_IDS.map((id, idx) => ({
+      id,
+      name: names[idx] || names[0],
+      sellerName: tHome('recentItems.fallback.sellerPending'),
+      category: idx === 0 ? 'Flower' : idx === 1 ? 'Concentrates' : 'Edibles',
+      createdAt: null,
+      url: null,
+      imageUrl: null,
+    }));
+  }, [tHome]);
   const fallbackMap = useMemo(() => ({
-    added: fallbackItems,
-    updated: fallbackItems,
-  }), []);
+    added: localizedFallback,
+    updated: localizedFallback,
+  }), [localizedFallback]);
 
   const [activeTab, setActiveTab] = useState("added");
   const [mounted, setMounted] = useState(false);
@@ -82,9 +75,9 @@ export default function RecentItemsSection({ items }) {
       <div className="mx-auto w-full px-4 sm:px-6 lg:px-12 xl:px-16 overflow-hidden">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500/80 dark:text-emerald-400/80">Fresh Activity</span>
-            <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">Recently indexed items</h2>
-            <p className="mt-3 text-sm text-slate-600 dark:text-white/70">See the latest, or most recently updated items on LittleBiggy.</p>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500/80 dark:text-emerald-400/80">{tHome('recentItems.label')}</span>
+            <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">{tHome('recentItems.title')}</h2>
+            <p className="mt-3 text-sm text-slate-600 dark:text-white/70">{tHome('recentItems.subtitle')}</p>
           </div>
           <div className="flex items-center justify-end gap-3">
             {tabs.map((tab) => {
@@ -101,7 +94,7 @@ export default function RecentItemsSection({ items }) {
                       : "border border-slate-300 text-slate-600 hover:border-emerald-400/60 hover:text-emerald-600 dark:border-white/15 dark:text-white/70 dark:hover:text-white"
                   )}
                 >
-                  {tab.label}
+                  {tHome(`recentItems.tabs.${tab.label}`)}
                 </button>
               );
             })}
@@ -198,10 +191,10 @@ export default function RecentItemsSection({ items }) {
                                 className="absolute inset-0 h-full w-full object-cover"
                               />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 dark:text-white/40">No image</div>
+                              <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 dark:text-white/40">{tHome('recentItems.noImage')}</div>
                             )}
                             <span className="absolute left-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white shadow-sm">
-                              {item.category || "New"}
+                              {item.category || tHome('recentItems.badge.new')}
                             </span>
                           </div>
                           <div className="flex flex-1 flex-col gap-3 px-4 py-4">
@@ -222,8 +215,8 @@ export default function RecentItemsSection({ items }) {
                               <div className="min-w-0">
                                 <div className="truncate font-semibold text-slate-700 dark:text-white/80">{item.sellerName}</div>
                                 <div className="text-[10px] text-slate-500 dark:text-white/60">
-                                  {(item.metaLabel || "Added")} {" "}
-                                  <span suppressHydrationWarning>{mounted && item.createdAt ? timeAgo(item.createdAt) : ""}</span>
+                                  {(item.metaLabel || tHome('recentItems.meta.added'))} {" "}
+                                  <span suppressHydrationWarning>{mounted && item.createdAt ? relativeCompact(item.createdAt, tRel) : ""}</span>
                                 </div>
                               </div>
                             </div>

@@ -1,5 +1,5 @@
 // Shared types for the unified crawler (stub)
-export type MarketCode = "GB" | "DE" | "FR";
+export type MarketCode = "GB" | "DE" | "FR" | "PT" | "IT";
 
 export interface ItemCore {
   id: string;

@@ -1,0 +1,63 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *, [data-theme=dark], [data-theme=dark] *));
+/*@source "..!**!*.{js,jsx,ts,tsx}";*/
+/*@source ".!**!*.{js,jsx,ts,tsx}";*/
+
+:root {
+	--background: #ffffff;
+	--foreground: #171717;
+	--font-heading: 'Lato', sans-serif;
+	--font-logo: var(--font-heading);
+	--font-price: var(--font-heading);
+	--font-body: 'Nunito Sans', sans-serif;
+	--footer-bg: #1e293b;
+}
+
+html[data-theme=dark] {
+	--footer-bg: #e9e9e9;
+}
+
+@theme {
+	/* Only extend fonts; keep Tailwind's default color tokens intact */
+	--font-sans: var(--font-geist-sans);
+	--font-mono: var(--font-geist-mono);
+	--breakpoint-3xl: 143.75rem; /* 2300px / 16 */
+	--breakpoint-4xl: 168.75rem; /* 2700px / 16 */
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background: #0a0a0a;
+		--foreground: #ededed;
+	}
+}
+
+html { 
+	color-scheme: light;
+	/* scroll-behavior: smooth; */
+}
+html[data-theme=dark] { --background: #050505; color-scheme: dark; }
+html[data-theme=light] { --background: #ffffff; color-scheme: light; }
+
+body {
+	background: var(--background);
+	color: var(--foreground);
+	/*font-family: var(--font-body);*/
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+/* Font utility classes */
+.font-heading { font-family: var(--font-heading); letter-spacing: -0.2px; }
+.font-logo { font-family: var(--font-logo); }
+.font-price { font-family: var(--font-price); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1, 'ss01' 1; }
+
+.contain-paint { contain: paint; }
+.gpu-smooth, .gpu-smooth * { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.gpu-smooth { transform: translateZ(0); will-change: opacity, transform; }
+.motion-img-fade { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+button { cursor: pointer; }
+
+/* Import element-level styles */
+@import "./elements/item-card.css";
+

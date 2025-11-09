@@ -3,6 +3,8 @@ import Head from 'next/head';
 import Home from './index';
 import { useSetAtom } from 'jotai';
 import { sellerAnalyticsOpenAtom } from '@/store/atoms';
+import { useLocale } from 'next-intl';
+import { hostForLocale } from '@/lib/routing';
 
 export async function getStaticProps() {
   return { props: {}, revalidate: 900 };
@@ -10,13 +12,15 @@ export async function getStaticProps() {
 
 export default function SellersPage() {
   const setOpen = useSetAtom(sellerAnalyticsOpenAtom);
+  const locale = useLocale();
+  const origin = hostForLocale(locale);
 
   useEffect(() => {
     // Open the Sellers Analytics modal on mount
     setOpen(true);
   }, [setOpen]);
 
-  const canonical = 'https://lbindex.vip/sellers';
+  const canonical = `${origin}/sellers`;
   const title = 'Sellers | Biggy Index';
   const description = 'Explore LittleBiggy seller performance: total reviews, positive rate, negatives, perfect 10/10s, average rating, and shipping times.';
   const jsonLd = {
@@ -30,7 +34,7 @@ export default function SellersPage() {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://lbindex.vip/' },
+  { '@type': 'ListItem', position: 1, name: 'Home', item: origin + '/' },
       { '@type': 'ListItem', position: 2, name: 'Sellers', item: canonical },
     ],
   };

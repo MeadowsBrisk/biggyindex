@@ -2,17 +2,23 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations, useFormatter } from 'next-intl';
+import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
 
-const numberFormatter = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
-
-function formatCount(value) {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return numberFormatter.format(value);
-  }
-  return value?.toString() ?? "0";
+function useCountFormatter() {
+  const format = useFormatter();
+  return (value) => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return format.number(value, { maximumFractionDigits: 0 });
+    }
+    return value?.toString?.() ?? '0';
+  };
 }
 
 export default function CategoryTooltip({ categoryName, subcategories, children }) {
+  const tCats = useTranslations('Categories');
+  const tSidebar = useTranslations('Sidebar');
+  const formatCount = useCountFormatter();
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
@@ -22,8 +28,13 @@ export default function CategoryTooltip({ categoryName, subcategories, children 
   const rafRef = useRef(null);
 
   // Convert subcategories object to sorted array
+  const parentKey = catKeyForManifest(categoryName);
+  const translatedCategory = safeTranslate(tCats, parentKey) || categoryName;
   const subcategoryList = Object.entries(subcategories || {})
-    .map(([name, count]) => ({ name, count: typeof count === 'number' ? count : 0 }))
+    .map(([name, count]) => ({
+      name: translateSubLabel(tCats, parentKey, subKeyForManifest(name)) || name,
+      count: typeof count === 'number' ? count : 0
+    }))
     .sort((a, b) => b.count - a.count);
 
   const hasSubcategories = subcategoryList.length > 0;
@@ -117,7 +128,7 @@ export default function CategoryTooltip({ categoryName, subcategories, children 
               >
                 <div className="relative rounded-xl border border-slate-200 bg-white/95 px-4 py-3 shadow-xl shadow-slate-900/15 backdrop-blur-md dark:border-white/20 dark:bg-slate-800/95 dark:shadow-black/40">
                   <div className="mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-emerald-600 dark:text-emerald-300">
-                    {categoryName} subcategories
+                    {translatedCategory} · {tSidebar('subcategories')}
                   </div>
                   <div className="grid max-h-[280px] grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300 dark:scrollbar-thumb-white/20">
                     {subcategoryList.map(({ name, count }) => (

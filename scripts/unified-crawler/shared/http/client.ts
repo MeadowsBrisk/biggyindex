@@ -38,6 +38,8 @@ export async function createCookieHttp(opts: {
     // Only treat 2xx as success; callers can override if needed
     validateStatus: (s) => s >= 200 && s < 300,
   });
+  // Expose jar on client for downstream reuse to avoid redundant logins
+  try { (client as any).__jar = jar; } catch {}
   // Opportunistically persist jar on process exit in long-lived envs (best-effort)
   try { process.on?.("beforeExit", () => { void saveCookieJar(jar); }); } catch {}
   return { client, jar };

@@ -12,12 +12,18 @@ import {
   exchangeRatesAtom,
   expandedRefNumAtom,
 } from '@/store/atoms';
-import { displayCurrencyAtom } from '@/store/atoms';
+// Legacy currency atom removed in favor of IntlProvider context
 import { changeBasketVariantAtom } from '@/store/atoms';
 import { useItemDetailLazy } from '@/hooks/useItemDetail';
 import { itemsAtom } from '@/store/atoms';
+import { useTranslations } from 'next-intl';
+import { useDisplayCurrency } from '@/providers/IntlProvider';
+import { currencySymbol, formatUSD, formatGBP } from '@/lib/priceDisplay';
+import { convertToGBP } from '@/hooks/useExchangeRates';
 
 export default function Basket() {
+  const t = useTranslations('Basket');
+  const { currency: ctxCurrency } = useDisplayCurrency();
   const [open, setOpen] = useState(false);
   const [origin, setOrigin] = useState('header'); // 'header' | 'fab'
   const items = useAtomValue(basketAtom) || [];
@@ -28,13 +34,23 @@ export default function Basket() {
   const clear = useSetAtom(clearBasketAtom);
   const rates = useAtomValue(exchangeRatesAtom) || {};
   const setRefNum = useSetAtom(expandedRefNumAtom);
-  const displayCurrency = useAtomValue(displayCurrencyAtom);
+  // Use IntlProvider currency (locale-driven) for Basket; avoids forcing GBP default
+  const chosenCurrency = (ctxCurrency || 'GBP');
   const itemsAll = useAtomValue(itemsAtom) || [];
   const changeVariant = useSetAtom(changeBasketVariantAtom);
-  const usdRate = typeof rates['USD'] === 'number' && rates['USD'] > 0 ? rates['USD'] : null;
+  const usdPerGbp = typeof rates['USD'] === 'number' && rates['USD'] > 0 ? rates['USD'] : null; // 1 GBP = usdPerGbp USD
+  const eurPerGbp = typeof rates['EUR'] === 'number' && rates['EUR'] > 0 ? rates['EUR'] : null; // 1 GBP = eurPerGbp EUR
   const headerBtnRef = useRef(null);
   const fabBtnRef = useRef(null);
   const [headerVisible, setHeaderVisible] = useState(true);
+
+  // Helpers: currency conversions
+  const toGBPFromUSD = useCallback((amountUSD) => {
+    if (typeof amountUSD !== 'number' || !isFinite(amountUSD)) return 0;
+    const gbp = convertToGBP(amountUSD, 'USD', rates);
+    // graceful fallback: treat as GBP until rates load
+    return gbp == null ? amountUSD : gbp;
+  }, [rates]);
 
   // badge pulse on count change
   const [pulse, setPulse] = useState(false);
@@ -125,9 +141,9 @@ export default function Basket() {
         )}
         aria-expanded={open}
         aria-controls="basket-panel"
-        title="Open basket"
+        title={t('open')}
       >
-        <span className="inline-block">Basket</span>
+        <span className="inline-block">{t('button')}</span>
         <span className={cn('ml-1 inline-flex items-center justify-center min-w-5 h-5 rounded-full text-xs px-1 font-bold transition', pulse ? 'animate-pulse bg-blue-600 text-white' : 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900')}>{count}</span>
       </button>
 
@@ -144,12 +160,12 @@ export default function Basket() {
             )}
           >
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">Your "Basket"</div>
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('header')}</div>
             <button
               type="button"
               onClick={() => clear()}
               className="text-xs text-red-600 dark:text-red-400 hover:underline"
-            >Clear</button>
+            >{t('clear')}</button>
           </div>
 
           <div className="p-3 space-y-4">
@@ -159,8 +175,8 @@ export default function Basket() {
                   key={(it.id ?? it.refNum ?? 'x') + '-' + (it.variantId ?? idx)}
                   it={it}
                   idx={idx}
-                  usdRate={usdRate}
-                  displayCurrency={displayCurrency}
+                  usdRate={usdPerGbp}
+                  rates={rates}
                   setQty={setQty}
                   removeItem={removeItem}
                   setRefNum={setRefNum}
@@ -177,29 +193,24 @@ export default function Basket() {
                 else if (typeof it?.priceGBP === 'number') itemsGbpLegacy += it.priceGBP * q;
               }
               const shipUsd = (g.includeShip && typeof g.shipUsd === 'number') ? g.shipUsd : 0;
-              const shipGbp = usdRate ? shipUsd / usdRate : shipUsd;
-              const itemsGbp = itemsGbpLegacy + (usdRate ? itemsUsd / usdRate : itemsUsd);
+              const shipGbp = toGBPFromUSD(shipUsd);
+              const itemsGbp = itemsGbpLegacy + toGBPFromUSD(itemsUsd);
               const totalGbp = itemsGbp + shipGbp;
-              const itemsDisplay = displayCurrency === 'USD'
-                ? (itemsUsd + (usdRate ? itemsGbpLegacy * usdRate : itemsGbpLegacy))
-                : itemsGbp;
-              const shipDisplay = displayCurrency === 'USD' ? shipUsd : shipGbp;
-              const totalDisplay = displayCurrency === 'USD' ? (itemsDisplay + shipDisplay) : totalGbp;
               return (
                 <fieldset key={gi} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
                   <legend className="px-2 text-xs uppercase tracking-wide text-gray-600 dark:text-gray-400">{g.sellerName}</legend>
                   <ul className="space-y-2 mb-2">{lines}</ul>
                   <div className="text-[12px] text-gray-600 dark:text-gray-300 flex items-center justify-between">
-                    <span>Items</span>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{displayCurrency === 'USD' ? `$${itemsDisplay.toFixed(2)}` : `£${itemsDisplay.toFixed(2)}`}</span>
+                    <span>{t('items')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{formatGBP(itemsGbp, chosenCurrency, rates, { decimals: 2 })}</span>
                   </div>
                   <div className="text-[12px] text-gray-600 dark:text-gray-300 flex items-center justify-between">
-                    <span>Shipping</span>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{displayCurrency === 'USD' ? `$${shipDisplay.toFixed(2)}` : `£${shipDisplay.toFixed(2)}`}</span>
+                    <span>{t('shipping')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{formatGBP(shipGbp, chosenCurrency, rates, { decimals: 2 })}</span>
                   </div>
                   <div className="mt-1 text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center justify-between">
-                    <span>Total (incl. shipping)</span>
-                    <span>{displayCurrency === 'USD' ? `$${totalDisplay.toFixed(2)}` : `£${totalDisplay.toFixed(2)}`}</span>
+                    <span>{t('totalIncl')}</span>
+                    <span>{formatGBP(totalGbp, chosenCurrency, rates, { decimals: 2 })}</span>
                   </div>
                 </fieldset>
               );
@@ -207,11 +218,10 @@ export default function Basket() {
           </div>
 
           <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <div className="text-sm text-gray-600 dark:text-gray-300">Grand total</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">{t('grandTotal')}</div>
             {(() => {
               // Recompute a display grand total consistent with group breakdowns
               let itemsUsd = 0, itemsGbpLegacy = 0, shipUsdTotal = 0;
-              const usdRate = typeof rates['USD'] === 'number' && rates['USD'] > 0 ? rates['USD'] : null;
               const groups = (() => {
                 const map = new Map();
                 for (const it of items) {
@@ -234,15 +244,13 @@ export default function Basket() {
                 }
                 if (g.includeShip && typeof g.shipUsd === 'number') shipUsdTotal += g.shipUsd;
               }
-              const itemsGbp = itemsGbpLegacy + (usdRate ? itemsUsd / usdRate : itemsUsd);
-              const totalGbp = itemsGbp + (usdRate ? shipUsdTotal / usdRate : shipUsdTotal);
-              const totalUsd = itemsUsd + (usdRate ? itemsGbpLegacy * usdRate : itemsGbpLegacy) + shipUsdTotal;
-              const display = displayCurrency === 'USD' ? `$${totalUsd.toFixed(2)}` : `£${totalGbp.toFixed(2)}`;
-              return <div className="text-base font-bold text-gray-900 dark:text-gray-100">{display}</div>;
+              const itemsGbp = itemsGbpLegacy + toGBPFromUSD(itemsUsd);
+              const totalGbp = itemsGbp + toGBPFromUSD(shipUsdTotal);
+              return <div className="text-base font-bold text-gray-900 dark:text-gray-100">{formatGBP(totalGbp, chosenCurrency, rates, { decimals: 2 })}</div>;
             })()}
           </div>
           <div className="px-4 py-2 text-[11px] text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
-            This is just a virtual basket for calculating costs. Follow the links to Biggy above.<br />
+            {t('virtualNote')}<br />
               {/*Actual costs may be slightly higher depending on */}
           </div>
           </div>
@@ -267,8 +275,8 @@ export default function Basket() {
             'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-100',
             'hover:bg-white dark:hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-gray-800'
           )}
-          aria-label="Open basket"
-          title="Open basket"
+          aria-label={t('open')}
+          title={t('open')}
         >
           <svg viewBox="0 0 24 24" className="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 10h12l-1.4 8H7.4L6 10z" />
@@ -286,7 +294,10 @@ export default function Basket() {
   );
 }
 
-function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, setRefNum, itemsAll, changeVariant }) {
+function BasketLine({ it, idx, usdRate, rates, setQty, removeItem, setRefNum, itemsAll, changeVariant }) {
+  const t = useTranslations('Basket');
+  const { currency: ctxCurrency } = useDisplayCurrency();
+  const displayCur = ctxCurrency || 'GBP';
   const [variantSelectorOpen, setVariantSelectorOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
@@ -299,9 +310,16 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
     : (typeof it?.priceGBP === 'number' ? it.priceGBP : 0);
   const q = typeof it?.qty === 'number' ? it.qty : 1;
   const lineGbp = unitGbp * q;
-  const lineDisplay = displayCurrency === 'USD'
-    ? (typeof it?.priceUSD === 'number' ? (it.priceUSD * q) : (typeof it?.priceGBP === 'number' && usdRate ? (it.priceGBP * usdRate * q) : (it.priceGBP * q)))
-    : lineGbp;
+  let lineDisplay;
+  if (displayCur === 'USD') {
+    lineDisplay = (typeof it?.priceUSD === 'number' ? (it.priceUSD * q) : (typeof it?.priceGBP === 'number' && usdRate ? (it.priceGBP * usdRate * q) : (it.priceGBP * q)));
+  } else if (displayCur === 'EUR') {
+    const eurPerGbp = (rates && typeof rates.EUR === 'number') ? rates.EUR : null;
+    const gbp = lineGbp;
+    lineDisplay = eurPerGbp ? gbp * eurPerGbp : gbp;
+  } else {
+    lineDisplay = lineGbp;
+  }
   const detailHref = it.refNum ? `/?ref=${encodeURIComponent(it.refNum)}` : '#';
   const biggyHref = it.biggyLink || null;
   const ref = it.refNum || it.id;
@@ -365,7 +383,7 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
         <a
           href={detailHref}
           className="shrink-0"
-          title="View details"
+          title={t('viewDetails')}
           onClick={(e) => {
             if (!it.refNum) return;
             e.preventDefault();
@@ -398,7 +416,7 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                 onClick={() => setVariantSelectorOpen(!variantSelectorOpen)}
                 className="text-[11px] text-blue-700 dark:text-blue-300 hover:underline cursor-pointer select-none"
               >
-                Change
+                {t('change')}
               </button>
               {mounted && variantSelectorOpen && createPortal(
                 <div 
@@ -412,14 +430,22 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
                   {variantList.map((v, vi) => {
                     const vid = v.id ?? vi;
                     const isActive = String(vid) === String(it.variantId);
-                    const desc = v.description || v.desc || `Variant ${vi + 1}`;
+                    const desc = v.description || v.desc || t('variant', { num: vi + 1 });
                     const baseAmount = typeof v.baseAmount === 'number' ? v.baseAmount : (typeof v.priceUSD === 'number' ? v.priceUSD : null);
                     // Convert to display currency
-                    const displayAmount = baseAmount != null
-                      ? (displayCurrency === 'USD' ? baseAmount : (usdRate ? baseAmount / usdRate : baseAmount))
-                      : null;
+                    let displayAmount = null;
+                    if (baseAmount != null) {
+                      if (displayCur === 'USD') displayAmount = baseAmount;
+                      else if (displayCur === 'EUR') {
+                        const gbp = usdRate ? baseAmount / usdRate : baseAmount;
+                        const eurPerGbp = (rates && typeof rates.EUR === 'number') ? rates.EUR : null;
+                        displayAmount = eurPerGbp ? gbp * eurPerGbp : gbp;
+                      } else {
+                        displayAmount = (usdRate ? baseAmount / usdRate : baseAmount);
+                      }
+                    }
                     const priceLabel = displayAmount != null
-                      ? (displayCurrency === 'USD' ? `$${displayAmount.toFixed(2)}` : `£${displayAmount.toFixed(2)}`)
+                      ? formatUSD(baseAmount, displayCur, rates, { decimals: 2 })
                       : null;
                     return (
                       <li key={vid}>
@@ -465,14 +491,14 @@ function BasketLine({ it, idx, usdRate, displayCurrency, setQty, removeItem, set
             onChange={(e) => setQty({ id: it.id ?? it.refNum, variantId: it.variantId, qty: Number(e.target.value) })}
             className="w-16 h-7 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2"
           />
-          <div className="ml-auto text-sm font-semibold text-gray-900 dark:text-gray-100">{displayCurrency === 'USD' ? `$${lineDisplay.toFixed(2)}` : `£${lineDisplay.toFixed(2)}`}</div>
+          <div className="ml-auto text-sm font-semibold text-gray-900 dark:text-gray-100">{formatGBP(lineGbp, displayCur, rates, { decimals: 2 })}</div>
         </div>
       </div>
       <button
         type="button"
         onClick={() => removeItem({ id: it.id ?? it.refNum, variantId: it.variantId })}
         className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
-        title="Remove"
+        title={t('remove')}
       >×</button>
     </li>
   );

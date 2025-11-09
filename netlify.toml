@@ -30,7 +30,6 @@
     "p-queue"
   ]
 
-## (Removed) Inngest plugin — unified crawler now uses Netlify schedules only
 
 # Local dev: proxy to the already-running Next.js dev server on port 3000
 [dev]
@@ -54,46 +53,48 @@
  #   ]
 
 ### Unified background stages (items and sellers) on separate schedules
-[functions."crawler-items-background"]
+#[functions."crawler-items-background"]
   # STAGING cadence: every 5 hours on the hour to avoid overlapping with live (which runs every 4h)
   # Do NOT change to 4h on staging; this is intentionally offset from production.
-  schedule = "0 */5 * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
-  [functions."crawler-items-background".environment]
-  CRAWLER_PERSIST = "blobs"
+  #schedule = "0 */5 * * *"
+  #node_bundler = "esbuild"
+  #included_files = [
+  #  "scripts/unified-crawler/**"
+  #]
+  #[functions."crawler-items-background".environment]
+  #CRAWLER_PERSIST = "blobs"
   # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
-  CRAWLER_UNIFIED_ITEMS = "0"
+  #CRAWLER_UNIFIED_ITEMS = "0"
 
-[functions."crawler-sellers-background"]
+#[functions."crawler-sellers-background"]
   # STAGING cadence: offset hours chosen to avoid overlapping with live (intentional non-alignment)
-  schedule = "0 2,6,10,13,18,22 * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
-  [functions."crawler-sellers-background".environment]
-  CRAWLER_PERSIST = "blobs"
+  #schedule = "0 2,6,10,13,18,22 * * *"
+  #node_bundler = "esbuild"
+  #included_files = [
+  #  "scripts/unified-crawler/**"
+  #]
+  #[functions."crawler-sellers-background".environment]
+  #CRAWLER_PERSIST = "blobs"
   # Default disabled; enable in Netlify UI when testing or use ?force=1 to trigger manually
-  CRAWLER_UNIFIED_SELLERS = "0"
+  #CRAWLER_UNIFIED_SELLERS = "0"
 
 [functions."crawler-control"]
   # Lightweight control plane for the crawler (set/clear stop flag)
   node_bundler = "esbuild"
 
-[functions."crawler-index"]
+##[functions."crawler-index"]
   # STAGING cadence: every 25 minutes to avoid matching live's 15-minute cadence
-  schedule = "*/25 * * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
-  [functions."crawler-index".environment]
-  CRAWLER_PERSIST = "blobs"
-  # Set to 1 when ready to cut over from legacy site-index
-  CRAWLER_UNIFIED_INDEX = "0"
+  #schedule = "*/25 * * * *"
+  #node_bundler = "esbuild"
+  #included_files = [
+  #  "scripts/unified-crawler/**"
+  #]
+  #[functions."crawler-index".environment]
+  #CRAWLER_PERSIST = "blobs"
+  ## Set to 1 when ready to cut over from legacy site-index
+  #CRAWLER_UNIFIED_INDEX = "0"
+
+
 
 # Orchestrator kept for manual triggers/dev; not scheduled to avoid overlap with stage-specific schedules
 [functions."crawler-all-markets-background"]

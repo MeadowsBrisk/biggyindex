@@ -1,117 +1,134 @@
-import type { MarketCode } from "../../shared/types";
+import type { MarketCode } from "../../shared/env/loadEnv";
 import type { AxiosInstance } from "axios";
 import { loadEnv } from "../../shared/env/loadEnv";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
 import { createCookieHttp } from "../../shared/http/client";
-import { saveCookieJar } from "../../shared/http/cookies";
-import { login } from "../../shared/auth/login";
 import { buildItemsWorklist as buildWorklist } from "../../shared/logic/dedupe";
-import { ensureAuthedClient, fetchFirstReviews } from "./reviews";
-import { fetchItemDescription } from "./details";
-import { extractMarketShipping } from "./shipping";
+import { computeIndexSignature } from "../../shared/logic/changes";
+import { buildItemImageLookupFromIndex } from "../../shared/aggregation/buildItemImageLookup";
+import { buildRecentItemsCompact } from "../../shared/aggregation/buildRecentItemsCompact";
 
 export interface ItemsGlobalResult {
   ok: boolean;
   markets: MarketCode[];
   counts: { itemsPlanned: number; uniqueItems: number; toCrawl: number };
-  sample?: Array<{ id: string; n?: string; market: MarketCode }>; // light sample for observability
 }
 
 export interface ItemsWorklist {
   uniqueIds: string[];
   toCrawl: Array<{ id: string; markets: string[] }>;
   alreadyHave: Array<{ id: string; markets: string[] }>;
-  sample: Array<{ id: string; n?: string; market: MarketCode }>;
   presenceMap: Map<string, Set<MarketCode>>;
   client: AxiosInstance;
+  idSig: Map<string, string>;
   counts: { itemsPlanned: number; uniqueItems: number; toCrawl: number };
 }
 
 /**
- * Build items worklist: authenticate, aggregate indexes, dedupe, create round-robin sample
+ * Build items worklist: aggregate indexes, dedupe, create round-robin sample (no auth needed here)
  */
 export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWorklist> {
   const env = loadEnv();
   const enabled = markets.filter((m) => env.markets.includes(m));
 
-  // Establish an authenticated client (reuses persisted cookies; logs in if creds set)
-  let jar: any | undefined;
-  let authedClientRef: any | undefined;
-  try {
-    const { client: authedClient, jar: j } = await ensureAuthedClient();
-    authedClientRef = authedClient;
-    // simple probe (best-effort)
-    try { await authedClient.get("https://littlebiggy.net/core/api/auth/profile", { timeout: 8000 }); } catch {}
-    jar = j;
-  } catch {}
-  try { if (jar) await saveCookieJar(jar); } catch {}
-
-  if (!authedClientRef) {
-    throw new Error("[items] Failed to establish authenticated client");
-  }
+  // Create a lightweight cookie-enabled HTTP client without logging in; actual auth happens per-item
+  const { client: anonClient } = await createCookieHttp({ headers: { "User-Agent": "UnifiedCrawler/Worklist" }, timeoutMs: 10000 });
 
   // Collect items from each market index
   let itemsPlanned = 0;
-  const indexes: Array<{ market: MarketCode; items: Array<{ id: string; n?: string }> }> = [];
+  const indexes: Array<{ market: MarketCode; items: Array<{ id: string; n?: string; raw?: any }> }> = [];
+  const tIdxStart = Date.now();
+  console.info(`[items] reading market indexes for ${enabled.length} markets...`);
   for (const code of enabled) {
     const storeName = (env.stores as any)[code];
     const blob = getBlobClient(storeName);
     const index = (await blob.getJSON<any[]>(Keys.market.index(code))) || [];
     const list = Array.isArray(index) ? index : [];
     itemsPlanned += list.length;
-    indexes.push({ market: code, items: list.map(it => ({ id: String(it?.id ?? it?.refNum ?? it?.ref ?? "").trim(), n: it?.n || it?.name })) });
+    indexes.push({ market: code, items: list.map(it => ({ id: String(it?.id ?? it?.refNum ?? it?.ref ?? "").trim(), n: it?.n || it?.name, raw: it })) });
+    console.info(`[items] ${code} index size=${list.length}`);
   }
+  console.info(`[items] indexes loaded in ${Math.max(0, Date.now() - tIdxStart)}ms; planned=${itemsPlanned}`);
 
   // Build presence map: itemId -> set of markets where this item appears
   const presenceById = new Map<string, Set<MarketCode>>();
+  const idSig = new Map<string, string>();
   for (const { market, items } of indexes) {
     for (const it of items) {
       const id = it.id;
       if (!id) continue;
       if (!presenceById.has(id)) presenceById.set(id, new Set());
       presenceById.get(id)!.add(market);
+      // Compute/update a global-ish signature from index entry
+      try {
+        const sig = computeIndexSignature(it.raw || {});
+        if (sig && (!idSig.has(id) || idSig.get(id) !== sig)) idSig.set(id, sig);
+      } catch {}
     }
+  }
+
+  // Build per-market item image lookup + recent-items compact (lightweight) once indexes are loaded.
+  // We generate image lookup and a compact recent-items aggregate for the front-end carousel.
+  try {
+  const MAX_RECENT = Number.parseInt(process.env.RECENT_ITEMS_LIMIT || '120', 10);
+    for (const { market, items } of indexes) {
+      const storeName = (env.stores as any)[market];
+      const blob = getBlobClient(storeName);
+      const lookup = buildItemImageLookupFromIndex(items.map(i => i.raw || i));
+      // Write lookup only if non-empty for clarity.
+      if (Object.keys(lookup.byRef).length || Object.keys(lookup.byId).length) {
+        await blob.putJSON(Keys.market.data.itemImageLookup(), lookup);
+        console.info(`[items] wrote item-image-lookup market=${market} byRef=${Object.keys(lookup.byRef).length} byId=${Object.keys(lookup.byId).length}`);
+      } else {
+        console.info(`[items] skip write empty item-image-lookup market=${market}`);
+      }
+
+      // Build compact recent items lists: recently added and recently updated
+      try {
+        const rawList = items.map(i => (i.raw || i) as any);
+        const payload = buildRecentItemsCompact(rawList, MAX_RECENT);
+        await blob.putJSON(Keys.market.data.recentItems(), payload);
+        console.info(`[items] wrote recent-items market=${market} added=${payload.added.length} updated=${payload.updated.length}`);
+      } catch (e: any) {
+        console.warn(`[items][warn] recent-items write failed market=${market} reason=${e?.message || e}`);
+      }
+    }
+  } catch (e: any) {
+    console.warn(`[items][warn] item-image-lookup write failed reason=${e?.message || e}`);
   }
 
   // Deduplicate across markets before any real crawl
   const sharedClient = getBlobClient(env.stores.shared);
-  const existingCoreKeys = await sharedClient.list("items/core/");
-  const existingCoreIds = new Set(
-    existingCoreKeys
-      .map((k) => (k.match(/^items\/core\/(.+)\.json$/)?.[1] || "").trim())
-      .filter(Boolean)
-  );
+  // Load existing IDs quickly via cached list if available; otherwise build once and cache
+  const tIdsStart = Date.now();
+  console.info(`[items] loading existing core IDs...`);
+  let existingCoreIds: Set<string>;
+  try {
+    const cached = await sharedClient.getJSON<string[]>(Keys.shared.itemIds());
+    if (Array.isArray(cached) && cached.length) {
+      existingCoreIds = new Set(cached.map((s) => String(s).trim()).filter(Boolean));
+    } else {
+      const existingCoreKeys = await sharedClient.list("items/");
+      const ids = existingCoreKeys
+        .map((k) => (k.match(/^items\/(.+)\.json$/)?.[1] || "").trim())
+        .filter(Boolean);
+      existingCoreIds = new Set(ids);
+      // Best-effort cache for future runs
+      try { await sharedClient.putJSON(Keys.shared.itemIds(), Array.from(existingCoreIds)); } catch {}
+    }
+  } catch {
+    // Fallback: try listing if cache read failed
+    const existingCoreKeys = await sharedClient.list("items/");
+    const ids = existingCoreKeys
+      .map((k) => (k.match(/^items\/(.+)\.json$/)?.[1] || "").trim())
+      .filter(Boolean);
+    existingCoreIds = new Set(ids);
+  }
+  console.info(`[items] existing IDs loaded: ${existingCoreIds.size} in ${Math.max(0, Date.now() - tIdsStart)}ms`);
   const work = buildWorklist({ indexes, existingCoreIds });
 
-  // Build round-robin sample across markets up to sampleLimit
-  const sampleLimit = Math.max(0, env.itemsSampleLimit || 0);
-  const sample: Array<{ id: string; n?: string; market: MarketCode }> = [];
-  if (sampleLimit > 0) {
-    const iters: Record<MarketCode, number> = Object.fromEntries(enabled.map((m) => [m, 0])) as any;
-    let progressed = true;
-    while (sample.length < sampleLimit && progressed) {
-      progressed = false;
-      for (const code of enabled) {
-        if (sample.length >= sampleLimit) break;
-        const marketEntry = indexes.find((e) => e.market === code);
-        if (!marketEntry) continue;
-        const i = iters[code] || 0;
-        if (i >= marketEntry.items.length) continue;
-        const it = marketEntry.items[i];
-        iters[code] = i + 1;
-        if (!it?.id) continue;
-        sample.push({ id: it.id, n: it.n, market: code });
-        progressed = true;
-      }
-    }
-  }
-
-  if (sample.length) {
-    console.info(`[items] sample (${sample.length}/${itemsPlanned})`, sample.map(s => `${s.market}:${s.id}`).join(", "));
-  } else {
-    console.info(`[items] planned only: ${itemsPlanned} (set CRAWLER_ITEMS_SAMPLE to log a small sample)`);
-  }
+  // Removed legacy sample-building logic; use explicit --limit in CLI when needed
 
   console.info(`[items] dedupe unique=${work.uniqueIds.length} toCrawl=${work.toCrawl.length} alreadyHave=${work.alreadyHave.length}`);
 
@@ -119,9 +136,9 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     uniqueIds: work.uniqueIds,
     toCrawl: work.toCrawl,
     alreadyHave: work.alreadyHave,
-    sample,
     presenceMap: presenceById,
-    client: authedClientRef,
+    client: anonClient,
+    idSig,
     counts: { itemsPlanned, uniqueItems: work.uniqueIds.length, toCrawl: work.toCrawl.length },
   };
 }

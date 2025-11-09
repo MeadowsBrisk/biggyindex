@@ -1,7 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import type { GetServerSideProps } from 'next';
-export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const origin = 'https://lbindex.vip';
+import { localeFromHost, hostForLocale, sellerPathSegment } from '@/lib/routing';
+export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
+  const host = req?.headers?.host || 'biggyindex.com';
+  const locale = localeFromHost(host);
+  const origin = hostForLocale(locale);
   let sellers: any[] = [];
   try {
     const mod = await import('@/lib/indexData');
@@ -11,12 +13,13 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   } catch {}
 
   const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const seg = sellerPathSegment(locale);
   const urls = sellers
     .map((s) => {
       const id = s?.id;
       if (id == null) return '';
       const lastmod = s?.lastUpdatedAt || null;
-      return `<url><loc>${origin}/seller/${escape(String(id))}</loc>${lastmod ? `<lastmod>${escape(lastmod)}</lastmod>` : ''}<changefreq>weekly</changefreq><priority>0.6</priority></url>`;
+      return `<url><loc>${origin}/${seg}/${escape(String(id))}</loc>${lastmod ? `<lastmod>${escape(lastmod)}</lastmod>` : ''}<changefreq>weekly</changefreq><priority>0.6</priority></url>`;
     })
     .filter(Boolean)
     .join('');

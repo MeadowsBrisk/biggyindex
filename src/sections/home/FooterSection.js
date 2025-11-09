@@ -4,11 +4,28 @@ import Link from "next/link";
 import RedditIcon from '@/app/assets/svg/reddit.svg';
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { useFormatter, useTranslations } from 'next-intl';
 
 export default function FooterSection({ lastCrawlTime, buildTime }) {
   const year = new Date().getFullYear();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const footerRef = useRef(null);
+  const format = useFormatter();
+  const tHome = useTranslations('Home');
+
+  const formattedLastCrawl = (() => {
+    if (!lastCrawlTime) return null;
+    const d = new Date(lastCrawlTime);
+    if (Number.isNaN(d.getTime())) return null;
+    return format.dateTime(d, { dateStyle: 'short', timeStyle: 'medium' });
+  })();
+
+  const formattedBuildTime = (() => {
+    if (!buildTime) return null;
+    const d = new Date(buildTime);
+    if (Number.isNaN(d.getTime())) return null;
+    return format.dateTime(d, { dateStyle: 'short', timeStyle: 'medium' });
+  })();
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -70,20 +87,20 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
               className="space-y-6"
             >
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-400 backdrop-blur dark:border-emerald-600/30 dark:bg-emerald-600/10 dark:text-emerald-700">
-                The Biggy Index
+                {tHome('footer.badge')}
               </div>
               <h2 className="text-3xl font-bold leading-tight sm:text-4xl max-w-sm">
-                Find what you're looking for.
+                {tHome('footer.title')}
               </h2>
               <p className="text-base leading-relaxed text-white/80 transition-colors duration-300 dark:text-slate-500 max-w-[27em]">
-                Explore thousands of listings from sellers on LittleBiggy, the marketplace for items under the principle of do no harm.
+                {tHome('footer.description')}
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-emerald-500/40"
                 >
-                  Browse items
+                  {tHome('footer.ctaBrowse')}
                   <span aria-hidden>→</span>
                 </Link>
               </div>
@@ -99,10 +116,10 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
             >
               <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition-colors duration-300 dark:border-slate-200/20 dark:bg-slate-900/5">
                 <span className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70 transition-colors duration-300 dark:text-slate-500">
-                  Community
+                  {tHome('footer.community.label')}
                 </span>
                 <p className="text-sm leading-relaxed text-white/80 dark:text-slate-500 max-w-sm">
-                  Join the conversation. Share experiences, ask questions, or check seller reputations.
+                  {tHome('footer.community.text')}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <Link
@@ -112,14 +129,14 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
                     className="group inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10 dark:border-slate-300/20 dark:bg-slate-900/5 dark:hover:border-slate-300/30 dark:hover:bg-slate-900/10"
                   >
                     <RedditIcon className="h-6 w-6 text-white/80 transition group-hover:text-white dark:text-slate-700 dark:group-hover:text-slate-900" />
-                    <span className="text-sm font-medium">Reddit</span>
+                    <span className="text-sm font-medium">{tHome('footer.community.reddit')}</span>
                   </Link>
                   <Link
                     href="https://littlebiggy.net/wall"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-lg font-semibold transition hover:border-white/20 hover:bg-white/10 dark:border-slate-300/20 dark:bg-slate-900/5 dark:hover:border-slate-300/30 dark:hover:bg-slate-900/10"
-                    title="LittleBiggy Wall"
+                    title={tHome('footer.community.wallTitle')}
                   >
               
 
@@ -136,12 +153,12 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
         {/* Bottom bar */}
         <div className="relative border-t border-white/10 px-6 py-6 text-center text-xs transition-colors duration-300 dark:border-slate-200/20">
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-white/60 dark:text-slate-500 sm:flex-row sm:justify-center">
-            <span>© {year} Biggy Index.</span>
-            {lastCrawlTime && (
-              <span className="opacity-80">Data last crawled: {new Date(lastCrawlTime).toLocaleString()}</span>
+            <span>{tHome('footer.meta.copyright', { year })}</span>
+            {formattedLastCrawl && (
+              <span className="opacity-80">{tHome('footer.meta.lastCrawled', { date: formattedLastCrawl })}</span>
             )}
-            {buildTime && (
-              <span className="opacity-70">Page refreshed: {new Date(buildTime).toLocaleString()}</span>
+            {formattedBuildTime && (
+              <span className="opacity-70">{tHome('footer.meta.pageRefreshed', { date: formattedBuildTime })}</span>
             )}
           </div>
         </div>
