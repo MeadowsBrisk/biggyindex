@@ -105,7 +105,10 @@
 
 
 [functions."crawler-index-gb"]
-  schedule = "2 */25 * * *" # GB at minute 2 of the 25-minute cadence
+  # Run every 30 minutes on the half-hour cadence
+  # Cron format: m h dom mon dow
+  # */30 in the minutes field = every 30 minutes
+  schedule = "*/30 * * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
