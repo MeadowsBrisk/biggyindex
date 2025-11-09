@@ -5,7 +5,7 @@
     "category": "Categoria",
     "price": "Preço",
     "sellers": "Vendedores",
-    "allSellers": "Todos os vendedores",
+    "allSellers": "Vendedores",
     "all": "Todos",
     "reviews": "Avaliações",
     "reset": "Repor",
@@ -353,5 +353,18 @@
     "telegram": "Telegram",
     "facebook": "Facebook",
     "email": "Email"
+  },
+  "ReviewStats": {
+    "title": "Estatísticas de avaliações",
+    "snapshot": "instantâneo",
+    "outOfTen": "de 10",
+    "avgArrival": "Chegada méd.",
+    "reviews": "Avaliações"
+  },
+  "Endorse": {
+    "cta": "Apoiar",
+    "already": "Já apoiado",
+    "usedToday": "Já usou o apoio de hoje",
+    "onePerDay": "Um apoio por dia"
   }
 }

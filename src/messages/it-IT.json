@@ -353,5 +353,18 @@
     "telegram": "Telegram",
     "facebook": "Facebook",
     "email": "E-mail"
+  },
+  "ReviewStats": {
+    "title": "Statistiche recensioni",
+    "snapshot": "istantanea",
+    "outOfTen": "su 10",
+    "avgArrival": "Arrivo medio",
+    "reviews": "Recensioni"
+  },
+  "Endorse": {
+    "cta": "Consiglia",
+    "already": "Già consigliato",
+    "usedToday": "Hai già usato la raccomandazione di oggi",
+    "onePerDay": "Una raccomandazione al giorno"
   }
 }

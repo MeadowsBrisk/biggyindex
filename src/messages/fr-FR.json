@@ -5,7 +5,7 @@
     "category": "Catégorie",
     "price": "Prix",
     "sellers": "Vendeurs",
-    "allSellers": "Tous les vendeurs",
+    "allSellers": "Vendeurs",
   "all": "Tous",
     "reviews": "Avis",
     "reset": "Réinitialiser",
@@ -353,5 +353,18 @@
     "telegram": "Telegram",
     "facebook": "Facebook",
     "email": "E-mail"
+  },
+  "ReviewStats": {
+    "title": "Stats d’avis",
+    "snapshot": "instantané",
+    "outOfTen": "sur 10",
+    "avgArrival": "arrivée moy.",
+    "reviews": "Avis"
+  },
+  "Endorse": {
+    "cta": "Recommander",
+    "already": "Déjà recommandé",
+    "usedToday": "Endossement du jour déjà utilisé",
+    "onePerDay": "Un endossement par jour"
   }
 }

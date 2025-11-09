@@ -352,5 +352,18 @@
     "telegram": "Telegram",
     "facebook": "Facebook",
     "email": "Email"
+  },
+  "ReviewStats": {
+    "title": "Review stats",
+    "snapshot": "snapshot",
+    "outOfTen": "out of 10",
+    "avgArrival": "Avg arrival",
+    "reviews": "Reviews"
+  },
+  "Endorse": {
+    "cta": "Endorse",
+    "already": "Already endorsed",
+    "usedToday": "You’ve already used today’s endorsement",
+    "onePerDay": "One endorsement per day"
   }
 }

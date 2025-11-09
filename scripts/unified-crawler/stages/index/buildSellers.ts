@@ -54,7 +54,6 @@ export function buildMarketSellers({
     const url = (sid != null) ? `https://littlebiggy.net/viewSubject/p/${String(sid)}` : null;
     out.push({
       id: sid ?? null,
-      sellerRef: null,
       name: sn,
       url,
       online,
