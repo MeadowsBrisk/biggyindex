@@ -13,6 +13,7 @@ import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSell
 import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { hostForLocale } from '@/lib/routing';
 import { getLocaleForMarket } from '@/lib/market';
+import { useLocale, useTranslations } from 'next-intl';
 
 const RECENT_ITEMS_LIMIT = 25;
 
@@ -237,8 +238,9 @@ export const getStaticProps: GetStaticProps<HomeLandingProps> = async () => {
 };
 
 const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems, recentReviews, recentMedia, sellersLeaderboard, sellersIndex }) => {
-  const locale = getLocaleForMarket('GB');
+  const locale = useLocale();
   const origin = hostForLocale(locale);
+  const tMeta = useTranslations('Meta');
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -304,16 +306,16 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
   return (
     <>
       <Head>
-        <title>The Biggy Index - UK Cannabis Listings</title>
-        <meta name="description" content="Browse LittleBiggy listings with a sleek interface, along with seller stats." />
+        <title>{tMeta('homeTitle')}</title>
+        <meta name="description" content={tMeta('homeDescription')} />
         <link rel="canonical" href={`${origin}/home`} />
-        <meta property="og:title" content="LittleBiggy Index - UK Cannabis Listings" />
-        <meta property="og:description" content="Browse LittleBiggy listings with a sleek interface, along with seller stats." />
+        <meta property="og:title" content={tMeta('homeTitle')} />
+        <meta property="og:description" content={tMeta('homeDescription')} />
         <meta property="og:url" content={`${origin}/home`} />
         <meta property="og:type" content="website" />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="LittleBiggy Index - UK Cannabis Listings" />
-        <meta property="twitter:description" content="Browse LittleBiggy listings with a sleek interface, along with seller stats." />
+        <meta property="twitter:title" content={tMeta('homeTitle')} />
+        <meta property="twitter:description" content={tMeta('homeDescription')} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />

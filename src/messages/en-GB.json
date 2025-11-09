@@ -365,5 +365,15 @@
     "already": "Already endorsed",
     "usedToday": "You’ve already used today’s endorsement",
     "onePerDay": "One endorsement per day"
+  },
+  "Meta": {
+    "indexTitle": "Biggy Index — items, sellers & reviews",
+    "indexDescription": "Explore LittleBiggy items across categories with seller stats, reviews, shipping info, and powerful filters.",
+    "homeTitle": "Biggy Index – UK Cannabis Listings",
+    "homeDescription": "Browse UK-focused LittleBiggy listings with categories, pricing, reviews, seller performance and recent media.",
+    "latestReviewsTitle": "Latest Reviews | Biggy Index",
+    "latestReviewsDescription": "See the most recent LittleBiggy buyer reviews: ratings, arrival times, media and item links.",
+    "sellersTitle": "Sellers | Biggy Index",
+    "sellersDescription": "Analyse LittleBiggy sellers: total reviews, positive rate, negatives, perfect 10/10s, average rating & shipping times."
   }
 }

@@ -366,5 +366,15 @@
     "already": "Già consigliato",
     "usedToday": "Hai già usato la raccomandazione di oggi",
     "onePerDay": "Una raccomandazione al giorno"
+  },
+  "Meta": {
+    "indexTitle": "Biggy Index — articoli, venditori e recensioni",
+    "indexDescription": "Esplora gli articoli LittleBiggy per categoria con statistiche venditori, recensioni, info spedizione e filtri potenti.",
+    "homeTitle": "Biggy Index – Inserzioni cannabis (IT)",
+    "homeDescription": "Sfoglia le inserzioni LittleBiggy con categorie, prezzi, recensioni, performance venditori e media recenti.",
+    "latestReviewsTitle": "Ultime recensioni | Biggy Index",
+    "latestReviewsDescription": "Vedi le recensioni recenti degli acquirenti LittleBiggy: valutazioni, tempi di arrivo, media e link agli articoli.",
+    "sellersTitle": "Venditori | Biggy Index",
+    "sellersDescription": "Analizza i venditori: totale recensioni, percentuale positive, negative, 10/10 perfette, valutazione media e tempi di spedizione."
   }
 }

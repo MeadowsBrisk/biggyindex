@@ -36,6 +36,7 @@ import InfoButton from '@/components/InfoButton';
 import Basket from '@/components/Basket';
 import ToastHost from '@/components/ToastHost';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
+import { hostForLocale } from '@/lib/routing';
 import LocaleSelector from '@/components/LocaleSelector';
 import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
@@ -54,6 +55,7 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
   const tList = useTranslations('List');
   const tSidebar = useTranslations('Sidebar');
   const tCats = useTranslations('Categories');
+  const tMeta = useTranslations('Meta');
   // Determine market: prefer host-based (subdomains) then path-based for localhost/dev
   const market = React.useMemo(() => {
     const path = typeof router?.asPath === 'string' ? router.asPath : (typeof router?.pathname === 'string' ? router.pathname : '/');
@@ -359,9 +361,9 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
     <>
       {!suppressDefaultHead && (
         <Head>
-          <title>Biggy Index — items, sellers, and reviews</title>
-          <meta name="description" content="Explore items across categories, compare sellers, and read reviews. Updated regularly with fresh data and community signals." />
-          <link rel="canonical" href="https://biggyindex.com/" />
+          <title>{tMeta('indexTitle')}</title>
+          <meta name="description" content={tMeta('indexDescription')} />
+          <link rel="canonical" href={hostForLocale(locale)} />
         </Head>
       )}
       <div className="mx-auto max-w-auto p-4">

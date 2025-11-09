@@ -2,6 +2,7 @@ import type { MarketCode } from "../../shared/env/loadEnv";
 import { loadEnv } from "../../shared/env/loadEnv";
 import { marketStore } from "../../shared/env/markets";
 import { getBlobClient } from "../../shared/persistence/blobs";
+import { seedMarketAnalyticsFromLegacy } from "../../shared/persistence/sellerAnalyticsMigration";
 import { Keys } from "../../shared/persistence/keys";
 import { ensureAuthedClient } from "../../shared/http/authedClient";
 
@@ -79,20 +80,23 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
   const blacklist = new Set<string>((blacklistRaw ? blacklistRaw.split(/[\s,]+/).filter(Boolean) : []).map(String));
   const skippedBlacklist: string[] = [];
   // Build candidate list by checking which sellers lack a profile or are stale/missing essential fields
+    const requireManifesto = /^(1|true|yes|on)$/i.test(String(process.env.SELLER_REQUIRE_MANIFESTO || '').trim());
     for (const [sid, meta] of sellerMeta.entries()) {
       if (blacklist.has(String(sid))) { skippedBlacklist.push(String(sid)); continue; }
       try {
         const existing = await sharedBlob.getJSON<any>(Keys.shared.seller(String(sid)));
-  const lastAt = existing?.lastEnrichedAt ? Date.parse(existing.lastEnrichedAt) : 0;
-  const stale = !Number.isFinite(lastAt) || (nowMs - (lastAt || 0)) > refreshMs;
-  // Treat missing manifesto (empty or absent), image, or share as essential -> re-enrich until present.
-  const manifestoMissing = !(typeof existing?.manifesto === 'string' && existing.manifesto.trim().length > 0);
-  const missingEssential = manifestoMissing || !existing?.imageUrl || !existing?.share;
-  if (!existing || stale || missingEssential) {
+        const lastAt = existing?.lastEnrichedAt ? Date.parse(existing.lastEnrichedAt) : 0;
+        const stale = !Number.isFinite(lastAt) || (nowMs - (lastAt || 0)) > refreshMs;
+        const manifestoMissing = !(typeof existing?.manifesto === 'string' && existing.manifesto.trim().length > 0);
+        // Essentials exclude manifesto unless explicitly required via env or record never enriched
+        const essentialMissing = !existing?.imageUrl || !existing?.share || (requireManifesto && manifestoMissing);
+        const shouldEnrich = !existing || stale || essentialMissing || (manifestoMissing && !existing?.lastEnrichedAt);
+        if (shouldEnrich) {
           toEnrich.push({ sid: String(sid), meta: { sellerId: String(sid), sellerName: meta?.sellerName, sellerUrl: meta?.sellerUrl } });
           if (toEnrich.length >= enrichLimit) break;
         }
       } catch {
+        // No existing profile -> enrich
         toEnrich.push({ sid: String(sid), meta: { sellerId: String(sid), sellerName: meta?.sellerName, sellerUrl: meta?.sellerUrl } });
         if (toEnrich.length >= enrichLimit) break;
       }
@@ -184,9 +188,8 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           }
           return null;
         }
-
-    // Attempt 1: be conservative—disable early abort to avoid truncating heavy pages
-    const html1 = await tryOnce(T1_MS, FB1_MS, { earlyAbort: false, maxBytes: 2_000_000, earlyAbortMinBytes: 16384 }, 't1');
+        // Attempt 1: quick with early abort
+        const html1 = await tryOnce(T1_MS, FB1_MS, { earlyAbort: true, maxBytes: 2_000_000, earlyAbortMinBytes: 8192 }, 't1');
         if (html1) return html1;
         // Attempt 2: 140s without early abort
     const tMain2 = Math.max(T2_MS, 160000);
@@ -194,7 +197,6 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
         console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] retry id=${id} tMain=${tMain2} tFallback=${tFallback2}`);
     const html2 = await tryOnce(tMain2, tFallback2, { earlyAbort: false, maxBytes: 3_500_000 }, 't2');
     if (html2) return html2;
-        // Attempt 3: 300s without early abort, very large byte budget
     const tMain3 = Math.max(T3_MS, 360000);
     const tFallback3 = Math.max(FB3_MS, 200000);
         console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] final retry id=${id} tMain=${tMain3} tFallback=${tFallback3}`);
@@ -373,6 +375,9 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
     for (const mkt of markets) {
       const storeName = marketStore(mkt, env.stores as any);
       const blobClient = getBlobClient(storeName);
+      // Determine active sellers in this market for filtering
+      const marketSellers = sellerItemsByMarket.get(mkt);
+      const activeSet = new Set<string>(marketSellers ? Array.from(marketSellers.keys()) : []);
       let existingAgg: any = null;
       try {
         existingAgg = await blobClient.getJSON<any>(Keys.market.aggregates.sellerAnalytics());
@@ -380,6 +385,17 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
         existingAgg = null;
       }
       if (!existingAgg) {
+        // Try to seed from legacy store filtered to active sellers
+        try {
+          const seeded = await seedMarketAnalyticsFromLegacy({ market: mkt, activeSellerIds: activeSet });
+          if (seeded) {
+            existingAgg = seeded;
+            console.log(`[crawler:sellers] legacy seed applied market=${mkt} sellers=${seeded.totalSellers}`);
+          }
+        } catch {}
+      }
+      if (!existingAgg) {
+        // Default empty scaffold
         existingAgg = { generatedAt: new Date().toISOString(), totalSellers: 0, dataVersion: 1, sellers: [] };
       }
       const existingById = new Map<string, any>();
@@ -388,8 +404,6 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           if (rec && rec.sellerId != null) existingById.set(String(rec.sellerId), rec);
         }
       } catch {}
-      const marketSellers = sellerItemsByMarket.get(mkt);
-      const activeSet = new Set<string>(marketSellers ? Array.from(marketSellers.keys()) : []);
       activeSellerIdsByMarket.set(mkt, activeSet);
       perMarketStates.set(mkt, {
         blob: blobClient,

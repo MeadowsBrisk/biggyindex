@@ -366,5 +366,15 @@
     "already": "Déjà recommandé",
     "usedToday": "Endossement du jour déjà utilisé",
     "onePerDay": "Un endossement par jour"
+  },
+  "Meta": {
+    "indexTitle": "Biggy Index — articles, vendeurs et avis",
+    "indexDescription": "Explorez les articles de LittleBiggy par catégories avec statistiques des vendeurs, avis, infos d’expédition et filtres puissants.",
+    "homeTitle": "Biggy Index – Annonces cannabis (FR)",
+    "homeDescription": "Parcourez les annonces LittleBiggy avec catégories, prix, avis, performances des vendeurs et médias récents.",
+    "latestReviewsTitle": "Derniers avis | Biggy Index",
+    "latestReviewsDescription": "Consultez les avis récents des acheteurs LittleBiggy : notes, délais d’arrivée, médias et liens vers les articles.",
+    "sellersTitle": "Vendeurs | Biggy Index",
+    "sellersDescription": "Analysez les vendeurs LittleBiggy : total d’avis, taux positifs, négatifs, 10/10, note moyenne et délais d’expédition."
   }
 }

@@ -366,5 +366,15 @@
     "already": "Já apoiado",
     "usedToday": "Já usou o apoio de hoje",
     "onePerDay": "Um apoio por dia"
+  },
+  "Meta": {
+    "indexTitle": "Biggy Index — artigos, vendedores e avaliações",
+    "indexDescription": "Explore artigos do LittleBiggy por categoria com estatísticas de vendedores, avaliações, info de envio e filtros poderosos.",
+    "homeTitle": "Biggy Index – Listagens de cannabis (PT)",
+    "homeDescription": "Navegue nas listagens do LittleBiggy com categorias, preços, avaliações, desempenho dos vendedores e média recente.",
+    "latestReviewsTitle": "Últimas avaliações | Biggy Index",
+    "latestReviewsDescription": "Veja as avaliações mais recentes dos compradores do LittleBiggy: classificações, tempos de chegada, media e links para os artigos.",
+    "sellersTitle": "Vendedores | Biggy Index",
+    "sellersDescription": "Analise os vendedores: total de avaliações, taxa positiva, negativas, 10/10 perfeitos, classificação média e tempos de envio."
   }
 }

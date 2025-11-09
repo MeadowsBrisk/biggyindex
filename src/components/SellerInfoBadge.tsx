@@ -35,8 +35,8 @@ export default function SellerInfoBadge({ sellerName, sellerUrl, sellerOnline, m
       return;
     }
     let cancelled = false;
-    // Load sellers for the explicit market (or default env market) exactly once; no cross-market fallback
-    loadSellersIndex(market)
+    // Load sellers index (environment infers market via middleware); cached per session
+    loadSellersIndex()
       .then(() => {
         if (cancelled) return;
         const fetched = getCachedSellerByName(lower);
