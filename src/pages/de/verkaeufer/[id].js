@@ -1,1 +1,1 @@
-export { default, getStaticProps } from '../../seller/[id]';
+export { default, getStaticProps, getStaticPaths } from '../../seller/[id]';
