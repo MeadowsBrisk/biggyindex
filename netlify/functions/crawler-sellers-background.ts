@@ -18,10 +18,10 @@ export const handler: Handler = async (event) => {
   try {
     // Guard: allow disabling via env; override with ?force=1
     const force = event?.queryStringParameters?.force === "1" || event?.queryStringParameters?.force === "true";
-    if (!force && process.env.CRAWLER_UNIFIED_SELLERS !== "1") {
-      log("disabled via CRAWLER_UNIFIED_SELLERS != 1; skipping");
-      return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) } as any;
-    }
+    // if (!force && process.env.CRAWLER_UNIFIED_SELLERS !== "1") {
+    //   log("disabled via CRAWLER_UNIFIED_SELLERS != 1; skipping");
+    //   return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) } as any;
+    // }
 
     if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
 

@@ -28,35 +28,102 @@ export function getBlobClient(storeName: string): BlobClient {
       : (persistMode === "auto" ? isNetlify || hasBlobsCreds : false);
 
   if (useBlobs) {
-    // Lazily import Netlify Blobs to avoid bundling issues in non-functions envs
+    // Lazily import Netlify Blobs to avoid bundling issues in non-functions envs.
+    // Memoize the store so concurrent calls reuse a single client instance.
+    let storePromise: Promise<any> | null = null;
     const getStore = async () => {
-      const mod = await import("@netlify/blobs");
-      // @ts-ignore - runtime API
-      const opts: any = { name: storeName };
-      // When running locally, explicitly pass creds if available
-      if (siteID && token) {
-        opts.siteID = siteID;
-        opts.token = token;
-      }
-      return mod.getStore(opts);
+      if (storePromise) return storePromise;
+      storePromise = (async () => {
+        const mod = await import("@netlify/blobs");
+        // @ts-ignore - runtime API
+        const opts: any = { name: storeName };
+        // IMPORTANT: When running inside Netlify, prefer implicit auth.
+        // Only pass explicit credentials outside Netlify (e.g., local CLI/CI).
+        if (!isNetlify && siteID && token) {
+          opts.siteID = siteID;
+          opts.token = token;
+        }
+        const store = await (mod as any).getStore(opts);
+        if (process.env.DEBUG_BLOBS === "1") {
+          // eslint-disable-next-line no-console
+          console.info(`[blobs] init store name=${storeName} mode=${isNetlify ? 'implicit' : (siteID && token ? 'explicit' : 'implicit')}`);
+        }
+        return store;
+      })();
+      return storePromise;
     };
     return {
       async getJSON<T>(key: string): Promise<T | null> {
-        const store = await getStore();
-        // @ts-ignore
-        const str = await store.get(key);
-        if (!str) return null;
-        try {
-          return JSON.parse(String(str)) as T;
-        } catch {
-          return null;
+        const maxAttempts = Number(process.env.BLOBS_RETRY_ATTEMPTS || 5);
+        const baseDelay = Number(process.env.BLOBS_RETRY_BASE_MS || 150);
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            const store = await getStore();
+            // @ts-ignore
+            const str = await store.get(key);
+            if (!str) return null;
+            try {
+              return JSON.parse(String(str)) as T;
+            } catch {
+              return null;
+            }
+          } catch (e: any) {
+            const msg = e?.message || String(e || '');
+            const status = (e && typeof e.status === 'number') ? (e.status as number) : (msg.match(/\b(\d{3})\b/) ? Number(msg.match(/\b(\d{3})\b/)![1]) : 0);
+            const retriable = status === 0 || status === 401 || status === 408 || status === 425 || status === 429 || (status >= 500 && status < 600);
+            if (retriable && attempt < maxAttempts) {
+              if (status === 401) {
+                // Recreate store once in case creds/implicit context changed
+                storePromise = null;
+              }
+              const delay = Math.min(2000, baseDelay * Math.pow(2, attempt - 1)) + Math.floor(Math.random() * 50);
+              if (process.env.DEBUG_BLOBS === "1") {
+                // eslint-disable-next-line no-console
+                console.warn(`[blobs] get retry ${attempt}/${maxAttempts} key=${key} status=${status} wait=${delay}ms`);
+              }
+              await new Promise((r) => setTimeout(r, delay));
+              continue;
+            }
+            return null; // non-retriable or exhausted
+          }
         }
+        return null;
       },
       async putJSON<T>(key: string, value: T): Promise<void> {
-        const store = await getStore();
         const body = JSON.stringify(value);
-        // @ts-ignore
-        await store.set(key, body, { contentType: "application/json" });
+        const maxAttempts = Number(process.env.BLOBS_RETRY_ATTEMPTS || 5);
+        const baseDelay = Number(process.env.BLOBS_RETRY_BASE_MS || 150);
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            const store = await getStore();
+            // @ts-ignore
+            await store.set(key, body, { contentType: "application/json" });
+            return;
+          } catch (e: any) {
+            const msg = e?.message || String(e || '');
+            const status = (e && typeof e.status === 'number') ? (e.status as number) : (msg.match(/\b(\d{3})\b/) ? Number(msg.match(/\b(\d{3})\b/)![1]) : 0);
+            const retriable = status === 0 || status === 401 || status === 408 || status === 425 || status === 429 || (status >= 500 && status < 600);
+            if (retriable && attempt < maxAttempts) {
+              if (status === 401) {
+                // Outside Netlify, try switching from explicit to implicit once.
+                if (!isNetlify && siteID && token) {
+                  storePromise = null;
+                } else {
+                  // Inside Netlify or no explicit creds: still recreate the store
+                  storePromise = null;
+                }
+              }
+              const delay = Math.min(4000, baseDelay * Math.pow(2, attempt - 1)) + Math.floor(Math.random() * 100);
+              if (process.env.DEBUG_BLOBS === "1") {
+                // eslint-disable-next-line no-console
+                console.warn(`[blobs] set retry ${attempt}/${maxAttempts} key=${key} status=${status} wait=${delay}ms`);
+              }
+              await new Promise((r) => setTimeout(r, delay));
+              continue;
+            }
+            throw e;
+          }
+        }
       },
       async list(prefix?: string): Promise<string[]> {
         const store = await getStore();
