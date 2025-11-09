@@ -1,6 +1,12 @@
 // Cloudflare Worker for Image Proxying
 // Deploy this at workers.cloudflare.com
-// Set route to: lbindex.vip/cf-image-proxy/*
+// Routes (add all that apply):
+//  - biggyindex.com/cf-image-proxy*
+//  - *.biggyindex.com/cf-image-proxy*
+//  - lbindex.vip/cf-image-proxy*            (legacy)
+//  - *.lbindex.vip/cf-image-proxy*          (staging/legacy)
+// If using a single apex for the proxy from all subdomains, configure the frontend env
+// NEXT_PUBLIC_CF_IMAGE_PROXY_BASE=https://biggyindex.com and route only the apex.
 
 export default {
   async fetch(request, env, ctx) {
@@ -22,7 +28,7 @@ export default {
       return new Response('Invalid URL', { status: 400 });
     }
 
-    // Check cache first
+  // Check cache first
     const cache = caches.default;
     const cacheKey = new Request(imageUrl, request);
     let response = await cache.match(cacheKey);

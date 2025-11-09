@@ -103,4 +103,11 @@
     "scripts/unified-crawler/**"
   ]
 
+
+[functions."crawler-index-gb"]
+  schedule = "2 */25 * * *" # GB at minute 2 of the 25-minute cadence
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
 ## (Removed) Inngest handler configuration and redirects

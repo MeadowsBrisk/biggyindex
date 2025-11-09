@@ -10,6 +10,12 @@ export const USE_CLOUDFLARE_FOR_JPEG: boolean = true;
 // - Skips local same-origin paths (/ or same host) to avoid needless round trip
 // - Uses Cloudflare Worker for GIFs/PNGs (no size limit, global edge cache)
 // - Uses Cloudflare Worker for JPGs/WebP when USE_CLOUDFLARE_FOR_JPEG=true; otherwise Serveproxy
+// Optional environment override so we can force a single Worker origin regardless of current browsing subdomain.
+// Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to e.g. https://biggyindex.com (apex) or staging host.
+const CF_IMAGE_PROXY_BASE = (typeof process !== 'undefined' && process.env && (process.env as any).NEXT_PUBLIC_CF_IMAGE_PROXY_BASE)
+  ? String((process.env as any).NEXT_PUBLIC_CF_IMAGE_PROXY_BASE).replace(/\/$/, '')
+  : 'https://biggyindex.com';
+
 export function proxyImage(url: string): string {
   if (!url || typeof url !== 'string') return url as any;
   // Skip root-relative or explicit same-origin URLs (poster assets, etc.)
@@ -30,10 +36,17 @@ export function proxyImage(url: string): string {
   try {
     // Decide Cloudflare base (dev uses production domain since worker isn't running locally)
     const getCfBase = (): string | null => {
-      if (typeof window === 'undefined') return null;
-      const host = window.location.hostname;
+      // Always prefer explicit env override (allows staging / preview builds to pin proxy zone)
+      if (CF_IMAGE_PROXY_BASE) return CF_IMAGE_PROXY_BASE;
+      if (typeof window === 'undefined') return null; // SSR fallback handled by env override above
+      const host = window.location.hostname.toLowerCase();
       const isDev = host === 'localhost' || host === '127.0.0.1';
-  return isDev ? 'https://biggyindex.com' : window.location.origin;
+      if (isDev) return CF_IMAGE_PROXY_BASE; // use apex in local dev
+      // For any biggyindex.com subdomain (fr., de., etc.) or legacy lbindex.vip domains, force apex
+      if (/\.biggyindex\.com$/.test(host) || host === 'biggyindex.com') return CF_IMAGE_PROXY_BASE;
+      if (/lbindex\.vip$/.test(host)) return CF_IMAGE_PROXY_BASE; // legacy + staging
+      // Fallback to current origin (other environments / previews)
+      return window.location.origin.replace(/\/$/, '');
     };
 
     // Use Cloudflare Worker for GIFs and PNGs (no size limit, global edge cache)
@@ -48,7 +61,7 @@ export function proxyImage(url: string): string {
     if (USE_CLOUDFLARE_FOR_JPEG) {
       const base = getCfBase();
       if (base) return `${base}/cf-image-proxy?url=${encodeURIComponent(url)}`;
-      return url;
+      return url; // no base determined; return original
     }
     // Legacy path: Serveproxy for JPGs/WebP (3MB limit)
     return `https://serveproxy.com/?url=${encodeURIComponent(url)}`;
