@@ -145,7 +145,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
   const FB2_MS = Number(process.env.SELLER_FALLBACK_T2_MS || 100000);
   const FB3_MS = Number(process.env.SELLER_FALLBACK_T3_MS || 180000);
 
-      async function fetchSellerHtml(id: string, _urlHint?: string): Promise<string | null> {
+  async function fetchSellerHtml(id: string): Promise<string | null> {
         // Prefer the proven legacy fetcher for robustness (streaming + early abort)
         // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { fetchSellerPage } = await import("../../shared/fetch/fetchSellerPage");
@@ -185,20 +185,20 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           return null;
         }
 
-        // Attempt 1: 60s with early abort; allow large page sizes
-        const html1 = await tryOnce(T1_MS, FB1_MS, { earlyAbort: true, maxBytes: 1_500_000, earlyAbortMinBytes: 8192 }, 't1');
+    // Attempt 1: be conservative—disable early abort to avoid truncating heavy pages
+    const html1 = await tryOnce(T1_MS, FB1_MS, { earlyAbort: false, maxBytes: 2_000_000, earlyAbortMinBytes: 16384 }, 't1');
         if (html1) return html1;
         // Attempt 2: 140s without early abort
-        const tMain2 = T2_MS;
-        const tFallback2 = FB2_MS;
+    const tMain2 = Math.max(T2_MS, 160000);
+    const tFallback2 = Math.max(FB2_MS, 120000);
         console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] retry id=${id} tMain=${tMain2} tFallback=${tFallback2}`);
-        const html2 = await tryOnce(tMain2, tFallback2, { earlyAbort: false, maxBytes: 3_000_000 }, 't2');
+    const html2 = await tryOnce(tMain2, tFallback2, { earlyAbort: false, maxBytes: 3_500_000 }, 't2');
     if (html2) return html2;
         // Attempt 3: 300s without early abort, very large byte budget
-        const tMain3 = T3_MS;
-        const tFallback3 = FB3_MS;
+    const tMain3 = Math.max(T3_MS, 360000);
+    const tFallback3 = Math.max(FB3_MS, 200000);
         console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] final retry id=${id} tMain=${tMain3} tFallback=${tFallback3}`);
-        const html3 = await tryOnce(tMain3, tFallback3, { earlyAbort: false, maxBytes: 5_000_000 }, 't3');
+    const html3 = await tryOnce(tMain3, tFallback3, { earlyAbort: false, maxBytes: 6_000_000 }, 't3');
     return html3;
       }
 
@@ -217,7 +217,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
         // Load existing profile to decide whether to refresh share
         let existingProfile: any = null;
         try { existingProfile = await sharedBlob.getJSON<any>(Keys.shared.seller(String(sid))); } catch {}
-  const html = await fetchSellerHtml(sid, entry.meta.sellerUrl);
+  let html = await fetchSellerHtml(sid);
   if (!html) { noHtml++; const msFail = Date.now() - t0; console.log(`[cli:seller:time] id=${sid} mode=enrich dur=${msFail}ms ${(msFail/1000).toFixed(2)}s ok=0`); return; }
         let imageUrl: string | null = null;
         let online: string | null = null;
@@ -235,7 +235,31 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           const fb = fallbackOnlineJoined(html);
           online = fb.online; joined = fb.joined;
         }
-        const man = extractManifesto(html);
+  let man = extractManifesto(html);
+        // Rescue: if manifesto empty, perform a single un-aborted, max-budget re-fetch
+        if (!man?.manifesto || man.manifesto.trim().length === 0) {
+          try {
+            const again = await (async () => {
+              const { fetchSellerPage } = await import("../../shared/fetch/fetchSellerPage");
+              const tMain = Math.max(T3_MS, 360000);
+              const tFallback = Math.max(FB3_MS, 200000);
+              const page: any = await withTimeout(
+                fetchSellerPage({ client: httpClient, sellerId: sid, timeout: tMain, maxBytes: 7_000_000, earlyAbort: false, earlyAbortMinBytes: 0 }),
+                Math.max(1000, tMain + 8000)
+              );
+              const h = (page && (page as any).html) || "";
+              if (h && h.length > (html?.length || 0)) return h;
+              // Fallback GETs with larger timeout
+              const hosts = ["https://littlebiggy.net", "https://www.littlebiggy.net"];
+              const res = await withTimeout(Promise.all(hosts.map((h0) => {
+                const u = `${h0}/viewSubject/p/${encodeURIComponent(String(sid))}`;
+                return httpClient.get(u, { responseType: 'text', timeout: tFallback }).then((r: any) => (typeof r?.data === 'string' ? r.data : null)).catch(() => null);
+              })), Math.max(1000, tFallback + 8000));
+              return res.find((s: any) => typeof s === 'string' && s.length > 500) || null;
+            })();
+            if (again) { html = again; man = extractManifesto(html || ''); }
+          } catch {}
+        }
         // Attempt share link only if missing or forced (no legacy fallbacks)
         let shareLink: string | null = null;
         let shareGenerated = false;
@@ -246,7 +270,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
         }
         try {
           if (httpClient && (!shareLink || forceShare)) {
-            const res = await fetchSellerShareLink({ client: httpClient, html, sellerId: sid, retry: true, redact: true });
+            const res = await fetchSellerShareLink({ client: httpClient, html: html || undefined, sellerId: sid, retry: true, redact: true });
             if (res?.link) { shareLink = res.link; shareGenerated = true; shareReused = false; }
           }
         } catch {}

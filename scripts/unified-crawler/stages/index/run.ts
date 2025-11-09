@@ -8,6 +8,7 @@ import { Keys } from "../../shared/persistence/keys";
 import { appendRunMeta } from "../../shared/persistence/runMeta";
 import { diffMarketIndexEntries } from "../../shared/logic/changes";
 import axios from "axios";
+import { buildMarketSellers } from "./buildSellers";
 import { createCookieHttp, warmCookieJar } from "../../shared/http/client";
 import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
 import { saveCookieJar } from "../../shared/http/cookies";
@@ -56,6 +57,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
 
   let itemsCount = 0;
   let rawItems: any[] = [];
+  let sellerReviewSummaries: Record<string, any> = {};
+  let itemReviewSummaries: Record<string, any> = {};
   let chosen: string | null = null;
   logger.info(`[index:${code}] Starting fetch: primary=${primaryUrl}${fallbackUrl ? " " : ""}`);
   // Build an axios client with cookie jar via shared HTTP factory
@@ -96,6 +99,15 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     const data = res.data;
     const message = data?.data?.message || data?.message || data;
     const items = message?.items || [];
+    // Extract review summaries when present
+    try {
+      const srs = (message as any)?.sellerReviewSummaries || (message as any)?.seller_review_summaries || (message as any)?.sellerReviews || null;
+      if (srs && typeof srs === 'object') sellerReviewSummaries = srs as Record<string, any>;
+    } catch {}
+    try {
+      const irs = (message as any)?.itemReviewSummaries || (message as any)?.item_review_summaries || null;
+      if (irs && typeof irs === 'object') itemReviewSummaries = irs as Record<string, any>;
+    } catch {}
     if (Array.isArray(items)) {
       itemsCount = items.length;
       rawItems = items;
@@ -353,6 +365,21 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     logger.warn(`[index:${code}] No items to write for ${indexKey}; leaving previous data intact.`);
   }
 
+  // Build per-market sellers.json via dedicated module (review stats + online flags)
+  const sellersKey = `sellers.json`;
+  let sellersList: Array<Record<string, any>> = [];
+  if (marketIndexItems.length > 0) {
+    sellersList = buildMarketSellers({ rawItems, marketIndexItems, sellerReviewSummaries });
+    writeTasks.push(
+      blob.putJSON(sellersKey, sellersList)
+        .then(() => logger.info(`[index:${code}] Wrote ${sellersKey} (${sellersList.length}).`))
+        .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${sellersKey}: ${e?.message || e}`))
+    );
+  } else {
+    logger.warn(`[index:${code}] Empty fetch; preserving previous ${sellersKey} if present.`);
+    try { sellersList = (await blob.getJSON<any[]>(sellersKey)) || []; } catch {}
+  }
+
   // Derive categories and manifest from the finalized marketIndexItems
   type Entry = Record<string, any>;
   const byCat = new Map<string, Entry[]>();
@@ -407,7 +434,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     const sid = (e as any).sid;
     if (sid != null) sellerIds.add(String(sid));
   }
-  const sellersCount = sellerIds.size;
+  const sellersCount = (Array.isArray(sellersList) && sellersList.length > 0) ? sellersList.length : sellerIds.size;
   const newManifest = {
     totalItems: (marketIndexItems as Entry[]).length,
     minPrice,
@@ -420,7 +447,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   if (shouldWriteManifest) {
     writeTasks.push(
       blob.putJSON(manifestKey, manifest)
-        .then(() => logger.info(`[index:${code}] Wrote ${manifestKey} (cats=${Object.keys(catObj).length}, sellers=${sellersCount}).`))
+  .then(() => logger.info(`[index:${code}] Wrote ${manifestKey} (cats=${Object.keys(catObj).length}, sellers=${sellersCount}).`))
         .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${manifestKey}: ${e?.message || e}`))
     );
   } else {
@@ -444,7 +471,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     await appendRunMeta(storeName, runMetaKey, {
       scope: String(code),
       counts: { items: itemsCount },
-      notes: { artifacts: ["snapshot_meta.json", "data/manifest.json", "indexed_items.json"], durationMs: durMs, source: snapshotMeta.source, version: snapshotMeta.version },
+      notes: { artifacts: ["snapshot_meta.json", "data/manifest.json", "indexed_items.json", "sellers.json"], durationMs: durMs, source: snapshotMeta.source, version: snapshotMeta.version },
     });
     logger.info(`[index:${code}] Appended run-meta (${durMs}ms) to ${runMetaKey}.`);
   } catch (e: any) {
@@ -454,11 +481,12 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   return {
     ok: true,
     market: code,
-    counts: { items: itemsCount, sellers: sellersCount },
+    counts: { items: itemsCount, sellers: sellersList.length || sellersCount },
     artifacts: [
       "snapshot_meta.json",
       "data/manifest.json",
       "indexed_items.json",
+      "sellers.json",
     ],
     snapshotMeta,
   };

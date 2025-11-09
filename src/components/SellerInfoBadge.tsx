@@ -16,8 +16,8 @@ function OnlineDot({ online }: { online: SellerOnlineFlag }) {
   );
 }
 
-type Props = { sellerName: string; sellerUrl?: string; sellerOnline?: SellerOnlineFlag };
-export default function SellerInfoBadge({ sellerName, sellerUrl, sellerOnline }: Props) {
+type Props = { sellerName: string; sellerUrl?: string; sellerOnline?: SellerOnlineFlag; market?: string };
+export default function SellerInfoBadge({ sellerName, sellerUrl, sellerOnline, market }: Props) {
   const openSeller = useSetAtom(expandedSellerIdAtom);
   const pushOverlay = useSetAtom(pushOverlayAtom);
   const [sellerId, setSellerId] = useState<number | string | null>(null);
@@ -35,7 +35,8 @@ export default function SellerInfoBadge({ sellerName, sellerUrl, sellerOnline }:
       return;
     }
     let cancelled = false;
-    loadSellersIndex()
+    // Load sellers for the explicit market (or default env market) exactly once; no cross-market fallback
+    loadSellersIndex(market)
       .then(() => {
         if (cancelled) return;
         const fetched = getCachedSellerByName(lower);
@@ -44,7 +45,7 @@ export default function SellerInfoBadge({ sellerName, sellerUrl, sellerOnline }:
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [sellerName]);
+  }, [sellerName, market]);
 
   const handleClick = useCallback((e: React.SyntheticEvent) => {
     e.preventDefault();
