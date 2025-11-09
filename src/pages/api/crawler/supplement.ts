@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const legacyPath = path.join(process.cwd(), 'public', 'item-crawler', 'index-supplement.js');

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs' };
 
 interface ErrorBody { error: string }
 

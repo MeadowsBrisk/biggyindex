@@ -4,7 +4,7 @@ import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { conditionalJSON } from '@/lib/http/conditional';
 import type { Market } from '@/lib/market';
 
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs' };
 
 function resolveCreated(created: any): string | null {
   if (!created) return null;

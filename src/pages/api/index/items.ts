@@ -3,7 +3,7 @@ import { getAllItems, getSnapshotMeta } from '@/lib/indexData';
 import type { Market } from '@/lib/market';
 import { conditionalJSON } from '@/lib/http/conditional';
 
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;

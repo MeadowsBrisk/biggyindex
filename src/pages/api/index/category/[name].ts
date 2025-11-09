@@ -3,7 +3,7 @@ import { getCategoryItems, getSnapshotMeta } from '@/lib/indexData';
 import { conditionalJSON } from '@/lib/http/conditional';
 import type { Market } from '@/lib/market';
 
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const name = (req.query as any).name || '';
