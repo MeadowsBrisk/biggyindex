@@ -123,7 +123,7 @@
 
 
 ### Unified background stages (items and sellers) on separate schedules
-#[functions."crawler-items-background"]
+[functions."crawler-items-background"]
   # STAGING cadence: every 5 hours on the hour to avoid overlapping with live (which runs every 4h)
   # Do NOT change to 4h on staging; this is intentionally offset from production.
   schedule = "0 */5 * * *"
@@ -137,7 +137,7 @@
   #CRAWLER_UNIFIED_ITEMS = "0"
 
   
-#[functions."crawler-sellers-background"]
+[functions."crawler-sellers-background"]
   # STAGING cadence: offset hours chosen to avoid overlapping with live (intentional non-alignment)
   schedule = "0 2,6,10,13,18,22 * * *"
   node_bundler = "esbuild"
