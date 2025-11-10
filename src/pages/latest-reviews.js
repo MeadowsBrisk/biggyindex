@@ -46,6 +46,10 @@ export default function LatestReviewsPage() {
   <title>{title}</title>
   <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />
+        {['en','de','fr','it','pt'].map(l => (
+          <link key={l} rel="alternate" href={`${hostForLocale(l)}/latest-reviews`} hrefLang={l} />
+        ))}
+        <link rel="alternate" href={`${hostForLocale('en')}/latest-reviews`} hrefLang="x-default" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
       </Head>

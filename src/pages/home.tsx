@@ -305,6 +305,10 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <title>{tMeta('homeTitle')}</title>
         <meta name="description" content={tMeta('homeDescription')} />
         <link rel="canonical" href={`${origin}/home`} />
+        {['en','de','fr','it','pt'].map(l => (
+          <link key={l} rel="alternate" href={`${hostForLocale(l)}/home`} hrefLang={l} />
+        ))}
+        <link rel="alternate" href={`${hostForLocale('en')}/home`} hrefLang="x-default" />
         <meta property="og:title" content={tMeta('homeTitle')} />
         <meta property="og:description" content={tMeta('homeDescription')} />
         <meta property="og:url" content={`${origin}/home`} />

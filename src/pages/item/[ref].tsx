@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Head from 'next/head';
-import type { GetStaticProps, GetStaticPaths, NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Home from '../index';
 import { useSetAtom } from 'jotai';
@@ -21,23 +21,23 @@ interface ItemRefPageProps {
   seo: ItemSEO | null;
 }
 
-export const getStaticProps: GetStaticProps<ItemRefPageProps> = async ({ params }) => {
-  const ref = typeof params?.ref === 'string' ? params.ref : null;
-  if (!ref) return { notFound: true };
-  const item = await loadItemForSEO(ref);
-  if (!item) return { notFound: true };
-  const seo: ItemSEO = {
-    ref,
-    name: item.name || '',
-    description: item.description || null,
-    imageUrl: item.imageUrl || null,
-    sellerName: item.sellerName || null,
-  };
-  return { props: { seo }, revalidate: 900 };
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  return { paths: [], fallback: 'blocking' };
+export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (ctx) => {
+  try {
+    const ref = typeof ctx.params?.ref === 'string' ? ctx.params.ref : null;
+    if (!ref) return { notFound: true };
+    const item = await loadItemForSEO(ref);
+    if (!item) return { notFound: true };
+    const seo: ItemSEO = {
+      ref,
+      name: item.name || '',
+      description: item.description || null,
+      imageUrl: item.imageUrl || null,
+      sellerName: item.sellerName || null,
+    };
+    return { props: { seo } };
+  } catch {
+    return { notFound: true };
+  }
 };
 
 const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
@@ -63,7 +63,9 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
   const sellerPrefix = seo?.sellerName ? `${seo.sellerName} · ` : '';
   const desc = (sellerPrefix + baseDesc).slice(0, 160);
 
-  const canonical = buildItemUrl(String(seo?.ref || ref || ''), locale);
+  const effectiveRef = String(seo?.ref || ref || '');
+  const canonical = buildItemUrl(effectiveRef, locale);
+  const altLocales = ['en','de','fr','it','pt'];
 
   return (
     <>
@@ -78,6 +80,10 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
         <meta name="twitter:title" content={title} />
         {desc && <meta name="twitter:description" content={desc} />}
         <link rel="canonical" href={canonical} />
+        {altLocales.map(l => (
+          <link key={l} rel="alternate" href={buildItemUrl(effectiveRef, l)} hrefLang={l} />
+        ))}
+        <link rel="alternate" href={buildItemUrl(effectiveRef, 'en')} hrefLang="x-default" />
         {seo?.imageUrl && <meta property="og:image" content={seo.imageUrl} />}
         <script
           type="application/ld+json"
@@ -109,6 +115,22 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
           }}
         />
       </Head>
+      {seo && (
+        <article className="mx-auto max-w-2xl px-4 py-6 border-b border-gray-200 dark:border-gray-700" itemScope itemType="https://schema.org/Product">
+          <h1 className="text-2xl font-semibold mb-2" itemProp="name">{seo.name}</h1>
+          {seo.sellerName && (
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              {tReviews('soldBy')} <span itemProp="brand">{seo.sellerName}</span>
+            </p>
+          )}
+          {desc && <p className="text-sm text-gray-700 dark:text-gray-400" itemProp="description">{desc}</p>}
+          {seo.imageUrl && (
+            <div className="mt-3">
+              <img src={seo.imageUrl} alt={seo.name} loading="lazy" className="max-h-64 w-auto rounded" itemProp="image" />
+            </div>
+          )}
+        </article>
+      )}
       <Home suppressDefaultHead />
     </>
   );

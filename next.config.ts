@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "lbindex.vip",
       },
+         {
+        protocol: "https",
+        hostname: "biggyindex.com",
+      },
     ],
   },
   webpack(config) {

@@ -364,6 +364,10 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
           <title>{tMeta('indexTitle')}</title>
           <meta name="description" content={tMeta('indexDescription')} />
           <link rel="canonical" href={hostForLocale(locale)} />
+          {['en','de','fr','it','pt'].map(l => (
+            <link key={l} rel="alternate" href={hostForLocale(l)} hrefLang={l} />
+          ))}
+          <link rel="alternate" href={hostForLocale('en')} hrefLang="x-default" />
         </Head>
       )}
       <div className="mx-auto max-w-auto p-4">

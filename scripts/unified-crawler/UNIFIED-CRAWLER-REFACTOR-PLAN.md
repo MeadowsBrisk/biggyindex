@@ -1424,6 +1424,7 @@ async function migrateToUnifiedState(market) {
 | DE | lbindex.de | biggyindex-de | site-index-de | MARKET=DE |
 | IT | lbindex.it | biggyindex-it | site-index-it | MARKET=IT |
 
+NOTE: using biggyindex.com / fr.biggyindex.com / de.biggyindex.com, etc now
 **Shared Codebase**: Single Next.js repo with market config
 
 ### 9.2 Market Configuration in Next.js

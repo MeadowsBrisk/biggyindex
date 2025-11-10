@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Head from 'next/head';
-import type { GetStaticProps, GetStaticPaths, NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Home from '../index';
 import { useSetAtom } from 'jotai';
@@ -29,23 +29,23 @@ function parseSellerId(idParam: string | string[] | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-export const getStaticProps: GetStaticProps<SellerIdPageProps> = async ({ params }) => {
-  const sellerId = parseSellerId(params?.id as string | string[] | undefined);
-  if (!sellerId) return { notFound: true };
-  const seller = await loadSellerForSEO(sellerId);
-  if (!seller) return { notFound: true };
-  const seo: SellerSEO = {
-    id: seller.id,
-    sellerName: seller.sellerName || null,
-    itemsCount: typeof seller.itemsCount === 'number' ? seller.itemsCount : null,
-    sellerImageUrl: seller.sellerImageUrl || null,
-    shareLink: seller.shareLink || null,
-  };
-  return { props: { seo }, revalidate: 900 };
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  return { paths: [], fallback: 'blocking' };
+export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (ctx) => {
+  try {
+    const sellerId = parseSellerId(ctx.params?.id as string | string[] | undefined);
+    if (!sellerId) return { notFound: true };
+    const seller = await loadSellerForSEO(sellerId);
+    if (!seller) return { notFound: true };
+    const seo: SellerSEO = {
+      id: seller.id,
+      sellerName: seller.sellerName || null,
+      itemsCount: typeof seller.itemsCount === 'number' ? seller.itemsCount : null,
+      sellerImageUrl: seller.sellerImageUrl || null,
+      shareLink: seller.shareLink || null,
+    };
+    return { props: { seo } };
+  } catch {
+    return { notFound: true };
+  }
 };
 
 const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
@@ -66,7 +66,9 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
     seo?.sellerName || null,
     typeof seo?.itemsCount === 'number' ? `${seo.itemsCount} ${tNav('items')}` : null,
   ].filter(Boolean).join(' • ');
-  const canonical = buildSellerUrl(String(seo?.id ?? sellerId ?? ''), locale);
+  const effectiveId = String(seo?.id ?? sellerId ?? '');
+  const canonical = buildSellerUrl(effectiveId, locale);
+  const altLocales = ['en','de','fr','it','pt'];
 
   return (
     <>
@@ -74,6 +76,10 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
         <link rel="canonical" href={canonical} />
+        {altLocales.map(l => (
+          <link key={l} rel="alternate" href={buildSellerUrl(effectiveId, l)} hrefLang={l} />
+        ))}
+        <link rel="alternate" href={buildSellerUrl(effectiveId, 'en')} hrefLang="x-default" />
         <meta property="og:url" content={canonical} />
         <meta property="og:title" content={title} />
         {description && <meta property="og:description" content={description} />}
@@ -112,6 +118,24 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
           }}
         />
       </Head>
+      {seo && (
+        <section className="mx-auto max-w-2xl px-4 py-6 border-b border-gray-200 dark:border-gray-700" itemScope itemType="https://schema.org/Organization">
+          <h1 className="text-2xl font-semibold mb-2" itemProp="name">{seo.sellerName || title}</h1>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+            {typeof seo.itemsCount === 'number' && (
+              <span itemProp="description">{seo.itemsCount} {tNav('items')}</span>
+            )}
+            {seo.shareLink && (
+              <a href={seo.shareLink} rel="nofollow noopener" className="underline text-emerald-600 dark:text-emerald-400" itemProp="url">LB profile</a>
+            )}
+          </div>
+          {seo.sellerImageUrl && (
+            <div className="mt-3">
+              <img src={seo.sellerImageUrl} alt={seo.sellerName || 'Seller'} loading="lazy" className="max-h-64 w-auto rounded" itemProp="image" />
+            </div>
+          )}
+        </section>
+      )}
       <Home suppressDefaultHead />
     </>
   );
