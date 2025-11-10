@@ -1,1 +1,0 @@
-export const RECENT_REVIEWS_LIMIT = 200;

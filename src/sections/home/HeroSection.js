@@ -6,12 +6,14 @@ import { fadeInUp } from "@/sections/home/motionPresets";
 import cn from "@/app/cn";
 import AnimatedLogoHeader from "@/components/AnimatedLogoHeader";
 import CategoryTooltip from "@/components/CategoryTooltip";
+import { useTranslations, useFormatter } from 'next-intl';
+import { useLocale } from '@/providers/IntlProvider';
+import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
 
-const numberFormatter = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
 
-function formatStat(value, fallback) {
+function formatStatNumber(format, value, fallback) {
   const n = typeof value === "number" && Number.isFinite(value) ? value : null;
-  if (n != null && n > 0) return numberFormatter.format(n);
+  if (n != null && n > 0) return format.number(n, { maximumFractionDigits: 0 });
   return fallback;
 }
 
@@ -47,8 +49,12 @@ function getSubcategoryCount(subcategories, target) {
 }
 
 export default function HeroSection({ stats }) {
-  const items = formatStat(stats?.items, "800+");
-  const sellers = formatStat(stats?.sellers, "180+");
+  const tHome = useTranslations('Home');
+  const tCats = useTranslations('Categories');
+  const format = useFormatter();
+  const { locale } = useLocale();
+  const items = formatStatNumber(format, stats?.items, "800+");
+  const sellers = formatStatNumber(format, stats?.sellers, "180+");
   const rawCategories = Object.entries(stats?.categories || {}).map(([name, info]) => {
     const subcategories = info && typeof info === "object" ? info.subcategories || {} : {};
     return {
@@ -103,6 +109,23 @@ export default function HeroSection({ stats }) {
 
   const categories = [...ordered, ...remaining].slice(0, desiredOrder.length);
 
+  // Precompute translated category/subcategory labels once (avoid hook usage inside loops and ensure DE translations load)
+  const translatedCategories = categories.map(entry => {
+    if (!entry) return entry;
+    const parentKey = catKeyForManifest(entry.parent || entry.name);
+    const isSub = entry.isSubcategory;
+    const displayName = isSub
+      ? translateSubLabel(tCats, catKeyForManifest(entry.parent || ''), subKeyForManifest(entry.name)) || entry.name
+      : (safeTranslate(tCats, catKeyForManifest(entry.name)) || entry.name);
+    return { ...entry, _displayName: displayName };
+  });
+
+  const listPrefix = (locale || 'en-GB').toLowerCase().startsWith('de') ? '/de'
+    : (locale || 'en-GB').toLowerCase().startsWith('fr') ? '/fr'
+    : (locale || 'en-GB').toLowerCase().startsWith('pt') ? '/pt'
+    : (locale || 'en-GB').toLowerCase().startsWith('it') ? '/it'
+    : '';
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900 transition-colors duration-300 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 dark:text-white">
       <motion.div {...fadeInUp({ distance: 20, trigger: "animate" })} className="absolute inset-0">
@@ -113,20 +136,22 @@ export default function HeroSection({ stats }) {
         <motion.div {...fadeInUp({ distance: 24, trigger: "animate" })} className="mx-auto max-w-2xl text-balance text-center lg:mx-0 lg:max-w-xl lg:text-left">
           <AnimatedLogoHeader className="justify-center text-slate-900 dark:text-white lg:justify-start" />
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80">
-            Find what you’re looking for
+            {tHome('hero.badge')}
           </span>
           <h1 className="mt-6 text-4xl font-bold leading-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
-            An index for the<br /> <span className="text-emerald-500">420</span> marketplace
+            {tHome.rich('hero.title', {
+              accent: (chunks) => <span className="text-emerald-500">{chunks}</span>
+            })}
           </h1>
           <p className="mt-5 mx-auto max-w-xl text-base text-slate-700 dark:text-white/75 sm:text-lg lg:mx-0">
-            Browse LittleBiggy faster with smarter search, tidy categories, and quick stats tailored for UK buyers.
+            {tHome('hero.subtitle')}
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
             <Link
-              href="/"
+              href={`${listPrefix || '/'}`}
               className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-6 py-3 text-base font-semibold text-slate-950 shadow-lg shadow-emerald-500/40 transition hover:-translate-y-0.5 hover:bg-emerald-400"
             >
-              Browse items
+              {tHome('hero.cta.browse')}
             </Link>
             <Link
               href="#quick-start"
@@ -135,7 +160,7 @@ export default function HeroSection({ stats }) {
                 "hover:border-emerald-400/50 hover:text-emerald-600 dark:hover:text-white"
               )}
             >
-              How it works
+              {tHome('hero.cta.how')}
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </Link>
           </div>
@@ -147,19 +172,22 @@ export default function HeroSection({ stats }) {
         >
           <dl className="space-y-5 text-sm text-slate-600 dark:text-white/65">
             <div className="flex items-center justify-between">
-              <span className="uppercase tracking-[0.18em] text-xs text-emerald-600 dark:text-emerald-300">Catalogue size</span>
+              <span className="uppercase tracking-[0.18em] text-xs text-emerald-600 dark:text-emerald-300">{tHome('hero.stats.catalogueSize')}</span>
               <span className="text-2xl font-semibold text-slate-900 dark:text-white">{items}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="uppercase tracking-[0.18em] text-xs text-emerald-600 dark:text-emerald-300">Active sellers</span>
+              <span className="uppercase tracking-[0.18em] text-xs text-emerald-600 dark:text-emerald-300">{tHome('hero.stats.activeSellers')}</span>
               <span className="text-2xl font-semibold text-slate-900 dark:text-white">{sellers}</span>
             </div>
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">Top categories</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">{tHome('hero.stats.topCategories')}</p>
               <div className="flex flex-wrap gap-2 text-xs">
-                {categories.map(({ name, count, parent, isSubcategory, subcategories }) => {
+                {translatedCategories.map(({ name, count, parent, isSubcategory, subcategories, _displayName }) => {
                   const emoji = CATEGORY_EMOJI_MAP[name.toLowerCase()] || "🔹";
-                  const title = isSubcategory && parent ? `${name} listings in ${parent}` : undefined;
+                  const parentKey = parent ? catKeyForManifest(parent) : null;
+                  const displayName = _displayName;
+                  const parentLabel = parentKey ? (safeTranslate(tCats, parentKey) || parent) : parent;
+                  const title = isSubcategory && parentLabel ? tHome('hero.tooltip.inParent', { name: displayName, parent: parentLabel }) : undefined;
                   return (
                     <CategoryTooltip key={name} categoryName={name} subcategories={subcategories}>
                       <span
@@ -167,8 +195,8 @@ export default function HeroSection({ stats }) {
                         className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 font-medium text-emerald-700 transition hover:bg-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-200 dark:hover:bg-emerald-500/25 cursor-pointer"
                       >
                         <span className="text-base">{emoji}</span>
-                        <span className="uppercase tracking-[0.18em]">{name}</span>
-                        <span className="text-xs text-emerald-500/80 dark:text-emerald-200/80">{formatStat(count, "–")}</span>
+                        <span className="uppercase tracking-[0.18em]">{displayName}</span>
+                        <span className="text-xs text-emerald-500/80 dark:text-emerald-200/80">{formatStatNumber(format, count, "–")}</span>
                       </span>
                     </CategoryTooltip>
                   );

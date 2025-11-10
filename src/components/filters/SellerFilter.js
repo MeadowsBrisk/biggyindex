@@ -10,8 +10,10 @@ import {
 } from "@/store/atoms";
 import cn from "@/app/cn";
 import FilterPinButton from "@/components/FilterPinButton";
+import { useTranslations } from 'next-intl';
 
 export default function SellerFilter() {
+  const t = useTranslations('Sidebar');
   const [items] = useAtom(itemsAtom);
   const [excluded, setExcluded] = useAtom(excludedSellersAtom);
   const [included, setIncluded] = useAtom(includedSellersAtom);
@@ -128,7 +130,7 @@ export default function SellerFilter() {
           )}
         >
           <span className="flex items-center justify-center gap-1.5">
-            Include
+            {t('include')}
             {included.length > 0 && (
               <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-1.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
                 {included.length}
@@ -142,7 +144,7 @@ export default function SellerFilter() {
                 asSpan
                 pinned={includedPinned} 
                 onToggle={() => setIncludedPinned(!includedPinned)} 
-                label="include sellers" 
+                label={t('includeSellersPin')} 
               />
             </div>
           )}
@@ -158,7 +160,7 @@ export default function SellerFilter() {
           )}
         >
           <span className="flex items-center justify-center gap-1.5">
-            Exclude
+            {t('exclude')}
             {excluded.length > 0 && (
               <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40 px-1.5 text-[10px] font-semibold text-red-700 dark:text-red-300">
                 {excluded.length}
@@ -172,7 +174,7 @@ export default function SellerFilter() {
                 asSpan
                 pinned={excludedPinned} 
                 onToggle={() => setExcludedPinned(!excludedPinned)} 
-                label="exclude sellers" 
+                label={t('excludeSellersPin')} 
               />
             </div>
           )}
@@ -199,7 +201,7 @@ export default function SellerFilter() {
                 setInput("");
               }
             }}
-            placeholder={`Type to ${mode} seller...`}
+            placeholder={mode === 'include' ? t('typeToIncludeSeller') : t('typeToExcludeSeller')}
           />
           <button
             type="button"
@@ -212,7 +214,7 @@ export default function SellerFilter() {
             onClick={() => add(input)}
             disabled={!input.trim()}
           >
-            Add
+            {t('add')}
           </button>
 
           {/* Suggestions dropdown - rendered via portal outside sidebar */}
@@ -224,9 +226,9 @@ export default function SellerFilter() {
             type="button"
             onClick={clearAll}
             className="shrink-0 rounded-md border border-gray-200 dark:border-gray-700 px-2.5 py-2 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            title={`Clear all ${mode}d sellers`}
+            title={mode === 'include' ? t('clearAllIncluded') : t('clearAllExcluded')}
           >
-            Clear
+            {t('clear')}
           </button>
         )}
       </div>
@@ -281,7 +283,7 @@ export default function SellerFilter() {
                 type="button"
                 className="ml-0.5 hover:opacity-70 transition-opacity"
                 onClick={() => remove(lower)}
-                aria-label={`Remove ${lower}`}
+                aria-label={t('removeSeller', { name: lower })}
               >
                 ×
               </button>
@@ -293,9 +295,7 @@ export default function SellerFilter() {
       {/* Empty state hint */}
       {!hasCurrentModeFilters && (
         <p className="text-[11px] text-gray-500 dark:text-gray-500">
-          {isIncludeMode 
-            ? "Only show items from specific sellers" 
-            : "Hide items from specific sellers"}
+          {isIncludeMode ? t('includeHint') : t('excludeHint')}
         </p>
       )}
     </div>

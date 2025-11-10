@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion, useAnimation } from 'framer-motion';
+import { useLocale } from '@/providers/IntlProvider';
 
 const TITLE = 'Biggy Index';
 
@@ -41,6 +42,23 @@ const charVariant = {
 export default function AnimatedLogoHeader({ className = '', rightSlot = null }) {
   const reduce = useReducedMotion();
   const braceControls = useAnimation();
+  const { locale } = useLocale();
+
+  const homeHref = React.useMemo(() => {
+    // If on production domain (biggyindex.com or subdomains), do not prefix by locale
+    try {
+      const host = typeof window !== 'undefined' ? window.location.hostname : '';
+      const isProdHost = host && (host === 'biggyindex.com' || host === 'www.biggyindex.com' || host.endsWith('.biggyindex.com'));
+      if (isProdHost) return '/home';
+    } catch {}
+    const l = (locale || 'en-GB').toLowerCase();
+    const prefix = l.startsWith('de') ? '/de'
+      : l.startsWith('fr') ? '/fr'
+      : l.startsWith('pt') ? '/pt'
+      : l.startsWith('it') ? '/it'
+      : '';
+    return `${prefix}/home`;
+  }, [locale]);
   React.useEffect(() => {
     // Compute total time for title letters to finish before starting braces
     if (reduce) {
@@ -66,7 +84,7 @@ export default function AnimatedLogoHeader({ className = '', rightSlot = null })
   }, [reduce, braceControls]);
   return (
   <header className={`flex items-center gap-3 mb-6 ${className}`}>
-      <Link href="/home" className="relative inline-flex h-10 w-7 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 rounded-md" aria-label="Go to homepage">
+  <Link href={homeHref} className="relative inline-flex h-10 w-7 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 rounded-md" aria-label="Go to homepage">
         <motion.div
           className="relative flex h-full w-full items-center justify-center select-none top-[-3px]"
           variants={wrapperVariants}

@@ -1,0 +1,1 @@
+export { default, getStaticProps, getStaticPaths } from '../../item/[ref]';

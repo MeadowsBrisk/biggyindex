@@ -1,5 +1,6 @@
 import React from 'react';
 import cn from '@/app/cn';
+import { useTranslations } from 'next-intl';
 
 export default function SellerIncludeExclude({
   isIncluded,
@@ -8,6 +9,7 @@ export default function SellerIncludeExclude({
   onToggleExclude,
   size = 'xs', // 'xs' for desktop, 'sm' for mobile
 }) {
+  const t = useTranslations('UI');
   const base = size === 'sm' ? 'w-6 h-6 text-[10px]' : 'w-6 h-6 text-xs';
   return (
     <div className="flex items-center gap-1">
@@ -15,8 +17,8 @@ export default function SellerIncludeExclude({
         type="button"
         onClick={onToggleInclude}
         aria-pressed={isIncluded}
-        title={isIncluded ? 'Remove include' : 'Include'}
-        aria-label={isIncluded ? 'Remove include for seller' : 'Include seller'}
+        title={isIncluded ? t('removeInclude') : t('include')}
+        aria-label={isIncluded ? t('removeInclude') : t('include')}
         className={cn(
           `inline-flex items-center justify-center rounded-full border cursor-pointer transition-colors shadow-sm ${base}`,
           isIncluded
@@ -30,8 +32,8 @@ export default function SellerIncludeExclude({
         type="button"
         onClick={onToggleExclude}
         aria-pressed={isExcluded}
-        title={isExcluded ? 'Remove exclude' : 'Exclude'}
-        aria-label={isExcluded ? 'Remove exclude for seller' : 'Exclude seller'}
+        title={isExcluded ? t('removeExclude') : t('exclude')}
+        aria-label={isExcluded ? t('removeExclude') : t('exclude')}
         className={cn(
           `inline-flex items-center justify-center rounded-full border cursor-pointer transition-colors shadow-sm ${base}`,
           isExcluded

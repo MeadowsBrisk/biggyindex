@@ -5,13 +5,19 @@
   "scripts": {
     "dev": "next dev",
     "index": "node scripts/indexer/index-items.js",
+    "uc": "tsx scripts/unified-crawler/cli.ts",
+    "uc:index": "tsx scripts/unified-crawler/cli.ts --stage=index",
+    "uc:items": "tsx scripts/unified-crawler/cli.ts --stage=items",
+    "uc:sellers": "tsx scripts/unified-crawler/cli.ts --stage=sellers",
+    "uc:pruning": "tsx scripts/unified-crawler/cli.ts --stage=pruning",
+    "uc:migrate-index-meta": "tsx scripts/unified-crawler/tools/migrate-index-metadata.ts",
+    "uc:all": "tsx scripts/unified-crawler/cli.ts --stage=all",
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
     "baseline": "node scripts/indexer/create-baseline.js",
     "baseline:update": "node scripts/indexer/create-baseline.js --update",
-    "test:index": "node scripts/indexer/test-all.js",
     "gifs": "node scripts/gif-processor/process-gifs.js",
     "crawl:items": "node scripts/item-crawler/crawl-items.js",
     "seo:validate": "node scripts/seo/validate-seo.js"
@@ -33,6 +39,7 @@
     "lucide-react": "^0.544.0",
     "motion": "^12.0.0",
     "next": "15.5.2",
+    "next-intl": "^4.4.0",
     "node-fetch": "^3.3.2",
     "p-queue": "^8.0.1",
     "puppeteer": "^22.7.0",
@@ -48,12 +55,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@netlify/functions": "^5.0.1",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/yargs": "^17.0.33",
     "tailwindcss": "^4",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

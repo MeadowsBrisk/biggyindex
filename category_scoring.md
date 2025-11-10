@@ -3,36 +3,37 @@
 Purpose: Central reference for how item names/descriptions are converted into (primary category, subcategories) plus rationale behind each heuristic. Future agents should read this first before altering taxonomy, rule ordering, or scoring weights.
 
 ## Repository File Map (Authoritative Sources)
-- Pipeline orchestrator: scripts/indexer/lib/categorize/pipeline.js
-- Rule files (executed in order – see RULE_SEQUENCE): scripts/indexer/lib/categorize/rules/*.js
-- Taxonomy (keywords & children): scripts/indexer/lib/taxonomy/baseTaxonomy.js
-- Precedence definition: scripts/indexer/lib/categorize/rules/90-precedenceResolution.js
-- ScoreBoard scaffold (not yet wired into rules): scripts/indexer/lib/categorize/scoreBoard.js
-- Index entrypoint (fetch + categorize + persist): scripts/indexer/index-items.js
-- Debug helper (manual classification): scripts/debug-categorize.js (reads pipeline)
-- Tests (regressions / rule behaviour): scripts/indexer/test-*.js
+- Pipeline orchestrator (TS parity): `scripts/unified-crawler/shared/categorization/pipeline.ts`
+- Rule files (executed in order – see RULE_SEQUENCE): `scripts/unified-crawler/shared/categorization/rules/*.ts`
+- Taxonomy (keywords & children): `scripts/unified-crawler/shared/categorization/baseTaxonomy.ts`
+- Precedence definition: `scripts/unified-crawler/shared/categorization/rules/90-precedenceResolution.ts`
+- Context / helpers (CatContext): `scripts/unified-crawler/shared/categorization/types.ts`
+- Facade export used by indexer stages: `scripts/unified-crawler/shared/categorization/index.ts`
+- Unified tests (regressions & aggregate): `scripts/unified-crawler/tests/categorization-regressions.ts`, `scripts/unified-crawler/tests/categorization-all.ts`
+- CLI entry to run tests: `scripts/unified-crawler/cli.ts --stage cat-tests`
 
 ## Pipeline Implementation (Exact Current ORDER)
-Extract from pipeline.js (RULE_SEQUENCE):
-1. baseKeywordsRule (01-baseKeywords.js)
-2. fallbackBoostsRule (03-fallbackBoosts.js)
-3. prerollRefinementRule (05b-prerollRefinement.js)
-4. psychedelicOverridesRule (04-psychedelicOverrides.js)
-5. ediblesVsFlowerDisambiguationRule (05-ediblesVsFlowerDisambiguation.js)
-6. hashEarlyOverridesRule (06-hashOverrides.js)
-7. medicalEarlyRule (09-medicalOverrides.js)
-8. concentrateEarlyOverridesRule (07-concentrateOverrides.js)
-9. antibioticLineageRule (09-medicalOverrides.js)
-10. vapeOverridesRule (08-vapeOverrides.js)
-11. templeBallsRule (06-hashOverrides.js)
-12. concentrateMidOverridesRule (07-concentrateOverrides.js)
-13. edibleSauceRefinementRule (07b-edibleSauceRefinement.js)
-14. ediblesFalsePositiveDemotionRule (10-ediblesFalsePositiveDemotion.js)
-15. seedsListingsRule (11-seedsListings.js)
-16. hashPrecedenceRule (06-hashOverrides.js)
-17. distillateBulkRefinementRule (07c-distillateBulkRefinement.js)
-18. concentrateLatePrecedenceRule (07-concentrateOverrides.js)
-19. precedenceResolutionRule (90-precedenceResolution.js)
+Extract from `pipeline.ts` (RULE_SEQUENCE):
+1. `baseKeywordsRule` (01-baseKeywords.ts)
+2. `fallbackBoostsRule` (03-fallbackBoosts.ts)
+3. `prerollRefinementRule` (05b-prerollRefinement.ts)
+4. `psychedelicOverridesRule` (04-psychedelicOverrides.ts)
+5. `ediblesVsFlowerDisambiguationRule` (05-ediblesVsFlowerDisambiguation.ts)
+6. `hashEarlyOverridesRule` (06-hashOverrides.ts)
+7. `medicalEarlyRule` (09-medicalOverrides.ts)
+8. `concentrateEarlyOverridesRule` (07-concentrateOverrides.ts)
+9. `antibioticLineageRule` (09-medicalOverrides.ts)
+10. `vapeOverridesRule` (08-vapeOverrides.ts)
+11. `templeBallsRule` (06-hashOverrides.ts)
+12. `concentrateMidOverridesRule` (07-concentrateOverrides.ts)
+13. `edibleSauceRefinementRule` (07b-edibleSauceRefinement.ts)
+14. `ediblesFalsePositiveDemotionRule` (10-ediblesFalsePositiveDemotion.ts)
+15. `seedsListingsRule` (11-seedsListings.ts)
+16. `hashPrecedenceRule` (06-hashOverrides.ts)
+17. `distillateBulkRefinementRule` (07c-distillateBulkRefinement.ts)
+18. `concentrateLatePrecedenceRule` (07-concentrateOverrides.ts)
+19. `otherParaphernaliaRule` (12-otherParaphernalia.ts)
+20. `precedenceResolutionRule` (90-precedenceResolution.ts)
 
 Do NOT reorder casually. New rules should normally slot just before late precedence stages (15–16) unless they refine a very early ambiguity (then near 2–5). Document any insertion here.
 
@@ -93,18 +94,12 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 - Spread/oil explicit cannabis qualifiers re-boost Edibles; special strong dominance for "cannabis coconut oil".
 - Updated ingestion forms include `tablet|tablets` to correctly recognize edible tablets.
 
-90-precedenceResolution.js
+90-precedenceResolution.ts
 - Final tie-breaking and Other guard (requires explicit Other keyword). Subcategories narrowed to chosen primary.
 
-## ScoreBoard (Current State & Integration Plan)
-File: lib/categorize/scoreBoard.js
-- Functions: add(cat, pts, reason), demote(cat, pts, reason), set, remove, importFinal, snapshot, trace.
-- NOT yet used inside rules; rules mutate plain scores object directly (historical parity constraint).
-- To integrate without behaviour change:
-    1. Create adapter in pipeline to wrap scores mutations (monkey patch set/add/demote) logging reasons.
-    2. Replace direct arithmetic (scores.X += N) with helper calls incrementally, running full regression tests after each batch.
-    3. Expose debug mode: runCategorizationPipeline(name, desc, { trace: true }) returning { primary, subcategories, trace }.
-- DO NOT partially convert a single rule file; convert whole rule to avoid missing reason lines.
+## Score Tracking
+Legacy ScoreBoard concept removed; pipeline mutates a simple score map for deterministic parity.
+Future enhancement: introduce optional trace layer wrapping `ctx.add/demote` without altering ordering.
 
 ## Taxonomy Structure Snapshot (baseTaxonomy.js)
 Parent Categories & notable child groups:
@@ -125,11 +120,10 @@ Notes:
 - Overlapping tokens (e.g. 'live resin', 'distillate') appear across categories to allow context disambiguation via later rules.
 - Tokens with embedded spaces or punctuation (e.g. "6*", " og ") rely on manual regex boundaries – test additions needed if modifying.
 
-## Divergences vs index_plan.md (Outdated Elements)
-- ScoreBoard not yet integrated into per-rule reasons (plan document envisioned usage earlier).
-- Separate child keyword rule file (02-childKeywords.js) not created; base + child scoring consolidated in 01-baseKeywords.js.
-- Proposed modular directories (env/, fetch/, persistence/, etc.) not all realized yet inside scripts/indexer/lib (some placeholders present but empty / future work).
-- Documentation now centralized here instead of docs/categorization.md (not yet created).
+## Divergences vs previous legacy JS layout
+- Unified TS pipeline replaces legacy JS files; ordering preserved.
+- Child keyword scoring consolidated in `01-baseKeywords.ts` (no separate 02 file).
+- Legacy debug helpers and ScoreBoard scaffold omitted for now; can be reintroduced as layered trace utilities.
 
 ## When Adding Tokens vs New Rule
 - Add token to taxonomy only if it is an unambiguous category indicator or a common variant spelling.
@@ -180,25 +174,7 @@ File: 03-fallbackBoosts.js
 - Mad honey: forces Other (+10) and strongly demotes Edibles (-8).
 
 ## Rule Sequence (Critical Ordering)
-Defined in pipeline.js (RULE_SEQUENCE) and must stay consistent for expected behaviour:
-1. baseKeywordsRule
-2. fallbackBoostsRule
-3. prerollRefinementRule
-4. psychedelicOverridesRule
-5. ediblesVsFlowerDisambiguationRule
-6. hashEarlyOverridesRule
-7. medicalEarlyRule
-8. concentrateEarlyOverridesRule
-9. antibioticLineageRule
-10. vapeOverridesRule
-11. templeBallsRule
-12. concentrateMidOverridesRule
-13. edibleSauceRefinementRule
-14. ediblesFalsePositiveDemotionRule
-15. hashPrecedenceRule
-16. concentrateLatePrecedenceRule
-17. distillateBulkRefinementRule
-18. precedenceResolutionRule (final selection)
+See pipeline.ts list (20 rules). Changing insertion points affects regression cases; slot new refinements before late precedence adjustments unless they address early ambiguity.
 
 Changing insertion points can indirectly affect dozens of regression cases—add new narrow rules close to their most related existing stage (usually before late precedence adjustments).
 
@@ -358,19 +334,7 @@ These are not yet codified in tests; recommended to add a new test file (e.g. te
 - Mad honey forced to Other no matter edible-like tokens.
 
 ## Testing Strategy
-Current test files (scripts/indexer/):
-- test-flower-refine.js (targeted Flower expectation mapping)
-- test-categorize-flower.js (sample Flower outputs)
-- test-misclassifications.js (legacy base set)
-- test-mushroom-edibles.js (psychedelic edible disambiguation)
-- test-vape-overrides.js
-- test-parse.js (quantity parsing; orthogonal)
-- test-regress-flower-misclassifications.js (initial correction batch)
-- test-preroll-refinement.js
-- test-new-regressions.js (flavour packs, mad honey, sugar/crystal strains, chocolate bars)
-- test-edible-sauce-refinement.js
-
-Gap: No unified single source test aggregator referencing one canonical array of test cases (suggested improvement). test-all.js currently runs a fixed list—extend it when adding new test files.
+Unified test sources (scripts/unified-crawler/tests): `categorization-regressions.ts` (minimal parity) and `categorization-all.ts` (expanded aggregate). Extend aggregate suite for new regression scenarios.
 
 ## Adding a New Rule – Checklist
 1. Write failing test(s) first capturing real-world misclassification examples.
@@ -421,9 +385,9 @@ Gap: No unified single source test aggregator referencing one canonical array of
 
 ---
 Maintainer Note: Update this file whenever you:
-- Introduce a new rule file
-- Change scoring weights
-- Expand taxonomy with ambiguous tokens
-- Add a new class of regression tests
+- Introduce / reorder a rule
+- Change scoring weights or regex guards
+- Expand taxonomy with ambiguous / polysemy tokens
+- Add / retire regression suites
 
 Failure to keep this document in sync will increase future rule brittleness and regression risk.

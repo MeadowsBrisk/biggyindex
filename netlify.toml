@@ -30,76 +30,114 @@
     "p-queue"
   ]
 
+
+# Local dev: proxy to the already-running Next.js dev server on port 3000
+[dev]
+  # Proxy to an already-running Next.js dev server on port 3000
+  targetPort = 3000
+  port = 8888
+
 # Functions (Next.js pages/api are auto-detected)
 # Add any specific function configuration overrides here if needed in future.
 
-[functions."site-index"]
+#[functions."site-index"]
   # Run the indexing function every 10 minutes (on the hour and half past)
-  schedule = "*/15 * * * *"
+  #schedule = "*/15 * * * *"
   # Ensure the raw script & its data file are packaged with the function so spawning works.
-  included_files = [
-  "scripts/indexer/**",
+  # included_files = [
+  #"scripts/indexer/**",
   # Include aggregated supplement so embedAggregates can require it at runtime on Netlify (outdated: exclusively using Blobs rather than FS now)
-  "public/item-crawler/index-supplement.js",
+  #"public/item-crawler/index-supplement.js",
   # If you generate per-run artifacts (debug, items, share-links), you can optionally include them too:
   # "public/item-crawler/**"
-    ]
-
-[functions."item-crawler-background"]
-  # Schedule the long-running background crawler instead of the sync function
-  schedule = "55 1/4 * * *"
-  node_bundler = "esbuild"
-  [functions."item-crawler-background".environment]
-  CRAWLER_PERSIST = "blobs"
-  CRAWLER_BLOBS_PREFIX = "item-crawler/"
-  #CRAWLER_ALT_BLOBS_PREFIX = "data/item-crawler/"
-  CRAWLER_MIGRATE_EAGER = "false"
-  CRAWLER_BLOBS_AUTH = "explicit"
-  #CRAWLER_MIGRATE_SEED_LIMIT = "25"
-  #CRAWLER_MAX_PARALLEL = "1"
-  included_files = [
-    "scripts/item-crawler/crawl-items.js",
-    "scripts/item-crawler/fetch/**",
-    "scripts/item-crawler/parse/**",
-    "scripts/item-crawler/persistence/**",
-    "scripts/item-crawler/util/**",
-    "scripts/item-crawler/env/**",
-    "public/indexed_items.json",
-    "node_modules/p-queue/**"
-  ]
-
-[functions."seller-crawler-background"]
-  # Background seller crawler runs every 4 hours, offset from item crawler by 1h
-  schedule = "0 */4 * * *"
-  #schedule = "*/30 * * * *"
-
-  node_bundler = "esbuild"
-  [functions."seller-crawler-background".environment]
-  CRAWLER_PERSIST = "blobs"
-  SELLER_CRAWLER_PERSIST = "blobs"
-  SELLER_CRAWLER_BLOBS_PREFIX = "seller-crawler/"
-  CRAWLER_BLOBS_PREFIX = "seller-crawler/"
-  CRAWLER_BLOBS_AUTH = "explicit"
-  SELLER_CRAWLER_MAX_PARALLEL = "5"
-  SELLER_CRAWLER_REVIEW_REFRESH_HOURS = "4"
-  included_files = [
-    "scripts/seller-crawler/crawl-sellers.js",
-    "scripts/seller-crawler/aggregation/**",
-    "scripts/seller-crawler/env/**",
-    "scripts/seller-crawler/fetch/**",
-    "scripts/seller-crawler/parse/**",
-    "scripts/seller-crawler/persistence/**",
-    "scripts/seller-crawler/util/**",
-    "scripts/item-crawler/auth/**",
-    "scripts/item-crawler/fetch/httpClient.js",
-    "scripts/item-crawler/persistence/blobStore.js",
-    "scripts/item-crawler/persistence/cookieStore.js",
-    "scripts/item-crawler/persistence/stateStore.js",
-    "scripts/item-crawler/util/logger.js",
-    "scripts/item-crawler/util/delay.js",
-    "node_modules/p-queue/**"
-  ]
+ #   ]
 
 [functions."crawler-control"]
   # Lightweight control plane for the crawler (set/clear stop flag)
   node_bundler = "esbuild"
+
+##[functions."crawler-index"]
+  # STAGING cadence: every 25 minutes to avoid matching live's 15-minute cadence
+  #schedule = "*/25 * * * *"
+  #node_bundler = "esbuild"
+  #included_files = [
+  #  "scripts/unified-crawler/**"
+  #]
+  #[functions."crawler-index".environment]
+  #CRAWLER_PERSIST = "blobs"
+  ## Set to 1 when ready to cut over from legacy site-index
+  #CRAWLER_UNIFIED_INDEX = "0"
+
+
+
+# Orchestrator kept for manual triggers/dev; not scheduled to avoid overlap with stage-specific schedules
+[functions."crawler-all-markets-background"]
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+
+[functions."crawler-index-gb"]
+  # Run every 20 minutes (baseline cadence) on :00, :20, :40
+  # Cron format: m h dom mon dow
+  # */20 in the minutes field = every 20 minutes
+  schedule = "*/20 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+# Staggered per-market indexers: each runs every 30 minutes, offset by 1 minute to avoid overlap
+[functions."crawler-index-fr"]
+  # Staggered: every 20 minutes offset at :01, :21, :41 to avoid overlap with GB
+  schedule = "1,21,41 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+[functions."crawler-index-de"]
+  # Staggered: every 20 minutes offset at :02, :22, :42
+  schedule = "2,22,42 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+[functions."crawler-index-it"]
+  # Staggered: every 20 minutes offset at :03, :23, :43
+  schedule = "3,23,43 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+[functions."crawler-index-pt"]
+  # Staggered: every 20 minutes offset at :04, :24, :44
+  schedule = "4,24,44 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+
+### Unified background stages (items and sellers) on separate schedules
+[functions."crawler-items-background"]
+  # Updated cadence: every 4 hours starting at midnight (0,4,8,12,16,20)
+  schedule = "0 0,4,8,12,16,20 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+  #[functions."crawler-items-background".environment]
+  #CRAWLER_PERSIST = "blobs"
+
+  
+[functions."crawler-sellers-background"]
+  # Updated cadence: every 4 hours offset from items (2,6,10,14,18,22)
+  schedule = "0 2,6,10,14,18,22 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]

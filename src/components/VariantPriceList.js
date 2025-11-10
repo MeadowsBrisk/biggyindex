@@ -2,11 +2,12 @@ import React from 'react';
 import cn from '@/app/cn';
 import { decodeEntities } from '@/lib/format';
 import { displayedAmount, formatDisplayedAmount } from '@/lib/variantPricingDisplay';
+import { useDisplayCurrency } from '@/providers/IntlProvider';
 
 export default function VariantPriceList({
   variants = [],
   rates,
-  displayCurrency = 'GBP',
+  displayCurrency,
   includeShipping = false,
   shippingUsd = null,
   selectedVariantIds = new Set(),
@@ -16,6 +17,8 @@ export default function VariantPriceList({
   className = '',
   itemClassName = '',
 }) {
+  const { currency: ctxCurrency } = useDisplayCurrency();
+  const chosenCurrency = displayCurrency || ctxCurrency || 'GBP';
   return (
     <ul className={cn('grid grid-cols-1 gap-1 max-h-52 overflow-auto pr-1 custom-scroll', className)}>
       {variants.map((v, idx) => {
@@ -24,7 +27,7 @@ export default function VariantPriceList({
         const isSelected = selectedVariantIds.has(vid);
         const priceText = formatDisplayedAmount({
           baseUsd: rawUsd,
-          displayCurrency,
+          displayCurrency: chosenCurrency,
           rates,
           shippingUsd,
           includeShipping,
@@ -33,7 +36,7 @@ export default function VariantPriceList({
         });
         const numericDisplayed = displayedAmount({
           baseUsd: rawUsd,
-          currency: displayCurrency,
+          currency: chosenCurrency,
           rates,
           shippingUsd,
           includeShipping,
