@@ -6,6 +6,8 @@ import FlagFR from '@/components/flags/FlagFR';
 import FlagIT from '@/components/flags/FlagIT';
 import FlagPT from '@/components/flags/FlagPT';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
+import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, getLocaleForMarket } from '@/lib/market';
+import { hostForLocale } from '@/lib/routing';
 
 // Market configuration with flags and labels
 const MARKETS = [
@@ -24,14 +26,17 @@ export default function LocaleSelector() {
   const { currency, setCurrency } = useDisplayCurrency();
   const { locale } = useLocale();
   
-  const pathname = typeof router?.pathname === 'string' ? router.pathname : '/';
-  
+  const pathname = typeof router?.asPath === 'string' ? router.asPath : (typeof router?.pathname === 'string' ? router.pathname : '/');
+
+  // Derive current market from host when on biggyindex.com domains; otherwise from path.
   const currentMarket = React.useMemo(() => {
-    if (pathname === '/de' || pathname.startsWith('/de/')) return 'DE';
-    if (pathname === '/fr' || pathname.startsWith('/fr/')) return 'FR';
-    if (pathname === '/it' || pathname.startsWith('/it/')) return 'IT';
-    if (pathname === '/pt' || pathname.startsWith('/pt/')) return 'PT';
-    return 'GB';
+    try {
+      const host = typeof window !== 'undefined' ? (window.location?.hostname || '') : '';
+      if (isHostBasedEnv(host)) return getMarketFromHost(host);
+    } catch {}
+    // Path-based fallback (localhost/dev or previews)
+    const m = getMarketFromPath(pathname || '/');
+    return m;
   }, [pathname]);
 
   const currentMarketData = MARKETS.find(m => m.code === currentMarket) || MARKETS[0];
@@ -65,7 +70,26 @@ export default function LocaleSelector() {
     
     const ref = typeof router.query?.ref === 'string' ? router.query.ref : null;
     const query = ref ? { ref } : undefined;
-    
+
+    // If host-based environment, switch origins (e.g., de.biggyindex.com -> pt.biggyindex.com)
+    try {
+      const host = typeof window !== 'undefined' ? (window.location?.hostname || '') : '';
+      if (isHostBasedEnv(host)) {
+        const targetLocale = getLocaleForMarket(marketCode);
+        const origin = hostForLocale(targetLocale);
+        const url = origin + (ref ? `/?ref=${encodeURIComponent(ref)}` : '/');
+        // Use full navigation across origin
+        if (typeof window !== 'undefined') {
+          window.location.assign(url);
+        } else {
+          router.push(url).catch(() => {});
+        }
+        setIsOpen(false);
+        return;
+      }
+    } catch {}
+
+    // Path-based navigation (localhost/dev)
     router.push({ pathname: market.path, query }, undefined, { shallow: true, scroll: false }).catch(() => {});
     setIsOpen(false);
   };
