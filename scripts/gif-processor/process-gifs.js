@@ -1,28 +1,57 @@
 #!/usr/bin/env node
 /*
   process-gifs.js
-  - Scans public/indexed_items.json for .gif URLs (imageUrl plus imageUrls[] when enabled)
-  - Generates poster + optional mp4 into structured dirs:
-        /public/gif-cache/posters/<hash>.jpg|webp
-        /public/gif-cache/videos/<hash>.mp4
-  - Maintains /public/gif-cache/gif-map.json
-  flags: --video
-  run with: node scripts/gif-processor/process-gifs.js --video
+  - Discovers .gif image URLs from unified crawler outputs.
+    Sources (in order):
+      1) Netlify Blobs per‑market stores (default: GB,DE,FR,IT,PT)
+         Keys: "indexed_items.json" in stores named "site-index-<market>" (e.g., site-index-gb)
+      2) Filesystem fallback: public/indexed_items.json
+
+    Recognized fields per item:
+      - Legacy shape: imageUrl (string), imageUrls[] (array)
+      - Unified shape (minified): i (string), is[] (array)
+
+  - Outputs generated:
+      Posters: /public/gif-cache/posters/<hash>.jpg|webp
+      Videos : /public/gif-cache/videos/<hash>.mp4 (when --video and ffmpeg available)
+      Map    : /public/gif-cache/gif-map.json (URL -> poster/video metadata)
+
+  Flags:
+    --video                  Generate mp4 for gifs (requires ffmpeg)
+    --poster-only            Generate posters only (skip mp4)
+    --include-image-urls     Include arrays (imageUrls / is) [default: true]
+    --format=jpeg|webp       Poster format [default: jpeg]
+    --limit=N                Cap number of URLs processed (0 = no limit)
+    --concurrency=N          Parallelism [default: 4]
+    --markets=GB,DE,...      Markets to scan from Blobs [default: GB,DE,FR,IT,PT]
+    --force                  Rebuild even if poster/video exists
+    --quiet | --debug        Reduce/increase log verbosity
+
+  Environment:
+    MARKETS                  Alternative to --markets (e.g., MARKETS=GB,DE)
+    GB_STORE / DE_STORE ...  Override per‑market store names (defaults to site-index-<market>)
+    NETLIFY_SITE_ID          Blobs site ID (optional in local dev)
+    NETLIFY_BLOBS_TOKEN      Blobs auth token (or NETLIFY_API_TOKEN / NETLIFY_AUTH_TOKEN)
+
+  Examples:
+    node scripts/gif-processor/process-gifs.js --video
+    node scripts/gif-processor/process-gifs.js --video --markets=GB,FR --debug
+    MARKETS=DE,IT node scripts/gif-processor/process-gifs.js --format=webp
 */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-// Load NETLIFY_* from .env for local blob access (mirrors indexer)
-try { require('../indexer/lib/env/loadEnv').loadIndexerEnv(); } catch {}
-const { config: C } = require('./lib/args');
+// Load env from .env for local blob access (align with unified crawler tooling)
+try { require('dotenv').config(); } catch {}
+const { config: C, flags } = require('./lib/args');
 const { logger } = require('./lib/logger');
 const { detectFfmpeg, transcodeMp4 } = require('./lib/ffmpeg');
 const { headSize, download } = require('./lib/download');
 const { buildPoster } = require('./lib/poster');
 const L = logger(C.QUIET, C.DEBUG);
 
-const DATA_FILE = path.join(C.ROOT, 'public', 'indexed_items.json');
+// Filesystem fallback removed: script now requires Netlify Blobs access only.
 const CACHE_DIR = path.join(C.ROOT, 'public', 'gif-cache');
 const MAP_FILE  = path.join(CACHE_DIR, 'gif-map.json');
 const POSTER_DIR = path.join(CACHE_DIR, 'posters');
@@ -41,29 +70,77 @@ const saveMap = (obj) => { if (C.DRY_RUN) return; fs.writeFileSync(MAP_FILE, JSO
 function pLimit(n){ let active=0; const q=[]; const next=()=>{ if(!q.length||active>=n) return; active++; const {fn,res,rej}=q.shift(); Promise.resolve().then(fn).then(v=>{active--;res(v);next();}).catch(e=>{active--;rej(e);next();}); }; return fn=> new Promise((res,rej)=>{ q.push({fn,res,rej}); process.nextTick(next); }); }
 
 function resolvePersistMode(){
-  const raw = process.env.INDEXER_PERSIST || process.env.CRAWLER_PERSIST || process.env.PERSIST_MODE || 'auto';
-  return String(raw).trim().toLowerCase();
+  const raw = process.env.INDEXER_PERSIST || process.env.CRAWLER_PERSIST || process.env.PERSIST_MODE || 'blobs';
+  const mode = String(raw).trim().toLowerCase();
+  // Modes supported now: blobs (required) | auto (alias of blobs). FS removed.
+  return mode === 'auto' ? 'blobs' : 'blobs';
 }
 
+function parseMarketsFlag() {
+  const raw = flags.markets || flags.market || process.env.MARKETS || 'GB,DE,FR,IT,PT';
+  return String(raw).split(/[,\s]+/).map(s=>s.trim().toUpperCase()).filter(Boolean);
+}
+
+function resolveMarketStoreName(code){
+  // Allow explicit overrides via env (e.g., GB_STORE), else default to site-index-<lower>
+  const envKey = `${code}_STORE`;
+  if (process.env[envKey]) return process.env[envKey];
+  const lower = code.toLowerCase();
+  return `site-index-${lower}`;
+}
+
+function getBlobClient(storeName){
+  const isNetlify = !!process.env.NETLIFY;
+  const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.NETLIFY_SITE_ID || process.env.SITE_ID || process.env.BLOBS_SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN || process.env.BLOBS_TOKEN;
+  const canUse = isNetlify || (siteID && token);
+  if (!canUse) return null;
+  let storePromise = null;
+  const getStore = async () => {
+    if (storePromise) return storePromise;
+    storePromise = (async () => {
+      const mod = await import('@netlify/blobs');
+      const opts = { name: storeName };
+      if (!isNetlify && siteID && token) Object.assign(opts, { siteID, token });
+      // @ts-ignore
+      return (mod).getStore(opts);
+    })();
+    return storePromise;
+  };
+  return {
+    async getJSON(key){
+      try { const store = await getStore(); /* @ts-ignore */ const str = await store.get(key); if(!str) return null; try { return JSON.parse(String(str)); } catch { return null; } } catch { return null; }
+    }
+  };
+}
+
+async function readMarketIndexFromBlob(storeName){
+  const client = getBlobClient(storeName);
+  if (!client) return null;
+  const arr = await client.getJSON('indexed_items.json');
+  return Array.isArray(arr) ? arr : null;
+}
+
+// Blobs-only mode: rely exclusively on Netlify Blobs per‑market stores (site-index-<market>). No HTTP/API fallback.
+
 async function readItemsFromBlobs() {
-  try {
-    const mod = await import('@netlify/blobs').catch(()=>null);
-    if (!mod) return null;
-    const { getStore } = mod;
-    const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID || process.env.BLOBS_SITE_ID;
-    const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN || process.env.BLOBS_TOKEN;
-    let store = null;
-    if (siteID && token) {
-      try { store = getStore({ name: 'site-index', siteID, token, consistency: 'strong' }); } catch {}
+  // Read per-market unified crawler outputs (blobs only).
+  const markets = parseMarketsFlag();
+  const all = [];
+  for (const m of markets) {
+    const name = resolveMarketStoreName(m);
+    const idx = await readMarketIndexFromBlob(name);
+    if (Array.isArray(idx)) {
+      all.push({ market: m, items: idx, store: name });
+    } else {
+      L.warn(`[gif] blob read empty for market=${m} store=${name}`);
     }
-    if (!store) {
-      try { store = getStore({ name: 'site-index', consistency: 'strong' }); } catch {}
-    }
-    if (!store) return null;
-    const val = await store.get('indexed_items.json');
-    if (!val) return null;
-    try { return JSON.parse(val); } catch { return null; }
-  } catch { return null; }
+  }
+  if (all.length) return all;
+  // Legacy single-store fallback (older indexer) via blobs only.
+  const legacy = await readMarketIndexFromBlob('site-index');
+  if (Array.isArray(legacy)) return [{ market: 'GB', items: legacy, store: 'site-index' }];
+  return null;
 }
 
 async function processOne(url, ffmpegInfo){
@@ -146,35 +223,56 @@ async function main(){
     L.log(`[gif] ffmpeg available=${info.available} cmd=${info.cmd} reason=${info.reason}`);
     return;
   }
+  // Aggregate items from multiple markets (dedup URLs later)
+  let marketItemSets = null;
   let items = [];
-  const persistMode = resolvePersistMode();
-  const preferBlobs = persistMode === 'blobs';
-  if (preferBlobs) {
-    const fromBlob = await readItemsFromBlobs();
-    if (Array.isArray(fromBlob) && fromBlob.length >= 0) {
-      items = fromBlob;
-    } else if (fs.existsSync(DATA_FILE)) {
-      try { items = JSON.parse(fs.readFileSync(DATA_FILE,'utf8')); } catch {}
-    }
-  } else {
-    if (fs.existsSync(DATA_FILE)) {
-      try { items = JSON.parse(fs.readFileSync(DATA_FILE,'utf8')); } catch {}
-    } else {
-      // Optional: blob fallback in auto mode
-      const fromBlob = await readItemsFromBlobs();
-      if (Array.isArray(fromBlob)) items = fromBlob;
-    }
+  const fromBlob = await readItemsFromBlobs();
+  if (fromBlob && fromBlob.length) {
+    marketItemSets = fromBlob;
+    items = fromBlob.flatMap(x => x.items);
   }
-  if (!Array.isArray(items)) { console.error('indexed_items.json missing or invalid (blobs/fs)'); process.exit(1); }
+  if (!Array.isArray(items) || items.length === 0) {
+    console.error('[gif][fatal] No items loaded from Netlify Blobs.');
+    console.error('  Required env (outside Netlify): NETLIFY_SITE_ID + NETLIFY_API_TOKEN (or NETLIFY_BLOBS_TOKEN).');
+    console.error('  Example: set NETLIFY_SITE_ID=xxxxx and NETLIFY_API_TOKEN=xxxxx then re-run.');
+    console.error('  (FS fallback removed; script intentionally fails without blob access.)');
+    process.exit(2);
+  }
 
   const urls = new Set();
+  const addUrl = (u) => { if (isGif(u)) urls.add(u); };
   for (const it of items) {
-    if (isGif(it?.imageUrl)) urls.add(it.imageUrl);
-    if (C.INCLUDE_IMAGE_URLS && Array.isArray(it?.imageUrls)) for (const u of it.imageUrls) if (isGif(u)) urls.add(u);
+    // Legacy fields
+    if (it && typeof it === 'object') {
+      if (isGif(it?.imageUrl)) addUrl(it.imageUrl);
+      if (C.INCLUDE_IMAGE_URLS && Array.isArray(it?.imageUrls)) for (const u of it.imageUrls) addUrl(u);
+      // Unified index (minified): primary image 'i', small list 'is'
+      if (isGif(it?.i)) addUrl(it.i);
+      if (C.INCLUDE_IMAGE_URLS && Array.isArray(it?.is)) for (const u of it.is) addUrl(u);
+    }
+  }
+  // Market/source summary
+  if (marketItemSets) {
+    let totalCandidates = 0;
+    for (const m of marketItemSets) {
+      const mUrls = new Set();
+      for (const it of m.items) {
+        if (isGif(it?.imageUrl)) mUrls.add(it.imageUrl);
+        if (Array.isArray(it?.imageUrls)) for (const u of it.imageUrls) if (isGif(u)) mUrls.add(u);
+        if (isGif(it?.i)) mUrls.add(it.i);
+        if (Array.isArray(it?.is)) for (const u of it.is) if (isGif(u)) mUrls.add(u);
+      }
+      totalCandidates += mUrls.size;
+      L.log(`[gif] source=blobs market=${m.market} store=${m.store} items=${Array.isArray(m.items)?m.items.length:0} gifCandidates=${mUrls.size}`);
+      if (C.DEBUG && mUrls.size && !m.items.some(r=>r && (r.imageUrl||r.i))) {
+        L.debug('market had gif candidates but items lack image fields structure');
+      }
+    }
+    L.log(`[gif] aggregated markets=${marketItemSets.length} totalCandidates=${totalCandidates}`);
   }
   let list = Array.from(urls);
   if (C.LIMIT > 0) list = list.slice(0, C.LIMIT);
-  L.log(`[gif] discovered=${list.length} force=${C.FORCE} posterFormat=${C.POSTER_FORMAT} source=${preferBlobs?'blobs':'fs'}`);
+  L.log(`[gif] discovered=${list.length} force=${C.FORCE} posterFormat=${C.POSTER_FORMAT} source=blobs`);
   if (!list.length) return;
 
   ensureDir(CACHE_DIR); ensureDir(POSTER_DIR); if (C.WANT_VIDEO && !C.POSTER_ONLY) ensureDir(VIDEO_DIR);

@@ -105,14 +105,34 @@ async function loadMessages(locale: Locale) {
 export function IntlProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   // Important: keep initial SSR and first client render identical to avoid hydration mismatch
-  const [locale, setLocale] = useState<Locale>("en-GB");
-  const [messages, setMessages] = useState<Record<string, any> | null>(enGBMessages as any);
-  const [currency, setCurrency] = useState<Currency>("GBP");
+  // Try to detect the environment locale synchronously on first client render to reduce EN flash
+  const initialEnvLocale: Locale = ((): Locale => {
+    try {
+      if (typeof window !== 'undefined') {
+        return localeFromEnvironment(window.location?.pathname || '/');
+      }
+    } catch {}
+    return "en-GB";
+  })();
+
+  // If initial locale is en-GB, we can show English messages immediately; otherwise wait for async load
+  const [locale, setLocale] = useState<Locale>(initialEnvLocale);
+  const [messages, setMessages] = useState<Record<string, any> | null>(initialEnvLocale === 'en-GB' ? (enGBMessages as any) : null);
+  const [currency, setCurrency] = useState<Currency>(currencyForLocale(initialEnvLocale));
+  const [ready, setReady] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  // Ensure server and client initial markup match: don't reveal content until mounted
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     let cancelled = false;
+    setReady(false);
     loadMessages(locale).then((m) => {
-      if (!cancelled) setMessages(m);
+      if (!cancelled) {
+        setMessages(m);
+        setReady(true);
+      }
     });
     setCurrency(currencyForLocale(locale));
     try { if (typeof window !== 'undefined') window.localStorage.setItem('app:locale', locale); } catch {}
@@ -160,7 +180,15 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
       getMessageFallback={({ key }: any) => key}
     >
       <LocaleContext.Provider value={{ locale, setLocale }}>
-        <DisplayCurrencyContext.Provider value={value}>{children}</DisplayCurrencyContext.Provider>
+        {/* Fade in content when mounted and messages for current locale are ready to avoid EN flash and hydration mismatch */}
+        <div
+          style={mounted && ready ? { opacity: 1, transition: 'opacity 120ms ease-out' } : { opacity: 0 }}
+          aria-hidden={mounted && ready ? undefined : true}
+        >
+          {mounted && ready ? (
+            <DisplayCurrencyContext.Provider value={value}>{children}</DisplayCurrencyContext.Provider>
+          ) : null}
+        </div>
       </LocaleContext.Provider>
     </NextIntlProvider>
   );
