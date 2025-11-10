@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import type { GetStaticProps, NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import HeroSection from '@/sections/home/HeroSection';
 import WhyItHelpsSection from '@/sections/home/WhyItHelpsSection';
 import RecentItemsSection from '@/sections/home/RecentItemsSection';
@@ -12,7 +12,7 @@ import FooterSection from '@/sections/home/FooterSection';
 import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from '@/lib/indexData';
 import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { hostForLocale } from '@/lib/routing';
-import { getLocaleForMarket } from '@/lib/market';
+import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market';
 import { useLocale, useTranslations } from 'next-intl';
 
 const RECENT_ITEMS_LIMIT = 25;
@@ -233,10 +233,6 @@ export async function buildHomeProps(market: string = 'GB') {
   };
 }
 
-export const getStaticProps: GetStaticProps<HomeLandingProps> = async () => {
-  return buildHomeProps('GB');
-};
-
 const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems, recentReviews, recentMedia, sellersLeaderboard, sellersIndex }) => {
   const locale = useLocale();
   const origin = hostForLocale(locale);
@@ -321,7 +317,7 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
       </Head>
       <main className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
-        <HeroSection stats={stats} />
+  <HeroSection stats={stats} />
         <RecentItemsSection items={recentItems} />
         {/* <WhyItHelpsSection /> */}
         <QuickStartSection />
@@ -336,3 +332,18 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
 };
 
 export default HomeLanding;
+
+// Per-market SSR to ensure correct data on subdomains and path-based locales
+export const getServerSideProps: GetServerSideProps<HomeLandingProps> = async (ctx) => {
+  try {
+    const host = String(ctx.req?.headers?.host || '');
+    const path = String((ctx.resolvedUrl || ctx.req?.url || '/'));
+    const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(path);
+    const result = await buildHomeProps(market);
+    // buildHomeProps returns { props, revalidate } for SSG compatibility; we just return props here
+    return { props: result.props as any };
+  } catch {
+    const result = await buildHomeProps('GB');
+    return { props: result.props as any };
+  }
+};
