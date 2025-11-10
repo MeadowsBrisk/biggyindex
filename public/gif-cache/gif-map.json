@@ -919,18 +919,59 @@
     "hash": "75389ae92547",
     "poster": "/gif-cache/posters/75389ae92547.jpg",
     "video": "/gif-cache/videos/75389ae92547.mp4",
-    "width": 1440,
-    "height": 1399,
-    "frames": 6,
-    "status": "ok"
+    "status": "skipped",
+    "reason": "exists"
   },
   "https://i2.littlebiggy.net/images/i/w/800/fvbgfnCLJEpodXca.gif": {
     "hash": "a780c4adaf94",
     "poster": "/gif-cache/posters/a780c4adaf94.jpg",
     "video": "/gif-cache/videos/a780c4adaf94.mp4",
-    "width": 1440,
-    "height": 1920,
-    "frames": 5,
+    "status": "skipped",
+    "reason": "exists"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/OkLOYmRzveZgDAHp.gif": {
+    "hash": "8e032a9bdb8d",
+    "poster": "/gif-cache/posters/8e032a9bdb8d.jpg",
+    "video": "/gif-cache/videos/8e032a9bdb8d.mp4",
+    "width": 480,
+    "height": 320,
+    "frames": 3,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/gLXyVjoLrzrJapUd.gif": {
+    "hash": "bd151bad5b15",
+    "poster": "/gif-cache/posters/bd151bad5b15.jpg",
+    "video": "/gif-cache/videos/bd151bad5b15.mp4",
+    "width": 420,
+    "height": 746,
+    "frames": 18,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/GBUGqVqJZHubQsCq.gif": {
+    "hash": "c8aaef00ba90",
+    "poster": "/gif-cache/posters/c8aaef00ba90.jpg",
+    "video": "/gif-cache/videos/c8aaef00ba90.mp4",
+    "width": 480,
+    "height": 270,
+    "frames": 122,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/_KGOywANDzxRTVSCr.gif": {
+    "hash": "50388af759a0",
+    "poster": "/gif-cache/posters/50388af759a0.jpg",
+    "video": "/gif-cache/videos/50388af759a0.mp4",
+    "width": 418,
+    "height": 750,
+    "frames": 43,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/IIELqJOWzSMYdesz.gif": {
+    "hash": "68466bc9d82a",
+    "poster": "/gif-cache/posters/68466bc9d82a.jpg",
+    "video": "/gif-cache/videos/68466bc9d82a.mp4",
+    "width": 1663,
+    "height": 1432,
+    "frames": 24,
     "status": "ok"
   }
 }
