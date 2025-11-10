@@ -64,9 +64,10 @@ export function normalizeReviews(rawReviews: RawReview[], opts: NormalizeOptions
               }
             }
           }
-        } else if (captureMedia && part.contentType === 'blot' && part.blotName === 'image') {
+        } else if (captureMedia && part.contentType === 'blot' && (part.blotName === 'image' || part.blotName === 'video')) {
           if (typeof part.value === 'string') {
-            segments.push({ type: 'image', url: part.value });
+            const kind = part.blotName === 'video' ? 'video' : 'image';
+            segments.push({ type: kind, url: part.value });
           }
         } else if (part.contentType && (part as any).value) {
           segments.push({ type: String(part.contentType), value: (part as any).value });

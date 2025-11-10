@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getMarketFromHost } from '@/lib/market';
+import { getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market';
 
 // Middleware: normalize API calls to include ?mkt based on hostname.
 // - On biggyindex.com (and subdomains) and lbindex.vip, derive market from host and
@@ -13,7 +13,9 @@ import { getMarketFromHost } from '@/lib/market';
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const host = req.headers.get('host') || '';
-  const market = getMarketFromHost(host);
+  // Derive market from host when on subdomains (fr.biggyindex.com, etc);
+  // otherwise fall back to path prefix (e.g., /fr on apex or previews)
+  const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(url.pathname);
 
   if (!url.searchParams.has('mkt')) {
     url.searchParams.set('mkt', market);

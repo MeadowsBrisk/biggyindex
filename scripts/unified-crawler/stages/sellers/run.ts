@@ -438,9 +438,16 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           const firstPage = await fetchSellerReviewsPaged({ client: httpClientReviews, sellerId: sid, pageSize: Math.min(20, SELLER_REVIEWS_PAGE_SIZE), maxStore: Math.min(20, SELLER_REVIEWS_MAX_STORE) });
           const newest = Array.isArray(firstPage?.reviews) && firstPage.reviews.length ? firstPage.reviews[0] : null;
           const newestCreated = newest ? (typeof newest.created === 'number' ? newest.created : (newest.reviewDate || newest.date)) : undefined;
-          if (shouldSkipSellerReviews(reviewCache, String(sid), typeof newestCreated === 'number' ? newestCreated : undefined)) {
-            reviewsBySeller.set(String(sid), []);
-            return; // skip full fetch
+          // Disable hard skip by default to ensure we always have content for recents/media.
+          // Opt-in to skipping by setting SELLER_REVIEWS_ENABLE_SKIP=true
+          const enableSkip = /^(1|true|yes|on)$/i.test(String(process.env.SELLER_REVIEWS_ENABLE_SKIP || '').trim());
+          if (enableSkip && shouldSkipSellerReviews(reviewCache, String(sid), typeof newestCreated === 'number' ? newestCreated : undefined)) {
+            // Soft skip: keep a small recent sample using the peeked page so markets aren't empty
+            const normalizedPeek = normalizeReviews(Array.isArray(firstPage?.reviews) ? firstPage.reviews : [], { captureMedia: true, includeItem: true, includeAuthor: true }) || [];
+            reviewsBySeller.set(String(sid), normalizedPeek);
+            const created = normalizedPeek.length && typeof normalizedPeek[0].created === 'number' ? normalizedPeek[0].created : undefined;
+            updateSellerReviewCache(reviewCache, String(sid), created, normalizedPeek[0]?.id ?? null);
+            return;
           }
           // Fetch full sized page set now that we know it's new (reuse first chunk)
           const page = await fetchSellerReviewsPaged({ client: httpClientReviews, sellerId: sid, pageSize: SELLER_REVIEWS_PAGE_SIZE, maxStore: SELLER_REVIEWS_MAX_STORE });
@@ -484,8 +491,15 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
     // Wait for all reviews to be fetched
     const { reviewsBySeller, processedTotal } = await reviewsPromise;
 
-    const windowDays = Number(process.env.SELLER_RECENT_WINDOW_DAYS || 14);
-    const windowMs = windowDays * 24 * 60 * 60 * 1000;
+    // Time windows
+    const leaderboardWindowDays = Number(process.env.SELLER_LEADERBOARD_WINDOW_DAYS || 14);
+    const leaderboardWindowMs = leaderboardWindowDays * 24 * 60 * 60 * 1000;
+    // Recent reviews window (0 = unlimited)
+    const recentWindowDays = Number(process.env.SELLER_RECENT_WINDOW_DAYS || 0);
+    const recentWindowMs = recentWindowDays > 0 ? (recentWindowDays * 24 * 60 * 60 * 1000) : 0;
+    // Media should not be constrained by the recent window unless explicitly configured
+    const mediaWindowDays = Number(process.env.SELLER_MEDIA_WINDOW_DAYS || 0);
+    const mediaWindowMs = mediaWindowDays > 0 ? (mediaWindowDays * 24 * 60 * 60 * 1000) : 0;
 
     // Use fetched reviews to compute per-market analytics and recents
     for (const sid of selectedSellerIds) {
@@ -499,16 +513,32 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           state.allReviewsBySeller.delete(String(sid));
           continue;
         }
-        // Filter the seller-wide reviews to only those item refs that are active in this market for this seller
+        // Filter logic for per-market reviews
+        // By default, include ALL seller reviews for active sellers in this market (decoupled from item match),
+        // since the same item reference should be stable cross-market and we don't want to drop media or reviews.
+        // Set SELLER_RECENT_REQUIRE_ITEM_MATCH=true to enforce strict itemId matching per market.
+        const requireItemMatch = /^(1|true|yes|on)$/i.test(String(process.env.SELLER_RECENT_REQUIRE_ITEM_MATCH || '').trim());
         const allowed = new Set<string>(Array.from(itemIds).map(String));
         const reviews: any[] = [];
-        for (const r of sellerReviews) {
-          const ref = (r?.item && (r.item.refNum || r.item.id || r.item.ref)) || r?.itemId || r?.itemRef;
-          const refStr = ref != null ? String(ref) : null;
-          if (refStr && allowed.has(refStr)) {
+        if (!requireItemMatch) {
+          for (const r of sellerReviews) {
             const rec = { ...r };
-            if (!rec.itemId) rec.itemId = refStr;
+            // Best-effort itemId fill
+            if (!rec.itemId) {
+              const ref = (r?.item && (r.item.refNum || r.item.id || r.item.ref)) || r?.itemId || r?.itemRef;
+              rec.itemId = ref != null ? String(ref) : null;
+            }
             reviews.push(rec);
+          }
+        } else {
+          for (const r of sellerReviews) {
+            const ref = (r?.item && (r.item.refNum || r.item.id || r.item.ref)) || r?.itemId || r?.itemRef;
+            const refStr = ref != null ? String(ref) : null;
+            if (refStr && allowed.has(refStr)) {
+              const rec = { ...r };
+              if (!rec.itemId) rec.itemId = refStr;
+              reviews.push(rec);
+            }
           }
         }
         state.allReviewsBySeller.set(String(sid), reviews);
@@ -573,7 +603,8 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           const dRaw = rv?.reviewDate || rv?.date || rv?.created;
           const d = typeof dRaw === 'number' ? new Date(dRaw * 1000) : new Date(dRaw);
           if (!d || isNaN(d.getTime())) continue;
-          if (now - d.getTime() > windowMs) continue;
+          // Leaderboard window filtering (decoupled from recent/media windows)
+          if (now - d.getTime() > leaderboardWindowMs) continue;
           total++;
           const rating = typeof rv?.rating === 'number' ? rv.rating : null;
           if (rating != null) {
@@ -610,7 +641,8 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           // Normalize to epoch seconds for legacy compatibility
           const d = typeof dRaw === 'number' ? new Date(dRaw * 1000) : new Date(dRaw);
           if (!d || isNaN(d.getTime())) continue;
-          if (now - d.getTime() > windowMs) continue;
+          // Do NOT filter by window for media unless SELLER_MEDIA_WINDOW_DAYS > 0
+          if (mediaWindowMs > 0 && (now - d.getTime() > mediaWindowMs)) continue;
           const createdEpochSeconds = Math.floor(d.getTime() / 1000);
           const iid = rv?.itemId ? String(rv.itemId) : (rv?.itemRef || (rv?.item && (rv.item.refNum || rv.item.id)) || null);
           const itemObj = (rv?.item || iid) ? {
@@ -629,7 +661,10 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
             item: itemObj,
             itemId: iid,
           };
-          recent.push(base);
+          // Recent reviews respect their own window (0 = unlimited)
+          if (recentWindowMs === 0 || (now - d.getTime()) <= recentWindowMs) {
+            recent.push(base);
+          }
           const segs = Array.isArray(rv?.segments) ? rv.segments : [];
           const urls: string[] = [];
           for (const s of segs) {
@@ -640,6 +675,9 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
           if (urls.length) {
             mediaRecent.push({ ...base, mediaCount: urls.length, media: urls.slice(0, 3) });
           }
+        }
+        if (/^(1|true|yes|on)$/i.test(String(process.env.SELLER_DEBUG_RECENTS || '').trim())) {
+          console.log(`[crawler:sellers][debug] market=${mkt} sid=${sid} reviews=${reviews.length} recentAdded=${recent.filter(r=>r.sellerId===sid).length} mediaAdded=${mediaRecent.filter(r=>r.sellerId===sid).length}`);
         }
       }
       recent.sort((a, b) => (a.created < b.created ? 1 : -1));
