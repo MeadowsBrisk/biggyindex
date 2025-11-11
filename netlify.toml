@@ -134,10 +134,10 @@
   #CRAWLER_PERSIST = "blobs"
 
   
-[functions."crawler-sellers-background"]
-  # Updated cadence: every 4 hours offset from items (2,6,10,14,18,22)
-  schedule = "0 2,6,10,14,18,22 * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
+#[functions."crawler-sellers-background"]
+  ## Updated cadence: every 4 hours offset from items (2,6,10,14,18,22)
+#  schedule = "0 2,6,10,14,18,22 * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
