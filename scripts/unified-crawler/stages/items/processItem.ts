@@ -9,6 +9,7 @@ import { fetchFirstReviews } from "./reviews";
 import { fetchItemDescription } from "./details";
 import { extractMarketShipping } from "./shipping";
 import { fetchItemShareLink } from "./share";
+import { loadShippingMeta, isShippingStale, updateShippingMeta, saveShippingMeta, type ShippingMetaAggregate } from "./shippingMeta";
 
 export interface ProcessItemResult {
   ok: boolean;
@@ -53,9 +54,11 @@ export async function processSingleItem(
     let descRes: any | null = null;
     let revRes: any | null = null;
     if (mode === "full") {
+      // Use first market for description fetch to ensure proper location filter
+      const descMarket = markets && markets.length > 0 ? markets[0] : undefined;
       const [revP, descP] = await Promise.allSettled([
         fetchFirstReviews(client!, itemId, Number(process.env.CRAWLER_REVIEW_FETCH_SIZE || 100)),
-        fetchItemDescription(client!, itemId, { maxBytes: 160_000 })
+        fetchItemDescription(client!, itemId, { maxBytes: 160_000, shipsTo: descMarket })
       ]);
       if (revP.status === "fulfilled") revRes = revP.value; else errors.push(`reviews:${(revP as any).reason?.message || "unknown"}`);
       if (descP.status === "fulfilled") descRes = descP.value; else errors.push(`description:${(descP as any).reason?.message || "unknown"}`);
@@ -160,45 +163,96 @@ export async function processSingleItem(
     await sharedBlob.putJSON(key, merged);
   const descLen = merged.description ? (merged.descriptionMeta && (merged.descriptionMeta as any).length) || merged.description.length : 0;
     const revCount = Array.isArray(merged.reviews) ? merged.reviews.length : 0;
-  console.log(`${prefix} stored id=${itemId} descLen=${descLen} reviews=${revCount}${descriptionWritten?" full=1":""}${shareWritten?" share=1":""}`);
+  // Enhanced logging: include share reuse/generation info and placeholder for shipping summary counts
+  const shareStatus = shareWritten ? 'share=new' : (merged.sl ? 'share=reused' : 'share=none');
+  console.log(`${prefix} stored id=${itemId} descLen=${descLen} reviews=${revCount}${descriptionWritten?" full=1":""} ${shareStatus}`);
 
-    // Shipping per-present market
+    // Shipping per-present market (SEQUENTIAL to avoid cookie race conditions)
     if (mode === "full") {
       const targetMarkets = Array.isArray(opts.shippingMarkets) && opts.shippingMarkets.length ? opts.shippingMarkets : markets;
-      for (const mkt of targetMarkets) {
-        try {
-          const res = await extractMarketShipping(client!, itemId, mkt);
-          if (res.ok) {
-            const store = marketStore(mkt, env.stores as any);
-            const blob = getBlobClient(store);
-            const shipKey = Keys.market.shipping(itemId);
-            const payload = {
-              id: itemId,
-              market: mkt,
-              options: res.options || [],
-              warnings: res.warnings || [],
-              lastShippingRefresh: new Date().toISOString(),
-            };
-            await blob.putJSON(shipKey, payload);
-            shippingWritten++;
-            const warnStr = (Array.isArray(payload.warnings) && payload.warnings.length)
-              ? ` warns=${payload.warnings.join(',')}`
-              : '';
-            console.log(`${prefix} shipping stored id=${itemId} market=${mkt} options=${payload.options.length}${warnStr}`);
-            // Compute compact summary for aggregator
-            const costs = (res.options || []).map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
-            if (costs.length) {
-              const min = Math.min(...costs);
-              const max = Math.max(...costs);
-              const free = costs.some((c: number) => c === 0) ? 1 : 0;
-              shipSummaryByMarket[mkt] = { min, max, free };
+      
+      // Load shipping metadata aggregate to check staleness
+      const shippingMetaAgg = await loadShippingMeta(sharedBlob);
+      const { needsRefresh, staleMarkets } = isShippingStale(shippingMetaAgg, itemId, targetMarkets);
+      
+      const marketsToRefresh = needsRefresh ? staleMarkets : [];
+      
+      if (marketsToRefresh.length === 0) {
+        console.log(`${prefix} shipping skipped id=${itemId} markets=${targetMarkets.join(',')} (fresh)`);
+      } else {
+        console.log(`${prefix} shipping start id=${itemId} markets=${marketsToRefresh.join(',')} (${staleMarkets.length < targetMarkets.length ? 'stale-only' : 'sequential'})`);
+        
+    // Use GB shipping from description HTML if available (optimization)
+    // NOTE: Only use if description was fetched with proper GB location filter
+    let gbShippingFromDesc: { options: Array<{ label: string; cost: number }>; warnings?: string[] } | undefined;
+    if (marketsToRefresh.includes('GB') && descRes?.gbShipping) {
+      // DISABLED: Description HTML is fetched without location filter, so pricing is wrong
+      // Need to fetch with proper GB location filter to get correct pricing
+      // gbShippingFromDesc = descRes.gbShipping;
+      // console.log(`${prefix} shipping optimized id=${itemId} market=GB options=${gbShippingFromDesc!.options.length} (from-description)`);
+    }        // Process markets sequentially to avoid location filter cookie conflicts
+        for (const mkt of marketsToRefresh) {
+          try {
+            let shippingResult: { options: Array<{ label: string; cost: number }>; warnings?: string[] } | undefined;
+            
+            // Use description shipping for GB, extract for others
+            if (mkt === 'GB' && gbShippingFromDesc) {
+              shippingResult = gbShippingFromDesc;
+            } else {
+              const res = await extractMarketShipping(client!, itemId, mkt);
+              if (res.ok) {
+                shippingResult = { options: res.options || [], warnings: res.warnings };
+              } else {
+                console.warn(`${prefix} shipping failed id=${itemId} market=${mkt} err=${res.error || 'unknown'}`);
+                errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
+                continue;
+              }
             }
-          } else {
-            errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
+            
+            if (shippingResult) {
+              const store = marketStore(mkt, env.stores as any);
+              const blob = getBlobClient(store);
+              const shipKey = Keys.market.shipping(itemId);
+              const payload = {
+                id: itemId,
+                market: mkt,
+                options: shippingResult.options,
+                warnings: shippingResult.warnings || [],
+                lastShippingRefresh: new Date().toISOString(),
+              };
+              await blob.putJSON(shipKey, payload);
+              shippingWritten++;
+              const warnStr = (Array.isArray(payload.warnings) && payload.warnings.length)
+                ? ` warns=${payload.warnings.join(',')}`
+                : '';
+              console.log(`${prefix} shipping stored id=${itemId} market=${mkt} options=${payload.options.length}${warnStr}`);
+              
+              // Compute compact summary for aggregator
+              const costs = shippingResult.options.map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
+              if (costs.length) {
+                const min = Math.min(...costs);
+                const max = Math.max(...costs);
+                const free = costs.some((c: number) => c === 0) ? 1 : 0;
+                shipSummaryByMarket[mkt] = { min, max, free };
+              }
+            }
+          } catch (e: any) {
+            console.warn(`${prefix} shipping error id=${itemId} market=${mkt} ${e?.message || e}`);
+            errors.push(`shipping:${mkt}:${e?.message || String(e)}`);
           }
-        } catch (e: any) {
-          errors.push(`shipping:${mkt}:${e?.message || String(e)}`);
         }
+        
+        // Update shipping metadata aggregate
+        if (shippingWritten > 0) {
+          const updatedShippingMeta = updateShippingMeta(shippingMetaAgg, itemId, marketsToRefresh);
+          await saveShippingMeta(sharedBlob, updatedShippingMeta);
+        }
+      }
+      if (targetMarkets.length) {
+        const byMkt = Object.entries(shipSummaryByMarket)
+          .map(([m, s]) => `${m}:${s.min}-${s.max}${s.free ? ' free' : ''}`)
+          .join(' ');
+        console.log(`${prefix} shipping done id=${itemId} wrote=${shippingWritten} ${byMkt}`);
       }
     }
 

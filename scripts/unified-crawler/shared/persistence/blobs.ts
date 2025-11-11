@@ -44,7 +44,7 @@ export function getBlobClient(storeName: string): BlobClient {
           opts.token = token;
         }
         const store = await (mod as any).getStore(opts);
-        if (process.env.DEBUG_BLOBS === "1") {
+        if (process.env.DEBUG_BLOBS === "verbose") {
           // eslint-disable-next-line no-console
           console.info(`[blobs] init store name=${storeName} mode=${isNetlify ? 'implicit' : (siteID && token ? 'explicit' : 'implicit')}`);
         }

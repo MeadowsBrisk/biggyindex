@@ -53,6 +53,10 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     describe: 'Force regeneration of share/referral links (overrides cached aggregate and core)'
   })
+  .option('ids', {
+    type: 'string',
+    describe: 'Comma-separated list of item IDs to process (for targeting specific items)'
+  })
   .help()
   .strict()
   .parseSync();
@@ -113,22 +117,21 @@ async function main() {
       if (forceAll) {
         planned = work.uniqueIds.map(id => ({ id, markets: Array.from(work.presenceMap.get(id) || []) as MarketCode[], mode: 'full', sig: work.idSig.get(id) || undefined }));
       } else {
-        const envLoaded = loadEnv();
-        const envStores = envLoaded.stores as any;
-        const changeRes = await detectItemChanges(
-          {
-            market: markets[0] as MarketCode,
-            items: work.uniqueIds.map(id => ({ id, sig: work.idSig.get(id) || undefined })),
-            fullCrawlDays: envLoaded.fullCrawlDays,
-          },
-          { sharedStoreName: envStores.shared }
-        );
-        const fullSet = new Set(changeRes.fullCrawlIds);
+        // SIMPLIFIED: Default to full mode for all items
+        // Individual staleness is now handled efficiently in processItem.ts per-component
+        // No need for expensive pre-filtering by reading hundreds of core files
         for (const id of work.uniqueIds) {
           const marketsFor = Array.from(work.presenceMap.get(id) || []) as MarketCode[];
-          planned.push({ id, markets: marketsFor, mode: fullSet.has(id) ? 'full' : 'reviews-only', sig: work.idSig.get(id) || undefined });
+          planned.push({ id, markets: marketsFor, mode: 'full', sig: work.idSig.get(id) || undefined });
         }
       }
+
+  // Apply --ids filter if specified
+  if (argv.ids) {
+    const filterIds = String(argv.ids).split(',').map(s => s.trim()).filter(Boolean);
+    planned = planned.filter(item => filterIds.includes(item.id));
+    console.log(`[cli:items] filtered by --ids: ${planned.length} items matching [${filterIds.join(', ')}]`);
+  }
 
   // Apply limit only if explicitly provided via CLI; otherwise process all planned
   let toProcess = typeof explicitLimit === 'number' ? planned.slice(0, explicitLimit) : planned;

@@ -10,6 +10,7 @@ export const Keys = {
     aggregates: {
       shares: () => `aggregates/shares.json`,
       indexMeta: () => `aggregates/index-meta.json`,
+      shippingMeta: () => `aggregates/shipping-meta.json`,
     },
     analytics: {
       sellers: () => `seller-analytics.json`,

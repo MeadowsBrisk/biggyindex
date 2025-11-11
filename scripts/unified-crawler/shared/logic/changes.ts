@@ -50,7 +50,7 @@ export async function detectItemChanges(
     .filter((it) => existingIds.has(it.id));
 
   // Limit per-run metadata checks to avoid heavy reads in Phase A
-  const maxChecks = Math.min(existingToCheck.length, 500);
+  const maxChecks = Math.min(existingToCheck.length, 100); // Reduced from 500 to 100 for better performance
   for (let i = 0; i < maxChecks; i++) {
     const { id, sig } = existingToCheck[i];
     try {

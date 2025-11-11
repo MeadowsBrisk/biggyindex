@@ -1,8 +1,10 @@
 import type { AxiosInstance } from "axios";
 
+// Unified implementations
 import { fetchItemPage } from "../../shared/fetch/fetchItemPage";
 import { extractDescription } from "../../shared/parse/descriptionExtractor";
 import { extractLocationTokens } from "../../shared/parse/extractLocationTokens";
+import { extractShippingHtml } from "../../shared/parse/shippingHtmlExtractor";
 
 export interface ItemDescriptionResult {
   ok: boolean;
@@ -12,6 +14,7 @@ export interface ItemDescriptionResult {
   ms?: number;
   error?: string;
   html?: string;
+  gbShipping?: { options: Array<{ label: string; cost: number }>; warnings?: string[] };
 }
 
 export async function fetchItemDescription(
@@ -35,6 +38,10 @@ export async function fetchItemDescription(
     if (!desc || !desc.description) {
       return { ok: false, refNum, error: "no_description", ms: page?.ms, html: rawHtml };
     }
+    
+    // NOTE: Shipping extraction disabled - requires proper location filter for accurate pricing
+    // Description HTML is fetched without location filter, so shipping prices would be incorrect
+    
     return {
       ok: true,
       refNum,

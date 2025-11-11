@@ -17,7 +17,7 @@ export function extractShippingHtml(html: string): ShippingExtractResult {
   const options: ShippingOption[] = [];
   const seen = new Set<string>();
   const rawSnippets: string[] = [];
-  const foldableRe = /<div[^>]*class="[^"]*foldable[^"]*Bp3[^"]*"[^>]*>([\s\S]{0,8000})/gi;
+  const foldableRe = /<div[^>]*class="[^"]*foldable[^"]*Bp3[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
   let m: RegExpExecArray | null;
   while ((m = foldableRe.exec(html))) {
     const blockInner = m[1] || '';

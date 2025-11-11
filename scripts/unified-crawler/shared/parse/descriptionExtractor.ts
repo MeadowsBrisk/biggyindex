@@ -45,6 +45,8 @@ export function extractDescription(html: string): DescriptionResult | null {
   region = region.split('\n').map(l => l.trim()).join('\n');
   region = region.replace(/\n{3,}/g, '\n\n').trim();
   region = region.replace(/(?:\n|^)ships from [^\n]*$/i, '').trim();
+  // Remove "this item is not available in" error message (appears when wrong location filter)
+  region = region.replace(/this item is not available in\s*/gi, '').trim();
   const warnings: string[] = [];
   if (region.length > 100000) warnings.push('truncated');
   return { description: region, meta: { length: region.length, ...(warnings.length ? { warnings } : {}) } };

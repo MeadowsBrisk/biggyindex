@@ -40,6 +40,7 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
   const indexes: Array<{ market: MarketCode; items: Array<{ id: string; n?: string; raw?: any }> }> = [];
   const tIdxStart = Date.now();
   console.info(`[items] reading market indexes for ${enabled.length} markets...`);
+  const marketSizes: string[] = [];
   for (const code of enabled) {
     const storeName = (env.stores as any)[code];
     const blob = getBlobClient(storeName);
@@ -47,9 +48,9 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     const list = Array.isArray(index) ? index : [];
     itemsPlanned += list.length;
     indexes.push({ market: code, items: list.map(it => ({ id: String(it?.id ?? it?.refNum ?? it?.ref ?? "").trim(), n: it?.n || it?.name, raw: it })) });
-    console.info(`[items] ${code} index size=${list.length}`);
+    marketSizes.push(`${code}=${list.length}`);
   }
-  console.info(`[items] indexes loaded in ${Math.max(0, Date.now() - tIdxStart)}ms; planned=${itemsPlanned}`);
+  console.info(`[items] indexes loaded ${marketSizes.join(' ')} planned=${itemsPlanned} (${Math.max(0, Date.now() - tIdxStart)}ms)`);
 
   // Build presence map: itemId -> set of markets where this item appears
   const presenceById = new Map<string, Set<MarketCode>>();
@@ -79,9 +80,6 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
       // Write lookup only if non-empty for clarity.
       if (Object.keys(lookup.byRef).length || Object.keys(lookup.byId).length) {
         await blob.putJSON(Keys.market.data.itemImageLookup(), lookup);
-        console.info(`[items] wrote item-image-lookup market=${market} byRef=${Object.keys(lookup.byRef).length} byId=${Object.keys(lookup.byId).length}`);
-      } else {
-        console.info(`[items] skip write empty item-image-lookup market=${market}`);
       }
 
       // Build compact recent items lists: recently added and recently updated
@@ -89,7 +87,9 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
         const rawList = items.map(i => (i.raw || i) as any);
         const payload = buildRecentItemsCompact(rawList, MAX_RECENT);
         await blob.putJSON(Keys.market.data.recentItems(), payload);
-        console.info(`[items] wrote recent-items market=${market} added=${payload.added.length} updated=${payload.updated.length}`);
+        
+        // Consolidated logging per market
+        console.info(`[items] market=${market} lookup=${Object.keys(lookup.byRef).length} recent=${payload.added.length}+${payload.updated.length}`);
       } catch (e: any) {
         console.warn(`[items][warn] recent-items write failed market=${market} reason=${e?.message || e}`);
       }
