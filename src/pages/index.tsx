@@ -203,42 +203,8 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
           }
         } catch {}
       }
-      // Set raw items immediately for snappy UI
+      // Set items immediately (already normalized with reviewStats from API)
       setItems(items);
-      // Background: enrich items with seller review stats (average rating, reviews count, avg arrival)
-      // We fetch once per load and overlay into items, then reset items to include reviewStats
-      ;(async () => {
-        try {
-          const res = await fetch(`/api/index/seller-analytics?mkt=${market}`);
-          if (!res.ok) return;
-          const analytics = await res.json();
-          const sellersArr = Array.isArray(analytics?.sellers) ? analytics.sellers : [];
-          const byId: Map<string, any> = new Map(sellersArr.map((s: any) => [String(s?.sellerId), s]));
-          const enrich = (list: any[]) => list.map((raw: any) => {
-            try {
-              const sid = raw?.sid != null ? String(raw.sid) : (raw?.sellerId != null ? String(raw.sellerId) : null);
-              if (!sid) return raw;
-              const rec = byId.get(sid);
-              if (!rec || !rec.lifetime) return raw;
-              const rs = {
-                averageRating: typeof rec.lifetime.avgRating === 'number' ? rec.lifetime.avgRating : null,
-                numberOfReviews: typeof rec.lifetime.totalReviews === 'number' ? rec.lifetime.totalReviews : null,
-                averageDaysToArrive: typeof rec.lifetime.avgDaysToArrive === 'number' ? rec.lifetime.avgDaysToArrive : null,
-              };
-              // Preserve existing props and attach reviewStats
-              return { ...raw, reviewStats: rs };
-            } catch { return raw; }
-          });
-          const enriched = enrich(items);
-          if (enriched && enriched.length) {
-            setItems(enriched);
-            // If we seeded allItems from this fetch, overlay there too
-            if ((category === 'All' && enriched.length) || (allItems.length === 0 && enriched.length && category === 'All')) {
-              setAllItems(enriched);
-            }
-          }
-        } catch {}
-      })();
       // If we are on All OR allItems not yet populated, seed full dataset.
       if ((category === 'All' && items.length) || (allItems.length === 0 && items.length && category === 'All')) {
         setAllItems(items);
