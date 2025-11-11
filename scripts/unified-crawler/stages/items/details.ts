@@ -23,7 +23,7 @@ export async function fetchItemDescription(
   opts: { shipsTo?: string; maxBytes?: number; timeoutMs?: number } = {}
 ): Promise<ItemDescriptionResult> {
   try {
-    const { shipsTo, maxBytes = 150_000, timeoutMs = 20_000 } = opts;
+    const { shipsTo, maxBytes = 100_000, timeoutMs = 20_000 } = opts;
     const page = await fetchItemPage({
       client,
       refNum,
@@ -39,8 +39,18 @@ export async function fetchItemDescription(
       return { ok: false, refNum, error: "no_description", ms: page?.ms, html: rawHtml };
     }
     
-    // NOTE: Shipping extraction disabled - requires proper location filter for accurate pricing
-    // Description HTML is fetched without location filter, so shipping prices would be incorrect
+    // OPTIMIZATION: Extract GB shipping from description HTML if shipsTo=GB
+    // This eliminates the need for a separate shipping fetch for GB market
+    let gbShipping: { options: Array<{ label: string; cost: number }>; warnings?: string[] } | undefined;
+    if (shipsTo === 'GB' || !shipsTo) {
+      const shipResult = extractShippingHtml(rawHtml);
+      if (shipResult.options && shipResult.options.length > 0) {
+        gbShipping = {
+          options: shipResult.options,
+          warnings: shipResult.warnings
+        };
+      }
+    }
     
     return {
       ok: true,
@@ -49,6 +59,7 @@ export async function fetchItemDescription(
       meta: desc.meta,
       ms: page?.ms,
       html: rawHtml,
+      gbShipping,
     };
   } catch (e: any) {
     return { ok: false, refNum, error: e?.message || String(e) };

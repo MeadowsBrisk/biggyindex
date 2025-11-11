@@ -62,14 +62,12 @@ export async function fetchItemPage({ client, refNum, shipsTo, timeout = 20000, 
             if (bytes > maxBytes) { try { (stream as any)?.destroy?.(); } catch {}; }
             if (earlyAbort && bytes >= earlyAbortMinBytes) {
               const preview = Buffer.concat(chunks).toString('utf8');
-              // Legacy heuristics: need foldable shipping marker, share form token, and expected refNum
-              const foldableMatches = preview.match(/foldable\s+Bp3/gi);
-              const hasMultipleShipping = foldableMatches && foldableMatches.length >= 2; // Wait for at least 2 shipping options
-              const hasShareToken = /name="contextRefNum"/i.test(preview);
-              const hasExpectedRef = refNum ? new RegExp(String(refNum).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(preview) : true;
-              // Only abort early if we have multiple shipping options OR we're confident we have the full shipping section
-              const hasCompleteShipping = hasMultipleShipping || /ships\s+from.*?united\s+kingdom.*?foldable\s+Bp3.*?foldable\s+Bp3/i.test(preview.replace(/\n/g, ' '));
-              if (hasCompleteShipping && hasShareToken && hasExpectedRef) {
+              // SIMPLIFIED HEURISTICS: Just need essential sections (legacy pattern restored)
+              const hasShipping = /foldable\s+Bp3/i.test(preview);
+              const hasShare = /name="contextRefNum"/i.test(preview);
+              const hasDesc = /item-description/i.test(preview);
+              // Abort if we have all essential sections (don't wait for multiple shipping blocks)
+              if (hasShipping && hasShare && hasDesc) {
                 abortedEarly = true;
                 truncated = true; // mark truncated even though early-aborted (matches legacy)
                 try { (stream as any)?.destroy?.(); } catch {};

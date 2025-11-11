@@ -238,6 +238,16 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     if (h != null) entry.h = h;
   if (sf) entry.sf = sf;
 
+    // Review stats (minified key: rs)
+    const ir = itemReviewSummaries?.[String(id)] ?? itemReviewSummaries?.[String(numId)];
+    if (ir) {
+      const rsObj: Record<string, any> = {};
+      if (typeof ir.averageRating === 'number') rsObj.avg = ir.averageRating;
+      if (typeof ir.averageDaysToArrive === 'number') rsObj.days = ir.averageDaysToArrive;
+      if (typeof ir.numberOfReviews === 'number') rsObj.cnt = ir.numberOfReviews;
+      if (Object.keys(rsObj).length > 0) entry.rs = rsObj;
+    }
+
     // Categorization (temporary via legacy pipeline through TS facade)
     try {
       if (name || description) {

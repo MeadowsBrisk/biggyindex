@@ -44,29 +44,29 @@ export async function detectItemChanges(
     if (!existingIds.has(it.id)) newIds.push(it.id);
   }
 
-  // For staleness, sample existing items to keep Phase A cheap; adjust policy later if needed
+  // For staleness, use shipping-meta aggregate (one file instead of 100+ individual loads!)
+  const shippingMeta = await shared.getJSON<any>('aggregates/shipping-meta.json').catch(() => ({}));
+  
   const existingToCheck = input.items
     .map((it) => ({ id: it.id, sig: it.sig }))
     .filter((it) => existingIds.has(it.id));
 
-  // Limit per-run metadata checks to avoid heavy reads in Phase A
-  const maxChecks = Math.min(existingToCheck.length, 100); // Reduced from 500 to 100 for better performance
-  for (let i = 0; i < maxChecks; i++) {
-    const { id, sig } = existingToCheck[i];
-    try {
-  const core = await shared.getJSON<any>(`items/${id}.json`);
-      if (!core) continue;
-      const times = [core.lastFullCrawl, core.lastDescriptionRefresh, core.lastReviewsRefresh]
-        .filter(Boolean)
-        .map((s: string) => Date.parse(s))
-        .filter((n: number) => Number.isFinite(n));
-      const latest = times.length ? Math.max(...times) : 0;
-      if (!latest || latest < cutoff) staleIds.push(id);
-      // Signature change: if provided, compare
-      if (sig && typeof core.signature === 'string' && core.signature && core.signature !== sig) {
-        changedIds.push(id);
+  // Check staleness from aggregate metadata (fast!)
+  for (const { id, sig } of existingToCheck) {
+    const metaEntry = shippingMeta[id];
+    
+    // Stale if: no metadata entry OR lastRefresh older than cutoff
+    if (!metaEntry || !metaEntry.lastRefresh) {
+      staleIds.push(id);
+    } else {
+      const lastRefreshTime = new Date(metaEntry.lastRefresh).getTime();
+      if (lastRefreshTime < cutoff) {
+        staleIds.push(id);
       }
-    } catch {}
+    }
+    
+    // Note: Cannot check signature changes from shipping-meta (doesn't track them)
+    // Signature changes are rare; indexer marks items as "updated" anyway
   }
 
   const fullCrawlIds = Array.from(new Set([...newIds, ...staleIds, ...changedIds]));

@@ -14,6 +14,7 @@ import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { hostForLocale } from '@/lib/routing';
 import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market';
 import { useLocale, useTranslations } from 'next-intl';
+import { normalizeItem } from '@/lib/normalizeItem';
 
 const RECENT_ITEMS_LIMIT = 25;
 
@@ -142,9 +143,11 @@ export async function buildHomeProps(market: string = 'GB') {
 
   const recentItems: RecentItemsProps = {
     added: ((recentItemsCompact as any)?.added || [])
+      .map((it: any) => normalizeItem(it))
       .map((it: any) => mapItemForCard(it, it.createdAt || null))
       .slice(0, RECENT_ITEMS_LIMIT),
     updated: ((recentItemsCompact as any)?.updated || [])
+      .map((it: any) => normalizeItem(it))
       .map((it: any) => mapItemForCard(it, it.createdAt || null))
       .slice(0, RECENT_ITEMS_LIMIT),
   };

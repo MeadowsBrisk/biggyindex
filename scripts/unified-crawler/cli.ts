@@ -53,6 +53,11 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     describe: 'Force regeneration of share/referral links (overrides cached aggregate and core)'
   })
+  .option('refresh-shipping', {
+    type: 'boolean',
+    default: false,
+    describe: 'Force refresh of shipping data regardless of freshness (for testing/benchmarking)'
+  })
   .option('ids', {
     type: 'string',
     describe: 'Comma-separated list of item IDs to process (for targeting specific items)'
@@ -67,6 +72,7 @@ async function main() {
   if (argv.persist) process.env.CRAWLER_PERSIST = argv.persist;
   if (argv.force) process.env.CRAWLER_FORCE = '1';
   if (argv['refresh-share']) process.env.CRAWLER_REFRESH_SHARE = '1';
+  if (argv['refresh-shipping']) process.env.CRAWLER_REFRESH_SHIPPING = '1';
 
   const env = loadEnv();
   const defaultMkts = cfgMarkets(env.markets);
@@ -112,17 +118,44 @@ async function main() {
   const work = await buildItemsWorklist(markets);
   const forceAll = !!argv.force || /^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_FORCE||''));
   const explicitLimit = (typeof argv.limit === 'number' && argv.limit > 0) ? argv.limit : undefined;
-      // Plan modes: full for new/stale (14d), reviews-only for the rest (every run) unless --force
+      
+      // Determine staleness threshold for full refresh (default: 80 days from env)
+      const fullRefreshDays = Number.parseInt(process.env.CRAWLER_FULL_REFRESH_DAYS || '80', 10);
+      const fullRefreshMs = fullRefreshDays * 24 * 60 * 60 * 1000;
+      const cutoffTime = Date.now() - fullRefreshMs;
+      
+      // Plan modes: full for new/stale/changed, reviews-only for the rest (every run) unless --force
       let planned: Array<{ id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; sig?: string }> = [];
       if (forceAll) {
+        // --force flag: everything gets full mode
         planned = work.uniqueIds.map(id => ({ id, markets: Array.from(work.presenceMap.get(id) || []) as MarketCode[], mode: 'full', sig: work.idSig.get(id) || undefined }));
       } else {
-        // SIMPLIFIED: Default to full mode for all items
-        // Individual staleness is now handled efficiently in processItem.ts per-component
-        // No need for expensive pre-filtering by reading hundreds of core files
+        // Use shipping-meta aggregate to check lastRefresh (one file load instead of 943!)
+        const sharedBlob = getBlobClient(env.stores.shared);
+        const shippingMeta = await sharedBlob.getJSON<any>(Keys.shared.aggregates.shippingMeta()).catch(() => ({}));
+        
+        // Determine mode for each item
         for (const id of work.uniqueIds) {
           const marketsFor = Array.from(work.presenceMap.get(id) || []) as MarketCode[];
-          planned.push({ id, markets: marketsFor, mode: 'full', sig: work.idSig.get(id) || undefined });
+          const indexSig = work.idSig.get(id);
+          const metaEntry = shippingMeta[id];
+          
+          let mode: 'full' | 'reviews-only' = 'reviews-only';
+          
+          // Full mode if: new item or stale (older than CRAWLER_FULL_REFRESH_DAYS)
+          if (!metaEntry || !metaEntry.lastRefresh) {
+            mode = 'full'; // New item (never crawled)
+          } else {
+            const lastRefreshTime = new Date(metaEntry.lastRefresh).getTime();
+            if (lastRefreshTime < cutoffTime) {
+              mode = 'full'; // Stale
+            }
+          }
+          
+          // Note: Not checking signature changes since shipping-meta doesn't track them.
+          // Signature changes are rare, and indexer marks items as "updated" anyway.
+          
+          planned.push({ id, markets: marketsFor, mode, sig: indexSig });
         }
       }
 

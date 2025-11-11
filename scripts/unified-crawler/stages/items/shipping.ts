@@ -1,8 +1,6 @@
 import type { AxiosInstance } from "axios";
 import type { MarketCode } from "../../shared/types";
-import { getLocationTokens } from "./details";
 import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
-import { setLocationFilter } from "../../shared/fetch/setLocationFilter";
 
 // Unified shipping extractor
 import { extractShippingHtml } from "../../shared/parse/shippingHtmlExtractor";
@@ -24,30 +22,19 @@ export async function extractMarketShipping(
 ): Promise<MarketShippingResult> {
   const t0 = Date.now();
   try {
-    // Use EXACT legacy crawler sequence
     const warnings: string[] = [];
     
-    // Step 1: Get location tokens (legacy pattern)
-    let tokens: any = {};
-    try {
-      const tokensRes = await getLocationTokens(client, refNum);
-      tokens = (tokensRes && tokensRes.ok && tokensRes.tokens) ? tokensRes.tokens : {};
-    } catch {}
+    // OPTIMIZATION: Use precomputed lf cookie instead of token scraping
+    // This eliminates 1 HTML fetch (~4s) and 1 POST (~1s) per market
+    await seedLocationFilterCookie(client, market);
+    warnings.push('lf_seeded');
     
-    // Step 2: Set location filter with tokens (legacy pattern)
-    try {
-      const lfResult = await setLocationFilter({ client, shipsTo: market, tokens });
-      warnings.push(lfResult.ok ? 'lf_ok' : 'lf_failed');
-    } catch {
-      warnings.push('lf_error');
-    }
-    
-    // Step 3: Short settle then fetch (reduced delay)
+    // Short settle to allow cookie to take effect
     await new Promise((r) => setTimeout(r, 50));
     
     // Use unified fetchItemPage and shippingHtmlExtractor
     const { fetchItemPage } = await import("../../shared/fetch/fetchItemPage");
-    let page = await fetchItemPage({ client, refNum, shipsTo: market, maxBytes: 2_000_000, earlyAbort: true, earlyAbortMinBytes: 50_000 });
+    let page = await fetchItemPage({ client, refNum, shipsTo: market, maxBytes: 800_000, earlyAbort: true, earlyAbortMinBytes: 8192 });
     let parsed = extractShippingHtml(page?.html || "");
     
 
@@ -57,7 +44,7 @@ export async function extractMarketShipping(
       warnings.push("retry");
       await new Promise((r) => setTimeout(r, 500));
       // Retry fetch with larger limits if first attempt failed
-      page = await fetchItemPage({ client, refNum, shipsTo: market, maxBytes: 5_000_000, earlyAbort: false, earlyAbortMinBytes: 8192 });
+      page = await fetchItemPage({ client, refNum, shipsTo: market, maxBytes: 1_500_000, earlyAbort: false, earlyAbortMinBytes: 8192 });
       parsed = extractShippingHtml(page?.html || "");
     }
     const ms = Date.now() - t0;

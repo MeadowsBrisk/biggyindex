@@ -58,7 +58,7 @@ export async function processSingleItem(
       const descMarket = markets && markets.length > 0 ? markets[0] : undefined;
       const [revP, descP] = await Promise.allSettled([
         fetchFirstReviews(client!, itemId, Number(process.env.CRAWLER_REVIEW_FETCH_SIZE || 100)),
-        fetchItemDescription(client!, itemId, { maxBytes: 160_000, shipsTo: descMarket })
+        fetchItemDescription(client!, itemId, { maxBytes: 100_000, shipsTo: descMarket })
       ]);
       if (revP.status === "fulfilled") revRes = revP.value; else errors.push(`reviews:${(revP as any).reason?.message || "unknown"}`);
       if (descP.status === "fulfilled") descRes = descP.value; else errors.push(`description:${(descP as any).reason?.message || "unknown"}`);
@@ -115,6 +115,9 @@ export async function processSingleItem(
     } else if (existing && existing.lastFullCrawl) {
       merged.lastFullCrawl = existing.lastFullCrawl;
     }
+
+    // Always update lastRefresh timestamp when we process the item
+    merged.lastRefresh = new Date().toISOString();
 
     // Share link (full mode best-effort), with aggregate reuse and optional force refresh.
     const forceShare = Boolean(opts.forceShare || /^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_REFRESH_SHARE || '').trim()));
@@ -173,40 +176,70 @@ export async function processSingleItem(
       
       // Load shipping metadata aggregate to check staleness
       const shippingMetaAgg = await loadShippingMeta(sharedBlob);
+      const forceRefreshShipping = process.env.CRAWLER_REFRESH_SHIPPING === '1';
       const { needsRefresh, staleMarkets } = isShippingStale(shippingMetaAgg, itemId, targetMarkets);
       
-      const marketsToRefresh = needsRefresh ? staleMarkets : [];
+      const marketsToRefresh = (needsRefresh || forceRefreshShipping) ? (forceRefreshShipping ? targetMarkets : staleMarkets) : [];
       
       if (marketsToRefresh.length === 0) {
         console.log(`${prefix} shipping skipped id=${itemId} markets=${targetMarkets.join(',')} (fresh)`);
       } else {
-        console.log(`${prefix} shipping start id=${itemId} markets=${marketsToRefresh.join(',')} (${staleMarkets.length < targetMarkets.length ? 'stale-only' : 'sequential'})`);
+        console.log(`${prefix} shipping start id=${itemId} markets=${marketsToRefresh.join(',')} (${forceRefreshShipping ? 'forced' : staleMarkets.length < targetMarkets.length ? 'stale-only' : 'sequential'})`);
         
-    // Use GB shipping from description HTML if available (optimization)
-    // NOTE: Only use if description was fetched with proper GB location filter
-    let gbShippingFromDesc: { options: Array<{ label: string; cost: number }>; warnings?: string[] } | undefined;
-    if (marketsToRefresh.includes('GB') && descRes?.gbShipping) {
-      // DISABLED: Description HTML is fetched without location filter, so pricing is wrong
-      // Need to fetch with proper GB location filter to get correct pricing
-      // gbShippingFromDesc = descRes.gbShipping;
-      // console.log(`${prefix} shipping optimized id=${itemId} market=GB options=${gbShippingFromDesc!.options.length} (from-description)`);
-    }        // Process markets sequentially to avoid location filter cookie conflicts
+        // Track markets actually refreshed (for metadata update)
+        const marketsRefreshed: MarketCode[] = [];
+        
+        // Use GB shipping from description HTML if available (optimization)
+        // Description is fetched with shipsTo=markets[0] (GB), so shipping is accurate
+        if (marketsToRefresh.includes('GB') && descRes?.gbShipping) {
+      const gbShipping = descRes.gbShipping;
+      
+      // Write GB shipping immediately and remove from refresh list
+      const store = marketStore('GB', env.stores as any);
+      const blob = getBlobClient(store);
+      const shipKey = Keys.market.shipping(itemId);
+      const payload = {
+        id: itemId,
+        market: 'GB' as MarketCode,
+        options: gbShipping.options,
+        warnings: [...(gbShipping.warnings || []), 'from_description'],
+        lastShippingRefresh: new Date().toISOString(),
+      };
+      await blob.putJSON(shipKey, payload);
+      shippingWritten++;
+      marketsRefreshed.push('GB'); // Track GB as refreshed for metadata update
+      
+      // Compute compact summary for aggregator
+      const costs = gbShipping.options.map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
+      if (costs.length) {
+        const min = Math.min(...costs);
+        const max = Math.max(...costs);
+        const free = costs.some((c: number) => c === 0) ? 1 : 0;
+        shipSummaryByMarket['GB'] = { min, max, free };
+      }
+      
+      console.log(`${prefix} shipping cached id=${itemId} market=GB options=${gbShipping.options.length} warns=from_description`);
+      
+      // Remove GB from markets to refresh (already handled via cache)
+          const gbIndex = marketsToRefresh.indexOf('GB');
+          if (gbIndex >= 0) {
+            marketsToRefresh.splice(gbIndex, 1);
+          }
+        }
+        
+        // Process markets sequentially to avoid location filter cookie conflicts
         for (const mkt of marketsToRefresh) {
           try {
             let shippingResult: { options: Array<{ label: string; cost: number }>; warnings?: string[] } | undefined;
             
-            // Use description shipping for GB, extract for others
-            if (mkt === 'GB' && gbShippingFromDesc) {
-              shippingResult = gbShippingFromDesc;
+            // Extract shipping for each market
+            const res = await extractMarketShipping(client!, itemId, mkt);
+            if (res.ok) {
+              shippingResult = { options: res.options || [], warnings: res.warnings };
             } else {
-              const res = await extractMarketShipping(client!, itemId, mkt);
-              if (res.ok) {
-                shippingResult = { options: res.options || [], warnings: res.warnings };
-              } else {
-                console.warn(`${prefix} shipping failed id=${itemId} market=${mkt} err=${res.error || 'unknown'}`);
-                errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
-                continue;
-              }
+              console.warn(`${prefix} shipping failed id=${itemId} market=${mkt} err=${res.error || 'unknown'}`);
+              errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
+              continue;
             }
             
             if (shippingResult) {
@@ -222,6 +255,7 @@ export async function processSingleItem(
               };
               await blob.putJSON(shipKey, payload);
               shippingWritten++;
+              marketsRefreshed.push(mkt); // Track this market as refreshed
               const warnStr = (Array.isArray(payload.warnings) && payload.warnings.length)
                 ? ` warns=${payload.warnings.join(',')}`
                 : '';
@@ -242,12 +276,14 @@ export async function processSingleItem(
           }
         }
         
-        // Update shipping metadata aggregate
-        if (shippingWritten > 0) {
-          const updatedShippingMeta = updateShippingMeta(shippingMetaAgg, itemId, marketsToRefresh);
+        // Update shipping metadata aggregate with ALL markets that were refreshed
+        // (includes GB from cache + markets from loop)
+        if (marketsRefreshed.length > 0) {
+          const updatedShippingMeta = updateShippingMeta(shippingMetaAgg, itemId, marketsRefreshed);
           await saveShippingMeta(sharedBlob, updatedShippingMeta);
         }
       }
+      
       if (targetMarkets.length) {
         const byMkt = Object.entries(shipSummaryByMarket)
           .map(([m, s]) => `${m}:${s.min}-${s.max}${s.free ? ' free' : ''}`)
