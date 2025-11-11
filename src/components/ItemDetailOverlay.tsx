@@ -251,7 +251,8 @@ export default function ItemDetailOverlay() {
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen]);
 
   const name = decodeEntities((baseItem as any)?.name || (detail as any)?.name || 'Item');
-  const description = (detail as any)?.descriptionFull || (baseItem as any)?.description || '';
+  // Prefer full description from detail JSON; fall back to detail.description; then list summary
+  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.description || '';
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.variants) ? (baseItem as any).variants.length > 0 : false;

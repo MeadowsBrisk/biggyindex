@@ -45,6 +45,11 @@ export function loadItemDetail(refNum: string | number) {
     .catch((err) => { throw err; })
     .then(res => {
       const json = res ? (res as any).j : { refNum, notFound:true };
+      try {
+        if (json && typeof json === 'object' && (json as any).refNum == null) {
+          (json as any).refNum = refNum;
+        }
+      } catch {}
       cache.set(k, { data: json });
       notify(refNum);
       return json;
