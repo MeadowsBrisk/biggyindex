@@ -405,12 +405,11 @@ export default function ItemDetailOverlay() {
 
 
   // Unified compact relative time using translation abbreviations
+  const tRel = useTranslations('Rel');
   const shortTimeAgo = useCallback((ts?: number | null) => {
     if (ts == null) return '';
-    return relativeCompact(ts, (k: string) => (tItem as any)(`update.__NO__`) || (useTranslations('Rel')(k)) );
-  // NOTE: we cannot call useTranslations inside callback multiple times; pre-bind outside.
-  }, []);
-  const tRel = useTranslations('Rel');
+    return relativeCompact(ts, tRel as any);
+  }, [tRel]);
   const fullTimeAgo = useCallback((ts?: number | null) => {
     if (ts == null) return '';
     return relativeCompact(ts, tRel as any);
