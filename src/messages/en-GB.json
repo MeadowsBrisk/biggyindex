@@ -163,6 +163,7 @@
     "updated": "Updated {time}",
     "created": "Created {time}",
     "update": {
+      "priceChanged": "Price changed",
       "descriptionChanged": "Description changed",
       "imagesChanged": "Images changed",
       "variantsNoun": "{count, plural, one {variant} other {variants}}"

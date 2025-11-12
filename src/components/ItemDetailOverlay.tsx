@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useAtom, useAtomValue } from 'jotai';
 import { useSetAtom } from 'jotai';
 import { selectAtom } from 'jotai/utils';
+import { useUpdateReason } from '@/hooks/useUpdateReason';
 import {
   expandedRefNumAtom,
   itemsAtom,
@@ -270,40 +271,7 @@ export default function ItemDetailOverlay() {
   const shipsFrom = (baseItem as any)?.shipsFrom || null;
   const lastUpdatedAt = (baseItem as any)?.lastUpdatedAt || null;
   const lastUpdateReason = (baseItem as any)?.lastUpdateReason || null;
-  const compactUpdateReason = useMemo(() => {
-    if (!lastUpdateReason || typeof lastUpdateReason !== 'string') return '';
-    const s = lastUpdateReason;
-    let adds = 0;
-    let removes = 0;
-    let descChanged = false;
-    let imagesChanged = false;
-    // Parse known reason tokens from backend strings (English source), aggregate counts
-    const addMatches = s.match(/(\d+)\s+variants?\s+added/gi) || [];
-    for (const m of addMatches) {
-      const n = Number((m.match(/(\d+)/) || [])[1]);
-      if (Number.isFinite(n)) adds += n;
-    }
-    const removeMatches = s.match(/(\d+)\s+variants?\s+removed/gi) || [];
-    for (const m of removeMatches) {
-      const n = Number((m.match(/(\d+)/) || [])[1]);
-      if (Number.isFinite(n)) removes += n;
-    }
-    // Singular forms
-    const singleAdds = (s.match(/\bVariant added\b/gi) || []).length;
-    const singleRemoves = (s.match(/\bVariant removed\b/gi) || []).length;
-    adds += singleAdds;
-    removes += singleRemoves;
-    // Flags
-    descChanged = /\bDescription changed\b/i.test(s);
-    imagesChanged = /\bImages changed\b/i.test(s);
-
-    const tokens: string[] = [];
-    try { if (descChanged) tokens.push(tItem('update.descriptionChanged')); } catch {}
-    try { if (imagesChanged) tokens.push(tItem('update.imagesChanged')); } catch {}
-    try { if (adds > 0) tokens.push(`+${adds} ${tItem('update.variantsNoun', { count: adds })}`); } catch {}
-    try { if (removes > 0) tokens.push(`-${removes} ${tItem('update.variantsNoun', { count: removes })}`); } catch {}
-    return tokens.join(', ');
-  }, [lastUpdateReason, tItem]);
+  const compactUpdateReason = useUpdateReason(lastUpdateReason);
   const createdAt = (baseItem as any)?.firstSeenAt || (detail as any)?.createdAt || null;
   const shippingRange = (() => {
     const { minShip, maxShip } = (baseItem as any) || {};

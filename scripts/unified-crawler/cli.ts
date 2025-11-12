@@ -195,6 +195,7 @@ async function main() {
       } catch {}
       const shareUpdates: Record<string, string> = {};
       const shipUpdatesByMarket: Record<string, Record<string, { min: number; max: number; free: number }>> = {};
+      const shippingMetaUpdates: Record<string, { lastRefresh: string; markets?: Record<string, string> }> = {};
 
       const runOne = async (entry: { id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; sig?: string }) => {
         const t1 = Date.now();
@@ -211,6 +212,9 @@ async function main() {
                 if (!shipUpdatesByMarket[mkt]) shipUpdatesByMarket[mkt] = {} as any;
                 shipUpdatesByMarket[mkt][entry.id] = summary as any;
               }
+            }
+            if (res.shippingMetaUpdate) {
+              shippingMetaUpdates[entry.id] = res.shippingMetaUpdate;
             }
           } else {
             fail++;
@@ -275,6 +279,27 @@ async function main() {
             console.log(`[cli:items] aggregates: wrote shipSummary ${mkt} updates=${Object.keys(updates).length} total=${Object.keys(existing).length}`);
           } else {
             console.log(`[cli:items] aggregates: shipSummary unchanged ${mkt} candidates=${Object.keys(updates).length}`);
+          }
+        }
+        
+        // Shipping metadata aggregate (staleness tracking)
+        if (Object.keys(shippingMetaUpdates).length > 0) {
+          const metaKey = Keys.shared.aggregates.shippingMeta();
+          const existingMeta = ((await sharedBlob.getJSON<any>(metaKey)) || {}) as Record<string, { lastRefresh: string; markets?: Record<string, string> }>;
+          let metaChanged = false;
+          for (const [id, update] of Object.entries(shippingMetaUpdates)) {
+            const prev = existingMeta[id];
+            const same = prev && prev.lastRefresh === update.lastRefresh && JSON.stringify(prev.markets || {}) === JSON.stringify(update.markets || {});
+            if (!same) {
+              existingMeta[id] = update;
+              metaChanged = true;
+            }
+          }
+          if (metaChanged) {
+            await sharedBlob.putJSON(metaKey, existingMeta);
+            console.log(`[cli:items] aggregates: wrote shippingMeta updates=${Object.keys(shippingMetaUpdates).length} total=${Object.keys(existingMeta).length}`);
+          } else {
+            console.log(`[cli:items] aggregates: shippingMeta unchanged candidates=${Object.keys(shippingMetaUpdates).length}`);
           }
         }
       } catch (e: any) {

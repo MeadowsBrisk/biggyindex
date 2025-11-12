@@ -27,12 +27,10 @@
 export function normalizeItem(raw: any): any {
   if (!raw || typeof raw !== 'object') return raw;
 
-  // If already in long-form (has 'name' property), return as-is
-  if (raw.name !== undefined) return raw;
-
+  // Start with all original properties
   const normalized: any = { ...raw };
 
-  // Map minified keys to full keys
+  // Override with expanded minified keys (prefer minified keys over long-form)
   if (raw.n !== undefined) normalized.name = raw.n;
   if (raw.d !== undefined) normalized.description = raw.d;
   if (raw.i !== undefined) normalized.imageUrl = raw.i;

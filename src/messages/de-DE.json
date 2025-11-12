@@ -164,6 +164,7 @@
     "updated": "Aktualisiert {time}",
     "created": "Erstellt {time}",
     "update": {
+      "priceChanged": "Preis geändert",
       "descriptionChanged": "Beschreibung geändert",
       "imagesChanged": "Bilder geändert",
       "variantsNoun": "{count, plural, one {Variante} other {Varianten}}"

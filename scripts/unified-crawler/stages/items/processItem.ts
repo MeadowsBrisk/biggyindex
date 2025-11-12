@@ -19,6 +19,7 @@ export interface ProcessItemResult {
   shippingWritten: number;
   shareLink?: string | null;
   shipSummaryByMarket?: Record<string, { min: number; max: number; free: number }>;
+  shippingMetaUpdate?: { lastRefresh: string; markets?: Record<string, string> };
   errors?: string[];
 }
 
@@ -170,12 +171,12 @@ export async function processSingleItem(
   const shareStatus = shareWritten ? 'share=new' : (merged.sl ? 'share=reused' : 'share=none');
   console.log(`${prefix} stored id=${itemId} descLen=${descLen} reviews=${revCount}${descriptionWritten?" full=1":""} ${shareStatus}`);
 
+    // Load shipping metadata aggregate (needed for both full and reviews-only modes)
+    const shippingMetaAgg = await loadShippingMeta(sharedBlob);
+
     // Shipping per-present market (SEQUENTIAL to avoid cookie race conditions)
     if (mode === "full") {
       const targetMarkets = Array.isArray(opts.shippingMarkets) && opts.shippingMarkets.length ? opts.shippingMarkets : markets;
-      
-      // Load shipping metadata aggregate to check staleness
-      const shippingMetaAgg = await loadShippingMeta(sharedBlob);
       const forceRefreshShipping = process.env.CRAWLER_REFRESH_SHIPPING === '1';
       const { needsRefresh, staleMarkets } = isShippingStale(shippingMetaAgg, itemId, targetMarkets);
       
@@ -276,11 +277,13 @@ export async function processSingleItem(
           }
         }
         
-        // Update shipping metadata aggregate with ALL markets that were refreshed
-        // (includes GB from cache + markets from loop)
+        // Prepare shipping metadata update (will be batched at end by cli.ts)
         if (marketsRefreshed.length > 0) {
-          const updatedShippingMeta = updateShippingMeta(shippingMetaAgg, itemId, marketsRefreshed);
-          await saveShippingMeta(sharedBlob, updatedShippingMeta);
+          const updated = updateShippingMeta(shippingMetaAgg, itemId, marketsRefreshed);
+          const entry = updated[itemId];
+          if (entry) {
+            shipSummaryByMarket['__shippingMetaUpdate'] = entry as any; // temporary holder
+          }
         }
       }
       
@@ -292,6 +295,30 @@ export async function processSingleItem(
       }
     }
 
+    // Extract shippingMetaUpdate from temporary holder (set in both full and reviews-only modes)
+    const shippingMetaUpdate = shipSummaryByMarket['__shippingMetaUpdate'] as any;
+    delete shipSummaryByMarket['__shippingMetaUpdate'];
+    
+    // For reviews-only mode, create the update if not already set
+    if (mode === 'reviews-only' && !shippingMetaUpdate) {
+      const now = new Date().toISOString();
+      const existingEntry = shippingMetaAgg[itemId];
+      const updateEntry = existingEntry
+        ? { ...existingEntry, lastRefresh: now }
+        : { markets: {}, lastRefresh: now };
+      return {
+        ok: true,
+        itemId,
+        reviewsWritten,
+        descriptionWritten,
+        shippingWritten,
+        shareLink: merged.sl || null,
+        shipSummaryByMarket: Object.keys(shipSummaryByMarket).length ? shipSummaryByMarket : undefined,
+        shippingMetaUpdate: updateEntry,
+        errors: errors.length ? errors : undefined,
+      };
+    }
+
     return {
       ok: true,
       itemId,
@@ -300,6 +327,7 @@ export async function processSingleItem(
       shippingWritten,
       shareLink: merged.sl || null,
       shipSummaryByMarket: Object.keys(shipSummaryByMarket).length ? shipSummaryByMarket : undefined,
+      shippingMetaUpdate: shippingMetaUpdate || undefined,
       // note: shareWritten not yet used by callers; can be added to result if needed
       errors: errors.length ? errors : undefined,
     };
