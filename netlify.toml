@@ -125,19 +125,19 @@
 ### Unified background stages (items and sellers) on separate schedules
 #[functions."crawler-items-background"]
   ## Updated cadence: every 4 hours starting at midnight (0,4,8,12,16,20)
-#  schedule = "0 0,4,8,12,16,20 * * *"
-#  node_bundler = "esbuild"
-#  included_files = [
-#    "scripts/unified-crawler/**"
-#  ]
+  schedule = "0 0,4,8,12,16,20 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
   #[functions."crawler-items-background".environment]
   #CRAWLER_PERSIST = "blobs"
 
   
-#[functions."crawler-sellers-background"]
+[functions."crawler-sellers-background"]
   ## Updated cadence: every 4 hours offset from items (2,6,10,14,18,22)
-#  schedule = "0 2,6,10,14,18,22 * * *"
-#  node_bundler = "esbuild"
-#  included_files = [
-#    "scripts/unified-crawler/**"
-#  ]
+  schedule = "0 2,6,10,14,18,22 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
