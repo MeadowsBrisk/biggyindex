@@ -123,7 +123,7 @@
 
 
 ### Unified background stages (items and sellers) on separate schedules
-#[functions."crawler-items-background"]
+[functions."crawler-items-background"]
   ## Updated cadence: every 4 hours starting at midnight (0,4,8,12,16,20)
   schedule = "0 0,4,8,12,16,20 * * *"
   node_bundler = "esbuild"
