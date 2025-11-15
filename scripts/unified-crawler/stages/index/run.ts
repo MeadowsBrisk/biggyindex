@@ -7,6 +7,7 @@ import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
 import { appendRunMeta } from "../../shared/persistence/runMeta";
 import { diffMarketIndexEntries } from "../../shared/logic/changes";
+import { mergeIndexMetaEntry, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
 import axios from "axios";
 import { buildMarketSellers } from "./buildSellers";
 import { createCookieHttp, warmCookieJar } from "../../shared/http/client";
@@ -156,7 +157,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   const shipAggP = blob.getJSON<any>(Keys.market.aggregates.shipSummary()).catch(() => null);
   let sharesAgg: Record<string, string> = {};
   let shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }> = {};
-  let indexMetaAgg: Record<string, { fsa?: string; lua?: string; lur?: string }> = {};
+  let indexMetaAgg: Record<string, IndexMetaEntry> = {};
   try {
     const [sRes, imRes, ssRes, previousIndex] = await Promise.all([sharesP, indexMetaP, shipAggP, prevIndexP]);
     if (sRes && typeof sRes === 'object') sharesAgg = sRes as any;
@@ -181,12 +182,18 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   const byCanonId = new Map<string, Record<string, any>>();
 
   let appliedMeta = 0;
+  const metaUpdates: Record<string, IndexMetaEntry> = {};
+
   const marketIndexItems = (Array.isArray(rawItems) ? rawItems : []).map((it: any) => {
   // Canonical ID: use refNum everywhere now
   const ref = it?.refNum ?? it?.refnum ?? it?.ref;
-  const numId = it?.id; // kept for endorsements join only
-  const id = ref ? String(ref) : (numId != null ? String(numId) : undefined);
-    if (!id) return null;
+  const numId = it?.id;
+  const refKey = ref != null ? String(ref) : null;
+  const numKey = numId != null ? String(numId) : null;
+  const canonicalKey = refKey ?? numKey;
+  if (!canonicalKey) return null;
+  const numericValue = typeof numId === 'number' ? numId : (numKey && /^\d+$/.test(numKey) ? Number(numKey) : null);
+  const entryId = (numericValue != null ? numericValue : (numKey ?? canonicalKey));
     const name = it?.name;
     const description = it?.description || "";
     // Exclusions: tip jars, custom orders/listings (legacy-compatible heuristics)
@@ -224,8 +231,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     const h = it?.hotness;
   const sf = it?.shipsFrom ?? it?.ships_from;
 
-  const entry: Record<string, any> = { id };
-  if (ref) entry.refNum = String(ref);
+  const entry: Record<string, any> = { id: entryId };
+  if (canonicalKey) entry.refNum = canonicalKey;
   if (name) entry.n = name;
   if (description) entry.d = description;
     if (primaryImg) entry.i = primaryImg;
@@ -239,7 +246,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   if (sf) entry.sf = sf;
 
     // Review stats (minified key: rs)
-    const ir = itemReviewSummaries?.[String(id)] ?? itemReviewSummaries?.[String(numId)];
+    const ir = (canonicalKey && itemReviewSummaries?.[canonicalKey]) ?? (numKey ? itemReviewSummaries?.[numKey] : undefined);
     if (ir) {
       const rsObj: Record<string, any> = {};
       if (typeof ir.averageRating === 'number') rsObj.avg = ir.averageRating;
@@ -262,7 +269,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     if (!prev && numId != null) prev = prevByNum.get(String(numId));
     const nowIso = new Date().toISOString();
     // Timestamps (minified keys). Prefer previously written short keys; fallback to legacy long keys.
-  const metaHit = indexMetaAgg[id];
+  const metaHit = canonicalKey ? indexMetaAgg[canonicalKey] : undefined;
     if (metaHit) appliedMeta++;
     const { changed, reasons: changeReasons } = diffMarketIndexEntries(prev, entry);
   // Timestamp policy (PARITY + REQUIREMENTS):
@@ -302,7 +309,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       : (typeof prev?.endorsementCount === 'number' ? prev.endorsementCount : 0);
   // Share link (compact): carry forward if previously embedded; else use aggregate if present
   if (prev?.sl) entry.sl = prev.sl;
-  else if (id && sharesAgg[id]) entry.sl = sharesAgg[id];
+  else if (canonicalKey && sharesAgg[canonicalKey]) entry.sl = sharesAgg[canonicalKey];
     // Shipping summary (minified key): carry forward if present; else will attempt backfill below when available
     // Normalize older shapes: convert free:boolean -> 1/0 and drop cnt
     function normalizeSh(x: any) {
@@ -316,15 +323,27 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     }
     const sh1 = prev?.sh ? normalizeSh(prev.sh) : undefined;
     const sh2 = !sh1 && prev?.ship ? normalizeSh(prev.ship) : undefined;
-    const sh3 = id && shipAgg[id] ? normalizeSh(shipAgg[id]) : undefined;
+    const sh3 = canonicalKey && shipAgg[canonicalKey] ? normalizeSh(shipAgg[canonicalKey]) : undefined;
     if (sh1) entry.sh = sh1;
     else if (sh2) entry.sh = sh2;
     else if (sh3) entry.sh = sh3;
     // Index into lookup maps for later endorsement join
     try {
-      if (numId != null) byNumId.set(String(numId), entry as Record<string, any>);
-      if (id) byCanonId.set(String(id), entry as Record<string, any>);
+      if (numKey) byNumId.set(numKey, entry as Record<string, any>);
+      if (canonicalKey) byCanonId.set(canonicalKey, entry as Record<string, any>);
     } catch {}
+    if (canonicalKey) {
+      const candidate = {
+        fsa: typeof entry.fsa === 'string' ? entry.fsa : null,
+        lua: typeof entry.lua === 'string' ? entry.lua : null,
+        lur: typeof entry.lur === 'string' ? entry.lur : null,
+      };
+      const { changed, next } = mergeIndexMetaEntry(indexMetaAgg[canonicalKey], candidate);
+      if (changed) {
+        metaUpdates[canonicalKey] = next;
+        indexMetaAgg[canonicalKey] = next;
+      }
+    }
     return entry;
   }).filter(Boolean) as Array<Record<string, unknown>>;
 
@@ -338,7 +357,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       const mod = await import('@netlify/neon');
       const sql = mod.neon();
       // Query using both numeric ids (preferred for counters) and canonical ids as fallback
-      const canonIds = marketIndexItems.map((e: any) => String(e.id)).filter(Boolean);
+      const canonIds = marketIndexItems.map((e: any) => (e.refNum ? String(e.refNum) : null)).filter(Boolean) as string[];
       const numIds = Array.from(byNumId.keys());
       const ids = Array.from(new Set([...numIds, ...canonIds]));
       if (ids.length) {
@@ -467,6 +486,24 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   // Flush all writes concurrently
   if (writeTasks.length) {
     try { await Promise.allSettled(writeTasks); } catch {}
+  }
+
+  const metaUpdateKeys = Object.keys(metaUpdates);
+  if (metaUpdateKeys.length) {
+    let latestMeta: Record<string, IndexMetaEntry> = {};
+    try {
+      const fresh = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
+      if (fresh && typeof fresh === 'object') latestMeta = fresh as Record<string, IndexMetaEntry>;
+    } catch {}
+    for (const key of metaUpdateKeys) {
+      const { next } = mergeIndexMetaEntry(latestMeta[key], metaUpdates[key]);
+      latestMeta[key] = next;
+    }
+    try {
+      await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), latestMeta);
+    } catch (e: any) {
+      logger.warn(`[index:${code}] failed to persist index-meta aggregate: ${e?.message || e}`);
+    }
   }
 
   // Backfills no longer needed when aggregates are present

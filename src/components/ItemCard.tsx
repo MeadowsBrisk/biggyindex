@@ -214,8 +214,12 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     : { initial: { opacity: 0, y: initialY }, animate: { opacity: entered ? 1 : 0, y: entered ? 0 : initialY } };
 
   // Compute aspect class from global setting
-  const aspectClass = thumbAspect === 'portrait' ? 'aspect-[2/3]' : thumbAspect === 'square' ? 'aspect-square' : 'aspect-[16/10]';
-
+  // Compute aspect class from global setting
+  const aspectClass = useMemo(() => {
+    if (thumbAspect === 'portrait') return 'aspect-[2/3]';
+    if (thumbAspect === 'standard') return 'aspect-[1/1]';
+    return 'aspect-[16/10]'; // landscape
+  }, [thumbAspect]);
   // (no fallback price – only show when computedRangeText ready)
   // Use presence of minShip (only set after crawl) to decide if overlay should be available
   // Determine if we have per-item crawl detail available. Description may be absent even when other crawl data exists.

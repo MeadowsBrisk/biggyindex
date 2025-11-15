@@ -36,7 +36,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
       const blob = getBlobClient(storeName);
       const idx = (await blob.getJSON<any[]>(Keys.market.index(mkt))) || [];
       for (const e of Array.isArray(idx) ? idx : []) {
-        const id = e?.id;
+        const id = String(e?.refNum ?? e?.ref ?? e?.id ?? "").trim();
         const sid = e?.sid ?? e?.sellerId;
         const sn = e?.sn ?? e?.sellerName;
         if (!id || sid == null) continue;

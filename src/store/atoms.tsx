@@ -594,7 +594,7 @@ export const resetFiltersAtom = atom<null, [], void>(null, (get: any, set: any) 
 });
 
 // Thumbnail aspect ratio
-export const thumbnailAspectAtom = atomWithStorage<'landscape' | 'square' | 'portrait'>("thumbAspect", "landscape");
+export const thumbnailAspectAtom = atomWithStorage<'landscape' | 'standard' | 'portrait'>("thumbAspect", "landscape");
 
 // Accordion expanded/collapsed state
 export const priceAccordionOpenAtom = atomWithStorage<boolean>("accordionPriceOpen", true);

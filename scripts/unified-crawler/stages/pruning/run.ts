@@ -3,6 +3,7 @@ import { loadEnv } from "../../shared/env/loadEnv";
 import { marketStore } from "../../shared/env/markets";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
+import { pruneIndexMeta, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
 
 export interface PruningRunResult {
   ok: boolean;
@@ -21,6 +22,7 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
     const env = loadEnv();
     const mkts = (markets && markets.length ? markets : env.markets) as MarketCode[];
     console.log(`[crawler:pruning] start markets=${mkts.join(',')}`);
+    const sharedBlob = getBlobClient(env.stores.shared);
 
     // 1) Build active item id sets per market and union across markets
     const activeByMarket = new Map<string, Set<string>>();
@@ -32,7 +34,7 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
         const index = (await blob.getJSON<any[]>(Keys.market.index(mkt))) || [];
         const ids = new Set<string>();
         for (const e of Array.isArray(index) ? index : []) {
-          const id = String(e?.id ?? e?.refNum ?? e?.ref ?? '').trim();
+          const id = String(e?.refNum ?? e?.ref ?? e?.id ?? '').trim();
           if (id) { ids.add(id); unionActive.add(id); }
         }
         activeByMarket.set(mkt, ids);
@@ -41,6 +43,20 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
         console.warn(`[crawler:pruning] warn market=${mkt} failed to read index: ${e?.message || e}`);
         activeByMarket.set(mkt, new Set());
       }
+    }
+
+    // Shared aggregate fallback: drop metadata entries for items no longer present anywhere
+    try {
+      let indexMetaAgg: Record<string, IndexMetaEntry> = {};
+      const agg = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
+      if (agg && typeof agg === 'object') indexMetaAgg = agg as Record<string, IndexMetaEntry>;
+      const { removed } = pruneIndexMeta(indexMetaAgg, unionActive);
+      if (removed > 0) {
+        await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
+        console.log(`[crawler:pruning] pruned index-meta entries=${removed}`);
+      }
+    } catch (e: any) {
+      console.warn(`[crawler:pruning] warn failed to prune index-meta aggregate: ${e?.message || e}`);
     }
 
     // 2) Per-market: delete stale shipping files and trim ship summary aggregate
@@ -86,7 +102,6 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
     }
 
     // 3) Shared: delete orphaned item cores (not present in any market)
-    const sharedBlob = getBlobClient(env.stores.shared);
     let orphanCores = 0;
     try {
       const coreKeys = await sharedBlob.list("items/");

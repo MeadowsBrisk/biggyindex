@@ -47,7 +47,15 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     const index = (await blob.getJSON<any[]>(Keys.market.index(code))) || [];
     const list = Array.isArray(index) ? index : [];
     itemsPlanned += list.length;
-    indexes.push({ market: code, items: list.map(it => ({ id: String(it?.id ?? it?.refNum ?? it?.ref ?? "").trim(), n: it?.n || it?.name, raw: it })) });
+    // Prefer canonical ref-based identifier for dedupe; fall back to numeric id if no ref exists.
+    indexes.push({
+      market: code,
+      items: list.map((it) => ({
+        id: String(it?.refNum ?? it?.ref ?? it?.id ?? "").trim(),
+        n: it?.n || it?.name,
+        raw: it,
+      })),
+    });
     marketSizes.push(`${code}=${list.length}`);
   }
   console.info(`[items] indexes loaded ${marketSizes.join(' ')} planned=${itemsPlanned} (${Math.max(0, Date.now() - tIdxStart)}ms)`);
