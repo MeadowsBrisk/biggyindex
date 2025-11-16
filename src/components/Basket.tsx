@@ -44,9 +44,9 @@ const overlayVariants: Variants = {
 };
 
 const floatingButtonVariants: Variants = {
-  hidden: { opacity: 0, y: -8 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 type SellerGroup = {
@@ -196,12 +196,12 @@ export default function Basket() {
 
   const renderTrigger = (compact = false) => (
     <>
-      <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 10h12l-1.2 7H7.2L6 10z" />
-        <path d="M8 10l4-5 4 5" />
-        <path d="M9 15h6" />
+      <svg viewBox="0 0 32 32" className="w-3.5 h-3.5" aria-hidden="true" fill="currentColor">
+        <path d="M29.4,8.85A2.48,2.48,0,0,0,27.53,8H14a1,1,0,0,0,0,2H27.53a.47.47,0,0,1,.36.16.48.48,0,0,1,.11.36l-1.45,10A1.71,1.71,0,0,1,24.85,22H14.23a1.72,1.72,0,0,1-1.68-1.33L10,8.79v0h0L9.5,6.87A3.79,3.79,0,0,0,5.82,4H3A1,1,0,0,0,3,6H5.82A1.8,1.8,0,0,1,7.56,7.36L8,9.21H8L10.6,21.09A3.72,3.72,0,0,0,14.23,24H24.85a3.74,3.74,0,0,0,3.68-3.16l1.45-10A2.45,2.45,0,0,0,29.4,8.85Z"/>
+        <path d="M16,25H14a1,1,0,0,0,0,2h2a1,1,0,0,0,0-2Z"/>
+        <path d="M25,25H23a1,1,0,0,0,0,2h2a1,1,0,0,0,0-2Z"/>
       </svg>
-      {!compact && <span className="text-sm font-semibold">{t('button')}</span>}
+      {!compact && <span className="text-[13px] font-semibold">{t('button')}</span>}
       {renderBadge()}
     </>
   );
@@ -215,7 +215,7 @@ export default function Basket() {
           type="button"
           onClick={() => setOpen((v) => !v)}
           className={cn(
-            'relative inline-flex items-center gap-2.5 rounded-full border px-3.5 py-2 text-sm font-semibold shadow-sm transition-all',
+            'relative inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[13px] font-semibold shadow-sm transition-all',
             'bg-white dark:bg-[#0f1725] backdrop-blur-sm border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100',
             'hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-[#141d30]'
           )}
@@ -239,7 +239,7 @@ export default function Basket() {
             exit="exit"
             onClick={() => setOpen(true)}
             className={cn(
-              'fixed top-4 right-4 z-[120] inline-flex items-center gap-2.5 rounded-full border px-3.5 py-2 text-sm font-semibold shadow-lg backdrop-blur-sm transition-all',
+              'fixed top-4 right-4 z-[120] inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold shadow-lg backdrop-blur-sm transition-all',
               'bg-white dark:bg-[#0f1725] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100',
               'hover:shadow-xl hover:bg-gray-50 dark:hover:bg-[#141d30]'
             )}

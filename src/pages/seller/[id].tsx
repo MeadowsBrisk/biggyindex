@@ -36,13 +36,14 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
   try {
     const sellerId = parseSellerId(ctx.params?.id as string | string[] | undefined);
     if (!sellerId) return { notFound: true };
-    const seller = await loadSellerForSEO(sellerId);
-    if (!seller) return { notFound: true };
     
-    // Derive locale from host or path for proper SEO meta
+    // Derive market and locale from host or path for proper SEO meta
     const host = ctx.req.headers.host || '';
     const pathname = ctx.resolvedUrl || '/';
     const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
+    
+    const seller = await loadSellerForSEO(sellerId, market);
+    if (!seller) return { notFound: true };
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
     

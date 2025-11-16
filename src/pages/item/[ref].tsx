@@ -28,15 +28,16 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
   try {
     const ref = typeof ctx.params?.ref === 'string' ? ctx.params.ref : null;
     if (!ref) return { notFound: true };
-    const item = await loadItemForSEO(ref);
-    if (!item) return { notFound: true };
     
-    // Derive locale from host or path for proper SEO meta
+    // Derive market and locale from host or path for proper SEO meta
     const host = ctx.req.headers.host || '';
     const pathname = ctx.resolvedUrl || '/';
     const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
+    
+    const item = await loadItemForSEO(ref, market);
+    if (!item) return { notFound: true };
     
     // Load messages for server-side translation
     let messages: Record<string, any> = {};

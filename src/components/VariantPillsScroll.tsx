@@ -78,7 +78,7 @@ export default function VariantPillsScroll({ variants, className = '' }: Variant
         {isScrollable && <div className="shrink-0 w-1" aria-hidden="true" />}
       </div>
       {isScrollable && isAtStart && (
-        <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end pointer-events-none pr-2 bg-gradient-to-l from-white via-white/95 via-40% to-transparent dark:from-[#0f1725] dark:via-[#0f1725]/95 dark:via-40% dark:to-transparent group-hover:from-gray-50 group-hover:via-gray-50/95 dark:group-hover:from-[#141d30] dark:group-hover:via-[#141d30]/95 pl-16 transition-colors opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end pointer-events-none pr-2 bg-gradient-to-l from-white via-white/95 via-40% to-transparent dark:from-[#0f1725] dark:via-[#0f1725]/95 dark:via-40% dark:to-transparent group-hover:from-gray-50 group-hover:via-gray-50/95 dark:group-hover:from-[#141d30] dark:group-hover:via-[#141d30]/95 pl-16 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
             <span>{variants.length}</span>
             <span>→</span>
