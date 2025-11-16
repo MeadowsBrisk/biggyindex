@@ -156,23 +156,13 @@ export default function ImageZoomPreview({ imageUrl, imageUrls, alt = '', openSi
     return typeof src === 'string' && /\.gif($|[?#])/i.test(src);
   }, [images, activeIndex]);
 
-  // Proxy helper for images (GIFs proxied via API endpoint when enabled)
-  const toBase64Url = useCallback((s: string) => { try { const utf8 = encodeURIComponent(s).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(Number('0x' + p1))); return btoa(utf8).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); } catch { return ''; } }, []);
-  const proxify = useCallback((src: string) => {
-    if (typeof src !== 'string') return src;
-    const lower = src.toLowerCase();
-    if (lower.includes('.gif')) return useProxy ? `/api/image-proxy/${toBase64Url(src)}` : src;
-    if (!useProxy) return src;
-    return proxyImage(src);
-  }, [useProxy, toBase64Url]);
-
-  // Preload non-GIF images after opening
+  // Preload non-GIF images after opening (use shared proxyImage)
   useEffect(() => {
     if (!open || images.length <= 1) return;
     images.filter(s => typeof s === 'string' && s && !/\.gif($|[?#])/i.test(s)).forEach((src: string) => {
-      const i = new Image(); i.decoding = 'async'; i.loading = 'eager'; i.src = proxify(src);
+      const i = new Image(); i.decoding = 'async'; i.loading = 'eager'; i.src = useProxy ? proxyImage(src) : src;
     });
-  }, [open, images, proxify]);
+  }, [open, images, useProxy]);
 
   // Navigation helper (debounced)
   const lastNavRef = useRef<number>(0);
@@ -351,7 +341,7 @@ export default function ImageZoomPreview({ imageUrl, imageUrls, alt = '', openSi
                       total={total}
                       activeIndex={activeIndex}
                       rotation={rotationFor(idx)}
-                      proxify={proxify}
+                      useProxy={useProxy}
                       swiper={swiper}
                       controlsRef={controlsRef}
                       currentScaleRef={currentScaleRef}
@@ -377,7 +367,7 @@ export default function ImageZoomPreview({ imageUrl, imageUrls, alt = '', openSi
               images={images}
               activeIndex={activeIndex}
               onSelect={(i: number) => { try { swiper && (swiper as any).slideTo(i); } catch {} setShowUI(true); }}
-              proxify={proxify}
+              useProxy={useProxy}
               isUltrawide={isUltrawide}
               isSuperwide={isSuperwide}
               show={showUI}

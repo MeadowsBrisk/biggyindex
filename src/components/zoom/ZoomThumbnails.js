@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { proxyImage } from '@/lib/images';
 import cn from '@/app/cn';
 
 /* Minimal thumbnail strip extracted from ImageZoomPreview.
@@ -7,12 +8,12 @@ import cn from '@/app/cn';
    - images: string[]
    - activeIndex: number
    - onSelect: (idx:number)=>void
-   - proxify: (src:string)=>string
+   - useProxy: boolean to enable/disable proxying
    - isUltrawide/isSuperwide: layout flags for sizing
    - show: boolean (controls opacity)
    - alt: string (base alt text)
 */
-export default function ZoomThumbnails({ images, activeIndex, onSelect, proxify, isUltrawide, isSuperwide, show, alt }) {
+export default function ZoomThumbnails({ images, activeIndex, onSelect, useProxy = true, isUltrawide, isSuperwide, show, alt }) {
   if (!Array.isArray(images) || images.length <= 1) return null;
   return (
     <div
@@ -33,8 +34,8 @@ export default function ZoomThumbnails({ images, activeIndex, onSelect, proxify,
         {images.map((src, i) => {
           const isActive = i === activeIndex;
           const size = isSuperwide ? 148 : isUltrawide ? 132 : 96;
-          // Bypass proxy for GIFs (use original host)
-          const thumbSrc = (/\.gif($|[?#])/i.test(src)) ? src : proxify(src);
+          // Use shared proxyImage for consistent URL generation across all domains
+          const thumbSrc = useProxy ? proxyImage(src) : src;
           return (
             <button
               key={i + src}

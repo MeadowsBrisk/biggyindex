@@ -2,6 +2,7 @@
 import React from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { useGifAsset } from '@/lib/gifAssets';
+import { proxyImage } from '@/lib/images';
 import cn from '@/app/cn';
 
 /* ZoomSlide
@@ -12,7 +13,7 @@ import cn from '@/app/cn';
  *  - total: total slides
  *  - activeIndex: currently active index (for locking gestures)
  *  - rotation: degrees number
- *  - proxify: (src)=>string (handles proxy logic including GIF proxy)
+ *  - useProxy: boolean to enable/disable proxying
  *  - swiper: Swiper instance
  *  - controlsRef: ref object to store zoom controls per index
  *  - currentScaleRef: ref to current zoom scale (shared)
@@ -25,7 +26,7 @@ export default function ZoomSlide({
   total,
   activeIndex,
   rotation,
-  proxify,
+  useProxy = true,
   swiper,
   controlsRef,
   currentScaleRef,
@@ -34,7 +35,7 @@ export default function ZoomSlide({
   const isGif = typeof src === 'string' && /\.gif($|[?#])/i.test(src);
   const { video, posterProxied } = useGifAsset(isGif ? src : null);
   const rawSrc = src;
-  const displaySrc = !isGif ? proxify(src) : rawSrc; // non-gif still proxied
+  const displaySrc = !isGif && useProxy ? proxyImage(src) : rawSrc;
   const videoRef = React.useRef(null);
   // sync pause state to video
   React.useEffect(() => {

@@ -75,12 +75,6 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
     setExpanded(ref || null);
   }, [router.isReady, ref, setExpanded]);
 
-  // Debug: Check what SEO data we received
-  useEffect(() => {
-    console.log('[ItemRefPage] SEO prop:', JSON.stringify(seo, null, 2));
-    console.log('[ItemRefPage] Locale:', serverLocale);
-  }, [seo, serverLocale]);
-
   const titleBase = seo?.name ? seo.name : 'Items';
   const bySuffix = seo?.sellerName ? ` ${tReviews('soldBy')} ${seo.sellerName}` : '';
   const title = `${titleBase}${bySuffix} | Biggy Index`;
