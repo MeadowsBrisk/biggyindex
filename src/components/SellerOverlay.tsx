@@ -9,10 +9,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
 import { decodeEntities, timeAgo } from '@/lib/format';
+import { proxyImage } from '@/lib/images';
 import ImageZoomPreview from '@/components/ImageZoomPreview';
 import SellerIncludeExclude from '@/components/item-detail/SellerIncludeExclude';
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import { loadSellersIndex, getCachedSellerById } from '@/lib/sellersIndex';
+import formatDescription from '@/lib/formatDescription';
 
 type OpenPreviewSignal = { ts: number; index: number; guard: unknown } | null;
 type ReviewGallerySignal = { images: string[]; index: number; ts: number; guard: unknown } | null;
@@ -83,7 +85,7 @@ export default function SellerOverlay() {
 
   const name = decodeEntities(detail?.sellerName || 'Seller');
   const manifesto = detail?.manifesto || '';
-  const img: string | null = detail?.sellerImageUrl || null;
+  const manifestoNode = useMemo(() => formatDescription(manifesto || null), [manifesto]);
   const online = detail?.sellerOnline || null;
   const joined = detail?.sellerJoined || null;
   const shareLink = useMemo(() => {
@@ -130,6 +132,12 @@ export default function SellerOverlay() {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [sellerId]);
+  const rawSellerImage = detail?.sellerImageUrl ?? detail?.imageUrl ?? sellerMeta?.sellerImageUrl ?? sellerMeta?.imageUrl ?? null;
+  const img: string | null = useMemo(() => {
+    if (!rawSellerImage) return null;
+    const proxied = proxyImage(rawSellerImage);
+    return proxied || null;
+  }, [rawSellerImage]);
   
   const lowerSeller = (detail?.sellerName || '').toLowerCase();
   const isIncluded = (included || []).includes(lowerSeller);
@@ -181,33 +189,39 @@ export default function SellerOverlay() {
           exit={{ opacity: 0, scale: 0.98, y: 6 }}
           transition={{ duration: 0.16, ease: 'easeOut' }}
           className={cn(
-            "relative w-full md:max-w-[890px] md:h-[90vh] overflow-hidden bg-white dark:bg-[#0f1725] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col",
+            "relative w-full overlay-inner-border md:max-w-[890px] md:h-[90vh] md:max-h-[95vh] flex flex-col min-h-0",
           )}
         >
+          <div className={cn('overlay-inner', 'flex flex-col min-h-0 flex-1')}>
           <button
             onClick={close}
             aria-label="Close"
             className="absolute top-2 right-2 z-10 inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100/90 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 backdrop-blur focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500"
           >×</button>
 
-          <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-3 md:gap-4 p-3 md:p-4">
+          <div className="flex-1 min-h-0 grid grid-cols-1 h-full md:grid-cols-[1.2fr_1fr] gap-3 md:gap-4 p-3 md:p-4">
             {/* Left column: image + meta + manifesto */}
             <div className="min-w-0 min-h-0 md:overflow-y-auto md:pr-1 custom-scroll">
               <div className="flex items-start gap-3">
                 <div className="shrink-0">
-                  <button
-                    type="button"
-                    className="relative w-28 h-28 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500"
-                    onClick={() => { if (img) setOpenPreviewSignal({ ts: Date.now(), index: 0, guard: sellerId }); }}
-                    aria-label="Open seller image"
+                  <div
+                    className={cn('image-border inline-block')}
+                    style={{ '--image-border-radius': '0.85rem', '--image-border-padding': '2px', width: '7rem', height: '7rem' } as React.CSSProperties}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {img ? (
-                      <img src={img} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center"><div className="h-8 w-8 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" /></div>
-                    )}
-                  </button>
+                    <button
+                      type="button"
+                      className="image-border-inner relative w-full h-full overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500"
+                      onClick={() => { if (img) setOpenPreviewSignal({ ts: Date.now(), index: 0, guard: sellerId }); }}
+                      aria-label="Open seller image"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {img ? (
+                        <img src={img} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center"><div className="h-8 w-8 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" /></div>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="font-semibold text-base md:text-lg text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h2>
@@ -259,11 +273,7 @@ export default function SellerOverlay() {
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
                   </div>
                 )}
-                {!loading && manifesto && (
-                  <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
-                    {manifesto}
-                  </div>
-                )}
+                {!loading && manifestoNode}
                 {!loading && !manifesto && (
                   <div className="text-xs italic text-gray-400">No manifesto.</div>
                 )}
@@ -405,6 +415,7 @@ export default function SellerOverlay() {
                 />
               )}
             </div>
+          </div>
           </div>
         </motion.div>
       </motion.div>

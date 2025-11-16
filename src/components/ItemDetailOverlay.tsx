@@ -27,7 +27,7 @@ import { decodeEntities } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
 import VanIcon from '@/app/assets/svg/van.svg';
 import ImageZoomPreview from '@/components/ImageZoomPreview';
-import SellerInfoBadge from '@/components/SellerInfoBadge';
+import SellerPill from '@/components/SellerPill';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Keyboard, EffectFade, FreeMode } from 'swiper/modules';
@@ -58,7 +58,6 @@ import { useTranslations, useFormatter } from 'next-intl';
 import { translateCategoryAndSubs } from '@/lib/taxonomyLabels';
 // Use shared buttons to avoid duplication across card/overlay
 import FavButton from '@/components/FavButton';
-import SellerFilterButtons from '@/components/SellerFilterButtons';
 
 export default function ItemDetailOverlay() {
   const tItem = useTranslations('Item');
@@ -423,6 +422,7 @@ export default function ItemDetailOverlay() {
   className="fixed inset-0 z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-y-auto"
         onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
       >
+
         {/* Grid wrapper to place full-height nav zones outside the panel */}
   <div className="w-full md:w-full lg:w-auto grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,auto)_80px] md:gap-0.5 lg:gap-2 items-center justify-center">
           {/* Left nav zone (md+) */}
@@ -447,10 +447,12 @@ export default function ItemDetailOverlay() {
             exit={{ opacity: 0, scale: 0.98, y: 6 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
             className={cn(
-              "relative w-full md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] h-auto md:min-h-[70vh] md:max-h-[95vh] 2xl:h-[90vh] bg-white dark:bg-[#0f1725] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-visible md:overflow-hidden",
+              "relative w-full overlay-inner-border md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] md:min-h-[70vh] md:h-[90vh] md:max-h-[95vh] 2xl:h-[90vh] flex flex-col min-h-0",
               isFav && favouriteAccent.cardRing
             )}
           >
+            <div className={cn('overlay-inner', 'flex flex-col min-h-0 flex-1')}>
+
           {/* Absolute close button (no header for more image space) */}
           <button
             onClick={() => close()}
@@ -459,14 +461,24 @@ export default function ItemDetailOverlay() {
           >×</button>
           {/* (nav arrows moved outside the panel) */}
           {/* Content grid: 2 cols desktop, 3 cols on ultrawide */}
-          <div className="flex-1 md:overflow-hidden grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_360px] gap-6 p-3 pt-3">
+          <div className="flex-1 min-h-0 md:overflow-hidden grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_360px] gap-6 pl-[6px] py-[6px]">
             {/* Column 1: gallery */}
             <div className="w-full flex-shrink-0 flex flex-col gap-3 md:overflow-y-auto custom-scroll pr-1 pb-35 md:pb-10 2xl:pb-0">
               {images.length > 0 ? (
                 <>
-                <div className={cn("relative group rounded-md overflow-hidden border bg-gray-100 dark:bg-gray-800",
-                  isFav ? favouriteAccent.thumbBorder + ' ' + favouriteAccent.thumbShadow : 'border-gray-200 dark:border-gray-700'
-                )}>
+                <div
+                  className={cn(
+                    "image-border",
+                    isFav && favouriteAccent.thumbShadow
+                  )}
+                  style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
+                >
+                  <div
+                    className={cn(
+                      "image-border-inner relative group border bg-gray-100 dark:bg-gray-800",
+                      isFav ? favouriteAccent.thumbBorder : 'border-gray-200 dark:border-gray-700'
+                    )}
+                  >
                   {/* Fav button on image for sub-ultrawide screens */}
                   <div className="absolute right-2 top-2 z-10 hidden md:block 2xl:hidden">
                     {baseItem && <FavButton itemId={(baseItem as any).id} />}
@@ -496,7 +508,7 @@ export default function ItemDetailOverlay() {
                             loading={idx === 0 ? 'eager' : 'lazy'}
                             decoding="async"
                             draggable={false}
-                            className="object-cover w-full h-full select-none cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.04]"
+                            className="object-cover w-full h-full select-none cursor-zoom-in transition-transform duration-900 ease-out group-hover:scale-[1.04]"
                           />
                         </button>
                       </SwiperSlide>
@@ -507,6 +519,7 @@ export default function ItemDetailOverlay() {
                       {activeSlide + 1}<span className="opacity-60">/</span>{images.length}
                     </div>
                   )}
+                  </div>
                 </div>
                 {images.length > 1 && (
                   <div>
@@ -549,8 +562,7 @@ export default function ItemDetailOverlay() {
                       {hasSellerInfo && (
                         <>
                           <span className="italic opacity-90">{tItem('seller')}</span>
-                          <SellerInfoBadge sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} />
-                          <SellerFilterButtons sellerName={resolvedSellerName} />
+                          <SellerPill sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} />
                         </>
                       )}
                       {shipsFrom && (() => {
@@ -609,8 +621,13 @@ export default function ItemDetailOverlay() {
               </div>
               </>
               ) : (
-                <div className="relative rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 aspect-square flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" />
+                <div
+                  className="image-border"
+                  style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
+                >
+                  <div className="image-border-inner relative flex aspect-square items-center justify-center border border-gray-200 dark:border-gray-700 rounded-[inherit] bg-gray-100 dark:bg-gray-800">
+                    <div className="w-10 h-10 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" />
+                  </div>
                 </div>
               )}
               {/* Bullets removed in favor of thumbnails */}
@@ -646,7 +663,7 @@ export default function ItemDetailOverlay() {
                     <div>
                       <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{tOv('variantPrices')}</div>
                       {variantPriceRangeText && (
-                        <div className="mt-0.5 text-lg md:text-2xl font-bold tabular-nums text-gray-900 dark:text-gray-100">{variantPriceRangeText}</div>
+                        <div className="mt-0.5 text-lg md:text-xl font-bold tabular-nums text-gray-900 dark:text-gray-100">{variantPriceRangeText}</div>
                       )}
                     </div>
                     {!allShippingFree && shippingOptions.length > 0 ? (
@@ -698,7 +715,7 @@ export default function ItemDetailOverlay() {
                     perUnitSuffix={perUnitSuffix as any}
                     selectionEnabled={showSelection}
                     className="sm:grid-cols-1 max-h-44"
-                    itemClassName="text-sm md:text-[15px]"
+                    itemClassName="text-sm md:text-[12x]"
                   />
                   {/* Add selected button under shipping panel (desktop) */}
           {showSelection && (
@@ -799,7 +816,7 @@ export default function ItemDetailOverlay() {
                         : formatUSD(usd, displayCurrency as any, rates as any, { zeroIsFree: true, freeLabel: tItem('shippingFree'), decimals: 2, ceilNonUSD: false } as any);
                       return (
                         <li key={i} className={cn(
-                          "flex items-center justify-between gap-2 text-sm md:text-[15px] rounded px-2 py-1.5 border bg-white/70 dark:bg-gray-900/30",
+                          "flex items-center justify-between gap-2 text-sm md:text-[14px] rounded px-2 py-1.5 border bg-white/70 dark:bg-gray-900/30",
                           "border-gray-200/70 dark:border-gray-700/70",
                           selectable ? "cursor-pointer" : "cursor-default opacity-100"
                         )}
@@ -838,8 +855,7 @@ export default function ItemDetailOverlay() {
                     {hasSellerInfo && (
                       <>
                         <span className="italic opacity-90">{tItem('seller')}</span>
-                        <SellerInfoBadge sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} />
-                        <SellerFilterButtons sellerName={resolvedSellerName} />
+                        <SellerPill sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} />
                       </>
                     )}
                     {shipsFrom && (() => {
@@ -1052,6 +1068,8 @@ export default function ItemDetailOverlay() {
             </div>
           )}
           {/* Mobile Prev/Next rendered via portal so it's fixed to the viewport, not the transformed panel */}
+       
+          </div>
           </motion.div>
 
           {/* Right nav zone (md+) */}
@@ -1069,7 +1087,9 @@ export default function ItemDetailOverlay() {
             </button>
           </div>
         </div>
+        
       </motion.div>
+      
     </AnimatePresence>
     {/* Mobile fixed bottom nav via portal (outside AnimatePresence to avoid transform/stack contexts) */}
   {typeof document !== 'undefined' && createPortal(

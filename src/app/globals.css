@@ -34,6 +34,7 @@ html[data-theme=dark] {
 
 html { 
   color-scheme: light;
+  scrollbar-gutter: stable both-edges; /* Reserve scrollbar space to avoid layout shift when drawers lock scrolling */
   /* scroll-behavior: smooth; */
 }
 html[data-theme=dark] { --background: #050505; color-scheme: dark; }

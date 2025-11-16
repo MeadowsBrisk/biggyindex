@@ -226,8 +226,9 @@
   ,
   "Basket": {
     "button": "Cesto",
-    "open": "Abrir cesto",
-    "header": "O teu \"Cesto\"",
+    "open": "Cesto virtual",
+    "close": "Fechar cesto",
+    "header": "O seu \"Cesto\"",
     "clear": "Limpar",
     "items": "Artigos",
     "shipping": "Envio",

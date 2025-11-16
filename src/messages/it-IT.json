@@ -226,7 +226,8 @@
   ,
   "Basket": {
     "button": "Carrello",
-    "open": "Apri carrello",
+    "open": "Carrello virtuale",
+    "close": "Chiudi carrello",
     "header": "Il tuo \"Carrello\"",
     "clear": "Svuota",
     "items": "Articoli",

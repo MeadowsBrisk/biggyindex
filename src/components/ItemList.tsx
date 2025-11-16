@@ -67,7 +67,7 @@ export default function ItemList(): React.ReactElement {
 
   return (
     <div
-      className="grid gap-4"
+      className="item-list-grid"
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
     >
       {isEmpty && (

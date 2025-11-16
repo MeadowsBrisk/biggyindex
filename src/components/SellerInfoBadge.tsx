@@ -5,6 +5,7 @@ import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom, pushOverlayAtom } from '@/store/atoms';
 import { loadSellersIndex, getCachedSellerByName } from '@/lib/sellersIndex';
 
+// deprecated?
 type SellerOnlineFlag = 'today' | 'yesterday' | null;
 
 function OnlineDot({ online }: { online: SellerOnlineFlag }) {
@@ -66,10 +67,10 @@ export default function SellerInfoBadge({ sellerName, sellerUrl, sellerOnline, m
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        "shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border",
+        "shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border transition-all duration-200",
         disabled
           ? "border-gray-200/70 dark:border-gray-700/50 bg-white/40 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500 cursor-default"
-          : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm dark:hover:bg-gray-700 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
       )}
     >
       <span className="truncate max-w-[140px]">{sellerName || "Unknown"}</span>

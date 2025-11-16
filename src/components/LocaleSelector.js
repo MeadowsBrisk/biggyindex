@@ -106,7 +106,7 @@ export default function LocaleSelector() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm bg-white/85 dark:bg-gray-900/85 backdrop-blur border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+        className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full border shadow-sm bg-white dark:bg-[#0f1725] backdrop-blur-sm border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-[#141d30] transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         aria-label={`${currentMarketData.label}, ${displayCurrency}`}
         aria-expanded={isOpen}
       >

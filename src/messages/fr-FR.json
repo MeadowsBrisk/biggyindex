@@ -226,7 +226,8 @@
   ,
   "Basket": {
     "button": "Panier",
-    "open": "Ouvrir le panier",
+    "open": "Panier virtuel",
+    "close": "Fermer le panier",
     "header": "Votre \"Panier\"",
     "clear": "Vider",
     "items": "Articles",

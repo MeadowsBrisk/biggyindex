@@ -3,17 +3,36 @@ import Head from 'next/head';
 import Home from './index';
 import { useSetAtom } from 'jotai';
 import { latestReviewsModalOpenAtom } from '@/store/atoms';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { hostForLocale } from '@/lib/routing';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv } from '@/lib/market';
 
-export async function getStaticProps() {
-  return { props: {}, revalidate: 900 };
+export async function getServerSideProps(ctx) {
+  // Derive locale from host or path
+  const host = ctx.req.headers.host || '';
+  const pathname = ctx.resolvedUrl || '/';
+  const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
+  const serverLocale = getLocaleForMarket(market);
+  const shortLocale = serverLocale.split('-')[0];
+  
+  // Load messages for translations
+  let messages = {};
+  try {
+    const coreMessages = await import(`@/messages/${serverLocale}.json`);
+    const homeMessages = await import(`@/home-messages/${serverLocale}.json`);
+    messages = { ...coreMessages.default, ...homeMessages.default };
+  } catch {
+    const coreMessages = await import('@/messages/en-GB.json');
+    const homeMessages = await import('@/home-messages/en-GB.json');
+    messages = { ...coreMessages.default, ...homeMessages.default };
+  }
+  
+  return { props: { locale: shortLocale, messages } };
 }
 
-export default function LatestReviewsPage() {
+export default function LatestReviewsPage({ locale: serverLocale, messages }) {
   const setOpen = useSetAtom(latestReviewsModalOpenAtom);
-  const locale = useLocale();
-  const origin = hostForLocale(locale);
+  const origin = hostForLocale(serverLocale);
   const tMeta = useTranslations('Meta');
 
   useEffect(() => {
@@ -29,7 +48,7 @@ export default function LatestReviewsPage() {
     '@type': 'WebPage',
     name: 'Latest Reviews',
     url: canonical,
-  inLanguage: locale,
+  inLanguage: serverLocale,
   };
   const breadcrumbs = {
     '@context': 'https://schema.org',

@@ -226,8 +226,9 @@
   ,
   "Basket": {
     "button": "Warenkorb",
-    "open": "Warenkorb öffnen",
-    "header": "Ihr \"Warenkorb\"",
+    "open": "Virtueller Warenkorb",
+    "close": "Warenkorb schließen",
+    "header": "Dein \"Warenkorb\"",
     "clear": "Leeren",
     "items": "Artikel",
     "shipping": "Versand",

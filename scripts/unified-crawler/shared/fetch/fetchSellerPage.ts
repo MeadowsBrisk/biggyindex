@@ -24,23 +24,50 @@ export async function fetchSellerPage({ client, sellerId, timeout, maxBytes, ear
       let bytes = 0;
       let buf: Buffer[] = [];
       let aborted = false;
+      let abortedByClient = false;
       await new Promise<void>((resolve, reject) => {
-        const timer = setTimeout(() => { aborted = true; try { (res.request as any)?.destroy?.(); } catch {} reject(new Error('timeout')); }, Math.max(1000, timeout + 2000));
+        const timer = setTimeout(() => {
+          aborted = true;
+          try { (res.request as any)?.destroy?.(); } catch {}
+          reject(new Error('timeout'));
+        }, Math.max(1000, timeout + 2000));
+
+        const finish = () => {
+          clearTimeout(timer);
+          resolve();
+        };
+
         stream.on('data', (chunk: Buffer) => {
           if (aborted) return;
           bytes += chunk.length;
           if (bytes <= maxBytes) buf.push(chunk);
-          if (bytes > maxBytes) { aborted = true; try { (res.request as any)?.destroy?.(); } catch {}; }
+          if (bytes > maxBytes) {
+            aborted = true;
+            abortedByClient = true;
+            try { (res.request as any)?.destroy?.(); } catch {}
+            return;
+          }
           if (!aborted && earlyAbort && bytes >= earlyAbortMinBytes) {
             // Heuristic early-abort: look for small marker to confirm it's likely the seller page
             const preview = Buffer.concat(buf).toString('utf8');
             if (/seller-profile|reginald|Bp1|Bp3/i.test(preview)) {
-              aborted = true; try { (res.request as any)?.destroy?.(); } catch {};
+              aborted = true;
+              abortedByClient = true;
+              try { (res.request as any)?.destroy?.(); } catch {}
             }
           }
         });
-        stream.on('end', () => { clearTimeout(timer); resolve(); });
-        stream.on('error', (e) => { clearTimeout(timer); reject(e); });
+
+        stream.once('end', finish);
+        stream.once('close', finish);
+        stream.once('error', (e) => {
+          clearTimeout(timer);
+          if (abortedByClient && (e?.code === 'ECONNRESET' || e?.message === 'socket hang up')) {
+            // Treat our own abort (destroy) as success like legacy crawler
+            return resolve();
+          }
+          reject(e);
+        });
       });
       const html = Buffer.concat(buf).toString('utf8');
       const ms = Date.now() - t0;

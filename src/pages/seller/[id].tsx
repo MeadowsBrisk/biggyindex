@@ -9,6 +9,7 @@ import { loadSellerForSEO } from '@/lib/seo';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildSellerUrl } from '@/lib/routing';
 import { hostForLocale } from '@/lib/routing';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv } from '@/lib/market';
 
 interface SellerSEO {
   id: number;
@@ -20,6 +21,8 @@ interface SellerSEO {
 
 interface SellerIdPageProps {
   seo: SellerSEO | null;
+  messages: Record<string, any>;
+  locale: string;
 }
 
 function parseSellerId(idParam: string | string[] | undefined): number | null {
@@ -35,6 +38,26 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
     if (!sellerId) return { notFound: true };
     const seller = await loadSellerForSEO(sellerId);
     if (!seller) return { notFound: true };
+    
+    // Derive locale from host or path for proper SEO meta
+    const host = ctx.req.headers.host || '';
+    const pathname = ctx.resolvedUrl || '/';
+    const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
+    const serverLocale = getLocaleForMarket(market);
+    const shortLocale = serverLocale.split('-')[0];
+    
+    // Load messages for server-side translation
+    let messages: Record<string, any> = {};
+    try {
+      const coreMessages = await import(`@/messages/${serverLocale}.json`);
+      const homeMessages = await import(`@/home-messages/${serverLocale}.json`);
+      messages = { ...coreMessages.default, ...homeMessages.default };
+    } catch {
+      const coreMessages = await import('@/messages/en-GB.json');
+      const homeMessages = await import('@/home-messages/en-GB.json');
+      messages = { ...coreMessages.default, ...homeMessages.default };
+    }
+    
     const seo: SellerSEO = {
       id: seller.id,
       sellerName: seller.sellerName || null,
@@ -42,17 +65,15 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
       sellerImageUrl: seller.sellerImageUrl || null,
       shareLink: seller.shareLink || null,
     };
-    return { props: { seo } };
+    return { props: { seo, messages, locale: shortLocale } };
   } catch {
     return { notFound: true };
   }
 };
 
-const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
+const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, locale: serverLocale }) => {
   const router = useRouter();
   const setSellerId = useSetAtom(expandedSellerIdAtom);
-  const tNav = useTranslations('Nav');
-  const locale = useLocale();
 
   const sellerId = parseSellerId(router.query.id);
 
@@ -61,13 +82,13 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
     setSellerId(sellerId);
   }, [router.isReady, sellerId, setSellerId]);
 
-  const title = seo?.sellerName ? `${seo.sellerName} – ${tNav('sellers')} | Biggy Index` : `${tNav('sellers')} | Biggy Index`;
+  const title = seo?.sellerName ? `${seo.sellerName} – Sellers | Biggy Index` : `Sellers | Biggy Index`;
   const description = [
     seo?.sellerName || null,
-    typeof seo?.itemsCount === 'number' ? `${seo.itemsCount} ${tNav('items')}` : null,
+    typeof seo?.itemsCount === 'number' ? `${seo.itemsCount} items` : null,
   ].filter(Boolean).join(' • ');
   const effectiveId = String(seo?.id ?? sellerId ?? '');
-  const canonical = buildSellerUrl(effectiveId, locale);
+  const canonical = buildSellerUrl(effectiveId, serverLocale);
   const altLocales = ['en','de','fr','it','pt'];
 
   return (
@@ -110,9 +131,9 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: tNav('home'), item: hostForLocale(locale) + '/' },
-                { '@type': 'ListItem', position: 2, name: tNav('sellers'), item: hostForLocale(locale) + '/home' },
-                { '@type': 'ListItem', position: 3, name: seo?.sellerName || tNav('sellers'), item: canonical },
+                { '@type': 'ListItem', position: 1, name: 'Home', item: hostForLocale(serverLocale) + '/' },
+                { '@type': 'ListItem', position: 2, name: 'Sellers', item: hostForLocale(serverLocale) + '/home' },
+                { '@type': 'ListItem', position: 3, name: seo?.sellerName || 'Sellers', item: canonical },
               ],
             }),
           }}
@@ -123,7 +144,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo }) => {
           <h1 className="text-2xl font-semibold mb-2" itemProp="name">{seo.sellerName || title}</h1>
           <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
             {typeof seo.itemsCount === 'number' && (
-              <span itemProp="description">{seo.itemsCount} {tNav('items')}</span>
+              <span itemProp="description">{seo.itemsCount} items</span>
             )}
             {seo.shareLink && (
               <a href={seo.shareLink} rel="nofollow noopener" className="underline text-emerald-600 dark:text-emerald-400" itemProp="url">LB profile</a>

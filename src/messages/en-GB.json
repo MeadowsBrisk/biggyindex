@@ -225,7 +225,8 @@
   ,
   "Basket": {
     "button": "Basket",
-    "open": "Open basket",
+    "open": "Virtual shopping basket",
+    "close": "Close basket",
     "header": "Your \"Basket\"",
     "clear": "Clear",
     "items": "Items",

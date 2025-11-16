@@ -1,9 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from 'framer-motion';
 import cn from "@/app/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
 import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom } from "@/store/atoms";
-import SellerInfoBadge from "./SellerInfoBadge";
+import SellerPill from "./SellerPill";
 import { usePerUnitLabel } from "@/hooks/usePerUnitLabel";
 import ImageZoomPreview from "@/components/ImageZoomPreview";
 import { selectAtom } from "jotai/utils";
@@ -26,7 +26,7 @@ import { prefetchItemDetail } from '@/lib/itemDetailsCache';
 import { useDetailAvailability } from '@/hooks/useItemDetail';
 import FavButton from '@/components/FavButton';
 import { favouriteAccent } from '@/theme/favouriteAccent';
-import SellerFilterButtons from '@/components/SellerFilterButtons';
+import VariantPillsScroll from '@/components/VariantPillsScroll';
 
 // Types
 export interface ItemVariant {
@@ -85,6 +85,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   // atoms & derived flags
   const isFav = useAtomValue(React.useMemo(() => selectAtom(favouritesAtom, (favs: unknown) => Array.isArray(favs as any[]) && (favs as any[]).includes(item.id as any)), [item.id]));
   const favouritesOnly = useAtomValue(favouritesOnlyAtom);
+  const showFavAccent = isFav && !favouritesOnly;
   const category = useAtomValue(categoryAtom);
   const selectedSubs = useAtomValue(selectedSubcategoriesAtom);
   const thumbAspect = useAtomValue(thumbnailAspectAtom); // added
@@ -101,6 +102,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     const sig = `${category}|${Array.isArray(selectedSubs) ? selectedSubs.join(",") : ""}`;
     if (filterSigRef.current && filterSigRef.current !== sig) {
       setSuppressPanelAnim(true);
+      setExpanded(false);
       const id = setTimeout(() => setSuppressPanelAnim(false), 400);
       return () => clearTimeout(id);
     }
@@ -122,11 +124,6 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     if (e) { e.preventDefault(); e.stopPropagation(); }
     setOpenPreviewSignal(Date.now());
   }, []);
-  const needsRates = React.useMemo(() => {
-    if (!Array.isArray(variants) || variants.length === 0) return false;
-    // For non-USD display we need rates to convert USD -> target currency.
-    return displayCurrency !== 'USD';
-  }, [variants, displayCurrency]);
   const rangeReady = displayCurrency === 'USD'
     ? Array.isArray(variants) && variants.length > 0
     : (!!rates && Array.isArray(variants) && variants.length > 0);
@@ -201,57 +198,120 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       if (fallbackRef.current) clearTimeout(fallbackRef.current);
     };
   }, [initialAppear, entered]);
-  // Animation configs
-  const initialY = isFirefox ? 10 : 14;
-  const transitionEase: any = isFirefox ? [0.22, 0.61, 0.33, 1] : undefined;
+  const refKey = (refNum ?? String(item.id)) as string | number;
+  const hasRef = !!refNum; // only attempt remote detail fetches when a real refNum exists
+  const { ensure: ensureDetail } = useDetailAvailability(hasRef ? String(refKey) : null as any);
+  const showVariants = Array.isArray(variants) && variants.length > 0;
+  const pricingPanelId = `item-pricing-${itemKey}`;
+  const pricingTitleId = `${pricingPanelId}-title`;
 
-  const scrollStaggerPerCol = cols >= 5 ? 40 : cols === 4 ? 55 : 70; // ms per column when scrolling
-  const delayMs = initialAppear ? staggerDelay : (entered ? colIndex * scrollStaggerPerCol : 0);
-  // Previously animate always targeted visible state causing immediate animation.
-  // Now we keep animate tied to entered so it transitions only when scrolled into view.
-  const motionProps = initialAppear
-    ? { initial: { opacity: 0, y: 8 }, animate: { opacity: entered ? 1 : 0, y: entered ? 0 : 8 } }
-    : { initial: { opacity: 0, y: initialY }, animate: { opacity: entered ? 1 : 0, y: entered ? 0 : initialY } };
+  const shipsFromLabel = useMemo(() => {
+    if (!shipsFrom) return null;
+    if (isDomesticShipping(String(shipsFrom), locale)) return null;
+    const code = normalizeShipFromCode(String(shipsFrom));
+    let label: string | null = null;
+    if (code) {
+      try {
+        label = tCountries(code);
+      } catch {
+        label = null;
+      }
+    }
+    return label || countryLabelFromSource(String(shipsFrom));
+  }, [shipsFrom, locale, tCountries]);
 
-  // Compute aspect class from global setting
+  const shippingRangeNode = useMemo(() => {
+    const sh = item && item.sh;
+    if (!sh) return null;
+    const aUSD = typeof sh.min === 'number' ? sh.min : null;
+    const bUSD = typeof sh.max === 'number' ? sh.max : null;
+    if (aUSD == null && bUSD == null) return null;
+    const isFree = Number(sh.free) === 1 || ((aUSD != null && aUSD === 0) && (bUSD != null && bUSD === 0));
+    if (isFree) {
+      return (
+        <span className="inline-flex items-center gap-1" aria-label={tItem('shippingRangeAria')}>
+          <VanIcon className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
+          {tItem('shippingFree')}
+        </span>
+      );
+    }
+    if (displayCurrency !== 'USD' && !rates) return null;
+    const text = formatUSDRange(aUSD as any, bUSD as any, displayCurrency, rates, { zeroIsFree: true }) as string;
+    if (!text) return null;
+    return (
+      <span className="inline-flex items-center gap-1" aria-label={tItem('shippingRangeAria')}>
+        <VanIcon className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
+        {text}
+      </span>
+    );
+  }, [item, displayCurrency, rates, tItem]);
+
+  const shipsFromNode = useMemo(() => {
+    if (!shipsFromLabel) return null;
+    return (
+      <span className="inline-flex items-center gap-1">
+        <span className="opacity-70">{tItem('shipsFrom')}</span>
+        <span className="text-gray-800 dark:text-gray-200 font-semibold">{shipsFromLabel}</span>
+      </span>
+    );
+  }, [shipsFromLabel, tItem]);
+
+  const shippingMeta = useMemo(() => {
+    if (!shippingRangeNode && !shipsFromNode) return null;
+    return (
+      <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 leading-none flex flex-wrap items-center gap-2">
+        {shippingRangeNode}
+        {shipsFromNode}
+      </div>
+    );
+  }, [shippingRangeNode, shipsFromNode]);
+
+  React.useEffect(() => {
+    if (!entered || animDone) return;
+    const prefersReduced = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const timer = setTimeout(() => setAnimDone(true), prefersReduced ? 0 : 400);
+    return () => clearTimeout(timer);
+  }, [entered, animDone]);
+
+  React.useEffect(() => {
+    if (!showVariants && expanded) setExpanded(false);
+  }, [showVariants, expanded]);
+
   // Compute aspect class from global setting
   const aspectClass = useMemo(() => {
     if (thumbAspect === 'portrait') return 'aspect-[2/3]';
     if (thumbAspect === 'standard') return 'aspect-[1/1]';
     return 'aspect-[16/10]'; // landscape
   }, [thumbAspect]);
+
   // (no fallback price – only show when computedRangeText ready)
   // Use presence of minShip (only set after crawl) to decide if overlay should be available
   // Determine if we have per-item crawl detail available. Description may be absent even when other crawl data exists.
   // Previous heuristic (minShip != null) failed when shipping extraction missing; descriptionFull may also be null.
   // We treat any of these as a signal that a per-item JSON likely exists: description, shipping/minShip/maxShip, reviewsMeta, or embedded reviews.
-  // Runtime availability probe: we optimistically allow click once detail confirmed
-  const refKey = (refNum ?? String(item.id)) as string | number;
-  const hasRef = !!refNum; // only attempt remote detail fetches when a real refNum exists
-  const { available: detailAvail, ensure: ensureDetail } = useDetailAvailability(hasRef ? String(refKey) : null as any);
+
 
   return (
-    <motion.div
+    <div
       ref={rootRef}
       data-ref={String(refKey)}
       data-entered={entered ? 'true' : 'false'}
-      {...motionProps as any}
-      transition={{ duration: 0.35, ease: transitionEase, delay: delayMs / 1000 }}
-      onAnimationComplete={() => setAnimDone(true)}
+      data-animated={animDone ? 'true' : 'false'}
       className={cn(
-        "contain-paint transition-colors gpu-smooth group relative rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f1725] overflow-hidden w-full hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-[#141d30] hover:shadow-sm",
-        !animDone && "no-transition",
-        isFav && favouriteAccent.cardRing
+        "item-card group",
+        showFavAccent && favouriteAccent.cardRing
       )}
-      style={{ willChange: entered && animDone ? 'auto' : 'opacity, transform' }}
     >
-      {isFav && (
+      <div className={cn('item-card-inner', showFavAccent && favouriteAccent.cardInner)}>
+      {showFavAccent && (
         <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-[0] h-1/2 bg-gradient-to-t", favouriteAccent.cardBottomGlow, "to-transparent")} />
       )}
       <div className={cn(
-        "relative rounded-[5px] overflow-hidden m-[4px] bg-gray-200 dark:bg-gray-800/40 border",
+        "relative item-card-image rounded-br-0 rounded-bl-0 overflow-hidden m-[4px] border pointer-events-none",
         "group/image",
-        isFav ? (favouriteAccent.thumbBorder + ' ' + favouriteAccent.thumbShadow) : "border-[#e5e5e5] dark:border-gray-700"
+        showFavAccent
+          ? cn(favouriteAccent.thumbBackground, favouriteAccent.thumbBorder, favouriteAccent.thumbShadow)
+          : "bg-gray-200 dark:bg-gray-800/40 border-[#e5e5e5] dark:border-gray-700"
       )}>
         <div className={cn("block overflow-hidden", aspectClass)}>
           {imageUrl ? (
@@ -263,24 +323,22 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                 className="w-full h-full"
               />
             ) : (
-              <motion.button
+              <button
                 type="button"
                 aria-label={nameDecoded ? tItem('previewWithName', { name: nameDecoded }) : tItem('previewImage')}
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenPreviewSignal(Date.now()); }}
-                className="relative w-full h-full overflow-hidden focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-400 rounded-sm"
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.preventDefault(); e.stopPropagation(); setOpenPreviewSignal(Date.now()); }}
+                className="card-preview-trigger relative w-full h-full overflow-hidden focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-400 rounded-sm rounded-br-0 rounded-bl-0 pointer-events-auto"
               >
-                <motion.img
+                <img
                   src={thumbSrc}
                   alt={nameDecoded}
-                  initial={false}
-                  className="motion-img-fade gpu-smooth w-full h-full object-cover transform-gpu transition-transform duration-300 ease-out group-hover/image:scale-[1.06] group-hover:scale-[1.06] cursor-zoom-in"
-                  style={{ willChange: 'transform' }}
+                  className="motion-img-fade gpu-smooth card-image"
                   loading="lazy"
                   decoding="async"
                   onError={onThumbError}
                   draggable={false}
                 />
-              </motion.button>
+              </button>
             )
           ) : (
             <div className="w-full h-full bg-black/5 dark:bg-white/10" />
@@ -288,7 +346,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
         </div>
         {imageUrl && (
           <>
-            <div className="absolute right-2 top-2 z-10 flex items-center gap-2 card-controls">
+            <div className="absolute right-2 top-2 z-10 flex items-center gap-2 card-controls pointer-events-auto">
               <FavButton itemId={item.id as any} className="" />
             </div>
             <div className="absolute right-2 bottom-2 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-auto">
@@ -297,9 +355,9 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                 href={(item as any).share || (url || undefined)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group/button inline-flex items-center gap-1.5 text-[12px] font-medium bg-white/60 dark:bg-gray-800/55 hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 text-gray-800 dark:text-gray-200 rounded-full px-3 py-1 shadow-sm backdrop-blur-md transition-colors duration-250 focus:outline-none focus-visible:ring-2 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 ring-gray-300/60 dark:ring-gray-600/70"
+                className="group/button inline-flex items-center gap-1.5 text-[10px] font-medium bg-white/60 dark:bg-gray-800/55 hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 text-gray-800 dark:text-gray-200 rounded-full px-3 py-1 shadow-sm backdrop-blur-md transition-colors duration-250 focus:outline-none focus-visible:ring-2 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 ring-gray-300/60 dark:ring-gray-600/70"
               >
-                <span>Biggy</span>
+                <span>Little Biggy</span>
                 <span className="inline-block text-base leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1 motion-reduce:transition-none">→</span>
               </a>
             </div>
@@ -318,180 +376,144 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
           </div>
         )}
       </div>
-      <div className="p-3">
+      <div className="p-[6px] pt-[4px] bg-[red]s pointer-events-none">
         {/* BODY (reserve space for footer) */}
-        <div className="pb-16 flex flex-col">
-          <div className="mb-1">
-            <button
-              type="button"
-              onMouseEnter={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-              onFocus={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-              onPointerDown={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-              onClick={() => (setExpandedRef as any)(String(refKey))}
-              aria-label={tItem('viewDetailsFor', { name: nameDecoded })}
-              className={cn(
-                "text-left w-full font-heading font-semibold text-base line-clamp-1 focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500 rounded-sm text-gray-900 dark:text-gray-100 hover:underline"
+        <div className="pb-15 flex flex-col bg-[blue]s">
+          <button
+            type="button"
+            onMouseEnter={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
+            onFocus={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
+            onPointerDown={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
+            onClick={() => (setExpandedRef as any)(String(refKey))}
+            aria-label={tItem('viewDetailsFor', { name: nameDecoded })}
+            className="card-content pointer-events-auto"
+          >
+            <div className="card-content__inner">
+              <div className="card-content__header">
+                <h3 className="card-content__title font-heading">{nameDecoded}</h3>
+                <span className="card-content__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7 17L17 7M17 7H7M17 7v10" />
+                  </svg>
+                </span>
+              </div>
+              {description && (
+                <p className="card-content__description">{descDecoded}</p>
               )}
-            >{nameDecoded}</button>
-          </div>
-          {description && (
-            <button
-              type="button"
-              onMouseEnter={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-              onFocus={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-              onPointerDown={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-              onClick={() => (setExpandedRef as any)(String(refKey))}
-              aria-label={tItem('viewDetailsFor', { name: nameDecoded })}
-              className="mt-1 text-left w-full text-sm text-gray-700 dark:text-gray-300 line-clamp-4 leading-[1.4] focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500 rounded-sm"
-            >{descDecoded}</button>
-          )}
-          {!isDomesticShipping(String(shipsFrom || ''), locale) && (
-            <div className="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
-              {tItem('shipsFrom')} {(() => {
-                const code = normalizeShipFromCode(String(shipsFrom || ''));
-                let label: any = null;
-                if (code) { try { label = tCountries(code); } catch {}
-                }
-                return <span className="font-medium">{label || countryLabelFromSource(String(shipsFrom || ''))}</span>;
-              })()}
             </div>
-          )}
+          </button>
 
-      <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-  <span className="shrink-0 italic">{tItem('seller')}</span>
-    <SellerInfoBadge sellerName={decodeEntities(sellerName || '')} sellerUrl={(sellerUrl || url || '')} sellerOnline={sellerOnline as any} />
-  <SellerFilterButtons sellerName={decodeEntities(sellerName || '')} className="" />
+          <div className='item-info-wrap px-[8px] bg-[red]s'>
+            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between pointer-events-auto">
+              <div className="flex items-center gap-2 min-w-0 ">
+                <span className="shrink-0 italic">{tItem('seller')}</span>
+                <SellerPill sellerName={decodeEntities(sellerName || '')} sellerUrl={(sellerUrl || url || '')} sellerOnline={sellerOnline as any} />
+              </div>
             </div>
+            {showVariants && <VariantPillsScroll variants={variants} />}
           </div>
-          {Array.isArray(variants) && variants.length > 0 && (
-            <div className="mt-3">
-              <div className="flex flex-wrap gap-1 max-h-14 overflow-hidden">
-                {variants.slice(0, 8).map((v, idx) => (
-                  <span key={(v.id as any) || idx} className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">{decodeEntities(v.description)}</span>
-                ))}
-              </div>
-              <div className="mt-2">
-                <button
-                  type="button"
-                  onClick={() => setExpanded(v => !v)}
-                  aria-expanded={expanded}
-                  className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cursor-pointer hover:bg-white dark:hover:bg-gray-700 transition-colors"
-                >
-                  {expanded ? tItem('hidePrices') : (variants.length > 8 ? tItem('moreCount', { count: variants.length - 8 }) : tItem('showPrices'))}
-                </button>
-              </div>
-              <AnimatePresence initial={false}>
-                {expanded && (
-                  suppressPanelAnim ? (
-                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.18 }} className="mt-2">
-                      <div className="max-h-40 overflow-auto rounded-md border border-gray-200 dark:border-gray-700 p-2 bg-gray-50 dark:bg-gray-800">
-                        <ul className="space-y-1 text-xs">
-                          {variants.map((v, idx) => (
-                            <li key={(v.id as any) || idx} className="flex items-center justify-between gap-2">
-                              <span className="text-gray-800 dark:text-gray-200">{decodeEntities(v.description)}</span>
-                              <span className="text-gray-700 dark:text-gray-300">{(() => {
-                                const usd = typeof v.baseAmount === 'number' ? v.baseAmount : null;
-                                if (usd == null) return '';
-                                const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
-                                const desc = decodeEntities(v.description);
-                                const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
-                                const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
-                                return `${amountText}${per || ''}`;
-                              })()}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="overflow-hidden">
-                      <div className="mt-2 max-h-40 overflow-auto rounded-md border border-gray-200 dark:border-gray-700 p-2 bg-gray-50 dark:bg-gray-800">
-                        <ul className="space-y-1 text-xs">
-                          {variants.map((v, idx) => (
-                            <li key={(v.id as any) || idx} className="flex items-center justify-between gap-2">
-                              <span className="text-gray-800 dark:text-gray-200">{decodeEntities(v.description)}</span>
-                              <span className="text-gray-700 dark:text-gray-300">{(() => {
-                                const usd = typeof v.baseAmount === 'number' ? v.baseAmount : null;
-                                if (usd == null) return '';
-                                const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
-                                const desc = decodeEntities(v.description);
-                                const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
-                                const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
-                                return `${amountText}${per || ''}`;
-                              })()}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </motion.div>
-                  )
-                )}
-              </AnimatePresence>
-            </div>
-          )}
         </div>
       </div>
       {/** Footer with price + optional shipping range */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 pb-3 pt-2 px-3 flex items-end justify-between gap-4 bg-gradient-to-t from-white/95 dark:from-[#0f1725]/95 via-white/40 dark:via-[#0f1725]/50 to-transparent">
-        <div className="flex flex-col justify-end gap-1 min-h-[1.25rem] pointer-events-none">
-          <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
-            <AnimatePresence mode="wait" initial={false}>
-              {rangeReady && computedRangeText ? (
-                <motion.span key="price" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>{computedRangeText}</motion.span>
-              ) : (
-                <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
-              )}
-            </AnimatePresence>
-          </div>
-          {(() => {
-            // Shipping summary provided as item.sh = { min, max, free } in USD
-            const sh = item && item.sh;
-            if (!sh) return null;
-            const aUSD = typeof sh.min === 'number' ? sh.min : null;
-            const bUSD = typeof sh.max === 'number' ? sh.max : null;
-            if (aUSD == null && bUSD == null) return null;
-            const isFree = Number(sh.free) === 1 || ((aUSD != null && aUSD === 0) && (bUSD != null && bUSD === 0));
-            if (isFree) {
-              return (
-                <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 leading-none flex items-center gap-1" aria-label={tItem('shippingRangeAria')}>
-                  <VanIcon className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
-                  {tItem('shippingFree')}
-                </div>
-              );
-            }
-            // When displaying non-USD, ensure rates are loaded; otherwise defer to avoid misleading values
-            if (displayCurrency !== 'USD' && !rates) return null;
-            // Shipping should round up (never down) for non-USD
-            const text = formatUSDRange(aUSD as any, bUSD as any, displayCurrency, rates, { zeroIsFree: true }) as string;
-            if (!text) return null;
-            return (
-              <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 leading-none flex items-center gap-1" aria-label={tItem('shippingRangeAria')}>
-                <VanIcon className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
-                {text}
-              </div>
-            );
-          })()}
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          {hasUpdate ? (
-            <div
-              className="text-[10px] leading-none text-gray-400 dark:text-gray-500"
-              title={(item.lastUpdatedAt ? ((item.lastUpdateReason ? `${formatBritishDateTime(item.lastUpdatedAt as any)} (${item.lastUpdateReason})` : formatBritishDateTime(item.lastUpdatedAt as any))) : '')}
-              suppressHydrationWarning
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 pb-3 pt-2 px-3 bg-gradient-to-t from-white/95 dark:from-[#0f1725]/95 via-white/40 dark:via-[#0f1725]/50 to-transparent z-40">
+        <div className="flex w-full items-end justify-between gap-4">
+          {showVariants ? (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
+              aria-expanded={expanded}
+              aria-controls={pricingPanelId}
+              className={cn('price-area-button pointer-events-auto', expanded && 'price-area-button--active')}
             >
-              {tItem('updated', { time: relativeCompact(item.lastUpdatedAt as any, tRel) })}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
+                  {rangeReady && computedRangeText ? (
+                    <span>{computedRangeText}</span>
+                  ) : (
+                    <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
+                  )}
+                </div>
+                <span className="price-area-button__hint" aria-hidden="true">
+                  <span>{expanded ? tItem('hidePrices') : tItem('showPrices')}</span>
+                  <span className="price-area-button__hint-arrow" data-expanded={expanded ? 'true' : 'false'}>▲</span>
+                </span>
+              </div>
+              {shippingMeta}
+            </button>
+          ) : (
+            <div className="pointer-events-auto flex flex-col justify-end gap-1 min-h-[1.25rem]">
+              <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
+                {rangeReady && computedRangeText ? (
+                  <span>{computedRangeText}</span>
+                ) : (
+                  <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
+                )}
+              </div>
+              {shippingMeta}
             </div>
-          ) : showCreated ? (
-            <div className="text-[10px] leading-none text-gray-400 dark:text-gray-500" title={formatBritishDateTime(item.firstSeenAt as any)} suppressHydrationWarning>{tItem('created', { time: relativeCompact(item.firstSeenAt as any, tRel) })}</div>
-          ) : null}
-          <div className="flex items-center gap-2 pointer-events-auto mt-1">
-            <div className={cn('relative inline-flex', (hasVotedToday as any) && !endorsedLocal && 'opacity-100')}><EndorseButton itemId={itemKey} onHydrated={() => {}} /></div>
-            {reviewStats ? <ReviewStatsBadge reviewStats={reviewStats as any} /> : null}
+          )}
+          <div className="pointer-events-auto flex flex-col items-end gap-1">
+            {hasUpdate ? (
+              <div
+                className="text-[10px] leading-none text-gray-400 dark:text-gray-500"
+                title={(item.lastUpdatedAt ? ((item.lastUpdateReason ? `${formatBritishDateTime(item.lastUpdatedAt as any)} (${item.lastUpdateReason})` : formatBritishDateTime(item.lastUpdatedAt as any))) : '')}
+                suppressHydrationWarning
+              >
+                {tItem('updated', { time: relativeCompact(item.lastUpdatedAt as any, tRel) })}
+              </div>
+            ) : showCreated ? (
+              <div className="text-[10px] leading-none text-gray-400 dark:text-gray-500" title={formatBritishDateTime(item.firstSeenAt as any)} suppressHydrationWarning>{tItem('created', { time: relativeCompact(item.firstSeenAt as any, tRel) })}</div>
+            ) : null}
+            <div className="flex items-center gap-2 pointer-events-auto mt-1">
+              <div className={cn('relative inline-flex', (hasVotedToday as any) && !endorsedLocal && 'opacity-100')}><EndorseButton itemId={itemKey} onHydrated={() => {}} /></div>
+              {reviewStats ? <ReviewStatsBadge reviewStats={reviewStats as any} /> : null}
+            </div>
           </div>
         </div>
       </div>
-    </motion.div>
+      <AnimatePresence initial={false}>
+        {expanded && showVariants && (
+          <motion.div
+            key="pricing-overlay"
+            id={pricingPanelId}
+            aria-labelledby={pricingTitleId}
+            className={cn('item-card__pricing-overlay', suppressPanelAnim && 'item-card__pricing-overlay--static')}
+            initial={suppressPanelAnim ? false : { y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={suppressPanelAnim ? { y: 0, opacity: 0 } : { y: '100%', opacity: 0 }}
+            transition={suppressPanelAnim ? { duration: 0.12 } : { duration: 0.32, ease: [0.22, 0.81, 0.36, 1] }}
+            role="dialog"
+            aria-modal="false"
+            style={{ pointerEvents: expanded ? 'auto' : 'none' }}
+          >
+            <div className="item-card__pricing-inner">
+              <div className="item-card__pricing-header" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                <div id={pricingTitleId} className="item-card__pricing-title">{variants.length} {variants.length === 1 ? 'variant' : 'variants'}</div>
+              </div>
+              <div className="item-card__pricing-scroll" onClick={(e) => e.stopPropagation()}>
+                <ul>
+                  {variants.map((v, idx) => (
+                    <li key={(v.id as any) || idx}>
+                      <span>{decodeEntities(v.description)}</span>
+                      <span>{(() => {
+                        const usd = typeof v.baseAmount === 'number' ? v.baseAmount : null;
+                        if (usd == null) return '';
+                        const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
+                        const desc = decodeEntities(v.description);
+                        const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
+                        const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
+                        return `${amountText}${per || ''}`;
+                      })()}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      </div>
+    </div>
   );
 }
 

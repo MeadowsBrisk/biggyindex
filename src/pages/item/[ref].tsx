@@ -8,6 +8,7 @@ import { expandedRefNumAtom } from '@/store/atoms';
 import { loadItemForSEO } from '@/lib/seo';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, hostForLocale } from '@/lib/routing';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv } from '@/lib/market';
 
 interface ItemSEO {
   ref: string;
@@ -19,6 +20,8 @@ interface ItemSEO {
 
 interface ItemRefPageProps {
   seo: ItemSEO | null;
+  messages: Record<string, any>;
+  locale: string;
 }
 
 export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (ctx) => {
@@ -27,6 +30,26 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     if (!ref) return { notFound: true };
     const item = await loadItemForSEO(ref);
     if (!item) return { notFound: true };
+    
+    // Derive locale from host or path for proper SEO meta
+    const host = ctx.req.headers.host || '';
+    const pathname = ctx.resolvedUrl || '/';
+    const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
+    const serverLocale = getLocaleForMarket(market);
+    const shortLocale = serverLocale.split('-')[0];
+    
+    // Load messages for server-side translation
+    let messages: Record<string, any> = {};
+    try {
+      const coreMessages = await import(`@/messages/${serverLocale}.json`);
+      const homeMessages = await import(`@/home-messages/${serverLocale}.json`);
+      messages = { ...coreMessages.default, ...homeMessages.default };
+    } catch {
+      const coreMessages = await import('@/messages/en-GB.json');
+      const homeMessages = await import('@/home-messages/en-GB.json');
+      messages = { ...coreMessages.default, ...homeMessages.default };
+    }
+    
     const seo: ItemSEO = {
       ref,
       name: item.name || '',
@@ -34,18 +57,16 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
       imageUrl: item.imageUrl || null,
       sellerName: item.sellerName || null,
     };
-    return { props: { seo } };
+    return { props: { seo, messages, locale: shortLocale } };
   } catch {
     return { notFound: true };
   }
 };
 
-const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
+const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) => {
   const router = useRouter();
   const setExpanded = useSetAtom(expandedRefNumAtom);
   const tReviews = useTranslations('Reviews');
-  const tNav = useTranslations('Nav');
-  const locale = useLocale();
   const ref = typeof router.query.ref === 'string' ? router.query.ref : null;
 
   useEffect(() => {
@@ -53,18 +74,18 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
     setExpanded(ref || null);
   }, [router.isReady, ref, setExpanded]);
 
-  const titleBase = seo?.name ? seo.name : tNav('items');
+  const titleBase = seo?.name ? seo.name : 'Items';
   const bySuffix = seo?.sellerName ? ` ${tReviews('soldBy')} ${seo.sellerName}` : '';
   const title = `${titleBase}${bySuffix} | Biggy Index`;
 
   const rawDesc = typeof seo?.description === 'string' ? seo.description : '';
   const cleanDesc = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const baseDesc = cleanDesc ? cleanDesc : (seo?.name ? `${seo.name}` : tNav('items'));
+  const baseDesc = cleanDesc ? cleanDesc : (seo?.name ? `${seo.name}` : 'Items');
   const sellerPrefix = seo?.sellerName ? `${seo.sellerName} · ` : '';
   const desc = (sellerPrefix + baseDesc).slice(0, 160);
 
   const effectiveRef = String(seo?.ref || ref || '');
-  const canonical = buildItemUrl(effectiveRef, locale);
+  const canonical = buildItemUrl(effectiveRef, serverLocale);
   const altLocales = ['en','de','fr','it','pt'];
 
   return (
@@ -107,9 +128,9 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo }) => {
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: tNav('home'), item: hostForLocale(locale) + '/' },
-                { '@type': 'ListItem', position: 2, name: tNav('items'), item: hostForLocale(locale) + '/home' },
-                { '@type': 'ListItem', position: 3, name: seo?.name || tNav('items'), item: canonical },
+                { '@type': 'ListItem', position: 1, name: 'Home', item: hostForLocale(serverLocale) + '/' },
+                { '@type': 'ListItem', position: 2, name: 'Items', item: hostForLocale(serverLocale) + '/home' },
+                { '@type': 'ListItem', position: 3, name: seo?.name || 'Items', item: canonical },
               ],
             }),
           }}

@@ -44,7 +44,7 @@ export function extractManifesto(html: string): ManifestoResult {
     region = region.replace(/<form[\s\S]*?<\/form>/gi, '');
     region = region.replace(/<input[^>]*>/gi, '');
     region = region.replace(/<button[\s\S]*?<\/button>/gi, '');
-    region = region.replace(/<br\s*\/?>(?=\s|$)/gi, '\n');
+    region = region.replace(/<br\s*\/?>/gi, '\n');
     region = region.replace(/<[^>]+>/g, '');
     let text = region.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     text = text.replace(/\n{3,}/g, '\n\n').trim();
