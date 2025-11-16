@@ -8,6 +8,7 @@ import cn from "@/app/cn";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/providers/IntlProvider";
+import { isHostBasedEnv } from '@/lib/market';
 
 const accordionVariants = {
   open: { height: "auto", opacity: 1, overflow: "visible" },
@@ -122,7 +123,11 @@ export default function QuickStartSection() {
   const tHome = useTranslations("Home");
   const localeCtx = useLocale();
   const lc = (localeCtx?.locale || "en-GB").toLowerCase();
-  const listPrefix = lc.startsWith("de") ? "/de" : lc.startsWith("fr") ? "/fr" : lc.startsWith("it") ? "/it" : lc.startsWith("pt") ? "/pt" : "";
+  // Only add path prefix if NOT on subdomain-based environment (localhost, previews)
+  const isSubdomainEnv = typeof window !== 'undefined' && isHostBasedEnv(window.location?.hostname);
+  const listPrefix = isSubdomainEnv ? '' : (
+    lc.startsWith("de") ? "/de" : lc.startsWith("fr") ? "/fr" : lc.startsWith("it") ? "/it" : lc.startsWith("pt") ? "/pt" : ""
+  );
 
   const steps = useMemo(
     () => [

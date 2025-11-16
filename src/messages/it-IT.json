@@ -267,8 +267,8 @@
   }
   ,
   "Countries": {
-    "uk": "Regno Unito",
-    "us": "Stati Uniti",
+    "uk": "UK",
+    "us": "USA",
     "nl": "Paesi Bassi",
     "de": "Germania",
     "fr": "Francia",
@@ -288,7 +288,7 @@
     "gr": "Grecia",
     "ca": "Canada",
     "tr": "Turchia",
-    "multi": "Multiplo",
+    "multi": "Multi",
     "und": "Non dichiarato"
   }
   ,

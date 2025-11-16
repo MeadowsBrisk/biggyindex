@@ -267,7 +267,7 @@
   }
   ,
   "Countries": {
-    "uk": "Vereinigtes Königreich",
+    "uk": "UK",
     "us": "USA",
     "nl": "Niederlande",
     "de": "Deutschland",
@@ -288,7 +288,7 @@
     "gr": "Griechenland",
     "ca": "Kanada",
     "tr": "Türkei",
-    "multi": "Mehrere",
+    "multi": "Multi",
     "und": "Ohne Angabe"
   }
   ,

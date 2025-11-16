@@ -9,6 +9,7 @@ import CategoryTooltip from "@/components/CategoryTooltip";
 import { useTranslations, useFormatter } from 'next-intl';
 import { useLocale } from '@/providers/IntlProvider';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
+import { isHostBasedEnv } from '@/lib/market';
 
 
 function formatStatNumber(format, value, fallback) {
@@ -120,11 +121,15 @@ export default function HeroSection({ stats }) {
     return { ...entry, _displayName: displayName };
   });
 
-  const listPrefix = (locale || 'en-GB').toLowerCase().startsWith('de') ? '/de'
+  // Only add path prefix if NOT on subdomain-based environment (localhost, previews)
+  const isSubdomainEnv = typeof window !== 'undefined' && isHostBasedEnv(window.location?.hostname);
+  const listPrefix = isSubdomainEnv ? '' : (
+    (locale || 'en-GB').toLowerCase().startsWith('de') ? '/de'
     : (locale || 'en-GB').toLowerCase().startsWith('fr') ? '/fr'
     : (locale || 'en-GB').toLowerCase().startsWith('pt') ? '/pt'
     : (locale || 'en-GB').toLowerCase().startsWith('it') ? '/it'
-    : '';
+    : ''
+  );
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900 transition-colors duration-300 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 dark:text-white">
