@@ -37,12 +37,14 @@ export async function loadItemForSEO(refNum: string | number, market?: Market): 
     
     if (!item) return null;
     
+    // Use minified keys directly from unified crawler:
+    // n: name, d: description, i: imageUrl, sn: sellerName
     return {
       refNum: String(item.refNum || item.id || refNum),
-      name: item.name || '',
-      description: item.description || '',
-      imageUrl: item.imageUrl || null,
-      sellerName: item.sellerName || null,
+      name: item.n || item.name || '',
+      description: item.d || item.description || '',
+      imageUrl: item.i || item.imageUrl || null,
+      sellerName: item.sn || item.sellerName || null,
     };
   } catch (err) {
     console.error('[loadItemForSEO] Error:', err);
@@ -63,6 +65,7 @@ export async function loadSellerForSEO(id: string | number, market?: Market): Pr
     const seller = sellers.find((s: any) => Number(s.id) === Number(id));
     if (!seller) return null;
     
+    // Sellers use full property names (not minified)
     return {
       id: Number(seller.id),
       sellerName: seller.name || '',
