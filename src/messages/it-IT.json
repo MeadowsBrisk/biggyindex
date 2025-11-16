@@ -378,5 +378,11 @@
     "latestReviewsDescription": "Vedi le recensioni recenti degli acquirenti LittleBiggy: valutazioni, tempi di arrivo, media e link agli articoli.",
     "sellersTitle": "Venditori | Biggy Index",
     "sellersDescription": "Analizza i venditori: totale recensioni, percentuale positive, negative, 10/10 perfette, valutazione media e tempi di spedizione."
+  },
+  "FirstVisitBanner": {
+    "title": "Benvenuto sul Biggy Index",
+    "description": "Esplora LittleBiggy con categorie, filtri, recensioni e statistiche venditori. Nuovo sul marketplace?",
+    "button": "Scopri di più",
+    "close": "Chiudi"
   }
 }

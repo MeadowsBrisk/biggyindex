@@ -377,5 +377,11 @@
     "latestReviewsDescription": "See the most recent LittleBiggy buyer reviews: ratings, arrival times, media and item links.",
     "sellersTitle": "Sellers | Biggy Index",
     "sellersDescription": "Analyse LittleBiggy sellers: total reviews, positive rate, negatives, perfect 10/10s, average rating & shipping times."
+  },
+  "FirstVisitBanner": {
+    "title": "Welcome to the Biggy Index",
+    "description": "Browse LittleBiggy with categories, filters, reviews & seller stats. New to the marketplace?",
+    "button": "Learn more",
+    "close": "Close"
   }
 }

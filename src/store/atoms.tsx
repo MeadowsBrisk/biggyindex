@@ -430,6 +430,9 @@ export const includeShippingPrefAtom = atomWithStorage<boolean>("includeShipping
 // Display currency preference: 'GBP' (default) or 'USD'
 export const displayCurrencyAtom = atomWithStorage<'GBP' | 'USD'>("displayCurrency", "GBP");
 
+// First visit banner dismissal state
+export const firstVisitBannerDismissedAtom = atomWithStorage<boolean>("firstVisitBannerDismissed", false);
+
 // Expanded item (detail overlay) - prefer refNum identity (string)
 export const expandedRefNumAtom = atom<string | null>(null);
 // Legacy alias (will deprecate) for any early code referencing id-based expansion

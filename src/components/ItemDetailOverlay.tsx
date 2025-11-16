@@ -625,8 +625,8 @@ export default function ItemDetailOverlay() {
                   className="image-border"
                   style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
                 >
-                  <div className="image-border-inner relative flex aspect-square items-center justify-center border border-gray-200 dark:border-gray-700 rounded-[inherit] bg-gray-100 dark:bg-gray-800">
-                    <div className="w-10 h-10 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" />
+                  <div className="image-border-inner relative w-full aspect-square flex items-center justify-center border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-800">
+                    <div className="w-12 h-12 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-blue-500 animate-spin" />
                   </div>
                 </div>
               )}

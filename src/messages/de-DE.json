@@ -378,5 +378,11 @@
     "latestReviewsDescription": "Aktuelle Käuferbewertungen von LittleBiggy: Noten, Versanddauer, Medien und Artikel-Links.",
     "sellersTitle": "Verkäufer | Biggy Index",
     "sellersDescription": "Analysieren Sie Verkäufer: Gesamtbewertungen, Positivrate, Negative, perfekte 10/10, Durchschnittsbewertung & Versandzeiten."
+  },
+  "FirstVisitBanner": {
+    "title": "Willkommen beim Biggy Index",
+    "description": "LittleBiggy durchsuchen mit Kategorien, Filtern, Bewertungen und Verkäuferstatistiken. Neu im Marktplatz?",
+    "button": "Mehr erfahren",
+    "close": "Schließen"
   }
 }
