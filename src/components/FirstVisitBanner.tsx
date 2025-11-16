@@ -33,6 +33,8 @@ export default function FirstVisitBanner() {
   };
 
   const handleReadMore = () => {
+    // Mark as dismissed before navigating
+    setIsDismissed(true);
     const origin = hostForLocale(locale);
     const homeUrl = `${origin}/home`;
     window.location.href = homeUrl;
