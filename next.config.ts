@@ -7,10 +7,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i2.littlebiggy.net",
       },
-      {
-        protocol: "https",
-        hostname: "serveproxy.com",
-      },
+
       {
         protocol: "http",
         hostname: "localhost",
