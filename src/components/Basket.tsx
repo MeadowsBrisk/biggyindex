@@ -138,11 +138,16 @@ export default function Basket() {
       setHeaderVisible(true);
       return;
     }
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.target === el) setHeaderVisible(entry.isIntersecting);
-      });
-    }, { threshold: 0.01 });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.target === el) {
+            setHeaderVisible(entry.isIntersecting);
+          }
+        }
+      },
+      { threshold: [0, 0.01, 1], rootMargin: '0px' }
+    );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);

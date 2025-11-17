@@ -1,4 +1,3 @@
-import PQueue from "p-queue";
 import { ensureAuthedClient } from "../http/authedClient";
 import { fetchSellerReviewsPaged } from "../reviews/fetchSellerReviewsPaged";
 import { normalizeReviews } from "../reviews/normalizeReviews";
@@ -23,6 +22,7 @@ export async function collectSellerReviews(opts: {
   const reviewsBySeller = new Map<string, any[]>();
   const reviewsMetaBySeller = new Map<string, { fetched: number; sourceFetched: number; mode?: string; pageSizeRequested?: number; pages?: any[] }>();
   const { client: httpClient } = await ensureAuthedClient();
+  const PQueue = (await import("p-queue")).default;
   const queue = new PQueue({ concurrency });
   let processed = 0;
   let failed = 0;

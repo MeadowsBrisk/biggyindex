@@ -1,4 +1,3 @@
-import PQueue from "p-queue";
 import { ensureAuthedClient } from "../http/authedClient";
 import { Keys } from "../persistence/keys";
 import type { SellerMetaRecord } from "./worklist";
@@ -130,6 +129,7 @@ export async function runSellerEnrichment(opts: {
   const reviewsMetaBySeller = new Map<string, { fetched: number; sourceFetched: number; mode?: string; pageSizeRequested?: number; pages?: any[] }>();
   const reviewCache = await loadSellerReviewCache();
 
+  const PQueue = (await import("p-queue")).default;
   const q = new PQueue({ concurrency: config.concurrency });
   let wrote = 0;
   let noHtml = 0;
