@@ -8,7 +8,7 @@ import { expandedRefNumAtom } from '@/store/atoms';
 import { loadItemForSEO } from '@/lib/seo';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, hostForLocale } from '@/lib/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv } from '@/lib/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
 
 interface ItemSEO {
   ref: string;
@@ -98,9 +98,12 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
         <meta property="og:title" content={title} />
         <meta property="og:url" content={canonical} />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Biggy Index" />
+        <meta property="og:locale" content={localeToOgFormat(serverLocale)} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         {desc && <meta name="twitter:description" content={desc} />}
+        {seo?.imageUrl && <meta name="twitter:image" content={seo.imageUrl} />}
         <link rel="canonical" href={canonical} />
         {altLocales.map(l => (
           <link key={l} rel="alternate" href={buildItemUrl(effectiveRef, l)} hrefLang={l} />
@@ -112,12 +115,22 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'ItemPage',
+              '@type': 'WebPage',
+              name: seo?.name || '',
+              description: desc || '',
+              url: canonical,
+              inLanguage: serverLocale,
               mainEntity: {
                 '@type': 'Thing',
                 name: seo?.name || '',
                 description: desc || '',
                 image: seo?.imageUrl || undefined,
+                ...(seo?.sellerName && {
+                  provider: {
+                    '@type': 'Organization',
+                    name: seo.sellerName,
+                  },
+                }),
               },
             }),
           }}
@@ -138,17 +151,17 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
         />
       </Head>
       {seo && (
-        <article className="mx-auto max-w-2xl px-4 py-6 border-b border-gray-200 dark:border-gray-700" itemScope itemType="https://schema.org/Product">
-          <h1 className="text-2xl font-semibold mb-2" itemProp="name">{seo.name}</h1>
+        <article className="mx-auto max-w-2xl px-4 py-6 border-b border-gray-200 dark:border-gray-700">
+          <h1 className="text-2xl font-semibold mb-2">{seo.name}</h1>
           {seo.sellerName && (
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
-              {tReviews('soldBy')} <span itemProp="brand">{seo.sellerName}</span>
+              {tReviews('soldBy')} <span>{seo.sellerName}</span>
             </p>
           )}
-          {desc && <p className="text-sm text-gray-700 dark:text-gray-400" itemProp="description">{desc}</p>}
+          {desc && <p className="text-sm text-gray-700 dark:text-gray-400">{desc}</p>}
           {seo.imageUrl && (
             <div className="mt-3">
-              <img src={seo.imageUrl} alt={seo.name} loading="lazy" className="max-h-64 w-auto rounded" itemProp="image" />
+              <img src={seo.imageUrl} alt={seo.name} loading="lazy" className="max-h-64 w-auto rounded" />
             </div>
           )}
         </article>

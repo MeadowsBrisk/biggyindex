@@ -99,3 +99,25 @@ export function isHostBasedEnv(hostname?: string | null): boolean {
 
 // Append or replace the mkt query param on a path. Preserves existing query.
 // Removed buildMarketApi: middleware normalizes API calls, and clients can pass explicit mkt when needed.
+
+// All supported markets for iteration
+export const MARKETS: Market[] = ['GB', 'DE', 'FR', 'PT', 'IT'];
+
+// Convert locale string to Open Graph format (en-GB -> en_GB)
+export function localeToOgFormat(locale: string): string {
+  return locale.replace('-', '_');
+}
+
+// Get all og:locale:alternate values excluding the current locale
+export function getOgLocaleAlternates(currentLocale: string): string[] {
+  const currentLang = currentLocale.split('-')[0];
+  return MARKETS
+    .map(m => getLocaleForMarket(m))
+    .filter(l => l.split('-')[0] !== currentLang)
+    .map(localeToOgFormat);
+}
+
+// Get all market codes excluding the current one (for language codes in hreflang)
+export function getAlternateMarkets(currentMarket: Market): string[] {
+  return MARKETS.filter(m => m !== currentMarket).map(m => m === 'GB' ? 'en' : m.toLowerCase());
+}

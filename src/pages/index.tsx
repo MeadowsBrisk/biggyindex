@@ -41,7 +41,7 @@ import { hostForLocale } from '@/lib/routing';
 import LocaleSelector from '@/components/LocaleSelector';
 import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
-import { getMarketFromPath } from '@/lib/market';
+import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market';
 
 let lastVotesSigCache = '';
 let allVotesSigCache = '';
@@ -331,6 +331,18 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
           <title>{tMeta('indexTitle')}</title>
           <meta name="description" content={tMeta('indexDescription')} />
           <link rel="canonical" href={hostForLocale(locale)} />
+          <meta property="og:title" content={tMeta('indexTitle')} />
+          <meta property="og:description" content={tMeta('indexDescription')} />
+          <meta property="og:url" content={hostForLocale(locale)} />
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="Biggy Index" />
+          <meta property="og:locale" content={localeToOgFormat(locale || 'en-GB')} />
+          {getOgLocaleAlternates(locale || 'en-GB').map(ogLoc => (
+            <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
+          ))}
+          <meta name="twitter:card" content="summary" />
+          <meta name="twitter:title" content={tMeta('indexTitle')} />
+          <meta name="twitter:description" content={tMeta('indexDescription')} />
           {['en','de','fr','it','pt'].map(l => (
             <link key={l} rel="alternate" href={hostForLocale(l)} hrefLang={l} />
           ))}

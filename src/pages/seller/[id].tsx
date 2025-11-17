@@ -9,7 +9,7 @@ import { loadSellerForSEO } from '@/lib/seo';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildSellerUrl } from '@/lib/routing';
 import { hostForLocale } from '@/lib/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv } from '@/lib/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
 
 interface SellerSEO {
   id: number;
@@ -105,9 +105,14 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, locale: serverLocale }
         <meta property="og:url" content={canonical} />
         <meta property="og:title" content={title} />
         {description && <meta property="og:description" content={description} />}
+        <meta property="og:type" content="profile" />
+        <meta property="og:site_name" content="Biggy Index" />
+        <meta property="og:locale" content={localeToOgFormat(serverLocale)} />
+        <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={title} />
         {description && <meta name="twitter:description" content={description} />}
         {seo?.sellerImageUrl && <meta property="og:image" content={seo.sellerImageUrl} />}
+        {seo?.sellerImageUrl && <meta name="twitter:image" content={seo.sellerImageUrl} />}
         <script
           // JSON-LD: ProfilePage
           type="application/ld+json"
@@ -115,7 +120,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, locale: serverLocale }
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'ProfilePage',
-              about: {
+              mainEntity: {
                 '@type': 'Organization',
                 name: seo?.sellerName || '',
                 url: seo?.shareLink || undefined,

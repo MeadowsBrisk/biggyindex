@@ -12,7 +12,7 @@ import FooterSection from '@/sections/home/FooterSection';
 import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from '@/lib/indexData';
 import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { hostForLocale } from '@/lib/routing';
-import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market';
+import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market';
 import { useLocale, useTranslations } from 'next-intl';
 import { normalizeItem } from '@/lib/normalizeItem';
 
@@ -296,7 +296,8 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
   const webPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: 'Biggy Index – UK Cannabis Listings',
+    name: tMeta('homeTitle'),
+    description: tMeta('homeDescription'),
     dateModified: buildTime,
     url: `${origin}/home`,
     inLanguage: locale,
@@ -316,9 +317,14 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <meta property="og:description" content={tMeta('homeDescription')} />
         <meta property="og:url" content={`${origin}/home`} />
         <meta property="og:type" content="website" />
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content={tMeta('homeTitle')} />
-        <meta property="twitter:description" content={tMeta('homeDescription')} />
+        <meta property="og:site_name" content="Biggy Index" />
+        <meta property="og:locale" content={localeToOgFormat(locale)} />
+        {getOgLocaleAlternates(locale).map(ogLoc => (
+          <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
+        ))}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={tMeta('homeTitle')} />
+        <meta name="twitter:description" content={tMeta('homeDescription')} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />

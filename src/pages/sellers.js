@@ -5,7 +5,7 @@ import { useSetAtom } from 'jotai';
 import { sellerAnalyticsOpenAtom } from '@/store/atoms';
 import { useTranslations } from 'next-intl';
 import { hostForLocale } from '@/lib/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv } from '@/lib/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
 
 export async function getServerSideProps(ctx) {
   // Derive locale from host or path
@@ -64,6 +64,15 @@ export default function SellersPage({ locale: serverLocale, messages }) {
       <Head>
   <title>{title}</title>
   <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Biggy Index" />
+        <meta property="og:locale" content={localeToOgFormat(serverLocale)} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
         <link rel="canonical" href={canonical} />
         {['en','de','fr','it','pt'].map(l => (
           <link key={l} rel="alternate" href={`${hostForLocale(l)}/sellers`} hrefLang={l} />
