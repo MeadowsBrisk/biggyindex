@@ -115,7 +115,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'WebPage',
+              '@type': 'ItemPage',
               name: seo?.name || '',
               description: desc || '',
               url: canonical,
