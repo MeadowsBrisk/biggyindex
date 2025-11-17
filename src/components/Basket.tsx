@@ -133,24 +133,26 @@ export default function Basket() {
   }, [groups, toGBPFromUSD]);
 
   useEffect(() => {
-    const el = headerBtnRef.current;
-    if (!el || typeof IntersectionObserver === 'undefined') {
-      setHeaderVisible(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.target === el) {
-            setHeaderVisible(entry.isIntersecting);
-          }
-        }
-      },
-      { threshold: [0, 0.01, 1], rootMargin: '0px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+    const timer = setTimeout(() => {
+      const el = headerBtnRef.current;
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => setHeaderVisible(entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(el);
+      (el as any).__obs = observer;
+    }, 100);
+    return () => {
+      clearTimeout(timer);
+      const el = headerBtnRef.current;
+      const obs = el && (el as any).__obs;
+      if (obs) {
+        obs.disconnect();
+        delete (el as any).__obs;
+      }
+    };
+  }, [count]);
 
   useEffect(() => {
     if (!open) return;
@@ -181,10 +183,15 @@ export default function Basket() {
   useEffect(() => {
     if (open && panelRef.current) {
       panelRef.current.focus();
+    } else if (!open && headerBtnRef.current) {
+      // Re-check visibility when drawer closes in case scroll position changed
+      const rect = headerBtnRef.current.getBoundingClientRect();
+      const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      setHeaderVisible(isVisible);
     }
   }, [open]);
 
-  const showStickyButton = count > 0 && !headerVisible;
+  const showStickyButton = count > 0 && !headerVisible && !open;
 
   if (count === 0) return null;
 
