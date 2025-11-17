@@ -147,6 +147,6 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     presenceMap: presenceById,
     client: anonClient,
     idSig,
-    counts: { itemsPlanned, uniqueIds: work.uniqueIds.length, toCrawl: work.toCrawl.length },
+    counts: { itemsPlanned, uniqueItems: work.uniqueIds.length, toCrawl: work.toCrawl.length },
   };
 }
