@@ -43,7 +43,21 @@ export async function processSingleItem(
     // Shared store for item core
     const sharedBlob = getBlobClient(env.stores.shared);
     const key = Keys.shared.itemCore(itemId);
-    const existing = (await sharedBlob.getJSON<any>(key)) || {};
+    
+    // CRITICAL: Load existing item with defensive error handling
+    // If load fails, we should NOT proceed with a minimal write that would lose data
+    let existing: any = null;
+    let existingLoadFailed = false;
+    try {
+      existing = await sharedBlob.getJSON<any>(key);
+    } catch (e: any) {
+      existingLoadFailed = true;
+      console.warn(`${prefix} CRITICAL: failed to load existing item id=${itemId} - aborting to prevent data loss: ${e?.message || e}`);
+      throw new Error(`Failed to load existing item data - cannot proceed safely to prevent data loss`);
+    }
+    
+    // null means item doesn't exist (new item), {} handles edge case
+    const base = existing || {};
 
   let reviewsWritten = false;
     let descriptionWritten = false;
@@ -84,37 +98,37 @@ export async function processSingleItem(
         merged.descriptionMeta = descRes.meta;
         merged.lastDescriptionRefresh = new Date().toISOString();
         descriptionWritten = true;
-      } else if (existing && existing.description) {
+      } else if (base && base.description) {
         // preserve existing description if fetch failed
-        merged.description = existing.description;
-        if (existing.descriptionMeta != null) merged.descriptionMeta = existing.descriptionMeta;
-        if (existing.lastDescriptionRefresh) merged.lastDescriptionRefresh = existing.lastDescriptionRefresh;
+        merged.description = base.description;
+        if (base.descriptionMeta != null) merged.descriptionMeta = base.descriptionMeta;
+        if (base.lastDescriptionRefresh) merged.lastDescriptionRefresh = base.lastDescriptionRefresh;
       }
-    } else if (existing && existing.description) {
+    } else if (base && base.description) {
       // reviews-only mode: carry forward existing description if present
-      merged.description = existing.description;
-      if (existing.descriptionMeta != null) merged.descriptionMeta = existing.descriptionMeta;
-      if (existing.lastDescriptionRefresh) merged.lastDescriptionRefresh = existing.lastDescriptionRefresh;
+      merged.description = base.description;
+      if (base.descriptionMeta != null) merged.descriptionMeta = base.descriptionMeta;
+      if (base.lastDescriptionRefresh) merged.lastDescriptionRefresh = base.lastDescriptionRefresh;
     }
 
     if (revRes && revRes.ok) {
       const reviewsArray = Array.isArray((revRes as any)?.data?.reviews)
         ? (revRes as any).data.reviews
-        : existing.reviews || [];
+        : base.reviews || [];
       merged.reviews = reviewsArray;
       merged.lastReviewsRefresh = new Date().toISOString();
       reviewsWritten = true;
-    } else if (existing && existing.reviews) {
-      merged.reviews = existing.reviews;
-      if (existing.lastReviewsRefresh) merged.lastReviewsRefresh = existing.lastReviewsRefresh;
+    } else if (base && base.reviews) {
+      merged.reviews = base.reviews;
+      if (base.lastReviewsRefresh) merged.lastReviewsRefresh = base.lastReviewsRefresh;
       if (revRes && !revRes.ok) errors.push(`reviews:${revRes.error || "unknown"}`);
     }
 
     // If full mode succeeded for description, mark lastFullCrawl in same write
     if (mode === "full" && descriptionWritten) {
       merged.lastFullCrawl = new Date().toISOString();
-    } else if (existing && existing.lastFullCrawl) {
-      merged.lastFullCrawl = existing.lastFullCrawl;
+    } else if (base && base.lastFullCrawl) {
+      merged.lastFullCrawl = base.lastFullCrawl;
     }
 
     // Always update lastRefresh timestamp when we process the item
@@ -131,7 +145,7 @@ export async function processSingleItem(
 
     if (mode === "full") {
       // Prefer existing core value, then aggregate cache, unless forced refresh
-      const cached = (existing && typeof existing.sl === 'string') ? existing.sl : (aggregates[itemId] || undefined);
+      const cached = (base && typeof base.sl === 'string') ? base.sl : (aggregates[itemId] || undefined);
       if (cached && !forceShare) {
         merged.sl = cached;
       } else {
@@ -143,23 +157,23 @@ export async function processSingleItem(
             shareWritten = true;
           } else if (cached) {
             merged.sl = cached;
-          } else if (existing && typeof existing.sl === 'string') {
-            merged.sl = existing.sl; // preserve prior if present
+          } else if (base && typeof base.sl === 'string') {
+            merged.sl = base.sl; // preserve prior if present
           }
         } catch (e: any) {
           errors.push(`share:${e?.message || 'unknown'}`);
           if (cached) merged.sl = cached;
-          else if (existing && typeof existing.sl === 'string') merged.sl = existing.sl;
+          else if (base && typeof base.sl === 'string') merged.sl = base.sl;
         }
       }
-    } else if (existing && typeof existing.sl === 'string') {
-      merged.sl = existing.sl;
+    } else if (base && typeof base.sl === 'string') {
+      merged.sl = base.sl;
     } else if (aggregates[itemId]) {
       merged.sl = aggregates[itemId];
     }
 
-    // Preserve any other existing fields not explicitly set
-    for (const [k, v] of Object.entries(existing)) {
+    // CRITICAL: Preserve any other existing fields not explicitly set (defensive merge)
+    for (const [k, v] of Object.entries(base)) {
       if (!(k in merged)) (merged as any)[k] = v;
     }
 

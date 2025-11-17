@@ -220,11 +220,12 @@ content: "";
 }
 .card-image {
 	@apply w-full h-full object-cover transform-gpu transition-transform duration-900 ease-out group-hover/image:scale-[1.06] group-hover:scale-[1.04] cursor-zoom-in;
+	/* object-position: top; */
 }
-
+/* 
 .rounded-top{
 	
-}
+} */
 
 .variant-pills-scroll {
 	@apply flex gap-1.5 overflow-x-auto overflow-y-hidden;
