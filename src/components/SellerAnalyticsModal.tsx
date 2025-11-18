@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
 import SellerAvatarTooltip from '@/components/SellerAvatarTooltip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { useHistoryState } from '@/hooks/useHistoryState';
 import { formatBritishDateTime } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
 import { useTranslations } from 'next-intl';
@@ -69,6 +70,14 @@ export default function SellerAnalyticsModal(): React.ReactElement | null {
   try { tA = useTranslations('Analytics'); } catch { tA = (k: string, _?: any) => k; }
   
   useBodyScrollLock(open);
+
+  // Use centralized history manager
+  useHistoryState({
+    id: 'analytics-modal',
+    type: 'analytics',
+    isOpen: open,
+    onClose: () => setOpen(false)
+  });
 
   useEffect(() => {
     if (!open) return;

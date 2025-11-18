@@ -10,6 +10,7 @@ import cn from '@/app/cn';
 import { useAtomValue } from 'jotai';
 import { pauseGifsAtom } from '@/store/atoms';
 import { proxyImage } from '@/lib/images';
+import { useHistoryState } from '@/hooks/useHistoryState';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { RotateButton, ZoomButton, ArrowLeftIcon, ArrowRightIcon } from '@/components/zoom/ZoomButtons';
 import ZoomSlide from '@/components/zoom/ZoomSlide';
@@ -36,8 +37,8 @@ export default function ImageZoomPreview({ imageUrl, imageUrls, alt = '', openSi
 
   // Modal state
   const [open, setOpen] = useState(false);
-  const hasPushedRef = useRef(false);
-  const closedByBackRef = useRef(false);
+  const zoomIdRef = useRef(`zoom-${guardKey || 'default'}-${Date.now()}`);
+  
   // Notify parent when open state changes (skip initial mount to avoid false-close loops)
   const didNotifyRef = useRef(false);
   useEffect(() => {
@@ -45,47 +46,14 @@ export default function ImageZoomPreview({ imageUrl, imageUrls, alt = '', openSi
     if (!didNotifyRef.current) { didNotifyRef.current = true; return; }
     onOpenChange(open);
   }, [open, onOpenChange]);
-  // Back button handling: when opened, push a state; pop closes preview only
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (open && window.history) {
-      try {
-        window.history.pushState({ __imagePreview: true }, '', window.location.href);
-        hasPushedRef.current = true;
-      } catch {}
-    }
-    const onPop = (e: PopStateEvent) => {
-      if (open) {
-        closedByBackRef.current = true;
-        setOpen(false);
-        // prevent further handling by overlay if possible
-        try { e?.stopImmediatePropagation?.(); } catch {}
-      }
-    };
-    if (open) window.addEventListener('popstate', onPop, { once: true });
-    return () => {
-      if (open) window.removeEventListener('popstate', onPop);
-    };
-  }, [open]);
 
-  // When closing without using Back (e.g., tapping X), pop the extra state we pushed
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!open && hasPushedRef.current) {
-      if (closedByBackRef.current) {
-        // Already balanced by user pressing Back
-        closedByBackRef.current = false;
-        hasPushedRef.current = false;
-        return;
-      }
-      try {
-        // Notify overlay to ignore the next popstate
-        window.dispatchEvent(new CustomEvent('lb:zoom-will-balance-back'));
-        window.history.back();
-      } catch {}
-      hasPushedRef.current = false;
-    }
-  }, [open]);
+  // Use centralized history manager
+  useHistoryState({
+    id: zoomIdRef.current,
+    type: 'zoom',
+    isOpen: open,
+    onClose: () => setOpen(false)
+  });
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const [swiper, setSwiper] = useState<any>(null);

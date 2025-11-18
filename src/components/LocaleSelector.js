@@ -111,7 +111,7 @@ export default function LocaleSelector() {
         aria-expanded={isOpen}
       >
         <CurrentFlag className="w-4 h-4 rounded-sm flex-shrink-0" />
-        <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-100">
+        <span className="text-[10px] lg:text-[13px] font-semibold text-gray-800 dark:text-gray-100">
           {displayCurrency}
         </span>
         <svg 

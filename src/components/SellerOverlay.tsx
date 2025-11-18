@@ -5,6 +5,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { expandedSellerIdAtom, expandedRefNumAtom, includedSellersAtom, excludedSellersAtom, pushOverlayAtom, popOverlayAtom, topOverlayTopAtom } from '@/store/atoms';
 import { useSellerDetail } from '@/hooks/useSellerDetail';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { useHistoryState } from '@/hooks/useHistoryState';
 import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
@@ -54,23 +55,27 @@ export default function SellerOverlay() {
     popOverlay('seller');
   }, [router, currentItemRef, setSellerId, popOverlay]);
 
-  // Layered back handling: close seller overlay first
+  // Use centralized history manager
+  useHistoryState({
+    id: `seller-${sellerId}`,
+    type: 'seller',
+    isOpen: !!sellerId,
+    onClose: close
+  });
+
+  // Manage overlay stack for z-index coordination
   useEffect(() => {
     if (!sellerId) {
       setReviewGallery(null);
       setOpenPreviewSignal(null);
+      popOverlay('seller');
       return;
     }
-    try { window.history.pushState({ __sellerOverlay: true }, '', window.location.href); } catch {}
-    const onPop = () => { if (zoomOpen) return; if (sellerId) close(); };
-    window.addEventListener('popstate', onPop);
     pushOverlay('seller');
-    return () => {
-      window.removeEventListener('popstate', onPop);
-      popOverlay('seller');
-    };
-  }, [sellerId, close, zoomOpen, pushOverlay, popOverlay]);
+    return () => popOverlay('seller');
+  }, [sellerId, pushOverlay, popOverlay]);
 
+  // Keyboard shortcuts
   useEffect(() => {
     if (!sellerId) return;
     const onKey = (e: KeyboardEvent) => {

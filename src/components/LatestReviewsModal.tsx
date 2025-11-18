@@ -17,6 +17,7 @@ import cn from '@/app/cn';
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { useHistoryState } from '@/hooks/useHistoryState';
 import { getMarketFromPath } from '@/lib/market';
 
 function formatArrival(days?: number | null, tReviews?: (k: string, v?: any) => string) {
@@ -152,6 +153,14 @@ export default function LatestReviewsModal(): React.ReactElement | null {
   const [showOnlyWithImages, setShowOnlyWithImages] = useState(false);
   
   useBodyScrollLock(open);
+
+  // Use centralized history manager
+  useHistoryState({
+    id: 'reviews-modal',
+    type: 'reviews',
+    isOpen: open,
+    onClose: () => setOpen(false)
+  });
 
   // Listen for external close requests (e.g., from SellerOverlay when navigating)
   useEffect(() => {

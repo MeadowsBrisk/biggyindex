@@ -213,7 +213,7 @@ export default function Basket() {
         <path d="M16,25H14a1,1,0,0,0,0,2h2a1,1,0,0,0,0-2Z"/>
         <path d="M25,25H23a1,1,0,0,0,0,2h2a1,1,0,0,0,0-2Z"/>
       </svg>
-      {!compact && <span className="text-[13px] font-semibold">{t('button')}</span>}
+      {!compact && <span className="text-[10px] lg:text-[13px] font-semibold">{t('button')}</span>}
       {renderBadge()}
     </>
   );

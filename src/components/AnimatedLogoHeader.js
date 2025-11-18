@@ -111,7 +111,7 @@ export default function AnimatedLogoHeader({ className = '', rightSlot = null })
         </motion.div>
       </Link>
   <motion.h1
-        className="text-2xl font-heading font-semibold tracking-tight text-gray-900 dark:text-gray-100 leading-none select-none"
+        className="text-[16px] lg:text-2xl font-heading font-semibold tracking-tight text-gray-900 dark:text-gray-100 leading-none select-none"
         initial="hidden"
         animate="show"
         custom={reduce}

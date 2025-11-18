@@ -22,6 +22,7 @@ import { addToBasketAtom, basketAtom } from '@/store/atoms';
 import { showToastAtom } from '@/store/atoms';
 import { useItemDetail } from '@/hooks/useItemDetail';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { useHistoryState } from '@/hooks/useHistoryState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { decodeEntities } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
@@ -86,12 +87,16 @@ export default function ItemDetailOverlay() {
   
   const { detail, loading, error, reload } = useItemDetail(refNum as any);
   useBodyScrollLock(!!refNum);
+  const backdropRef = useRef<HTMLDivElement | null>(null);
+  const [openPreviewSignal, setOpenPreviewSignal] = useState<any>(null);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  
   const close = useCallback(({ skipScroll }: { skipScroll?: boolean } = {}) => {
     const current = refNum;
     setRefNum(null as any);
     if (typeof document !== 'undefined' && current && !skipScroll) {
       try {
-  const esc = (typeof (window as any).CSS !== 'undefined' && typeof (window as any).CSS.escape === 'function') ? (window as any).CSS.escape : ((s: any) => String(s).replace(/"/g, '\\"'));
+        const esc = (typeof (window as any).CSS !== 'undefined' && typeof (window as any).CSS.escape === 'function') ? (window as any).CSS.escape : ((s: any) => String(s).replace(/"/g, '\\"'));
         const el = document.querySelector(`[data-ref="${esc(String(current))}"]`);
         if (el && typeof (el as any).scrollIntoView === 'function') {
           (el as any).scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -99,46 +104,27 @@ export default function ItemDetailOverlay() {
       } catch {}
     }
   }, [setRefNum, refNum]);
-  const backdropRef = useRef<HTMLDivElement | null>(null);
-  const [openPreviewSignal, setOpenPreviewSignal] = useState<any>(null);
-  const [zoomOpen, setZoomOpen] = useState(false);
-  // (width is locked via CSS vw calc at ultrawide)
-  // Ensure mobile back button closes overlay first
-  const backSentinelPushed = useRef(false);
-  const ignoreNextPopRef = useRef(false);
-  useEffect(() => {
-    if (!refNum) {
-      backSentinelPushed.current = false;
-      return;
-    }
-    // Push a dummy state so first Back triggers popstate without leaving the page
-    if (typeof window !== 'undefined' && (window as any).history && !backSentinelPushed.current) {
-      try {
-        (window as any).history.pushState({ __overlay: true }, '', window.location.href);
-        backSentinelPushed.current = true;
-      } catch {}
-    }
-    const onZoomBalance = () => { ignoreNextPopRef.current = true; };
-    window.addEventListener('lb:zoom-will-balance-back' as any, onZoomBalance as any, { once: true } as any);
 
-    const onPop = (e?: any) => {
-      if (ignoreNextPopRef.current) { ignoreNextPopRef.current = false; return; }
-      // Let ImageZoomPreview consume the Back press first
-      if (zoomOpen) return;
-      if (refNum) close();
-    };
-    window.addEventListener('popstate', onPop as any);
+  // Use centralized history manager
+  useHistoryState({
+    id: `item-${refNum}`,
+    type: 'item',
+    isOpen: !!refNum,
+    onClose: () => close({})
+  });
+
+  // Listen for external close requests
+  useEffect(() => {
+    if (!refNum) return;
     const onCloseReq = (evt: any) => {
       const skipScroll = evt && typeof evt === 'object' && evt.detail && evt.detail.skipScroll;
       if (refNum) close({ skipScroll });
     };
     window.addEventListener('lb:close-item-overlay' as any, onCloseReq as any);
     return () => {
-      window.removeEventListener('lb:zoom-will-balance-back' as any, onZoomBalance as any);
-      window.removeEventListener('popstate', onPop as any);
       window.removeEventListener('lb:close-item-overlay' as any, onCloseReq as any);
     };
-  }, [refNum, close, zoomOpen]);
+  }, [refNum, close]);
 
   // Hooks that must not be conditionally skipped (declare before any early return)
   const images = useMemo(() => {
@@ -233,22 +219,28 @@ export default function ItemDetailOverlay() {
     }
   }, [detail, shippingOptions, includeShipping, selectedShipIdx]);
 
+  // Keyboard shortcuts
   useEffect(() => {
+    if (!refNum) return;
     function onKey(e: any) {
+      if (zoomOpen) return; // Let ImageZoomPreview handle its own keys
       if (e.key === 'Escape') {
-        if (zoomOpen) return; // ImageZoomPreview handles its own escape/close
-        close();
-      } else if (e.key === 'ArrowLeft') {
-        if (!zoomOpen) gotoPrev();
-      } else if (e.key === 'ArrowRight') {
-        if (!zoomOpen) gotoNext();
-      } else if (e.key.toLowerCase() === 'f') {
-        if (!zoomOpen && baseItem) toggleFav((baseItem as any).id);
+        e.preventDefault();
+        close({});
+      } else if (e.key === 'ArrowLeft' && hasPrev) {
+        e.preventDefault();
+        gotoPrev();
+      } else if (e.key === 'ArrowRight' && hasNext) {
+        e.preventDefault();
+        gotoNext();
+      } else if (e.key.toLowerCase() === 'f' && baseItem) {
+        e.preventDefault();
+        toggleFav((baseItem as any).id);
       }
     }
-    if (refNum) window.addEventListener('keydown', onKey as any);
+    window.addEventListener('keydown', onKey as any);
     return () => window.removeEventListener('keydown', onKey as any);
-  }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen]);
+  }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
   const name = decodeEntities((baseItem as any)?.name || (detail as any)?.name || 'Item');
   // Prefer full description from detail JSON; fall back to detail.description; then list summary
