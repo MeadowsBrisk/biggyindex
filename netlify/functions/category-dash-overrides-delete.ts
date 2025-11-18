@@ -8,7 +8,7 @@
 import type { Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
 import { verifySession, extractSessionToken } from '../lib/auth';
-import { OVERRIDES_KEY, type OverridesData, createEmptyOverridesData } from '../../../src/lib/categoryOverrides';
+import { OVERRIDES_KEY, type OverridesData, createEmptyOverridesData } from '../lib/categoryOverrides';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {

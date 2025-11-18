@@ -17,7 +17,7 @@ import {
   createOverrideEntry,
   updateOverrideEntry,
   createEmptyOverridesData,
-} from '../../../src/lib/categoryOverrides';
+} from '../lib/categoryOverrides';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {
