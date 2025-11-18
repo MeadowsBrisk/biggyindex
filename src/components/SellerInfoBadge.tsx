@@ -5,7 +5,7 @@ import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom, pushOverlayAtom } from '@/store/atoms';
 import { loadSellersIndex, getCachedSellerByName } from '@/lib/sellersIndex';
 
-// deprecated?
+// deprecated?6
 type SellerOnlineFlag = 'today' | 'yesterday' | null;
 
 function OnlineDot({ online }: { online: SellerOnlineFlag }) {
