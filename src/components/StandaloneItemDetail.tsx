@@ -277,8 +277,10 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   return (
     <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
       {/* Header / Nav */}
-      <div className="shrink-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
-        <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
+      <div className="shrink-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 py-3">
+        <div className="w-full max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8">
+          <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
+        </div>
       </div>
 
       <div className="flex-1 min-h-0 w-full max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8 overflow-hidden relative">
