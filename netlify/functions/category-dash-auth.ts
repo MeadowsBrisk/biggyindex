@@ -6,8 +6,8 @@
  */
 
 import type { Context } from '@netlify/functions';
-import { verifyPassword, createSession, createSessionCookie, revokeSession, extractSessionToken, clearSessionCookie } from '../../../src/lib/category-dash/auth';
-import { checkRateLimit } from '../../../src/lib/category-dash/rateLimit';
+import { verifyPassword, createSession, createSessionCookie, revokeSession, extractSessionToken, clearSessionCookie } from '../lib/auth';
+import { checkRateLimit } from '../lib/rateLimit';
 
 export default async (request: Request, context: Context) => {
   // Only allow POST

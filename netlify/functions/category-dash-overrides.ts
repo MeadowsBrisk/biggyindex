@@ -7,8 +7,8 @@
 
 import type { Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
-import { verifySession, extractSessionToken } from '../../../src/lib/category-dash/auth';
-import { checkRateLimit } from '../../../src/lib/category-dash/rateLimit';
+import { verifySession, extractSessionToken } from '../lib/auth';
+import { checkRateLimit } from '../lib/rateLimit';
 import {
   OVERRIDES_KEY,
   type OverridesData,

@@ -7,7 +7,7 @@
 
 import type { Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
-import { verifySession, extractSessionToken } from '../../../src/lib/category-dash/auth';
+import { verifySession, extractSessionToken } from '../lib/auth';
 import { OVERRIDES_KEY, type OverridesData, createEmptyOverridesData } from '../../../src/lib/categoryOverrides';
 
 // Middleware: require authentication
