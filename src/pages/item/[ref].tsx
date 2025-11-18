@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import Home from '../index';
+import StandaloneItemDetail from '@/components/StandaloneItemDetail';
 import { useSetAtom } from 'jotai';
 import { expandedRefNumAtom } from '@/store/atoms';
-import { loadItemForSEO } from '@/lib/seo';
+import { fetchItemDetail } from '@/lib/itemDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, hostForLocale } from '@/lib/routing';
 import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
@@ -25,6 +25,7 @@ interface ItemSEO {
 
 interface ItemRefPageProps {
   seo: ItemSEO | null;
+  detail: any | null;
   messages: Record<string, any>;
   locale: string;
 }
@@ -41,8 +42,8 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
     
-    const item = await loadItemForSEO(ref, market);
-    if (!item) return { notFound: true };
+    const detail = await fetchItemDetail(ref, market);
+    if (!detail) return { notFound: true };
     
     // Load messages for server-side translation
     let messages: Record<string, any> = {};
@@ -57,33 +58,33 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     }
     
     const seo: ItemSEO = {
-      ref,
-      name: item.name || '',
-      description: item.description || null,
-      imageUrl: item.imageUrl || null,
-      sellerName: item.sellerName || null,
-      price: item.price || null,
-      currency: item.currency || null,
-      url: item.url || null,
-      reviewsCount: item.reviewsCount || null,
-      reviewsRating: item.reviewsRating || null,
+      ref: String(detail.refNum || detail.ref || ref),
+      name: detail.name || '',
+      description: detail.descriptionFull || detail.description || null,
+      imageUrl: detail.imageUrl || (detail.imageUrls && detail.imageUrls[0]) || null,
+      sellerName: detail.sellerName || (detail.seller && detail.seller.name) || null,
+      price: detail.price || null,
+      currency: detail.currency || null,
+      url: detail.url || detail.share?.shortLink || null,
+      reviewsCount: detail.reviewsCount || (detail.reviews ? detail.reviews.length : null),
+      reviewsRating: detail.reviewsRating || null,
     };
-    return { props: { seo, messages, locale: shortLocale } };
+    return { props: { seo, detail, messages, locale: shortLocale } };
   } catch {
     return { notFound: true };
   }
 };
 
-const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) => {
+const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLocale }) => {
   const router = useRouter();
   const setExpanded = useSetAtom(expandedRefNumAtom);
   const tReviews = useTranslations('Reviews');
   const ref = typeof router.query.ref === 'string' ? router.query.ref : null;
 
   useEffect(() => {
-    if (!router.isReady) return;
-    setExpanded(ref || null);
-  }, [router.isReady, ref, setExpanded]);
+    // Clear any expanded state since we are on a standalone page
+    setExpanded(null);
+  }, [setExpanded]);
 
   const titleBase = seo?.name ? seo.name : 'Items';
   const bySuffix = seo?.sellerName ? ` ${tReviews('soldBy')} ${seo.sellerName}` : '';
@@ -178,25 +179,10 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
           }}
         />
       </Head>
-      {seo && (
-        <article className="mx-auto max-w-2xl px-4 py-6 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-2xl font-semibold mb-2">{seo.name}</h1>
-          {seo.sellerName && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
-              {tReviews('soldBy')} <span>{seo.sellerName}</span>
-            </p>
-          )}
-          {desc && <p className="text-sm text-gray-700 dark:text-gray-400">{desc}</p>}
-          {seo.imageUrl && (
-            <div className="mt-3">
-              <img src={seo.imageUrl} alt={seo.name} loading="lazy" className="max-h-64 w-auto rounded" />
-            </div>
-          )}
-        </article>
-      )}
-      <Home suppressDefaultHead />
+      <StandaloneItemDetail baseItem={detail} detail={detail} />
     </>
   );
 };
 
 export default ItemRefPage;
+

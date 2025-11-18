@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import Home from '../index';
+import StandaloneSellerDetail from '@/components/StandaloneSellerDetail';
 import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom } from '@/store/atoms';
-import { loadSellerForSEO } from '@/lib/seo';
+import { fetchSellerDetail } from '@/lib/sellerDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildSellerUrl } from '@/lib/routing';
 import { hostForLocale } from '@/lib/routing';
@@ -21,6 +21,7 @@ interface SellerSEO {
 
 interface SellerIdPageProps {
   seo: SellerSEO | null;
+  detail: any | null;
   messages: Record<string, any>;
   locale: string;
 }
@@ -42,8 +43,9 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
     const pathname = ctx.resolvedUrl || '/';
     const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
     
-    const seller = await loadSellerForSEO(sellerId, market);
-    if (!seller) return { notFound: true };
+    const detail = await fetchSellerDetail(sellerId);
+    if (!detail) return { notFound: true };
+
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
     
@@ -60,28 +62,28 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
     }
     
     const seo: SellerSEO = {
-      id: seller.id,
-      sellerName: seller.sellerName || null,
-      itemsCount: typeof seller.itemsCount === 'number' ? seller.itemsCount : null,
-      sellerImageUrl: seller.sellerImageUrl || null,
-      shareLink: seller.shareLink || null,
+      id: sellerId,
+      sellerName: detail.sellerName || null,
+      itemsCount: typeof detail.overview?.itemsCount === 'number' ? detail.overview.itemsCount : null,
+      sellerImageUrl: detail.sellerImageUrl || detail.imageUrl || null,
+      shareLink: detail.share || detail.sellerUrl || null,
     };
-    return { props: { seo, messages, locale: shortLocale } };
+    return { props: { seo, detail, messages, locale: shortLocale } };
   } catch {
     return { notFound: true };
   }
 };
 
-const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, locale: serverLocale }) => {
+const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, locale: serverLocale }) => {
   const router = useRouter();
   const setSellerId = useSetAtom(expandedSellerIdAtom);
 
   const sellerId = parseSellerId(router.query.id);
 
   useEffect(() => {
-    if (!router.isReady) return;
-    setSellerId(sellerId);
-  }, [router.isReady, sellerId, setSellerId]);
+    // Clear any expanded state since we are on a standalone page
+    setSellerId(null);
+  }, [setSellerId]);
 
   const title = seo?.sellerName ? `${seo.sellerName} – Sellers | Biggy Index` : `Sellers | Biggy Index`;
   const description = [
@@ -145,25 +147,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, locale: serverLocale }
           }}
         />
       </Head>
-      {seo && (
-        <section className="mx-auto max-w-2xl px-4 py-6 border-b border-gray-200 dark:border-gray-700" itemScope itemType="https://schema.org/Organization">
-          <h1 className="text-2xl font-semibold mb-2" itemProp="name">{seo.sellerName || title}</h1>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-            {typeof seo.itemsCount === 'number' && (
-              <span itemProp="description">{seo.itemsCount} items</span>
-            )}
-            {seo.shareLink && (
-              <a href={seo.shareLink} rel="nofollow noopener" className="underline text-emerald-600 dark:text-emerald-400" itemProp="url">LB profile</a>
-            )}
-          </div>
-          {seo.sellerImageUrl && (
-            <div className="mt-3">
-              <img src={seo.sellerImageUrl} alt={seo.sellerName || 'Seller'} loading="lazy" className="max-h-64 w-auto rounded" itemProp="image" />
-            </div>
-          )}
-        </section>
-      )}
-      <Home suppressDefaultHead />
+      <StandaloneSellerDetail detail={detail} sellerId={effectiveId} />
     </>
   );
 };
