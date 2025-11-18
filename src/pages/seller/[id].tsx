@@ -22,6 +22,7 @@ interface SellerSEO {
 interface SellerIdPageProps {
   seo: SellerSEO | null;
   detail: any | null;
+  items: any[];
   messages: Record<string, any>;
   locale: string;
 }
@@ -46,6 +47,25 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
     const detail = await fetchSellerDetail(sellerId);
     if (!detail) return { notFound: true };
 
+    // Fetch items for this seller
+    let items: any[] = [];
+    try {
+      const { getAllItems } = await import('@/lib/indexData');
+      const all = await getAllItems(market);
+      // Filter by seller ID (or name if ID missing in item, but ID is safer)
+      // Items usually have `sellerId` or `s` (minified) or `seller: { id }`
+      // The unified crawler output usually has `sellerId` or `sid` or `seller` object.
+      // Let's check a few properties.
+      items = all.filter((it: any) => {
+        const sId = it.sellerId || (it.seller && it.seller.id) || it.sid;
+        if (sId) return Number(sId) === sellerId;
+        // Fallback to name match if needed, but ID is preferred
+        return false;
+      });
+    } catch (e) {
+      console.error('Error fetching seller items:', e);
+    }
+
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
     
@@ -68,13 +88,13 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
       sellerImageUrl: detail.sellerImageUrl || detail.imageUrl || null,
       shareLink: detail.share || detail.sellerUrl || null,
     };
-    return { props: { seo, detail, messages, locale: shortLocale } };
+    return { props: { seo, detail, items, messages, locale: shortLocale } };
   } catch {
     return { notFound: true };
   }
 };
 
-const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, locale: serverLocale }) => {
+const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale: serverLocale }) => {
   const router = useRouter();
   const setSellerId = useSetAtom(expandedSellerIdAtom);
 
@@ -147,7 +167,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, locale: server
           }}
         />
       </Head>
-      <StandaloneSellerDetail detail={detail} sellerId={effectiveId} />
+      <StandaloneSellerDetail detail={detail} sellerId={effectiveId} items={items} />
     </>
   );
 };

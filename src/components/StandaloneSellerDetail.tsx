@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { includedSellersAtom, excludedSellersAtom } from '@/store/atoms';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
@@ -14,7 +15,8 @@ import SellerIncludeExclude from '@/components/item-detail/SellerIncludeExclude'
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import formatDescription from '@/lib/formatDescription';
 import { useTranslations } from 'next-intl';
-import Basket from '@/components/Basket';
+import SimpleItemCard from '@/components/SimpleItemCard';
+import BrowseIndexButton from '@/components/BrowseIndexButton';
 
 type OpenPreviewSignal = { ts: number; index: number; guard: unknown } | null;
 type ReviewGallerySignal = { images: string[]; index: number; ts: number; guard: unknown } | null;
@@ -22,10 +24,14 @@ type ReviewGallerySignal = { images: string[]; index: number; ts: number; guard:
 interface StandaloneSellerDetailProps {
   detail: any;
   sellerId: number | string;
+  items?: any[];
 }
 
-export default function StandaloneSellerDetail({ detail, sellerId }: StandaloneSellerDetailProps) {
+export default function StandaloneSellerDetail({ detail, sellerId, items = [] }: StandaloneSellerDetailProps) {
+  const router = useRouter();
   const tOv = useTranslations('Overlay');
+  const tSP = useTranslations('SellerPage');
+  const tAn = useTranslations('Analytics');
   const [included, setIncluded] = useAtom(includedSellersAtom);
   const [excluded, setExcluded] = useAtom(excludedSellersAtom);
   
@@ -97,23 +103,78 @@ export default function StandaloneSellerDetail({ detail, sellerId }: StandaloneS
     else setExcluded([...(excluded || []), lowerSeller]);
   };
 
+  const handleShowOnIndex = () => {
+    if (!lowerSeller) return;
+    if (!isIncluded) {
+      setIncluded([...(included || []), lowerSeller]);
+    }
+    if (isExcluded) {
+      setExcluded(excluded.filter((s: string) => s !== lowerSeller));
+    }
+    router.push('/');
+  };
+
+  const jsonLd = useMemo(() => {
+    const schema: any = {
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      'mainEntity': {
+        '@type': 'Organization',
+        'name': name,
+        'description': manifesto || undefined,
+        'image': img || undefined,
+      }
+    };
+
+    if (ratingStats.total > 0) {
+      // Calculate average if not available directly, but usually it is in statistics
+      const avg = detail?.reviewsMeta?.statistics?.averageRating;
+      if (avg) {
+        schema.mainEntity.aggregateRating = {
+          '@type': 'AggregateRating',
+          'ratingValue': avg.toString(),
+          'reviewCount': ratingStats.total.toString()
+        };
+      }
+    }
+
+    if (items && items.length > 0) {
+      schema.mainEntity.hasOfferCatalog = {
+        '@type': 'OfferCatalog',
+        'name': `${name}'s Products`,
+        'itemListElement': items.map((item: any) => ({
+          '@type': 'Product',
+          'name': item.n || item.name,
+          'description': item.d || item.description,
+          'image': (item.i || item.imageUrl) ? proxyImage(item.i || item.imageUrl) : undefined,
+          'offers': {
+            '@type': 'Offer',
+            'price': item.uMin || item.price || item.p,
+            'priceCurrency': 'USD',
+            'availability': 'https://schema.org/InStock'
+          }
+        }))
+      };
+    }
+
+    return schema;
+  }, [name, manifesto, img, ratingStats, detail, items]);
+
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col">
+    <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Header / Nav */}
-      <div className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-          <span>←</span>
-          <span>{tOv('browseIndex') || 'Browse Index'}</span>
-        </Link>
-        <div className="flex items-center gap-2">
-           <Basket />
-        </div>
+      <div className="shrink-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+        <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
       </div>
 
-      <div className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-          <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
-            {/* Left column: image + meta + manifesto */}
-            <div className="min-w-0 min-h-0">
+      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+          <div className="h-full grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
+            {/* Left column: image + meta + manifesto + items */}
+            <div className="min-w-0 min-h-0 flex flex-col overflow-y-auto pr-2 custom-scroll">
               <div className="flex items-start gap-4">
                 <div className="shrink-0">
                   <div
@@ -138,65 +199,85 @@ export default function StandaloneSellerDetail({ detail, sellerId }: StandaloneS
                 <div className="min-w-0 flex-1">
                   <h1 className="font-semibold text-2xl text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h1>
                   <div className="mt-1 text-sm text-gray-600 dark:text-gray-300 flex items-center gap-3 flex-wrap">
-                    {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> online {online}</span>}
-                    {joined && <span>joined {joined}</span>}
+                    {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {tAn('online')} {online}</span>}
+                    {joined && <span>{tSP('joined', {date: joined})}</span>}
                     {disputes && (
-                      <span className="opacity-80">{(disputes.approximateOrders!=null?`${disputes.approximateOrders}+`:'~')} orders • {disputes.percentDisputed}% disputed • {disputes.percentDisputesOpen}% open</span>
+                      <span className="opacity-80">{(disputes.approximateOrders!=null?`${disputes.approximateOrders}+`:'~')} {tSP('orders', {count: disputes.approximateOrders})} • {tSP('disputed', {percent: disputes.percentDisputed})} • {tSP('open', {percent: disputes.percentDisputesOpen})}</span>
                     )}
                   </div>
                   <div className="mt-3 flex flex-col gap-3">
                     {overviewStats && (
                       <div className="text-sm text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-3">
                         {typeof overviewStats.itemsCount === 'number' && (
-                          <span>{overviewStats.itemsCount} items listed</span>
+                          <span>{tSP('itemsListed', {count: overviewStats.itemsCount})}</span>
                         )}
                         {typeof overviewStats.numberOfReviews === 'number' && (
-                          <span>{overviewStats.numberOfReviews} reviews</span>
+                          <span>{overviewStats.numberOfReviews} {tOv('reviews')}</span>
                         )}
                         {typeof overviewStats.averageDaysToArrive === 'number' && (
-                          <span>avg arrival {Math.round(overviewStats.averageDaysToArrive)} days</span>
+                          <span>{tOv('avgArrival', {days: Math.round(overviewStats.averageDaysToArrive)})}</span>
                         )}
                       </div>
                     )}
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <SellerIncludeExclude
-                      isIncluded={isIncluded}
-                      isExcluded={isExcluded}
-                      onToggleInclude={onToggleInclude}
-                      onToggleExclude={onToggleExclude}
-                    />
+                    <div className="flex items-center justify-between gap-3 flex-wrap w-full">
+                      <SellerIncludeExclude
+                        isIncluded={isIncluded}
+                        isExcluded={isExcluded}
+                        onToggleInclude={onToggleInclude}
+                        onToggleExclude={onToggleExclude}
+                      />
+                      <button
+                        onClick={handleShowOnIndex}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-full transition-colors shadow-sm"
+                      >
+                        {tSP('showOnIndex')}
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Manifesto</h3>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">{tSP('manifesto')}</h3>
                 {manifestoNode}
                 {!manifesto && (
-                  <div className="text-sm italic text-gray-400">No manifesto.</div>
+                  <div className="text-sm italic text-gray-400">{tSP('noManifesto')}</div>
                 )}
               </div>
+
+              {/* Items Grid */}
+              {items.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">{tSP('items', {count: items.length})}</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {items.map((item) => (
+                      <SimpleItemCard key={item.id || item.refNum} item={item} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {img && (
                 <ImageZoomPreview imageUrl={img} imageUrls={[img]} alt={name} openSignal={openPreviewSignal as any} hideTrigger guardKey={sellerId as any} onOpenChange={setZoomOpen} />
               )}
+              <div className="pb-8" />
             </div>
 
             {/* Right column: reviews */}
-            <div className="min-w-0 min-h-0 flex flex-col relative">
-              <div className="sticky top-0 z-0 bg-white/85 dark:bg-[#0f1725]/85 backdrop-blur border-b border-gray-200/70 dark:border-gray-700/60 py-2 mb-4">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Reviews snapshot</h3>
+            <div className="min-w-0 min-h-0 flex flex-col relative h-full overflow-hidden">
+              <div className="shrink-0 z-10 bg-white/85 dark:bg-[#0f1725]/85 backdrop-blur border-b border-gray-200/70 dark:border-gray-700/60 py-2 mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{tSP('reviewsSnapshot')}</h3>
                 <div className="text-xs text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
                   <span>
                     {(() => {
                       const fetched = detail?.reviewsMeta?.fetched || reviews.length;
                       const total = detail?.reviewsMeta?.summary?.numberOfReviews ?? null;
-                      if (total && total > fetched) return `${fetched} Recent (${total} total)`;
-                      return `${fetched} total`;
+                      if (total && total > fetched) return `${fetched} ${tOv('recentShort')} (${total} ${tOv('totalShort')})`;
+                      return `${fetched} ${tOv('totalShort')}`;
                     })()}
                   </span>
                   {typeof detail?.reviewsMeta?.summary?.averageDaysToArrive === 'number' && (
-                    <span className="shrink-0">avg arrival {Math.round(detail.reviewsMeta.summary.averageDaysToArrive)} days</span>
+                    <span className="shrink-0">{tOv('avgArrival', {days: Math.round(detail.reviewsMeta.summary.averageDaysToArrive)})}</span>
                   )}
                 </div>
                 {ratingStats.total > 0 && (
@@ -215,7 +296,7 @@ export default function StandaloneSellerDetail({ detail, sellerId }: StandaloneS
                         "inline-block h-2 w-2 rounded-full",
                         ratingStats.recentNegatives > 6 ? "bg-red-500" : "bg-amber-500"
                       )} />
-                      {ratingStats.recentNegatives} recent low ratings
+                      {tSP('recentLowRatings', {count: ratingStats.recentNegatives})}
                     </span>
                   )}
                     {ratingStats.buckets.map(bucket => {
@@ -235,7 +316,7 @@ export default function StandaloneSellerDetail({ detail, sellerId }: StandaloneS
                   </div>
                 )}
               </div>
-              <div className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pr-2">
                 <ReviewsList
                   reviews={reviews as any}
                   max={reviews.length}
@@ -269,20 +350,21 @@ export default function StandaloneSellerDetail({ detail, sellerId }: StandaloneS
                   if (!isTruncated || !shareLink) return null;
                   return (
                     <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-right pr-3">
-                      Read more reviews at:
+                      {tOv('readMoreReviewsAt')}
                     </div>
                   );
                 })()}
+                <div className="pb-20" />
               </div>
               {shareLink && (
-                <div className="fixed right-6 bottom-6 z-40">
+                <div className="absolute right-6 bottom-6 z-40">
                   <a
                     href={shareLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                   >
-                    <span>See store on Little Biggy</span>
+                    <span>{tSP('seeStore')}</span>
                     <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
                   </a>
                 </div>

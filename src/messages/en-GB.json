@@ -167,7 +167,8 @@
       "descriptionChanged": "Description changed",
       "imagesChanged": "Images changed",
       "variantsNoun": "{count, plural, one {variant} other {variants}}"
-    }
+    },
+    "noImage": "No image"
   }
   ,
   "UI": {
@@ -186,6 +187,7 @@
   }
   ,
   "Overlay": {
+    "browseIndex": "Browse the Index",
     "description": "Description",
     "noDescription": "No description.",
     "reviews": "Reviews",
@@ -383,5 +385,19 @@
     "description": "Browse Little Biggy with categories, filters, reviews & seller stats. New to the marketplace?",
     "button": "Learn more",
     "close": "Close"
+  },
+  "SellerPage": {
+    "joined": "joined {date}",
+    "orders": "{count} orders",
+    "disputed": "{percent}% disputed",
+    "open": "{percent}% open",
+    "itemsListed": "{count} items listed",
+    "manifesto": "Manifesto",
+    "noManifesto": "No manifesto.",
+    "items": "Items ({count})",
+    "reviewsSnapshot": "Reviews snapshot",
+    "recentLowRatings": "{count} recent low ratings",
+    "seeStore": "See store on Little Biggy",
+    "showOnIndex": "Show items on Index"
   }
 }

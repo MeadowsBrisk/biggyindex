@@ -23,7 +23,7 @@ export type BasketEntry = {
   includeShip: boolean;
   priceGBP: number | null; // legacy
   imageUrl: string | null;
-  biggyLink: string | null;
+  sl: string | null;
   addedAt: number;
 };
 
@@ -834,7 +834,7 @@ export const addToBasketAtom = atom<null, [BasketEntry | any], void>(null, (get:
       // Legacy fallback for older entries
       priceGBP: typeof payload?.priceGBP === 'number' ? payload.priceGBP : null,
       imageUrl: payload?.imageUrl ?? null,
-      biggyLink: payload?.biggyLink ?? null,
+      sl: payload?.sl ?? null,
       addedAt: Date.now(),
     };
     items.push(entry);

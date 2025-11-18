@@ -209,6 +209,7 @@
     "next": "Succ.",
     "previousItemAria": "Articolo precedente",
     "nextItemAria": "Articolo successivo",
+    "browseIndex": "Sfoglia l'indice",
     "close": "Chiudi",
     "goToImage": "Vai all’immagine {num}",
     "imageNum": "Immagine {num}",

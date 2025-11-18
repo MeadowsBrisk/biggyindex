@@ -269,8 +269,8 @@ export default function ItemDetailOverlay() {
     if (minShip == null && maxShip == null) return null;
     return { minShip, maxShip };
   })();
-  const biggyLink = (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || null;
-  // const biggyLink = baseItem?.url || detail?.url || null;
+  const sl = (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || null;
+  // const sl = baseItem?.url || detail?.url || null;
   // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum as any;
   const shareUrl = typeof window !== 'undefined'
@@ -605,7 +605,7 @@ export default function ItemDetailOverlay() {
                   roundDisplayGBP={roundDisplayGBP}
                   ReviewsList={ReviewsList}
                   formatDescription={formatDescription}
-                  biggyLink={biggyLink}
+                  sl={sl}
                   displayName={name}
                   leadImage={images?.[0] || (baseItem as any)?.imageUrl}
                 />
@@ -763,7 +763,7 @@ export default function ItemDetailOverlay() {
               shippingUsd: includeShipping ? ((shippingUsd ?? null) as any) : null,
               includeShip: !!includeShipping,
                             imageUrl: images?.[0] || (baseItem as any)?.imageUrl,
-                            biggyLink,
+                            sl,
                           });
                         }
                         setSelectedVariantIds(new Set());
@@ -961,7 +961,7 @@ export default function ItemDetailOverlay() {
                   const stats = (baseItem as any)?.reviewStats;
                   const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
                   const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-                  if (!isTruncated || !biggyLink) return null;
+                  if (!isTruncated || !sl) return null;
                   return (
                     <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
                       {tOv('readMoreReviewsAt')}
@@ -1011,7 +1011,7 @@ export default function ItemDetailOverlay() {
                 const stats = (baseItem as any)?.reviewStats;
                 const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
                 const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-                if (!isTruncated || !biggyLink) return null;
+                if (!isTruncated || !sl) return null;
                 return (
                   <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-3">
                     {tOv('readMoreReviewsAt')}
@@ -1046,10 +1046,10 @@ export default function ItemDetailOverlay() {
             favouriteAccent={favouriteAccent}
           />
           {/* Floating biggy button (shipping info removed per design) */}
-          {biggyLink && (
+          {sl && (
             <div className="pointer-events-none absolute right-3 bottom-25 md:right-3 md:bottom-3 md:bottom-3 xl:right-10">
               <a
-                href={biggyLink}
+                href={sl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"

@@ -32,7 +32,7 @@ type Props = {
   roundDisplayGBP?: any;
   ReviewsList: React.ComponentType<any>;
   formatDescription: (desc?: string | null) => React.ReactNode;
-  biggyLink?: string;
+  sl?: string;
   displayName?: string;
   leadImage?: string;
 };
@@ -59,7 +59,7 @@ export default function MobileTabs({
   roundDisplayGBP,
   ReviewsList,
   formatDescription,
-  biggyLink,
+  sl,
   displayName,
   leadImage,
 }: Props) {
@@ -273,7 +273,7 @@ export default function MobileTabs({
                         shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
                         includeShip: !!includeShipping,
                         imageUrl: leadImage || baseItem?.imageUrl,
-                        biggyLink,
+                        sl,
                       });
                     }
                     setSelected(new Set());
@@ -418,7 +418,7 @@ export default function MobileTabs({
             const stats = baseItem?.reviewStats;
             const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
             const isTruncated = reviewsTotal > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-            if (!isTruncated || !biggyLink) return null;
+            if (!isTruncated || !sl) return null;
             return (
               <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
                 Read more reviews at:

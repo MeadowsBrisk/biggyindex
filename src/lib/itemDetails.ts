@@ -1,3 +1,5 @@
+// used for item slug pages and item detail fetching
+
 import { getStore } from '@netlify/blobs';
 
 export type Market = 'GB' | 'DE' | 'FR' | 'PT' | 'IT';
@@ -6,6 +8,8 @@ function normalizeMarket(mkt: any): Market {
   const s = String(mkt || 'GB').toUpperCase();
   return (s === 'GB' || s === 'DE' || s === 'FR' || s === 'PT' || s === 'IT') ? (s as Market) : 'GB';
 }
+
+
 
 function marketStoreName(mkt: Market) {
   const envMap: Record<Market, string | undefined> = {
@@ -18,6 +22,10 @@ function marketStoreName(mkt: Market) {
   if (envMap[mkt]) return envMap[mkt] as string;
   return `site-index-${mkt.toLowerCase()}`;
 }
+
+// Global cache to prevent fetching the full index on every request (persists in warm serverless instances)
+const indexCache: Record<string, { data: any[]; ts: number }> = {};
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 export async function fetchItemDetail(refNum: string | number, market: string = 'GB'): Promise<any | null> {
   if (!refNum) return null;
@@ -69,6 +77,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
         }
 
         if (marketStore) {
+          // 1. Fetch shipping options
           for (const shipKey of candidateShipKeys) {
             let shipRaw: any = null;
             try { shipRaw = await marketStore.get(shipKey); } catch {}
@@ -80,6 +89,81 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
                 break;
               }
             } catch {}
+          }
+
+          // 2. Fetch item from market index to backfill missing fields (price, variants, images)
+          // This avoids loading the full index on the client for standalone pages
+          try {
+            const indexKey = `indexed_items.json`; // Standard index key
+            const cacheKey = `${mkt}:${indexKey}`;
+            let index: any[] | null = null;
+
+            // Check in-memory cache first
+            if (indexCache[cacheKey] && (Date.now() - indexCache[cacheKey].ts < CACHE_TTL_MS)) {
+              index = indexCache[cacheKey].data;
+            } else {
+              // Fetch fresh if missing or stale
+              const indexRaw = await marketStore.get(indexKey);
+              if (indexRaw) {
+                const parsed = JSON.parse(indexRaw);
+                if (Array.isArray(parsed)) {
+                  index = parsed;
+                  indexCache[cacheKey] = { data: parsed, ts: Date.now() };
+                }
+              }
+            }
+
+            if (index) {
+              // Find item by refNum (preferred) or id
+              const found = index.find((it: any) => 
+                String(it.refNum || it.ref || it.id) === String(refNum)
+              );
+              if (found) {
+                // Merge index data into detailObj, preferring detailObj for description/reviews
+                // but using index for price, variants, images, seller, etc.
+                
+                // Map compact index fields to full names if needed (similar to atoms.tsx normalization)
+                const normalizedIndexItem = {
+                  ...found,
+                  id: found.id ?? found.refNum ?? found.ref,
+                  name: found.n ?? found.name,
+                  sellerName: found.sn ?? found.sellerName,
+                  sellerId: found.sid ?? found.sellerId,
+                  image: found.i ?? found.image,
+                  images: Array.isArray(found.is) ? found.is : (found.i ? [found.i] : []),
+                  variants: Array.isArray(found.v) ? found.v.map((v: any) => ({
+                    id: v.vid ?? v.id,
+                    description: v.d ?? v.description,
+                    baseAmount: typeof v.usd === 'number' ? v.usd : v.baseAmount,
+                    priceUSD: typeof v.usd === 'number' ? v.usd : v.priceUSD,
+                  })) : found.variants,
+                  priceMin: found.uMin ?? found.priceMin,
+                  priceMax: found.uMax ?? found.priceMax,
+                  category: found.c ?? found.category,
+                  subcategories: found.sc ?? found.subcategories,
+                  shipsFrom: found.sf ?? found.shipsFrom,
+                  hotness: found.h ?? found.hotness,
+                  firstSeenAt: found.fsa ?? found.firstSeenAt,
+                  lastUpdatedAt: found.lua ?? found.lastUpdatedAt,
+                };
+
+                // Merge strategy: keep existing detailObj fields (desc, reviews), fill gaps from index
+                detailObj = {
+                  ...normalizedIndexItem,
+                  ...detailObj, // detailObj wins for description, reviews, shipping
+                  // Ensure arrays/objects are merged if needed, but usually detailObj has better specific data
+                  // except for variants/images which are often missing in detailObj
+                  variants: normalizedIndexItem.variants || detailObj.variants,
+                  images: (normalizedIndexItem.images && normalizedIndexItem.images.length) ? normalizedIndexItem.images : detailObj.images,
+                  imageUrl: normalizedIndexItem.image || detailObj.imageUrl,
+                  priceMin: normalizedIndexItem.priceMin ?? detailObj.priceMin,
+                  priceMax: normalizedIndexItem.priceMax ?? detailObj.priceMax,
+                  sellerName: normalizedIndexItem.sellerName || detailObj.sellerName,
+                };
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to backfill from index:', e);
           }
         }
       } catch {}

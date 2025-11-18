@@ -45,7 +45,7 @@ import { variantRangeText } from '@/lib/variantPricingDisplay';
 import { useTranslations, useFormatter } from 'next-intl';
 import { translateCategoryAndSubs } from '@/lib/taxonomyLabels';
 import FavButton from '@/components/FavButton';
-import Basket from '@/components/Basket';
+import BrowseIndexButton from '@/components/BrowseIndexButton';
 
 interface StandaloneItemDetailProps {
   baseItem: any;
@@ -177,7 +177,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const lastUpdateReason = (baseItem as any)?.lastUpdateReason || null;
   const compactUpdateReason = useUpdateReason(lastUpdateReason);
   const createdAt = (baseItem as any)?.firstSeenAt || (detail as any)?.createdAt || null;
-  const biggyLink = (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || null;
+  const sl = (detail as any)?.sl || (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
   
   const shareRef = refNum as any;
   const shareUrl = typeof window !== 'undefined'
@@ -275,27 +275,21 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   if (!baseItem) return null;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col">
+    <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
       {/* Header / Nav */}
-      <div className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-          <span>←</span>
-          <span>{tOv('browseIndex') || 'Browse Index'}</span>
-        </Link>
-        <div className="flex items-center gap-2">
-           <Basket />
-        </div>
+      <div className="shrink-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+        <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
       </div>
 
-      <div className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_360px] gap-8">
+      <div className="flex-1 min-h-0 w-full max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8 overflow-hidden relative">
+        <div className="h-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_400px] gap-8">
           {/* Column 1: Gallery */}
-          <div className="w-full flex flex-col gap-4">
+          <div className="min-w-0 min-h-0 flex flex-col gap-4 overflow-y-auto pr-2 custom-scroll">
              {images.length > 0 ? (
                 <>
                 <div
                   className={cn(
-                    "image-border",
+                    "image-border shrink-0",
                     isFav && favouriteAccent.thumbShadow
                   )}
                   style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
@@ -347,7 +341,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   </div>
                 </div>
                 {images.length > 1 && (
-                  <div>
+                  <div className="shrink-0">
                     <Swiper
                       modules={[FreeMode]}
                       spaceBetween={8}
@@ -421,7 +415,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   roundDisplayGBP={roundDisplayGBP}
                   ReviewsList={ReviewsList}
                   formatDescription={formatDescription}
-                  biggyLink={biggyLink}
+                  sl={sl}
                   displayName={name}
                   leadImage={images?.[0] || (baseItem as any)?.imageUrl}
                 />
@@ -457,7 +451,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
 
               {/* Variant prices (Desktop) */}
               {Array.isArray((baseItem as any)?.variants) && (baseItem as any).variants.length > 0 && (
-                <div className="hidden md:block mt-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-4">
+                <div className="hidden md:block mt-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-4 shrink-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{tOv('variantPrices')}</div>
@@ -567,7 +561,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                               shippingUsd: includeShipping ? ((shippingUsd ?? null) as any) : null,
                               includeShip: !!includeShipping,
                               imageUrl: images?.[0] || (baseItem as any)?.imageUrl,
-                              biggyLink,
+                              sl,
                             });
                           }
                           setSelectedVariantIds(new Set());
@@ -586,7 +580,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
 
               {/* Shipping options (Desktop) */}
               {(((detail as any)?.shipping?.options && (detail as any).shipping.options.length > 0)) && (
-                <div className="hidden md:block mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/40 p-3">
+                <div className="hidden md:block mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/40 p-3 shrink-0">
                   <div className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400 mb-2 flex items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" /> {tOv('shippingOptions')}</span>
                   </div>
@@ -626,10 +620,12 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   </ul>
                 </div>
               )}
+              <div className="pb-8" />
           </div>
 
           {/* Column 2: Details & Reviews (Desktop) */}
-          <div className="hidden md:block w-full space-y-6">
+          <div className="hidden md:block min-w-0 min-h-0 relative overflow-y-auto pr-2 custom-scroll">
+             <div className="space-y-6">
              {/* Header */}
              <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
                 <h2 className="font-semibold text-2xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
@@ -677,7 +673,39 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
 
              {/* Reviews (Desktop) */}
              <div className="2xl:hidden">
-                <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200 mb-2" data-nosnippet>{tOv('reviews')}</h3>
+                {(() => {
+                  const stats = (baseItem as any)?.reviewStats;
+                  const avgRating = typeof stats?.averageRating === 'number'
+                    ? stats.averageRating
+                    : (reviews.length
+                        ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) /
+                           ((reviews as any[]).filter((r: any)=> typeof r.rating === 'number').length || 1))
+                        : null);
+                  const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
+                  const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : (reviews.length > 0 ? (reviews.map((r: any) => typeof r.daysToArrive === 'number' ? r.daysToArrive : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.daysToArrive === 'number').length) : null);
+                  const displayLimit = REVIEWS_DISPLAY_LIMIT;
+                  const leftTokens: string[] = [];
+                  if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
+                  if (reviewsTotal != null) {
+                    if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
+                      leftTokens.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
+                    } else {
+                      leftTokens.push(`${reviewsTotal} ${tOv('totalShort')}`);
+                    }
+                  }
+                  const rightText = (avgDays != null) ? tOv('avgArrival', { days: Math.round(avgDays) }) : null;
+                  return (
+                    <div className="mb-2">
+                      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200" data-nosnippet>{tOv('reviews')}</h3>
+                      {(leftTokens.length > 0 || rightText) && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
+                          <span>{leftTokens.join(' • ')}</span>
+                          {rightText && <span className="shrink-0">{rightText}</span>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 {reviews.length === 0 ? (
                   <div className="text-sm text-gray-500">{tOv('noReviews')}</div>
                 ) : (
@@ -687,12 +715,60 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                     onImageClick={(src: string, images: string[], index: number) => { setOpenPreviewSignal(null); setReviewGallery({ images, index, ts: Date.now(), guard: refNum }); }}
                   />
                 )}
+             {reviews.length > 0 && (() => {
+                const stats = (baseItem as any)?.reviewStats;
+                const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
+                const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
+                if (!isTruncated || !sl) return null;
+                return (
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-right pr-2">
+                    {tOv('readMoreReviewsAt')}
+                  </div>
+                );
+              })()}
              </div>
-          </div>
-
-          {/* Column 3: Reviews (Ultrawide) */}
-          <div className="hidden 2xl:block w-full">
-             <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200 mb-2" data-nosnippet>{tOv('reviews')}</h3>
+             </div>
+             <div className="pb-10" />
+             {/* Little Biggy Button - Desktop (md-xl) */}
+             {sl && (
+               <div className="pointer-events-none 2xl:hidden absolute right-3 bottom-3 md:right-3 md:bottom-3 xl:right-10">
+                 <a
+                   href={sl}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
+                 >
+                   <span>See item on Little Biggy</span>
+                   <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
+                 </a>
+               </div>
+             )}
+          </div>          {/* Column 3: Reviews (Ultrawide) */}
+          <div className="hidden 2xl:block min-w-0 min-h-0 overflow-y-auto pr-2 custom-scroll">
+             {(() => {
+                const stats = (baseItem as any)?.reviewStats;
+                const avgRating = typeof stats?.averageRating === 'number' ? stats.averageRating : (reviews.length ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.rating === 'number').length) : null);
+                const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
+                const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : (reviews.length > 0 ? (reviews.map((r: any) => typeof r.daysToArrive === 'number' ? r.daysToArrive : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.daysToArrive === 'number').length) : null);
+                const displayLimit = REVIEWS_DISPLAY_LIMIT;
+                const leftTokens: string[] = [];
+                if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
+                if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
+                  leftTokens.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
+                } else {
+                  leftTokens.push(`${reviewsTotal} ${tOv('totalShort')}`);
+                }
+                const rightText = (avgDays != null) ? tOv('avgArrival', { days: Math.round(avgDays) }) : null;
+                return (
+                  <div className="mb-2">
+                    <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200" data-nosnippet>{tOv('reviews')}</h3>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
+                      <span>{leftTokens.join(' • ')}</span>
+                      {rightText && <span className="shrink-0">{rightText}</span>}
+                    </div>
+                  </div>
+                );
+              })()}
              {reviews.length === 0 ? (
                 <div className="text-sm text-gray-500">{tOv('noReviews')}</div>
               ) : (
@@ -702,20 +778,46 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   onImageClick={(src: string, images: string[], index: number) => { setOpenPreviewSignal(null); setReviewGallery({ images, index, ts: Date.now(), guard: refNum }); }}
                 />
               )}
+              {reviews.length > 0 && (() => {
+                const stats = (baseItem as any)?.reviewStats;
+                const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
+                const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
+                if (!isTruncated || !sl) return null;
+                return (
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-right pr-3">
+                    {tOv('readMoreReviewsAt')}
+                  </div>
+                );
+              })()}
+             <div className="pb-10" />
+             {/* Little Biggy Button - Ultrawide (2xl+) */}
+             {sl && (
+               <div className="pointer-events-none absolute right-3 bottom-3 md:right-3 md:bottom-3 xl:right-10">
+                 <a
+                   href={sl}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
+                 >
+                   <span>See item on Little Biggy</span>
+                   <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
+                 </a>
+               </div>
+             )}
           </div>
         </div>
       </div>
 
-      {/* Floating Biggy Button */}
-      {biggyLink && (
-        <div className="fixed right-6 bottom-6 z-40">
+      {/* Floating Biggy Button (Mobile Only) */}
+      {sl && (
+        <div className="md:hidden fixed right-6 bottom-6 z-40">
           <a
-            href={biggyLink}
+            href={sl}
             target="_blank"
             rel="noopener noreferrer"
             className="group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
           >
-            <span>Little Biggy</span>
+            <span>See item on Little Biggy</span>
             <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
           </a>
         </div>

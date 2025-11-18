@@ -168,7 +168,8 @@
       "descriptionChanged": "Description modifiée",
       "imagesChanged": "Images modifiées",
       "variantsNoun": "{count, plural, one {variante} other {variantes}}"
-    }
+    },
+    "noImage": "Pas d'image"
   }
   ,
   "UI": {
@@ -209,6 +210,7 @@
     "next": "Suiv.",
     "previousItemAria": "Article précédent",
     "nextItemAria": "Article suivant",
+    "browseIndex": "Parcourir l'index",
     "close": "Fermer",
     "goToImage": "Aller à l’image {num}",
     "imageNum": "Image {num}",
@@ -384,5 +386,19 @@
     "description": "Parcourez Little Biggy avec des catégories, filtres, avis et stats vendeurs. Nouveau sur la plateforme ?",
     "button": "En savoir plus",
     "close": "Fermer"
+  },
+  "SellerPage": {
+    "joined": "rejoint {date}",
+    "orders": "{count} commandes",
+    "disputed": "{percent}% contesté",
+    "open": "{percent}% ouvert",
+    "itemsListed": "{count} articles listés",
+    "manifesto": "Manifeste",
+    "noManifesto": "Pas de manifeste.",
+    "items": "Articles ({count})",
+    "reviewsSnapshot": "Aperçu des avis",
+    "recentLowRatings": "{count} notes basses récentes",
+    "seeStore": "Voir la boutique sur Little Biggy",
+    "showOnIndex": "Afficher dans l'index"
   }
 }
