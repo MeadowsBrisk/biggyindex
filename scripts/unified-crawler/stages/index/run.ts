@@ -150,19 +150,42 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   }
 
   
-  // Kick off aggregate loads in parallel: shares, indexMeta, shipSummary, and previous index
+  // Kick off aggregate loads in parallel: shares, indexMeta, shipSummary, category overrides, and previous index
   const sharedBlob = getBlobClient(env.stores.shared);
   const sharesP = sharedBlob.getJSON<any>(Keys.shared.aggregates.shares()).catch(() => null);
   const indexMetaP = sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta()).catch(() => null);
   const shipAggP = blob.getJSON<any>(Keys.market.aggregates.shipSummary()).catch(() => null);
+  
+  // Category overrides: Map<itemId, { primary, subcategories }>
+  // Can be disabled via DISABLE_CATEGORY_OVERRIDES=1 env var
+  const overridesEnabled = process.env.DISABLE_CATEGORY_OVERRIDES !== '1' && process.env.DISABLE_CATEGORY_OVERRIDES !== 'true';
+  const overridesP = overridesEnabled ? sharedBlob.getJSON<any>('category-overrides.json').catch(() => null) : Promise.resolve(null);
+  
   let sharesAgg: Record<string, string> = {};
   let shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }> = {};
   let indexMetaAgg: Record<string, IndexMetaEntry> = {};
+  const categoryOverrides = new Map<string, { primary: string; subcategories: string[] }>();
+  
   try {
-    const [sRes, imRes, ssRes, previousIndex] = await Promise.all([sharesP, indexMetaP, shipAggP, prevIndexP]);
+    const [sRes, imRes, ssRes, oRes, previousIndex] = await Promise.all([sharesP, indexMetaP, shipAggP, overridesP, prevIndexP]);
     if (sRes && typeof sRes === 'object') sharesAgg = sRes as any;
     if (imRes && typeof imRes === 'object') indexMetaAgg = imRes as any;
     if (ssRes && typeof ssRes === 'object') shipAgg = ssRes as any;
+    
+    // Load category overrides (if enabled)
+    if (overridesEnabled && oRes && typeof oRes === 'object' && Array.isArray(oRes.overrides)) {
+      for (const override of oRes.overrides) {
+        if (override.id && override.primary) {
+          categoryOverrides.set(String(override.id), {
+            primary: override.primary,
+            subcategories: Array.isArray(override.subcategories) ? override.subcategories : [],
+          });
+        }
+      }
+      logger.info(`[index:${code}] Loaded ${categoryOverrides.size} category overrides.`);
+    } else if (!overridesEnabled) {
+      logger.info(`[index:${code}] Category overrides disabled via DISABLE_CATEGORY_OVERRIDES env var.`);
+    }
     // Build prev maps for change detection and carry-forward
     if (Array.isArray(previousIndex)) {
       for (const e of previousIndex) {
@@ -255,9 +278,22 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       if (Object.keys(rsObj).length > 0) entry.rs = rsObj;
     }
 
-    // Categorization (temporary via legacy pipeline through TS facade)
+    // Categorization: check for manual override first, then use automated pipeline
     try {
-      if (name || description) {
+      // Check for manual override by refNum or numeric id
+      const override = categoryOverrides.get(String(canonicalKey)) || 
+                      (numKey ? categoryOverrides.get(String(numKey)) : null);
+      
+      if (override) {
+        // Apply manual override
+        entry.c = override.primary;
+        if (override.subcategories.length > 0) {
+          entry.sc = override.subcategories;
+        }
+        // Optional: log for debugging
+        // logger.debug(`[index:${code}] Applied category override for item ${canonicalKey}: ${override.primary}`);
+      } else if (name || description) {
+        // Use automated categorization pipeline
         const cat = categorize(name || "", description || "");
         if (cat?.primary) entry.c = cat.primary;
         if (Array.isArray(cat?.subcategories) && cat.subcategories.length) entry.sc = cat.subcategories;
