@@ -6,7 +6,7 @@
  */
 
 import type { Context } from '@netlify/functions';
-import { revokeSession, extractSessionToken, clearSessionCookie } from '../../../src/lib/admin/auth';
+import { revokeSession, extractSessionToken, clearSessionCookie } from '../../../src/lib/category-dash/auth';
 
 export default async (request: Request, context: Context) => {
   // Only allow POST
