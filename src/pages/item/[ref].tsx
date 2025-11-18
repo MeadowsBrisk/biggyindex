@@ -16,6 +16,11 @@ interface ItemSEO {
   description?: string | null;
   imageUrl?: string | null;
   sellerName?: string | null;
+  price?: number | null;
+  currency?: string | null;
+  url?: string | null;
+  reviewsCount?: number | null;
+  reviewsRating?: number | null;
 }
 
 interface ItemRefPageProps {
@@ -57,6 +62,11 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
       description: item.description || null,
       imageUrl: item.imageUrl || null,
       sellerName: item.sellerName || null,
+      price: item.price || null,
+      currency: item.currency || null,
+      url: item.url || null,
+      reviewsCount: item.reviewsCount || null,
+      reviewsRating: item.reviewsRating || null,
     };
     return { props: { seo, messages, locale: shortLocale } };
   } catch {
@@ -129,6 +139,24 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, locale: serverLocale }) 
                   provider: {
                     '@type': 'Organization',
                     name: seo.sellerName,
+                  },
+                }),
+                ...(seo?.price && seo?.currency && {
+                  offers: {
+                    '@type': 'Offer',
+                    price: seo.price,
+                    priceCurrency: seo.currency,
+                    availability: 'https://schema.org/InStock',
+                    ...(seo?.url && { url: seo.url }),
+                  },
+                }),
+                ...(seo?.reviewsCount && seo.reviewsCount > 0 && seo?.reviewsRating && {
+                  aggregateRating: {
+                    '@type': 'AggregateRating',
+                    ratingValue: seo.reviewsRating,
+                    reviewCount: seo.reviewsCount,
+                    bestRating: 5,
+                    worstRating: 1,
                   },
                 }),
               },

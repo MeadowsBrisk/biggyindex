@@ -9,6 +9,11 @@ export type ItemSEO = {
   description: string;
   imageUrl: string | null;
   sellerName: string | null;
+  price?: number | null;
+  currency?: string | null;
+  url?: string | null;
+  reviewsCount?: number | null;
+  reviewsRating?: number | null;
 };
 
 export type SellerSEO = {
@@ -38,13 +43,19 @@ export async function loadItemForSEO(refNum: string | number, market?: Market): 
     if (!item) return null;
     
     // Use minified keys directly from unified crawler:
-    // n: name, d: description, i: imageUrl, sn: sellerName
+    // n: name, d: description, i: imageUrl, sn: sellerName, p: price, c: currency, u: url
+    // reviewStats: { count, rating } from normalized items
     return {
       refNum: String(item.refNum || item.id || refNum),
       name: item.n || item.name || '',
       description: item.d || item.description || '',
       imageUrl: item.i || item.imageUrl || null,
       sellerName: item.sn || item.sellerName || null,
+      price: item.p || item.price || null,
+      currency: item.c || item.currency || null,
+      url: item.u || item.url || item.share || null,
+      reviewsCount: item.reviewStats?.count ?? item.reviewsCount ?? null,
+      reviewsRating: item.reviewStats?.rating ?? item.reviewsRating ?? null,
     };
   } catch (err) {
     console.error('[loadItemForSEO] Error:', err);
