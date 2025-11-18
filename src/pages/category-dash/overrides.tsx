@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import type { OverrideEntry } from '../../lib/categoryOverrides';
-import { checkAuth, fetchOverrides, logout } from '../../lib/admin/adminApi';
+import { checkAuth, fetchOverrides, logout } from '../../lib/category-dash/adminApi';
 import OverridesTable from '../../components/category-dash/OverridesTable';
 import OverrideFormModal from '../../components/category-dash/OverrideFormModal';
 
