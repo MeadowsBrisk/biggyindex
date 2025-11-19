@@ -85,6 +85,7 @@ export default async (request: Request, context: Context) => {
     const results = matches.slice(0, 50).map((item: any) => ({
       id: String(item.refNum || item.ref || item.id),
       name: item.n || item.name,
+      description: item.d || item.description || '',
       category: item.c || item.category,
       subcategories: item.sc || item.subcategories || [],
       imageUrl: item.i || item.imageUrl,

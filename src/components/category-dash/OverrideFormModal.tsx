@@ -168,6 +168,11 @@ export default function OverrideFormModal({ override, onClose, onSave }: Props) 
                               <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                 {item.name}
                               </div>
+                              {item.description && (
+                                <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+                                  {item.description}
+                                </div>
+                              )}
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 ID: {item.id} • Current: {item.category}
                                 {item.subcategories.length > 0 && ` > ${item.subcategories.join(', ')}`}

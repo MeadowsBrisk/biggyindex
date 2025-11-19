@@ -10,6 +10,7 @@ import type { OverrideEntry, OverridesData } from '../categoryOverrides';
 export type SearchResult = {
   id: string;
   name: string;
+  description?: string;
   category: string;
   subcategories: string[];
   imageUrl?: string;

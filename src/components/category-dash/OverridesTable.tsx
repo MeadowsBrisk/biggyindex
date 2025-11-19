@@ -54,8 +54,9 @@ export default function OverridesTable({ overrides, onEdit, onDelete }: Props) {
     }
   };
 
-  const handleDelete = async (id: string, itemName: string) => {
-    if (!confirm(`Delete override for "${itemName}"?`)) {
+  const handleDelete = async (id: string, itemName: string, exists: boolean = true) => {
+    // Skip confirmation for non-existent items
+    if (exists && !confirm(`Delete override for "${itemName}"?`)) {
       return;
     }
 
@@ -122,53 +123,64 @@ export default function OverridesTable({ overrides, onEdit, onDelete }: Props) {
                 </td>
               </tr>
             ) : (
-              sortedOverrides.map((override) => (
-                <tr key={override.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {override.itemName}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      ID: {override.id}
-                    </div>
-                    {override.reason && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
-                        {override.reason}
+              sortedOverrides.map((override) => {
+                const itemExists = override.exists !== false;
+                const rowOpacity = itemExists ? 'opacity-100' : 'opacity-50';
+                
+                return (
+                  <tr key={override.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${rowOpacity}`}>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {override.itemName}
+                        {!itemExists && (
+                          <span className="ml-2 px-2 py-0.5 text-xs font-medium rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                            Deleted
+                          </span>
+                        )}
                       </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                      {override.primary}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 dark:text-gray-300">
-                      {override.subcategories.length > 0
-                        ? override.subcategories.join(', ')
-                        : '—'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(override.addedAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => onEdit(override)}
-                      className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4"
-                    >
-                      Edit
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        ID: {override.id}
+                      </div>
+                      {override.reason && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+                          {override.reason}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                        {override.primary}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 dark:text-gray-300">
+                        {override.subcategories.length > 0
+                          ? override.subcategories.join(', ')
+                          : '—'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(override.addedAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => onEdit(override)}
+                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4"
+                        disabled={!itemExists}
+                      >
+                        Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(override.id, override.itemName)}
-                      disabled={deletingId === override.id}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
-                    >
-                      {deletingId === override.id ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </td>
-                </tr>
-              ))
+                      <button
+                        onClick={() => handleDelete(override.id, override.itemName, itemExists)}
+                        disabled={deletingId === override.id}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                      >
+                        {deletingId === override.id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

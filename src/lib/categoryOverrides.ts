@@ -18,6 +18,7 @@ export type OverrideEntry = {
   addedBy: string;               // always "admin" for v1
   addedAt: string;               // ISO 8601 timestamp
   lastModifiedAt: string;        // ISO 8601 timestamp
+  exists?: boolean;              // flag added by API - true if item still exists in index
 };
 
 export type OverridesData = {

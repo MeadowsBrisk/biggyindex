@@ -47,7 +47,7 @@ export default async (request: Request, context: Context) => {
   const store = getStore('site-index-shared');
 
   try {
-    // GET: Return all overrides
+    // GET: Return all overrides with existence check
     if (request.method === 'GET') {
       let data: OverridesData;
       
@@ -58,10 +58,37 @@ export default async (request: Request, context: Context) => {
         data = createEmptyOverridesData();
       }
 
-      return new Response(JSON.stringify(data), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      // Check which items still exist in the index (use GB market as default)
+      const marketStore = getStore('site-index-gb');
+      let currentItems: any[] = [];
+      try {
+        const itemsBlob = await marketStore.get('indexed_items.json', { type: 'json' });
+        currentItems = (itemsBlob as any) || [];
+      } catch {}
+
+      // Build set of current item IDs for fast lookup
+      const currentItemIds = new Set<string>();
+      for (const item of currentItems) {
+        const id = String(item.refNum || item.ref || item.id);
+        if (id) currentItemIds.add(id);
+      }
+
+      // Add exists flag to each override
+      const overridesWithStatus = data.overrides.map(override => ({
+        ...override,
+        exists: currentItemIds.has(override.id),
+      }));
+
+      return new Response(
+        JSON.stringify({ 
+          ...data, 
+          overrides: overridesWithStatus 
+        }), 
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // POST: Add or update override
