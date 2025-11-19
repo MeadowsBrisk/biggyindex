@@ -24,7 +24,7 @@ export default function AdminOverrides() {
     try {
       const isAuthed = await checkAuth();
       if (!isAuthed) {
-        router.push('/admin/login');
+        router.push('/category-dash/login');
         return;
       }
       await loadOverrides();
