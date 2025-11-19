@@ -352,7 +352,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
             <div className="absolute right-2 bottom-2 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-auto">
               {/** Prefer referral share link (short link) when present */}
               <a
-                href={(item as any).share || (url || undefined)}
+                href={(item as any).share || url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : undefined)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group/button inline-flex items-center gap-1.5 text-[10px] font-medium bg-white/60 dark:bg-gray-800/55 hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 text-gray-800 dark:text-gray-200 rounded-full px-3 py-1 shadow-sm backdrop-blur-md transition-colors duration-250 focus:outline-none focus-visible:ring-2 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 ring-gray-300/60 dark:ring-gray-600/70"

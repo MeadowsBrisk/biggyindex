@@ -269,7 +269,7 @@ export default function ItemDetailOverlay() {
     if (minShip == null && maxShip == null) return null;
     return { minShip, maxShip };
   })();
-  const sl = (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || null;
+  const sl = (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
   // const sl = baseItem?.url || detail?.url || null;
   // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum as any;
