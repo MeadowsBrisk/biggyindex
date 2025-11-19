@@ -7,14 +7,12 @@
 
 import type { Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
-import { verifySession, extractSessionToken } from '../lib/auth';
+import { isAuthenticated, unauthorizedResponse } from '../lib/auth';
 import { OVERRIDES_KEY, type OverridesData, createEmptyOverridesData } from '../lib/categoryOverrides';
 
 // Middleware: require authentication
-async function requireAuth(request: Request): Promise<Response | null> {
-  const token = extractSessionToken(request);
-  
-  if (!token || !(await verifySession(token))) {
+function requireAuth(request: Request): Response | null {
+  if (!isAuthenticated(request)) {
     return new Response(
       JSON.stringify({ error: 'Not authenticated' }),
       {
@@ -40,7 +38,7 @@ export default async (request: Request, context: Context) => {
   }
 
   // Check authentication
-  const authError = await requireAuth(request);
+  const authError = requireAuth(request);
   if (authError) return authError;
 
   try {

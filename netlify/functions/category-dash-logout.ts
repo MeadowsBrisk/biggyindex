@@ -1,12 +1,11 @@
 /**
  * Admin Logout Endpoint
- * POST /api/admin/logout
+ * POST /api/category-dash/logout
  * 
- * Revokes current session.
+ * No-op endpoint - frontend just clears password from memory.
  */
 
 import type { Context } from '@netlify/functions';
-import { revokeSession, extractSessionToken, clearSessionCookie } from '../lib/auth';
 
 export default async (request: Request, context: Context) => {
   // Only allow POST
@@ -18,19 +17,13 @@ export default async (request: Request, context: Context) => {
   }
 
   try {
-    const token = extractSessionToken(request);
-    
-    if (token) {
-      await revokeSession(token);
-    }
-
+    // No server-side session to revoke - frontend just clears password
     return new Response(
       JSON.stringify({ success: true }),
       {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': clearSessionCookie(),
         },
       }
     );

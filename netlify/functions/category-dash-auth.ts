@@ -6,7 +6,7 @@
  */
 
 import type { Context } from '@netlify/functions';
-import { verifyPassword, createSession, createSessionCookie, revokeSession, extractSessionToken, clearSessionCookie } from '../lib/auth';
+import { verifyPassword } from '../lib/auth';
 import { checkRateLimit } from '../lib/rateLimit';
 
 export default async (request: Request, context: Context) => {
@@ -62,20 +62,16 @@ export default async (request: Request, context: Context) => {
       );
     }
 
-    // Create session
-    const session = await createSession();
-
-    // Return success with session cookie
+    // Return success - frontend will store password
     return new Response(
       JSON.stringify({ 
         success: true,
-        expiresAt: session.expiresAt,
+        password, // Return password so frontend can store it
       }),
       {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': createSessionCookie(session.token),
         },
       }
     );

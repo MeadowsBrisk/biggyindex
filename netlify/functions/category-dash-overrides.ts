@@ -7,7 +7,7 @@
 
 import type { Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
-import { verifySession, extractSessionToken } from '../lib/auth';
+import { isAuthenticated, unauthorizedResponse } from '../lib/auth';
 import { checkRateLimit } from '../lib/rateLimit';
 import {
   OVERRIDES_KEY,
@@ -20,25 +20,16 @@ import {
 } from '../lib/categoryOverrides';
 
 // Middleware: require authentication
-async function requireAuth(request: Request): Promise<Response | null> {
-  const token = extractSessionToken(request);
-  
-  if (!token || !(await verifySession(token))) {
-    return new Response(
-      JSON.stringify({ error: 'Not authenticated' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+function requireAuth(request: Request): Response | null {
+  if (!isAuthenticated(request)) {
+    return unauthorizedResponse();
   }
-  
   return null; // Authorized
 }
 
 export default async (request: Request, context: Context) => {
   // Check authentication
-  const authError = await requireAuth(request);
+  const authError = requireAuth(request);
   if (authError) return authError;
 
   // Rate limit: 30 requests per minute

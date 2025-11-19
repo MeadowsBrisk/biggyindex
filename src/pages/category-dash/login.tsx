@@ -24,6 +24,8 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (data.success) {
+        // Store password in sessionStorage
+        sessionStorage.setItem('adminPassword', data.password);
         // Redirect to overrides page
         router.push('/category-dash');
       } else {
