@@ -149,6 +149,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
                     price: seo.price,
                     priceCurrency: seo.currency,
                     availability: 'https://schema.org/InStock',
+                    priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                     ...(seo?.url && { url: seo.url }),
                     hasMerchantReturnPolicy: {
                       '@type': 'MerchantReturnPolicy',
@@ -171,6 +172,23 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
                     bestRating: 5,
                     worstRating: 1,
                   },
+                }),
+                ...(detail?.reviews && Array.isArray(detail.reviews) && detail.reviews.length > 0 && {
+                  review: detail.reviews.slice(0, 5).map((r: any) => ({
+                    '@type': 'Review',
+                    reviewRating: {
+                      '@type': 'Rating',
+                      ratingValue: r.rating || 5,
+                      bestRating: 5,
+                      worstRating: 1,
+                    },
+                    author: {
+                      '@type': 'Person',
+                      name: r.author || 'Anonymous',
+                    },
+                    ...(r.reviewBody && { reviewBody: String(r.reviewBody).slice(0, 200) }),
+                    ...(r.datePublished && { datePublished: new Date(r.datePublished).toISOString() }),
+                  })),
                 }),
               },
             }),
