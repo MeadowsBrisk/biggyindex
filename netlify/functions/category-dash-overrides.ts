@@ -20,10 +20,10 @@ import {
 } from '../lib/categoryOverrides';
 
 // Middleware: require authentication
-function requireAuth(request: Request): Response | null {
+async function requireAuth(request: Request): Promise<Response | null> {
   const token = extractSessionToken(request);
   
-  if (!token || !verifySession(token)) {
+  if (!token || !(await verifySession(token))) {
     return new Response(
       JSON.stringify({ error: 'Not authenticated' }),
       {
@@ -38,7 +38,7 @@ function requireAuth(request: Request): Response | null {
 
 export default async (request: Request, context: Context) => {
   // Check authentication
-  const authError = requireAuth(request);
+  const authError = await requireAuth(request);
   if (authError) return authError;
 
   // Rate limit: 30 requests per minute

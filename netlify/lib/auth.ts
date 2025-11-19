@@ -1,24 +1,11 @@
 /**
  * Admin Authentication Utilities
  * 
- * Simple session-based authentication for admin area.
- * Uses environment variable ADMIN_PASSWORD for verification.
- * No external dependencies - uses built-in crypto for session tokens.
+ * Simple password-based authentication for admin area.
+ * Just checks password on every request - no sessions needed.
  */
 
-import { randomBytes, createHash } from 'crypto';
-
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
-const SESSION_DURATION_MS = parseInt(process.env.ADMIN_SESSION_DURATION || '86400', 10) * 1000; // 24 hours default
-
-export type AdminSession = {
-  token: string;
-  createdAt: number;
-  expiresAt: number;
-};
-
-// In-memory session store (sufficient for single admin, lost on function restart)
-const sessions = new Map<string, AdminSession>();
 
 /**
  * Verify admin password (constant-time comparison to prevent timing attacks)
@@ -46,7 +33,7 @@ export function generateSessionToken(): string {
 /**
  * Create a new admin session
  */
-export function createSession(): AdminSession {
+export async function createSession(): Promise<AdminSession> {
   const token = generateSessionToken();
   const now = Date.now();
   
@@ -56,10 +43,12 @@ export function createSession(): AdminSession {
     expiresAt: now + SESSION_DURATION_MS,
   };
   
-  sessions.set(token, session);
+  const sessions = await loadSessions();
+  sessions[token] = session;
   
   // Auto-cleanup expired sessions periodically
-  cleanupExpiredSessions();
+  await cleanupExpiredSessions(sessions);
+  await saveSessions(sessions);
   
   return session;
 }
@@ -67,8 +56,9 @@ export function createSession(): AdminSession {
 /**
  * Verify a session token
  */
-export function verifySession(token: string): boolean {
-  const session = sessions.get(token);
+export async function verifySession(token: string): Promise<boolean> {
+  const sessions = await loadSessions();
+  const session = sessions[token];
   
   if (!session) {
     return false;
@@ -76,7 +66,8 @@ export function verifySession(token: string): boolean {
   
   // Check if expired
   if (Date.now() > session.expiresAt) {
-    sessions.delete(token);
+    delete sessions[token];
+    await saveSessions(sessions);
     return false;
   }
   
@@ -86,19 +77,28 @@ export function verifySession(token: string): boolean {
 /**
  * Revoke a session (logout)
  */
-export function revokeSession(token: string): void {
-  sessions.delete(token);
+export async function revokeSession(token: string): Promise<void> {
+  const sessions = await loadSessions();
+  delete sessions[token];
+  await saveSessions(sessions);
 }
 
 /**
  * Clean up expired sessions to prevent memory leak
  */
-function cleanupExpiredSessions(): void {
+async function cleanupExpiredSessions(sessions: SessionStore): Promise<void> {
   const now = Date.now();
-  for (const [token, session] of sessions.entries()) {
+  let needsSave = false;
+  
+  for (const [token, session] of Object.entries(sessions)) {
     if (now > session.expiresAt) {
-      sessions.delete(token);
+      delete sessions[token];
+      needsSave = true;
     }
+  }
+  
+  if (needsSave) {
+    await saveSessions(sessions);
   }
 }
 

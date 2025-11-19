@@ -21,7 +21,7 @@ export default async (request: Request, context: Context) => {
     const token = extractSessionToken(request);
     
     if (token) {
-      revokeSession(token);
+      await revokeSession(token);
     }
 
     return new Response(

@@ -63,7 +63,7 @@ export default async (request: Request, context: Context) => {
     }
 
     // Create session
-    const session = createSession();
+    const session = await createSession();
 
     // Return success with session cookie
     return new Response(
