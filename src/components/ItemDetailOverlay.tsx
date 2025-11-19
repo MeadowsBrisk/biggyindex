@@ -43,7 +43,6 @@ import { usePerUnitLabel } from '@/hooks/usePerUnitLabel';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import formatDescription from '@/lib/formatDescription';
-import { favouriteAccent } from '@/theme/favouriteAccent';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/countries';
 import { proxyImage } from '@/lib/images';
 import cn from '@/app/cn';
@@ -440,7 +439,7 @@ export default function ItemDetailOverlay() {
             transition={{ duration: 0.16, ease: 'easeOut' }}
             className={cn(
               "relative w-full overlay-inner-border md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] md:min-h-[70vh] md:h-[90vh] md:max-h-[95vh] 2xl:h-[90vh] flex flex-col min-h-0",
-              isFav && favouriteAccent.cardRing
+              isFav && "fav-card-ring"
             )}
           >
             <div className={cn('overlay-inner', 'flex flex-col min-h-0 flex-1')}>
@@ -461,14 +460,14 @@ export default function ItemDetailOverlay() {
                 <div
                   className={cn(
                     "image-border",
-                    isFav && favouriteAccent.thumbShadow
+                    isFav && "fav-thumb-shadow"
                   )}
                   style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
                 >
                   <div
                     className={cn(
                       "image-border-inner relative group border bg-gray-100 dark:bg-gray-800",
-                      isFav ? favouriteAccent.thumbBorder : 'border-gray-200 dark:border-gray-700'
+                      isFav ? "fav-thumb-border" : 'border-gray-200 dark:border-gray-700'
                     )}
                   >
                   {/* Fav button on image for sub-ultrawide screens */}
@@ -874,7 +873,6 @@ export default function ItemDetailOverlay() {
                   setShareOpen={setShareOpen}
                   shareBtnRef={shareBtnRef}
                   shareUrl={shareUrl}
-                  favouriteAccent={favouriteAccent}
                 />
               </div>
               {(category || subcategories.length > 0) && (
@@ -1029,7 +1027,6 @@ export default function ItemDetailOverlay() {
             setShareOpen={setShareOpen}
             shareBtnRef={shareBtnRef}
             shareUrl={shareUrl}
-            favouriteAccent={favouriteAccent}
           />
           {/* Mobile FAB: bottom-left, same bottom offset as Biggy; inside panel (not fixed) */}
           <MobileActionsFab
@@ -1043,7 +1040,6 @@ export default function ItemDetailOverlay() {
             setShareOpen={setShareOpen}
             shareOpen={shareOpen}
             shareUrl={shareUrl}
-            favouriteAccent={favouriteAccent}
           />
           {/* Floating biggy button (shipping info removed per design) */}
           {sl && (

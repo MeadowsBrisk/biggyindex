@@ -32,7 +32,6 @@ import { formatUSD } from '@/lib/priceDisplay';
 import { usePerUnitLabel } from '@/hooks/usePerUnitLabel';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 import formatDescription from '@/lib/formatDescription';
-import { favouriteAccent } from '@/theme/favouriteAccent';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/countries';
 import { proxyImage } from '@/lib/images';
 import cn from '@/app/cn';
@@ -292,14 +291,14 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                 <div
                   className={cn(
                     "image-border shrink-0",
-                    isFav && favouriteAccent.thumbShadow
+                    isFav && "fav-thumb-shadow"
                   )}
                   style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
                 >
                   <div
                     className={cn(
                       "image-border-inner relative group border bg-gray-100 dark:bg-gray-800",
-                      isFav ? favouriteAccent.thumbBorder : 'border-gray-200 dark:border-gray-700'
+                      isFav ? "fav-thumb-border" : 'border-gray-200 dark:border-gray-700'
                     )}
                   >
                   <div className="absolute right-2 top-2 z-10 hidden md:block 2xl:hidden">
@@ -837,7 +836,6 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
         setShareOpen={setShareOpen}
         shareOpen={shareOpen}
         shareUrl={shareUrl}
-        favouriteAccent={favouriteAccent}
       />
     </div>
   );

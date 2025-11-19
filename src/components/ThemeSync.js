@@ -11,6 +11,17 @@ export default function ThemeSync() {
 
   // Theme sync
   useEffect(() => {
+    // Disable transitions globally to prevent lag/waves when switching themes
+    const css = document.createElement('style');
+    css.appendChild(document.createTextNode(`* {
+       -webkit-transition: none !important;
+       -moz-transition: none !important;
+       -o-transition: none !important;
+       -ms-transition: none !important;
+       transition: none !important;
+    }`));
+    document.head.appendChild(css);
+
     const themeValue = darkMode ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', themeValue);
     if (darkMode) document.documentElement.classList.add('dark');
@@ -23,6 +34,14 @@ export default function ThemeSync() {
       root.style.setProperty('--background', '#ffffff');
       root.style.setProperty('--foreground', '#171717');
     }
+
+    // Force reflow to ensure the class change is applied while transitions are disabled
+    const _ = window.getComputedStyle(css).opacity;
+
+    // Re-enable transitions
+    setTimeout(() => {
+      document.head.removeChild(css);
+    }, 0);
   }, [darkMode]);
 
   // Global GIF pause using precomputed posters (no /api/image-proxy, no canvas capture)

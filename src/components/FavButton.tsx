@@ -4,7 +4,6 @@ import { selectAtom } from 'jotai/utils';
 import cn from '@/app/cn';
 // @ts-ignore SVG handled by bundler
 import StarIcon from '@/app/assets/svg/star.svg';
-import { favouriteAccent } from '@/theme/favouriteAccent';
 import { favouritesAtom, toggleFavouriteAtom, favouritesOnlyAtom } from '@/store/atoms';
 
 export type FavButtonProps = {
@@ -43,7 +42,7 @@ export default function FavButton({ itemId, className }: FavButtonProps): React.
       className={cn(
         'relative z-10 inline-flex items-center justify-center w-8 h-8 rounded-full border cursor-pointer transition-all duration-200 ease-out shadow-sm hover:shadow',
         active
-          ? cn(favouriteAccent.starActiveBtn, alwaysShow && 'always-show')
+          ? cn('fav-star-active-btn', alwaysShow && 'always-show')
           : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-700',
         className
       )}

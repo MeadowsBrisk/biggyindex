@@ -17,7 +17,6 @@ type Props = {
   setShareOpen: React.Dispatch<React.SetStateAction<boolean>>;
   shareOpen: boolean;
   shareUrl: string;
-  favouriteAccent: { starActiveBtn: string };
 };
 
 export default function MobileActionsFab({
@@ -31,7 +30,6 @@ export default function MobileActionsFab({
   setShareOpen,
   shareOpen,
   shareUrl,
-  favouriteAccent,
 }: Props) {
   const t = useTranslations('UI');
   return (
@@ -66,7 +64,7 @@ export default function MobileActionsFab({
           aria-pressed={isFav}
           className={cn(
             'absolute left-0 bottom-0 w-10 h-10 rounded-full border shadow flex items-center justify-center',
-            isFav ? favouriteAccent.starActiveBtn : 'bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700',
+            isFav ? 'fav-star-active-btn' : 'bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700',
             fabOpen ? 'translate-x-[34px] translate-y-[-54px] opacity-100' : 'translate-x-0 translate-y-0 opacity-0 pointer-events-none',
             'transition-all duration-200'
           )}

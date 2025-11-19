@@ -25,7 +25,6 @@ import { GifMedia } from '@/components/GifMedia';
 import { prefetchItemDetail } from '@/lib/itemDetailsCache';
 import { useDetailAvailability } from '@/hooks/useItemDetail';
 import FavButton from '@/components/FavButton';
-import { favouriteAccent } from '@/theme/favouriteAccent';
 import VariantPillsScroll from '@/components/VariantPillsScroll';
 
 // Types
@@ -299,18 +298,18 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       data-animated={animDone ? 'true' : 'false'}
       className={cn(
         "item-card group",
-        showFavAccent && favouriteAccent.cardRing
+        showFavAccent && "fav-card-ring"
       )}
     >
-      <div className={cn('item-card-inner', showFavAccent && favouriteAccent.cardInner)}>
+      <div className={cn('item-card-inner', showFavAccent && "fav-card-inner")}>
       {showFavAccent && (
-        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-[0] h-1/2 bg-gradient-to-t", favouriteAccent.cardBottomGlow, "to-transparent")} />
+        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-[0] h-1/2 bg-gradient-to-t", "fav-card-bottom-glow", "to-transparent")} />
       )}
       <div className={cn(
         "relative item-card-image rounded-br-0 rounded-bl-0 overflow-hidden m-[4px] border pointer-events-none",
         "group/image",
         showFavAccent
-          ? cn(favouriteAccent.thumbBackground, favouriteAccent.thumbBorder, favouriteAccent.thumbShadow)
+          ? cn("fav-thumb-background", "fav-thumb-border", "fav-thumb-shadow")
           : "bg-gray-200 dark:bg-gray-800/40 border-[#e5e5e5] dark:border-gray-700"
       )}>
         <div className={cn("block overflow-hidden", aspectClass)}>
@@ -502,7 +501,12 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                         const desc = decodeEntities(v.description);
                         const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
                         const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
-                        return `${amountText}${per || ''}`;
+                        return (
+                          <>
+                            <span className="variant-price">{amountText}</span>
+                            {per && <span className="variant-per-unit text-[11px]">{per}</span>}
+                          </>
+                        );
                       })()}</span>
                     </li>
                   ))}
