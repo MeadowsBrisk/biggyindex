@@ -3,7 +3,7 @@ import "../styles/globals.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import ThemeToggle from "@/components/ThemeToggle";
+import FixedControls from "@/components/FixedControls";
 import ThemeSync from "@/components/ThemeSync";
 import VotesHydrator from "@/components/VotesHydrator";
 import FXHydrator from "@/components/FXHydrator";
@@ -26,8 +26,8 @@ export default function App({ Component, pageProps }: AppProps) {
       <FXHydrator />
       <IntlProvider>
         <Component {...pageProps} />
-        {/* Place ThemeToggle inside the IntlProvider so useTranslations has context */}
-        <ThemeToggle />
+        {/* Place FixedControls inside the IntlProvider so useTranslations has context */}
+        <FixedControls />
       </IntlProvider>
     </>
   );

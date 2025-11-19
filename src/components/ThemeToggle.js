@@ -6,6 +6,8 @@ import { darkModeAtom } from "@/store/atoms";
 import cn from "@/app/cn";
 import { useTranslations } from "next-intl";
 
+
+//  Unused, superseded by fixedControls
 export default function ThemeToggle() {
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
   const t = useTranslations('Theme');
