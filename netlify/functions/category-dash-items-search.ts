@@ -61,9 +61,11 @@ export default async (request: Request, context: Context) => {
     
     let items: any[] = [];
     try {
-      const blob = await store.get('data/indexed_items.json', { type: 'json' });
+      const blob = await store.get('indexed_items.json', { type: 'json' });
       items = (blob as any) || [];
-    } catch {
+      console.log(`[items-search] Loaded ${items.length} items from ${storeName}/indexed_items.json`);
+    } catch (e) {
+      console.error(`[items-search] Failed to load items from ${storeName}:`, e);
       items = [];
     }
 
