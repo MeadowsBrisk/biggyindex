@@ -105,7 +105,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
     setSellerId(null);
   }, [setSellerId]);
 
-  const title = seo?.sellerName ? `${seo.sellerName} – Sellers | Biggy Index` : `Sellers | Biggy Index`;
+  const title = seo?.sellerName ? `${seo.sellerName} – Seller Profile | Biggy Index` : `Seller Profile | Biggy Index`;
   const description = [
     seo?.sellerName || null,
     typeof seo?.itemsCount === 'number' ? `${seo.itemsCount} items` : null,

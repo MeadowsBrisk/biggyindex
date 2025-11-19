@@ -28,6 +28,7 @@ interface ItemRefPageProps {
   detail: any | null;
   messages: Record<string, any>;
   locale: string;
+  market: string;
 }
 
 export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (ctx) => {
@@ -69,13 +70,13 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
       reviewsCount: detail.reviewsCount || (detail.reviews ? detail.reviews.length : null),
       reviewsRating: detail.reviewsRating || null,
     };
-    return { props: { seo, detail, messages, locale: shortLocale } };
+    return { props: { seo, detail, messages, locale: shortLocale, market } };
   } catch {
     return { notFound: true };
   }
 };
 
-const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLocale }) => {
+const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLocale, market }) => {
   const router = useRouter();
   const setExpanded = useSetAtom(expandedRefNumAtom);
   const tReviews = useTranslations('Reviews');
@@ -149,6 +150,17 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
                     priceCurrency: seo.currency,
                     availability: 'https://schema.org/InStock',
                     ...(seo?.url && { url: seo.url }),
+                    hasMerchantReturnPolicy: {
+                      '@type': 'MerchantReturnPolicy',
+                      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+                    },
+                    shippingDetails: {
+                      '@type': 'OfferShippingDetails',
+                      shippingDestination: {
+                        '@type': 'DefinedRegion',
+                        addressCountry: market,
+                      },
+                    },
                   },
                 }),
                 ...(seo?.reviewsCount && seo.reviewsCount > 0 && seo?.reviewsRating && {
