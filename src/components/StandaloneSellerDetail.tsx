@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { includedSellersAtom, excludedSellersAtom } from '@/store/atoms';
-import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import { motion, AnimatePresence } from 'framer-motion';
+// import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
 import { decodeEntities } from '@/lib/format';
@@ -138,27 +137,12 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
       }
     }
 
-    if (items && items.length > 0) {
-      schema.mainEntity.hasOfferCatalog = {
-        '@type': 'OfferCatalog',
-        'name': `${name}'s Products`,
-        'itemListElement': items.map((item: any) => ({
-          '@type': 'Product',
-          'name': item.n || item.name,
-          'description': item.d || item.description,
-          'image': (item.i || item.imageUrl) ? proxyImage(item.i || item.imageUrl) : undefined,
-          'offers': {
-            '@type': 'Offer',
-            'price': item.uMin || item.price || item.p,
-            'priceCurrency': 'USD',
-            'availability': 'https://schema.org/InStock'
-          }
-        }))
-      };
-    }
+    // Don't add OfferCatalog with Product schema - causes Google to expect reviews
+    // for each product on seller page. Items have their own dedicated pages with
+    // proper Product schema. Seller page should only describe the seller profile.
 
     return schema;
-  }, [name, manifesto, img, ratingStats, detail, items]);
+  }, [name, manifesto, img, ratingStats, detail]);
 
   return (
     <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
