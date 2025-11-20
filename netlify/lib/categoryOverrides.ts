@@ -12,12 +12,14 @@ export const OVERRIDES_KEY = 'category-overrides.json';
 export type OverrideEntry = {
   id: string;                    // refNum preferred, else numeric id (always string)
   itemName: string;              // cached for display in admin UI
+  sellerName?: string;           // cached seller name for display
   primary: string;               // must be valid category from taxonomy
   subcategories: string[];       // must be valid children of primary
   reason?: string;               // optional explanation (max 500 chars)
   addedBy: string;               // always "admin" for v1
   addedAt: string;               // ISO 8601 timestamp
   lastModifiedAt: string;        // ISO 8601 timestamp
+  exists?: boolean;              // flag added by API - true if item still exists in index
 };
 
 export type OverridesData = {
@@ -101,11 +103,13 @@ export function createOverrideEntry(
   itemName: string,
   primary: string,
   subcategories: string[],
-  reason?: string
+  reason?: string,
+  sellerName?: string
 ): OverrideEntry {
   const now = new Date().toISOString();
   return {
     id: id.trim(),
+    sellerName,
     itemName: itemName.trim(),
     primary,
     subcategories,
