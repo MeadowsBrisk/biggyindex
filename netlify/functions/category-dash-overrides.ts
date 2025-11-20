@@ -94,7 +94,7 @@ export default async (request: Request, context: Context) => {
     // POST: Add or update override
     if (request.method === 'POST') {
       const body = await request.json();
-      const { id, itemName, primary, subcategories, reason } = body;
+      const { id, itemName, sellerName, primary, subcategories, reason } = body;
 
       // Validate input
       const validationError = validateOverride({ id, itemName, primary, subcategories, reason });
@@ -125,10 +125,14 @@ export default async (request: Request, context: Context) => {
         // Update existing
         const existing = data.overrides[existingIndex];
         override = updateOverrideEntry(existing, { itemName, primary, subcategories, reason });
+        // Preserve sellerName if it exists
+        if (sellerName && !existing.sellerName) {
+          override.sellerName = sellerName;
+        }
         data.overrides[existingIndex] = override;
       } else {
         // Add new
-        override = createOverrideEntry(id, itemName, primary, subcategories || [], reason);
+        override = createOverrideEntry(id, itemName, primary, subcategories || [], reason, sellerName);
         data.overrides.push(override);
       }
 

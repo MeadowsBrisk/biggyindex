@@ -64,8 +64,11 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
   }, [router?.pathname, router?.asPath]);
   const setItems = useSetAtom(setItemsAtom);
   const [expandedRef, setExpandedRef] = useAtom<any>(expandedRefNumAtom as any);
+  const [category, setCategory] = useAtom<string>(categoryAtom as any);
+  const [selectedSubs, setSelectedSubs] = useAtom<string[]>(selectedSubcategoriesAtom as any);
   const [isRouting, setIsRouting] = React.useState(false);
   const refHydrated = React.useRef(false);
+  const categoryHydrated = React.useRef(false);
 
   React.useEffect(() => {
     const homePath = (() => {
@@ -94,6 +97,61 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
       router.events.off('routeChangeError', handleDone);
     };
   }, [router, market]);
+
+  // Hydrate category and subcategories from URL on mount
+  useEffect(() => {
+    if (!router.isReady || categoryHydrated.current) return;
+    categoryHydrated.current = true;
+    
+    const urlCat = typeof router.query.cat === 'string' ? router.query.cat : null;
+    const urlSub = typeof router.query.sub === 'string' ? router.query.sub : null;
+    
+    if (urlCat) {
+      // Convert lowercase URL to proper case (e.g., 'flower' -> 'Flower')
+      const properCaseCat = urlCat.charAt(0).toUpperCase() + urlCat.slice(1).toLowerCase();
+      if (properCaseCat !== category) {
+        setCategory(properCaseCat);
+      }
+    }
+    if (urlSub) {
+      // Convert each subcategory to proper case
+      const subs = urlSub.split(',').map(s => s.trim()).filter(Boolean).map(s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
+      if (subs.length > 0) {
+        setSelectedSubs(subs);
+      }
+    }
+  }, [router.isReady, router.query.cat, router.query.sub, category, setCategory, setSelectedSubs]);
+
+  // Sync category and subcategories to URL
+  useEffect(() => {
+    if (!router.isReady || !categoryHydrated.current) return;
+    
+    const currentCat = typeof router.query.cat === 'string' ? router.query.cat : null;
+    const currentSub = typeof router.query.sub === 'string' ? router.query.sub : null;
+    const targetSub = selectedSubs.length > 0 ? selectedSubs.map(s => s.toLowerCase()).join(',') : null;
+    const targetCat = category !== 'All' ? category.toLowerCase() : null;
+    
+    const needsCatUpdate = (targetCat !== currentCat);
+    const needsSubUpdate = targetSub !== currentSub;
+    
+    if (needsCatUpdate || needsSubUpdate) {
+      const newQuery: any = { ...router.query };
+      
+      if (targetCat) {
+        newQuery.cat = targetCat;
+      } else {
+        delete newQuery.cat;
+      }
+      
+      if (targetSub) {
+        newQuery.sub = targetSub;
+      } else {
+        delete newQuery.sub;
+      }
+      
+      router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true, scroll: false });
+    }
+  }, [category, selectedSubs, router]);
 
   // Reflect overlay state in URL (shallow routing) and open from URL param
   // Keep overlay atom in sync with ?ref param on first load
@@ -129,13 +187,11 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
   const [isLoading, setIsLoading] = useAtom<boolean>(isLoadingAtom as any);
   const [sorted] = useAtom<any[]>(sortedItemsAtom as any);
   const [manifest, setManifest] = useAtom<any>(manifestAtom as any);
-  const [category] = useAtom<string>(categoryAtom as any);
   const fetchVotes = useSetAtom(fetchVotesActionAtom as any);
   const prefetchAllVotes = useSetAtom(prefetchAllVotesActionAtom as any);
   const endorsementsReady = useAtomValue<boolean>(endorsementsInitialReadyAtom as any);
   const sortKey = useAtomValue<string>(sortKeyAtom as any);
   const sortDir = useAtomValue<'asc' | 'desc'>(sortDirAtom as any);
-  const selectedSubs = useAtomValue<string[]>(selectedSubcategoriesAtom as any);
   const includedSellers = useAtomValue<string[]>(includedSellersAtom as any);
   const excludedSellers = useAtomValue<string[]>(excludedSellersAtom as any);
   const favouritesOnly = useAtomValue<boolean>(favouritesOnlyAtom as any);

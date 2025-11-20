@@ -85,6 +85,7 @@ export async function fetchOverrides(): Promise<OverridesData> {
 export async function saveOverride(override: {
   id: string;
   itemName: string;
+  sellerName?: string;
   primary: string;
   subcategories: string[];
   reason?: string;

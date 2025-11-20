@@ -7,8 +7,10 @@ import { useTranslations } from 'next-intl';
 import { countryLabel } from '@/lib/countries';
 import FilterPinButton from "@/components/FilterPinButton";
 import { catKeyForManifest, subKeyForManifest, translateSubLabel } from '@/lib/taxonomyLabels';
+import { useRouter } from 'next/router';
 
 export default function CategoryFilter() {
+  const router = useRouter();
   const tCats = useTranslations('Categories');
   const tSidebar = useTranslations('Sidebar');
   const tCountries = useTranslations('Countries');

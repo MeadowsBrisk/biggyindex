@@ -78,6 +78,7 @@ export default function OverrideFormModal({ override, onClose, onSave }: Props) 
       await saveOverride({
         id: itemId,
         itemName,
+        sellerName: selectedItem?.seller || override?.sellerName,
         primary,
         subcategories,
         reason: reason || undefined,
