@@ -52,7 +52,7 @@ export const TAXONOMY: Taxonomy = {
   },
   Tincture: {
     keywords: [
-      'tincture','tinctures','sublingual','oral spray','sublingual spray','spray tincture','tincture spray','live resin tincture','resin spray','oral','fast acting'
+      'tincture','tinctures','sublingual','oral spray','sublingual spray','spray tincture','tincture spray','live resin tincture','resin spray','oral','fast acting', 'cannadrops'
     ],
     children: {
       Spray: ['spray','spray tincture','tincture spray','oral spray','sublingual spray'],
@@ -93,8 +93,8 @@ export const TAXONOMY: Taxonomy = {
     children: {
       Chocolate: ["chocolate","chocolates","wonky bar","canna chocolate","belgian","milk"],
       Gummies: ["gummy","gummies","gummy bear","gummy bears","happy bears","bears"],
-      Capsules: ["capsule","capsules","caps","coconut oil capsules","tablet","tablets"],
-      Candy: ["candy","sweet","sweets","drops","candy drops","cola cubes","cola","pineapple chunks","pineapple","cubes","chunks"],
+      Capsules: ["capsule","capsules","caps","coconut oil capsules","tablet","tablets","cola cubes","cubes"],
+      Candy: ["candy","sweet","sweets","drops","candy drops","cola","pineapple chunks","pineapple","chunks"],
       Bars: ["cereal bar"],
       ButterOil: ["cannabutter","canna butter","coconut oil","canna coconut oil"],
       Treats: ["brownie","rope","ropes","nerd rope","nerd ropes","angel delight","delight","rolos","rolo"],

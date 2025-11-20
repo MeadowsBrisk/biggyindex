@@ -415,7 +415,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       </div>
       {/** Footer with price + optional shipping range */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 pb-3 pt-2 px-3 bg-gradient-to-t from-white/95 dark:from-[#0f1725]/95 via-white/40 dark:via-[#0f1725]/50 to-transparent z-40">
-        <div className="flex w-full items-end justify-between gap-4">
+        <div className="flex w-full items-end justify-between lg:gap-4">
           {showVariants ? (
             <button
               type="button"
