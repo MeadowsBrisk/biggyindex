@@ -1,6 +1,6 @@
 "use client";
 import { useAtom, useAtomValue } from "jotai";
-import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
+import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
 import cn from "@/app/cn";
 import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -19,6 +19,7 @@ export default function CategoryFilter() {
   const [favouritesOnly, setFavouritesOnly] = useAtom(favouritesOnlyAtom as any) as [boolean, (v: any) => void];
   const favourites = useAtomValue(favouritesAtom as any) || [] as any[];
   const [selectedSubs, setSelectedSubs] = useAtom(selectedSubcategoriesAtom as any) as [string[], (v: any) => void];
+  const [excludedSubs, setExcludedSubs] = useAtom(excludedSubcategoriesAtom as any) as [string[], (v: any) => void];
   const liveCounts = useAtomValue(categoryLiveCountsAtom as any) as any;
   const liveSubCounts = useAtomValue(subcategoryLiveCountsAtom as any) as Record<string, number> | undefined;
   const shipFromOptions = useAtomValue(shipFromOptionsAtom as any) as string[];
@@ -79,11 +80,30 @@ export default function CategoryFilter() {
   const toggleFavouriteOnly = () => setFavouritesOnly((v: any) => !v);
   const onSelectCategory = useCallback((cat: string) => { setCategory(cat); }, [setCategory]);
   const onKeyCategory = (e: React.KeyboardEvent<HTMLButtonElement>, cat: string) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCategory(cat); } };
+  
+  // Three-state cycle: neutral → included → excluded → neutral
   const onToggleSub = (sub: string) => {
-    setSelectedSubs((curr: string[]) => curr.includes(sub) ? curr.filter(s => s !== sub) : [...curr, sub]);
+    const isIncluded = selectedSubs.includes(sub);
+    const isExcluded = excludedSubs.includes(sub);
+    
+    if (!isIncluded && !isExcluded) {
+      // State 1: neutral → included (blue)
+      setSelectedSubs([...selectedSubs, sub]);
+    } else if (isIncluded) {
+      // State 2: included → excluded (orange)
+      setSelectedSubs(selectedSubs.filter(s => s !== sub));
+      setExcludedSubs([...excludedSubs, sub]);
+    } else {
+      // State 3: excluded → neutral (gray)
+      setExcludedSubs(excludedSubs.filter(s => s !== sub));
+    }
   };
+  
   const onKeySub = (e: React.KeyboardEvent<HTMLButtonElement>, sub: string) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSub(sub); } };
-  const clearSubs = () => setSelectedSubs([]);
+  const clearSubs = () => {
+    setSelectedSubs([]);
+    setExcludedSubs([]);
+  };
 
   const showShipPin = shipPinned || (Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly;
 
@@ -174,13 +194,14 @@ export default function CategoryFilter() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">{tSidebar('subcategories')}</div>
-              {selectedSubs.length > 0 && (
+              {(selectedSubs.length > 0 || excludedSubs.length > 0) && (
                 <button type="button" onClick={clearSubs} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">{tSidebar('clear')}</button>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
               {visibleSubKeys.map(sub => {
-                const active = selectedSubs.includes(sub);
+                const isIncluded = selectedSubs.includes(sub);
+                const isExcluded = excludedSubs.includes(sub);
                 const count = (liveSubCounts && typeof (liveSubCounts as any)[sub] === 'number') ? (liveSubCounts as any)[sub] : (subObj[sub] || 0);
                 const parentKey = catKeyForManifest(category);
                 const subKey = subKeyForManifest(sub);
@@ -191,10 +212,13 @@ export default function CategoryFilter() {
                     type="button"
                     onClick={() => onToggleSub(sub)}
                     onKeyDown={(e) => onKeySub(e as any, sub)}
-                    aria-pressed={active}
+                    aria-pressed={isIncluded || isExcluded}
+                    aria-label={isExcluded ? `Excluded: ${label}` : isIncluded ? `Included: ${label}` : label}
                     className={cn(
-                      "px-2 py-0.5 rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50",
-                      active ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      "px-2 py-0.5 rounded-full text-xs focus:outline-none focus:ring-2 transition-colors select-none",
+                      isIncluded && "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500/50",
+                      isExcluded && "bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-700 dark:to-orange-800 text-white hover:from-orange-600 hover:to-orange-700 dark:hover:from-orange-800 dark:hover:to-orange-900 focus:ring-orange-500/50 line-through",
+                      !isIncluded && !isExcluded && "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:ring-blue-500/50"
                     )}
                   >
                     {label} ({count})

@@ -15,6 +15,7 @@ import {
   includedSellersAtom,
   excludedSellersAtom,
   selectedSubcategoriesAtom,
+  excludedSubcategoriesAtom,
   sortDirAtom,
   favouritesOnlyAtom,
   freeShippingOnlyAtom,
@@ -66,6 +67,7 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
   const [expandedRef, setExpandedRef] = useAtom<any>(expandedRefNumAtom as any);
   const [category, setCategory] = useAtom<string>(categoryAtom as any);
   const [selectedSubs, setSelectedSubs] = useAtom<string[]>(selectedSubcategoriesAtom as any);
+  const [excludedSubs, setExcludedSubs] = useAtom<string[]>(excludedSubcategoriesAtom as any);
   const [isRouting, setIsRouting] = React.useState(false);
   const refHydrated = React.useRef(false);
   const categoryHydrated = React.useRef(false);
@@ -105,6 +107,7 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
     
     const urlCat = typeof router.query.cat === 'string' ? router.query.cat : null;
     const urlSub = typeof router.query.sub === 'string' ? router.query.sub : null;
+    const urlExcl = typeof router.query.excl === 'string' ? router.query.excl : null;
     
     if (urlCat) {
       // Convert lowercase URL to proper case (e.g., 'flower' -> 'Flower')
@@ -120,7 +123,14 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
         setSelectedSubs(subs);
       }
     }
-  }, [router.isReady, router.query.cat, router.query.sub, category, setCategory, setSelectedSubs]);
+    if (urlExcl) {
+      // Convert excluded subcategories to proper case
+      const excl = urlExcl.split(',').map(s => s.trim()).filter(Boolean).map(s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
+      if (excl.length > 0) {
+        setExcludedSubs(excl);
+      }
+    }
+  }, [router.isReady, router.query.cat, router.query.sub, router.query.excl, category, setCategory, setSelectedSubs, setExcludedSubs]);
 
   // Sync category and subcategories to URL
   useEffect(() => {
@@ -128,13 +138,16 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
     
     const currentCat = typeof router.query.cat === 'string' ? router.query.cat : null;
     const currentSub = typeof router.query.sub === 'string' ? router.query.sub : null;
+    const currentExcl = typeof router.query.excl === 'string' ? router.query.excl : null;
     const targetSub = selectedSubs.length > 0 ? selectedSubs.map(s => s.toLowerCase()).join(',') : null;
+    const targetExcl = excludedSubs.length > 0 ? excludedSubs.map(s => s.toLowerCase()).join(',') : null;
     const targetCat = category !== 'All' ? category.toLowerCase() : null;
     
     const needsCatUpdate = (targetCat !== currentCat);
     const needsSubUpdate = targetSub !== currentSub;
+    const needsExclUpdate = targetExcl !== currentExcl;
     
-    if (needsCatUpdate || needsSubUpdate) {
+    if (needsCatUpdate || needsSubUpdate || needsExclUpdate) {
       const newQuery: any = { ...router.query };
       
       if (targetCat) {
@@ -149,9 +162,15 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
         delete newQuery.sub;
       }
       
+      if (targetExcl) {
+        newQuery.excl = targetExcl;
+      } else {
+        delete newQuery.excl;
+      }
+      
       router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true, scroll: false });
     }
-  }, [category, selectedSubs, router]);
+  }, [category, selectedSubs, excludedSubs, router]);
 
   // Reflect overlay state in URL (shallow routing) and open from URL param
   // Keep overlay atom in sync with ?ref param on first load
@@ -333,7 +352,9 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
 
   const activeCategory = category && category !== 'All' ? category : null;
   const subs = Array.isArray(selectedSubs) ? selectedSubs : [];
+  const excludedSubsList = Array.isArray(excludedSubs) ? excludedSubs : [];
   const hasSubs = subs.length > 0;
+  const hasExcluded = excludedSubsList.length > 0;
   const multipleSubs = subs.length > 1;
   let desktopCrumbContent: React.ReactNode = null;
   if (activeCategory) {
@@ -345,10 +366,21 @@ export default function Home({ suppressDefaultHead = false }: HomeProps): React.
           return translateSubLabel(tCats, parentKey, sk) || s;
         })
       : [] as string[];
-    if (hasSubs) {
-      desktopCrumbContent = multipleSubs
-        ? <span className="italic">{catLabel} → {subLabels.join(', ')}</span>
-        : <span className="italic">{catLabel} → {subLabels[0]}</span>;
+    const excludedLabels = hasExcluded
+      ? excludedSubsList.map((s: string) => {
+          const sk = subKeyForManifest(s);
+          return translateSubLabel(tCats, parentKey, sk) || s;
+        })
+      : [] as string[];
+    if (hasSubs || hasExcluded) {
+      const parts: React.ReactNode[] = [];
+      if (hasSubs) {
+        parts.push(multipleSubs ? subLabels.join(', ') : subLabels[0]);
+      }
+      if (hasExcluded) {
+        parts.push(<span className="text-red-500/80">−{excludedLabels.join(', −')}</span>);
+      }
+      desktopCrumbContent = <span className="italic">{catLabel} → {parts.map((p, i) => <React.Fragment key={i}>{i > 0 && ', '}{p}</React.Fragment>)}</span>;
     } else {
       desktopCrumbContent = <span className="italic">{catLabel}</span>;
     }

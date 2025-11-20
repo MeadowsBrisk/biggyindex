@@ -200,6 +200,7 @@ export const setAllItemsAtom = atom<null, [any], void>(null, (get: any, set: any
 
 // Selected category and subcategories
 export const selectedSubcategoriesAtom = atom<string[]>([]);
+export const excludedSubcategoriesAtom = atom<string[]>([]);
 
 // Shipping origin filter (two-letter codes like 'uk','us') persisted across sessions
 export const selectedShipFromAtom = atomWithStorage<string[]>("shipFrom", []);
@@ -212,8 +213,9 @@ export const categoryAtom = atom<string, [string], void>(
   (get) => get(_categoryAtom),
   (get: any, set: any, newCategory: string) => {
     set(_categoryAtom, newCategory);
-    // reset selected subcategories when category changes
+    // reset selected and excluded subcategories when category changes
     set(selectedSubcategoriesAtom, []);
+    set(excludedSubcategoriesAtom, []);
     // reset price range to full bounds on category change (use null sentinels)
     if (!get(priceFilterPinnedAtom)) {
       set(priceRangeAtom, { min: null, max: null });
@@ -361,11 +363,17 @@ export const filteredItemsAtom = atom<Item[]>((get: any) => {
   const favouritesOnly = get(favouritesOnlyAtom) as boolean;
   const favouriteIds = favouritesOnly ? (get(favouritesAtom) as any[] || []) : [];
 
+  const excludedSubs = get(excludedSubcategoriesAtom) as string[];
+
   let list: any[] = category && category !== "All"
     ? (items || []).filter((it: any) => it.category === category)
     : (items || []);
   if (category && category !== 'All' && Array.isArray(selectedSubs) && selectedSubs.length > 0) {
     list = list.filter((it) => Array.isArray(it.subcategories) && it.subcategories.some((s: any) => selectedSubs.includes(s)));
+  }
+  // Exclude items with excluded subcategories
+  if (category && category !== 'All' && Array.isArray(excludedSubs) && excludedSubs.length > 0) {
+    list = list.filter((it) => !Array.isArray(it.subcategories) || !it.subcategories.some((s: any) => excludedSubs.includes(s)));
   }
   if (Array.isArray(selectedShips) && selectedShips.length > 0) {
     const set = new Set(selectedShips);
@@ -702,9 +710,14 @@ export const subcategoryLiveCountsAtom = atom<Record<string, number>>((get: any)
   const minFilter = norm.min;
   const maxFilter = norm.max;
   const category = get(categoryAtom) as string;
+  const excludedSubs = get(excludedSubcategoriesAtom) as string[];
   if (!category || category === 'All') return {};
   if (!Array.isArray(itemsSource) || itemsSource.length === 0) return {};
   let list = (itemsSource as any[]).filter(it => !!it && it.category === category);
+  // Apply excluded subcategories filter to counts
+  if (Array.isArray(excludedSubs) && excludedSubs.length > 0) {
+    list = list.filter(it => !Array.isArray(it.subcategories) || !it.subcategories.some((s: any) => excludedSubs.includes(s)));
+  }
   if (Array.isArray(selectedShips) && selectedShips.length > 0) {
     const set = new Set(selectedShips);
     list = list.filter(it => {

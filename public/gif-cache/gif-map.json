@@ -970,18 +970,32 @@
     "hash": "a8043d76fb8d",
     "poster": "/gif-cache/posters/a8043d76fb8d.jpg",
     "video": "/gif-cache/videos/a8043d76fb8d.mp4",
-    "width": 438,
-    "height": 340,
-    "frames": 98,
-    "status": "ok"
+    "status": "skipped",
+    "reason": "exists"
   },
   "https://i2.littlebiggy.net/images/i/w/800/vjppdJBxTPgPWDYJ.gif": {
     "hash": "2f6edaae808c",
     "poster": "/gif-cache/posters/2f6edaae808c.jpg",
     "video": "/gif-cache/videos/2f6edaae808c.mp4",
-    "width": 853,
-    "height": 1280,
-    "frames": 30,
+    "status": "skipped",
+    "reason": "exists"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/EAiwQyNylFqZnQdH.gif": {
+    "hash": "653159124e00",
+    "poster": "/gif-cache/posters/653159124e00.jpg",
+    "video": "/gif-cache/videos/653159124e00.mp4",
+    "width": 400,
+    "height": 428,
+    "frames": 106,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/JouMkYmUjzecpUHv.gif": {
+    "hash": "ecda637e711e",
+    "poster": "/gif-cache/posters/ecda637e711e.jpg",
+    "video": "/gif-cache/videos/ecda637e711e.mp4",
+    "width": 380,
+    "height": 380,
+    "frames": 100,
     "status": "ok"
   }
 }
