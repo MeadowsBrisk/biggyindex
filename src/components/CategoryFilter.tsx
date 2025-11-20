@@ -2,7 +2,7 @@
 import { useAtom, useAtomValue } from "jotai";
 import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
 import cn from "@/app/cn";
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { countryLabel } from '@/lib/countries';
 import FilterPinButton from "@/components/FilterPinButton";
@@ -81,21 +81,55 @@ export default function CategoryFilter() {
   const onSelectCategory = useCallback((cat: string) => { setCategory(cat); }, [setCategory]);
   const onKeyCategory = (e: React.KeyboardEvent<HTMLButtonElement>, cat: string) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCategory(cat); } };
   
-  // Three-state cycle: neutral → included → excluded → neutral
-  const onToggleSub = (sub: string) => {
+  // Detect touch device
+  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
+  React.useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  // Desktop: left-click toggle include, right-click toggle exclude
+  // Mobile: cycle through states (neutral → included → excluded → neutral)
+  const onToggleSub = (sub: string, e?: React.MouseEvent) => {
     const isIncluded = selectedSubs.includes(sub);
     const isExcluded = excludedSubs.includes(sub);
     
-    if (!isIncluded && !isExcluded) {
-      // State 1: neutral → included (blue)
-      setSelectedSubs([...selectedSubs, sub]);
-    } else if (isIncluded) {
-      // State 2: included → excluded (orange)
-      setSelectedSubs(selectedSubs.filter(s => s !== sub));
-      setExcludedSubs([...excludedSubs, sub]);
+    // Right-click: toggle exclude (desktop) or handle as context menu
+    if (e && e.button === 2) {
+      e.preventDefault();
+      if (isExcluded) {
+        // Already excluded, remove exclusion
+        setExcludedSubs(excludedSubs.filter(s => s !== sub));
+      } else {
+        // Not excluded, add to excluded (and remove from included if present)
+        if (isIncluded) setSelectedSubs(selectedSubs.filter(s => s !== sub));
+        setExcludedSubs([...excludedSubs, sub]);
+      }
+      return;
+    }
+    
+    // Left-click behavior depends on device
+    if (isTouchDevice) {
+      // Mobile: cycle through all three states
+      if (!isIncluded && !isExcluded) {
+        setSelectedSubs([...selectedSubs, sub]);
+      } else if (isIncluded) {
+        setSelectedSubs(selectedSubs.filter(s => s !== sub));
+        setExcludedSubs([...excludedSubs, sub]);
+      } else {
+        setExcludedSubs(excludedSubs.filter(s => s !== sub));
+      }
     } else {
-      // State 3: excluded → neutral (gray)
-      setExcludedSubs(excludedSubs.filter(s => s !== sub));
+      // Desktop: simple toggle include/exclude on left-click
+      if (isExcluded) {
+        // If excluded, just clear exclusion
+        setExcludedSubs(excludedSubs.filter(s => s !== sub));
+      } else if (isIncluded) {
+        // If included, toggle off
+        setSelectedSubs(selectedSubs.filter(s => s !== sub));
+      } else {
+        // If neutral, include it
+        setSelectedSubs([...selectedSubs, sub]);
+      }
     }
   };
   
@@ -210,10 +244,18 @@ export default function CategoryFilter() {
                   <button
                     key={sub}
                     type="button"
-                    onClick={() => onToggleSub(sub)}
+                    onClick={(e) => onToggleSub(sub, e as any)}
+                    onContextMenu={(e) => { e.preventDefault(); onToggleSub(sub, e as any); }}
                     onKeyDown={(e) => onKeySub(e as any, sub)}
                     aria-pressed={isIncluded || isExcluded}
                     aria-label={isExcluded ? `Excluded: ${label}` : isIncluded ? `Included: ${label}` : label}
+                    title={
+                      isExcluded 
+                        ? "Right-click to remove exclusion" 
+                        : isIncluded 
+                          ? "Click to deselect • Right-click to exclude"
+                          : "Click to include • Right-click to exclude"
+                    }
                     className={cn(
                       "px-2 py-0.5 rounded-full text-xs focus:outline-none focus:ring-2 transition-colors select-none",
                       isIncluded && "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500/50",
