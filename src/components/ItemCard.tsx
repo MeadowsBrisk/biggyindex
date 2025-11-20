@@ -201,6 +201,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const hasRef = !!refNum; // only attempt remote detail fetches when a real refNum exists
   const { ensure: ensureDetail } = useDetailAvailability(hasRef ? String(refKey) : null as any);
   const showVariants = Array.isArray(variants) && variants.length > 0;
+  const preloadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pricingPanelId = `item-pricing-${itemKey}`;
   const pricingTitleId = `${pricingPanelId}-title`;
 
@@ -275,6 +276,15 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   React.useEffect(() => {
     if (!showVariants && expanded) setExpanded(false);
   }, [showVariants, expanded]);
+
+  // Cleanup preload timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (preloadTimeoutRef.current) {
+        clearTimeout(preloadTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Compute aspect class from global setting
   const aspectClass = useMemo(() => {
@@ -380,8 +390,34 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
         <div className="pb-15 flex flex-col bg-[blue]s">
           <button
             type="button"
-            onMouseEnter={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
-            onFocus={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
+            onMouseEnter={() => {
+              if (hasRef) {
+                preloadTimeoutRef.current = setTimeout(() => {
+                  ensureDetail();
+                  prefetchItemDetail(String(refKey));
+                }, 125);
+              }
+            }}
+            onMouseLeave={() => {
+              if (preloadTimeoutRef.current) {
+                clearTimeout(preloadTimeoutRef.current);
+                preloadTimeoutRef.current = null;
+              }
+            }}
+            onFocus={() => {
+              if (hasRef) {
+                preloadTimeoutRef.current = setTimeout(() => {
+                  ensureDetail();
+                  prefetchItemDetail(String(refKey));
+                }, 125);
+              }
+            }}
+            onBlur={() => {
+              if (preloadTimeoutRef.current) {
+                clearTimeout(preloadTimeoutRef.current);
+                preloadTimeoutRef.current = null;
+              }
+            }}
             onPointerDown={() => { if (hasRef) { ensureDetail(); prefetchItemDetail(String(refKey)); } }}
             onClick={() => (setExpandedRef as any)(String(refKey))}
             aria-label={tItem('viewDetailsFor', { name: nameDecoded })}
