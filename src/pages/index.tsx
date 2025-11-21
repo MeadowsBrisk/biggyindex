@@ -286,7 +286,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   // ISR Hydration: Use server-rendered data on initial load, fall back to API only if needed
   useEffect(() => {
     if (isrHydrated.current) return;
-    if (!initialManifest || !initialItems) return;
+    if (!initialManifest && !initialItems) return;
     
     isrHydrated.current = true;
     
@@ -296,7 +296,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     }
     
     // Hydrate items from ISR props (only for 'All' category on initial load)
-    if (initialItems.length > 0 && category === 'All') {
+    if (initialItems && initialItems.length > 0 && category === 'All') {
       setItems(initialItems);
       setAllItems(initialItems);
       setIsLoading(false);
@@ -304,9 +304,10 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   }, [initialManifest, initialItems, setManifest, setItems, setAllItems, setIsLoading, category]);
 
   useEffect(() => {
-    // Fetch manifest from API only if ISR data missing or market changed
-    if (manifest && Object.keys(((manifest as any).categories || {})).length > 0) return;
-    if (!isrHydrated.current) return; // Wait for ISR hydration first
+    // Fetch manifest from API only if ISR data missing
+    // Skip if already have manifest OR if ISR hasn't attempted to hydrate yet
+    if (manifest && Object.keys(((manifest as any).categories || {}).length > 0)) return;
+    if (!isrHydrated.current) return;
     
     let cancelled = false;
     (async () => {
@@ -314,7 +315,6 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       try {
         const r = await fetch(`/api/index/manifest?mkt=${market}`);
         if (r.ok) mf = await r.json();
-        // If 304 Not Modified, keep existing manifest (mf stays null) and avoid clobbering
       } catch {}
       if (!cancelled && mf) setManifest(mf);
     })();
@@ -325,12 +325,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     const loadItems = async () => {
       if (!manifest) return;
       
-      // Skip API call if ISR data already loaded and we're on 'All' category
-      if (category === 'All' && allItems.length > 0 && !isrHydrated.current) {
-        // ISR data not yet hydrated, wait for it
-        return;
-      }
-      
+      // Skip if we already have items loaded for the current category
       if (category === 'All' && allItems.length > 0) {
         // Already have data from ISR or previous load
         setIsLoading(false);
