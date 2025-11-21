@@ -252,9 +252,7 @@ export default function CategoryFilter() {
                     title={
                       isExcluded 
                         ? "Right-click to remove exclusion" 
-                        : isIncluded 
-                          ? "Click to deselect • Right-click to exclude"
-                          : "Click to include • Right-click to exclude"
+                        : "Right-click to exclude"
                     }
                     className={cn(
                       "px-2 py-0.5 rounded-full text-xs focus:outline-none focus:ring-2 transition-colors select-none",
