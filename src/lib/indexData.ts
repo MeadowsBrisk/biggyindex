@@ -35,6 +35,11 @@ type StoreClient = {
 };
 
 const storeCache = new Map<string, StoreClient | null>();
+
+// Simple in-memory cache for small, frequently accessed blobs to reduce network calls on warm functions
+const memoryCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 60 * 1000; // 1 minute cache for high-frequency metadata
+
 async function getStoreForName(name?: string): Promise<StoreClient | null> {
   if (!name) return null;
   if (storeCache.has(name)) return storeCache.get(name) || null;
@@ -56,29 +61,47 @@ async function getStoreForName(name?: string): Promise<StoreClient | null> {
   }
 }
 
-async function readBlobJSON<T = any>(key: string, { market, store }: { market?: Market; store?: string } = {}): Promise<T | null> {
+async function readBlobJSON<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
   const storeName = store || storeNameForMarket(market);
+  
+  // Check memory cache if enabled
+  if (useCache) {
+    const cacheKey = `${storeName}:${key}`;
+    const cached = memoryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data as T;
+    }
+  }
+
   const storeClient = await getStoreForName(storeName);
   if (!storeClient) return null;
   try {
     const value = await storeClient.get(key);
     if (!value) return null;
-    return JSON.parse(value) as T;
+    const data = JSON.parse(value) as T;
+    
+    // Write to memory cache if enabled
+    if (useCache) {
+      const cacheKey = `${storeName}:${key}`;
+      memoryCache.set(cacheKey, { data, timestamp: Date.now() });
+    }
+    
+    return data;
   } catch {
     return null;
   }
 }
 
-async function readAggregateJSON<T = any>(primaryKey: string, fallbackKey?: string, { market, store }: { market?: Market; store?: string } = {}): Promise<T | null> {
-  const primary = await readBlobJSON<T>(primaryKey, { market, store });
+async function readAggregateJSON<T = any>(primaryKey: string, fallbackKey?: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
+  const primary = await readBlobJSON<T>(primaryKey, { market, store, useCache });
   if (primary != null) return primary;
   if (!fallbackKey) return null;
-  return readBlobJSON<T>(fallbackKey, { market, store });
+  return readBlobJSON<T>(fallbackKey, { market, store, useCache });
 }
 
 export async function getManifest(market?: Market): Promise<{ categories: Record<string, any>; totalItems: number; [k: string]: any }>
 {
-  return (await readBlobJSON('data/manifest.json', { market })) || { categories: {}, totalItems: 0 };
+  return (await readBlobJSON('data/manifest.json', { market, useCache: true })) || { categories: {}, totalItems: 0 };
 }
 
 export async function getAllItems(market?: Market): Promise<any[]>
@@ -117,7 +140,7 @@ export async function getItemIdSet(): Promise<Set<string | number>>
 
 export async function getSnapshotMeta(market?: Market): Promise<any | null>
 {
-  const blob = await readBlobJSON<any>('snapshot_meta.json', { market });
+  const blob = await readBlobJSON<any>('snapshot_meta.json', { market, useCache: true });
   if (blob) return blob;
   return null;
 }

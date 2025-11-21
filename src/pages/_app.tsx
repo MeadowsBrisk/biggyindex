@@ -10,6 +10,21 @@ import FXHydrator from "@/components/FXHydrator";
 import Head from "next/head";
 import type { AppProps } from "next/app";
 import { IntlProvider } from "@/providers/IntlProvider";
+import { Lato, Nunito_Sans } from 'next/font/google';
+
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['300', '400', '700', '900'],
+  variable: '--font-heading',
+  display: 'swap',
+});
+
+const nunito = Nunito_Sans({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-body',
+  display: 'swap',
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -20,6 +35,12 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="theme-color" content="#ffffff" />
         <meta name="google-site-verification" content="h5z6Ra99x78ektZLUE6YlghVddCXyhdjxf3fMaHSLiw" />
       </Head>
+      <style jsx global>{`
+        :root {
+          --font-heading: ${lato.style.fontFamily};
+          --font-body: ${nunito.style.fontFamily};
+        }
+      `}</style>
 
       <ThemeSync />
       <VotesHydrator />

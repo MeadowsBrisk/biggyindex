@@ -27,6 +27,8 @@ import { useDetailAvailability } from '@/hooks/useItemDetail';
 import FavButton from '@/components/FavButton';
 import VariantPillsScroll from '@/components/VariantPillsScroll';
 
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
+
 // Types
 export interface ItemVariant {
   id?: string | number;
@@ -148,55 +150,26 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [entered, setEntered] = useState(initialAppear ? false : false); // will flip to true
   const [animDone, setAnimDone] = useState(false);
-  const fallbackRef = useRef<any>(null);
+  
+  // Use shared observer hook
+  const { isVisible } = useIntersectionObserver(rootRef, { threshold: 0, rootMargin: '0px 0px -10% 0px' }, true);
+
   // Staggered appearance for initial viewport batch
   useEffect(() => {
     if (initialAppear) {
-      // For initial batch: immediate viewport check + stagger
-      if (rootRef.current) {
-        const rect = rootRef.current.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-          // still apply stagger but ensure we'll enter
-        }
-      }
       const t = setTimeout(() => { setEntered(true); }, staggerDelay);
       return () => clearTimeout(t);
     }
   }, [initialAppear, staggerDelay]);
-  // Intersection observer for non-initial or late-added items + immediate check + fallback
+
+  // Sync observer state to local state
   useEffect(() => {
-    if (initialAppear) return; // handled by stagger timing
-    if (!rootRef.current) return;
-    // Immediate synchronous visibility check (covers already-in-view elements before observer fires)
-    const rect = rootRef.current.getBoundingClientRect();
-    if (!entered && rect.top < window.innerHeight && rect.bottom > 0) {
+    if (initialAppear) return;
+    if (isVisible && !entered) {
       setEntered(true);
     }
-    if (entered) return; // no need for observer
-    const el = rootRef.current;
-    const observer = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          setEntered(true);
-          observer.disconnect();
-          break;
-        }
-      }
-    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
-    observer.observe(el);
-    // Fallback: after 1500ms, force enter if still visible (guards against missed intersection edge cases)
-    fallbackRef.current = setTimeout(() => {
-      if (!rootRef.current || entered) return;
-      const r2 = rootRef.current.getBoundingClientRect();
-      if (r2.top < window.innerHeight && r2.bottom > 0) {
-        setEntered(true);
-      }
-    }, 1500);
-    return () => {
-      observer.disconnect();
-      if (fallbackRef.current) clearTimeout(fallbackRef.current);
-    };
-  }, [initialAppear, entered]);
+  }, [isVisible, entered, initialAppear]);
+
   const refKey = (refNum ?? String(item.id)) as string | number;
   const hasRef = !!refNum; // only attempt remote detail fetches when a real refNum exists
   const { ensure: ensureDetail } = useDetailAvailability(hasRef ? String(refKey) : null as any);
