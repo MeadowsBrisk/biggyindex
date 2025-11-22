@@ -7,7 +7,7 @@ export const TAXONOMY: Taxonomy = {
   Tips: { keywords: ["tip jar", "tip", "tips"], children: {} },
   Flower: {
     keywords: [
-      "flower","bud","buds","budds","nug","nuggs","nugs","haze","hybrid","tops","rs11","budget","mids","shake","trim","popcorn","zkittlez","zkittles","diesel","marijuana","strain","strains","indica","sativa","exotic","exotics","cali","puffport","cookies","runtz","sherb","sherbert","sherbet","cake","blueberry","cheese","trainwreck","wedding","mochi","gumball","limoncello","indoor","outdoor","greenhouse","dawg","stardawg","chemdawg","gelato","gelatti","strawberry banana","brian berry cough","do si dos","dosidos","dosi dos","zoap","skittles","mac 1"
+      "flower","bud","buds","budds","nug","nuggs","nugs","haze","hybrid","tops","rs11","budget","mids","shake","trim","popcorn","zkittlez","zkittles","diesel","marijuana","strain","strains","indica","sativa","exotic","exotics","cali","puffport","cookies","runtz","sherb","sherbert","sherbet","cake","blueberry","cheese","trainwreck","wedding","mochi","gumball","limoncello","indoor","outdoor","greenhouse","dawg","stardawg","chemdawg","gelato","gelatti","strawberry banana","brian berry cough","do si dos","dosidos","dosi dos","zoap","skittles","mac 1", "gelonade"
     ],
     children: {
       Haze: ["haze"],
@@ -52,7 +52,7 @@ export const TAXONOMY: Taxonomy = {
   },
   Tincture: {
     keywords: [
-      'tincture','tinctures','sublingual','oral spray','sublingual spray','spray tincture','tincture spray','live resin tincture','resin spray','oral','fast acting', 'cannadrops'
+      'tincture','tinctures','sublingual','oral spray','sublingual spray','spray tincture','tincture spray','live resin tincture','resin spray','oral','fast acting', 'cannadrops', 'AccuDose'
     ],
     children: {
       Spray: ['spray','spray tincture','tincture spray','oral spray','sublingual spray'],

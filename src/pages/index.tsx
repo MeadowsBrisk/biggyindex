@@ -325,9 +325,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     const loadItems = async () => {
       if (!manifest) return;
       
-      // Skip if we already have items loaded for the current category
+      // If switching back to 'All' and we already have all items cached, use them
       if (category === 'All' && allItems.length > 0) {
-        // Already have data from ISR or previous load
+        setItems(allItems);
         setIsLoading(false);
         return;
       }
@@ -362,7 +362,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       setIsLoading(false);
     };
     loadItems();
-  }, [manifest, category, setItems, setIsLoading, setAllItems, allItems.length, market]);
+  }, [manifest, category, setItems, setIsLoading, setAllItems, allItems, market]);
 
   // Background full-dataset fetch (once) to stabilize category counts when user starts in a specific category other than All.
   useEffect(() => {
