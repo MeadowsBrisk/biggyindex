@@ -224,9 +224,15 @@ export default function CategoryFilter() {
         const subKeys = Object.keys(subObj);
         if (subKeys.length === 0) return null; // hide section entirely when no subcategories
         // Filter subcategories: when seller filter is active, only show those with live counts > 0
+        // BUT always show selected or excluded subcategories even if count is 0
         const hasActiveFilters = (Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly || includedSellers.length > 0;
         const visibleSubKeys = hasActiveFilters
-          ? subKeys.filter(sub => (liveSubCounts && typeof (liveSubCounts as any)[sub] === 'number' && (liveSubCounts as any)[sub] > 0))
+          ? subKeys.filter(sub => {
+              // Always show if selected or excluded
+              if (selectedSubs.includes(sub) || excludedSubs.includes(sub)) return true;
+              // Otherwise only show if has items
+              return liveSubCounts && typeof (liveSubCounts as any)[sub] === 'number' && (liveSubCounts as any)[sub] > 0;
+            })
           : subKeys;
         if (visibleSubKeys.length === 0) return null; // hide section if no visible subcategories
         return (
