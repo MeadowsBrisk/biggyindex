@@ -87,13 +87,13 @@ export default function CategoryFilter() {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  // Desktop: left-click toggle include, right-click toggle exclude
+  // Desktop: left-click toggle include/neutral, right-click toggle exclude
   // Mobile: cycle through states (neutral → included → excluded → neutral)
   const onToggleSub = (sub: string, e?: React.MouseEvent) => {
     const isIncluded = selectedSubs.includes(sub);
     const isExcluded = excludedSubs.includes(sub);
     
-    // Right-click: toggle exclude (desktop) or handle as context menu
+    // Right-click: toggle exclude
     if (e && e.button === 2) {
       e.preventDefault();
       if (isExcluded) {
@@ -107,8 +107,12 @@ export default function CategoryFilter() {
       return;
     }
     
-    // Left-click behavior depends on device
-    if (isTouchDevice) {
+    // Left-click: different behavior for touch vs desktop
+    // Check if we have a mouse event (desktop) vs touch event (mobile)
+    const isMouseEvent = e && e.nativeEvent instanceof MouseEvent;
+    const useTouchBehavior = isTouchDevice && !isMouseEvent;
+    
+    if (useTouchBehavior) {
       // Mobile: cycle through all three states
       if (!isIncluded && !isExcluded) {
         setSelectedSubs([...selectedSubs, sub]);
@@ -119,12 +123,13 @@ export default function CategoryFilter() {
         setExcludedSubs(excludedSubs.filter(s => s !== sub));
       }
     } else {
-      // Desktop: simple toggle include/exclude on left-click
+      // Desktop: simple two-state toggle (neutral ↔ included only)
+      // Exclusion is only via right-click on desktop
       if (isExcluded) {
-        // If excluded, just clear exclusion
+        // If excluded, clear exclusion (back to neutral)
         setExcludedSubs(excludedSubs.filter(s => s !== sub));
       } else if (isIncluded) {
-        // If included, toggle off
+        // If included, deselect (back to neutral)
         setSelectedSubs(selectedSubs.filter(s => s !== sub));
       } else {
         // If neutral, include it
