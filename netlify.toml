@@ -142,6 +142,55 @@
     "scripts/unified-crawler/**"
   ]
 
+# Redirects for legacy localized item/seller paths (301 permanent redirects)
+[[redirects]]
+  from = "/produit/:ref"
+  to = "/item/:ref"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/produkt/:ref"
+  to = "/item/:ref"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/prodotto/:ref"
+  to = "/item/:ref"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/produto/:ref"
+  to = "/item/:ref"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/vendeur/:id"
+  to = "/seller/:id"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/verkaeufer/:id"
+  to = "/seller/:id"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/venditore/:id"
+  to = "/seller/:id"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/vendedor/:id"
+  to = "/seller/:id"
+  status = 301
+  force = true
+
 # Cache Control for static assets
 [[headers]]
   for = "/assets/*"
