@@ -71,7 +71,7 @@ export const getStaticProps: GetStaticProps = async () => {
         initialManifest: manifest,
         snapshotMeta: meta,
       },
-      revalidate: 1200, // Rebuild every 20 minutes (aligns with crawler cadence)
+      revalidate: 1000, // Rebuild every 20 minutes (aligns with crawler cadence)
     };
   } catch (e) {
     console.error('[ISR] Failed to fetch data:', e);
@@ -82,7 +82,7 @@ export const getStaticProps: GetStaticProps = async () => {
         initialManifest: { categories: {}, totalItems: 0 },
         snapshotMeta: null,
       },
-      revalidate: 1200,
+      revalidate: 1000,
     };
   }
 };

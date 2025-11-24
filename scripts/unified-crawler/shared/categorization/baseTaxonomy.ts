@@ -104,11 +104,11 @@ export const TAXONOMY: Taxonomy = {
   },
   Psychedelics: {
     keywords: [
-      "lsd","acid","blotter","tab","dmt","ayahuasca","changa","paper","spirit","micro-doses","micro dose","microdose","microdoses","microdosing","420 this week","the deep dive","spirit vape","Leisure Time","The Deep Dive","Laser Focus","True Mic","lucy","diamonds","cubensis","penis envy","golden teacher","treasure coast","albino","grow kit","grow kits","grow your own"
+      "lsd","acid","blotter","tab","dmt","ayahuasca","changa","paper","spirit","micro-doses","micro dose","microdose","microdoses","microdosing","420 this week","the deep dive","spirit vape","Leisure Time","The Deep Dive","Laser Focus","True Mic","lucy","diamonds","cubensis","penis envy","golden teacher","treasure coast","albino","grow kit","grow kits","grow your own", "magic gummies"
     ],
     children: {
       Spirit: ["dmt","ayahuasca","420 this week","spirit vape"],
-      Paper: ["lsd","acid","blotter","paper","the deep dive","420 this week","Leisure Time","The Deep Dive","Laser Focus","True Mic","lucy in","with diamonds"],
+      Paper: ["lsd","acid","blotter","paper","the deep dive","420 this week","Leisure Time","The Deep Dive","Laser Focus","True Mic","lucy in","with diamonds", "magic gummies"],
       Mushrooms: ["mushroom","mushrooms","mush","shroom","shrooms","psilocybin","psilocybe","magic mushroom","cubensis","penis envy","golden teacher","treasure coast","albino"],
       Grow: ["grow kit","grow kits","grow your own","grow-your-own","heat mat","heat mats","heatmat","flow unit","flow units","spawn","substrate"],
       Microdose: ["microdose","microdoses","micro dosing","micro-dosing","micro dose","micro-doses","microdosing"],

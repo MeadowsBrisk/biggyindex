@@ -31,9 +31,10 @@ Extract from `pipeline.ts` (RULE_SEQUENCE):
 15. `seedsListingsRule` (11-seedsListings.ts)
 16. `hashPrecedenceRule` (06-hashOverrides.ts)
 17. `distillateBulkRefinementRule` (07c-distillateBulkRefinement.ts)
-18. `concentrateLatePrecedenceRule` (07-concentrateOverrides.ts)
-19. `otherParaphernaliaRule` (12-otherParaphernalia.ts)
-20. `precedenceResolutionRule` (90-precedenceResolution.ts)
+18. `tinctureRefinementRule` (07d-tinctureRefinement.ts)
+19. `concentrateLatePrecedenceRule` (07-concentrateOverrides.ts)
+20. `otherParaphernaliaRule` (12-otherParaphernalia.ts)
+21. `precedenceResolutionRule` (90-precedenceResolution.ts)
 
 Do NOT reorder casually. New rules should normally slot just before late precedence stages (15–16) unless they refine a very early ambiguity (then near 2–5). Document any insertion here.
 
@@ -94,6 +95,13 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 - Spread/oil explicit cannabis qualifiers re-boost Edibles; special strong dominance for "cannabis coconut oil".
 - Updated ingestion forms include `tablet|tablets` to correctly recognize edible tablets.
 
+07d-tinctureRefinement.ts (NEW)
+- Handles Cannadrops and AccuDose branded tincture products.
+- Strong boost (+8) to Tincture when brand names detected, adds Sublingual subcategory.
+- Demotes competing Flower (strain names like Kush/OG), Edibles ("drops", "oil"), and Concentrates to ensure tincture classification.
+- Ensures Tincture score exceeds all competing categories by at least +3 points.
+- Placed after distillateBulkRefinementRule to handle brand-specific tincture patterns.
+
 90-precedenceResolution.ts
 - Final tie-breaking and Other guard (requires explicit Other keyword). Subcategories narrowed to chosen primary.
 
@@ -144,9 +152,10 @@ Notes:
 
 ## Open Technical Debt Items
 - Bulk Distillate vs Vape: Implemented (07c-distillateBulkRefinement) – in absence of hardware tokens AND presence of bulk sizing / purity / syringe signals, favors Concentrates Distillates. Lives just before concentrateLatePrecedenceRule so earlier vape boosts can still assert when valid.
-- Tincture Oral Wellness: Detect explicit ingestion disclaimers ("FOR ORAL APPLICATION ONLY", "DO NOT SMOKE OR VAPE") and force Tincture dominance when distillate + MCT + oral verbs present.
+- Tincture Oral Wellness: Implemented (07c-distillateBulkRefinement) – Detects explicit ingestion disclaimers ("FOR ORAL APPLICATION ONLY", "DO NOT SMOKE OR VAPE") and forces Tincture dominance when distillate + MCT + oral verbs present.
+- Tincture Brand Names: Implemented (07d-tinctureRefinement) – Cannadrops and AccuDose branded products now correctly classified as Tincture.Sublingual even when strong Flower/Edible signals present.
 - Vape fallback contexts: HTFSE/Liquid Diamonds are used as vape shorthand and are now covered; continue to watch for false positives in non-vape diamond contexts.
-- Edibles tablets: taxonomy and ingestion patterns updated; consider adding specific “Tablets” subcategory if future UI needs differentiation.
+- Edibles tablets: taxonomy and ingestion patterns updated; consider adding specific "Tablets" subcategory if future UI needs differentiation.
 
 (Add completed implementations below this line when done.)
 

@@ -15,6 +15,7 @@ import { medicalEarlyRule, antibioticLineageRule } from './rules/09-medicalOverr
 import { ediblesFalsePositiveDemotionRule } from './rules/10-ediblesFalsePositiveDemotion';
 import { seedsListingsRule } from './rules/11-seedsListings';
 import { distillateBulkRefinementRule } from './rules/07c-distillateBulkRefinement';
+import { tinctureRefinementRule } from './rules/07d-tinctureRefinement';
 import { otherParaphernaliaRule } from './rules/12-otherParaphernalia';
 import { precedenceResolutionRule } from './rules/90-precedenceResolution';
 
@@ -38,6 +39,7 @@ export const RULE_SEQUENCE: RuleFn[] = [
   seedsListingsRule,
   hashPrecedenceRule,
   distillateBulkRefinementRule,
+  tinctureRefinementRule,
   concentrateLatePrecedenceRule,
   otherParaphernaliaRule,
   precedenceResolutionRule,

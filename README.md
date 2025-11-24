@@ -1,6 +1,6 @@
 # LittleBiggy Items Index — Indexer, Crawler, and UI
 
-[Biggy Index](https://lbindex.vip)
+[Biggy Index](https://biggyindex.com)
 
 An independent, lightweight index of public listings on LittleBiggy, with search, categorization, and an improved UI. The index does not sell anything. It surfaces public data and links back to the original seller pages.
 

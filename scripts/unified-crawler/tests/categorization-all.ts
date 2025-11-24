@@ -96,6 +96,18 @@ const ediblesMisc: Case[] = [
   { name: 'Cannabis coconut oil', desc: 'Super strong Cannabis coconut oil mixed strains', expectPrimary: 'Edibles' },
 ];
 
+// Tincture / Cannadrops / AccuDose branded products
+const tinctureProducts: Case[] = [
+  { name: "Kush 'n' Cookies CBD 1:1 Cannadrops", desc: "A truly balanced medicinal strain with an impressive lineage, OG Kush x Girl Scout Cookies genetics resulted in a 50/50 indica / sativa strain with an almost equal amount of THC & CBD averaging 16% – 21% of each.", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "FECO blend 1:1 ratio Cannadrops", desc: "More potent than the whole plant infusions, these drops are made from full extract cannabis oil (FECO) with added peppermint oil. Infused with equal amounts of THC & CBD, these 1:1 ratio drops provide strong pain relief", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "FECO blend 10:1 ratio Cannadrops", desc: "More potent than the whole plant infusions, these drops are made from full extract cannabis oil (FECO) with added peppermint oil. Infused at a ratio of 10:1 THC:CBD, these drops offer strong neurological pain relief", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "Night Nurse Cannadrops", desc: "My own blend of the potent Sleepy Joe that was harvested to produce extra sedative CBN cannabinoids. Infused with Bubba Kush CBD, a relaxing, pain-relieving high CBD indica with around 16% CBD and less than 1% THC", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "Kush Mintz Cannadrops", desc: "Animal Mintz x Bubba Kush x Original Sensible Seeds Secret Hybrid. A mouth-watering cookie mint flavour strain which is 80% indica & 20% sativa averaging 20 – 25% THC. This strain is all about the body stone & clear-headed effects.", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "Day Nurse Cannadrops", desc: "My own blend of 3 different types of cannabis – 50% of Lemon CBD 1:1 (~17% THC, ~17% CBD), 25% of Pineapple Cookie Dough CBD (~13% CBD, <1% THC) and 25% of Amnesia haze (~20% THC). The strains have been chosen due to their uplifting terp…", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "AccuDose© 5000mg Live Resin Tincture - Gold Standard", desc: "Hello it's Mary We decided to put more focus on our 5000mg droppers They provide 10x the potency and duration of use in comparison to the 500mg counterpart 370 drops on the bottle means each drop will have a very healthy dose", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+  { name: "AccuDose© Live Fast Acting Sublingual Tincture 500MG", desc: "AccuDose© A Brand By Hemp Lady Focussing on accurate THC dosing for medical patients and using best ingredients for greater bioavailability and absorption. 2 Options Available 500mg Tincture Dropper or 1000mg", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
+];
+
 const allCases: Case[] = [
   ...flowerRefine,
   ...prerollRefinement,
@@ -105,6 +117,7 @@ const allCases: Case[] = [
   ...vapeOverrides,
   ...userListed2,
   ...ediblesMisc,
+  ...tinctureProducts,
 ];
 
 function run() {
