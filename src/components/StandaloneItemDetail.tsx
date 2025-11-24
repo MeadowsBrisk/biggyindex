@@ -74,7 +74,10 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
     const seen = new Set<string>();
     const out: string[] = [];
     for (const src of list as string[]) {
-      if (typeof src === 'string' && src && !seen.has(src)) { seen.add(src); out.push(src); }
+      if (typeof src === 'string' && src && !seen.has(src)) { 
+        seen.add(src); 
+        out.push(proxyImage(src)); 
+      }
     }
     return out;
   }, [detail, baseItem]);

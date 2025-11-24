@@ -387,7 +387,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       </div>
       <div className="p-[6px] pt-[4px] bg-[red]s pointer-events-none">
         {/* BODY (reserve space for footer) */}
-        <div className="pb-15 flex flex-col bg-[blue]s">
+        <div className="pb-17 lg:pb-15 flex flex-col">
           <button
             type="button"
             onMouseEnter={() => {

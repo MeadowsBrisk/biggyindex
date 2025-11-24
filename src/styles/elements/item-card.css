@@ -251,7 +251,7 @@ content: "";
 }
 
 .variant-pill {
-	@apply inline-flex items-center shrink-0 rounded-full px-[7px] py-0.5 text-[9px] bg-gray-100 dark:bg-gray-800
+	@apply inline-flex items-center shrink-0 rounded-full px-[7px] py-0.5 text-[11px] lg:text-[9px] bg-gray-100 dark:bg-gray-800
 	text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700;
 	scroll-snap-align: start;
 	white-space: nowrap;
