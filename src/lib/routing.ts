@@ -13,19 +13,6 @@ export const LOCALE_HOST: Record<string, string> = {
   'pt-PT': 'https://pt.biggyindex.com'
 };
 
-export const ITEM_SEGMENTS: Record<string, string> = {
-  fr: 'produit',
-  de: 'produkt',
-  it: 'prodotto',
-  pt: 'produto'
-};
-export const SELLER_SEGMENTS: Record<string, string> = {
-  fr: 'vendeur',
-  de: 'verkaeufer',
-  it: 'venditore',
-  pt: 'vendedor'
-};
-
 function short(locale: string): string { return (locale || '').split('-')[0]; }
 
 export function hostForLocale(locale: string): string {
@@ -33,12 +20,10 @@ export function hostForLocale(locale: string): string {
 }
 
 export function itemPathSegment(locale: string): string {
-  const s = ITEM_SEGMENTS[locale] || ITEM_SEGMENTS[short(locale)];
-  return s || 'item';
+  return 'item';
 }
 export function sellerPathSegment(locale: string): string {
-  const s = SELLER_SEGMENTS[locale] || SELLER_SEGMENTS[short(locale)];
-  return s || 'seller';
+  return 'seller';
 }
 
 export function buildItemUrl(ref: string, locale: string): string {

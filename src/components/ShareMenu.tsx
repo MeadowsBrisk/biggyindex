@@ -12,13 +12,14 @@ export default function ShareMenu({ url, title = 'Item', onClose }: Props) {
     if (!raw || typeof raw !== 'string') return raw;
     try {
       const u = new URL(raw);
-  // Accept our domains (including locale subdomains)
-  if (!/(^|\.)biggyindex\.com$/i.test(u.hostname)) return raw; // Only rewrite our domain(s)
+      // Accept our domains (including locale subdomains)
+      if (!/(^|\.)biggyindex\.com$/i.test(u.hostname)) return raw; // Only rewrite our domain(s)
       const path = u.pathname;
-      const refMatch = path.match(/^\/item\/(.+)$/);
-      const sellerMatch = path.match(/^\/seller\/(.+)$/);
-      if (refMatch) return buildItemUrl(refMatch[1], locale);
-      if (sellerMatch) return buildSellerUrl(sellerMatch[1], locale);
+      // Match both generic and any legacy localized segments
+      const refMatch = path.match(/^\/(item|produit|produkt|prodotto|produto)\/(.+)$/);
+      const sellerMatch = path.match(/^\/(seller|vendeur|verkaeufer|venditore|vendedor)\/(.+)$/);
+      if (refMatch) return buildItemUrl(refMatch[2], locale);
+      if (sellerMatch) return buildSellerUrl(sellerMatch[2], locale);
       return raw;
     } catch { return raw; }
   };
