@@ -73,7 +73,7 @@ interface HomeLandingProps {
   sellersIndex: any;
 }
 
-function mapItemForCard(item: any, timestamp: string | null): ItemCardLite {
+function mapItemForCard(item: any, timestamp: string | null, metaLabel: string | null = null): ItemCardLite {
   return {
     id: item.id ?? item.refNum ?? null,
     refNum: item.refNum ?? null,
@@ -82,7 +82,7 @@ function mapItemForCard(item: any, timestamp: string | null): ItemCardLite {
     sellerId: item.sellerId ?? null,
     category: item.category ?? 'Uncategorised',
     createdAt: timestamp ?? item.firstSeenAt ?? item.lastUpdatedAt ?? null,
-    metaLabel: null,
+    metaLabel,
     url: item.share ?? item.url ?? null,
     imageUrl: item.imageUrl ?? null,
     sellerImageUrl: null,
@@ -144,11 +144,11 @@ export async function buildHomeProps(market: string = 'GB') {
   const recentItems: RecentItemsProps = {
     added: ((recentItemsCompact as any)?.added || [])
       .map((it: any) => normalizeItem(it))
-      .map((it: any) => mapItemForCard(it, it.createdAt || null))
+      .map((it: any) => mapItemForCard(it, it.createdAt || null, 'added'))
       .slice(0, RECENT_ITEMS_LIMIT),
     updated: ((recentItemsCompact as any)?.updated || [])
       .map((it: any) => normalizeItem(it))
-      .map((it: any) => mapItemForCard(it, it.createdAt || null))
+      .map((it: any) => mapItemForCard(it, it.createdAt || null, 'updated'))
       .slice(0, RECENT_ITEMS_LIMIT),
   };
 

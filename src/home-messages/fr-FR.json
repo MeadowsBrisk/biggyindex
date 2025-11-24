@@ -8,9 +8,9 @@
         "added": "Ajoutés récemment",
         "updated": "Mis à jour récemment"
       },
-      "noImage": "Pas d’image",
+      "noImage": "Pas d'image",
       "badge": { "new": "Nouveau" },
-      "meta": { "added": "Ajouté" },
+      "meta": { "added": "Ajouté", "updated": "Mis à jour" },
       "fallback": {
         "sellerPending": "Vendeur en attente",
         "items": [

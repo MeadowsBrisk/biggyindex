@@ -215,7 +215,7 @@ export default function RecentItemsSection({ items }) {
                               <div className="min-w-0">
                                 <div className="truncate font-semibold text-slate-700 dark:text-white/80">{item.sellerName}</div>
                                 <div className="text-[10px] text-slate-500 dark:text-white/60">
-                                  {(item.metaLabel || tHome('recentItems.meta.added'))} {" "}
+                                  {item.metaLabel ? tHome(`recentItems.meta.${item.metaLabel}`) : tHome('recentItems.meta.added')} {" "}
                                   <span suppressHydrationWarning>{mounted && item.createdAt ? relativeCompact(item.createdAt, tRel) : ""}</span>
                                 </div>
                               </div>

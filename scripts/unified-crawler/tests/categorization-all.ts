@@ -108,6 +108,13 @@ const tinctureProducts: Case[] = [
   { name: "AccuDose© Live Fast Acting Sublingual Tincture 500MG", desc: "AccuDose© A Brand By Hemp Lady Focussing on accurate THC dosing for medical patients and using best ingredients for greater bioavailability and absorption. 2 Options Available 500mg Tincture Dropper or 1000mg", expectPrimary: 'Tincture', expectSub: 'Sublingual' },
 ];
 
+// Psychedelics - Magic Gummies (LSD gummies vs cannabis gummies)
+const psychedelicProducts: Case[] = [
+  { name: "Magic Gummies", desc: "Hello, fellow adventure seekers ;) We bring you our new Magic Gummies, each of them contains 100ug. Packs of 5. Please exercise caution and harm reduction practices when taking these! - CityCartel City products.", expectPrimary: 'Psychedelics', expectSub: 'Paper' },
+  // Ensure regular gummies still go to Edibles
+  { name: "THC Gummies 500mg", desc: "Delicious cannabis infused gummy bears, 500mg THC total, 10 pieces per pack", expectPrimary: 'Edibles' },
+];
+
 const allCases: Case[] = [
   ...flowerRefine,
   ...prerollRefinement,
@@ -118,6 +125,7 @@ const allCases: Case[] = [
   ...userListed2,
   ...ediblesMisc,
   ...tinctureProducts,
+  ...psychedelicProducts,
 ];
 
 function run() {

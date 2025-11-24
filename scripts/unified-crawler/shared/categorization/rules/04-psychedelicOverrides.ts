@@ -10,10 +10,23 @@ export function psychedelicOverridesRule(ctx: CatContext) {
   const growRegex = /(grow kit|grow kits|grow your own|heat mat|heat mats|flow unit|flow units|spawn|substrate)/;
   const microdoseRegex = /(micro ?dose|microdose|microdoses|microdosing|micro-dosing|micro-doses)/;
   const lsdCues = /(\blsd\b|\bacid\b|\bblotter\b|\btab\b|\bpaper\b|\blucy\b|albert\s+h[oa]f+mann?)/;
+  const magicGummies = /\bmagic\s+gummies?\b/;
 
   const hasMushroom = mushroomRegex.test(text);
   const hasEdibleForm = edibleFormRegex.test(text);
   const hasLsd = lsdCues.test(text);
+  const hasMagicGummies = magicGummies.test(text);
+
+  // Magic Gummies (LSD gummies) - handle early to prevent Edibles classification
+  if (hasMagicGummies) {
+    (subsByCat.Psychedelics ||= new Set()).add('Paper');
+    ctx.add('Psychedelics', 12); // Strong boost to overcome gummy signals
+    if (scores.Edibles) ctx.demote('Edibles', 10);
+    // Ensure Psychedelics wins over Edibles
+    if ((scores.Psychedelics || 0) <= (scores.Edibles || 0)) {
+      ctx.set('Psychedelics', (scores.Edibles || 0) + 3);
+    }
+  }
 
   if (hasMushroom) {
     (subsByCat.Psychedelics ||= new Set()).add('Mushrooms');

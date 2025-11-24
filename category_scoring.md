@@ -55,7 +55,8 @@ Do NOT reorder casually. New rules should normally slot just before late precede
 
 04-psychedelicOverrides.js
 - Aggregated mushroom edible/microdose/grow overrides. Demotes Edibles when mushroom edible context appears without cannabis edible signals. Adds microdose-only handling (no explicit mushroom token, no cannabis-edible signals) to boost Psychedelics and demote Edibles.
-- NEW: LSD “paper” override. Triggers on `lsd|acid|blotter|tab|paper|lucy|albert hofmann` and, if edible terms (gummies/choc/etc.) are present, strongly boosts Psychedelics.Paper and demotes Edibles to classify LSD candies correctly.
+- LSD "paper" override. Triggers on `lsd|acid|blotter|tab|paper|lucy|albert hofmann` and, if edible terms (gummies/choc/etc.) are present, strongly boosts Psychedelics.Paper and demotes Edibles to classify LSD candies correctly.
+- Magic Gummies override. Specifically detects "magic gummies" (LSD gummies) and classifies as Psychedelics.Paper (+12 boost, -10 Edibles demotion) to prevent misclassification as cannabis edibles. Regular THC/CBD gummies remain Edibles.
 
 05-ediblesVsFlowerDisambiguation.js
 - Dessert strain disambiguation: demote Edibles if only dessert-like tokens + strong flower context and no ingestion tokens; boosts Flower slightly.

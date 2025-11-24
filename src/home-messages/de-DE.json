@@ -179,7 +179,7 @@
       },
       "noImage": "Kein Bild",
       "badge": { "new": "Neu" },
-      "meta": { "added": "Hinzugefügt" },
+      "meta": { "added": "Hinzugefügt", "updated": "Aktualisiert" },
       "fallback": {
         "sellerPending": "Verkäufer ausstehend",
         "items": [

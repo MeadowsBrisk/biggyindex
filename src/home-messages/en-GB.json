@@ -205,7 +205,7 @@
       },
       "noImage": "No image",
       "badge": { "new": "New" },
-      "meta": { "added": "Added" },
+      "meta": { "added": "Added", "updated": "Updated" },
       "fallback": {
         "sellerPending": "Vendor pending",
         "items": [

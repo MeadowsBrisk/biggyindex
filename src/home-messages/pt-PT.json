@@ -179,7 +179,7 @@
       },
       "noImage": "Sem imagem",
       "badge": { "new": "Novo" },
-      "meta": { "added": "Adicionado" },
+      "meta": { "added": "Adicionado", "updated": "Atualizado" },
       "fallback": {
         "sellerPending": "Vendedor pendente",
         "items": [
