@@ -1009,9 +1009,16 @@
     "hash": "b75ba663da75",
     "poster": "/gif-cache/posters/b75ba663da75.jpg",
     "video": "/gif-cache/videos/b75ba663da75.mp4",
-    "width": 480,
-    "height": 400,
-    "frames": 187,
+    "status": "skipped",
+    "reason": "exists"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/IwFUMzhfaUxyFrex.gif": {
+    "hash": "1da2eafc42c4",
+    "poster": "/gif-cache/posters/1da2eafc42c4.jpg",
+    "video": "/gif-cache/videos/1da2eafc42c4.mp4",
+    "width": 450,
+    "height": 450,
+    "frames": 46,
     "status": "ok"
   }
 }

@@ -17,10 +17,14 @@ export function otherParaphernaliaRule(ctx: CatContext) {
   }
   
   // Genetics detection (clones, cuttings, seeds for sale - NOT flower with seeds or lineage info)
-  // Title patterns: Primary indicator that this is a genetics product
-  const geneticsTitlePattern = /(\bclone\b|\bclones\b|\bcloning\b|\bcutting\b|\bcuttings\b|\bseed\b|\bseeds\b|\bseedbank\b)/;
   
-  // Selling context: Strong indicators this is genetics FOR SALE (not just mentioned in lineage)
+  // Clone/cutting in title is a STRONG signal - these rarely appear in flower listings
+  const cloneCuttingTitlePattern = /(\bclone\b|\bclones\b|\bcloning\b|\bcutting\b|\bcuttings\b)/;
+  
+  // Seeds in title needs additional context to avoid false positives
+  const seedsTitlePattern = /(\bseed\b|\bseeds\b|\bseedbank\b)/;
+  
+  // Selling context: Strong indicators this is genetics FOR SALE (required for seeds)
   const geneticsSellingContext = /(ten pack|pack of \d+|feminized|autoflower|auto flower|germination|seedbay|regular seeds|photoperiod|mother plant|clone only|cutting only|rooted clone|unrooted|sex:\s*regular|sex:\s*feminized)/;
   
   // Exclude false positives: flower descriptions mentioning seeds/breeding as context
@@ -29,16 +33,21 @@ export function otherParaphernaliaRule(ctx: CatContext) {
   // Brand name genetics: "by [name] genetics" in title (case insensitive, handles punctuation)
   const brandGenetics = /\bby\s+[\w\s]+genetics[\s\.\,\!]?/i;
   
-  // Only classify as genetics if:
-  // 1. Title contains genetics terms AND selling context present, OR
-  // 2. Brand genetics pattern in title
-  // AND no flower-context exclusion patterns
-  const titleHasGenetics = geneticsTitlePattern.test(title);
+  // Classify as genetics if:
+  // 1. Title contains clone/cutting (strong signal, no additional context needed), OR
+  // 2. Title contains seeds AND selling context present AND no flower-context exclusions, OR
+  // 3. Brand genetics pattern in title
+  const titleHasCloneCutting = cloneCuttingTitlePattern.test(title);
+  const titleHasSeeds = seedsTitlePattern.test(title);
   const hasSellingContext = geneticsSellingContext.test(text);
   const hasBrandGenetics = brandGenetics.test(title);
   const hasFlowerContext = flowerContextExclusion.test(text);
   
-  if ((titleHasGenetics && hasSellingContext && !hasFlowerContext) || hasBrandGenetics) {
+  const isGenetics = titleHasCloneCutting || 
+                     (titleHasSeeds && hasSellingContext && !hasFlowerContext) || 
+                     hasBrandGenetics;
+  
+  if (isGenetics) {
     ctx.add('Other', 10);
     if (scores.Flower) ctx.demote('Flower', 8);
     if (scores.Hash) ctx.demote('Hash', 6);
