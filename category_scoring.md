@@ -309,12 +309,14 @@ Regression Goal: All new heuristics are now backed by explicit tests so future m
 ### Updates (2025-10-18)
 New paraphernalia handling and a trim refinement:
 
-1. Other → Bongs subcategory and rule
-    - Taxonomy: Added `Other.children.Bongs` (no keywords; subcategory emission is rule-driven to avoid description false positives).
-    - Rule: `12-otherParaphernalia.js` detects title-only `\bbong(s)?\b`, boosts Other (+12), demotes Flower/Concentrates/Vapes, and tags subcategory `Bongs`.
-    - Ordering: Rule placed late (just before precedence) to override incidental concentrate/flower tokens in descriptions.
-    - Precedence guard: `90-precedenceResolution.js` now treats Other as “explicitly matched” if any Other subcategory is set, preventing the guard from discarding a valid Bong classification merely because no Other keyword appears in text.
-    - Tests: `test-bongs-and-trim.js` covers five bong listings; all expect `Other` with `Bong` subcategory.
+1. Other → Bongs and Genetics subcategories and rule
+    - Taxonomy: Added `Other.children.Bongs` (no keywords; subcategory emission is rule-driven to avoid description false positives). Added `Other.children.Genetics` with keywords `["clone","clones","cutting","cuttings","seed","seeds","seedbank","genetics"]`.
+    - Rule: `12-otherParaphernalia.ts` detects:
+      - Bongs: title-only `\bbong(s)?\b`, boosts Other (+12), demotes Flower/Concentrates/Vapes, and tags subcategory `Bongs`.
+      - Genetics: Patterns for `clone|clones|cloning|cutting|cuttings|seed|seeds|seedbank` and brand genetics (`by [name] genetics`). Context indicators include `ten pack|feminized|autoflower|germination|breeding|lineage|regular seeds|photoperiod`. Boosts Other (+10), demotes Flower (-8) and Hash (-6), ensures Other > Flower by +3, and tags subcategory `Genetics`.
+    - Ordering: Rule placed late (just before precedence) to override incidental concentrate/flower tokens in descriptions, particularly strain names in genetics listings.
+    - Precedence guard: `90-precedenceResolution.js` now treats Other as "explicitly matched" if any Other subcategory is set, preventing the guard from discarding a valid Bong or Genetics classification merely because no Other keyword appears in text.
+    - Tests: `test-bongs-and-trim.js` covers five bong listings; all expect `Other` with `Bong` subcategory. `test-genetics-subcat.ts` covers seeds, clones, cuttings, and brand genetics patterns; all expect `Other` with `Genetics` subcategory.
 
 2. Trim / Sugar Leaf refinement
     - Expanded Flower.Shake tokens to include `sugar leaf`/`sugarleaf` in taxonomy.

@@ -993,9 +993,25 @@
     "hash": "ecda637e711e",
     "poster": "/gif-cache/posters/ecda637e711e.jpg",
     "video": "/gif-cache/videos/ecda637e711e.mp4",
-    "width": 380,
-    "height": 380,
-    "frames": 100,
+    "status": "skipped",
+    "reason": "exists"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/lllacDJAdnNRSMRn.gif": {
+    "hash": "99083ea6b3bd",
+    "poster": "/gif-cache/posters/99083ea6b3bd.jpg",
+    "video": "/gif-cache/videos/99083ea6b3bd.mp4",
+    "width": 480,
+    "height": 270,
+    "frames": 22,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/ZqNFoBzqBgiMywOm.gif": {
+    "hash": "b75ba663da75",
+    "poster": "/gif-cache/posters/b75ba663da75.jpg",
+    "video": "/gif-cache/videos/b75ba663da75.mp4",
+    "width": 480,
+    "height": 400,
+    "frames": 187,
     "status": "ok"
   }
 }

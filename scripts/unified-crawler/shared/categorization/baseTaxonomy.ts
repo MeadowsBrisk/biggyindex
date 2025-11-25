@@ -114,7 +114,13 @@ export const TAXONOMY: Taxonomy = {
       Microdose: ["microdose","microdoses","micro dosing","micro-dosing","micro dose","micro-doses","microdosing"],
     }
   },
-  Other: { keywords: ["mad honey","modafinil","blister","erectile","box","antibiotic","respiratory","Doxycycline"], children: { Bongs: [] } },
+  Other: { 
+    keywords: ["mad honey","modafinil","blister","erectile","box","antibiotic","respiratory","Doxycycline"], 
+    children: { 
+      Bongs: [],
+      Genetics: ["clone","clones","cutting","cuttings","seed","seeds","seedbank","genetics"]
+    } 
+  },
 };
 
 export default TAXONOMY;

@@ -104,9 +104,10 @@
       "spirit": "Esprit",
       "paper": "Papier",
       "mushrooms": "Champignons",
-      "grow": "Kits de culture",
-      "microdose": "Microdosage",
-      "edibles": "Comestibles"
+      "grow": "Kits culture",
+      "microdose": "Microdose",
+      "edibles": "Comestibles",
+      "genetics": "Génétique"
     }
   },
   "List": {

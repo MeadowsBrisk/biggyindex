@@ -104,9 +104,10 @@
       "spirit": "Spirito",
       "paper": "Carta",
       "mushrooms": "Funghi",
-      "grow": "Kit coltivazione",
+      "grow": "Kit coltura",
       "microdose": "Microdose",
-      "edibles": "Commestibili"
+      "edibles": "Commestibili",
+      "genetics": "Genetica"
     }
   },
   "List": {

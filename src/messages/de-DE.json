@@ -104,9 +104,10 @@
       "spirit": "Spirit",
       "paper": "Papier",
       "mushrooms": "Pilze",
-      "grow": "Grow-Kits",
-      "microdose": "Mikrodosierung",
-      "edibles": "Edibles"
+      "grow": "Zucht-Kits",
+      "microdose": "Mikrodosis",
+      "edibles": "Edibles",
+      "genetics": "Genetik"
     }
   },
   "List": {
