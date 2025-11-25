@@ -118,7 +118,7 @@ export const TAXONOMY: Taxonomy = {
     keywords: ["mad honey","modafinil","blister","erectile","box","antibiotic","respiratory","Doxycycline"], 
     children: { 
       Bongs: [],
-      Genetics: ["clone","clones","cutting","cuttings","seed","seeds","seedbank","genetics"]
+      Genetics: ["seedbank"] // Rule-driven like Bongs; "seed"/"seeds" removed to avoid false positives
     } 
   },
 };
