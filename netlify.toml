@@ -70,12 +70,19 @@
 
 
 
-# Orchestrator kept for manual triggers/dev; not scheduled to avoid overlap with stage-specific schedules
-# UPDATED: Now used as main scheduled orchestrator to reduce function invocations (5→1 per cycle)
-[functions."crawler-all-markets-background"]
-  # Run every 20 minutes - processes all markets in sequence (GB, DE, FR, IT, PT)
-  # This replaces 5 separate market schedules with 1 unified schedule
+# Lightweight index-only function for all markets (replaces 5 separate market schedules)
+# Does NOT run items/sellers/pruning - those have separate schedules
+[functions."index-all-markets-background"]
   schedule = "*/20 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
+# Full orchestrator - for manual triggers only, NOT scheduled
+# Runs index + items + sellers + pruning (very intensive)
+[functions."crawler-all-markets-background"]
+  # NO SCHEDULE - manual trigger only
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
