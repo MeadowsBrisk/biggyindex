@@ -20,6 +20,8 @@ import {
   favouritesOnlyAtom,
   freeShippingOnlyAtom,
   expandedRefNumAtom,
+  isrRecentReviewsAtom,
+  isrRecentMediaAtom,
 } from '@/store/atoms';
 import { fetchVotesActionAtom, prefetchAllVotesActionAtom } from '@/store/votesAtoms';
 import Sidebar from '@/components/Sidebar';
@@ -54,24 +56,142 @@ export const getStaticProps: GetStaticProps = async () => {
   const market = 'GB'; // Default market for static generation
   
   try {
-    const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/indexData');
+    const { getAllItems, getManifest, getSnapshotMeta, getRecentReviews, getRecentMedia, getItemImageLookup, getSellerImages, getRecentItemsCompact } = await import('@/lib/indexData');
     const { normalizeItems } = await import('@/lib/normalizeItem');
+    const { RECENT_REVIEWS_LIMIT } = await import('@/lib/constants');
     
-    const [rawItems, manifest, meta] = await Promise.all([
+    const [rawItems, manifest, meta, reviewsRaw, mediaRaw, itemImageLookup, recentItemsCompact, sellerImagesMap] = await Promise.all([
       getAllItems(market as any),
       getManifest(market as any),
       getSnapshotMeta(market as any),
+      getRecentReviews(market as any),
+      getRecentMedia(market as any),
+      getItemImageLookup(market as any),
+      getRecentItemsCompact(market as any),
+      getSellerImages(),
     ]);
     
     const items = normalizeItems(rawItems);
+    
+    // Process reviews (same logic as API route)
+    const imageByRefFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byRef || {}) as Record<string,string>));
+    const imageByIdFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byId || {}) as Record<string,string>));
+    try {
+      const lists = [recentItemsCompact?.added || [], recentItemsCompact?.updated || []];
+      for (const list of lists) {
+        for (const it of Array.isArray(list) ? list : []) {
+          const ref = it?.refNum ?? it?.id ?? null;
+          const img = it?.imageUrl || null;
+          if (ref != null && img) {
+            const key = String(ref);
+            if (!imageByRefFromRecent.has(key)) imageByRefFromRecent.set(key, img);
+          }
+          if (it?.id != null && img) {
+            const keyId = String(it.id);
+            if (!imageByIdFromRecent.has(keyId)) imageByIdFromRecent.set(keyId, img);
+          }
+        }
+      }
+    } catch {}
+    
+    const sellerImageById = new Map<number, string>();
+    for (const [k, v] of Object.entries(sellerImagesMap || {})) {
+      const id = Number(k);
+      if (Number.isFinite(id) && v) sellerImageById.set(id, String(v));
+    }
+    
+    const resolveCreated = (created: any): string | null => {
+      if (!created) return null;
+      if (typeof created === 'number') return new Date(created * 1000).toISOString();
+      const parsed = new Date(created);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    };
+    
+    const reviews = Array.isArray(reviewsRaw)
+      ? reviewsRaw.slice(0, RECENT_REVIEWS_LIMIT).map((review: any) => {
+          const ref = review?.item?.refNum;
+          const itemId = review?.item?.id;
+          const imageUrl =
+            review?.item?.imageUrl ||
+            (ref != null && imageByRefFromRecent.get(String(ref))) ||
+            (itemId != null && imageByIdFromRecent.get(String(itemId))) ||
+            null;
+          const sellerId = review?.sellerId ?? review?.seller?.id ?? null;
+          let sellerImageUrl: string | null = null;
+          if (sellerId != null) sellerImageUrl = sellerImageById.get(Number(sellerId)) || null;
+          return {
+            ...review,
+            createdAt: review?.created ? resolveCreated(review.created) : null,
+            itemName: review?.item?.name || 'Unknown item',
+            refNum: review?.item?.refNum || null,
+            itemImageUrl: imageUrl ?? null,
+            sellerImageUrl,
+          };
+        })
+      : [];
+    
+    // Process media entries (same logic as API route recent-media.ts)
+    const media: any[] = Array.isArray(mediaRaw)
+      ? mediaRaw
+          .slice(0, 40)
+          .map((entry: any, index: number) => {
+            if (!entry || !Array.isArray(entry.segments)) return null;
+
+            const textSnippet = entry.segments
+              .filter((segment: any) => segment && segment.type === 'text' && typeof segment.value === 'string')
+              .map((segment: any) => segment.value)
+              .join('')
+              .replace(/\s+/g, ' ')
+              .trim();
+
+            const images = entry.segments
+              .filter((segment: any) => segment && segment.type === 'image' && segment.url)
+              .map((segment: any) => segment.url)
+              .filter(Boolean);
+
+            if (!images.length) return null;
+
+            const ref = entry.item?.refNum;
+            const itemId = entry.item?.id;
+            const itemImageUrl =
+              entry.item?.imageUrl ||
+              (ref != null && imageByRefFromRecent.get(String(ref))) ||
+              (itemId != null && imageByIdFromRecent.get(String(itemId))) ||
+              null;
+
+            const sellerId = entry.sellerId ?? entry.seller?.id ?? null;
+            let sellerImageUrl: string | null = null;
+            if (sellerId != null) {
+              sellerImageUrl = sellerImageById.get(Number(sellerId)) || null;
+            }
+
+            return {
+              id: entry.id ?? `media-${index}`,
+              images,
+              sellerName: entry.sellerName || 'Unknown seller',
+              rating: typeof entry.rating === 'number' ? entry.rating : null,
+              daysToArrive: Number.isFinite(entry.daysToArrive) ? entry.daysToArrive : null,
+              createdAt: entry.created ? new Date(entry.created * 1000).toISOString() : null,
+              itemName: entry.item?.name || 'Unknown item',
+              refNum: entry.item?.refNum || null,
+              itemImageUrl: itemImageUrl ?? null,
+              text: textSnippet || null,
+              sellerId: entry.sellerId ?? null,
+              sellerImageUrl,
+            };
+          })
+          .filter(Boolean) as any[]
+      : [];
     
     return {
       props: {
         initialItems: items,
         initialManifest: manifest,
         snapshotMeta: meta,
+        initialRecentReviews: reviews,
+        initialRecentMedia: media,
       },
-      revalidate: 1000, // Rebuild every 20 minutes (aligns with crawler cadence)
+      revalidate: 1000, // Rebuild every ~16 minutes (aligns with crawler cadence)
     };
   } catch (e) {
     console.error('[ISR] Failed to fetch data:', e);
@@ -81,6 +201,8 @@ export const getStaticProps: GetStaticProps = async () => {
         initialItems: [],
         initialManifest: { categories: {}, totalItems: 0 },
         snapshotMeta: null,
+        initialRecentReviews: [],
+        initialRecentMedia: [],
       },
       revalidate: 1000,
     };
@@ -92,9 +214,11 @@ type HomeProps = {
   initialItems?: any[];
   initialManifest?: any;
   snapshotMeta?: any;
+  initialRecentReviews?: any[];
+  initialRecentMedia?: any[];
 };
 
-export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, snapshotMeta }: HomeProps): React.ReactElement {
+export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, snapshotMeta, initialRecentReviews = [], initialRecentMedia = [] }: HomeProps): React.ReactElement {
   const router = useRouter();
   const tList = useTranslations('List');
   const tSidebar = useTranslations('Sidebar');
@@ -114,6 +238,18 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const refHydrated = React.useRef(false);
   const categoryHydrated = React.useRef(false);
   const isrHydrated = React.useRef(false);
+  // Track if we're waiting for URL category to be applied (prevents flash of unfiltered content)
+  // Initialize from URL on client to prevent flash before router.isReady
+  const [pendingUrlCategory, setPendingUrlCategory] = React.useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('cat');
+      return cat && cat.toLowerCase() !== 'all' ? cat : null;
+    } catch {
+      return null;
+    }
+  });
 
   React.useEffect(() => {
     const homePath = (() => {
@@ -156,6 +292,8 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       // Convert lowercase URL to proper case (e.g., 'flower' -> 'Flower')
       const properCaseCat = urlCat.charAt(0).toUpperCase() + urlCat.slice(1).toLowerCase();
       if (properCaseCat !== category) {
+        // Set pending state to show loader until filtering completes
+        setPendingUrlCategory(properCaseCat);
         setCategory(properCaseCat);
       }
     }
@@ -261,6 +399,8 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const { narrow } = useNarrowLayout();
   const setAllItems = useSetAtom(setAllItemsAtom as any);
   const allItems = useAtomValue<any[]>(allItemsAtom as any);
+  const setIsrRecentReviews = useSetAtom(isrRecentReviewsAtom as any);
+  const setIsrRecentMedia = useSetAtom(isrRecentMediaAtom as any);
   const { currency, setCurrency } = useDisplayCurrency();
   const { locale } = useLocale();
   const localeCurrency = React.useMemo(() => {
@@ -281,7 +421,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     }
   }, [sortKey, endorsementsReady]);
 
-  const loadingUi = isLoading || manifestLoading || (sortKey === 'endorsements' && !endorsementsReady && !maxWaitElapsed && lastVotesSigCache === '');
+  const loadingUi = isLoading || manifestLoading || pendingUrlCategory !== null || (sortKey === 'endorsements' && !endorsementsReady && !maxWaitElapsed && lastVotesSigCache === '');
 
   // ISR Hydration: Use server-rendered data on initial load, fall back to API only if needed
   useEffect(() => {
@@ -295,18 +435,43 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       setManifest(initialManifest);
     }
     
-    // Hydrate items from ISR props (only for 'All' category on initial load)
-    if (initialItems && initialItems.length > 0 && category === 'All') {
-      setItems(initialItems);
-      setAllItems(initialItems);
-      setIsLoading(false);
+    // Check if URL has a category filter - parse directly from window.location for reliability
+    // router.query may not be ready yet during initial hydration
+    let hasUrlCategory = false;
+    if (typeof window !== 'undefined') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const urlCat = params.get('cat');
+        hasUrlCategory = !!(urlCat && urlCat.toLowerCase() !== 'all');
+      } catch {}
     }
-  }, [initialManifest, initialItems, setManifest, setItems, setAllItems, setIsLoading, category]);
+    
+    // Hydrate items from ISR props
+    if (initialItems && initialItems.length > 0) {
+      // Always cache all items for filtering
+      setAllItems(initialItems);
+      
+      // Only set displayed items if no URL category filter (otherwise loadItems will filter)
+      if (!hasUrlCategory && category === 'All') {
+        setItems(initialItems);
+        setIsLoading(false);
+      }
+    }
+    
+    // Hydrate recent reviews/media from ISR props (for modal)
+    if (initialRecentReviews && initialRecentReviews.length > 0) {
+      setIsrRecentReviews(initialRecentReviews);
+    }
+    if (initialRecentMedia && initialRecentMedia.length > 0) {
+      setIsrRecentMedia(initialRecentMedia);
+    }
+  }, [initialManifest, initialItems, initialRecentReviews, initialRecentMedia, setManifest, setItems, setAllItems, setIsLoading, setIsrRecentReviews, setIsrRecentMedia, category]);
 
   useEffect(() => {
     // Fetch manifest from API only if ISR data missing
     // Skip if already have manifest OR if ISR hasn't attempted to hydrate yet
-    if (manifest && Object.keys(((manifest as any).categories || {}).length > 0)) return;
+    const hasValidManifest = manifest && Object.keys((manifest as any).categories || {}).length > 0;
+    if (hasValidManifest) return;
     if (!isrHydrated.current) return;
     
     let cancelled = false;
@@ -325,44 +490,52 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     const loadItems = async () => {
       if (!manifest) return;
       
-      // If switching back to 'All' and we already have all items cached, use them
-      if (category === 'All' && allItems.length > 0) {
-        setItems(allItems);
+      // If we have allItems cached, filter locally instead of API call
+      if (allItems.length > 0) {
+        if (category === 'All') {
+          setItems(allItems);
+        } else {
+          // Client-side category filtering - eliminates API calls
+          const filtered = allItems.filter((item: any) => {
+            const itemCat = (item.category || '').toLowerCase();
+            const targetCat = category.toLowerCase();
+            return itemCat === targetCat;
+          });
+          setItems(filtered);
+        }
         setIsLoading(false);
+        // Clear pending URL category state once filtering is complete
+        if (pendingUrlCategory && category.toLowerCase() === pendingUrlCategory.toLowerCase()) {
+          setPendingUrlCategory(null);
+        }
         return;
       }
       
+      // Fallback: fetch from API only when allItems not available
       setIsLoading(true);
       let items: any[] = [];
       
-      if (category === 'All' || !(manifest as any).categories) {
-        try {
-          const r = await fetch(`/api/index/items?mkt=${market}`);
-          if (r.ok) {
-            const data = await r.json();
-            items = Array.isArray(data.items) ? data.items : [];
-          }
-        } catch {}
-        // No filesystem fallback in blobs-only mode
-      } else {
-        try {
-          const r = await fetch(`/api/index/category/${encodeURIComponent(category)}?mkt=${market}`);
-          if (r.ok) {
-            const data = await r.json();
-            items = Array.isArray(data.items) ? data.items : [];
-          }
-        } catch {}
-      }
-      // Set items immediately (already normalized with reviewStats from API)
+      try {
+        const r = await fetch(`/api/index/items?mkt=${market}`);
+        if (r.ok) {
+          const data = await r.json();
+          items = Array.isArray(data.items) ? data.items : [];
+        }
+      } catch {}
+      
+      // Set items and cache the full dataset
       setItems(items);
-      // If we are on All OR allItems not yet populated, seed full dataset.
-      if ((category === 'All' && items.length) || (allItems.length === 0 && items.length && category === 'All')) {
+      if (items.length > 0) {
         setAllItems(items);
       }
       setIsLoading(false);
+      // Clear pending URL category state
+      if (pendingUrlCategory) {
+        setPendingUrlCategory(null);
+      }
     };
     loadItems();
-  }, [manifest, category, setItems, setIsLoading, setAllItems, allItems, market]);
+  }, [manifest, category, setItems, setIsLoading, setAllItems, allItems, market, pendingUrlCategory]);
 
   // Background full-dataset fetch (once) to stabilize category counts when user starts in a specific category other than All.
   useEffect(() => {

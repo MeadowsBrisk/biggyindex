@@ -451,6 +451,9 @@ export const expandedSellerIdAtom = atom<number | string | null>(null);
 export const sellerAnalyticsOpenAtom = atom<boolean>(false);
 // Latest reviews modal (boolean)
 export const latestReviewsModalOpenAtom = atom<boolean>(false);
+// ISR-hydrated recent reviews/media data (set from getStaticProps, used by modal)
+export const isrRecentReviewsAtom = atom<any[] | null>(null);
+export const isrRecentMediaAtom = atom<any[] | null>(null);
 // Overlay z-index coordination: track stacking history
 export const topOverlayAtom = atom<string[]>([]);
 export const pushOverlayAtom = atom<null, [string], void>(null, (get: any, set: any, layer: string) => {

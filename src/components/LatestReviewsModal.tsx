@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { useAtom, useSetAtom } from 'jotai';
-import { latestReviewsModalOpenAtom, expandedSellerIdAtom, pushOverlayAtom } from '@/store/atoms';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
+import { latestReviewsModalOpenAtom, expandedSellerIdAtom, pushOverlayAtom, isrRecentReviewsAtom, isrRecentMediaAtom } from '@/store/atoms';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { proxyImage } from '@/lib/images';
@@ -144,6 +144,8 @@ export type CombinedReview = {
 
 export default function LatestReviewsModal(): React.ReactElement | null {
   const [open, setOpen] = useAtom<boolean>(latestReviewsModalOpenAtom as any);
+  const isrReviews = useAtomValue<any[] | null>(isrRecentReviewsAtom as any);
+  const isrMedia = useAtomValue<any[] | null>(isrRecentMediaAtom as any);
   const router = useRouter();
   const [imagePreviewSignal, setImagePreviewSignal] = useState<any>(null);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -174,10 +176,19 @@ export default function LatestReviewsModal(): React.ReactElement | null {
     };
   }, [open, setOpen]);
 
-  // Fetch data when modal opens
+  // Fetch data when modal opens - use ISR data first, fallback to API
   useEffect(() => {
     if (!open) return;
     
+    // Use ISR data if available (pre-rendered, no API call needed)
+    if (isrReviews && isrReviews.length > 0) {
+      setReviews(isrReviews);
+      setMediaEntries(isrMedia || []);
+      setLoading(false);
+      return;
+    }
+    
+    // Fallback to API fetch only if ISR data not available
     setLoading(true);
     
     const mkt = getMarketFromPath(typeof window !== 'undefined' ? window.location.pathname : '/');
@@ -194,7 +205,7 @@ export default function LatestReviewsModal(): React.ReactElement | null {
       .catch(() => {
         setLoading(false);
       });
-  }, [open]);
+  }, [open, isrReviews, isrMedia]);
 
   // If the modal is closed while on its SEO route, normalize the URL back to '/'
   useEffect(() => {

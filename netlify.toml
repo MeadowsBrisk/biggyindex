@@ -71,55 +71,60 @@
 
 
 # Orchestrator kept for manual triggers/dev; not scheduled to avoid overlap with stage-specific schedules
+# UPDATED: Now used as main scheduled orchestrator to reduce function invocations (5→1 per cycle)
 [functions."crawler-all-markets-background"]
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
-
-
-[functions."crawler-index-gb"]
-  # Run every 20 minutes (baseline cadence) on :00, :20, :40
-  # Cron format: m h dom mon dow
-  # */20 in the minutes field = every 20 minutes
+  # Run every 20 minutes - processes all markets in sequence (GB, DE, FR, IT, PT)
+  # This replaces 5 separate market schedules with 1 unified schedule
   schedule = "*/20 * * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
   ]
 
+
+# Individual market indexers - DISABLED in favor of unified orchestrator
+# Keeping configuration commented for rollback if needed
+
+#[functions."crawler-index-gb"]
+#  # Run every 20 minutes (baseline cadence) on :00, :20, :40
+#  schedule = "*/20 * * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
+
 # Staggered per-market indexers: each runs every 30 minutes, offset by 1 minute to avoid overlap
-[functions."crawler-index-fr"]
-  # Staggered: every 20 minutes offset at :01, :21, :41 to avoid overlap with GB
-  schedule = "1,21,41 * * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
+#[functions."crawler-index-fr"]
+#  # Staggered: every 20 minutes offset at :01, :21, :41 to avoid overlap with GB
+#  schedule = "1,21,41 * * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
 
-[functions."crawler-index-de"]
-  # Staggered: every 20 minutes offset at :02, :22, :42
-  schedule = "2,22,42 * * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
+#[functions."crawler-index-de"]
+#  # Staggered: every 20 minutes offset at :02, :22, :42
+#  schedule = "2,22,42 * * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
 
-[functions."crawler-index-it"]
-  # Staggered: every 20 minutes offset at :03, :23, :43
-  schedule = "3,23,43 * * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
+#[functions."crawler-index-it"]
+#  # Staggered: every 20 minutes offset at :03, :23, :43
+#  schedule = "3,23,43 * * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
 
-[functions."crawler-index-pt"]
-  # Staggered: every 20 minutes offset at :04, :24, :44
-  schedule = "4,24,44 * * * *"
-  node_bundler = "esbuild"
-  included_files = [
-    "scripts/unified-crawler/**"
-  ]
+#[functions."crawler-index-pt"]
+#  # Staggered: every 20 minutes offset at :04, :24, :44
+#  schedule = "4,24,44 * * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
 
 
 ### Unified background stages (items and sellers) on separate schedules
