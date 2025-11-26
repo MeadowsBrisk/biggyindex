@@ -177,6 +177,35 @@ export async function processSingleItem(
       if (!(k in merged)) (merged as any)[k] = v;
     }
 
+    // CRITICAL: Don't write minimal/empty JSONs that would lose data
+    // If we have no reviews AND no description AND base was empty, this is a failed crawl
+    // Writing would create a minimal stub that could overwrite good data on retry
+    const hasReviews = Array.isArray(merged.reviews) && merged.reviews.length > 0;
+    const hasDescription = typeof merged.description === 'string' && merged.description.length > 0;
+    const hasExistingData = base && (
+      (Array.isArray(base.reviews) && base.reviews.length > 0) ||
+      (typeof base.description === 'string' && base.description.length > 0)
+    );
+    
+    if (!hasReviews && !hasDescription && !hasExistingData) {
+      // All fetches failed and no existing data to preserve - abort write
+      const errMsg = `All fetches failed for ${itemId} - aborting write to prevent data loss. Errors: ${errors.join(', ')}`;
+      console.warn(`${prefix} CRITICAL: ${errMsg}`);
+      return {
+        ok: false,
+        itemId,
+        reviewsWritten: false,
+        descriptionWritten: false,
+        shippingWritten: 0,
+        errors: [errMsg, ...errors],
+      };
+    }
+    
+    // Log warning if fetches failed but we're preserving existing data
+    if (hasExistingData && !reviewsWritten && !descriptionWritten) {
+      console.warn(`${prefix} WARNING: Fetches failed for ${itemId}, preserving existing data. Errors: ${errors.join(', ')}`);
+    }
+
     // Single write for core
     await sharedBlob.putJSON(key, merged);
   const descLen = merged.description ? (merged.descriptionMeta && (merged.descriptionMeta as any).length) || merged.description.length : 0;
