@@ -10,6 +10,7 @@ import { fetchItemDescription } from "./details";
 import { extractMarketShipping } from "./shipping";
 import { fetchItemShareLink } from "./share";
 import { loadShippingMeta, isShippingStale, updateShippingMeta, saveShippingMeta, type ShippingMetaAggregate } from "./shippingMeta";
+import { log } from "../../shared/logging/logger";
 
 export interface ProcessItemResult {
   ok: boolean;
@@ -52,7 +53,7 @@ export async function processSingleItem(
       existing = await sharedBlob.getJSON<any>(key);
     } catch (e: any) {
       existingLoadFailed = true;
-      console.warn(`${prefix} CRITICAL: failed to load existing item id=${itemId} - aborting to prevent data loss: ${e?.message || e}`);
+      log.items.error(`CRITICAL: failed to load existing item - aborting to prevent data loss`, { id: itemId, reason: e?.message || String(e) });
       throw new Error(`Failed to load existing item data - cannot proceed safely to prevent data loss`);
     }
     
@@ -190,7 +191,7 @@ export async function processSingleItem(
     if (!hasReviews && !hasDescription && !hasExistingData) {
       // All fetches failed and no existing data to preserve - abort write
       const errMsg = `All fetches failed for ${itemId} - aborting write to prevent data loss. Errors: ${errors.join(', ')}`;
-      console.warn(`${prefix} CRITICAL: ${errMsg}`);
+      log.items.error(`CRITICAL: all fetches failed, aborting write`, { id: itemId, errors: errors.join(', ') });
       return {
         ok: false,
         itemId,
@@ -203,7 +204,7 @@ export async function processSingleItem(
     
     // Log warning if fetches failed but we're preserving existing data
     if (hasExistingData && !reviewsWritten && !descriptionWritten) {
-      console.warn(`${prefix} WARNING: Fetches failed for ${itemId}, preserving existing data. Errors: ${errors.join(', ')}`);
+      log.items.warn(`fetches failed, preserving existing data`, { id: itemId, errors: errors.join(', ') });
     }
 
     // Single write for core
@@ -212,7 +213,7 @@ export async function processSingleItem(
     const revCount = Array.isArray(merged.reviews) ? merged.reviews.length : 0;
   // Enhanced logging: include share reuse/generation info and placeholder for shipping summary counts
   const shareStatus = shareWritten ? 'share=new' : (merged.sl ? 'share=reused' : 'share=none');
-  console.log(`${prefix} stored id=${itemId} descLen=${descLen} reviews=${revCount}${descriptionWritten?" full=1":""} ${shareStatus}`);
+  log.items.info(`stored`, { id: itemId, descLen, reviews: revCount, full: descriptionWritten ? 1 : 0, shareStatus });
 
     // Load shipping metadata aggregate (needed for both full and reviews-only modes)
     const shippingMetaAgg = await loadShippingMeta(sharedBlob);
@@ -226,9 +227,9 @@ export async function processSingleItem(
       const marketsToRefresh = (needsRefresh || forceRefreshShipping) ? (forceRefreshShipping ? targetMarkets : staleMarkets) : [];
       
       if (marketsToRefresh.length === 0) {
-        console.log(`${prefix} shipping skipped id=${itemId} markets=${targetMarkets.join(',')} (fresh)`);
+        log.items.info(`shipping skipped`, { id: itemId, markets: targetMarkets.join(','), reason: 'fresh' });
       } else {
-        console.log(`${prefix} shipping start id=${itemId} markets=${marketsToRefresh.join(',')} (${forceRefreshShipping ? 'forced' : staleMarkets.length < targetMarkets.length ? 'stale-only' : 'sequential'})`);
+        log.items.info(`shipping start`, { id: itemId, markets: marketsToRefresh.join(','), mode: forceRefreshShipping ? 'forced' : staleMarkets.length < targetMarkets.length ? 'stale-only' : 'sequential' });
         
         // Track markets actually refreshed (for metadata update)
         const marketsRefreshed: MarketCode[] = [];
@@ -262,7 +263,7 @@ export async function processSingleItem(
         shipSummaryByMarket['GB'] = { min, max, free };
       }
       
-      console.log(`${prefix} shipping cached id=${itemId} market=GB options=${gbShipping.options.length} warns=from_description`);
+      log.items.info(`shipping cached`, { id: itemId, market: 'GB', options: gbShipping.options.length, warns: 'from_description' });
       
       // Remove GB from markets to refresh (already handled via cache)
           const gbIndex = marketsToRefresh.indexOf('GB');
@@ -281,7 +282,7 @@ export async function processSingleItem(
             if (res.ok) {
               shippingResult = { options: res.options || [], warnings: res.warnings };
             } else {
-              console.warn(`${prefix} shipping failed id=${itemId} market=${mkt} err=${res.error || 'unknown'}`);
+              log.items.warn(`shipping failed`, { id: itemId, market: mkt, err: res.error || 'unknown' });
               errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
               continue;
             }
@@ -303,7 +304,7 @@ export async function processSingleItem(
               const warnStr = (Array.isArray(payload.warnings) && payload.warnings.length)
                 ? ` warns=${payload.warnings.join(',')}`
                 : '';
-              console.log(`${prefix} shipping stored id=${itemId} market=${mkt} options=${payload.options.length}${warnStr}`);
+              log.items.info(`shipping stored`, { id: itemId, market: mkt, options: payload.options.length, warns: warnStr.trim() || undefined });
               
               // Compute compact summary for aggregator
               const costs = shippingResult.options.map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
@@ -315,7 +316,7 @@ export async function processSingleItem(
               }
             }
           } catch (e: any) {
-            console.warn(`${prefix} shipping error id=${itemId} market=${mkt} ${e?.message || e}`);
+            log.items.warn(`shipping error`, { id: itemId, market: mkt, reason: e?.message || String(e) });
             errors.push(`shipping:${mkt}:${e?.message || String(e)}`);
           }
         }
@@ -334,7 +335,7 @@ export async function processSingleItem(
         const byMkt = Object.entries(shipSummaryByMarket)
           .map(([m, s]) => `${m}:${s.min}-${s.max}${s.free ? ' free' : ''}`)
           .join(' ');
-        console.log(`${prefix} shipping done id=${itemId} wrote=${shippingWritten} ${byMkt}`);
+        log.items.info(`shipping done`, { id: itemId, wrote: shippingWritten, summary: byMkt });
       }
     }
 

@@ -6,6 +6,7 @@ import { Keys } from "../../shared/persistence/keys";
 import { fetchFirstReviews } from "./reviews";
 import { fetchItemDescription } from "./details";
 import { extractMarketShipping } from "./shipping";
+import { log } from "../../shared/logging/logger";
 
 export interface ItemBatchResult {
   processed: number;
@@ -36,7 +37,7 @@ export async function processItemBatch(
       // Fetch and store reviews (shared core)
       const res = await fetchFirstReviews(authedClient, refNum, Number(process.env.CRAWLER_REVIEW_FETCH_SIZE || 100));
       if (!res.ok) {
-        console.warn(`[items] reviews failed id=${refNum} err=${res.error}`);
+        log.items.warn(`reviews failed`, { id: refNum, err: res.error });
       } else {
         const key = Keys.shared.itemCore(refNum);
         const existing = (await sharedBlob.getJSON<any>(key)) || {};
@@ -49,7 +50,7 @@ export async function processItemBatch(
         };
         await sharedBlob.putJSON(key, merged);
         reviewsWritten++;
-        console.info(`[items] reviews stored id=${refNum} total=${res.total} stored=${res.stored}`);
+        log.items.info(`reviews stored`, { id: refNum, total: res.total, stored: res.stored });
       }
 
       // Fetch and store description (shared core)
@@ -67,12 +68,12 @@ export async function processItemBatch(
           };
           await sharedBlob.putJSON(key, merged);
           descriptionsWritten++;
-          console.info(`[items] description stored id=${refNum} len=${desc?.meta?.length ?? desc.description.length}`);
+          log.items.info(`description stored`, { id: refNum, len: desc?.meta?.length ?? desc.description.length });
         } else {
-          console.warn(`[items] description failed id=${refNum} err=${desc.error}`);
+          log.items.warn(`description failed`, { id: refNum, err: desc.error });
         }
       } catch (e: any) {
-        console.warn(`[items] description error id=${refNum} ${e?.message || e}`);
+        log.items.warn(`description error`, { id: refNum, reason: e?.message || String(e) });
       }
 
       // Shipping: fetch per markets where the item appears (presence-based)
@@ -81,7 +82,7 @@ export async function processItemBatch(
         try {
           const resShip = await extractMarketShipping(authedClient, refNum, mkt);
           if (!resShip.ok) {
-            console.warn(`[items] shipping failed id=${refNum} market=${mkt} err=${resShip.error}`);
+            log.items.warn(`shipping failed`, { id: refNum, market: mkt, err: resShip.error });
             continue;
           }
           const marketStore = (env.stores as any)[mkt];
@@ -96,15 +97,15 @@ export async function processItemBatch(
           };
           await marketBlob.putJSON(shipKey, payload);
           shippingWritten++;
-          console.info(`[items] shipping stored id=${refNum} market=${mkt} options=${payload.options.length}`);
+          log.items.info(`shipping stored`, { id: refNum, market: mkt, options: payload.options.length });
         } catch (e: any) {
-          console.warn(`[items] shipping error id=${refNum} market=${mkt} ${e?.message || e}`);
+          log.items.warn(`shipping error`, { id: refNum, market: mkt, reason: e?.message || String(e) });
         }
       }
 
       processed++;
     } catch (e: any) {
-      console.warn(`[items] batch error id=${refNum} ${e?.message || e}`);
+      log.items.warn(`batch error`, { id: refNum, reason: e?.message || String(e) });
     }
   }
 

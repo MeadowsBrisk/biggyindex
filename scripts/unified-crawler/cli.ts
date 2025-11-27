@@ -16,6 +16,7 @@ import { Keys } from './shared/persistence/keys';
 import { getBlobClient } from './shared/persistence/blobs';
 import { marketStore } from './shared/env/markets';
 import { ensureAuthedClient } from './shared/http/authedClient';
+import { log, timer } from './shared/logging/logger';
 
 const argv = yargs(hideBin(process.argv))
   .scriptName('unified-crawler')
@@ -82,39 +83,39 @@ async function main() {
   const started = Date.now();
   const since = (t: number) => Math.round((Date.now() - t) / 1000);
 
-  console.log(`[cli] start stage=${stage} markets=${markets.join(',')} persist=${process.env.CRAWLER_PERSIST || 'auto'}`);
+  log.cli.info(`start`, { stage, markets: markets.join(','), persist: process.env.CRAWLER_PERSIST || 'auto' });
 
   try {
     if (stage === 'index' || stage === 'all') {
       const t0 = Date.now();
       let total = 0;
       for (const m of markets) {
-        console.log(`[cli:index] market=${m}`);
+        log.index.info(`market`, { market: m });
         try {
           const res = await indexMarket(m);
           total += Number(res?.counts?.items || 0);
-          console.log(`[cli:index] done market=${m} items=${res?.counts?.items ?? 0}`);
+          log.index.info(`done`, { market: m, items: res?.counts?.items ?? 0 });
         } catch (e: any) {
-          console.error(`[cli:index] error market=${m}:`, e?.message || e);
+          log.index.error(`error`, { market: m, reason: e?.message || String(e) });
         }
       }
-      console.log(`[cli:index] all markets done totalItems=${total} in ${since(t0)}s`);
+      log.index.info(`all markets done`, { totalItems: total, secs: since(t0) });
     }
 
     if (stage === 'cat-tests') {
       const t0 = Date.now();
-      console.log(`[cli:tests] categorization tests start`);
+      log.cli.info(`categorization tests start`);
       const { runUnifiedCategorizationRegressions } = await import('./tests/categorization-regressions');
       const reg = await runUnifiedCategorizationRegressions();
       const { runAllCategorizationTests } = await import('./tests/categorization-all');
       try { await runAllCategorizationTests(); } catch { /* exit code set by test file */ }
-      console.log(`[cli:tests] done unifiedFail=${reg.fail} in ${since(t0)}s`);
+      log.cli.info(`tests done`, { unifiedFail: reg.fail, secs: since(t0) });
       process.exit(reg.fail ? 1 : 0);
     }
 
     if (stage === 'items' || stage === 'all') {
       const t0 = Date.now();
-  console.log(`[cli:items] build worklist...`);
+  log.items.info(`build worklist`);
   const work = await buildItemsWorklist(markets);
   const forceAll = !!argv.force || /^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_FORCE||''));
   const explicitLimit = (typeof argv.limit === 'number' && argv.limit > 0) ? argv.limit : undefined;
@@ -163,7 +164,7 @@ async function main() {
   if (argv.ids) {
     const filterIds = String(argv.ids).split(',').map(s => s.trim()).filter(Boolean);
     planned = planned.filter(item => filterIds.includes(item.id));
-    console.log(`[cli:items] filtered by --ids: ${planned.length} items matching [${filterIds.join(', ')}]`);
+    log.items.info(`filtered by --ids`, { count: planned.length, ids: filterIds.join(', ') });
   }
 
   // Apply limit only if explicitly provided via CLI; otherwise process all planned
@@ -172,7 +173,7 @@ async function main() {
       const revCt = toProcess.length - fullCt;
       const desired = (typeof argv.concurrency === 'number' && argv.concurrency > 0) ? argv.concurrency : (env.maxParallel || 6);
   const limitNote = explicitLimit ?? 'none';
-  console.log(`[cli:items] toProcess=${toProcess.length} full=${fullCt} reviews=${revCt} (limit=${limitNote}) concurrency=${desired} force=${forceAll ? 1 : 0}`);
+  log.items.info(`planning`, { toProcess: toProcess.length, full: fullCt, reviews: revCt, limit: limitNote, concurrency: desired, force: forceAll ? 1 : 0 });
 
   // Establish a single authenticated client (reuses persisted cookies; falls back to anon if creds missing)
   const { client: httpClient } = await ensureAuthedClient();
@@ -220,15 +221,15 @@ async function main() {
             fail++;
           }
           const pos = positionById.get(entry.id) || processed;
-          console.log(`[cli:item:time] (${pos}/${total}) id=${entry.id} mode=${entry.mode} dur=${ms}ms ${(ms/1000).toFixed(2)}s ok=${res.ok ? 1 : 0}`);
+          log.items.time(`(${pos}/${total}) id=${entry.id}`, ms, { mode: entry.mode, ok: res.ok ? 1 : 0 });
           if (processed % Math.max(10, Math.floor(toProcess.length/10) || 10) === 0) {
             const avg = processed ? Math.round(totalMs/processed) : 0;
-            console.log(`[cli:items] progress ${processed}/${toProcess.length} ok=${ok} fail=${fail} avg=${avg}ms/item`);
+            log.items.info(`progress`, { processed: `${processed}/${toProcess.length}`, ok, fail, avgMs: avg });
           }
         } catch (e: any) {
           const ms = Date.now() - t1; totalMs += ms; processed++; fail++;
           const pos = positionById.get(entry.id) || processed;
-          console.error(`[cli:item:time] (${pos}/${total}) id=${entry.id} mode=${entry.mode} error dur=${ms}ms ${e?.message || e}`);
+          log.items.error(`item error`, { pos: `${pos}/${total}`, id: entry.id, mode: entry.mode, ms, reason: e?.message || String(e) });
         }
       };
 
@@ -236,7 +237,7 @@ async function main() {
       await q.onIdle();
 
       const avg = processed ? Math.round(totalMs/processed) : 0;
-      console.log(`[cli:items] done ok=${ok} fail=${fail} total=${toProcess.length} avg=${avg}ms/item in ${since(t0)}s`);
+      log.items.info(`done`, { ok, fail, total: toProcess.length, avgMs: avg, secs: since(t0) });
 
       // Merge-write aggregates (shares + shipping summaries) to live Blobs
       try {
@@ -254,9 +255,9 @@ async function main() {
         }
         if (sharesChanged) {
           await sharedBlob.putJSON(sharesKey, existingShares);
-          console.log(`[cli:items] aggregates: wrote shares updates=${Object.keys(shareUpdates).length} total=${Object.keys(existingShares).length}`);
+          log.items.info(`aggregates: wrote shares`, { updates: Object.keys(shareUpdates).length, total: Object.keys(existingShares).length });
         } else {
-          console.log(`[cli:items] aggregates: shares unchanged candidates=${Object.keys(shareUpdates).length}`);
+          log.items.info(`aggregates: shares unchanged`, { candidates: Object.keys(shareUpdates).length });
         }
 
         // Per-market shipping summary aggregates
@@ -276,9 +277,9 @@ async function main() {
           }
           if (changed) {
             await marketBlob.putJSON(key, existing);
-            console.log(`[cli:items] aggregates: wrote shipSummary ${mkt} updates=${Object.keys(updates).length} total=${Object.keys(existing).length}`);
+            log.items.info(`aggregates: wrote shipSummary`, { market: mkt, updates: Object.keys(updates).length, total: Object.keys(existing).length });
           } else {
-            console.log(`[cli:items] aggregates: shipSummary unchanged ${mkt} candidates=${Object.keys(updates).length}`);
+            log.items.info(`aggregates: shipSummary unchanged`, { market: mkt, candidates: Object.keys(updates).length });
           }
         }
         
@@ -297,39 +298,39 @@ async function main() {
           }
           if (metaChanged) {
             await sharedBlob.putJSON(metaKey, existingMeta);
-            console.log(`[cli:items] aggregates: wrote shippingMeta updates=${Object.keys(shippingMetaUpdates).length} total=${Object.keys(existingMeta).length}`);
+            log.items.info(`aggregates: wrote shippingMeta`, { updates: Object.keys(shippingMetaUpdates).length, total: Object.keys(existingMeta).length });
           } else {
-            console.log(`[cli:items] aggregates: shippingMeta unchanged candidates=${Object.keys(shippingMetaUpdates).length}`);
+            log.items.info(`aggregates: shippingMeta unchanged`, { candidates: Object.keys(shippingMetaUpdates).length });
           }
         }
       } catch (e: any) {
-        console.warn(`[cli:items] aggregates write failed: ${e?.message || e}`);
+        log.items.warn(`aggregates write failed`, { reason: e?.message || String(e) });
       }
     }
 
     if (stage === 'sellers' || stage === 'all') {
       const t0 = Date.now();
-      console.log(`[cli:sellers] start`);
+      log.sellers.info(`start`);
       // If a numeric --limit was provided, use it to limit count of sellers processed during this run
       if (typeof argv.limit === 'number' && argv.limit > 0) {
         process.env.SELLERS_LIMIT = String(argv.limit);
       }
       const res = await runSellers(markets);
-      console.log(`[cli:sellers] done ok=${res.ok} counts=${JSON.stringify(res.counts || {})} in ${since(t0)}s`);
+      log.sellers.info(`done`, { ok: res.ok, counts: res.counts || {}, secs: since(t0) });
     }
 
     if (stage === 'pruning' || stage === 'all') {
       const t0 = Date.now();
-      console.log(`[cli:pruning] start`);
+      log.cli.info(`pruning start`);
       const res = await runPruning(markets);
       const perMarket = res.counts?.perMarket ? Object.entries(res.counts.perMarket).map(([m, c]) => `${m}:shipDel=${c.shipDeleted},aggTrim=${c.shipSummaryTrimmed}`).join(' | ') : 'n/a';
-      console.log(`[cli:pruning] done ok=${res.ok} orphanCores=${res.counts?.itemsDeleted ?? 0} sellersDel=${res.counts?.sellersDeleted ?? 0} perMarket=${perMarket} in ${since(t0)}s`);
+      log.cli.info(`pruning done`, { ok: res.ok, orphanCores: res.counts?.itemsDeleted ?? 0, sellersDel: res.counts?.sellersDeleted ?? 0, perMarket, secs: since(t0) });
     }
 
-    console.log(`[cli] completed stage=${stage} total=${since(started)}s`);
+    log.cli.info(`completed`, { stage, totalSecs: since(started) });
     process.exit(0);
   } catch (e: any) {
-    console.error('[cli] fatal:', e?.stack || e?.message || String(e));
+    log.cli.error(`fatal`, { error: e?.stack || e?.message || String(e) });
     process.exit(1);
   }
 }

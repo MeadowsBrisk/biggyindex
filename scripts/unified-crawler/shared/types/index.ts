@@ -25,3 +25,22 @@ export interface IndexResult {
   artifacts?: string[];
   snapshotMeta?: Record<string, unknown>;
 }
+
+/**
+ * Seller enrichment state - tracks what we know about each seller
+ * to enable fast sync planning (no per-seller blob reads).
+ */
+export interface SellerStateEntry {
+  lastEnrichedAt: string;   // ISO timestamp of last full enrichment
+  hasManifesto: boolean;
+  hasImage: boolean;
+  hasShare: boolean;
+  hasReviews: boolean;
+  reviewCount: number;
+}
+
+export interface SellerStateAggregate {
+  version: number;
+  updatedAt: string;
+  sellers: Record<string, SellerStateEntry>;
+}

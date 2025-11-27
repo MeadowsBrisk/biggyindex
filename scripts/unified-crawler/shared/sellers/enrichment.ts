@@ -1,9 +1,11 @@
 import { ensureAuthedClient } from "../http/authedClient";
 import { Keys } from "../persistence/keys";
 import type { SellerMetaRecord } from "./worklist";
+import type { SellerStateAggregate, SellerStateEntry } from "../types";
 import { fetchSellerReviewsPaged } from "../reviews/fetchSellerReviewsPaged";
 import { normalizeReviews } from "../reviews/normalizeReviews";
 import { loadSellerReviewCache, saveSellerReviewCache, shouldSkipSellerReviews, updateSellerReviewCache } from "../reviews/reviewCache";
+import { log, timer } from "../logging/logger";
 
 export interface SellerEnrichmentTask {
   sid: string;
@@ -70,6 +72,92 @@ export async function planSellerEnrichment(opts: {
   return { toEnrich, skippedFresh, skippedBlacklist };
 }
 
+/**
+ * Synchronous seller enrichment planning using the cached state aggregate.
+ * This is the fast path - NO blob reads per seller, just in-memory lookups.
+ * 
+ * Expected performance: ~0ms for 200+ sellers (vs 15-20s with per-seller reads)
+ */
+export function planSellerEnrichmentSync(opts: {
+  sellerMeta: Map<string, SellerMetaRecord>;
+  selectedSellerIds: string[];
+  sellerState: SellerStateAggregate | null;
+  refreshMs: number;
+  requireManifesto: boolean;
+  blacklist: Set<string>;
+  forceFull: boolean;
+  enrichLimit: number;
+}): SellerEnrichmentPlanResult {
+  const { sellerMeta, selectedSellerIds, sellerState, refreshMs, requireManifesto, blacklist, forceFull, enrichLimit } = opts;
+  const iterateSellerIds = selectedSellerIds.length ? selectedSellerIds : Array.from(sellerMeta.keys()).map(String);
+  const toEnrich: SellerEnrichmentTask[] = [];
+  const skippedFresh: string[] = [];
+  const skippedBlacklist: string[] = [];
+  const nowMs = Date.now();
+  const sellers = sellerState?.sellers || {};
+
+  for (const sellerId of iterateSellerIds) {
+    const meta = sellerMeta.get(sellerId) || { sellerId };
+    
+    if (blacklist.has(sellerId)) {
+      skippedBlacklist.push(sellerId);
+      continue;
+    }
+    
+    if (forceFull) {
+      toEnrich.push({ sid: sellerId, meta });
+      if (toEnrich.length >= enrichLimit) break;
+      continue;
+    }
+
+    const rec = sellers[sellerId];
+    
+    // No record = new seller, needs enrichment
+    if (!rec) {
+      toEnrich.push({ sid: sellerId, meta });
+      if (toEnrich.length >= enrichLimit) break;
+      continue;
+    }
+
+    // Check staleness
+    const lastAt = rec.lastEnrichedAt ? Date.parse(rec.lastEnrichedAt) : 0;
+    const stale = !Number.isFinite(lastAt) || (nowMs - lastAt) > refreshMs;
+    
+    // Check essential fields
+    const essentialMissing = !rec.hasImage || !rec.hasShare || (requireManifesto && !rec.hasManifesto);
+    
+    if (stale || essentialMissing) {
+      toEnrich.push({ sid: sellerId, meta });
+      if (toEnrich.length >= enrichLimit) break;
+    } else {
+      skippedFresh.push(sellerId);
+    }
+  }
+
+  return { toEnrich, skippedFresh, skippedBlacklist };
+}
+
+/**
+ * Build a SellerStateEntry from enrichment results.
+ * Used to update the state aggregate after processing.
+ */
+export function buildSellerStateEntry(profile: {
+  manifesto?: string;
+  imageUrl?: string;
+  sellerImageUrl?: string;
+  share?: string;
+  reviews?: unknown[];
+}): SellerStateEntry {
+  return {
+    lastEnrichedAt: new Date().toISOString(),
+    hasManifesto: typeof profile.manifesto === "string" && profile.manifesto.trim().length > 0,
+    hasImage: Boolean(profile.imageUrl || profile.sellerImageUrl),
+    hasShare: Boolean(profile.share),
+    hasReviews: Array.isArray(profile.reviews) && profile.reviews.length > 0,
+    reviewCount: Array.isArray(profile.reviews) ? profile.reviews.length : 0,
+  };
+}
+
 export interface SellerEnrichmentConfig {
   concurrency: number;
   requireManifesto: boolean;
@@ -121,7 +209,7 @@ export async function runSellerEnrichment(opts: {
     };
   }
 
-  console.log(`[crawler:sellers] pipeline starting count=${tasks.length} conc=${config.concurrency}`);
+  log.sellers.info(`pipeline starting`, { count: tasks.length, concurrency: config.concurrency });
 
   const { client: httpClient, jar: httpJar } = await ensureAuthedClient();
   const imagesAgg: Record<string, string> = (await sharedBlob.getJSON<any>(Keys.shared.images.sellers()).catch(() => ({}))) || {};
@@ -172,7 +260,7 @@ export async function runSellerEnrichment(opts: {
         if (html && html.length > 500) return html;
       } catch (e: any) {
         const code = e?.code || e?.name || e?.message || "ERR";
-        console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] fail id=${id} status=${code} ms=${tMain} attempt=${label}`);
+        log.sellers.warn(`sellerPage fail`, { id, status: code, ms: tMain, attempt: label });
       }
       const hosts = ["https://littlebiggy.net", "https://www.littlebiggy.net"];
       try {
@@ -185,7 +273,7 @@ export async function runSellerEnrichment(opts: {
         }
       } catch (e: any) {
         const code = e?.code || e?.name || e?.message || "ERR";
-        console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage:fallback] fail id=${id} status=${code} ms=${tFallback} attempt=${label}`);
+        log.sellers.warn(`sellerPage fallback fail`, { id, status: code, ms: tFallback, attempt: label });
       }
       return null;
     }
@@ -193,12 +281,12 @@ export async function runSellerEnrichment(opts: {
     if (html1) return html1;
     const tMain2 = Math.max(config.t2Ms, 160000);
     const tFallback2 = Math.max(config.fb2Ms, 120000);
-    console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] retry id=${id} tMain=${tMain2} tFallback=${tFallback2}`);
+    log.sellers.warn(`sellerPage retry`, { id, tMain: tMain2, tFallback: tFallback2 });
     const html2 = await tryOnce(tMain2, tFallback2, { earlyAbort: false, maxBytes: 3_500_000 }, "t2");
     if (html2) return html2;
     const tMain3 = Math.max(config.t3Ms, 360000);
     const tFallback3 = Math.max(config.fb3Ms, 200000);
-    console.warn(`[crawler][warn] ${new Date().toISOString()} [sellerPage] final retry id=${id} tMain=${tMain3} tFallback=${tFallback3}`);
+    log.sellers.warn(`sellerPage final retry`, { id, tMain: tMain3, tFallback: tFallback3 });
     return tryOnce(tMain3, tFallback3, { earlyAbort: false, maxBytes: 6_000_000 }, "t3");
   }
 
@@ -253,7 +341,7 @@ export async function runSellerEnrichment(opts: {
       };
     } catch (err) {
       reviewFailures++;
-      console.warn(`[crawler:sellers] reviews fetch failed seller=${sid} ${(err as any)?.message || err}`);
+      log.sellers.warn(`reviews fetch failed`, { seller: sid, reason: (err as any)?.message || String(err) });
       return {
         reviews: [],
         meta: { fetched: 0, sourceFetched: 0, mode: "error" },
@@ -293,7 +381,7 @@ export async function runSellerEnrichment(opts: {
         if (!html) {
           noHtml++;
           const failMs = Date.now() - started;
-          console.log(`[cli:seller:time] id=${sid} mode=${mode} dur=${failMs}ms ${(failMs / 1000).toFixed(2)}s ok=0`);
+          log.sellers.time(`id=${sid}`, failMs, { mode, ok: 0 });
           return;
         }
         try {
@@ -390,10 +478,10 @@ export async function runSellerEnrichment(opts: {
         wrote++;
         const mLen = payload.manifesto ? (payload.manifestoMeta?.length || payload.manifesto.length) : 0;
         const shareMode = payload.share ? (shareGenerated ? "gen" : (shareReused ? "reuse" : "set")) : "none";
-        console.log(`[sellers] stored id=${sid} mode=${mode} img=${payload.imageUrl ? 1 : 0} manifestoLen=${mLen} share=${payload.share ? 1 : 0} shareMode=${shareMode} reviews=${reviews.length} reviewMode=${reviewMeta.mode || "n/a"}`);
+        log.sellers.info(`stored`, { id: sid, mode, img: payload.imageUrl ? 1 : 0, manifestoLen: mLen, share: payload.share ? 1 : 0, shareMode, reviews: reviews.length, reviewMode: reviewMeta.mode || "n/a" });
       } catch (e: any) {
         writeErr++;
-        console.warn(`[crawler:sellers] write per-seller failed id=${sid} reason=${e?.message || e}`);
+        log.sellers.warn(`write per-seller failed`, { id: sid, reason: e?.message || String(e) });
       }
 
       if (imageUrl) {
@@ -412,21 +500,21 @@ export async function runSellerEnrichment(opts: {
 
       processed++;
       const elapsed = Date.now() - started;
-      console.log(`[cli:seller:time] id=${sid} mode=${mode} dur=${elapsed}ms ${(elapsed / 1000).toFixed(2)}s ok=1`);
+      log.sellers.time(`id=${sid}`, elapsed, { mode, ok: 1 });
       if (processed % 10 === 0 || processed === tasks.length) {
-        console.log(`[crawler:sellers] progress sellers=${processed}/${tasks.length}`);
+        log.sellers.info(`progress`, { sellers: `${processed}/${tasks.length}` });
       }
     } catch (err) {
       noHtml++;
       const failMs = Date.now() - started;
-      console.log(`[cli:seller:time] id=${sid} mode=${mode} dur=${failMs}ms ${(failMs / 1000).toFixed(2)}s ok=0`);
-      console.warn(`[crawler:sellers] pipeline failed id=${sid} reason=${(err as any)?.message || err}`);
+      log.sellers.time(`id=${sid}`, failMs, { mode, ok: 0 });
+      log.sellers.warn(`pipeline failed`, { id: sid, reason: (err as any)?.message || String(err) });
     }
   })));
 
   try { await sharedBlob.putJSON(Keys.shared.images.sellers(), imagesAgg); } catch {}
   try { await saveSellerReviewCache(reviewCache); } catch {}
 
-  console.log(`[crawler:sellers] pipeline completed processed=${processed} wrote=${wrote} noHtml=${noHtml} writeErr=${writeErr} essentialMissing=${essentialMissing.length}`);
+  log.sellers.info(`pipeline completed`, { processed, wrote, noHtml, writeErr, essentialMissing: essentialMissing.length });
   return { wrote, noHtml, writeErr, imagesAgg, reviewsBySeller, reviewsMetaBySeller, processed, reviewFailures, essentialMissing };
 }

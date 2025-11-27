@@ -8,6 +8,7 @@ import { buildItemsWorklist as buildWorklist } from "../../shared/logic/dedupe";
 import { computeIndexSignature } from "../../shared/logic/changes";
 import { buildItemImageLookupFromIndex } from "../../shared/aggregation/buildItemImageLookup";
 import { buildRecentItemsCompact } from "../../shared/aggregation/buildRecentItemsCompact";
+import { log } from "../../shared/logging/logger";
 
 export interface ItemsGlobalResult {
   ok: boolean;
@@ -39,7 +40,7 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
   let itemsPlanned = 0;
   const indexes: Array<{ market: MarketCode; items: Array<{ id: string; n?: string; raw?: any }> }> = [];
   const tIdxStart = Date.now();
-  console.info(`[items] reading market indexes for ${enabled.length} markets...`);
+  log.items.info(`reading market indexes`, { markets: enabled.length });
   const marketSizes: string[] = [];
   for (const code of enabled) {
     const storeName = (env.stores as any)[code];
@@ -58,7 +59,7 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     });
     marketSizes.push(`${code}=${list.length}`);
   }
-  console.info(`[items] indexes loaded ${marketSizes.join(' ')} planned=${itemsPlanned} (${Math.max(0, Date.now() - tIdxStart)}ms)`);
+  log.items.info(`indexes loaded`, { markets: marketSizes.join(' '), planned: itemsPlanned, ms: Math.max(0, Date.now() - tIdxStart) });
 
   // Build presence map: itemId -> set of markets where this item appears
   const presenceById = new Map<string, Set<MarketCode>>();
@@ -97,20 +98,20 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
         await blob.putJSON(Keys.market.data.recentItems(), payload);
         
         // Consolidated logging per market
-        console.info(`[items] market=${market} lookup=${Object.keys(lookup.byRef).length} recent=${payload.added.length}+${payload.updated.length}`);
+        log.items.info(`market ready`, { market, lookup: Object.keys(lookup.byRef).length, recent: `${payload.added.length}+${payload.updated.length}` });
       } catch (e: any) {
-        console.warn(`[items][warn] recent-items write failed market=${market} reason=${e?.message || e}`);
+        log.items.warn(`recent-items write failed`, { market, reason: e?.message || String(e) });
       }
     }
   } catch (e: any) {
-    console.warn(`[items][warn] item-image-lookup write failed reason=${e?.message || e}`);
+    log.items.warn(`item-image-lookup write failed`, { reason: e?.message || String(e) });
   }
 
   // Deduplicate across markets before any real crawl
   const sharedClient = getBlobClient(env.stores.shared);
   // Load existing IDs quickly via cached list if available; otherwise build once and cache
   const tIdsStart = Date.now();
-  console.info(`[items] loading existing core IDs...`);
+  log.items.info(`loading existing core IDs`);
   let existingCoreIds: Set<string>;
   try {
     const cached = await sharedClient.getJSON<string[]>(Keys.shared.itemIds());
@@ -133,12 +134,12 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
       .filter(Boolean);
     existingCoreIds = new Set(ids);
   }
-  console.info(`[items] existing IDs loaded: ${existingCoreIds.size} in ${Math.max(0, Date.now() - tIdsStart)}ms`);
+  log.items.info(`existing IDs loaded`, { count: existingCoreIds.size, ms: Math.max(0, Date.now() - tIdsStart) });
   const work = buildWorklist({ indexes, existingCoreIds });
 
   // Removed legacy sample-building logic; use explicit --limit in CLI when needed
 
-  console.info(`[items] dedupe unique=${work.uniqueIds.length} toCrawl=${work.toCrawl.length} alreadyHave=${work.alreadyHave.length}`);
+  log.items.info(`dedupe complete`, { unique: work.uniqueIds.length, toCrawl: work.toCrawl.length, alreadyHave: work.alreadyHave.length });
 
   return {
     uniqueIds: work.uniqueIds,

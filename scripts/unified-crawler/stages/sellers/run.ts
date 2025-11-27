@@ -1,10 +1,12 @@
 import type { MarketCode } from "../../shared/env/loadEnv";
+import type { SellerStateAggregate } from "../../shared/types";
 import { loadEnv } from "../../shared/env/loadEnv";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
 import { buildSellerWorklist } from "../../shared/sellers/worklist";
-import { planSellerEnrichment, runSellerEnrichment, type SellerEnrichmentConfig, type SellerPipelineTask } from "../../shared/sellers/enrichment";
+import { planSellerEnrichmentSync, buildSellerStateEntry, runSellerEnrichment, type SellerEnrichmentConfig, type SellerPipelineTask } from "../../shared/sellers/enrichment";
 import { processSellerAnalytics } from "../../shared/sellers/analytics";
+import { log, timer } from "../../shared/logging/logger";
 
 export interface SellersRunResult {
   ok: boolean;
@@ -14,8 +16,10 @@ export interface SellersRunResult {
 }
 
 export async function runSellers(markets: MarketCode[]): Promise<SellersRunResult> {
+  const stageTimer = timer();
+  
   try {
-    console.log(`[crawler:sellers] start markets=${markets.join(',')}`);
+    log.sellers.banner(`SELLERS START markets=${markets.join(",")}`);
     const env = loadEnv();
     const sharedBlob = getBlobClient(env.stores.shared);
 
@@ -23,9 +27,10 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
     const worklist = await buildSellerWorklist(markets, sellersLimit > 0 ? sellersLimit : undefined);
     const selectedSellerIds = worklist.selectedSellerIds;
     if (!selectedSellerIds.length) {
-      console.log(`[crawler:sellers] no sellers discovered; exiting early`);
+      log.sellers.info("no sellers discovered, exiting early");
       return { ok: true, markets, counts: { processed: 0 }, note: "no sellers" };
     }
+    log.sellers.info(`discovered ${selectedSellerIds.length} sellers`);
 
     const refreshDays = Number(process.env.SELLER_MANIFESTO_REFRESH_DAYS || 3);
     const refreshMs = refreshDays * 24 * 60 * 60 * 1000;
@@ -37,15 +42,32 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
     const configuredEnrichLimit = rawEnrichLimit != null ? Number(rawEnrichLimit) : 0;
     const enrichLimit = configuredEnrichLimit > 0 ? configuredEnrichLimit : selectedSellerIds.length || worklist.totalDiscovered || 0;
 
-    const plan = await planSellerEnrichment({
+    // Load seller state aggregate ONCE for fast sync planning (vs ~200 blob reads)
+    const planTimer = timer();
+    let sellerState: SellerStateAggregate | null = null;
+    try {
+      sellerState = await sharedBlob.getJSON<SellerStateAggregate>(Keys.shared.aggregates.sellerState());
+    } catch {
+      // First run or missing aggregate - all sellers will be enriched
+      log.sellers.info("no seller-state aggregate found, will enrich all");
+    }
+
+    // Sync planning - NO per-seller blob reads, just in-memory lookups
+    const plan = planSellerEnrichmentSync({
       sellerMeta: worklist.sellerMeta,
       selectedSellerIds,
-      sharedBlob,
+      sellerState,
       refreshMs,
       requireManifesto,
       blacklist,
       forceFull,
       enrichLimit: Math.max(0, enrichLimit),
+    });
+    log.sellers.success(`planning complete`, {
+      time: `${planTimer.elapsed()}ms`,
+      toEnrich: plan.toEnrich.length,
+      fresh: plan.skippedFresh.length,
+      blacklist: plan.skippedBlacklist.length,
     });
 
     const enrichmentConfig: SellerEnrichmentConfig = {
@@ -79,22 +101,21 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
     }
 
     if (!tasks.length) {
-      console.log(`[crawler:sellers] no seller tasks after planning; exiting early`);
+      log.sellers.info("no tasks after planning, exiting early");
       return { ok: true, markets, counts: { processed: 0 }, note: "no seller tasks" };
     }
 
-    const skipLogLimit = Number(process.env.SELLER_ENRICH_SKIP_LOG_LIMIT || 20);
-    for (const sid of plan.skippedFresh.slice(0, skipLogLimit)) {
-      console.log(`[cli:seller] skip enrichment id=${sid} reason=fresh`);
+    // Log skipped sellers (debug level, summarize if many)
+    const skipLogLimit = Number(process.env.SELLER_ENRICH_SKIP_LOG_LIMIT || 5);
+    if (plan.skippedFresh.length > 0) {
+      const shown = plan.skippedFresh.slice(0, skipLogLimit).join(", ");
+      const extra = plan.skippedFresh.length > skipLogLimit ? ` (+${plan.skippedFresh.length - skipLogLimit} more)` : "";
+      log.sellers.skip(`fresh: ${shown}${extra}`);
     }
-    if (plan.skippedFresh.length > skipLogLimit) {
-      console.log(`[cli:seller] skip enrichment additionalFresh=${plan.skippedFresh.length - skipLogLimit}`);
-    }
-    for (const sid of plan.skippedBlacklist.slice(0, skipLogLimit)) {
-      console.log(`[cli:seller] skip enrichment id=${sid} reason=blacklisted`);
-    }
-    if (plan.skippedBlacklist.length > skipLogLimit) {
-      console.log(`[cli:seller] skip enrichment additionalBlacklisted=${plan.skippedBlacklist.length - skipLogLimit}`);
+    if (plan.skippedBlacklist.length > 0) {
+      const shown = plan.skippedBlacklist.slice(0, skipLogLimit).join(", ");
+      const extra = plan.skippedBlacklist.length > skipLogLimit ? ` (+${plan.skippedBlacklist.length - skipLogLimit} more)` : "";
+      log.sellers.skip(`blacklisted: ${shown}${extra}`);
     }
 
     let enrichmentResult: Awaited<ReturnType<typeof runSellerEnrichment>>;
@@ -110,7 +131,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
         } catch {/* ignore individual profile read errors */}
       }
     } catch (e: any) {
-      console.warn(`[crawler:sellers] enrichment phase failed ${e?.message || e}`);
+      log.sellers.fail(`enrichment phase failed: ${e?.message || e}`);
       enrichmentResult = {
         wrote: 0,
         noHtml: 0,
@@ -135,7 +156,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
       essentialAttempts++;
       const retryIds = Array.from(new Set(pendingEssential.map((entry) => String(entry.sellerId))));
       if (!retryIds.length) break;
-      console.warn(`[crawler:sellers] retry essentials attempt=${essentialAttempts} sellers=${retryIds.length}`);
+      log.sellers.retry(`essentials attempt=${essentialAttempts}`, { sellers: retryIds.length });
       const retryTasks: SellerPipelineTask[] = retryIds.map((sid) => ({
         sid,
         meta: worklist.sellerMeta.get(sid) || { sellerId: sid },
@@ -154,16 +175,21 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
         }
         pendingEssential = retryResult.essentialMissing || [];
       } catch (retryErr: any) {
-        console.warn(`[crawler:sellers] retry essentials failed attempt=${essentialAttempts} reason=${retryErr?.message || retryErr}`);
+        log.sellers.warn(`retry essentials failed attempt=${essentialAttempts}: ${retryErr?.message || retryErr}`);
         break;
       }
     }
     if (pendingEssential.length) {
-      console.warn(`[crawler:sellers] missing essentials after retries sellers=${pendingEssential.length}`);
+      log.sellers.warn(`missing essentials after retries`, { sellers: pendingEssential.length });
     }
 
     const totalReviewEntries = Array.from(reviewsBySeller.values()).reduce((acc, reviews) => acc + (Array.isArray(reviews) ? reviews.length : 0), 0);
-    console.log(`[crawler:sellers] reviews fetched sellers=${reviewsBySeller.size} totalReviews=${totalReviewEntries} processed=${processedTotal} failed=${reviewFailures}`);
+    log.sellers.stats("reviews fetched", {
+      sellers: reviewsBySeller.size,
+      reviews: totalReviewEntries,
+      processed: processedTotal,
+      failed: reviewFailures,
+    });
 
     const leaderboardWindowDays = Number(process.env.SELLER_LEADERBOARD_WINDOW_DAYS || 14);
     const leaderboardWindowMs = leaderboardWindowDays * 24 * 60 * 60 * 1000;
@@ -193,9 +219,45 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
       limitedScan: sellersLimit > 0,
     });
 
+    // Update seller state aggregate with results from this run
+    // This enables fast sync planning on subsequent runs
+    try {
+      const stateUpdateStart = Date.now();
+      const updatedState: SellerStateAggregate = {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        sellers: { ...(sellerState?.sellers || {}) },
+      };
+
+      // Update state for all processed sellers (full mode tasks)
+      const processedFullIds = tasks
+        .filter((t) => t.mode === "full")
+        .map((t) => t.sid);
+
+      for (const sid of processedFullIds) {
+        try {
+          const profile = await sharedBlob.getJSON<any>(Keys.shared.seller(sid));
+          if (profile) {
+            updatedState.sellers[sid] = buildSellerStateEntry(profile);
+          }
+        } catch {
+          // Keep existing state entry if read fails
+        }
+      }
+
+      await sharedBlob.putJSON(Keys.shared.aggregates.sellerState(), updatedState);
+      log.sellers.success(`updated seller-state aggregate`, {
+        entries: Object.keys(updatedState.sellers).length,
+        time: `${Date.now() - stateUpdateStart}ms`,
+      });
+    } catch (stateErr: any) {
+      log.sellers.warn(`failed to update seller-state aggregate: ${stateErr?.message || stateErr}`);
+    }
+
+    log.sellers.complete(stageTimer.elapsed(), { processed: processedTotal });
     return { ok: true, markets, counts: { processed: processedTotal } };
   } catch (e: any) {
-    console.error(`[crawler:sellers] error`, e?.message || e);
+    log.sellers.fail(`error: ${e?.message || e}`);
     return { ok: false, markets, counts: { processed: 0 }, note: e?.message || String(e) } as any;
   }
 }
