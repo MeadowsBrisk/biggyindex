@@ -161,6 +161,7 @@ export default function CategoryFilter() {
             "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50",
             favouritesOnly ? "bg-yellow-500" : "bg-gray-300 dark:bg-gray-700"
           )}
+          aria-label={favouritesOnly ? "Disable favourites only filter" : "Enable favourites only filter"}
           aria-pressed={favouritesOnly}
         >
           <span

@@ -86,6 +86,7 @@ export default function ItemList(): React.ReactElement {
             staggerDelay={staggerDelay}
             colIndex={colIndex}
             cols={cols}
+            priority={idx < cols}
           />
         );
       })}

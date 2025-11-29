@@ -28,7 +28,7 @@ export function GifMedia({ url, alt, className, onOpenPreview }) {
         return <img src={posterSrc} alt={alt || ''} loading="lazy" decoding="async" draggable={false} className={mediaClassName} />;
       }
       if (video) {
-        return <video src={video} poster={posterSrc} autoPlay loop muted playsInline draggable={false} className={mediaClassName} />;
+        return <video src={video} poster={posterSrc} autoPlay loop muted playsInline draggable={false} aria-hidden="true" className={mediaClassName} />;
       }
       return <img src={gifSrc} alt={alt || ''} loading="lazy" decoding="async" draggable={false} className={mediaClassName} />;
     })();

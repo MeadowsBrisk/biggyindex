@@ -64,6 +64,7 @@ export interface ItemCardProps {
   staggerDelay?: number;
   colIndex?: number;
   cols?: number;
+  priority?: boolean;
 }
 
 // Add cutoff date (items created after this show a Created label if no update exists)
@@ -71,7 +72,7 @@ const CREATION_LABEL_CUTOFF = new Date('2025-09-02T12:00:59Z');
 
 // We display only GBP in UI; no currency symbol helper needed for other codes
 
-function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex = 0, cols = 1 }: ItemCardProps) {
+function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex = 0, cols = 1, priority = false }: ItemCardProps) {
   const tItem = useTranslations('Item');
   const tRel = useTranslations('Rel');
   const tCountries = useTranslations('Countries');
@@ -342,8 +343,9 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                   src={thumbSrc}
                   alt={nameDecoded}
                   className="motion-img-fade gpu-smooth card-image"
-                  loading="lazy"
-                  decoding="async"
+                  loading={priority ? 'eager' : 'lazy'}
+                  decoding={priority ? 'sync' : 'async'}
+                  fetchPriority={priority ? 'high' : undefined}
                   onError={onThumbError}
                   draggable={false}
                 />
@@ -364,10 +366,11 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                 href={(item as any).share || url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : undefined)}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`View ${nameDecoded} on Little Biggy`}
                 className="group/button inline-flex items-center gap-1.5 text-[10px] font-medium bg-white/60 dark:bg-gray-800/55 hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 text-gray-800 dark:text-gray-200 rounded-full px-3 py-1 shadow-sm backdrop-blur-md transition-colors duration-250 focus:outline-none focus-visible:ring-2 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 ring-gray-300/60 dark:ring-gray-600/70"
               >
                 <span>Little Biggy</span>
-                <span className="inline-block text-base leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1 motion-reduce:transition-none">→</span>
+                <span aria-hidden="true" className="inline-block text-base leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1 motion-reduce:transition-none">→</span>
               </a>
             </div>
             <ImageZoomPreview imageUrl={imageUrl} imageUrls={imageUrls as any} alt={name} openSignal={openPreviewSignal as any} hideTrigger onOpenChange={() => {}} />

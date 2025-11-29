@@ -684,7 +684,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           <link rel="alternate" href={hostForLocale('en')} hrefLang="x-default" />
         </Head>
       )}
-      <div className="mx-auto max-w-auto p-4">
+      <main className="mx-auto max-w-auto p-4">
       <AnimatedLogoHeader
         rightSlot={(
           <div className="flex items-center gap-2">
@@ -740,7 +740,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       <SellerAnalyticsModal />
       <LatestReviewsModal />
       <FirstVisitBanner />
-      </div>
+      </main>
     </>
   );
 }

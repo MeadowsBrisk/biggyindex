@@ -146,7 +146,14 @@ content: "";
 
 .item-card-image {
 	@apply rounded-[4px];
+	contain: layout style;
 }
+
+/* Reserve space for dynamic aspect ratios to prevent layout shift */
+.item-card-image > [class*="aspect-"] {
+	contain: strict;
+}
+
 /* .item-card-image {
 	border-radius: 4px 4px 0 0;
 	border-bottom-left-radius: 0;

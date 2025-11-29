@@ -41,7 +41,7 @@ export default {
           'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
         },
         cf: {
-          cacheTtl: 31536000, // 1 year
+          cacheTtl: 5184000, // 2 months (images may update)
           cacheEverything: true,
           polish: 'off', // Don't compress, serve as-is
         }
@@ -53,7 +53,7 @@ export default {
 
       // Clone and cache
       response = new Response(response.body, response);
-      response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+      response.headers.set('Cache-Control', 'public, max-age=5184000'); // 2 months (images may update)
       response.headers.set('Access-Control-Allow-Origin', '*');
       
       // Store in cache
