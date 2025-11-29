@@ -52,7 +52,8 @@ export const handler: Handler = async (event) => {
   log(`worklist unique=${wl.uniqueIds.length} toCrawl=${wl.toCrawl.length} already=${wl.alreadyHave.length}`);
 
     // Change detection: decide full vs reviews-only
-    const allItems = wl.uniqueIds.map((id) => ({ id, sig: wl.idSig.get(id) }));
+    // Note: detectItemChanges uses shipping-meta aggregate, not signatures
+    const allItems = wl.uniqueIds.map((id) => ({ id, sig: wl.idLua.get(id) }));
     const changeRes = await detectItemChanges(
       { market: markets[0] as any, items: allItems },
       { sharedStoreName: env.stores.shared }
@@ -128,7 +129,7 @@ export const handler: Handler = async (event) => {
         const res = await processSingleItem(
           it.id,
           it.markets as import("../../scripts/unified-crawler/shared/types").MarketCode[],
-          { client: wl.client, logPrefix: "[crawler:items]", mode: it.mode, currentSignature: wl.idSig.get(it.id) || undefined, sharesAgg, forceShare: refreshShare }
+          { client: wl.client, logPrefix: "[crawler:items]", mode: it.mode, indexLua: wl.idLua.get(it.id) || undefined, sharesAgg, forceShare: refreshShare }
         );
         const ms = Date.now() - t1;
         totalMs += ms;
