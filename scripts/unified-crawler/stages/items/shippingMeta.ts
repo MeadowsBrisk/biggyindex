@@ -10,6 +10,8 @@ export interface ShippingMetaEntry {
   markets: Partial<Record<MarketCode, string>>;
   /** Global last refresh timestamp (fallback) */
   lastRefresh?: string;
+  /** Index lua (lastUpdatedAt) at last full crawl - for change detection */
+  lastIndexedLua?: string;
 }
 
 export interface ShippingMetaAggregate {
@@ -66,7 +68,8 @@ export function isShippingStale(
 export function updateShippingMeta(
   meta: ShippingMetaAggregate,
   itemId: string,
-  refreshedMarkets: MarketCode[]
+  refreshedMarkets: MarketCode[],
+  opts?: { lastIndexedLua?: string }
 ): ShippingMetaAggregate {
   const now = new Date().toISOString();
   const updated = { ...meta };
@@ -84,6 +87,11 @@ export function updateShippingMeta(
   
   // Update global timestamp
   updated[itemId].lastRefresh = now;
+
+  // Update lastIndexedLua if provided (tracks index lastUpdatedAt at last full crawl)
+  if (opts?.lastIndexedLua) {
+    updated[itemId].lastIndexedLua = opts.lastIndexedLua;
+  }
 
   return updated;
 }

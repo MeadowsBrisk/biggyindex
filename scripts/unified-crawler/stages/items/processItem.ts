@@ -7,9 +7,10 @@ import { Keys } from "../../shared/persistence/keys";
 import { ensureAuthedClient } from "../../shared/http/authedClient";
 import { fetchFirstReviews } from "./reviews";
 import { fetchItemDescription } from "./details";
-import { extractMarketShipping } from "./shipping";
+import { extractAllMarketsShippingParallel } from "./shipping";
 import { fetchItemShareLink } from "./share";
 import { loadShippingMeta, isShippingStale, updateShippingMeta, saveShippingMeta, type ShippingMetaAggregate } from "./shippingMeta";
+import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
 import { log } from "../../shared/logging/logger";
 
 export interface ProcessItemResult {
@@ -20,14 +21,14 @@ export interface ProcessItemResult {
   shippingWritten: number;
   shareLink?: string | null;
   shipSummaryByMarket?: Record<string, { min: number; max: number; free: number }>;
-  shippingMetaUpdate?: { lastRefresh: string; markets?: Record<string, string> };
+  shippingMetaUpdate?: { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string };
   errors?: string[];
 }
 
 export async function processSingleItem(
   itemId: string,
   markets: MarketCode[],
-  opts: { client?: AxiosInstance; logPrefix?: string; mode?: "full" | "reviews-only"; currentSignature?: string; sharesAgg?: Record<string, string>; forceShare?: boolean; shippingMarkets?: MarketCode[] } = {}
+  opts: { client?: AxiosInstance; logPrefix?: string; mode?: "full" | "reviews-only"; indexLua?: string; sharesAgg?: Record<string, string>; forceShare?: boolean; shippingMarkets?: MarketCode[] } = {}
 ): Promise<ProcessItemResult> {
   const env = loadEnv();
   const prefix = opts.logPrefix || "[crawler:item]";
@@ -71,7 +72,9 @@ export async function processSingleItem(
     let revRes: any | null = null;
     if (mode === "full") {
       // Use first market for description fetch to ensure proper location filter
-      const descMarket = markets && markets.length > 0 ? markets[0] : undefined;
+      const descMarket = markets && markets.length > 0 ? markets[0] : 'GB';
+      // CRITICAL: Seed the LF cookie for the description fetch to get locale-specific shipping
+      await seedLocationFilterCookie(client!, descMarket as MarketCode);
       const [revP, descP] = await Promise.allSettled([
         fetchFirstReviews(client!, itemId, Number(process.env.CRAWLER_REVIEW_FETCH_SIZE || 100)),
         fetchItemDescription(client!, itemId, { maxBytes: 100_000, shipsTo: descMarket })
@@ -89,9 +92,6 @@ export async function processSingleItem(
     // Build merged core in desired field order: id -> description/meta -> reviews
     const merged: any = {};
     merged.id = itemId;
-    if (opts.currentSignature) {
-      merged.signature = opts.currentSignature;
-    }
 
     if (mode === "full") {
       if (descRes && descRes.ok && descRes.description) {
@@ -272,58 +272,53 @@ export async function processSingleItem(
           }
         }
         
-        // Process markets sequentially to avoid location filter cookie conflicts
-        for (const mkt of marketsToRefresh) {
-          try {
-            let shippingResult: { options: Array<{ label: string; cost: number }>; warnings?: string[] } | undefined;
-            
-            // Extract shipping for each market
-            const res = await extractMarketShipping(client!, itemId, mkt);
+        // Fetch shipping for remaining markets in PARALLEL using isolated per-market clients
+        // Each market gets its own cookie jar to prevent LF cookie conflicts
+        if (marketsToRefresh.length > 0) {
+          log.items.info(`shipping parallel`, { id: itemId, markets: marketsToRefresh.join(',') });
+          
+          const shippingResults = await extractAllMarketsShippingParallel(itemId, marketsToRefresh);
+          
+          // Process results and write to per-market blobs
+          for (const [mkt, res] of shippingResults) {
             if (res.ok) {
-              shippingResult = { options: res.options || [], warnings: res.warnings };
-            } else {
-              log.items.warn(`shipping failed`, { id: itemId, market: mkt, err: res.error || 'unknown' });
-              errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
-              continue;
-            }
-            
-            if (shippingResult) {
               const store = marketStore(mkt, env.stores as any);
               const blob = getBlobClient(store);
               const shipKey = Keys.market.shipping(itemId);
               const payload = {
                 id: itemId,
                 market: mkt,
-                options: shippingResult.options,
-                warnings: shippingResult.warnings || [],
+                options: res.options || [],
+                warnings: res.warnings || [],
                 lastShippingRefresh: new Date().toISOString(),
               };
               await blob.putJSON(shipKey, payload);
               shippingWritten++;
-              marketsRefreshed.push(mkt); // Track this market as refreshed
+              marketsRefreshed.push(mkt);
               const warnStr = (Array.isArray(payload.warnings) && payload.warnings.length)
                 ? ` warns=${payload.warnings.join(',')}`
                 : '';
               log.items.info(`shipping stored`, { id: itemId, market: mkt, options: payload.options.length, warns: warnStr.trim() || undefined });
               
               // Compute compact summary for aggregator
-              const costs = shippingResult.options.map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
+              const costs = (res.options || []).map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
               if (costs.length) {
                 const min = Math.min(...costs);
                 const max = Math.max(...costs);
                 const free = costs.some((c: number) => c === 0) ? 1 : 0;
                 shipSummaryByMarket[mkt] = { min, max, free };
               }
+            } else {
+              log.items.warn(`shipping failed`, { id: itemId, market: mkt, err: res.error || 'unknown' });
+              errors.push(`shipping:${mkt}:${res.error || "unknown"}`);
             }
-          } catch (e: any) {
-            log.items.warn(`shipping error`, { id: itemId, market: mkt, reason: e?.message || String(e) });
-            errors.push(`shipping:${mkt}:${e?.message || String(e)}`);
           }
         }
         
         // Prepare shipping metadata update (will be batched at end by cli.ts)
+        // Include lastIndexedLua on full crawls to enable change detection on future runs
         if (marketsRefreshed.length > 0) {
-          const updated = updateShippingMeta(shippingMetaAgg, itemId, marketsRefreshed);
+          const updated = updateShippingMeta(shippingMetaAgg, itemId, marketsRefreshed, { lastIndexedLua: opts.indexLua });
           const entry = updated[itemId];
           if (entry) {
             shipSummaryByMarket['__shippingMetaUpdate'] = entry as any; // temporary holder

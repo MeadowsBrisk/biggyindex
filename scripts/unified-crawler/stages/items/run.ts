@@ -5,7 +5,6 @@ import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
 import { createCookieHttp } from "../../shared/http/client";
 import { buildItemsWorklist as buildWorklist } from "../../shared/logic/dedupe";
-import { computeIndexSignature } from "../../shared/logic/changes";
 import { buildItemImageLookupFromIndex } from "../../shared/aggregation/buildItemImageLookup";
 import { buildRecentItemsCompact } from "../../shared/aggregation/buildRecentItemsCompact";
 import { log } from "../../shared/logging/logger";
@@ -22,7 +21,8 @@ export interface ItemsWorklist {
   alreadyHave: Array<{ id: string; markets: string[] }>;
   presenceMap: Map<string, Set<MarketCode>>;
   client: AxiosInstance;
-  idSig: Map<string, string>;
+  /** Index lua (lastUpdatedAt) per item - for change detection */
+  idLua: Map<string, string>;
   counts: { itemsPlanned: number; uniqueItems: number; toCrawl: number };
 }
 
@@ -63,17 +63,23 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
 
   // Build presence map: itemId -> set of markets where this item appears
   const presenceById = new Map<string, Set<MarketCode>>();
-  const idSig = new Map<string, string>();
+  const idLua = new Map<string, string>();
   for (const { market, items } of indexes) {
     for (const it of items) {
       const id = it.id;
       if (!id) continue;
       if (!presenceById.has(id)) presenceById.set(id, new Set());
       presenceById.get(id)!.add(market);
-      // Compute/update a global-ish signature from index entry
+      // Extract lua (lastUpdatedAt) from index entry for change detection
+      // Use the most recent lua across markets
       try {
-        const sig = computeIndexSignature(it.raw || {});
-        if (sig && (!idSig.has(id) || idSig.get(id) !== sig)) idSig.set(id, sig);
+        const lua: string | undefined = it.raw?.lua ?? it.raw?.lastUpdatedAt;
+        if (lua) {
+          const existingLua = idLua.get(id);
+          if (!existingLua || new Date(lua) > new Date(existingLua)) {
+            idLua.set(id, lua);
+          }
+        }
       } catch {}
     }
   }
@@ -147,7 +153,7 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     alreadyHave: work.alreadyHave,
     presenceMap: presenceById,
     client: anonClient,
-    idSig,
+    idLua,
     counts: { itemsPlanned, uniqueItems: work.uniqueIds.length, toCrawl: work.toCrawl.length },
   };
 }

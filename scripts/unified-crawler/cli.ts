@@ -126,19 +126,20 @@ async function main() {
       const cutoffTime = Date.now() - fullRefreshMs;
       
       // Plan modes: full for new/stale/changed, reviews-only for the rest (every run) unless --force
-      let planned: Array<{ id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; sig?: string }> = [];
+      let planned: Array<{ id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; lua?: string }> = [];
       if (forceAll) {
         // --force flag: everything gets full mode
-        planned = work.uniqueIds.map(id => ({ id, markets: Array.from(work.presenceMap.get(id) || []) as MarketCode[], mode: 'full', sig: work.idSig.get(id) || undefined }));
+        planned = work.uniqueIds.map(id => ({ id, markets: Array.from(work.presenceMap.get(id) || []) as MarketCode[], mode: 'full', lua: work.idLua.get(id) || undefined }));
       } else {
         // Use shipping-meta aggregate to check lastRefresh (one file load instead of 943!)
         const sharedBlob = getBlobClient(env.stores.shared);
         const shippingMeta = await sharedBlob.getJSON<any>(Keys.shared.aggregates.shippingMeta()).catch(() => ({}));
         
         // Determine mode for each item
+        let indexChangedCount = 0;
         for (const id of work.uniqueIds) {
           const marketsFor = Array.from(work.presenceMap.get(id) || []) as MarketCode[];
-          const indexSig = work.idSig.get(id);
+          const indexLua = work.idLua.get(id);
           const metaEntry = shippingMeta[id];
           
           let mode: 'full' | 'reviews-only' = 'reviews-only';
@@ -149,14 +150,21 @@ async function main() {
           } else {
             const lastRefreshTime = new Date(metaEntry.lastRefresh).getTime();
             if (lastRefreshTime < cutoffTime) {
-              mode = 'full'; // Stale
+              mode = 'full'; // Stale (older than CRAWLER_FULL_REFRESH_DAYS)
+            } else if (indexLua) {
+              // Compare index lua to stored lastIndexedLua (legacy pattern: item.lastUpdatedAt vs rec.lastIndexedUpdatedAt)
+              const lastIndexedLua = metaEntry.lastIndexedLua;
+              if (!lastIndexedLua || new Date(indexLua) > new Date(lastIndexedLua)) {
+                mode = 'full'; // Index changed since last full crawl
+                indexChangedCount++;
+              }
             }
           }
           
-          // Note: Not checking signature changes since shipping-meta doesn't track them.
-          // Signature changes are rare, and indexer marks items as "updated" anyway.
-          
-          planned.push({ id, markets: marketsFor, mode, sig: indexSig });
+          planned.push({ id, markets: marketsFor, mode, lua: indexLua });
+        }
+        if (indexChangedCount > 0) {
+          log.items.info(`index changes detected`, { count: indexChangedCount });
         }
       }
 
@@ -196,12 +204,12 @@ async function main() {
       } catch {}
       const shareUpdates: Record<string, string> = {};
       const shipUpdatesByMarket: Record<string, Record<string, { min: number; max: number; free: number }>> = {};
-      const shippingMetaUpdates: Record<string, { lastRefresh: string; markets?: Record<string, string> }> = {};
+      const shippingMetaUpdates: Record<string, { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string }> = {};
 
-      const runOne = async (entry: { id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; sig?: string }) => {
+      const runOne = async (entry: { id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; lua?: string }) => {
         const t1 = Date.now();
         try {
-          const res = await processSingleItem(entry.id, entry.markets as MarketCode[], { client: httpClient, mode: entry.mode === 'full' ? 'full' : 'reviews-only', currentSignature: entry.sig, logPrefix: '[cli:item]', sharesAgg, forceShare: !!argv['refresh-share'] });
+          const res = await processSingleItem(entry.id, entry.markets as MarketCode[], { client: httpClient, mode: entry.mode === 'full' ? 'full' : 'reviews-only', indexLua: entry.lua, logPrefix: '[cli:item]', sharesAgg, forceShare: !!argv['refresh-share'] });
           const ms = Date.now() - t1; totalMs += ms; processed++;
           if (res.ok) {
             ok++;
@@ -286,11 +294,11 @@ async function main() {
         // Shipping metadata aggregate (staleness tracking)
         if (Object.keys(shippingMetaUpdates).length > 0) {
           const metaKey = Keys.shared.aggregates.shippingMeta();
-          const existingMeta = ((await sharedBlob.getJSON<any>(metaKey)) || {}) as Record<string, { lastRefresh: string; markets?: Record<string, string> }>;
+          const existingMeta = ((await sharedBlob.getJSON<any>(metaKey)) || {}) as Record<string, { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string }>;
           let metaChanged = false;
           for (const [id, update] of Object.entries(shippingMetaUpdates)) {
             const prev = existingMeta[id];
-            const same = prev && prev.lastRefresh === update.lastRefresh && JSON.stringify(prev.markets || {}) === JSON.stringify(update.markets || {});
+            const same = prev && prev.lastRefresh === update.lastRefresh && prev.lastIndexedLua === update.lastIndexedLua && JSON.stringify(prev.markets || {}) === JSON.stringify(update.markets || {});
             if (!same) {
               existingMeta[id] = update;
               metaChanged = true;
