@@ -11,6 +11,7 @@ import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 import { marketStore } from "../../scripts/unified-crawler/shared/env/markets";
 import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
+import { ensureAuthedClient } from "../../scripts/unified-crawler/shared/http/authedClient";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
@@ -84,6 +85,11 @@ export const handler: Handler = async (event) => {
     const items = plan;
     log(`toProcess=${items.length}`);
 
+    // CRITICAL: Get authenticated client for reviews fetching (mirrors CLI behavior)
+    // The anonymous client from buildItemsWorklist is not authed; reviews require auth
+    const { client: httpClient } = await ensureAuthedClient();
+    log(`authenticated client ready`);
+
     // Concurrency for Netlify background execution
   const desired = Math.max(1, Number(env.maxParallel || 5));
     log(`planned=${items.length} concurrency=${desired} (env CRAWLER_MAX_PARALLEL)`);
@@ -129,7 +135,7 @@ export const handler: Handler = async (event) => {
         const res = await processSingleItem(
           it.id,
           it.markets as import("../../scripts/unified-crawler/shared/types").MarketCode[],
-          { client: wl.client, logPrefix: "[crawler:items]", mode: it.mode, indexLua: wl.idLua.get(it.id) || undefined, sharesAgg, forceShare: refreshShare }
+          { client: httpClient, logPrefix: "[crawler:items]", mode: it.mode, indexLua: wl.idLua.get(it.id) || undefined, sharesAgg, forceShare: refreshShare }
         );
         const ms = Date.now() - t1;
         totalMs += ms;

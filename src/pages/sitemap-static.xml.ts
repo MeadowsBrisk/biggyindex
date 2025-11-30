@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from 'next';
-import { localeFromHost, hostForLocale } from '@/lib/routing';
+import { localeFromHost, hostForLocale } from '@/lib/market/routing';
 export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   const host = req?.headers?.host || 'biggyindex.com';
   const locale = localeFromHost(host);

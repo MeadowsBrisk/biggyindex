@@ -5,11 +5,11 @@ import { useRouter } from 'next/router';
 import StandaloneSellerDetail from '@/components/seller/StandaloneSellerDetail';
 import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom } from '@/store/atoms';
-import { fetchSellerDetail } from '@/lib/sellerDetails';
+import { fetchSellerDetail } from '@/lib/data/sellerDetails';
 import { useTranslations, useLocale } from 'next-intl';
-import { buildSellerUrl } from '@/lib/routing';
-import { hostForLocale } from '@/lib/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
+import { buildSellerUrl } from '@/lib/market/routing';
+import { hostForLocale } from '@/lib/market/routing';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market/market';
 
 interface SellerSEO {
   id: number;
@@ -50,7 +50,7 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
     // Fetch items for this seller
     let items: any[] = [];
     try {
-      const { getAllItems } = await import('@/lib/indexData');
+      const { getAllItems } = await import('@/lib/data/indexData');
       const all = await getAllItems(market);
       // Filter by seller ID (or name if ID missing in item, but ID is safer)
       // Items usually have `sellerId` or `s` (minified) or `seller: { id }`

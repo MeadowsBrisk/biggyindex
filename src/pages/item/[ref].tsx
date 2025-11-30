@@ -5,10 +5,10 @@ import { useRouter } from 'next/router';
 import StandaloneItemDetail from '@/components/item/StandaloneItemDetail';
 import { useSetAtom } from 'jotai';
 import { expandedRefNumAtom } from '@/store/atoms';
-import { fetchItemDetail } from '@/lib/itemDetails';
+import { fetchItemDetail } from '@/lib/data/itemDetails';
 import { useTranslations, useLocale } from 'next-intl';
-import { buildItemUrl, hostForLocale } from '@/lib/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
+import { buildItemUrl, hostForLocale } from '@/lib/market/routing';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market/market';
 
 interface ItemSEO {
   ref: string;

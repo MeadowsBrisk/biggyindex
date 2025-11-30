@@ -1,9 +1,9 @@
 "use client";
 import React from 'react';
-import cn from '@/lib/cn';
-import { decodeEntities } from '@/lib/format';
-import { displayedAmount, formatDisplayedAmount } from '@/lib/variantPricingDisplay';
-import type { DisplayCurrency } from '@/lib/priceDisplay';
+import cn from '@/lib/core/cn';
+import { decodeEntities } from '@/lib/core/format';
+import { displayedAmount, formatDisplayedAmount } from '@/lib/pricing/variantPricingDisplay';
+import type { DisplayCurrency } from '@/lib/pricing/priceDisplay';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 
 type Variant = any;

@@ -8,7 +8,7 @@
 // - Blank lines create paragraph breaks.
 // Returns a React element ready to render.
 import React from 'react';
-import { decodeEntities } from '@/lib/format';
+import { decodeEntities } from '@/lib/core/format';
 
 function linkify(text: string): Array<string | React.ReactNode> {
   const parts: Array<string | React.ReactNode> = [];

@@ -1,4 +1,4 @@
-import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, type Market } from '@/lib/market';
+import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, type Market } from '@/lib/market/market';
 
 const API_ENDPOINT = '/api/index/sellers';
 const STATIC_ENDPOINT = '/sellers.json';

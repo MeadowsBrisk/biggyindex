@@ -1,4 +1,4 @@
-import { formatUSD, formatUSDRange, convertUSDToDisplay, type DisplayCurrency, type ExchangeRates } from '@/lib/priceDisplay';
+import { formatUSD, formatUSDRange, convertUSDToDisplay, type DisplayCurrency, type ExchangeRates } from '@/lib/pricing/priceDisplay';
 
 // Compute displayed USD amount for a variant given shipping allocation rules
 export function displayedUSDForVariant(baseUsd: number | null | undefined, shippingUsd: number | null | undefined, includeShipping: boolean, selectedVariantIds: Set<string | number> | null | undefined, variantId: string | number) {

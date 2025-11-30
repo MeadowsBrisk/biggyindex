@@ -61,7 +61,7 @@ function onLoaded(cb: () => void) {
 
 // React hook
 import { useEffect, useState, useRef } from 'react';
-import { proxyImage } from '@/lib/images';
+import { proxyImage } from '@/lib/ui/images';
 
 function buildPosterProxy(posterPath: string | null): string | null {
   if (!posterPath) return null;

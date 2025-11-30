@@ -6,7 +6,7 @@ import {
   isDetailNotFound, 
   subscribeItemDetail, 
   prefetchItemDetail 
-} from '@/lib/itemDetailsCache';
+} from '@/lib/data/itemDetailsCache';
 
 interface ItemDetail {
   refNum: string | number;

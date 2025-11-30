@@ -9,10 +9,10 @@ import QuickStartSection from '@/sections/home/QuickStartSection';
 import RecentMediaSection from '@/sections/home/RecentMediaSection';
 import FaqSection from '@/sections/home/FaqSection';
 import FooterSection from '@/sections/home/FooterSection';
-import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from '@/lib/indexData';
-import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
-import { hostForLocale } from '@/lib/routing';
-import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market';
+import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from '@/lib/data/indexData';
+import { RECENT_REVIEWS_LIMIT } from '@/lib/core/constants';
+import { hostForLocale } from '@/lib/market/routing';
+import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market/market';
 import { useLocale, useTranslations } from 'next-intl';
 
 const RECENT_ITEMS_LIMIT = 25;

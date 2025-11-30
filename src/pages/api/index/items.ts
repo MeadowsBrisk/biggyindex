@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getAllItems, getSnapshotMeta } from '@/lib/indexData';
-import type { Market } from '@/lib/market';
+import { getAllItems, getSnapshotMeta } from '@/lib/data/indexData';
+import type { Market } from '@/lib/market/market';
 import { conditionalJSON } from '@/lib/http/conditional';
 
 export const config = { runtime: 'nodejs' };

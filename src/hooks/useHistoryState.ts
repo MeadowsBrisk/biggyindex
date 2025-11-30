@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import historyManager from '@/lib/historyManager';
+import historyManager from '@/lib/ui/historyManager';
 
 type OverlayType = 'item' | 'seller' | 'zoom' | 'analytics' | 'reviews';
 

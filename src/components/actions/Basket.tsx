@@ -8,7 +8,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import cn from '@/lib/cn';
+import cn from '@/lib/core/cn';
 import { useAtomValue, useSetAtom } from 'jotai';
 import type { BasketEntry } from '@/store/atoms';
 import {
@@ -24,7 +24,7 @@ import {
 } from '@/store/atoms';
 import { useTranslations } from 'next-intl';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
-import { formatGBP, formatUSD, type DisplayCurrency } from '@/lib/priceDisplay';
+import { formatGBP, formatUSD, type DisplayCurrency } from '@/lib/pricing/priceDisplay';
 import { convertToGBP } from '@/hooks/useExchangeRates';
 import { useItemDetailLazy } from '@/hooks/useItemDetail';
 

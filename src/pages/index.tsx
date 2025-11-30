@@ -38,11 +38,11 @@ import InfoButton from '@/components/common/InfoButton';
 import Basket from '@/components/actions/Basket';
 import ToastHost from '@/components/common/ToastHost';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
-import { hostForLocale } from '@/lib/routing';
+import { hostForLocale } from '@/lib/market/routing';
 import LocaleSelector from '@/components/layout/LocaleSelector';
 import { useTranslations } from 'next-intl';
-import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
-import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market';
+import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
+import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market/market';
 
 let lastVotesSigCache = '';
 let allVotesSigCache = '';
@@ -54,7 +54,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const market = 'GB'; // Default market for static generation
   
   try {
-    const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/indexData');
+    const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/data/indexData');
     
     // Only fetch items and manifest for initial page load
     // Reviews/media are lazy-loaded by modals when opened (reduces __NEXT_DATA__ by ~200-400KB)

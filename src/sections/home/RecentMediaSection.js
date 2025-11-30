@@ -11,9 +11,9 @@ import "swiper/css/navigation";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
 import { useTranslations, useFormatter } from 'next-intl';
-import { proxyImage } from "@/lib/images";
-import { timeAgo, formatBritishDateTime } from "@/lib/format";
-import { relativeCompact } from "@/lib/relativeTimeCompact";
+import { proxyImage } from "@/lib/ui/images";
+import { timeAgo, formatBritishDateTime } from "@/lib/core/format";
+import { relativeCompact } from "@/lib/ui/relativeTimeCompact";
 import { useScreenSize } from "@/hooks/useScreenSize";
 
 function normalizeMediaEntries(mediaEntries) {

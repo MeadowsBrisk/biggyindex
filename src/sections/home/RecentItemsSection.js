@@ -4,14 +4,14 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import Image from "next/image";
-import { proxyImage } from "@/lib/images";
-import { timeAgo } from "@/lib/format";
+import { proxyImage } from "@/lib/ui/images";
+import { timeAgo } from "@/lib/core/format";
 import { AnimatePresence, motion } from "framer-motion";
 import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import { useTranslations } from 'next-intl';
-import { relativeCompact } from "@/lib/relativeTimeCompact";
+import { relativeCompact } from "@/lib/ui/relativeTimeCompact";
 
 function getInitials(name) {
   if (!name) return "?";

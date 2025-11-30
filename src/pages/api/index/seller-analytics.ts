@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSellerAnalytics } from '@/lib/indexData';
+import { getSellerAnalytics } from '@/lib/data/indexData';
 import { conditionalJSON } from '@/lib/http/conditional';
-import type { Market } from '@/lib/market';
+import type { Market } from '@/lib/market/market';
 
 export const config = { runtime: 'nodejs' };
 

@@ -9,11 +9,11 @@ import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
-import { formatBritishDateTime } from "@/lib/format";
-import { relativeCompact } from "@/lib/relativeTimeCompact";
+import { formatBritishDateTime } from "@/lib/core/format";
+import { relativeCompact } from "@/lib/ui/relativeTimeCompact";
 import { useTranslations, useFormatter } from 'next-intl';
-import { proxyImage } from "@/lib/images";
-import cn from "@/lib/cn";
+import { proxyImage } from "@/lib/ui/images";
+import cn from "@/lib/core/cn";
 import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import FilterPinButton from "@/components/common/FilterPinButton";
 

@@ -1,9 +1,9 @@
 "use client";
 import React from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { useGifAsset } from '@/lib/gifAssets';
-import { proxyImage } from '@/lib/images';
-import cn from '@/lib/cn';
+import { useGifAsset } from '@/lib/ui/gifAssets';
+import { proxyImage } from '@/lib/ui/images';
+import cn from '@/lib/core/cn';
 
 /* ZoomSlide
  * Props:

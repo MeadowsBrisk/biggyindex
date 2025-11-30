@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { proxyImage } from '@/lib/images';
-import { formatUSD } from '@/lib/priceDisplay';
+import { proxyImage } from '@/lib/ui/images';
+import { formatUSD } from '@/lib/pricing/priceDisplay';
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 import { useTranslations } from 'next-intl';

@@ -73,8 +73,8 @@
 # Lightweight index-only function for all markets (replaces 5 separate market schedules)
 # Does NOT run items/sellers/pruning - those have separate schedules
 [functions."index-all-markets-background"]
-  # Run at :05, :25, :45 to avoid overlap with items (on the hour) and sellers (:00 offset hours)
-  schedule = "5,25,45 * * * *"
+  # Run every 15 minutes on the dot: :00, :15, :30, :45
+  schedule = "0,15,30,45 * * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -137,8 +137,8 @@
 
 ### Unified background stages (items and sellers) on separate schedules
 [functions."crawler-items-background"]
-  # Runs at :10 past the hour on 0,4,8,12,16,20 (offset from indexer at :05,:25,:45)
-  schedule = "10 0,4,8,12,16,20 * * *"
+  # Runs at :04 past the hour on 0,4,8,12,16,20 (4 mins after indexer to avoid overlap)
+  schedule = "4 0,4,8,12,16,20 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -148,8 +148,8 @@
 
   
 [functions."crawler-sellers-background"]
-  # Runs at :10 past the hour on 2,6,10,14,18,22 (offset from indexer at :05,:25,:45)
-  schedule = "10 2,6,10,14,18,22 * * *"
+  # Runs at :04 past the hour on 2,6,10,14,18,22 (4 mins after indexer to avoid overlap)
+  schedule = "4 2,6,10,14,18,22 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"

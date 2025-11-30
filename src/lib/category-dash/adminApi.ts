@@ -5,7 +5,7 @@
  * Password is stored in sessionStorage and sent with every request.
  */
 
-import type { OverrideEntry, OverridesData } from '../categoryOverrides';
+import type { OverrideEntry, OverridesData } from '@/lib/taxonomy/categoryOverrides';
 
 export type SearchResult = {
   id: string;

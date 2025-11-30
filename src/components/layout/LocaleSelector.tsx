@@ -7,8 +7,8 @@ import FlagFR from '@/components/common/flags/FlagFR';
 import FlagIT from '@/components/common/flags/FlagIT';
 import FlagPT from '@/components/common/flags/FlagPT';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
-import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, getLocaleForMarket } from '@/lib/market';
-import { hostForLocale } from '@/lib/routing';
+import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, getLocaleForMarket } from '@/lib/market/market';
+import { hostForLocale } from '@/lib/market/routing';
 
 interface Market {
   code: string;

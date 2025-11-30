@@ -1,5 +1,5 @@
 import React from 'react';
-import { decodeEntities } from '@/lib/format';
+import { decodeEntities } from '@/lib/core/format';
 
 // Minified keys: vid = variant id, d = description, usd = price in USD
 interface Variant {

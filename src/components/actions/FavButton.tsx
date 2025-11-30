@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { selectAtom } from 'jotai/utils';
-import cn from '@/lib/cn';
+import cn from '@/lib/core/cn';
 import { StarIcon } from '@/components/common/icons';
 import { favouritesAtom, toggleFavouriteAtom, favouritesOnlyAtom } from '@/store/atoms';
 

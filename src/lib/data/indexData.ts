@@ -4,7 +4,7 @@
 // We support per-market stores: site-index-gb, site-index-de, site-index-fr (override via env).
 // Default market is GB.
 
-import type { Market } from '@/lib/market';
+import type { Market } from '@/lib/market/market';
 
 const DEFAULT_STORES: Record<Market, string> = {
   GB: (process as any).env.MARKET_STORE_GB || 'site-index-gb',

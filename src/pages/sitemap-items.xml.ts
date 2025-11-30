@@ -1,12 +1,12 @@
 import type { GetServerSideProps } from 'next';
-import { localeFromHost, hostForLocale } from '@/lib/routing';
+import { localeFromHost, hostForLocale } from '@/lib/market/routing';
 export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   const host = req?.headers?.host || 'biggyindex.com';
   const locale = localeFromHost(host);
   const origin = hostForLocale(locale);
   let items: any[] = [];
   try {
-    const mod = await import('@/lib/indexData');
+    const mod = await import('@/lib/data/indexData');
     if (mod && typeof mod.getAllItems === 'function') {
       items = await mod.getAllItems();
     }

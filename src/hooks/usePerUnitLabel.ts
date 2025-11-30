@@ -1,6 +1,6 @@
 "use client";
 import { useCallback } from "react";
-import { formatMoney, type DisplayCurrency } from '@/lib/priceDisplay';
+import { formatMoney, type DisplayCurrency } from '@/lib/pricing/priceDisplay';
 
 interface ParsedQuantity {
   qty: number;

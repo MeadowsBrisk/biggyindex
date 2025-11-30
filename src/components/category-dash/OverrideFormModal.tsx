@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import type { OverrideEntry } from '../../lib/categoryOverrides';
-import { getValidCategories, getValidSubcategories } from '../../lib/categoryOverrides';
-import { searchItems, saveOverride, type SearchResult } from '../../lib/category-dash/adminApi';
+import type { OverrideEntry } from '@/lib/taxonomy/categoryOverrides';
+import { getValidCategories, getValidSubcategories } from '@/lib/taxonomy/categoryOverrides';
+import { searchItems, saveOverride, type SearchResult } from '@/lib/category-dash/adminApi';
 
 type Props = {
   override: OverrideEntry | null;

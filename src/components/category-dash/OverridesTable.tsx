@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { OverrideEntry } from '../../lib/categoryOverrides';
-import { deleteOverride } from '../../lib/category-dash/adminApi';
+import type { OverrideEntry } from '@/lib/taxonomy/categoryOverrides';
+import { deleteOverride } from '@/lib/category-dash/adminApi';
 
 type Props = {
   overrides: OverrideEntry[];

@@ -5,20 +5,20 @@ import { useAtom, useSetAtom } from 'jotai';
 import { latestReviewsModalOpenAtom, expandedSellerIdAtom, pushOverlayAtom } from '@/store/atoms';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { proxyImage } from '@/lib/images';
-import { decodeEntities } from '@/lib/format';
-import { relativeCompact } from '@/lib/relativeTimeCompact';
+import { proxyImage } from '@/lib/ui/images';
+import { decodeEntities } from '@/lib/core/format';
+import { relativeCompact } from '@/lib/ui/relativeTimeCompact';
 import { useTranslations } from 'next-intl';
 import { useLocale } from '@/providers/IntlProvider';
 import ItemImageTooltip from '@/components/item/ItemImageTooltip';
 import SellerAvatarTooltip from '@/components/seller/SellerAvatarTooltip';
 import ImageZoomPreview from '@/components/item/ImageZoomPreview';
-import cn from '@/lib/cn';
+import cn from '@/lib/core/cn';
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
-import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
+import { RECENT_REVIEWS_LIMIT } from '@/lib/core/constants';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useHistoryState } from '@/hooks/useHistoryState';
-import { getMarketFromPath } from '@/lib/market';
+import { getMarketFromPath } from '@/lib/market/market';
 
 function formatArrival(days?: number | null, tReviews?: (k: string, v?: any) => string) {
   if (days == null || Number.isNaN(days)) return null;

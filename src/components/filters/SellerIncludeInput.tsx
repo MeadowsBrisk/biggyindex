@@ -2,7 +2,7 @@
 import { useMemo, useState, type ChangeEvent } from "react";
 import { useAtom } from "jotai";
 import { itemsAtom, includedSellersAtom, includedSellersPinnedAtom } from "@/store/atoms";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import FilterPinButton from "@/components/common/FilterPinButton";
 import { useTranslations } from 'next-intl';
 

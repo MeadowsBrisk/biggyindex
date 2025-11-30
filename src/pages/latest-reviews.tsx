@@ -4,8 +4,8 @@ import Home from './index';
 import { useSetAtom } from 'jotai';
 import { latestReviewsModalOpenAtom } from '@/store/atoms';
 import { useTranslations } from 'next-intl';
-import { hostForLocale } from '@/lib/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market';
+import { hostForLocale } from '@/lib/market/routing';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market/market';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 
 interface LatestReviewsPageProps {

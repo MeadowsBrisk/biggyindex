@@ -10,7 +10,7 @@ import {
   includedSellersPinnedAtom 
 } from "@/store/atoms";
 import type { Item } from "@/store/atoms";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import FilterPinButton from "@/components/common/FilterPinButton";
 import { useTranslations } from 'next-intl';
 

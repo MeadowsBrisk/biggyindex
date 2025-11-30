@@ -3,7 +3,7 @@ import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
 import { firstVisitBannerDismissedAtom } from '@/store/atoms';
 import { useLocale } from '@/providers/IntlProvider';
-import { hostForLocale } from '@/lib/routing';
+import { hostForLocale } from '@/lib/market/routing';
 import { X, Sparkles } from 'lucide-react';
 
 export default function FirstVisitBanner() {

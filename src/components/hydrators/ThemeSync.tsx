@@ -2,8 +2,8 @@
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { darkModeAtom, pauseGifsAtom } from '@/store/atoms';
-import { loadGifMap, getGifEntry } from '@/lib/gifAssets';
-import { proxyImage } from '@/lib/images';
+import { loadGifMap, getGifEntry } from '@/lib/ui/gifAssets';
+import { proxyImage } from '@/lib/ui/images';
 
 /**
  * Syncs theme and GIF pause state across the app.

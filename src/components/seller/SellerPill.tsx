@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import { useAtom, useAtomValue } from 'jotai';
 import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom, pushOverlayAtom, includedSellersAtom, excludedSellersAtom } from '@/store/atoms';
-import { loadSellersIndex, getCachedSellerByName } from '@/lib/sellersIndex';
+import { loadSellersIndex, getCachedSellerByName } from '@/lib/data/sellersIndex';
 import { useTranslations } from 'next-intl';
 
 type SellerOnlineFlag = 'today' | 'yesterday' | null;

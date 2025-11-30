@@ -10,7 +10,7 @@ function notify(refNum: string | number) {
   }
 }
 
-import { getMarketFromPath } from '@/lib/market';
+import { getMarketFromPath } from '@/lib/market/market';
 
 function currentMarket(): string {
   try { return getMarketFromPath(typeof window !== 'undefined' ? window.location.pathname : '/'); } catch { return 'GB'; }

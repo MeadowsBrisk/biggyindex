@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAtom } from "jotai";
 import { motion, AnimatePresence } from "framer-motion";
 import { darkModeAtom } from "@/store/atoms";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import { useTranslations } from "next-intl";
 
 export default function FixedControls() {

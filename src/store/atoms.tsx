@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { votesAtom, reconcileLocalEndorsementsAtom } from "./votesAtoms"; // endorsements sorting and reconciliation
-import { normalizeShipFromCode } from "@/lib/countries";
+import { normalizeShipFromCode } from "@/lib/market/countries";
 import type { Item } from "@/types/item";
 
 // --- Types (pragmatic, focused on fields used across the app) ---

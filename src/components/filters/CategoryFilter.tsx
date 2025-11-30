@@ -1,12 +1,12 @@
 "use client";
 import { useAtom, useAtomValue } from "jotai";
 import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, excludedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { countryLabel } from '@/lib/countries';
+import { countryLabel } from '@/lib/market/countries';
 import FilterPinButton from "@/components/common/FilterPinButton";
-import { catKeyForManifest, subKeyForManifest, translateSubLabel } from '@/lib/taxonomyLabels';
+import { catKeyForManifest, subKeyForManifest, translateSubLabel } from '@/lib/taxonomy/taxonomyLabels';
 import { useRouter } from 'next/router';
 
 export default function CategoryFilter() {

@@ -2,9 +2,9 @@
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { pauseGifsAtom } from '@/store/atoms';
-import { useGifAsset } from '@/lib/gifAssets';
-import { proxyImage } from '@/lib/images';
-import cn from '@/lib/cn';
+import { useGifAsset } from '@/lib/ui/gifAssets';
+import { proxyImage } from '@/lib/ui/images';
+import cn from '@/lib/core/cn';
 
 interface GifMediaProps {
   url: string;

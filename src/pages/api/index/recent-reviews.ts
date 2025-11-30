@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getRecentReviews, getSnapshotMeta, getItemImageLookup, getSellerImages, getRecentItemsCompact } from '@/lib/indexData';
-import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
+import { getRecentReviews, getSnapshotMeta, getItemImageLookup, getSellerImages, getRecentItemsCompact } from '@/lib/data/indexData';
+import { RECENT_REVIEWS_LIMIT } from '@/lib/core/constants';
 import { conditionalJSON } from '@/lib/http/conditional';
-import type { Market } from '@/lib/market';
+import type { Market } from '@/lib/market/market';
 
 export const config = { runtime: 'nodejs' };
 

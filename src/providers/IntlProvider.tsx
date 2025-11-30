@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import { useRouter } from 'next/router';
 import enGBMessages from "../messages/en-GB.json";
 import { IntlProvider as NextIntlProvider, useTranslations } from "next-intl";
-import { getMarketFromPath, getLocaleForMarket, getMarketFromHost, isHostBasedEnv } from '@/lib/market';
+import { getMarketFromPath, getLocaleForMarket, getMarketFromHost, isHostBasedEnv } from '@/lib/market/market';
 
 export type Locale = "en-GB" | "de-DE" | "fr-FR" | "pt-PT" | "it-IT";
 type Currency = "GBP" | "EUR" | "USD";

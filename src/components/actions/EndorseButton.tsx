@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import cn from '@/lib/cn';
+import cn from '@/lib/core/cn';
 import { ThumbIcon } from '@/components/common/icons';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { votesAtom, endorseActionAtom, endorsedSetAtom, voteHasVotedAtom, voteLimitReachedAtom } from '@/store/votesAtoms';

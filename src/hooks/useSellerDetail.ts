@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
-import { loadSellerDetail, getCachedSellerDetail } from '@/lib/sellerDetailsCache';
+import { loadSellerDetail, getCachedSellerDetail } from '@/lib/data/sellerDetailsCache';
 
 // Define a flexible type for seller detail since it comes from external API
 export interface SellerDetail {

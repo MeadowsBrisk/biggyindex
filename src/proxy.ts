@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market';
+import { getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market/market';
 
 /**
  * Next.js 16 Proxy (formerly Middleware)

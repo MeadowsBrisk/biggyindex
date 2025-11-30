@@ -1,7 +1,7 @@
 "use client";
 import React, { useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { buildItemUrl, buildSellerUrl, hostForLocale } from '@/lib/routing';
+import { buildItemUrl, buildSellerUrl, hostForLocale } from '@/lib/market/routing';
 
 type Props = { url: string; title?: string; onClose: () => void };
 export default function ShareMenu({ url, title = 'Item', onClose }: Props) {

@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { proxyImage } from '@/lib/images';
+import { proxyImage } from '@/lib/ui/images';
 
 interface ItemImageTooltipProps {
   imageUrl?: string | null;

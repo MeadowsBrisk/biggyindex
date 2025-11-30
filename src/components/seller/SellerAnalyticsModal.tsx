@@ -3,14 +3,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAtom, useSetAtom } from 'jotai';
 import { sellerAnalyticsOpenAtom, expandedSellerIdAtom } from '@/store/atoms';
-import { getMarketFromPath } from "@/lib/market";
+import { getMarketFromPath } from "@/lib/market/market";
 import { motion, AnimatePresence } from 'framer-motion';
-import cn from '@/lib/cn';
+import cn from '@/lib/core/cn';
 import SellerAvatarTooltip from '@/components/seller/SellerAvatarTooltip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useHistoryState } from '@/hooks/useHistoryState';
-import { formatBritishDateTime } from '@/lib/format';
-import { relativeCompact } from '@/lib/relativeTimeCompact';
+import { formatBritishDateTime } from '@/lib/core/format';
+import { relativeCompact } from '@/lib/ui/relativeTimeCompact';
 import { useTranslations } from 'next-intl';
 
 const SORT_COLUMNS = {

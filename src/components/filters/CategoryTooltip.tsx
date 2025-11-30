@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback, type ReactNode } from 'react'
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useFormatter } from 'next-intl';
-import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
+import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
 
 interface SubcategoryRecord {
   [name: string]: number;

@@ -3,12 +3,12 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
 import { VanIcon } from '@/components/common/icons';
-import { decodeEntities } from '@/lib/format';
-import cn from '@/lib/cn';
-import { formatUSD } from '@/lib/priceDisplay';
+import { decodeEntities } from '@/lib/core/format';
+import cn from '@/lib/core/cn';
+import { formatUSD } from '@/lib/pricing/priceDisplay';
 import VariantPriceList from '@/components/item/VariantPriceList';
 import { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';
-import { variantRangeText, displayedAmount } from '@/lib/variantPricingDisplay';
+import { variantRangeText, displayedAmount } from '@/lib/pricing/variantPricingDisplay';
 
 type Props = {
   baseItem: any;

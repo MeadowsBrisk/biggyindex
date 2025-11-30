@@ -5,7 +5,7 @@
  * by the automated keyword pipeline.
  */
 
-import { TAXONOMY } from '../../scripts/unified-crawler/shared/categorization/baseTaxonomy';
+import { TAXONOMY } from '../../../scripts/unified-crawler/shared/categorization/baseTaxonomy';
 
 export const OVERRIDES_KEY = 'category-overrides.json';
 

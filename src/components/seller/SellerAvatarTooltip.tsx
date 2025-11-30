@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { proxyImage } from '@/lib/images';
+import { proxyImage } from '@/lib/ui/images';
 
 function getInitials(name?: string | null) {
   if (!name) return '?';

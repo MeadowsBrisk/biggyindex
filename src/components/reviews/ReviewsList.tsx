@@ -1,9 +1,9 @@
 "use client";
 import React from 'react';
-import cn from '@/lib/cn';
+import cn from '@/lib/core/cn';
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
-import { decodeEntities } from '@/lib/format';
-import { proxyImage } from '@/lib/images';
+import { decodeEntities } from '@/lib/core/format';
+import { proxyImage } from '@/lib/ui/images';
 import { useTranslations, useFormatter } from 'next-intl';
 
 export type ReviewSegment = { type: 'text' | 'image'; value?: string; url?: string };

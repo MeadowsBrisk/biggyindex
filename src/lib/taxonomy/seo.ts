@@ -1,7 +1,7 @@
 // SSR helpers to load item/seller details from market-specific Netlify Blobs
 // Uses the same indexData infrastructure as the frontend for consistency
 
-import type { Market } from '@/lib/market';
+import type { Market } from '@/lib/market/market';
 
 export type ItemSEO = {
   refNum: string;
@@ -29,7 +29,7 @@ export async function loadItemForSEO(refNum: string | number, market?: Market): 
   
   try {
     // Use the same indexData module that the frontend uses - it's market-aware
-    const { getAllItems } = await import('@/lib/indexData');
+    const { getAllItems } = await import('@/lib/data/indexData');
     const items = await getAllItems(market);
     
     if (!Array.isArray(items) || items.length === 0) return null;
@@ -69,7 +69,7 @@ export async function loadSellerForSEO(id: string | number, market?: Market): Pr
   
   try {
     // Use the same indexData module for sellers
-    const { getSellers } = await import('@/lib/indexData');
+    const { getSellers } = await import('@/lib/data/indexData');
     const sellers = await getSellers(market);
     
     if (!Array.isArray(sellers) || sellers.length === 0) return null;

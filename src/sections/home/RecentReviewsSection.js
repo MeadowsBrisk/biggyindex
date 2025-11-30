@@ -6,15 +6,15 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
-import { decodeEntities, timeAgo } from "@/lib/format";
-import { relativeCompact } from "@/lib/relativeTimeCompact";
+import { decodeEntities, timeAgo } from "@/lib/core/format";
+import { relativeCompact } from "@/lib/ui/relativeTimeCompact";
 import { useTranslations } from 'next-intl';
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
-import { proxyImage } from "@/lib/images";
-import cn from "@/lib/cn";
+import { proxyImage } from "@/lib/ui/images";
+import cn from "@/lib/core/cn";
 import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import ItemImageTooltip from "@/components/item/ItemImageTooltip";
-import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";
+import { RECENT_REVIEWS_LIMIT } from "@/lib/core/constants";
 import { useFormatter } from 'next-intl';
 
 const MAX_REVIEWS = RECENT_REVIEWS_LIMIT;

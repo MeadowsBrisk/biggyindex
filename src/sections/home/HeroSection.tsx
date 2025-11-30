@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
-import cn from "@/lib/cn";
+import cn from "@/lib/core/cn";
 import AnimatedLogoHeader from "@/components/layout/AnimatedLogoHeader";
 import CategoryTooltip from "@/components/filters/CategoryTooltip";
 import { useTranslations, useFormatter } from 'next-intl';
 import { useLocale } from '@/providers/IntlProvider';
-import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
-import { isHostBasedEnv } from '@/lib/market';
+import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
+import { isHostBasedEnv } from '@/lib/market/market';
 import type { ReactElement } from "react";
 
 interface CategoryInfo {
