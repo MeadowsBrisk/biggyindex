@@ -68,21 +68,49 @@ export default function ItemDetailOverlay() {
   const [refNum, setRefNum] = useAtom(expandedRefNumAtom);
   const items = useAtomValue(itemsAtom);
   const sortedItems = useAtomValue(sortedItemsAtom);
-  const baseItem = ((sortedItems as any[]).find((it: any) => it.refNum === refNum || String(it.id) === refNum)) || ((items as any[]).find((it: any) => it.refNum === refNum || String(it.id) === refNum));
-  const listOrder = React.useMemo(() => sortedItems.map(it => String(it.refNum || it.id)), [sortedItems]);
-  const selfIndex = React.useMemo(() => listOrder.indexOf(refNum as any), [listOrder, refNum]);
-  const hasPrev = selfIndex > 0;
-  const hasNext = selfIndex >= 0 && selfIndex < listOrder.length - 1;
+  
+  // Simple O(n) lookup for baseItem - only runs when refNum changes
+  const baseItem = useMemo(() => {
+    if (!refNum) return null;
+    const key = String(refNum);
+    return (sortedItems as any[]).find((it: any) => String(it.refNum || it.id) === key) 
+      || (items as any[]).find((it: any) => String(it.refNum || it.id) === key) 
+      || null;
+  }, [refNum, sortedItems, items]);
+  
+  // Compute prev/next lazily only when navigation buttons are clicked
+  // This avoids building a full index on every overlay open
   const gotoPrev = React.useCallback(() => {
-    if (!hasPrev) return;
-    setRefNum(listOrder[selfIndex - 1]);
-    try { if (typeof window !== 'undefined' && (window as any).history?.replaceState) (window as any).history.replaceState({ __overlay: true }, '', window.location.href); } catch {}
-  }, [hasPrev, listOrder, selfIndex, setRefNum]);
+    if (!refNum) return;
+    const key = String(refNum);
+    const idx = (sortedItems as any[]).findIndex((it: any) => String(it.refNum || it.id) === key);
+    if (idx > 0) {
+      const prev = sortedItems[idx - 1];
+      setRefNum(String(prev.refNum || prev.id));
+      try { window.history?.replaceState?.({ __overlay: true }, '', window.location.href); } catch {}
+    }
+  }, [refNum, sortedItems, setRefNum]);
+  
   const gotoNext = React.useCallback(() => {
-    if (!hasNext) return;
-    setRefNum(listOrder[selfIndex + 1]);
-    try { if (typeof window !== 'undefined' && (window as any).history?.replaceState) (window as any).history.replaceState({ __overlay: true }, '', window.location.href); } catch {}
-  }, [hasNext, listOrder, selfIndex, setRefNum]);
+    if (!refNum) return;
+    const key = String(refNum);
+    const idx = (sortedItems as any[]).findIndex((it: any) => String(it.refNum || it.id) === key);
+    if (idx >= 0 && idx < sortedItems.length - 1) {
+      const next = sortedItems[idx + 1];
+      setRefNum(String(next.refNum || next.id));
+      try { window.history?.replaceState?.({ __overlay: true }, '', window.location.href); } catch {}
+    }
+  }, [refNum, sortedItems, setRefNum]);
+  
+  // For arrow button visibility, compute index only once per refNum
+  const selfIndex = useMemo(() => {
+    if (!refNum) return -1;
+    const key = String(refNum);
+    return (sortedItems as any[]).findIndex((it: any) => String(it.refNum || it.id) === key);
+  }, [refNum, sortedItems]);
+  
+  const hasPrev = selfIndex > 0;
+  const hasNext = selfIndex >= 0 && selfIndex < sortedItems.length - 1;
   
   const { detail, loading, error, reload } = useItemDetail(refNum as any);
   useBodyScrollLock(!!refNum);
@@ -94,13 +122,16 @@ export default function ItemDetailOverlay() {
     const current = refNum;
     setRefNum(null as any);
     if (typeof document !== 'undefined' && current && !skipScroll) {
-      try {
-        const esc = (typeof (window as any).CSS !== 'undefined' && typeof (window as any).CSS.escape === 'function') ? (window as any).CSS.escape : ((s: any) => String(s).replace(/"/g, '\\"'));
-        const el = document.querySelector(`[data-ref="${esc(String(current))}"]`);
-        if (el && typeof (el as any).scrollIntoView === 'function') {
-          (el as any).scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } catch {}
+      // Defer scrollIntoView to next frame to avoid forced reflow during click handler
+      requestAnimationFrame(() => {
+        try {
+          const esc = (typeof (window as any).CSS !== 'undefined' && typeof (window as any).CSS.escape === 'function') ? (window as any).CSS.escape : ((s: any) => String(s).replace(/"/g, '\\"'));
+          const el = document.querySelector(`[data-ref="${esc(String(current))}"]`);
+          if (el && typeof (el as any).scrollIntoView === 'function') {
+            (el as any).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } catch {}
+      });
     }
   }, [setRefNum, refNum]);
 

@@ -1,21 +1,14 @@
 "use client";
 import { useEffect } from 'react';
 
-interface StoredState {
-  scrollY: number;
-  docOverflowY: string;
-  bodyPosition: string;
-  bodyTop: string;
-  bodyWidth: string;
-}
-
 // Simple reference counter so multiple components can request a lock safely.
 let lockCount = 0;
-let storedState: StoredState | null = null;
+let savedScrollbarWidth = 0;
 
 /**
  * Hook to lock body scroll when a modal/overlay is open.
- * Supports multiple concurrent locks via reference counting.
+ * Uses overflow:hidden approach which is simpler and avoids forced reflows.
+ * Adds padding-right to compensate for scrollbar disappearing.
  */
 export function useBodyScrollLock(active: boolean): void {
   useEffect(() => {
@@ -25,24 +18,15 @@ export function useBodyScrollLock(active: boolean): void {
     
     if (lockCount === 1) {
       const docEl = document.documentElement;
-      const body = document.body;
-      // Capture current scroll so we can restore later
-      const scrollY = window.scrollY || window.pageYOffset;
+      // Calculate scrollbar width before hiding it
+      savedScrollbarWidth = window.innerWidth - docEl.clientWidth;
       
-      storedState = {
-        scrollY,
-        docOverflowY: docEl.style.overflowY,
-        bodyPosition: body.style.position,
-        bodyTop: body.style.top,
-        bodyWidth: body.style.width,
-      };
-      
-      // Force a vertical scrollbar channel to remain (avoids layout shift / reflow) while freezing content
-      docEl.style.overflowY = 'scroll';
-      // Freeze body at its current scroll position
-      body.style.position = 'fixed';
-      body.style.top = `-${scrollY}px`;
-      body.style.width = '100%';
+      // Apply lock - no position:fixed means no scroll jumping
+      docEl.style.overflow = 'hidden';
+      // Compensate for scrollbar width to prevent layout shift
+      if (savedScrollbarWidth > 0) {
+        docEl.style.paddingRight = `${savedScrollbarWidth}px`;
+      }
     }
     
     return () => {
@@ -51,18 +35,9 @@ export function useBodyScrollLock(active: boolean): void {
       if (lockCount <= 0) {
         lockCount = 0;
         const docEl = document.documentElement;
-        const body = document.body;
-        
-        if (storedState) {
-          const { scrollY, docOverflowY, bodyPosition, bodyTop, bodyWidth } = storedState;
-          docEl.style.overflowY = docOverflowY || '';
-          body.style.position = bodyPosition || '';
-          body.style.top = bodyTop || '';
-          body.style.width = bodyWidth || '';
-          // Restore scroll (invert the fixed offset)
-          window.scrollTo(0, scrollY || 0);
-        }
-        storedState = null;
+        docEl.style.overflow = '';
+        docEl.style.paddingRight = '';
+        savedScrollbarWidth = 0;
       }
     };
   }, [active]);
