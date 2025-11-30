@@ -12,8 +12,8 @@ import { useTranslations } from 'next-intl';
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
 import { proxyImage } from "@/lib/images";
 import cn from "@/app/cn";
-import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
-import ItemImageTooltip from "@/components/ItemImageTooltip";
+import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
+import ItemImageTooltip from "@/components/item/ItemImageTooltip";
 import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";
 import { useFormatter } from 'next-intl';
 

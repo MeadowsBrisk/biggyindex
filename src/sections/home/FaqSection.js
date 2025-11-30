@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
-import ChevronDown from "@/components/icons/ChevronDown";
+import ChevronDown from "@/components/common/icons/ChevronDown";
 import { useTranslations } from 'next-intl';
 // Questions and labels are localized via Home translations
 

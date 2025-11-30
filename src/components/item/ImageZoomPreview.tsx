@@ -12,9 +12,9 @@ import { pauseGifsAtom } from '@/store/atoms';
 import { proxyImage } from '@/lib/images';
 import { useHistoryState } from '@/hooks/useHistoryState';
 import { useScreenSize } from '@/hooks/useScreenSize';
-import { RotateButton, ZoomButton, ArrowLeftIcon, ArrowRightIcon } from '@/components/zoom/ZoomButtons';
-import ZoomSlide from '@/components/zoom/ZoomSlide';
-import ZoomThumbnails from '@/components/zoom/ZoomThumbnails';
+import { RotateButton, ZoomButton, ArrowLeftIcon, ArrowRightIcon } from '@/components/item/zoom/ZoomButtons';
+import ZoomSlide from '@/components/item/zoom/ZoomSlide';
+import ZoomThumbnails from '@/components/item/zoom/ZoomThumbnails';
 import { useTranslations } from 'next-intl';
 
 /* ImageZoomPreview */

@@ -5,7 +5,7 @@ import cn from "@/app/cn";
 import * as Slider from "@radix-ui/react-slider";
 import { useCallback, useEffect, useRef, type ChangeEvent } from 'react';
 import { currencySymbol } from '@/lib/priceDisplay';
-import FilterPinButton from "@/components/FilterPinButton";
+import FilterPinButton from "@/components/common/FilterPinButton";
 import { useTranslations } from 'next-intl';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 import { useExchangeRates } from '@/hooks/useExchangeRates';

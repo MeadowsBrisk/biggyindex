@@ -1,9 +1,9 @@
 "use client";
 import React from 'react';
 import cn from '@/app/cn';
-import { StarIcon } from '@/components/icons';
-import EndorseButton from '@/components/EndorseButton';
-import ShareMenu from '@/components/ShareMenu';
+import { StarIcon } from '@/components/common/icons';
+import EndorseButton from '@/components/actions/EndorseButton';
+import ShareMenu from '@/components/actions/ShareMenu';
 import { useTranslations } from 'next-intl';
 
 type Props = {

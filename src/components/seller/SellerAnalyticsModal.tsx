@@ -6,7 +6,7 @@ import { sellerAnalyticsOpenAtom, expandedSellerIdAtom } from '@/store/atoms';
 import { getMarketFromPath } from "@/lib/market";
 import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/app/cn';
-import SellerAvatarTooltip from '@/components/SellerAvatarTooltip';
+import SellerAvatarTooltip from '@/components/seller/SellerAvatarTooltip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useHistoryState } from '@/hooks/useHistoryState';
 import { formatBritishDateTime } from '@/lib/format';

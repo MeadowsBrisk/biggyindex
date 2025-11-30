@@ -16,10 +16,10 @@ import {
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { decodeEntities } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
-import { VanIcon } from '@/components/icons';
-import ImageZoomPreview from '@/components/ImageZoomPreview';
-import SellerPill from '@/components/SellerPill';
-import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
+import { VanIcon } from '@/components/common/icons';
+import ImageZoomPreview from '@/components/item/ImageZoomPreview';
+import SellerPill from '@/components/seller/SellerPill';
+import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Keyboard, EffectFade, FreeMode } from 'swiper/modules';
 import 'swiper/css/effect-fade';
@@ -35,16 +35,16 @@ import formatDescription from '@/lib/formatDescription';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/countries';
 import { proxyImage } from '@/lib/images';
 import cn from '@/app/cn';
-import MobileTabs from '@/components/item-detail/MobileTabs';
-import MobileActionsFab from '@/components/item-detail/MobileActionsFab';
-import DesktopHeaderActions from '@/components/item-detail/DesktopHeaderActions';
-import TabletActionsDock from '@/components/item-detail/TabletActionsDock';
-import VariantPriceList from '@/components/VariantPriceList';
+import MobileTabs from '@/components/item/item-detail/MobileTabs';
+import MobileActionsFab from '@/components/item/item-detail/MobileActionsFab';
+import DesktopHeaderActions from '@/components/item/item-detail/DesktopHeaderActions';
+import TabletActionsDock from '@/components/item/item-detail/TabletActionsDock';
+import VariantPriceList from '@/components/item/VariantPriceList';
 import { variantRangeText } from '@/lib/variantPricingDisplay';
 import { useTranslations, useFormatter } from 'next-intl';
 import { translateCategoryAndSubs } from '@/lib/taxonomyLabels';
-import FavButton from '@/components/FavButton';
-import BrowseIndexButton from '@/components/BrowseIndexButton';
+import FavButton from '@/components/actions/FavButton';
+import BrowseIndexButton from '@/components/actions/BrowseIndexButton';
 
 interface StandaloneItemDetailProps {
   baseItem: any;

@@ -3,28 +3,28 @@ import cn from "@/app/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
 import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom } from "@/store/atoms";
-import SellerPill from "./SellerPill";
+import SellerPill from "@/components/seller/SellerPill";
 import { usePerUnitLabel } from "@/hooks/usePerUnitLabel";
-import ImageZoomPreview from "@/components/ImageZoomPreview";
+import ImageZoomPreview from "@/components/item/ImageZoomPreview";
 import { selectAtom } from "jotai/utils";
-import ReviewStatsBadge from "@/components/ReviewStatsBadge";
+import ReviewStatsBadge from "@/components/reviews/ReviewStatsBadge";
 import { voteHasVotedAtom, endorsedSetAtom } from "@/store/votesAtoms";
-import EndorseButton from "@/components/EndorseButton";
+import EndorseButton from "@/components/actions/EndorseButton";
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { formatUSDRange, formatUSD, convertUSDToDisplay, currencySymbol } from '@/lib/priceDisplay';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
-import { VanIcon } from '@/components/icons';
+import { VanIcon } from '@/components/common/icons';
 import { useTranslations } from 'next-intl';
 import { decodeEntities, formatBritishDateTime } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/countries';
 import { proxyImage } from '@/lib/images';
 import { isDomesticShipping } from '@/lib/localeUtils';
-import { GifMedia } from '@/components/GifMedia';
+import { GifMedia } from '@/components/media/GifMedia';
 import { prefetchItemDetail } from '@/lib/itemDetailsCache';
 import { useDetailAvailability } from '@/hooks/useItemDetail';
-import FavButton from '@/components/FavButton';
-import VariantPillsScroll from '@/components/VariantPillsScroll';
+import FavButton from '@/components/actions/FavButton';
+import VariantPillsScroll from '@/components/item/VariantPillsScroll';
 
 // Types - using minified keys (n=name, d=description, i=imageUrl, sn=sellerName, etc.)
 // See src/types/item.ts for full key reference

@@ -1,11 +1,11 @@
 "use client";
 import React from 'react';
 import { useRouter } from 'next/router';
-import FlagGB from '@/components/flags/FlagGB';
-import FlagDE from '@/components/flags/FlagDE';
-import FlagFR from '@/components/flags/FlagFR';
-import FlagIT from '@/components/flags/FlagIT';
-import FlagPT from '@/components/flags/FlagPT';
+import FlagGB from '@/components/common/flags/FlagGB';
+import FlagDE from '@/components/common/flags/FlagDE';
+import FlagFR from '@/components/common/flags/FlagFR';
+import FlagIT from '@/components/common/flags/FlagIT';
+import FlagPT from '@/components/common/flags/FlagPT';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
 import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, getLocaleForMarket } from '@/lib/market';
 import { hostForLocale } from '@/lib/routing';

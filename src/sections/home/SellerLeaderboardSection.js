@@ -14,8 +14,8 @@ import { relativeCompact } from "@/lib/relativeTimeCompact";
 import { useTranslations, useFormatter } from 'next-intl';
 import { proxyImage } from "@/lib/images";
 import cn from "@/app/cn";
-import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
-import FilterPinButton from "@/components/FilterPinButton";
+import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
+import FilterPinButton from "@/components/common/FilterPinButton";
 
 function formatScorePercent(score) {
   if (typeof score !== "number" || Number.isNaN(score)) return null;

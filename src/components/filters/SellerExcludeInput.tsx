@@ -3,7 +3,7 @@ import { useMemo, useState, type ChangeEvent } from "react";
 import { useAtom } from "jotai";
 import { itemsAtom, excludedSellersAtom, excludedSellersPinnedAtom } from "@/store/atoms";
 import cn from "@/app/cn";
-import FilterPinButton from "@/components/FilterPinButton";
+import FilterPinButton from "@/components/common/FilterPinButton";
 import { useTranslations } from 'next-intl';
 
 export default function SellerExcludeInput() {

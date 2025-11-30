@@ -5,7 +5,7 @@ import cn from "@/app/cn";
 import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { countryLabel } from '@/lib/countries';
-import FilterPinButton from "@/components/FilterPinButton";
+import FilterPinButton from "@/components/common/FilterPinButton";
 import { catKeyForManifest, subKeyForManifest, translateSubLabel } from '@/lib/taxonomyLabels';
 import { useRouter } from 'next/router';
 

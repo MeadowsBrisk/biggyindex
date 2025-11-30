@@ -1,10 +1,10 @@
 "use client";
-import SearchBar from "@/components/SearchBar";
-import CategoryFilter from "@/components/CategoryFilter";
+import SearchBar from "@/components/filters/SearchBar";
+import CategoryFilter from "@/components/filters/CategoryFilter";
 import PriceRange from "@/components/filters/PriceRange";
 import SellerFilter from "@/components/filters/SellerFilter";
 import SortControls from "@/components/filters/SortControls";
-import InfoButton from "@/components/InfoButton";
+import InfoButton from "@/components/common/InfoButton";
 import Accordion from "@/components/filters/Accordion";
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";

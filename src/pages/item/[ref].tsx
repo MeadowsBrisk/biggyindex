@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import StandaloneItemDetail from '@/components/StandaloneItemDetail';
+import StandaloneItemDetail from '@/components/item/StandaloneItemDetail';
 import { useSetAtom } from 'jotai';
 import { expandedRefNumAtom } from '@/store/atoms';
 import { fetchItemDetail } from '@/lib/itemDetails';

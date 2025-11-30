@@ -9,7 +9,7 @@ import Image from "next/image";
 import { proxyImage } from "@/lib/images";
 import { timeAgo } from "@/lib/format";
 import { AnimatePresence, motion } from "framer-motion";
-import SellerAvatarTooltip from "@/components/SellerAvatarTooltip";
+import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import { useTranslations } from 'next-intl';
 import { relativeCompact } from "@/lib/relativeTimeCompact";
 

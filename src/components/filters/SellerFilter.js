@@ -1,5 +1,4 @@
-"use client";
-import { useMemo, useState, useRef, useEffect, type KeyboardEvent, type ChangeEvent, type MouseEvent } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useAtom } from "jotai";
 import { 
@@ -9,19 +8,9 @@ import {
   excludedSellersPinnedAtom,
   includedSellersPinnedAtom 
 } from "@/store/atoms";
-import type { Item } from "@/store/atoms";
 import cn from "@/app/cn";
 import FilterPinButton from "@/components/common/FilterPinButton";
 import { useTranslations } from 'next-intl';
-
-type FilterMode = "include" | "exclude";
-
-interface DropdownPosition {
-  top: number;
-  left: number;
-  width: number;
-  openAbove: boolean;
-}
 
 export default function SellerFilter() {
   const t = useTranslations('Sidebar');
@@ -31,12 +20,12 @@ export default function SellerFilter() {
   const [excludedPinned, setExcludedPinned] = useAtom(excludedSellersPinnedAtom);
   const [includedPinned, setIncludedPinned] = useAtom(includedSellersPinnedAtom);
   
-  const [mode, setMode] = useState<FilterMode>("include");
+  const [mode, setMode] = useState("include"); // "include" | "exclude"
   const [input, setInput] = useState("");
-  const [dropdownPosition, setDropdownPosition] = useState<DropdownPosition>({ top: 0, left: 0, width: 0, openAbove: false });
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0, openAbove: false });
   const [mounted, setMounted] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -46,21 +35,16 @@ export default function SellerFilter() {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const sellers = useMemo(
-    // Use minified key (sn) for seller name
-    () => Array.from(new Set(items.map((i: Item) => i.sn).filter(Boolean))) as string[],
+    // Support both minified (sn) and legacy (sellerName) keys
+    () => Array.from(new Set(items.map((i) => i.sn || i.sellerName).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
     [items]
-  );
-  
-  const sortedSellers = useMemo(
-    () => [...sellers].sort((a, b) => a.localeCompare(b)),
-    [sellers]
   );
 
   const suggestions = useMemo(() => {
     const q = input.trim().toLowerCase();
     if (!q || q.length < 2) return [];
-    return sortedSellers.filter((s) => s.toLowerCase().includes(q)).slice(0, 10);
-  }, [input, sortedSellers]);
+    return sellers.filter((s) => s.toLowerCase().includes(q)).slice(0, 10);
+  }, [input, sellers]);
 
   // Reset highlighted index when suggestions change
   useEffect(() => {
@@ -71,7 +55,6 @@ export default function SellerFilter() {
   useEffect(() => {
     if (suggestions.length > 0 && inputRef.current) {
       const updatePosition = () => {
-        if (!inputRef.current) return;
         const rect = inputRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
         const spaceBelow = viewportHeight - rect.bottom;
@@ -104,12 +87,12 @@ export default function SellerFilter() {
   useEffect(() => {
     if (suggestions.length === 0) return;
     
-    const handleClickOutside = (e: globalThis.MouseEvent) => {
+    const handleClickOutside = (e) => {
       if (
         inputRef.current && 
-        !inputRef.current.contains(e.target as Node) &&
+        !inputRef.current.contains(e.target) &&
         dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
+        !dropdownRef.current.contains(e.target)
       ) {
         setInput("");
       }
@@ -123,7 +106,7 @@ export default function SellerFilter() {
   const activeList = isIncludeMode ? included : excluded;
   const setActiveList = isIncludeMode ? setIncluded : setExcluded;
 
-  const add = (name: string) => {
+  const add = (name) => {
     if (!name) return;
     const lower = name.toLowerCase();
     if (activeList.includes(lower)) return;
@@ -131,7 +114,7 @@ export default function SellerFilter() {
     setInput("");
   };
 
-  const remove = (lower: string) => {
+  const remove = (lower) => {
     setActiveList(activeList.filter((e) => e !== lower));
   };
 
@@ -140,44 +123,6 @@ export default function SellerFilter() {
   };
 
   const hasCurrentModeFilters = activeList.length > 0;
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (suggestions.length > 0) {
-      // Arrow down or Tab: move to next suggestion
-      if (e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey)) {
-        e.preventDefault();
-        setHighlightedIndex((prev) => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
-        return;
-      }
-      // Arrow up or Shift+Tab: move to previous suggestion
-      if (e.key === "ArrowUp" || (e.key === "Tab" && e.shiftKey)) {
-        e.preventDefault();
-        setHighlightedIndex((prev) => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
-        return;
-      }
-      // Enter: select highlighted or add typed input
-      if (e.key === "Enter") {
-        e.preventDefault();
-        if (highlightedIndex >= 0 && suggestions[highlightedIndex]) {
-          add(suggestions[highlightedIndex]);
-        } else if (input.trim()) {
-          add(input);
-        }
-        return;
-      }
-    } else if (e.key === "Enter" && input.trim()) {
-      add(input);
-      return;
-    }
-    if (e.key === "Escape") {
-      setInput("");
-      setHighlightedIndex(-1);
-    }
-  };
 
   return (
     <div className="space-y-3">
@@ -203,7 +148,7 @@ export default function SellerFilter() {
           </span>
           {/* Pin for include - show if pinned OR (this tab is active AND has sellers) */}
           {(includedPinned || (mode === "include" && included.length > 0)) && (
-            <div className="absolute right-1 top-1/2 -translate-y-1/2" onClick={(e: MouseEvent) => e.stopPropagation()}>
+            <div className="absolute right-1 top-1/2 -translate-y-1/2" onClick={(e) => e.stopPropagation()}>
               <FilterPinButton 
                 asSpan
                 pinned={includedPinned} 
@@ -233,7 +178,7 @@ export default function SellerFilter() {
           </span>
           {/* Pin for exclude - show if pinned OR (this tab is active AND has sellers) */}
           {(excludedPinned || (mode === "exclude" && excluded.length > 0)) && (
-            <div className="absolute right-1 top-1/2 -translate-y-1/2" onClick={(e: MouseEvent) => e.stopPropagation()}>
+            <div className="absolute right-1 top-1/2 -translate-y-1/2" onClick={(e) => e.stopPropagation()}>
               <FilterPinButton 
                 asSpan
                 pinned={excludedPinned} 
@@ -257,8 +202,44 @@ export default function SellerFilter() {
                 : "border-red-200 dark:border-red-800/50 bg-white dark:bg-gray-900 focus:ring-red-500/40"
             )}
             value={input}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (suggestions.length > 0) {
+                // Arrow down or Tab: move to next suggestion
+                if (e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey)) {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) => 
+                    prev < suggestions.length - 1 ? prev + 1 : 0
+                  );
+                  return;
+                }
+                // Arrow up or Shift+Tab: move to previous suggestion
+                if (e.key === "ArrowUp" || (e.key === "Tab" && e.shiftKey)) {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) => 
+                    prev > 0 ? prev - 1 : suggestions.length - 1
+                  );
+                  return;
+                }
+                // Enter: select highlighted or add typed input
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (highlightedIndex >= 0 && suggestions[highlightedIndex]) {
+                    add(suggestions[highlightedIndex]);
+                  } else if (input.trim()) {
+                    add(input);
+                  }
+                  return;
+                }
+              } else if (e.key === "Enter" && input.trim()) {
+                add(input);
+                return;
+              }
+              if (e.key === "Escape") {
+                setInput("");
+                setHighlightedIndex(-1);
+              }
+            }}
             placeholder={mode === 'include' ? t('typeToIncludeSeller') : t('typeToExcludeSeller')}
           />
           <button
@@ -274,6 +255,8 @@ export default function SellerFilter() {
           >
             {t('add')}
           </button>
+
+          {/* Suggestions dropdown - rendered via portal outside sidebar */}
         </div>
 
         {/* Clear button for current mode */}
@@ -340,7 +323,7 @@ export default function SellerFilter() {
                   : "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200"
               )}
             >
-              {sortedSellers.find((s) => s.toLowerCase() === lower) || lower}
+              {sellers.find((s) => s.toLowerCase() === lower) || lower}
               <button
                 type="button"
                 className="ml-0.5 hover:opacity-70 transition-opacity"
