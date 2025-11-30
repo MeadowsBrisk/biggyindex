@@ -97,7 +97,7 @@ export default function MobileActionsFab({
             </svg>
           </button>
           {shareOpen && (
-            <ShareMenu url={shareUrl} title={(baseItem as any)?.n || (baseItem as any)?.name || 'Item'} onClose={() => setShareOpen(false)} />
+            <ShareMenu url={shareUrl} title={(baseItem as any)?.n || 'Item'} onClose={() => setShareOpen(false)} />
           )}
           </div>
         </div>

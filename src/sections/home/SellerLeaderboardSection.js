@@ -218,7 +218,7 @@ function LeaderboardPanel({ variant, title, subtitle, items, emptyMessage, mount
                       <SellerAvatarTooltip sellerName={entry.sellerName} sellerImageUrl={entry.imageUrl}>
                         <div className="relative h-10 w-10 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 dark:border-white/15 dark:bg-white/10">
                           <img
-                            src={proxyImage(entry.imageUrl)}
+                            src={proxyImage(entry.imageUrl, 96)}
                             alt={`${entry.sellerName} avatar`}
                             loading="lazy"
                             decoding="async"
@@ -513,7 +513,7 @@ export default function SellerLeaderboardSection({ leaderboard, sellersIndex }) 
                           {entry.imageUrl ? (
                             <SellerAvatarTooltip sellerName={entry.sellerName} sellerImageUrl={entry.imageUrl}>
                               <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-slate-200/80 bg-slate-100 dark:border-white/15 dark:bg-white/10">
-                                <img src={proxyImage(entry.imageUrl)} alt={`${entry.sellerName} avatar`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                                <img src={proxyImage(entry.imageUrl, 80)} alt={`${entry.sellerName} avatar`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                               </div>
                             </SellerAvatarTooltip>
                           ) : (

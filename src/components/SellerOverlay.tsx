@@ -140,7 +140,8 @@ export default function SellerOverlay() {
   const rawSellerImage = detail?.sellerImageUrl ?? detail?.imageUrl ?? sellerMeta?.sellerImageUrl ?? sellerMeta?.imageUrl ?? null;
   const img: string | null = useMemo(() => {
     if (!rawSellerImage) return null;
-    const proxied = proxyImage(rawSellerImage);
+    // 7rem avatar = ~112px, request 224px for 2x DPR
+    const proxied = proxyImage(rawSellerImage, 224);
     return proxied || null;
   }, [rawSellerImage]);
   

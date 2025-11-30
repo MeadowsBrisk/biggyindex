@@ -111,8 +111,7 @@ export default function MobileTabs({
     return c == null ? null : c;
   }, [includeShipping, selectedShipIdx, shippingOptions]);
   const showSelection = includeShipping || selectionMode;
-  // Support both minified (v) and full (variants) keys
-  const variants = Array.isArray(baseItem?.v) ? baseItem.v : Array.isArray(baseItem?.variants) ? baseItem.variants : [];
+  const variants = Array.isArray(baseItem?.v) ? baseItem.v : [];
   const internalRangeText = useMemo(() => {
     if (variants.length === 0) return '';
     return variantRangeText({
@@ -265,7 +264,7 @@ export default function MobileTabs({
                       const v = variants[i];
                       const vid = v.vid ?? v.id ?? i;
                       if (!sel.has(vid)) continue;
-                      const descRaw = (v.d || v.description || '');
+                      const descRaw = (v.d || '');
                       const desc = typeof descRaw === 'string' && descRaw ? decodeEntities(descRaw) : '';
                       const priceUsd = typeof v.usd === 'number' ? v.usd : typeof v.baseAmount === 'number' ? v.baseAmount : null;
                       addToBasket({
@@ -273,13 +272,13 @@ export default function MobileTabs({
                         refNum: baseItem?.refNum,
                         variantId: vid,
                         variantDesc: desc || 'Variant',
-                        name: displayName || baseItem?.n || baseItem?.name,
-                        sellerName: baseItem?.sn || baseItem?.sellerName,
+                        name: displayName || baseItem?.n,
+                        sellerName: baseItem?.sn,
                         qty: 1,
                         priceUSD: priceUsd,
                         shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
                         includeShip: !!includeShipping,
-                        imageUrl: leadImage || baseItem?.i || baseItem?.imageUrl,
+                        imageUrl: leadImage || baseItem?.i,
                         sl,
                       });
                     }

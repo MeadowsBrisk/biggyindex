@@ -128,8 +128,8 @@ export default function ItemDetailOverlay() {
   // Hooks that must not be conditionally skipped (declare before any early return)
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
-    const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : Array.isArray(baseItem?.imageUrls) ? baseItem.imageUrls : [];
-    const primary = (baseItem as any)?.i || (baseItem as any)?.imageUrl || (detail as any)?.imageUrl;
+    const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : [];
+    const primary = (baseItem as any)?.i || (detail as any)?.imageUrl;
     let list = dImgs.length ? dImgs : bImgs;
     if ((!list || list.length === 0) && primary) list = [primary];
     const seen = new Set<string>();
@@ -242,12 +242,12 @@ export default function ItemDetailOverlay() {
     return () => window.removeEventListener('keydown', onKey as any);
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
-  const name = decodeEntities((baseItem as any)?.n || (baseItem as any)?.name || (detail as any)?.name || 'Item');
+  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
   // Prefer full description from detail JSON; fall back to detail.description; then list summary
-  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || (baseItem as any)?.description || '';
+  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);
-  const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) ? (baseItem as any).v.length > 0 : Array.isArray((baseItem as any)?.variants) ? (baseItem as any).variants.length > 0 : false;
+  const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) && (baseItem as any).v.length > 0;
   const hasImages = images.length > 0;
   const showUnavailableBanner = Boolean(
     !loading && !globalLoading && !error && detail && 
@@ -257,13 +257,13 @@ export default function ItemDetailOverlay() {
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null); // review image zoom state
   const reviewMeta = (detail as any)?.reviewsMeta;
-  const category = (baseItem as any)?.c || (baseItem as any)?.category || null;
-  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : Array.isArray((baseItem as any)?.subcategories) ? (baseItem as any).subcategories : [];
-  const shipsFrom = (baseItem as any)?.sf || (baseItem as any)?.shipsFrom || null;
-  const lastUpdatedAt = (baseItem as any)?.lua || (baseItem as any)?.lastUpdatedAt || null;
-  const lastUpdateReason = (baseItem as any)?.lur || (baseItem as any)?.lastUpdateReason || null;
+  const category = (baseItem as any)?.c || null;
+  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : [];
+  const shipsFrom = (baseItem as any)?.sf || null;
+  const lastUpdatedAt = (baseItem as any)?.lua || null;
+  const lastUpdateReason = (baseItem as any)?.lur || null;
   const compactUpdateReason = useUpdateReason(lastUpdateReason);
-  const createdAt = (baseItem as any)?.fsa || (baseItem as any)?.firstSeenAt || (detail as any)?.createdAt || null;
+  const createdAt = (baseItem as any)?.fsa || (detail as any)?.createdAt || null;
   const shippingRange = (() => {
     const sh = (baseItem as any)?.sh;
     const minShip = sh?.min ?? (baseItem as any)?.minShip ?? null;
@@ -402,7 +402,7 @@ export default function ItemDetailOverlay() {
   const [, setCategory] = useAtom(categoryAtom);
   const [, setSubs] = useAtom(selectedSubcategoriesAtom);
   const goCategory = useCallback((cat?: string) => { if (!cat) return; setCategory(cat as any); (setSubs as any)([] as any); setRefNum(null as any); }, [setCategory, setSubs, setRefNum]);
-  const clickSub = useCallback((sub?: string) => { if (!sub) return; setCategory(((category as any) || (baseItem as any)?.c || (baseItem as any)?.category || 'All') as any); (setSubs as any)((curr: any[]) => curr.includes(sub) ? curr.filter((s: any) => s !== sub) : [...curr, sub]); setRefNum(null as any); }, [setCategory, setSubs, setRefNum, category, baseItem]);
+  const clickSub = useCallback((sub?: string) => { if (!sub) return; setCategory(((category as any) || (baseItem as any)?.c || 'All') as any); (setSubs as any)((curr: any[]) => curr.includes(sub) ? curr.filter((s: any) => s !== sub) : [...curr, sub]); setRefNum(null as any); }, [setCategory, setSubs, setRefNum, category, baseItem]);
 
   // Early-out render after all hooks are declared to keep hooks order stable
   if (!refNum) return null;
@@ -542,7 +542,7 @@ export default function ItemDetailOverlay() {
                             title={tOv('imageNum', { num: idx + 1 })}
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={proxyImage(src)} alt="thumb" className="w-full h-full object-cover" />
+                            <img src={proxyImage(src, 112)} alt="thumb" className="w-full h-full object-cover" />
                           </button>
                         </SwiperSlide>
                       ))}
@@ -612,7 +612,7 @@ export default function ItemDetailOverlay() {
                   formatDescription={formatDescription}
                   sl={sl}
                   displayName={name}
-                  leadImage={images?.[0] || (baseItem as any)?.imageUrl}
+                  leadImage={images?.[0] || (baseItem as any)?.i}
                 />
                 {/* Mobile actions toggle moved to bottom-left absolute (same bottom offset as Biggy), mobile only */}
               </div>
@@ -755,7 +755,7 @@ export default function ItemDetailOverlay() {
                           const v = baseVariants[idx];
                           const vid = v.vid ?? v.id ?? idx;
                           if (!selIds.has(vid)) continue;
-                          const descRaw = ((v.d ?? v.description) && typeof (v.d ?? v.description) === 'string') ? (v.d ?? v.description) : '';
+                          const descRaw = v.d || '';
                           const desc = descRaw ? decodeEntities(descRaw) : '';
                           addToBasket({
                             id: (baseItem as any)?.id,
@@ -765,10 +765,10 @@ export default function ItemDetailOverlay() {
                             name,
                             sellerName: resolvedSellerName,
                             qty: 1,
-                            priceUSD: typeof (v.usd ?? v.baseAmount) === 'number' ? (v.usd ?? v.baseAmount) : null,
+                            priceUSD: typeof v.usd === 'number' ? v.usd : null,
               shippingUsd: includeShipping ? ((shippingUsd ?? null) as any) : null,
               includeShip: !!includeShipping,
-                            imageUrl: images?.[0] || (baseItem as any)?.imageUrl,
+                            imageUrl: images?.[0] || (baseItem as any)?.i,
                             sl,
                           });
                         }

@@ -184,7 +184,7 @@ export default function RecentItemsSection({ items }) {
                           <div className="relative aspect-square md:aspect-[350/280] w-full overflow-hidden border-b border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5 rounded-[6px] overflow-hidden">
                             {item.imageUrl ? (
                               <img
-                                src={proxyImage(item.imageUrl)}
+                                src={proxyImage(item.imageUrl, 400)}
                                 alt={item.name}
                                 loading="lazy"
                                 decoding="async"
@@ -204,7 +204,7 @@ export default function RecentItemsSection({ items }) {
                               <SellerAvatarTooltip sellerName={item.sellerName} sellerImageUrl={item.sellerImageUrl}>
                                 <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-slate-100 dark:bg-white/10 cursor-pointer">
                                   {item.sellerImageUrl ? (
-                                    <img src={proxyImage(item.sellerImageUrl)} alt={item.sellerName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                                    <img src={proxyImage(item.sellerImageUrl, 64)} alt={item.sellerName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                   ) : (
                                     <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase text-slate-400 dark:text-white/50">
                                       {getInitials(item.sellerName)}

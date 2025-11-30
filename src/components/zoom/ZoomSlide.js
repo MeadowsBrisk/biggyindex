@@ -18,6 +18,7 @@ import cn from '@/app/cn';
  *  - controlsRef: ref object to store zoom controls per index
  *  - currentScaleRef: ref to current zoom scale (shared)
  *  - paused: boolean indicating GIF paused state (only meaningful if GIF)
+ *  - thumbSrc: optional thumbnail URL to show as placeholder while full image loads
  */
 export default function ZoomSlide({
   src,
@@ -31,11 +32,18 @@ export default function ZoomSlide({
   controlsRef,
   currentScaleRef,
   paused,
+  thumbSrc,
 }) {
   const isGif = typeof src === 'string' && /\.gif($|[?#])/i.test(src);
   const { video, posterProxied } = useGifAsset(isGif ? src : null);
   const rawSrc = src;
   const displaySrc = !isGif && useProxy ? proxyImage(src) : rawSrc;
+  
+  // Progressive loading: show thumbnail until full image loads
+  const [fullLoaded, setFullLoaded] = React.useState(false);
+  const thumbProxied = thumbSrc && useProxy ? proxyImage(thumbSrc, 800) : thumbSrc;
+  React.useEffect(() => { setFullLoaded(false); }, [src]);
+  
   const videoRef = React.useRef(null);
   // sync pause state to video
   React.useEffect(() => {
@@ -107,15 +115,33 @@ export default function ZoomSlide({
                       />
                     )
                   ) : (
-                    <img
-                      src={displaySrc}
-                      alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
-                      style={{ maxHeight: '90vh', maxWidth: '90vw' }}
-                      className="w-auto h-auto block select-none object-contain"
-                      draggable={false}
-                      loading="eager"
-                      decoding="async"
-                    />
+                    <div className="relative">
+                      {/* Thumbnail placeholder (blurred) - shown until full image loads */}
+                      {thumbProxied && !fullLoaded && (
+                        <img
+                          src={thumbProxied}
+                          alt=""
+                          aria-hidden="true"
+                          style={{ maxHeight: '90vh', maxWidth: '90vw', filter: 'blur(2px)' }}
+                          className="w-auto h-auto block select-none object-contain"
+                          draggable={false}
+                        />
+                      )}
+                      {/* Full resolution image */}
+                      <img
+                        src={displaySrc}
+                        alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
+                        style={{ maxHeight: '90vh', maxWidth: '90vw' }}
+                        className={cn(
+                          "w-auto h-auto block select-none object-contain",
+                          thumbProxied && !fullLoaded && "absolute inset-0 opacity-0"
+                        )}
+                        draggable={false}
+                        loading="eager"
+                        decoding="async"
+                        onLoad={() => setFullLoaded(true)}
+                      />
+                    </div>
                   )}
                 </div>
               </div>

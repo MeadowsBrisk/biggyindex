@@ -123,7 +123,7 @@ export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_
                   <button key={idx+src} type="button" onClick={() => onImageClick && onImageClick(src, images, idx)}
                           className="group/img relative w-20 h-20 rounded-md overflow-hidden border border-gray-300/60 dark:border-gray-700/70 bg-gray-100 dark:bg-gray-800 hover:ring-2 hover:ring-blue-400/60 focus:outline-none focus-visible:ring-2 ring-blue-500">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={proxyImage(src)} alt={t('reviewImageAlt')} className="object-cover w-full h-full transition-transform duration-300 group-hover/img:scale-110" loading="lazy" decoding="async" />
+                    <img src={proxyImage(src, 160)} alt={t('reviewImageAlt')} className="object-cover w-full h-full transition-transform duration-300 group-hover/img:scale-110" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>

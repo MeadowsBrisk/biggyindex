@@ -61,8 +61,8 @@ export default function VariantPriceList({
           selectedVariantIds,
           variantId: vid,
         });
-        // Support both minified d and legacy description
-        const descRaw = (v.d && typeof v.d === 'string') ? v.d : ((v.description && typeof v.description === 'string') ? v.description : '');
+        // Use minified d key for description
+        const descRaw = (v.d && typeof v.d === 'string') ? v.d : '';
         const desc = descRaw ? decodeEntities(descRaw) : '';
         const per = perUnitSuffix(descRaw, numericDisplayed, displayCurrency);
         return (

@@ -33,7 +33,7 @@ export function displayedAmount({ baseUsd, currency = 'GBP', rates, shippingUsd,
 }
 
 // Compute range text for the current currency using displayed amounts
-// Supports both minified keys (usd, vid) and full keys (baseAmount, id)
+// Uses minified keys (usd, vid)
 export function variantRangeText({ variants, displayCurrency = 'GBP', rates, shippingUsd, includeShipping, selectedVariantIds }:{ variants: Array<{ id?: string|number; vid?: string|number; baseAmount?: number|null; usd?: number|null }>|null|undefined; displayCurrency?: DisplayCurrency; rates: ExchangeRates; shippingUsd: number | null | undefined; includeShipping: boolean; selectedVariantIds: Set<string|number> | null | undefined }): string {
   if (!Array.isArray(variants) || variants.length === 0) return '';
   // Compute range in USD first, then format with chosen currency via formatUSDRange
@@ -41,7 +41,7 @@ export function variantRangeText({ variants, displayCurrency = 'GBP', rates, shi
   for (let i = 0; i < variants.length; i++) {
     const v = variants[i] as any;
     const vid = v.vid ?? v.id ?? i;
-    const baseUsd = (typeof v.usd === 'number' && isFinite(v.usd)) ? v.usd : (typeof v.baseAmount === 'number' && isFinite(v.baseAmount)) ? v.baseAmount : null;
+    const baseUsd = (typeof v.usd === 'number' && isFinite(v.usd)) ? v.usd : null;
     if (baseUsd == null) continue;
     const amtUsd = displayedUSDForVariant(baseUsd, shippingUsd as any, includeShipping, selectedVariantIds as any, vid);
     if (typeof amtUsd === 'number' && isFinite(amtUsd)) amountsUSD.push(amtUsd);

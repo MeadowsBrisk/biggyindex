@@ -461,7 +461,7 @@ function ReviewRow({ review, onImageClick }: { review: CombinedReview; onImageCl
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm dark:border-white/20 dark:bg-white/10">
               <div className="relative h-12 w-12">
                 <img
-                  src={proxyImage(review.itemImageUrl as any)}
+                  src={proxyImage(review.itemImageUrl as any, 96)}
                   alt={`${review.itemName} image`}
                   loading="lazy"
                   decoding="async"
@@ -548,7 +548,7 @@ function ReviewRow({ review, onImageClick }: { review: CombinedReview; onImageCl
                 className="group relative h-16 w-16 overflow-hidden rounded-lg border border-slate-300/70 bg-slate-100 dark:border-white/20 dark:bg-white/10 hover:ring-2 hover:ring-emerald-500/60 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <img
-                  src={proxyImage(src)}
+                  src={proxyImage(src, 128)}
                   alt={tReviews('reviewImageAlt')}
                   loading="lazy"
                   decoding="async"

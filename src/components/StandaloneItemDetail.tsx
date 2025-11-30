@@ -67,8 +67,8 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   // Images logic
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
-    const bImgs = Array.isArray(baseItem?.imageUrls) ? baseItem.imageUrls : [];
-    const primary = (baseItem as any)?.imageUrl || (detail as any)?.imageUrl;
+    const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : [];
+    const primary = (baseItem as any)?.i || (detail as any)?.imageUrl;
     let list = dImgs.length ? dImgs : bImgs;
     if ((!list || list.length === 0) && primary) list = [primary];
     const seen = new Set<string>();
@@ -121,7 +121,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const resolvedSellerName = useMemo(() => {
     if (typeof (detail as any)?.sellerName === 'string' && (detail as any).sellerName) return decodeEntities((detail as any).sellerName);
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
-    if (typeof (baseItem as any)?.sellerName === 'string' && (baseItem as any).sellerName) return decodeEntities((baseItem as any).sellerName);
+    if (typeof (baseItem as any)?.sn === 'string' && (baseItem as any).sn) return decodeEntities((baseItem as any).sn);
     return '';
   }, [detail, baseItem]);
 
@@ -160,10 +160,11 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
     }
   }, [detail, shippingOptions, includeShipping, selectedShipIdx]);
 
-  const name = decodeEntities((baseItem as any)?.name || (detail as any)?.name || 'Item');
-  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.description || '';
+  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
+  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
-  const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.variants) ? (baseItem as any).variants.length > 0 : false;
+  const baseVariants = (baseItem as any)?.v || [];
+  const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray(baseVariants) && baseVariants.length > 0;
   const showUnavailableBanner = Boolean(
     detail && 
     Array.isArray((detail as any).variants) && (detail as any).variants.length === 0 &&
@@ -172,13 +173,13 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null);
   const reviewMeta = (detail as any)?.reviewsMeta;
-  const category = (baseItem as any)?.category || null;
-  const subcategories = Array.isArray((baseItem as any)?.subcategories) ? (baseItem as any).subcategories : [];
-  const shipsFrom = (baseItem as any)?.shipsFrom || null;
-  const lastUpdatedAt = (baseItem as any)?.lastUpdatedAt || null;
-  const lastUpdateReason = (baseItem as any)?.lastUpdateReason || null;
+  const category = (baseItem as any)?.c || null;
+  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : [];
+  const shipsFrom = (baseItem as any)?.sf || null;
+  const lastUpdatedAt = (baseItem as any)?.lua || null;
+  const lastUpdateReason = (baseItem as any)?.lur || null;
   const compactUpdateReason = useUpdateReason(lastUpdateReason);
-  const createdAt = (baseItem as any)?.firstSeenAt || (detail as any)?.createdAt || null;
+  const createdAt = (baseItem as any)?.fsa || (detail as any)?.createdAt || null;
   const sl = (detail as any)?.sl || (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
   
   const shareRef = refNum as any;
@@ -229,23 +230,23 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const showSelection = includeShipping || selectionMode;
 
   const variantPriceRangeText = useMemo(() => {
-    if (!Array.isArray((baseItem as any)?.variants) || (baseItem as any).variants.length === 0) return '';
+    if (!Array.isArray(baseVariants) || baseVariants.length === 0) return '';
     return variantRangeText({
-      variants: (baseItem as any).variants,
+      variants: baseVariants,
       displayCurrency,
       rates,
       shippingUsd: selectedShippingUsd as any,
       includeShipping: includeShipping || selectionMode,
       selectedVariantIds,
     });
-  }, [baseItem, displayCurrency, rates, selectedShippingUsd, includeShipping, selectionMode, selectedVariantIds]);
+  }, [baseVariants, displayCurrency, rates, selectedShippingUsd, includeShipping, selectionMode, selectedVariantIds]);
 
   const selectedTotalText = useMemo(() => {
-    if (!Array.isArray((baseItem as any)?.variants) || selectedVariantIds.size === 0) return '';
+    if (!Array.isArray(baseVariants) || selectedVariantIds.size === 0) return '';
     const sel = selectedVariantIds;
     let totalUSD = 0;
-    for (let i = 0; i < (baseItem as any).variants.length; i++) {
-      const v = (baseItem as any).variants[i];
+    for (let i = 0; i < baseVariants.length; i++) {
+      const v = baseVariants[i];
       const vid = v.id || i;
       if (!sel.has(vid)) continue;
       const baseUsd = (typeof v.baseAmount === 'number' && isFinite(v.baseAmount)) ? v.baseAmount : null;
@@ -365,7 +366,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                             )}
                           >
-                            <img src={proxyImage(src)} alt="thumb" className="w-full h-full object-cover" />
+                            <img src={proxyImage(src, 112)} alt="thumb" className="w-full h-full object-cover" />
                           </button>
                         </SwiperSlide>
                       ))}
@@ -421,7 +422,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   formatDescription={formatDescription}
                   sl={sl}
                   displayName={name}
-                  leadImage={images?.[0] || (baseItem as any)?.imageUrl}
+                  leadImage={images?.[0] || (baseItem as any)?.i}
                 />
               </div>
               </>
@@ -454,7 +455,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
               )}
 
               {/* Variant prices (Desktop) */}
-              {Array.isArray((baseItem as any)?.variants) && (baseItem as any).variants.length > 0 && (
+              {Array.isArray(baseVariants) && baseVariants.length > 0 && (
                 <div className="hidden md:block mt-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-4 shrink-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
@@ -502,7 +503,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                     <div className="mb-2 text-xs text-gray-500 dark:text-gray-400">{tOv('selectVariantsHint')}</div>
                   )}
                   <VariantPriceList
-                    variants={(baseItem as any).variants}
+                    variants={baseVariants}
                     rates={rates}
                     displayCurrency={displayCurrency}
                     includeShipping={includeShipping || selectionMode}
@@ -520,7 +521,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                       <span>{selectedVariantIds.size || 0} {tOv('selectedLabel')}</span>
                       <button type="button" className="underline hover:no-underline" onClick={() => {
                         const all = new Set<any>();
-                        for (const v of (((baseItem as any).variants) || [])) all.add(v.id || ((baseItem as any).variants ? (baseItem as any).variants.indexOf(v) : undefined));
+                        for (const v of baseVariants) all.add(v.vid ?? v.id ?? baseVariants.indexOf(v));
                         setSelectedVariantIds(all);
                       }}>{tOv('selectAll')}</button>
                       <button type="button" className="underline hover:no-underline" onClick={() => setSelectedVariantIds(new Set())}>{tOv('clear')}</button>
@@ -548,10 +549,10 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                             }
                           }
                           const selIds = new Set(selectedVariantIds);
-                          for (const v of (((baseItem as any).variants) || [])) {
-                            const vid = v.id || (baseItem as any).variants.indexOf(v);
+                          for (const v of baseVariants) {
+                            const vid = v.vid ?? v.id ?? baseVariants.indexOf(v);
                             if (!selIds.has(vid)) continue;
-                            const descRaw = (v.description && typeof v.description === 'string') ? v.description : '';
+                            const descRaw = (v.d || '') as string;
                             const desc = descRaw ? decodeEntities(descRaw) : '';
                             addToBasket({
                               id: (baseItem as any)?.id,
@@ -559,12 +560,12 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                               variantId: vid,
                               variantDesc: desc || 'Variant',
                               name,
-                              sellerName: (baseItem as any)?.sellerName,
+                              sellerName: (baseItem as any)?.sn,
                               qty: 1,
-                              priceUSD: typeof v.baseAmount === 'number' ? v.baseAmount : null,
+                              priceUSD: typeof v.usd === 'number' ? v.usd : (typeof v.baseAmount === 'number' ? v.baseAmount : null),
                               shippingUsd: includeShipping ? ((shippingUsd ?? null) as any) : null,
                               includeShip: !!includeShipping,
-                              imageUrl: images?.[0] || (baseItem as any)?.imageUrl,
+                              imageUrl: images?.[0] || (baseItem as any)?.i,
                               sl,
                             });
                           }

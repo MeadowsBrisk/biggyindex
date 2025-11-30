@@ -7,24 +7,27 @@ const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD || 'YOUR_CLOUD
 // Falls back to Cloudflare Worker proxy if Cloudinary not configured
 const USE_CLOUDINARY = CLOUDINARY_CLOUD !== 'YOUR_CLOUD_NAME';
 
-// Cloudinary fetch URL builder
-// - f_auto: automatic format (WebP/AVIF based on browser support)
+// Cloudinary fetch URL builder with responsive sizing
+// - f_avif: force AVIF format for best compression (all modern browsers support it)
 // - q_auto: automatic quality optimization
-// - No width limit: serve full resolution so image is cached once for both thumbnail and zoom
-// - dpr_auto removed: not needed when serving full size
-function cloudinaryFetch(url: string): string {
+// - w_X: resize to specified width (prevents sending oversized images)
+// - c_limit: only downscale, never upscale
+function cloudinaryFetch(url: string, width?: number): string {
   // Cloudinary fetch mode - fetches from any URL and transforms on the fly
-  // Full size, auto format (AVIF/WebP), auto quality compression
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/fetch/f_auto,q_auto/${encodeURIComponent(url)}`;
+  const transforms = width 
+    ? `f_avif,q_auto,w_${width},c_limit`
+    : 'f_avif,q_auto';
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/fetch/${transforms}/${encodeURIComponent(url)}`;
 }
 
 // Proxy image URLs via Cloudinary (preferred) or Cloudflare Worker (fallback)
 // - Skips non-strings
 // - Skips already proxied URLs
 // - Skips local same-origin paths (/ or same host) to avoid needless round trip
-// - Cloudinary: auto WebP/AVIF, compression, CDN - full size for caching
+// - Cloudinary: auto WebP/AVIF, compression, CDN
 // - Cloudflare Worker: CORS proxy with edge caching
-export function proxyImage(url: string): string {
+// - width: optional target width for responsive images (default: 400 for cards, omit for full size)
+export function proxyImage(url: string, width?: number): string {
   if (!url || typeof url !== 'string') return url as any;
   // Skip root-relative or explicit same-origin URLs (poster assets, etc.)
   if (url.startsWith('/') || url.startsWith('./')) return url;
@@ -45,7 +48,7 @@ export function proxyImage(url: string): string {
   try {
     // Use Cloudinary if configured (preferred - better compression, format negotiation)
     if (USE_CLOUDINARY) {
-      return cloudinaryFetch(url);
+      return cloudinaryFetch(url, width);
     }
 
     // Fallback to Cloudflare Worker proxy

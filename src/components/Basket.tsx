@@ -469,9 +469,12 @@ function BasketLine({ it, usdRate, rates, setQty, removeItem, setRefNum, itemsAl
     (b.refNum && String(b.refNum) === String(ref)) ||
     (b.id && String(b.id) === String(ref))
   )) || null;
-  const variantList = Array.isArray(detail?.variants) && detail.variants.length > 0
-    ? detail.variants
-    : (Array.isArray(base?.variants) ? base.variants : []);
+  // Support both minified (v) and legacy (variants) keys
+  const detailVariants = detail?.v || detail?.variants;
+  const baseVariants = base?.v || base?.variants;
+  const variantList = Array.isArray(detailVariants) && detailVariants.length > 0
+    ? detailVariants
+    : (Array.isArray(baseVariants) ? baseVariants : []);
 
   useEffect(() => {
     if (variantSelectorOpen && variantSelectorRef.current) {
@@ -602,12 +605,15 @@ function BasketLine({ it, usdRate, rates, setQty, removeItem, setRefNum, itemsAl
                 >
                   <ul className="divide-y divide-gray-100 dark:divide-gray-800">
                     {variantList.map((variant: any, vi: number) => {
-                      const vid = variant.id ?? vi;
+                      // Support both minified (vid, d, usd) and legacy (id, description, baseAmount/priceUSD) keys
+                      const vid = variant.vid ?? variant.id ?? vi;
                       const isActive = String(vid) === String(it.variantId);
-                      const desc = variant.description || variant.desc || t('variant', { num: vi + 1 });
-                      const baseAmount = typeof variant.baseAmount === 'number'
-                        ? variant.baseAmount
-                        : (typeof variant.priceUSD === 'number' ? variant.priceUSD : null);
+                      const desc = variant.d || t('variant', { num: vi + 1 });
+                      const baseAmount = typeof variant.usd === 'number'
+                        ? variant.usd
+                        : (typeof variant.baseAmount === 'number'
+                          ? variant.baseAmount
+                          : (typeof variant.priceUSD === 'number' ? variant.priceUSD : null));
                       const priceLabel = baseAmount != null
                         ? formatUSD(baseAmount, displayCur, rates, { decimals: 2 })
                         : null;

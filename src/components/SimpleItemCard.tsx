@@ -16,10 +16,10 @@ export default function SimpleItemCard({ item }: SimpleItemCardProps) {
   const { currency } = useDisplayCurrency();
   const displayCurrency = currency || 'GBP';
 
-  // Prioritize minified keys from the index
-  const name = item.n || item.name || 'Item';
-  const description = item.d || item.description || '';
-  const imageUrl = item.i || item.imageUrl || null;
+  // Use minified keys from the index
+  const name = item.n || 'Item';
+  const description = item.d || '';
+  const imageUrl = item.i || null;
   const refNum = item.refNum || item.ref || String(item.id);
   
   // Price handling: uMin/uMax are common in the index
@@ -42,7 +42,7 @@ export default function SimpleItemCard({ item }: SimpleItemCardProps) {
       <div className="aspect-square relative bg-gray-100 dark:bg-gray-900 overflow-hidden">
         {imageUrl ? (
           <img 
-            src={proxyImage(imageUrl)} 
+            src={proxyImage(imageUrl, 300)} 
             alt={name}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

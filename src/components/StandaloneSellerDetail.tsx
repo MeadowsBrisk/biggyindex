@@ -78,7 +78,8 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
   const rawSellerImage = detail?.sellerImageUrl ?? detail?.imageUrl ?? null;
   const img: string | null = useMemo(() => {
     if (!rawSellerImage) return null;
-    const proxied = proxyImage(rawSellerImage);
+    // 7rem avatar = ~112px, request 224px for 2x DPR
+    const proxied = proxyImage(rawSellerImage, 224);
     return proxied || null;
   }, [rawSellerImage]);
   

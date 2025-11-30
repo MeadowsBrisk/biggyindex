@@ -274,7 +274,7 @@ function ReviewRow({ review }) {
               <div className="relative h-12 w-12 sm:h-16 sm:w-16">
                 {hasItemImage ? (
                   <img
-                    src={proxyImage(review.itemImageUrl)}
+                    src={proxyImage(review.itemImageUrl, 128)}
                     alt={`${review.itemName} image`}
                     loading="lazy"
                     decoding="async"
@@ -348,7 +348,7 @@ function ReviewRow({ review }) {
                 key={`${review.id}-img-${idx}`}
                 className="relative h-20 w-20 overflow-hidden rounded-xl border border-slate-300/70 bg-slate-100 dark:border-white/20 dark:bg-white/10"
               >
-                <img src={proxyImage(src)} alt="Review media" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                <img src={proxyImage(src, 160)} alt="Review media" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               </div>
             ))}
           </div>

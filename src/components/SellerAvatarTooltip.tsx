@@ -25,7 +25,8 @@ export default function SellerAvatarTooltip({ sellerName, sellerImageUrl, childr
   const showDelayRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   
-  const proxiedImageUrl = useMemo(() => sellerImageUrl ? proxyImage(sellerImageUrl) : null, [sellerImageUrl]);
+  // Tooltip avatar is 48px displayed, request 96px for 2x DPR
+  const proxiedImageUrl = useMemo(() => sellerImageUrl ? proxyImage(sellerImageUrl, 96) : null, [sellerImageUrl]);
 
   const updatePosition = useCallback((e?: MouseEvent) => {
     const clientX = e?.clientX ?? 0;

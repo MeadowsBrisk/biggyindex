@@ -132,8 +132,9 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const { currency: displayCurrency } = useDisplayCurrency();
   const descDecoded = useMemo(() => decodeEntities(description || ''), [description]);
   const nameDecoded = useMemo(() => decodeEntities(name || ''), [name]);
-  const [thumbSrc, setThumbSrc] = useState(() => proxyImage(imageUrl || ''));
-  useEffect(() => { setThumbSrc(proxyImage(imageUrl || '')); }, [imageUrl]);
+  // Use 800px width for card thumbnails (crisp on 2-3x DPR screens at ~304px display)
+  const [thumbSrc, setThumbSrc] = useState(() => proxyImage(imageUrl || '', 800));
+  useEffect(() => { setThumbSrc(proxyImage(imageUrl || '', 800)); }, [imageUrl]);
   const onThumbError = useCallback(() => {
     if (thumbSrc !== imageUrl) setThumbSrc(imageUrl || '');
   }, [thumbSrc, imageUrl]);

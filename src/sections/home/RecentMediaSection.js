@@ -222,7 +222,7 @@ function MediaTile({ entry, perImageWidth, tileHeight, isTouchViewport = false }
             className="relative" style={{ width: `${100 / Math.min(entry.images.length, 3)}%` }}
           >
             <img
-              src={proxyImage(imageUrl)}
+              src={proxyImage(imageUrl, 400)}
               alt={entry.itemName}
               loading="lazy"
               decoding="async"

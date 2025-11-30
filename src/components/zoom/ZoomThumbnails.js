@@ -35,7 +35,8 @@ export default function ZoomThumbnails({ images, activeIndex, onSelect, useProxy
           const isActive = i === activeIndex;
           const size = isSuperwide ? 148 : isUltrawide ? 132 : 96;
           // Use shared proxyImage for consistent URL generation across all domains
-          const thumbSrc = useProxy ? proxyImage(src) : src;
+          // Zoom thumbnails are max 148px, request 296px for 2x DPR
+          const thumbSrc = useProxy ? proxyImage(src, 296) : src;
           return (
             <button
               key={i + src}

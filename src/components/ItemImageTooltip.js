@@ -14,7 +14,8 @@ export default function ItemImageTooltip({ imageUrl, itemName, fallbackText, chi
   const rafRef = useRef(null);
   
   // Memoize proxied URL to avoid recalculation on every render
-  const proxiedImageUrl = useMemo(() => imageUrl ? proxyImage(imageUrl) : null, [imageUrl]);
+  // Tooltip shows ~100px image, request 200px for 2x DPR
+  const proxiedImageUrl = useMemo(() => imageUrl ? proxyImage(imageUrl, 200) : null, [imageUrl]);
 
   const updatePosition = useCallback((e) => {
     const clientX = e?.clientX ?? 0;
