@@ -118,18 +118,28 @@ export default function ItemDetailOverlay() {
   const [openPreviewSignal, setOpenPreviewSignal] = useState<any>(null);
   const [zoomOpen, setZoomOpen] = useState(false);
   
+  // Track the originally opened item to detect navigation
+  const initialRefNumRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (refNum && !initialRefNumRef.current) {
+      initialRefNumRef.current = String(refNum);
+    } else if (!refNum) {
+      initialRefNumRef.current = null;
+    }
+  }, [refNum]);
+  
   const close = useCallback(({ skipScroll }: { skipScroll?: boolean } = {}) => {
     const current = refNum;
+    const didNavigate = initialRefNumRef.current && current && String(current) !== initialRefNumRef.current;
     setRefNum(null as any);
-    if (typeof document !== 'undefined' && current && !skipScroll) {
-      // Defer scrollIntoView to next frame to avoid forced reflow during click handler
+    
+    // Only scroll to card if user navigated to a different item
+    if (!skipScroll && didNavigate && typeof document !== 'undefined' && current) {
       requestAnimationFrame(() => {
         try {
-          const esc = (typeof (window as any).CSS !== 'undefined' && typeof (window as any).CSS.escape === 'function') ? (window as any).CSS.escape : ((s: any) => String(s).replace(/"/g, '\\"'));
+          const esc = typeof CSS?.escape === 'function' ? CSS.escape : (s: string) => s.replace(/"/g, '\\"');
           const el = document.querySelector(`[data-ref="${esc(String(current))}"]`);
-          if (el && typeof (el as any).scrollIntoView === 'function') {
-            (el as any).scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+          el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
         } catch {}
       });
     }
