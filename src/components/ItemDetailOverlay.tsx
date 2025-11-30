@@ -128,8 +128,8 @@ export default function ItemDetailOverlay() {
   // Hooks that must not be conditionally skipped (declare before any early return)
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
-    const bImgs = Array.isArray(baseItem?.imageUrls) ? baseItem.imageUrls : [];
-    const primary = (baseItem as any)?.imageUrl || (detail as any)?.imageUrl;
+    const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : Array.isArray(baseItem?.imageUrls) ? baseItem.imageUrls : [];
+    const primary = (baseItem as any)?.i || (baseItem as any)?.imageUrl || (detail as any)?.imageUrl;
     let list = dImgs.length ? dImgs : bImgs;
     if ((!list || list.length === 0) && primary) list = [primary];
     const seen = new Set<string>();
@@ -179,6 +179,7 @@ export default function ItemDetailOverlay() {
   const resolvedSellerName = useMemo(() => {
     if (typeof (detail as any)?.sellerName === 'string' && (detail as any).sellerName) return decodeEntities((detail as any).sellerName);
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
+    if (typeof (baseItem as any)?.sn === 'string' && (baseItem as any).sn) return decodeEntities((baseItem as any).sn);
     if (typeof (baseItem as any)?.sellerName === 'string' && (baseItem as any).sellerName) return decodeEntities((baseItem as any).sellerName);
     return '';
   }, [detail, baseItem]);
@@ -241,12 +242,12 @@ export default function ItemDetailOverlay() {
     return () => window.removeEventListener('keydown', onKey as any);
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
-  const name = decodeEntities((baseItem as any)?.name || (detail as any)?.name || 'Item');
+  const name = decodeEntities((baseItem as any)?.n || (baseItem as any)?.name || (detail as any)?.name || 'Item');
   // Prefer full description from detail JSON; fall back to detail.description; then list summary
-  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.description || '';
+  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || (baseItem as any)?.description || '';
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);
-  const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.variants) ? (baseItem as any).variants.length > 0 : false;
+  const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) ? (baseItem as any).v.length > 0 : Array.isArray((baseItem as any)?.variants) ? (baseItem as any).variants.length > 0 : false;
   const hasImages = images.length > 0;
   const showUnavailableBanner = Boolean(
     !loading && !globalLoading && !error && detail && 
@@ -256,19 +257,21 @@ export default function ItemDetailOverlay() {
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null); // review image zoom state
   const reviewMeta = (detail as any)?.reviewsMeta;
-  const category = (baseItem as any)?.category || null;
-  const subcategories = Array.isArray((baseItem as any)?.subcategories) ? (baseItem as any).subcategories : [];
-  const shipsFrom = (baseItem as any)?.shipsFrom || null;
-  const lastUpdatedAt = (baseItem as any)?.lastUpdatedAt || null;
-  const lastUpdateReason = (baseItem as any)?.lastUpdateReason || null;
+  const category = (baseItem as any)?.c || (baseItem as any)?.category || null;
+  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : Array.isArray((baseItem as any)?.subcategories) ? (baseItem as any).subcategories : [];
+  const shipsFrom = (baseItem as any)?.sf || (baseItem as any)?.shipsFrom || null;
+  const lastUpdatedAt = (baseItem as any)?.lua || (baseItem as any)?.lastUpdatedAt || null;
+  const lastUpdateReason = (baseItem as any)?.lur || (baseItem as any)?.lastUpdateReason || null;
   const compactUpdateReason = useUpdateReason(lastUpdateReason);
-  const createdAt = (baseItem as any)?.firstSeenAt || (detail as any)?.createdAt || null;
+  const createdAt = (baseItem as any)?.fsa || (baseItem as any)?.firstSeenAt || (detail as any)?.createdAt || null;
   const shippingRange = (() => {
-    const { minShip, maxShip } = (baseItem as any) || {};
+    const sh = (baseItem as any)?.sh;
+    const minShip = sh?.min ?? (baseItem as any)?.minShip ?? null;
+    const maxShip = sh?.max ?? (baseItem as any)?.maxShip ?? null;
     if (minShip == null && maxShip == null) return null;
     return { minShip, maxShip };
   })();
-  const sl = (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
+  const sl = (detail as any)?.share?.shortLink || (baseItem as any)?.sl || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
   // const sl = baseItem?.url || detail?.url || null;
   // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum as any;
@@ -320,30 +323,33 @@ export default function ItemDetailOverlay() {
 
   const showSelection = includeShipping || selectionMode;
 
+  // Support both minified (v) and full (variants) keys from baseItem
+  const baseVariants = Array.isArray((baseItem as any)?.v) ? (baseItem as any).v : Array.isArray((baseItem as any)?.variants) ? (baseItem as any).variants : [];
+
   // Variant price range for summary using shared utility (matches list logic exactly)
   const variantPriceRangeText = useMemo(() => {
-    if (!Array.isArray((baseItem as any)?.variants) || (baseItem as any).variants.length === 0) return '';
+    if (baseVariants.length === 0) return '';
     return variantRangeText({
-      variants: (baseItem as any).variants,
+      variants: baseVariants,
       displayCurrency,
       rates,
       shippingUsd: selectedShippingUsd as any,
       includeShipping: includeShipping || selectionMode,
       selectedVariantIds,
     });
-  }, [baseItem, displayCurrency, rates, selectedShippingUsd, includeShipping, selectionMode, selectedVariantIds]);
+  }, [baseVariants, displayCurrency, rates, selectedShippingUsd, includeShipping, selectionMode, selectedVariantIds]);
 
   // Total for selected variants, using same displayed-amount logic
   const selectedTotalText = useMemo(() => {
-    if (!Array.isArray((baseItem as any)?.variants) || selectedVariantIds.size === 0) return '';
+    if (baseVariants.length === 0 || selectedVariantIds.size === 0) return '';
     const sel = selectedVariantIds;
     // Sum in USD for accurate conversion/formatting
     let totalUSD = 0;
-    for (let i = 0; i < (baseItem as any).variants.length; i++) {
-      const v = (baseItem as any).variants[i];
-      const vid = v.id || i;
+    for (let i = 0; i < baseVariants.length; i++) {
+      const v = baseVariants[i];
+      const vid = v.vid ?? v.id ?? i;
       if (!sel.has(vid)) continue;
-      const baseUsd = (typeof v.baseAmount === 'number' && isFinite(v.baseAmount)) ? v.baseAmount : null;
+      const baseUsd = (typeof v.usd === 'number' && isFinite(v.usd)) ? v.usd : (typeof v.baseAmount === 'number' && isFinite(v.baseAmount)) ? v.baseAmount : null;
       if (baseUsd == null) continue;
       const amtUSD = (function(){
         // reuse displayedUSDForVariant logic equivalent: base + allocated shipping
@@ -359,7 +365,7 @@ export default function ItemDetailOverlay() {
     }
     if (!(totalUSD > 0)) return '';
     return formatUSD(totalUSD, displayCurrency as any, rates as any, { decimals: 2, ceilNonUSD: false } as any);
-  }, [baseItem, selectedVariantIds, displayCurrency, rates, selectedShippingUsd, includeShipping, selectionMode]);
+  }, [baseVariants, selectedVariantIds, displayCurrency, rates, selectedShippingUsd, includeShipping, selectionMode]);
 
 
   // Unified compact relative time using translation abbreviations
@@ -378,7 +384,7 @@ export default function ItemDetailOverlay() {
   // Seller include/exclude (no scale animations)
   const [included, setIncluded] = useAtom(includedSellersAtom);
   const [excluded, setExcluded] = useAtom(excludedSellersAtom);
-  const lowerSeller = ((baseItem as any)?.sellerName || '').toLowerCase();
+  const lowerSeller = ((baseItem as any)?.sn || (baseItem as any)?.sellerName || '').toLowerCase();
   const isIncluded = (included as any[]).includes(lowerSeller);
   const isExcluded = (excluded as any[]).includes(lowerSeller);
   const onToggleInclude = useCallback(() => {
@@ -396,7 +402,7 @@ export default function ItemDetailOverlay() {
   const [, setCategory] = useAtom(categoryAtom);
   const [, setSubs] = useAtom(selectedSubcategoriesAtom);
   const goCategory = useCallback((cat?: string) => { if (!cat) return; setCategory(cat as any); (setSubs as any)([] as any); setRefNum(null as any); }, [setCategory, setSubs, setRefNum]);
-  const clickSub = useCallback((sub?: string) => { if (!sub) return; setCategory(((category as any) || (baseItem as any)?.category || 'All') as any); (setSubs as any)((curr: any[]) => curr.includes(sub) ? curr.filter((s: any) => s !== sub) : [...curr, sub]); setRefNum(null as any); }, [setCategory, setSubs, setRefNum, category, baseItem]);
+  const clickSub = useCallback((sub?: string) => { if (!sub) return; setCategory(((category as any) || (baseItem as any)?.c || (baseItem as any)?.category || 'All') as any); (setSubs as any)((curr: any[]) => curr.includes(sub) ? curr.filter((s: any) => s !== sub) : [...curr, sub]); setRefNum(null as any); }, [setCategory, setSubs, setRefNum, category, baseItem]);
 
   // Early-out render after all hooks are declared to keep hooks order stable
   if (!refNum) return null;
@@ -648,7 +654,7 @@ export default function ItemDetailOverlay() {
                 />
               )}
               {/* Variant prices (per-unit) with large range */}
-              {Array.isArray((baseItem as any)?.variants) && (baseItem as any).variants.length > 0 && (
+              {baseVariants.length > 0 && (
                 <div className="hidden md:block mt-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-2">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div>
@@ -696,7 +702,7 @@ export default function ItemDetailOverlay() {
                     <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">{tOv('selectVariantsHint')}</div>
                   )}
                   <VariantPriceList
-                    variants={(baseItem as any).variants}
+                    variants={baseVariants}
                     rates={rates}
                     displayCurrency={displayCurrency}
                     includeShipping={includeShipping || selectionMode}
@@ -715,7 +721,7 @@ export default function ItemDetailOverlay() {
                       <span>{selectedVariantIds.size || 0} {tOv('selectedLabel')}</span>
                       <button type="button" className="underline hover:no-underline" onClick={() => {
                         const all = new Set<any>();
-                        for (const v of (((baseItem as any).variants) || [])) all.add(v.id || ((baseItem as any).variants ? (baseItem as any).variants.indexOf(v) : undefined));
+                        for (let i = 0; i < baseVariants.length; i++) { const v = baseVariants[i]; all.add(v.vid ?? v.id ?? i); }
                         setSelectedVariantIds(all);
                       }}>{tOv('selectAll')}</button>
                       <button type="button" className="underline hover:no-underline" onClick={() => setSelectedVariantIds(new Set())}>{tOv('clear')}</button>
@@ -745,10 +751,11 @@ export default function ItemDetailOverlay() {
             }
                         // Add each selected variant (shipping will be deduped per seller in totals)
                         const selIds = new Set(selectedVariantIds);
-                        for (const v of (((baseItem as any).variants) || [])) {
-                          const vid = v.id || (baseItem as any).variants.indexOf(v);
+                        for (let idx = 0; idx < baseVariants.length; idx++) {
+                          const v = baseVariants[idx];
+                          const vid = v.vid ?? v.id ?? idx;
                           if (!selIds.has(vid)) continue;
-                          const descRaw = (v.description && typeof v.description === 'string') ? v.description : '';
+                          const descRaw = ((v.d ?? v.description) && typeof (v.d ?? v.description) === 'string') ? (v.d ?? v.description) : '';
                           const desc = descRaw ? decodeEntities(descRaw) : '';
                           addToBasket({
                             id: (baseItem as any)?.id,
@@ -756,9 +763,9 @@ export default function ItemDetailOverlay() {
                             variantId: vid,
                             variantDesc: desc || 'Variant',
                             name,
-                            sellerName: (baseItem as any)?.sellerName,
+                            sellerName: resolvedSellerName,
                             qty: 1,
-                            priceUSD: typeof v.baseAmount === 'number' ? v.baseAmount : null,
+                            priceUSD: typeof (v.usd ?? v.baseAmount) === 'number' ? (v.usd ?? v.baseAmount) : null,
               shippingUsd: includeShipping ? ((shippingUsd ?? null) as any) : null,
               includeShip: !!includeShipping,
                             imageUrl: images?.[0] || (baseItem as any)?.imageUrl,
@@ -905,15 +912,15 @@ export default function ItemDetailOverlay() {
 
               <div className="2xl:hidden">
                 {(() => {
-                  const stats = (baseItem as any)?.reviewStats;
-                  const avgRating = typeof stats?.averageRating === 'number'
-                    ? stats.averageRating
+                  const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                  const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
+                    ? (stats?.avg ?? stats?.averageRating)
                     : (reviews.length
                         ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) /
                            ((reviews as any[]).filter((r: any)=> typeof r.rating === 'number').length || 1))
                         : null);
-                  const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
-                  const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : null;
+                  const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviewMeta?.fetched || reviews.length);
+                  const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
                   const displayLimit = REVIEWS_DISPLAY_LIMIT;
                   const leftTokens: string[] = [];
                   if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
@@ -956,8 +963,8 @@ export default function ItemDetailOverlay() {
                   />
                 )}
                 {!loading && reviews.length > 0 && (() => {
-                  const stats = (baseItem as any)?.reviewStats;
-                  const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
+                  const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                  const total = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviewMeta?.fetched || reviews.length);
                   const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
                   if (!isTruncated || !sl) return null;
                   return (
@@ -971,10 +978,10 @@ export default function ItemDetailOverlay() {
             {/* Column 3 (ultrawide): reviews */}
             <div className="hidden 2xl:block min-w-0 md:overflow-y-auto custom-scroll pr-1 pt-6 pb-13">
               {(() => {
-                const stats = (baseItem as any)?.reviewStats;
-                const avgRating = typeof stats?.averageRating === 'number' ? stats.averageRating : null;
-                const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
-                const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : null;
+                const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number' ? (stats?.avg ?? stats?.averageRating) : null;
+                const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
+                const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
                 const displayLimit = REVIEWS_DISPLAY_LIMIT;
                 const leftTokens: string[] = [];
                 if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
@@ -1006,8 +1013,8 @@ export default function ItemDetailOverlay() {
                 />
               )}
               {(!loading && reviews.length > 0) && (() => {
-                const stats = (baseItem as any)?.reviewStats;
-                const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
+                const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                const total = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
                 const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
                 if (!isTruncated || !sl) return null;
                 return (

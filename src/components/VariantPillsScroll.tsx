@@ -1,10 +1,11 @@
 import React from 'react';
 import { decodeEntities } from '@/lib/format';
 
+// Minified keys: vid = variant id, d = description, usd = price in USD
 interface Variant {
-  id?: string | number;
-  description: string;
-  baseAmount?: number | null;
+  vid?: string | number;
+  d: string;
+  usd?: number | null;
 }
 
 interface VariantPillsScrollProps {
@@ -71,8 +72,8 @@ export default function VariantPillsScroll({ variants, className = '' }: Variant
         style={{ cursor: isScrollable ? 'grab' : 'default' }}
       >
         {variants.map((v, idx) => (
-          <span key={(v.id as any) || idx} className="variant-pill">
-            {decodeEntities(v.description)}
+          <span key={(v.vid as any) || idx} className="variant-pill">
+            {decodeEntities(v.d)}
           </span>
         ))}
         {isScrollable && <div className="shrink-0 w-1" aria-hidden="true" />}

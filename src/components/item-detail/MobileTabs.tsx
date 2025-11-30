@@ -111,26 +111,28 @@ export default function MobileTabs({
     return c == null ? null : c;
   }, [includeShipping, selectedShipIdx, shippingOptions]);
   const showSelection = includeShipping || selectionMode;
+  // Support both minified (v) and full (variants) keys
+  const variants = Array.isArray(baseItem?.v) ? baseItem.v : Array.isArray(baseItem?.variants) ? baseItem.variants : [];
   const internalRangeText = useMemo(() => {
-    if (!Array.isArray(baseItem?.variants) || baseItem.variants.length === 0) return '';
+    if (variants.length === 0) return '';
     return variantRangeText({
-      variants: baseItem.variants,
+      variants,
       displayCurrency,
       rates,
       shippingUsd: selectedShippingUsd,
       includeShipping,
       selectedVariantIds: selected,
     });
-  }, [baseItem, displayCurrency, rates, selectedShippingUsd, includeShipping, selected]);
+  }, [variants, displayCurrency, rates, selectedShippingUsd, includeShipping, selected]);
 
   const selectedTotalText = useMemo(() => {
-    if (!Array.isArray(baseItem?.variants) || selected.size === 0) return '';
+    if (variants.length === 0 || selected.size === 0) return '';
     let total = 0;
-    for (let i = 0; i < baseItem.variants.length; i++) {
-      const v = baseItem.variants[i];
-      const vid = v.id || i;
+    for (let i = 0; i < variants.length; i++) {
+      const v = variants[i];
+      const vid = v.vid ?? v.id ?? i;
       if (!selected.has(vid)) continue;
-      const baseUsd = (typeof v.baseAmount === 'number' && isFinite(v.baseAmount)) ? v.baseAmount : null;
+      const baseUsd = (typeof v.usd === 'number' && isFinite(v.usd)) ? v.usd : (typeof v.baseAmount === 'number' && isFinite(v.baseAmount)) ? v.baseAmount : null;
       if (baseUsd == null) continue;
       const amt = displayedAmount({ baseUsd, currency: displayCurrency, rates, shippingUsd: selectedShippingUsd, includeShipping, selectedVariantIds: selected, variantId: vid });
       if (typeof amt === 'number' && isFinite(amt)) total += amt;
@@ -138,7 +140,7 @@ export default function MobileTabs({
     if (total <= 0) return '';
     if (displayCurrency === 'USD') return formatUSD(total, 'USD', rates, { decimals: 2 });
     return `£${total.toFixed(2).replace(/\.00$/, '')}`;
-  }, [baseItem, selected, displayCurrency, rates, selectedShippingUsd, includeShipping]);
+  }, [variants, selected, displayCurrency, rates, selectedShippingUsd, includeShipping]);
   const inBasket = useMemo(() => {
     if (!baseItem) return false;
     const ref = baseItem.refNum || String(baseItem.id);
@@ -162,7 +164,7 @@ export default function MobileTabs({
 
       {tab === 'prices' && (
         <div className="mt-2 space-y-2">
-          {Array.isArray(baseItem?.variants) && baseItem.variants.length > 0 && (
+          {variants.length > 0 && (
             <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-2">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div>
@@ -211,7 +213,7 @@ export default function MobileTabs({
                 <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">Tap to select variants. Use Select all/Clear.</div>
               )}
               <VariantPriceList
-                variants={baseItem.variants}
+                variants={variants}
                 rates={rates}
                 displayCurrency={displayCurrency}
                 includeShipping={includeShipping}
@@ -228,7 +230,10 @@ export default function MobileTabs({
                   <span>{selected.size || 0} selected</span>
                   <button type="button" className="underline hover:no-underline" onClick={() => {
                     const all = new Set();
-                    for (const v of (baseItem.variants || [])) all.add(v.id || (baseItem.variants ? baseItem.variants.indexOf(v) : undefined));
+                    for (let i = 0; i < variants.length; i++) {
+                      const v = variants[i];
+                      all.add(v.vid ?? v.id ?? i);
+                    }
                     setSelected(all);
                   }}>Select all</button>
                   <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>Clear</button>
@@ -256,23 +261,25 @@ export default function MobileTabs({
                       }
                     }
                     const sel = new Set(selected);
-                    for (const v of (baseItem.variants || [])) {
-                      const vid = v.id || baseItem.variants.indexOf(v);
+                    for (let i = 0; i < variants.length; i++) {
+                      const v = variants[i];
+                      const vid = v.vid ?? v.id ?? i;
                       if (!sel.has(vid)) continue;
-                      const descRaw = (v.description && typeof v.description === 'string') ? v.description : '';
-                      const desc = descRaw ? decodeEntities(descRaw) : '';
+                      const descRaw = (v.d || v.description || '');
+                      const desc = typeof descRaw === 'string' && descRaw ? decodeEntities(descRaw) : '';
+                      const priceUsd = typeof v.usd === 'number' ? v.usd : typeof v.baseAmount === 'number' ? v.baseAmount : null;
                       addToBasket({
                         id: baseItem?.id,
                         refNum: baseItem?.refNum,
                         variantId: vid,
                         variantDesc: desc || 'Variant',
-                        name: displayName || baseItem?.name,
-                        sellerName: baseItem?.sellerName,
+                        name: displayName || baseItem?.n || baseItem?.name,
+                        sellerName: baseItem?.sn || baseItem?.sellerName,
                         qty: 1,
-                        priceUSD: typeof v.baseAmount === 'number' ? v.baseAmount : null,
+                        priceUSD: priceUsd,
                         shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
                         includeShip: !!includeShipping,
-                        imageUrl: leadImage || baseItem?.imageUrl,
+                        imageUrl: leadImage || baseItem?.i || baseItem?.imageUrl,
                         sl,
                       });
                     }
@@ -355,15 +362,15 @@ export default function MobileTabs({
       {tab === 'reviews' && (
         <div className="mt-2">
           {(() => {
-            const stats = baseItem?.reviewStats;
-            const avgRating = typeof stats?.averageRating === 'number'
-              ? stats.averageRating
+            const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+            const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
+              ? (stats?.avg ?? stats?.averageRating)
               : (reviews.length
                   ? (reviews.map(r => typeof r.rating === 'number' ? r.rating : 0).reduce((a,b)=>a+b,0) /
                      (reviews.filter(r=> typeof r.rating === 'number').length || 1))
                   : null);
-            const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : null;
-            const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviews.length);
+            const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
+            const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviews.length);
             const displayLimit = REVIEWS_DISPLAY_LIMIT;
 
             const tokensLeft: any[] = [];
@@ -415,8 +422,8 @@ export default function MobileTabs({
           )}
 
           {!loading && reviews.length > 0 && (() => {
-            const stats = baseItem?.reviewStats;
-            const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
+            const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+            const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
             const isTruncated = reviewsTotal > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
             if (!isTruncated || !sl) return null;
             return (

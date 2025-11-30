@@ -28,18 +28,23 @@ export type ReviewStats = {
   averageRating?: number;
   numberOfReviews?: number;
   averageDaysToArrive?: number;
+  // Minified keys
+  avg?: number;
+  cnt?: number;
+  days?: number;
 } | null | undefined;
 
 export default function ReviewStatsBadge({ reviewStats }: { reviewStats?: ReviewStats }): React.ReactElement | null {
   const tStats = useTranslations('ReviewStats');
   const tRev = useTranslations('Reviews');
-  const rating = reviewStats?.averageRating;
+  // Support both minified (avg, cnt, days) and legacy keys
+  const rating = reviewStats?.avg ?? reviewStats?.averageRating;
   if (typeof rating !== "number") return null;
 
   const [open, setOpen] = React.useState(false);
 
-  const reviewsCount = reviewStats?.numberOfReviews;
-  const avgDays = reviewStats?.averageDaysToArrive;
+  const reviewsCount = reviewStats?.cnt ?? reviewStats?.numberOfReviews;
+  const avgDays = reviewStats?.days ?? reviewStats?.averageDaysToArrive;
   const ratingPercent = Math.max(0, Math.min(100, (rating / 10) * 100));
 
   const show = () => setOpen(true);

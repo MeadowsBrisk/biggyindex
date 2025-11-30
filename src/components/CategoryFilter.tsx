@@ -1,6 +1,6 @@
 "use client";
 import { useAtom, useAtomValue } from "jotai";
-import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
+import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, excludedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
 import cn from "@/app/cn";
 import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -24,6 +24,7 @@ export default function CategoryFilter() {
   const liveSubCounts = useAtomValue(subcategoryLiveCountsAtom as any) as Record<string, number> | undefined;
   const shipFromOptions = useAtomValue(shipFromOptionsAtom as any) as string[];
   const [selectedShips, setSelectedShips] = useAtom(selectedShipFromAtom as any) as [string[], (v: any) => void];
+  const [excludedShips, setExcludedShips] = useAtom(excludedShipFromAtom as any) as [string[], (v: any) => void];
   const [freeShipOnly, setFreeShipOnly] = useAtom(freeShippingOnlyAtom as any) as [boolean, (v: any) => void];
   const [shipPinned, setShipPinned] = useAtom(shipFromPinnedAtom as any) as [boolean, (v: any) => void];
   const includedSellers = useAtomValue(includedSellersAtom as any) as string[] || [];
@@ -144,7 +145,7 @@ export default function CategoryFilter() {
     setExcludedSubs([]);
   };
 
-  const showShipPin = shipPinned || (Array.isArray(selectedShips) && selectedShips.length > 0) || freeShipOnly;
+  const showShipPin = shipPinned || (Array.isArray(selectedShips) && selectedShips.length > 0) || (Array.isArray(excludedShips) && excludedShips.length > 0) || freeShipOnly;
 
   return (
     <div className="space-y-4">
@@ -288,8 +289,8 @@ export default function CategoryFilter() {
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">{tSidebar('shipsFrom')}</div>
             <div className="flex items-center gap-2">
-              {selectedShips.length > 0 && (
-                <button type="button" onClick={() => setSelectedShips([])} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">{tSidebar('clear')}</button>
+              {(selectedShips.length > 0 || excludedShips.length > 0) && (
+                <button type="button" onClick={() => { setSelectedShips([]); setExcludedShips([]); }} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">{tSidebar('clear')}</button>
               )}
               {showShipPin && (
                 <FilterPinButton pinned={shipPinned} onToggle={() => setShipPinned(!shipPinned)} label="shipping filters" />
@@ -298,17 +299,68 @@ export default function CategoryFilter() {
           </div>
           <div className="flex flex-wrap gap-2">
             {orderedShipOptions.map(code => {
-              const active = selectedShips.includes(code);
+              const isIncluded = selectedShips.includes(code);
+              const isExcluded = excludedShips.includes(code);
               const label = (() => { try { return tCountries(code); } catch { return countryLabel(code); } })();
+              
+              // Handle click with same logic as subcategories
+              const onToggleShip = (e?: React.MouseEvent) => {
+                // Right-click: toggle exclude
+                if (e && e.button === 2) {
+                  e.preventDefault();
+                  if (isExcluded) {
+                    setExcludedShips(excludedShips.filter(c => c !== code));
+                  } else {
+                    if (isIncluded) setSelectedShips(selectedShips.filter(c => c !== code));
+                    setExcludedShips([...excludedShips, code]);
+                  }
+                  return;
+                }
+                
+                // Left-click: different behavior for touch vs desktop
+                const isMouseEvent = e && e.nativeEvent instanceof MouseEvent;
+                const useTouchBehavior = isTouchDevice && !isMouseEvent;
+                
+                if (useTouchBehavior) {
+                  // Mobile: cycle through all three states
+                  if (!isIncluded && !isExcluded) {
+                    setSelectedShips([...selectedShips, code]);
+                  } else if (isIncluded) {
+                    setSelectedShips(selectedShips.filter(c => c !== code));
+                    setExcludedShips([...excludedShips, code]);
+                  } else {
+                    setExcludedShips(excludedShips.filter(c => c !== code));
+                  }
+                } else {
+                  // Desktop: simple two-state toggle (neutral ↔ included only)
+                  if (isExcluded) {
+                    setExcludedShips(excludedShips.filter(c => c !== code));
+                  } else if (isIncluded) {
+                    setSelectedShips(selectedShips.filter(c => c !== code));
+                  } else {
+                    setSelectedShips([...selectedShips, code]);
+                  }
+                }
+              };
+              
               return (
                 <button
                   key={code}
                   type="button"
-                  onClick={() => setSelectedShips((curr: string[]) => curr.includes(code) ? curr.filter(c => c !== code) : [...curr, code])}
-                  aria-pressed={active}
+                  onClick={(e) => onToggleShip(e as any)}
+                  onContextMenu={(e) => { e.preventDefault(); onToggleShip(e as any); }}
+                  aria-pressed={isIncluded || isExcluded}
+                  aria-label={isExcluded ? `Excluded: ${label}` : isIncluded ? `Included: ${label}` : label}
+                  title={
+                    isExcluded 
+                      ? "Right-click to remove exclusion" 
+                      : "Right-click to exclude"
+                  }
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50",
-                    active ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    "px-2 py-0.5 rounded-full text-xs focus:outline-none focus:ring-2 transition-colors select-none",
+                    isIncluded && "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500/50",
+                    isExcluded && "bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-700 dark:to-orange-800 text-white hover:from-orange-600 hover:to-orange-700 dark:hover:from-orange-800 dark:hover:to-orange-900 focus:ring-orange-500/50 line-through",
+                    !isIncluded && !isExcluded && "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:ring-blue-500/50"
                   )}
                 >
                   {label}

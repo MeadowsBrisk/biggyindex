@@ -39,8 +39,9 @@ export default function VariantPriceList({
   return (
     <ul className={cn('grid grid-cols-1 gap-1 max-h-52 overflow-auto pr-1 custom-scroll', className)}>
       {variants.map((v, idx) => {
-        const vid = v.id || idx;
-        const rawUsd = typeof v.baseAmount === 'number' ? v.baseAmount : null;
+        // Support both minified keys (vid, usd, d) and legacy (id, baseAmount, description)
+        const vid = v.vid || v.id || idx;
+        const rawUsd = typeof v.usd === 'number' ? v.usd : (typeof v.baseAmount === 'number' ? v.baseAmount : null);
         const isSelected = selectedVariantIds.has(vid);
         const priceText = formatDisplayedAmount({
           baseUsd: rawUsd,
@@ -60,7 +61,8 @@ export default function VariantPriceList({
           selectedVariantIds,
           variantId: vid,
         });
-        const descRaw = (v.description && typeof v.description === 'string') ? v.description : '';
+        // Support both minified d and legacy description
+        const descRaw = (v.d && typeof v.d === 'string') ? v.d : ((v.description && typeof v.description === 'string') ? v.description : '');
         const desc = descRaw ? decodeEntities(descRaw) : '';
         const per = perUnitSuffix(descRaw, numericDisplayed, displayCurrency);
         return (

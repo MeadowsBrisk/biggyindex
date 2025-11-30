@@ -31,8 +31,12 @@ export default function SellerFilter() {
     setMounted(true);
   }, []);
 
+  // Track highlighted suggestion for keyboard nav
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
   const sellers = useMemo(
-    () => Array.from(new Set(items.map((i) => i.sellerName).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+    // Support both minified (sn) and legacy (sellerName) keys
+    () => Array.from(new Set(items.map((i) => i.sn || i.sellerName).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
     [items]
   );
 
@@ -41,6 +45,11 @@ export default function SellerFilter() {
     if (!q || q.length < 2) return [];
     return sellers.filter((s) => s.toLowerCase().includes(q)).slice(0, 10);
   }, [input, sellers]);
+
+  // Reset highlighted index when suggestions change
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [suggestions]);
 
   // Calculate dropdown position when suggestions change or window resizes
   useEffect(() => {
@@ -195,10 +204,40 @@ export default function SellerFilter() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && input.trim()) {
+              if (suggestions.length > 0) {
+                // Arrow down or Tab: move to next suggestion
+                if (e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey)) {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) => 
+                    prev < suggestions.length - 1 ? prev + 1 : 0
+                  );
+                  return;
+                }
+                // Arrow up or Shift+Tab: move to previous suggestion
+                if (e.key === "ArrowUp" || (e.key === "Tab" && e.shiftKey)) {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) => 
+                    prev > 0 ? prev - 1 : suggestions.length - 1
+                  );
+                  return;
+                }
+                // Enter: select highlighted or add typed input
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (highlightedIndex >= 0 && suggestions[highlightedIndex]) {
+                    add(suggestions[highlightedIndex]);
+                  } else if (input.trim()) {
+                    add(input);
+                  }
+                  return;
+                }
+              } else if (e.key === "Enter" && input.trim()) {
                 add(input);
-              } else if (e.key === "Escape") {
+                return;
+              }
+              if (e.key === "Escape") {
                 setInput("");
+                setHighlightedIndex(-1);
               }
             }}
             placeholder={mode === 'include' ? t('typeToIncludeSeller') : t('typeToExcludeSeller')}
@@ -250,12 +289,18 @@ export default function SellerFilter() {
           }}
         >
           <div className="overflow-y-auto max-h-[200px]">
-            {suggestions.map((s) => (
+            {suggestions.map((s, idx) => (
               <button
                 key={s}
                 type="button"
-                className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className={cn(
+                  "block w-full text-left px-3 py-2 text-sm transition-colors",
+                  idx === highlightedIndex 
+                    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-100" 
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                )}
                 onClick={() => add(s)}
+                onMouseEnter={() => setHighlightedIndex(idx)}
               >
                 {s}
               </button>

@@ -496,9 +496,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         if (category === 'All') {
           setItems(allItems);
         } else {
-          // Client-side category filtering - eliminates API calls
+          // Client-side category filtering - uses minified key 'c'
           const filtered = allItems.filter((item: any) => {
-            const itemCat = (item.category || '').toLowerCase();
+            const itemCat = (item.c || item.category || '').toLowerCase();
             const targetCat = category.toLowerCase();
             return itemCat === targetCat;
           });

@@ -44,7 +44,8 @@ export async function loadItemForSEO(refNum: string | number, market?: Market): 
     
     // Use minified keys directly from unified crawler:
     // n: name, d: description, i: imageUrl, sn: sellerName, p: price, c: currency, u: url
-    // reviewStats: { count, rating } from normalized items
+    // rs: reviewStats with minified keys (avg, cnt, days)
+    const rs = item.rs || item.reviewStats;
     return {
       refNum: String(item.refNum || item.id || refNum),
       name: item.n || item.name || '',
@@ -54,8 +55,8 @@ export async function loadItemForSEO(refNum: string | number, market?: Market): 
       price: item.p || item.price || null,
       currency: item.c || item.currency || null,
       url: item.u || item.url || item.share || null,
-      reviewsCount: item.reviewStats?.count ?? item.reviewsCount ?? null,
-      reviewsRating: item.reviewStats?.rating ?? item.reviewsRating ?? null,
+      reviewsCount: rs?.cnt ?? rs?.count ?? item.reviewsCount ?? null,
+      reviewsRating: rs?.avg ?? rs?.rating ?? item.reviewsRating ?? null,
     };
   } catch (err) {
     console.error('[loadItemForSEO] Error:', err);

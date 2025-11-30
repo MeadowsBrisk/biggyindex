@@ -678,15 +678,15 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
              {/* Reviews (Desktop) */}
              <div className="2xl:hidden">
                 {(() => {
-                  const stats = (baseItem as any)?.reviewStats;
-                  const avgRating = typeof stats?.averageRating === 'number'
-                    ? stats.averageRating
+                  const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                  const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
+                    ? (stats?.avg ?? stats?.averageRating)
                     : (reviews.length
                         ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) /
                            ((reviews as any[]).filter((r: any)=> typeof r.rating === 'number').length || 1))
                         : null);
-                  const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
-                  const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : (reviews.length > 0 ? (reviews.map((r: any) => typeof r.daysToArrive === 'number' ? r.daysToArrive : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.daysToArrive === 'number').length) : null);
+                  const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviewMeta?.fetched || reviews.length);
+                  const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : (reviews.length > 0 ? (reviews.map((r: any) => typeof r.daysToArrive === 'number' ? r.daysToArrive : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.daysToArrive === 'number').length) : null);
                   const displayLimit = REVIEWS_DISPLAY_LIMIT;
                   const leftTokens: string[] = [];
                   if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
@@ -720,8 +720,8 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   />
                 )}
              {reviews.length > 0 && (() => {
-                const stats = (baseItem as any)?.reviewStats;
-                const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : (reviewMeta?.fetched || reviews.length);
+                const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                const total = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviewMeta?.fetched || reviews.length);
                 const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
                 if (!isTruncated || !sl) return null;
                 return (
@@ -750,10 +750,10 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
           </div>          {/* Column 3: Reviews (Ultrawide) */}
           <div className="hidden 2xl:block min-w-0 min-h-0 overflow-y-auto pr-2 custom-scroll">
              {(() => {
-                const stats = (baseItem as any)?.reviewStats;
-                const avgRating = typeof stats?.averageRating === 'number' ? stats.averageRating : (reviews.length ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.rating === 'number').length) : null);
-                const reviewsTotal = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
-                const avgDays = typeof stats?.averageDaysToArrive === 'number' ? stats.averageDaysToArrive : (reviews.length > 0 ? (reviews.map((r: any) => typeof r.daysToArrive === 'number' ? r.daysToArrive : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.daysToArrive === 'number').length) : null);
+                const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number' ? (stats?.avg ?? stats?.averageRating) : (reviews.length ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.rating === 'number').length) : null);
+                const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
+                const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : (reviews.length > 0 ? (reviews.map((r: any) => typeof r.daysToArrive === 'number' ? r.daysToArrive : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.daysToArrive === 'number').length) : null);
                 const displayLimit = REVIEWS_DISPLAY_LIMIT;
                 const leftTokens: string[] = [];
                 if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
@@ -783,8 +783,8 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                 />
               )}
               {reviews.length > 0 && (() => {
-                const stats = (baseItem as any)?.reviewStats;
-                const total = typeof stats?.numberOfReviews === 'number' ? stats.numberOfReviews : reviews.length;
+                const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+                const total = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
                 const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
                 if (!isTruncated || !sl) return null;
                 return (

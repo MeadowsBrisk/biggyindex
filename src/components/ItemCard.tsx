@@ -27,11 +27,14 @@ import { useDetailAvailability } from '@/hooks/useItemDetail';
 import FavButton from '@/components/FavButton';
 import VariantPillsScroll from '@/components/VariantPillsScroll';
 
-// Types
+// Types - using minified keys (n=name, d=description, i=imageUrl, sn=sellerName, etc.)
+// See src/types/item.ts for full key reference
 export interface ItemVariant {
-  id?: string | number;
-  description: string;
-  baseAmount?: number | null;
+  vid?: string | number;
+  /** d = description */
+  d: string;
+  /** usd = price in USD */
+  usd: number;
 }
 
 export interface ItemShippingSummary { min?: number | null; max?: number | null; free?: number | boolean | null; }
@@ -39,23 +42,38 @@ export interface ItemShippingSummary { min?: number | null; max?: number | null;
 export interface ItemCardItem {
   id: string | number;
   refNum?: string | number | null;
-  imageUrl?: string | null;
-  imageUrls?: string[] | null;
-  name: string;
-  description?: string | null;
-  sellerName?: string | null;
-  sellerUrl?: string | null;
+  /** i = imageUrl */
+  i?: string | null;
+  /** is = imageUrls */
+  is?: string[] | null;
+  /** n = name */
+  n: string;
+  /** d = description */
+  d?: string | null;
+  /** sn = sellerName */
+  sn?: string | null;
+  /** sid = sellerId */
+  sid?: number | null;
   url?: string | null;
-  reviewStats?: unknown;
-  variants?: ItemVariant[];
+  /** rs = reviewStats */
+  rs?: { avg?: number | null; days?: number | null; cnt?: number | null } | null;
+  /** v = variants */
+  v?: ItemVariant[];
   sellerOnline?: boolean | null;
-  shipsFrom?: string | null;
-  category?: string | null;
-  firstSeenAt?: string | Date | null;
-  lastUpdatedAt?: string | Date | null;
-  share?: string | null;
+  /** sf = shipsFrom */
+  sf?: string | null;
+  /** c = category */
+  c?: string | null;
+  /** fsa = firstSeenAt */
+  fsa?: string | Date | null;
+  /** lua = lastUpdatedAt */
+  lua?: string | Date | null;
+  /** sl = shareLink */
+  sl?: string | null;
+  /** sh = shipping summary */
   sh?: ItemShippingSummary | null;
-  lastUpdateReason?: string | null;
+  /** lur = lastUpdateReason */
+  lur?: string | null;
 }
 
 export interface ItemCardProps {
@@ -79,7 +97,8 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const tCats = useTranslations('Categories');
   const { locale } = useLocale();
   const itemKey = String(item.id); // normalized id as string
-  const { imageUrl, imageUrls, name, description, sellerName, sellerUrl, url, reviewStats, variants, sellerOnline, shipsFrom, refNum } = item;
+  // Destructure minified keys with aliased names for readability
+  const { i: imageUrl, is: imageUrls, n: name, d: description, sn: sellerName, sid: sellerId, url, rs: reviewStats, v: variants, sellerOnline, sf: shipsFrom, refNum } = item;
   // Define GIF detection helper for this component (used for conditional GifMedia rendering)
   const isGif = typeof imageUrl === 'string' && /\.gif($|[?#])/i.test(imageUrl);
   // atoms & derived flags
@@ -92,10 +111,10 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const [expanded, setExpanded] = React.useState(false);
   const { perUnitSuffix } = usePerUnitLabel();
   const setExpandedRef = useSetAtom(expandedRefNumAtom);
-  // Treat an update if lastUpdatedAt exists and either firstSeenAt is missing (pre-baseline legacy item) or they differ
-  const hasUpdate = !!item.lastUpdatedAt && (!item.firstSeenAt || item.lastUpdatedAt !== item.firstSeenAt);
+  // Treat an update if lua (lastUpdatedAt) exists and either fsa (firstSeenAt) is missing (pre-baseline legacy item) or they differ
+  const hasUpdate = !!item.lua && (!item.fsa || item.lua !== item.fsa);
   // Show Created label (independent of current sort) for newly indexed items after cutoff
-  const showCreated = !hasUpdate && !!item.firstSeenAt && (() => { const d = new Date(item.firstSeenAt as any); return !isNaN(d as any) && d > CREATION_LABEL_CUTOFF; })();
+  const showCreated = !hasUpdate && !!item.fsa && (() => { const d = new Date(item.fsa as any); return !isNaN(d as any) && d > CREATION_LABEL_CUTOFF; })();
   const [suppressPanelAnim, setSuppressPanelAnim] = React.useState(false);
   const filterSigRef = React.useRef("");
   React.useEffect(() => {
@@ -130,7 +149,8 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   // remove previous rangeText effect & state usage; compute memoized value
   const computedRangeText = React.useMemo(() => {
     if (!Array.isArray(variants) || variants.length === 0) return '';
-    const usdValues = variants.map(v => (typeof v.baseAmount === 'number' ? v.baseAmount : null)).filter(v => v != null) as number[];
+    // v.usd = price in USD (minified key)
+    const usdValues = variants.map(v => (typeof v.usd === 'number' ? v.usd : null)).filter(v => v != null) as number[];
     if (usdValues.length === 0) return '';
     const minUSD = Math.min(...usdValues);
     const maxUSD = Math.max(...usdValues);
@@ -376,14 +396,14 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
             <ImageZoomPreview imageUrl={imageUrl} imageUrls={imageUrls as any} alt={name} openSignal={openPreviewSignal as any} hideTrigger onOpenChange={() => {}} />
           </>
         )}
-        {category === 'All' && item.category && (
+        {category === 'All' && item.c && (
           <div className="absolute left-2 bottom-2 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide bg-black/60 dark:bg-black/50 text-white backdrop-blur-sm shadow-sm">
               {(() => { try {
                 const map: Record<string, string> = { Flower: 'flower', Hash: 'hash', Edibles: 'edibles', Concentrates: 'concentrates', Vapes: 'vapes', Tincture: 'tincture', Psychedelics: 'psychedelics', Other: 'other' };
-                const key = map[item.category as string] || String(item.category).toLowerCase();
+                const key = map[item.c as string] || String(item.c).toLowerCase();
                 return tCats(key);
-              } catch { return item.category; } })()}
+              } catch { return item.c; } })()}
             </span>
           </div>
         )}
@@ -445,7 +465,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
             <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between pointer-events-auto">
               <div className="flex items-center gap-2 min-w-0 ">
                 <span className="shrink-0 italic">{tItem('seller')}</span>
-                <SellerPill sellerName={decodeEntities(sellerName || '')} sellerUrl={(sellerUrl || url || '')} sellerOnline={sellerOnline as any} />
+                <SellerPill sellerName={decodeEntities(sellerName || '')} sellerUrl={(url || '')} sellerOnline={sellerOnline as any} />
               </div>
             </div>
             {showVariants && <VariantPillsScroll variants={variants} />}
@@ -494,13 +514,13 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
             {hasUpdate ? (
               <div
                 className="text-[10px] leading-none text-gray-400 dark:text-gray-500"
-                title={(item.lastUpdatedAt ? ((item.lastUpdateReason ? `${formatBritishDateTime(item.lastUpdatedAt as any)} (${item.lastUpdateReason})` : formatBritishDateTime(item.lastUpdatedAt as any))) : '')}
+                title={(item.lua ? ((item.lur ? `${formatBritishDateTime(item.lua as any)} (${item.lur})` : formatBritishDateTime(item.lua as any))) : '')}
                 suppressHydrationWarning
               >
-                {tItem('updated', { time: relativeCompact(item.lastUpdatedAt as any, tRel) })}
+                {tItem('updated', { time: relativeCompact(item.lua as any, tRel) })}
               </div>
             ) : showCreated ? (
-              <div className="text-[10px] leading-none text-gray-400 dark:text-gray-500" title={formatBritishDateTime(item.firstSeenAt as any)} suppressHydrationWarning>{tItem('created', { time: relativeCompact(item.firstSeenAt as any, tRel) })}</div>
+              <div className="text-[10px] leading-none text-gray-400 dark:text-gray-500" title={formatBritishDateTime(item.fsa as any)} suppressHydrationWarning>{tItem('created', { time: relativeCompact(item.fsa as any, tRel) })}</div>
             ) : null}
             <div className="flex items-center gap-2 pointer-events-auto mt-1">
               <div className={cn('relative inline-flex', (hasVotedToday as any) && !endorsedLocal && 'opacity-100')}><EndorseButton itemId={itemKey} onHydrated={() => {}} /></div>
@@ -531,13 +551,14 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
               <div className="item-card__pricing-scroll" onClick={(e) => e.stopPropagation()}>
                 <ul>
                   {variants.map((v, idx) => (
-                    <li key={(v.id as any) || idx}>
-                      <span>{decodeEntities(v.description)}</span>
+                    <li key={(v.vid as any) || idx}>
+                      <span>{decodeEntities(v.d)}</span>
                       <span>{(() => {
-                        const usd = typeof v.baseAmount === 'number' ? v.baseAmount : null;
+                        // v.usd = price in USD (minified key)
+                        const usd = typeof v.usd === 'number' ? v.usd : null;
                         if (usd == null) return '';
                         const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
-                        const desc = decodeEntities(v.description);
+                        const desc = decodeEntities(v.d);
                         const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
                         const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
                         return (

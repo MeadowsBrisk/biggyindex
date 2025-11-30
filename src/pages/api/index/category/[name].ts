@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getCategoryItems, getSnapshotMeta } from '@/lib/indexData';
 import { conditionalJSON } from '@/lib/http/conditional';
 import type { Market } from '@/lib/market';
-import { normalizeItems } from '@/lib/normalizeItem';
 
 export const config = { runtime: 'nodejs' };
 
@@ -11,7 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;
   const meta: any = await getSnapshotMeta(mkt);
   const rawItems: any[] = await getCategoryItems(String(name), mkt);
-  const items: any[] = normalizeItems(rawItems);
+  // Items now use minified keys directly - no normalization needed
+  const items = rawItems;
   const updatedAt: string = meta?.updatedAt || new Date().toISOString();
   const version: string = meta?.version || `${name}-${items.length.toString(36)}`;
   await conditionalJSON(req as any, res as any, {

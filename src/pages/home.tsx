@@ -14,7 +14,6 @@ import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { hostForLocale } from '@/lib/routing';
 import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market';
 import { useLocale, useTranslations } from 'next-intl';
-import { normalizeItem } from '@/lib/normalizeItem';
 
 const RECENT_ITEMS_LIMIT = 25;
 
@@ -73,18 +72,20 @@ interface HomeLandingProps {
   sellersIndex: any;
 }
 
+// Maps item data (supporting both minified and legacy keys) to card format
 function mapItemForCard(item: any, timestamp: string | null, metaLabel: string | null = null): ItemCardLite {
   return {
     id: item.id ?? item.refNum ?? null,
     refNum: item.refNum ?? null,
-    name: item.name ?? 'Untitled',
-    sellerName: item.sellerName ?? 'Unknown seller',
-    sellerId: item.sellerId ?? null,
-    category: item.category ?? 'Uncategorised',
-    createdAt: timestamp ?? item.firstSeenAt ?? item.lastUpdatedAt ?? null,
+    // Support minified (n, sn, c, i) and legacy (name, sellerName, category, imageUrl)
+    name: item.n ?? item.name ?? 'Untitled',
+    sellerName: item.sn ?? item.sellerName ?? 'Unknown seller',
+    sellerId: item.sid ?? item.sellerId ?? null,
+    category: item.c ?? item.category ?? 'Uncategorised',
+    createdAt: timestamp ?? item.fsa ?? item.firstSeenAt ?? item.lua ?? item.lastUpdatedAt ?? null,
     metaLabel,
-    url: item.share ?? item.url ?? null,
-    imageUrl: item.imageUrl ?? null,
+    url: item.sl ?? item.share ?? item.url ?? null,
+    imageUrl: item.i ?? item.imageUrl ?? null,
     sellerImageUrl: null,
   };
 }
@@ -142,13 +143,12 @@ export async function buildHomeProps(market: string = 'GB') {
   const sellerImageById = new Map<number, string>(sellerImageEntries);
 
   const recentItems: RecentItemsProps = {
+    // Items now use minified keys directly - mapItemForCard supports both formats
     added: ((recentItemsCompact as any)?.added || [])
-      .map((it: any) => normalizeItem(it))
-      .map((it: any) => mapItemForCard(it, it.createdAt || null, 'added'))
+      .map((it: any) => mapItemForCard(it, it.createdAt || it.fsa || null, 'added'))
       .slice(0, RECENT_ITEMS_LIMIT),
     updated: ((recentItemsCompact as any)?.updated || [])
-      .map((it: any) => normalizeItem(it))
-      .map((it: any) => mapItemForCard(it, it.createdAt || null, 'updated'))
+      .map((it: any) => mapItemForCard(it, it.createdAt || it.lua || null, 'updated'))
       .slice(0, RECENT_ITEMS_LIMIT),
   };
 
