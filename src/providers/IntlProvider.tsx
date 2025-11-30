@@ -104,11 +104,17 @@ async function loadMessages(locale: Locale) {
 
 export function IntlProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  // Important: keep initial SSR and first client render identical to avoid hydration mismatch
-  const [locale, setLocale] = useState<Locale>("en-GB");
-  const [messages, setMessages] = useState<Record<string, any> | null>(enGBMessages as any);
-  const [currency, setCurrency] = useState<Currency>("GBP");
+  
+  // Use Next.js i18n locale from router (set by domain config in next.config.ts)
+  // This ensures SSR and client render with the same initial locale
+  const initialLocale = normalizeLocale(router.locale);
+  
+  const [locale, setLocale] = useState<Locale>(initialLocale);
+  // Start with English messages as fallback, load correct locale async
+  const [messages, setMessages] = useState<Record<string, any>>(enGBMessages as Record<string, any>);
+  const [currency, setCurrency] = useState<Currency>(currencyForLocale(initialLocale));
 
+  // Load messages for the current locale
   useEffect(() => {
     let cancelled = false;
     loadMessages(locale).then((m) => {
@@ -121,28 +127,13 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
     };
   }, [locale]);
 
-  // Keep locale in sync with route or host (e.g., fr.biggyindex.com or /fr)
+  // Sync locale when router.locale changes (e.g., navigating between localized pages)
   useEffect(() => {
-    if (!router || typeof router.pathname !== 'string') return;
-    const envLocale = localeFromEnvironment(router.asPath || router.pathname);
-    if (envLocale && envLocale !== locale) setLocale(envLocale);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router?.pathname, router?.asPath]);
-
-  // On mount, derive locale from URL param or localStorage if no path prefix was provided
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-  const envLocale = localeFromEnvironment(window.location?.pathname || '/');
-  if (envLocale && envLocale !== locale) { setLocale(envLocale); return; }
-    try {
-      const url = new URL(window.location.href);
-      const qp = url.searchParams.get('lang');
-      if (qp) { setLocale(normalizeLocale(qp)); return; }
-      const saved = window.localStorage.getItem('app:locale');
-      if (saved) setLocale(normalizeLocale(saved));
-    } catch {}
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const routerLocale = normalizeLocale(router.locale);
+    if (routerLocale !== locale) {
+      setLocale(routerLocale);
+    }
+  }, [router.locale, locale]);
 
   // Expose a simple API to change locale later if needed
   const value = useMemo(() => ({ currency, setCurrency }), [currency]);
@@ -150,7 +141,7 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
   return (
     <NextIntlProvider
       locale={locale}
-      messages={messages || {}}
+      messages={messages}
       timeZone="UTC"
       onError={(err: any) => {
         // Suppress hard errors for missing messages during first render; show warnings in dev for other issues

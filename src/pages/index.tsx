@@ -20,8 +20,6 @@ import {
   favouritesOnlyAtom,
   freeShippingOnlyAtom,
   expandedRefNumAtom,
-  isrRecentReviewsAtom,
-  isrRecentMediaAtom,
 } from '@/store/atoms';
 import { fetchVotesActionAtom, prefetchAllVotesActionAtom } from '@/store/votesAtoms';
 import Sidebar from '@/components/layout/Sidebar';
@@ -56,141 +54,28 @@ export const getStaticProps: GetStaticProps = async () => {
   const market = 'GB'; // Default market for static generation
   
   try {
-    const { getAllItems, getManifest, getSnapshotMeta, getRecentReviews, getRecentMedia, getItemImageLookup, getSellerImages, getRecentItemsCompact } = await import('@/lib/indexData');
-    const { RECENT_REVIEWS_LIMIT } = await import('@/lib/constants');
+    const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/indexData');
     
-    const [rawItems, manifest, meta, reviewsRaw, mediaRaw, itemImageLookup, recentItemsCompact, sellerImagesMap] = await Promise.all([
+    // Only fetch items and manifest for initial page load
+    // Reviews/media are lazy-loaded by modals when opened (reduces __NEXT_DATA__ by ~200-400KB)
+    const [rawItems, manifest, meta] = await Promise.all([
       getAllItems(market as any),
       getManifest(market as any),
       getSnapshotMeta(market as any),
-      getRecentReviews(market as any),
-      getRecentMedia(market as any),
-      getItemImageLookup(market as any),
-      getRecentItemsCompact(market as any),
-      getSellerImages(),
     ]);
     
     // Keep items minified - normalization happens client-side in setItemsAtom/setAllItemsAtom
     // This reduces page data size by ~40-50%
     const items = rawItems;
     
-    // Process reviews (same logic as API route)
-    const imageByRefFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byRef || {}) as Record<string,string>));
-    const imageByIdFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byId || {}) as Record<string,string>));
-    try {
-      const lists = [recentItemsCompact?.added || [], recentItemsCompact?.updated || []];
-      for (const list of lists) {
-        for (const it of Array.isArray(list) ? list : []) {
-          const ref = it?.refNum ?? it?.id ?? null;
-          const img = it?.imageUrl || null;
-          if (ref != null && img) {
-            const key = String(ref);
-            if (!imageByRefFromRecent.has(key)) imageByRefFromRecent.set(key, img);
-          }
-          if (it?.id != null && img) {
-            const keyId = String(it.id);
-            if (!imageByIdFromRecent.has(keyId)) imageByIdFromRecent.set(keyId, img);
-          }
-        }
-      }
-    } catch {}
-    
-    const sellerImageById = new Map<number, string>();
-    for (const [k, v] of Object.entries(sellerImagesMap || {})) {
-      const id = Number(k);
-      if (Number.isFinite(id) && v) sellerImageById.set(id, String(v));
-    }
-    
-    const resolveCreated = (created: any): string | null => {
-      if (!created) return null;
-      if (typeof created === 'number') return new Date(created * 1000).toISOString();
-      const parsed = new Date(created);
-      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
-    };
-    
-    const reviews = Array.isArray(reviewsRaw)
-      ? reviewsRaw.slice(0, RECENT_REVIEWS_LIMIT).map((review: any) => {
-          const ref = review?.item?.refNum;
-          const itemId = review?.item?.id;
-          const imageUrl =
-            review?.item?.imageUrl ||
-            (ref != null && imageByRefFromRecent.get(String(ref))) ||
-            (itemId != null && imageByIdFromRecent.get(String(itemId))) ||
-            null;
-          const sellerId = review?.sellerId ?? review?.seller?.id ?? null;
-          let sellerImageUrl: string | null = null;
-          if (sellerId != null) sellerImageUrl = sellerImageById.get(Number(sellerId)) || null;
-          return {
-            ...review,
-            createdAt: review?.created ? resolveCreated(review.created) : null,
-            itemName: review?.item?.name || 'Unknown item',
-            refNum: review?.item?.refNum || null,
-            itemImageUrl: imageUrl ?? null,
-            sellerImageUrl,
-          };
-        })
-      : [];
-    
-    // Process media entries (same logic as API route recent-media.ts)
-    const media: any[] = Array.isArray(mediaRaw)
-      ? mediaRaw
-          .slice(0, 40)
-          .map((entry: any, index: number) => {
-            if (!entry || !Array.isArray(entry.segments)) return null;
-
-            const textSnippet = entry.segments
-              .filter((segment: any) => segment && segment.type === 'text' && typeof segment.value === 'string')
-              .map((segment: any) => segment.value)
-              .join('')
-              .replace(/\s+/g, ' ')
-              .trim();
-
-            const images = entry.segments
-              .filter((segment: any) => segment && segment.type === 'image' && segment.url)
-              .map((segment: any) => segment.url)
-              .filter(Boolean);
-
-            if (!images.length) return null;
-
-            const ref = entry.item?.refNum;
-            const itemId = entry.item?.id;
-            const itemImageUrl =
-              entry.item?.imageUrl ||
-              (ref != null && imageByRefFromRecent.get(String(ref))) ||
-              (itemId != null && imageByIdFromRecent.get(String(itemId))) ||
-              null;
-
-            const sellerId = entry.sellerId ?? entry.seller?.id ?? null;
-            let sellerImageUrl: string | null = null;
-            if (sellerId != null) {
-              sellerImageUrl = sellerImageById.get(Number(sellerId)) || null;
-            }
-
-            return {
-              id: entry.id ?? `media-${index}`,
-              images,
-              sellerName: entry.sellerName || 'Unknown seller',
-              rating: typeof entry.rating === 'number' ? entry.rating : null,
-              daysToArrive: Number.isFinite(entry.daysToArrive) ? entry.daysToArrive : null,
-              createdAt: entry.created ? new Date(entry.created * 1000).toISOString() : null,
-              itemName: entry.item?.name || 'Unknown item',
-              refNum: entry.item?.refNum || null,
-              itemImageUrl: itemImageUrl ?? null,
-              text: textSnippet || null,
-              sellerId: entry.sellerId ?? null,
-              sellerImageUrl,
-            };
-          })
-          .filter(Boolean) as any[]
-      : [];
+    // NOTE: Reviews and media are now lazy-loaded by the LatestReviewsModal component
+    // when it opens, rather than being included in __NEXT_DATA__. This saves ~200-400KB.
     
     return {
       props: {
         initialItems: items,
         initialManifest: manifest,
         snapshotMeta: meta,
-        initialRecentReviews: reviews,
-        initialRecentMedia: media,
       },
       revalidate: 1000, // Rebuild every ~16 minutes (aligns with crawler cadence)
     };
@@ -202,8 +87,6 @@ export const getStaticProps: GetStaticProps = async () => {
         initialItems: [],
         initialManifest: { categories: {}, totalItems: 0 },
         snapshotMeta: null,
-        initialRecentReviews: [],
-        initialRecentMedia: [],
       },
       revalidate: 1000,
     };
@@ -215,11 +98,9 @@ type HomeProps = {
   initialItems?: any[];
   initialManifest?: any;
   snapshotMeta?: any;
-  initialRecentReviews?: any[];
-  initialRecentMedia?: any[];
 };
 
-export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, snapshotMeta, initialRecentReviews = [], initialRecentMedia = [] }: HomeProps): React.ReactElement {
+export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, snapshotMeta }: HomeProps): React.ReactElement {
   const router = useRouter();
   const tList = useTranslations('List');
   const tSidebar = useTranslations('Sidebar');
@@ -400,8 +281,6 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const { narrow } = useNarrowLayout();
   const setAllItems = useSetAtom(setAllItemsAtom as any);
   const allItems = useAtomValue<any[]>(allItemsAtom as any);
-  const setIsrRecentReviews = useSetAtom(isrRecentReviewsAtom as any);
-  const setIsrRecentMedia = useSetAtom(isrRecentMediaAtom as any);
   const { currency, setCurrency } = useDisplayCurrency();
   const { locale } = useLocale();
   const localeCurrency = React.useMemo(() => {
@@ -459,14 +338,8 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       }
     }
     
-    // Hydrate recent reviews/media from ISR props (for modal)
-    if (initialRecentReviews && initialRecentReviews.length > 0) {
-      setIsrRecentReviews(initialRecentReviews);
-    }
-    if (initialRecentMedia && initialRecentMedia.length > 0) {
-      setIsrRecentMedia(initialRecentMedia);
-    }
-  }, [initialManifest, initialItems, initialRecentReviews, initialRecentMedia, setManifest, setItems, setAllItems, setIsLoading, setIsrRecentReviews, setIsrRecentMedia, category]);
+    // NOTE: Reviews/media are now lazy-loaded by LatestReviewsModal when opened
+  }, [initialManifest, initialItems, setManifest, setItems, setAllItems, setIsLoading, category]);
 
   useEffect(() => {
     // Fetch manifest from API only if ISR data missing

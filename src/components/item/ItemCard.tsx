@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import cn from "@/lib/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
@@ -524,53 +523,50 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
           </div>
         </div>
       </div>
-      <AnimatePresence initial={false}>
-        {expanded && showVariants && (
-          <motion.div
-            key="pricing-overlay"
-            id={pricingPanelId}
-            aria-labelledby={pricingTitleId}
-            className={cn('item-card__pricing-overlay', suppressPanelAnim && 'item-card__pricing-overlay--static')}
-            initial={suppressPanelAnim ? false : { y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={suppressPanelAnim ? { y: 0, opacity: 0 } : { y: '100%', opacity: 0 }}
-            transition={suppressPanelAnim ? { duration: 0.12 } : { duration: 0.32, ease: [0.22, 0.81, 0.36, 1] }}
-            role="dialog"
-            aria-modal="false"
-            style={{ pointerEvents: expanded ? 'auto' : 'none' }}
-          >
-            <div className="item-card__pricing-inner">
-              <div className="item-card__pricing-header" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
-                <div id={pricingTitleId} className="item-card__pricing-title">{variants.length} {variants.length === 1 ? 'variant' : 'variants'}</div>
-              </div>
-              <div className="item-card__pricing-scroll" onClick={(e) => e.stopPropagation()}>
-                <ul>
-                  {variants.map((v, idx) => (
-                    <li key={(v.vid as any) || idx}>
-                      <span>{decodeEntities(v.d)}</span>
-                      <span>{(() => {
-                        // v.usd = price in USD (minified key)
-                        const usd = typeof v.usd === 'number' ? v.usd : null;
-                        if (usd == null) return '';
-                        const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
-                        const desc = decodeEntities(v.d);
-                        const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
-                        const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
-                        return (
-                          <>
-                            <span className="variant-price">{amountText}</span>
-                            {per && <span className="variant-per-unit text-[11px]">{per}</span>}
-                          </>
-                        );
-                      })()}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      {showVariants && (
+        <div
+          id={pricingPanelId}
+          aria-labelledby={pricingTitleId}
+          className={cn(
+            'item-card__pricing-overlay',
+            expanded && 'item-card__pricing-overlay--open',
+            suppressPanelAnim && 'item-card__pricing-overlay--static'
+          )}
+          role="dialog"
+          aria-modal="false"
+          aria-hidden={!expanded}
+        >
+          <div className="item-card__pricing-inner">
+            <div className="item-card__pricing-header" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+              <div id={pricingTitleId} className="item-card__pricing-title">{variants.length} {variants.length === 1 ? 'variant' : 'variants'}</div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="item-card__pricing-scroll" onClick={(e) => e.stopPropagation()}>
+              <ul>
+                {variants.map((v, idx) => (
+                  <li key={(v.vid as any) || idx}>
+                    <span>{decodeEntities(v.d)}</span>
+                    <span>{(() => {
+                      // v.usd = price in USD (minified key)
+                      const usd = typeof v.usd === 'number' ? v.usd : null;
+                      if (usd == null) return '';
+                      const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
+                      const desc = decodeEntities(v.d);
+                      const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
+                      const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
+                      return (
+                        <>
+                          <span className="variant-price">{amountText}</span>
+                          {per && <span className="variant-per-unit text-[11px]">{per}</span>}
+                        </>
+                      );
+                    })()}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

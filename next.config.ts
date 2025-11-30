@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Optimize package imports for better tree-shaking
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'motion', 'lucide-react', 'jotai'],
+  },
   // Internationalization with domain-based routing
   // Production: subdomains (de.biggyindex.com, fr.biggyindex.com)
   // Local dev: path-based fallback (/de, /fr)

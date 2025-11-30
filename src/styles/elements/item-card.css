@@ -334,7 +334,8 @@ content: "";
 	transform: translateY(100%);
 	opacity: 0;
 	pointer-events: none;
-	transition: transform 320ms cubic-bezier(0.22, 0.81, 0.36, 1), opacity 220ms ease-out;
+	/* Close transition: ease-in for smooth deceleration into hidden state */
+	transition: transform 320ms cubic-bezier(0.64, 0, 0.78, 0.19), opacity 280ms ease-in;
 	padding: 0;
 	backdrop-filter: blur(12px);
 	border-radius: 8px 8px 0 0;
@@ -350,6 +351,8 @@ content: "";
 	transform: translateY(0%);
 	opacity: 1;
 	pointer-events: auto;
+	/* Open transition: same as framer-motion's [0.22, 0.81, 0.36, 1] ease-out */
+	transition: transform 320ms cubic-bezier(0.22, 0.81, 0.36, 1), opacity 220ms ease-out;
 }
 .item-card__pricing-overlay--static {
 	transition: none !important;
