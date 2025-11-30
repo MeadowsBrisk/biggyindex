@@ -343,25 +343,21 @@ export default function SellerFilter() {
       {hasCurrentModeFilters && (
         <div className="flex flex-wrap gap-1.5">
           {activeList.map((lower) => (
-            <span
+            <button
               key={lower}
+              type="button"
+              onClick={() => remove(lower)}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors duration-200 cursor-pointer group",
                 isIncludeMode
-                  ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200"
-                  : "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200"
+                  ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-200 dark:hover:bg-emerald-800/60"
+                  : "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800/60"
               )}
+              aria-label={t('removeSeller', { name: lower })}
             >
               {sortedSellers.find((s) => s.toLowerCase() === lower) || lower}
-              <button
-                type="button"
-                className="ml-0.5 hover:opacity-70 transition-opacity"
-                onClick={() => remove(lower)}
-                aria-label={t('removeSeller', { name: lower })}
-              >
-                ×
-              </button>
-            </span>
+              <span className="ml-0.5 opacity-60 group-hover:opacity-100 transition-opacity duration-400">×</span>
+            </button>
           ))}
         </div>
       )}

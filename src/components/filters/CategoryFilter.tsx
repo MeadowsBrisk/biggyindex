@@ -79,7 +79,11 @@ export default function CategoryFilter() {
   }, [shipFromOptions]);
 
   const toggleFavouriteOnly = () => setFavouritesOnly((v: any) => !v);
-  const onSelectCategory = useCallback((cat: string) => { setCategory(cat); }, [setCategory]);
+  const onSelectCategory = useCallback((cat: string) => {
+    setCategory(cat);
+    // Scroll to top when changing category since items shift significantly
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [setCategory]);
   const onKeyCategory = (e: React.KeyboardEvent<HTMLButtonElement>, cat: string) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCategory(cat); } };
   
   // Detect touch device
