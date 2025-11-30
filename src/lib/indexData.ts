@@ -49,14 +49,22 @@ async function getStoreForName(name?: string): Promise<StoreClient | null> {
     const token = (process as any).env.NETLIFY_BLOBS_TOKEN || (process as any).env.NETLIFY_API_TOKEN || (process as any).env.NETLIFY_AUTH_TOKEN || (process as any).env.BLOBS_TOKEN;
     let store: StoreClient | null = null;
     if (siteID && token) {
-      try { store = getStore({ name, siteID, token, consistency: 'strong' }) as unknown as StoreClient; } catch {}
+      try { store = getStore({ name, siteID, token, consistency: 'strong' }) as unknown as StoreClient; } catch (e) {
+        console.error(`[indexData] getStore with credentials failed for ${name}:`, e);
+      }
     }
     if (!store) {
-      try { store = getStore({ name, consistency: 'strong' }) as unknown as StoreClient; } catch {}
+      try { store = getStore({ name, consistency: 'strong' }) as unknown as StoreClient; } catch (e) {
+        console.error(`[indexData] getStore without credentials failed for ${name}:`, e);
+      }
+    }
+    if (!store) {
+      console.error(`[indexData] Could not get store ${name}. siteID=${!!siteID}, token=${!!token}`);
     }
     storeCache.set(name, store);
     return store;
-  } catch {
+  } catch (e) {
+    console.error(`[indexData] getStoreForName error for ${name}:`, e);
     return null;
   }
 }
@@ -74,10 +82,16 @@ async function readBlobJSON<T = any>(key: string, { market, store, useCache = fa
   }
 
   const storeClient = await getStoreForName(storeName);
-  if (!storeClient) return null;
+  if (!storeClient) {
+    console.error(`[indexData] No store client for ${storeName}, cannot read ${key}`);
+    return null;
+  }
   try {
     const value = await storeClient.get(key);
-    if (!value) return null;
+    if (!value) {
+      console.warn(`[indexData] Key ${key} not found in store ${storeName}`);
+      return null;
+    }
     const data = JSON.parse(value) as T;
     
     // Write to memory cache if enabled
@@ -87,7 +101,8 @@ async function readBlobJSON<T = any>(key: string, { market, store, useCache = fa
     }
     
     return data;
-  } catch {
+  } catch (e) {
+    console.error(`[indexData] Error reading ${key} from ${storeName}:`, e);
     return null;
   }
 }
