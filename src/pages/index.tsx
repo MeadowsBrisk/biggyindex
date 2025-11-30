@@ -57,7 +57,6 @@ export const getStaticProps: GetStaticProps = async () => {
   
   try {
     const { getAllItems, getManifest, getSnapshotMeta, getRecentReviews, getRecentMedia, getItemImageLookup, getSellerImages, getRecentItemsCompact } = await import('@/lib/indexData');
-    const { normalizeItems } = await import('@/lib/normalizeItem');
     const { RECENT_REVIEWS_LIMIT } = await import('@/lib/constants');
     
     const [rawItems, manifest, meta, reviewsRaw, mediaRaw, itemImageLookup, recentItemsCompact, sellerImagesMap] = await Promise.all([
@@ -71,7 +70,9 @@ export const getStaticProps: GetStaticProps = async () => {
       getSellerImages(),
     ]);
     
-    const items = normalizeItems(rawItems);
+    // Keep items minified - normalization happens client-side in setItemsAtom/setAllItemsAtom
+    // This reduces page data size by ~40-50%
+    const items = rawItems;
     
     // Process reviews (same logic as API route)
     const imageByRefFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byRef || {}) as Record<string,string>));
