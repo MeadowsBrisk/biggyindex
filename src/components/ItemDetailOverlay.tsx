@@ -69,7 +69,7 @@ export default function ItemDetailOverlay() {
   const items = useAtomValue(itemsAtom);
   const sortedItems = useAtomValue(sortedItemsAtom);
   const baseItem = ((sortedItems as any[]).find((it: any) => it.refNum === refNum || String(it.id) === refNum)) || ((items as any[]).find((it: any) => it.refNum === refNum || String(it.id) === refNum));
-  const listOrder = React.useMemo(() => sortedItems.map(it => it.refNum || String(it.id)), [sortedItems]);
+  const listOrder = React.useMemo(() => sortedItems.map(it => String(it.refNum || it.id)), [sortedItems]);
   const selfIndex = React.useMemo(() => listOrder.indexOf(refNum as any), [listOrder, refNum]);
   const hasPrev = selfIndex > 0;
   const hasNext = selfIndex >= 0 && selfIndex < listOrder.length - 1;
