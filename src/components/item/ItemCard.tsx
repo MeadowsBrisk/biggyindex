@@ -375,9 +375,9 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
               <FavButton itemId={item.id as any} className="" />
             </div>
             <div className="absolute right-2 bottom-2 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-auto">
-              {/** Prefer referral share link (short link) when present */}
+              {/** Prefer referral share link (sl = minified key) when present */}
               <a
-                href={(item as any).share || url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : undefined)}
+                href={item.sl || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : undefined)}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`View ${nameDecoded} on Little Biggy`}
