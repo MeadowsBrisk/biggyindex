@@ -16,7 +16,7 @@ import {
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { decodeEntities } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
-import VanIcon from '@/app/assets/svg/van.svg';
+import { VanIcon } from '@/components/icons';
 import ImageZoomPreview from '@/components/ImageZoomPreview';
 import SellerPill from '@/components/SellerPill';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';

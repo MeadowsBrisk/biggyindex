@@ -26,7 +26,7 @@ import { useHistoryState } from '@/hooks/useHistoryState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { decodeEntities } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';
-import VanIcon from '@/app/assets/svg/van.svg';
+import { VanIcon } from '@/components/icons';
 import ImageZoomPreview from '@/components/ImageZoomPreview';
 import SellerPill from '@/components/SellerPill';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/ReviewsList';
@@ -151,7 +151,8 @@ export default function ItemDetailOverlay() {
   const { perUnitSuffix } = usePerUnitLabel();
   // Shipping options (detail) for inclusion toggle
   const shippingOptions = useMemo(() => {
-    const opts = Array.isArray(detail?.shipping?.options) ? (detail as any).shipping.options : [];
+    const shipping = (detail as any)?.shipping;
+    const opts = Array.isArray(shipping?.options) ? shipping.options : [];
     return opts.filter((o: any) => typeof o.cost === 'number');
   }, [detail]);
   const allShippingFree = shippingOptions.length > 0 && shippingOptions.every((o: any) => o.cost === 0);

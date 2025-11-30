@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import RedditIcon from '@/app/assets/svg/reddit.svg';
+import { RedditIcon } from '@/components/icons';
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from 'next-intl';

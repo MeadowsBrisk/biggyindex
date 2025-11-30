@@ -2,8 +2,7 @@ import React from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { selectAtom } from 'jotai/utils';
 import cn from '@/app/cn';
-// @ts-ignore SVG handled by bundler
-import StarIcon from '@/app/assets/svg/star.svg';
+import { StarIcon } from '@/components/icons';
 import { favouritesAtom, toggleFavouriteAtom, favouritesOnlyAtom } from '@/store/atoms';
 
 export type FavButtonProps = {

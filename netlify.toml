@@ -204,19 +204,29 @@
   status = 301
   force = true
 
-# Cache Control for static assets
+# Cache Control for static assets (Cloudflare CDN)
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    CDN-Cache-Control = "max-age=31536000"
 
 [[headers]]
   for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    CDN-Cache-Control = "max-age=31536000"
 
 [[headers]]
   for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    CDN-Cache-Control = "max-age=31536000"
+
+# Next.js static chunks (Cloudflare CDN)
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    CDN-Cache-Control = "max-age=31536000"
 

@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/market';
 
-// Middleware: normalize API calls to include ?mkt based on hostname.
+// Proxy: normalize API calls to include ?mkt based on hostname.
 // - On biggyindex.com (and subdomains) and lbindex.vip, derive market from host and
 //   rewrite /api/index/* to include ?mkt=XX when missing.
 // - Leaves localhost and other environments untouched if ?mkt is already present.
@@ -10,7 +10,7 @@ import { getMarketFromHost, getMarketFromPath, isHostBasedEnv } from '@/lib/mark
 // This removes the need for client code to remember appending ?mkt in production
 // and keeps server-side inference consistent.
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
   const host = req.headers.get('host') || '';
   // Derive market from host when on subdomains (fr.biggyindex.com, etc);

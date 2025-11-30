@@ -2,7 +2,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import cn from '@/app/cn';
-import ThumbIcon from '@/app/assets/svg/thumb.svg';
+import { ThumbIcon } from '@/components/icons';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { votesAtom, endorseActionAtom, endorsedSetAtom, voteHasVotedAtom, voteLimitReachedAtom } from '@/store/votesAtoms';
 import { endorsementBaselinesAtom } from '@/store/votesAtoms';

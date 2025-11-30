@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import cn from '@/app/cn';
-import StarIcon from '@/app/assets/svg/star.svg';
+import { StarIcon } from '@/components/icons';
 import EndorseButton from '@/components/EndorseButton';
 import ShareMenu from '@/components/ShareMenu';
 import { useTranslations } from 'next-intl';

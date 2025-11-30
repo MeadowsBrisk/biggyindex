@@ -13,8 +13,7 @@ import EndorseButton from "@/components/EndorseButton";
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { formatUSDRange, formatUSD, convertUSDToDisplay, currencySymbol } from '@/lib/priceDisplay';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
-// @ts-ignore - SVG module type handled by build tooling
-import VanIcon from '@/app/assets/svg/van.svg';
+import { VanIcon } from '@/components/icons';
 import { useTranslations } from 'next-intl';
 import { decodeEntities, formatBritishDateTime } from '@/lib/format';
 import { relativeCompact } from '@/lib/relativeTimeCompact';

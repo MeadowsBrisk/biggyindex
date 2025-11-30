@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
-import VanIcon from '@/app/assets/svg/van.svg';
+import { VanIcon } from '@/components/icons';
 import { decodeEntities } from '@/lib/format';
 import cn from '@/app/cn';
 import { formatUSD } from '@/lib/priceDisplay';
