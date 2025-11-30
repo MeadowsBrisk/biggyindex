@@ -372,10 +372,10 @@
     "onePerDay": "One endorsement per day"
   },
   "Meta": {
-    "indexTitle": "Biggy Index — items, sellers & reviews",
-    "indexDescription": "Explore LittleBiggy items across categories with seller stats, reviews, shipping info, and powerful filters.",
-    "homeTitle": "Biggy Index – UK Cannabis Listings",
-    "homeDescription": "Browse UK-focused LittleBiggy listings with categories, pricing, reviews, seller performance and recent media.",
+    "indexTitle": "Browse {count} Items | Biggy Index",
+    "indexDescription": "Filter items by category, price, seller rating and shipping. Compare variants, read reviews, and find the best deals.",
+    "homeTitle": "Your LittleBiggy Companion | Biggy Index",
+    "homeDescription": "A better way to browse LittleBiggy: categorised listings, seller leaderboards, recent reviews, and powerful filters.",
     "latestReviewsTitle": "Latest Reviews | Biggy Index",
     "latestReviewsDescription": "See the most recent LittleBiggy buyer reviews: ratings, arrival times, media and item links.",
     "sellersTitle": "Sellers | Biggy Index",

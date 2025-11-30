@@ -533,14 +533,17 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       ? tList('showingFavouritesItems', { count: sorted.length })
       : tList('showingItems', { count: sorted.length });
 
+  // Item count for SEO title - use manifest.totalItems from ISR
+  const itemCount = (initialManifest as any)?.totalItems || (manifest as any)?.totalItems || 0;
+
   return (
     <>
       {!suppressDefaultHead && (
         <Head>
-          <title>{tMeta('indexTitle')}</title>
+          <title>{tMeta('indexTitle', { count: itemCount })}</title>
           <meta name="description" content={tMeta('indexDescription')} />
           <link rel="canonical" href={hostForLocale(locale)} />
-          <meta property="og:title" content={tMeta('indexTitle')} />
+          <meta property="og:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta property="og:description" content={tMeta('indexDescription')} />
           <meta property="og:url" content={hostForLocale(locale)} />
           <meta property="og:type" content="website" />
@@ -550,7 +553,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
             <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
           ))}
           <meta name="twitter:card" content="summary" />
-          <meta name="twitter:title" content={tMeta('indexTitle')} />
+          <meta name="twitter:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta name="twitter:description" content={tMeta('indexDescription')} />
           {['en','de','fr','it','pt'].map(l => (
             <link key={l} rel="alternate" href={hostForLocale(l)} hrefLang={l} />
