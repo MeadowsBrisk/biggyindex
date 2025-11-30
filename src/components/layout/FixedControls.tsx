@@ -1,26 +1,35 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAtom } from "jotai";
 import { motion, AnimatePresence } from "framer-motion";
 import { darkModeAtom } from "@/store/atoms";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import { useTranslations } from "next-intl";
 
 export default function FixedControls() {
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
   const t = useTranslations('Theme');
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const rafRef = useRef<number | null>(null);
 
   const handleToggle = () => {
     setDarkMode((v) => !v);
   };
 
   useEffect(() => {
+    // Throttle scroll handler with rAF to prevent excessive state updates
     const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 200);
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        setShowBackToTop(window.scrollY > 200);
+        rafRef.current = null;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   const scrollToTop = () => {

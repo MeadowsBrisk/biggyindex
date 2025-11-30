@@ -45,7 +45,7 @@ import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewSco
 import formatDescription from '@/lib/formatDescription';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/countries';
 import { proxyImage } from '@/lib/images';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import ShareMenu from '@/components/actions/ShareMenu';
 import EndorseButton from '@/components/actions/EndorseButton';
 import MobileTabs from '@/components/item/item-detail/MobileTabs';
@@ -173,7 +173,7 @@ export default function ItemDetailOverlay() {
   // Favourite state + actions (defined early to avoid TDZ in effects)
   const toggleFav = useSetAtom(toggleFavouriteAtom);
   const isFavAtom = useMemo(() => selectAtom(favouritesAtom as any, (favs: any[]) => Array.isArray(favs) && baseItem && favs.includes((baseItem as any).id)), [baseItem]);
-  const isFav = useAtomValue(isFavAtom as any);
+  const isFav = useAtomValue(isFavAtom as any) as boolean;
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];

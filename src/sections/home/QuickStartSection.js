@@ -4,7 +4,7 @@ import { useId, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 // npm install lucide-react
 import { ChevronDown, Info, Lock, ShoppingBag, WalletMinimal, ShieldCheck } from "lucide-react";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/providers/IntlProvider";

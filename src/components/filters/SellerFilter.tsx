@@ -10,7 +10,7 @@ import {
   includedSellersPinnedAtom 
 } from "@/store/atoms";
 import type { Item } from "@/store/atoms";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import FilterPinButton from "@/components/common/FilterPinButton";
 import { useTranslations } from 'next-intl';
 
@@ -70,6 +70,8 @@ export default function SellerFilter() {
   // Calculate dropdown position when suggestions change or window resizes
   useEffect(() => {
     if (suggestions.length > 0 && inputRef.current) {
+      let rafId: number | null = null;
+      
       const updatePosition = () => {
         if (!inputRef.current) return;
         const rect = inputRef.current.getBoundingClientRect();
@@ -89,13 +91,23 @@ export default function SellerFilter() {
         });
       };
       
+      // Throttle scroll/resize updates with rAF
+      const throttledUpdate = () => {
+        if (rafId !== null) return;
+        rafId = requestAnimationFrame(() => {
+          updatePosition();
+          rafId = null;
+        });
+      };
+      
       updatePosition();
-      window.addEventListener('resize', updatePosition);
-      window.addEventListener('scroll', updatePosition, true); // capture phase to catch all scrolls
+      window.addEventListener('resize', throttledUpdate);
+      window.addEventListener('scroll', throttledUpdate, true); // capture phase to catch all scrolls
       
       return () => {
-        window.removeEventListener('resize', updatePosition);
-        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', throttledUpdate);
+        window.removeEventListener('scroll', throttledUpdate, true);
+        if (rafId !== null) cancelAnimationFrame(rafId);
       };
     }
   }, [suggestions.length]);

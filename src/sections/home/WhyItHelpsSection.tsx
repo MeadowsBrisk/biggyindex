@@ -1,11 +1,17 @@
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
 import { useTranslations } from 'next-intl';
-// Content localized via Home translations
+import type { ReactElement } from "react";
 
-export default function WhyItHelpsSection() {
+interface HighlightItem {
+  title: string;
+  description: string;
+}
+
+export default function WhyItHelpsSection(): ReactElement {
   const tHome = useTranslations('Home');
-  const highlights = tHome.raw('why.highlights');
+  const highlights = tHome.raw('why.highlights') as HighlightItem[];
+  
   return (
     <section className="bg-slate-100 py-20 transition-colors duration-300 dark:bg-slate-950">
       <div className="mx-auto max-w-5xl px-6">
@@ -19,7 +25,7 @@ export default function WhyItHelpsSection() {
           {Array.isArray(highlights) && highlights.map((item, index) => (
             <motion.div
               key={item.title}
-              {...fadeInUp({ distance: 20, duration: 0.45, delay: index * 0.05, trigger: "view", viewportAmount: 0.4 })}
+              {...(fadeInUp({ distance: 20, duration: 0.45, delay: index * 0.05, trigger: "view", viewportAmount: 0.4 }) as any)}
               whileHover={{ y: -8 }}
               whileFocus={{ y: -8 }}
               className="rounded-3xl border border-white/60 bg-white p-6 text-left shadow-md shadow-black/10 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 transition-colors duration-200 hover:border-emerald-400/40"
@@ -33,4 +39,3 @@ export default function WhyItHelpsSection() {
     </section>
   );
 }
-

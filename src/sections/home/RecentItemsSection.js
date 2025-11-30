@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import Image from "next/image";
 import { proxyImage } from "@/lib/images";
 import { timeAgo } from "@/lib/format";

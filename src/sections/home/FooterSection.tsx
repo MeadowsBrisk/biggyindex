@@ -3,13 +3,19 @@
 import Link from "next/link";
 import { RedditIcon } from '@/components/common/icons';
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactElement, type MouseEvent as ReactMouseEvent } from "react";
 import { useFormatter, useTranslations } from 'next-intl';
 
-export default function FooterSection({ lastCrawlTime, buildTime }) {
+interface FooterSectionProps {
+  lastCrawlTime?: string | number | null;
+  buildTime?: string | number | null;
+}
+
+export default function FooterSection({ lastCrawlTime, buildTime }: FooterSectionProps): ReactElement {
   const year = new Date().getFullYear();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const footerRef = useRef(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
   const format = useFormatter();
   const tHome = useTranslations('Home');
 
@@ -28,18 +34,29 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
   })();
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!footerRef.current) return;
-      const rect = footerRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setMousePosition({ x, y });
+    // Throttle mousemove with rAF for smoother gradient animation
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!footerRef.current || rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        if (!footerRef.current) {
+          rafRef.current = null;
+          return;
+        }
+        const rect = footerRef.current.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        setMousePosition({ x, y });
+        rafRef.current = null;
+      });
     };
 
     const footer = footerRef.current;
     if (footer) {
       footer.addEventListener('mousemove', handleMouseMove);
-      return () => footer.removeEventListener('mousemove', handleMouseMove);
+      return () => {
+        footer.removeEventListener('mousemove', handleMouseMove);
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      };
     }
   }, []);
 
@@ -138,10 +155,8 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
                     className="group inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-lg font-semibold transition hover:border-white/20 hover:bg-white/10 dark:border-slate-300/20 dark:bg-slate-900/5 dark:hover:border-slate-300/30 dark:hover:bg-slate-900/10"
                     title={tHome('footer.community.wallTitle')}
                   >
-              
-
-                    <span className="text-white/80 group-hover:text-white dark:text-slate-700 dark:group-hover:text-slate-900" >
-                       {'{ }'}
+                    <span className="text-white/80 group-hover:text-white dark:text-slate-700 dark:group-hover:text-slate-900">
+                      {'{ }'}
                     </span>
                   </Link>
                 </div>
@@ -166,4 +181,3 @@ export default function FooterSection({ lastCrawlTime, buildTime }) {
     </footer>
   );
 }
-

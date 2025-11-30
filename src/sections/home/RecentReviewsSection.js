@@ -11,7 +11,7 @@ import { relativeCompact } from "@/lib/relativeTimeCompact";
 import { useTranslations } from 'next-intl';
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";
 import { proxyImage } from "@/lib/images";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import ItemImageTooltip from "@/components/item/ItemImageTooltip";
 import { RECENT_REVIEWS_LIMIT } from "@/lib/constants";

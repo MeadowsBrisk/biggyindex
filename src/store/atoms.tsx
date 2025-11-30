@@ -1,9 +1,8 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { votesAtom, reconcileLocalEndorsementsAtom } from "./votesAtoms"; // endorsements sorting and reconciliation
-import { convertToGBP } from "@/hooks/useExchangeRates"; // FX conversion helper
 import { normalizeShipFromCode } from "@/lib/countries";
-import type { Item, ItemVariant } from "@/types/item";
+import type { Item } from "@/types/item";
 
 // --- Types (pragmatic, focused on fields used across the app) ---
 export type ExchangeRates = Record<string, number> | null;
@@ -31,8 +30,128 @@ export type BasketEntry = {
 // Define FX rates atom (base GBP) so downstream atoms can read it
 export const exchangeRatesAtom = atom<ExchangeRates>(null);
 
-// Helper: display rounding (ceil) with tiny epsilon to avoid float artifacts
+// ============================================================================
+// SHARED HELPERS - Extract common logic to reduce duplication
+// ============================================================================
+
+/** Display rounding (ceil) with tiny epsilon to avoid float artifacts */
 const toDisplayGBP = (v: any): number => (typeof v === 'number' && isFinite(v) ? Math.ceil(v - 1e-9) : v);
+
+/** Convert USD to GBP using rates (simplified - no fallback needed since rates always have USD) */
+const convertUsdToGbp = (usd: number, rates: ExchangeRates): number => {
+  if (typeof usd !== 'number' || !isFinite(usd)) return usd;
+  const usdRate = rates?.['USD'];
+  if (typeof usdRate === 'number' && usdRate > 0) return usd / usdRate;
+  return usd; // fallback: return as-is
+};
+
+/** Check if item has free shipping */
+const isFreeShipping = (it: any): boolean => {
+  if (!it) return false;
+  if (it.minShip != null) return it.minShip === 0;
+  if (it.shippingPriceRange?.min != null) return it.shippingPriceRange.min === 0;
+  const sh = it.sh;
+  return sh && (sh.free === 1 || sh.free === true || sh.min === 0);
+};
+
+/** Check if item matches price filter (returns true if passes) */
+const matchesPriceFilter = (
+  it: any, 
+  minFilter: number, 
+  maxFilter: number, 
+  boundMin: number, 
+  boundMax: number, 
+  rates: ExchangeRates
+): boolean => {
+  if (it.uMin == null && it.uMax == null) {
+    return minFilter <= boundMin && maxFilter >= boundMax;
+  }
+  const baseMin = it.uMin ?? it.uMax ?? 0;
+  const baseMax = it.uMax ?? it.uMin ?? 0;
+  const convMin = toDisplayGBP(convertUsdToGbp(baseMin, rates));
+  const convMax = toDisplayGBP(convertUsdToGbp(baseMax, rates));
+  return convMax >= minFilter && convMin <= maxFilter;
+};
+
+/** Apply common filters (shipping, sellers, favourites, price, search) to a list */
+interface BaseFilterOptions {
+  rates: ExchangeRates;
+  selectedShips: string[];
+  excludedShips: string[];
+  freeShipOnly: boolean;
+  includedSellers: string[];
+  excludedSellers: string[];
+  favouritesOnly: boolean;
+  favouriteIds: any[];
+  minFilter: number;
+  maxFilter: number;
+  boundMin: number;
+  boundMax: number;
+  query: string;
+}
+
+const applyBaseFilters = (list: any[], opts: BaseFilterOptions): any[] => {
+  const { 
+    rates, selectedShips, excludedShips, freeShipOnly, 
+    includedSellers, excludedSellers, favouritesOnly, favouriteIds,
+    minFilter, maxFilter, boundMin, boundMax, query 
+  } = opts;
+  
+  // Ship from filter
+  if (selectedShips.length > 0) {
+    const shipSet = new Set(selectedShips);
+    list = list.filter(it => {
+      if (!it || typeof it.sf !== 'string') return false;
+      const code = normalizeShipFromCode(it.sf);
+      return code ? shipSet.has(code) : false;
+    });
+  }
+  
+  // Exclude ship origins
+  if (excludedShips.length > 0) {
+    const excludeSet = new Set(excludedShips);
+    list = list.filter(it => {
+      if (!it || typeof it.sf !== 'string') return true;
+      const code = normalizeShipFromCode(it.sf);
+      return code ? !excludeSet.has(code) : true;
+    });
+  }
+  
+  // Free shipping only
+  if (freeShipOnly) {
+    list = list.filter(isFreeShipping);
+  }
+  
+  // Seller filters
+  if (includedSellers.length > 0) {
+    list = list.filter(it => includedSellers.includes((it.sn || '').toLowerCase()));
+  }
+  if (excludedSellers.length > 0) {
+    list = list.filter(it => !excludedSellers.includes((it.sn || '').toLowerCase()));
+  }
+  
+  // Favourites
+  if (favouritesOnly) {
+    list = list.filter(it => favouriteIds.includes(it.id));
+  }
+  
+  // Price filter
+  list = list.filter(it => matchesPriceFilter(it, minFilter, maxFilter, boundMin, boundMax, rates));
+  
+  // Search query
+  if (query) {
+    list = list.filter(it => {
+      const hay = `${it.n || ''} ${it.d || ''}`.toLowerCase();
+      return hay.includes(query);
+    });
+  }
+  
+  return list;
+};
+
+// ============================================================================
+// CORE ATOMS
+// ============================================================================
 
 // Internal writable atom for the full items list
 const itemsBaseAtom = atom<Item[]>([]);
@@ -40,18 +159,10 @@ const itemsBaseAtom = atom<Item[]>([]);
 // Internal writable atom holding the full unfiltered (all categories) dataset once fetched
 const allItemsBaseAtom = atom<Item[]>([]);
 
-// Public read-only atom exposed to components
-export const itemsAtom = atom<Item[]>((get) => get(itemsBaseAtom));
-export const allItemsAtom = atom<Item[]>((get) => get(allItemsBaseAtom));
-export const isLoadingAtom = atom<boolean>(false);
-
-// Write-only atom to set items from the page
-// Items use minified keys directly - only compute derived fields needed for sorting/filtering
-export const setItemsAtom = atom<null, [any[]], void>(null, (get: any, set: any, newItems: any[]) => {
-  const src = Array.isArray(newItems) ? newItems : [];
-  
-  // Add computed fields without expanding minified keys
-  const arr: Item[] = src.map((raw: any) => {
+/** Process raw items: add computed fields for sorting/filtering without expanding minified keys */
+const processRawItems = (rawItems: any[]): Item[] => {
+  if (!Array.isArray(rawItems)) return [];
+  return rawItems.map((raw: any) => {
     if (!raw || typeof raw !== 'object') return raw;
     const it: Item = { ...raw };
     
@@ -83,7 +194,16 @@ export const setItemsAtom = atom<null, [any[]], void>(null, (get: any, set: any,
     
     return it;
   });
-  
+};
+
+// Public read-only atom exposed to components
+export const itemsAtom = atom<Item[]>((get) => get(itemsBaseAtom));
+export const allItemsAtom = atom<Item[]>((get) => get(allItemsBaseAtom));
+export const isLoadingAtom = atom<boolean>(false);
+
+// Write-only atom to set items from the page
+export const setItemsAtom = atom<null, [any[]], void>(null, (get: any, set: any, newItems: any[]) => {
+  const arr = processRawItems(newItems);
   set(itemsBaseAtom, arr);
   
   // Seed votesAtom with embedded ec (endorsementCount) values
@@ -104,44 +224,8 @@ export const setItemsAtom = atom<null, [any[]], void>(null, (get: any, set: any,
 });
 
 // Write-only atom to set all items (unfiltered, all categories) from the page
-// Items use minified keys directly - only compute derived fields
-export const setAllItemsAtom = atom<null, [any[]], void>(null, (get: any, set: any, newItems: any[]) => {
-  if (!Array.isArray(newItems)) return;
-  
-  const processed = newItems.map((raw: any) => {
-    if (!raw || typeof raw !== 'object') return raw;
-    const it: Item = { ...raw };
-    
-    // Ensure id exists
-    if (it.id == null) it.id = raw.refNum ?? raw.ref ?? '';
-    if (!it.refNum && it.id) it.refNum = String(it.id);
-    
-    // Compute shipping fields
-    if (raw.sh && typeof raw.sh === 'object') {
-      const sh = raw.sh;
-      const min = typeof sh.min === 'number' ? sh.min : null;
-      const isFree = sh.free === 1 || sh.free === true || min === 0;
-      it.minShip = isFree ? 0 : min;
-      it.shippingPriceRange = { 
-        min: min != null ? min : (isFree ? 0 : null), 
-        max: typeof sh.max === 'number' ? sh.max : null 
-      };
-    }
-    
-    // Precompute numeric timestamps
-    if (it.fsa && it.fsaMs == null) {
-      const t = Date.parse(it.fsa);
-      it.fsaMs = !isNaN(t) ? t : 0;
-    }
-    if (it.lua && it.luaMs == null) {
-      const t2 = Date.parse(it.lua);
-      it.luaMs = !isNaN(t2) ? t2 : (it.fsaMs || 0);
-    }
-    
-    return it;
-  });
-  
-  set(allItemsBaseAtom, processed);
+export const setAllItemsAtom = atom<null, [any[]], void>(null, (_get: any, set: any, newItems: any[]) => {
+  set(allItemsBaseAtom, processRawItems(newItems));
 });
 
 // Selected category and subcategories
@@ -202,11 +286,11 @@ export const priceBoundsAtom = atom<{ min: number; max: number }>((get: any) => 
     let pMin = it.uMin;
     let pMax = it.uMax;
     if (typeof pMin === 'number') {
-      const conv = rates && rates['USD'] ? pMin / rates['USD'] : convertToGBP(pMin, 'USD', rates as any);
+      const conv = convertUsdToGbp(pMin, rates);
       if (typeof conv === 'number' && isFinite(conv)) pMin = toDisplayGBP(conv);
     }
     if (typeof pMax === 'number') {
-      const conv = rates && rates['USD'] ? pMax / rates['USD'] : convertToGBP(pMax, 'USD', rates as any);
+      const conv = convertUsdToGbp(pMax, rates);
       if (typeof conv === 'number' && isFinite(conv)) pMax = toDisplayGBP(conv);
     }
     if (pMin != null) min = Math.min(min, pMin as number);
@@ -271,11 +355,11 @@ export const activePriceBoundsAtom = atom<{ min: number; max: number }>((get: an
     let pMin = it.uMin;
     let pMax = it.uMax;
     if (typeof pMin === 'number') {
-      const conv = rates && rates['USD'] ? pMin / rates['USD'] : convertToGBP(pMin, 'USD', rates as any);
+      const conv = convertUsdToGbp(pMin, rates);
       if (typeof conv === 'number' && isFinite(conv)) pMin = toDisplayGBP(conv);
     }
     if (typeof pMax === 'number') {
-      const conv = rates && rates['USD'] ? pMax / rates['USD'] : convertToGBP(pMax, 'USD', rates as any);
+      const conv = convertUsdToGbp(pMax, rates);
       if (typeof conv === 'number' && isFinite(conv)) pMax = toDisplayGBP(conv);
     }
     if (typeof pMin === 'number') min = Math.min(min, pMin as number);
@@ -373,10 +457,8 @@ export const filteredItemsAtom = atom<Item[]>((get: any) => {
     }
     const baseMin = it.uMin ?? it.uMax ?? 0;
     const baseMax = it.uMax ?? it.uMin ?? 0;
-    const convMinRaw = rates && rates['USD'] ? baseMin / rates['USD'] : convertToGBP(baseMin, 'USD', rates as any);
-    const convMaxRaw = rates && rates['USD'] ? baseMax / rates['USD'] : convertToGBP(baseMax, 'USD', rates as any);
-    const convMin = toDisplayGBP(typeof convMinRaw === 'number' ? convMinRaw : baseMin);
-    const convMax = toDisplayGBP(typeof convMaxRaw === 'number' ? convMaxRaw : baseMax);
+    const convMin = toDisplayGBP(convertUsdToGbp(baseMin, rates));
+    const convMax = toDisplayGBP(convertUsdToGbp(baseMax, rates));
     return convMax >= minFilter && convMin <= maxFilter;
   });
 
@@ -390,7 +472,6 @@ export const filteredItemsAtom = atom<Item[]>((get: any) => {
 });
 
 // Theme persistence via localStorage
-export const themeAtom = atomWithStorage<string>("theme", "light");
 export const darkModeAtom = atomWithStorage<boolean>("darkMode", false);
 export const pauseGifsAtom = atomWithStorage<boolean>("pauseGifs", false);
 
@@ -403,10 +484,8 @@ export const displayCurrencyAtom = atomWithStorage<'GBP' | 'USD'>("displayCurren
 // First visit banner dismissal state
 export const firstVisitBannerDismissedAtom = atomWithStorage<boolean>("firstVisitBannerDismissed", false);
 
-// Expanded item (detail overlay) - prefer refNum identity (string)
+// Expanded item (detail overlay) - uses refNum identity (string)
 export const expandedRefNumAtom = atom<string | null>(null);
-// Legacy alias (will deprecate) for any early code referencing id-based expansion
-export const expandedItemIdAtom = expandedRefNumAtom;
 // Seller overlay (numeric id)
 export const expandedSellerIdAtom = atom<number | string | null>(null);
 // Seller analytics modal (boolean)
@@ -495,10 +574,8 @@ export const sortedItemsAtom = atom<Item[]>((get: any) => {
       // All prices are USD (uMin, uMax)
       const rawA = toNumber(a.uMin) ?? toNumber(a.uMax) ?? (dir === "asc" ? Infinity : -Infinity);
       const rawB = toNumber(b.uMin) ?? toNumber(b.uMax) ?? (dir === "asc" ? Infinity : -Infinity);
-      const convARaw = rates && rates['USD'] ? (rawA as number) / rates['USD'] : convertToGBP(rawA, 'USD', rates as any);
-      const convBRaw = rates && rates['USD'] ? (rawB as number) / rates['USD'] : convertToGBP(rawB, 'USD', rates as any);
-      const aMin = toDisplayGBP(typeof convARaw === 'number' ? convARaw : (rawA as number));
-      const bMin = toDisplayGBP(typeof convBRaw === 'number' ? convBRaw : (rawB as number));
+      const aMin = toDisplayGBP(convertUsdToGbp(rawA as number, rates));
+      const bMin = toDisplayGBP(convertUsdToGbp(rawB as number, rates));
       if (aMin === bMin) return 0;
       return dir === "asc" ? (aMin < bMin ? -1 : 1) : (aMin > bMin ? -1 : 1);
     }
@@ -591,7 +668,6 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
   const selectedShips = get(selectedShipFromAtom) as string[];
   const excludedShips = get(excludedShipFromAtom) as string[];
   const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
-  const shipPinned = get(shipFromPinnedAtom) as boolean;
   const query = ((get(searchQueryAtom) || '') as string).trim().toLowerCase();
   const favouritesOnly = get(favouritesOnlyAtom) as boolean;
   const favouriteIds = favouritesOnly ? (get(favouritesAtom) as any[] || []) : [];
@@ -602,6 +678,8 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
   const minFilter = norm.min;
   const maxFilter = norm.max;
   const hasExcludedShips = Array.isArray(excludedShips) && excludedShips.length > 0;
+  
+  // Early return: use manifest counts if no filters are active
   if ((!Array.isArray(allItemsFull) || allItemsFull.length === 0) && manifest && (manifest as any).totalItems && (manifest as any).totalItems > ((itemsSource as any[])?.length || 0) && (!Array.isArray(selectedShips) || selectedShips.length === 0) && !hasExcludedShips && !freeShipOnly && includedSellers.length === 0) {
     const counts: Record<string, number> = { __total: (manifest as any).totalItems } as any;
     for (const [cat, info] of Object.entries((manifest.categories || {}))) {
@@ -611,58 +689,16 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
     return counts;
   }
   if (!Array.isArray(itemsSource) || itemsSource.length === 0) return { __total: 0 } as any;
+  
+  // Apply shared filter logic
   let list = (itemsSource as any[]).filter(it => !!it);
-  if (Array.isArray(selectedShips) && selectedShips.length > 0) {
-    const set = new Set(selectedShips);
-    list = list.filter(it => {
-      if (!it || typeof it.sf !== 'string') return false;
-      const code = normalizeShipFromCode(it.sf);
-      return code ? set.has(code) : false;
-    });
-  }
-  // Exclude items from excluded ship origins
-  if (hasExcludedShips) {
-    const excludeSet = new Set(excludedShips);
-    list = list.filter(it => {
-      if (!it || typeof it.sf !== 'string') return true;
-      const code = normalizeShipFromCode(it.sf);
-      return code ? !excludeSet.has(code) : true;
-    });
-  }
-  if (freeShipOnly) {
-    const freeList: any[] = [];
-    for (const it of list) {
-      if (!it) continue;
-      const shippingObj = it.sh;
-      let isFree = false;
-      if (shippingObj && shippingObj.min != null) isFree = shippingObj.min === 0;
-      else if (shippingObj && shippingObj.free) isFree = true;
-      if (isFree) freeList.push(it);
-    }
-    list = freeList;
-  }
-  if (includedSellers.length > 0) list = list.filter(it => includedSellers.includes((it.sn || '').toLowerCase()));
-  if (favouritesOnly) list = list.filter(it => favouriteIds.includes(it.id));
-  if (excludedSellers.length > 0) list = list.filter(it => !excludedSellers.includes((it.sn || '').toLowerCase()));
-  list = list.filter(it => {
-    if (it.uMin == null && it.uMax == null) {
-      return minFilter <= boundMin && maxFilter >= boundMax;
-    }
-    const baseMin = it.uMin ?? it.uMax ?? 0;
-    const baseMax = it.uMax ?? it.uMin ?? 0;
-    // uMin/uMax are always USD - convert to GBP for price filter comparison
-    const convMinRaw = rates && (rates as any)['USD'] ? baseMin / (rates as any)['USD'] : convertToGBP(baseMin, 'USD', rates as any);
-    const convMaxRaw = rates && (rates as any)['USD'] ? baseMax / (rates as any)['USD'] : convertToGBP(baseMax, 'USD', rates as any);
-    const convMin = toDisplayGBP(typeof convMinRaw === 'number' ? convMinRaw : baseMin);
-    const convMax = toDisplayGBP(typeof convMaxRaw === 'number' ? convMaxRaw : baseMax);
-    return convMax >= minFilter && convMin <= maxFilter;
+  list = applyBaseFilters(list, {
+    rates, selectedShips, excludedShips, freeShipOnly,
+    includedSellers, excludedSellers, favouritesOnly, favouriteIds,
+    minFilter, maxFilter, boundMin, boundMax, query
   });
-  if (query) {
-    list = list.filter(it => {
-      const hay = `${it.n || ''} ${it.d || ''}`.toLowerCase();
-      return hay.includes(query);
-    });
-  }
+  
+  // Count by category
   const counts: Record<string, number> = {};
   for (const it of list) {
     if (!it.c) continue;
@@ -679,7 +715,6 @@ export const subcategoryLiveCountsAtom = atom<Record<string, number>>((get: any)
   const itemsSource: Item[] = Array.isArray(allItemsFull) && allItemsFull.length > 0 ? allItemsFull : get(itemsAtom);
   const selectedShips = get(selectedShipFromAtom) as string[];
   const excludedShips = get(excludedShipFromAtom) as string[];
-  const shipPinned = get(shipFromPinnedAtom) as boolean;
   const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
   const query = ((get(searchQueryAtom) || '') as string).trim().toLowerCase();
   const favouritesOnly = get(favouritesOnlyAtom) as boolean;
@@ -692,64 +727,24 @@ export const subcategoryLiveCountsAtom = atom<Record<string, number>>((get: any)
   const maxFilter = norm.max;
   const category = get(categoryAtom) as string;
   const excludedSubs = get(excludedSubcategoriesAtom) as string[];
+  
   if (!category || category === 'All') return {};
   if (!Array.isArray(itemsSource) || itemsSource.length === 0) return {};
+  
+  // Pre-filter by category and excluded subcategories
   let list = (itemsSource as any[]).filter(it => !!it && it.c === category);
-  // Apply excluded subcategories filter to counts
   if (Array.isArray(excludedSubs) && excludedSubs.length > 0) {
     list = list.filter(it => !Array.isArray(it.sc) || !it.sc.some((s: any) => excludedSubs.includes(s)));
   }
-  if (Array.isArray(selectedShips) && selectedShips.length > 0) {
-    const set = new Set(selectedShips);
-    list = list.filter(it => {
-      if (!it || typeof it.sf !== 'string') return false;
-      const code = normalizeShipFromCode(it.sf);
-      return code ? set.has(code) : false;
-    });
-  }
-  // Exclude items from excluded ship origins
-  if (Array.isArray(excludedShips) && excludedShips.length > 0) {
-    const excludeSet = new Set(excludedShips);
-    list = list.filter(it => {
-      if (!it || typeof it.sf !== 'string') return true;
-      const code = normalizeShipFromCode(it.sf);
-      return code ? !excludeSet.has(code) : true;
-    });
-  }
-  if (freeShipOnly) {
-    const freeList: any[] = [];
-    for (const it of list) {
-      if (!it) continue;
-      const shippingObj = it.sh;
-      let isFree = false;
-      if (shippingObj && shippingObj.min != null) isFree = shippingObj.min === 0;
-      else if (shippingObj && shippingObj.free) isFree = true;
-      if (isFree) freeList.push(it);
-    }
-    list = freeList;
-  }
-  if (includedSellers.length > 0) list = list.filter(it => includedSellers.includes((it.sn || '').toLowerCase()));
-  if (favouritesOnly) list = list.filter(it => favouriteIds.includes(it.id));
-  if (excludedSellers.length > 0) list = list.filter(it => !excludedSellers.includes((it.sn || '').toLowerCase()));
-  list = list.filter(it => {
-    if (it.uMin == null && it.uMax == null) {
-      return minFilter <= boundMin && maxFilter >= boundMax;
-    }
-    const baseMin = it.uMin ?? it.uMax ?? 0;
-    const baseMax = it.uMax ?? it.uMin ?? 0;
-    // uMin/uMax are always USD - convert to GBP for price filter comparison
-    const convMinRaw = rates && (rates as any)['USD'] ? baseMin / (rates as any)['USD'] : convertToGBP(baseMin, 'USD', rates as any);
-    const convMaxRaw = rates && (rates as any)['USD'] ? baseMax / (rates as any)['USD'] : convertToGBP(baseMax, 'USD', rates as any);
-    const convMin = toDisplayGBP(typeof convMinRaw === 'number' ? convMinRaw : baseMin);
-    const convMax = toDisplayGBP(typeof convMaxRaw === 'number' ? convMaxRaw : baseMax);
-    return convMax >= minFilter && convMin <= maxFilter;
+  
+  // Apply shared filter logic
+  list = applyBaseFilters(list, {
+    rates, selectedShips, excludedShips, freeShipOnly,
+    includedSellers, excludedSellers, favouritesOnly, favouriteIds,
+    minFilter, maxFilter, boundMin, boundMax, query
   });
-  if (query) {
-    list = list.filter(it => {
-      const hay = `${it.n || ''} ${it.d || ''}`.toLowerCase();
-      return hay.includes(query);
-    });
-  }
+  
+  // Count by subcategory
   const counts: Record<string, number> = {};
   for (const it of list) {
     const subs = Array.isArray(it.sc) ? it.sc : [];

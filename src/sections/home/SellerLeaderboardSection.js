@@ -13,7 +13,7 @@ import { formatBritishDateTime } from "@/lib/format";
 import { relativeCompact } from "@/lib/relativeTimeCompact";
 import { useTranslations, useFormatter } from 'next-intl';
 import { proxyImage } from "@/lib/images";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import FilterPinButton from "@/components/common/FilterPinButton";
 

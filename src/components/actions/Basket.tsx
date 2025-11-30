@@ -8,7 +8,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import { useAtomValue, useSetAtom } from 'jotai';
 import type { BasketEntry } from '@/store/atoms';
 import {

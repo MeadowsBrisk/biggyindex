@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import { StarIcon } from '@/components/common/icons';
 import EndorseButton from '@/components/actions/EndorseButton';
 import ShareMenu from '@/components/actions/ShareMenu';

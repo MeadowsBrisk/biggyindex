@@ -13,7 +13,7 @@ import { useLocale } from '@/providers/IntlProvider';
 import ItemImageTooltip from '@/components/item/ItemImageTooltip';
 import SellerAvatarTooltip from '@/components/seller/SellerAvatarTooltip';
 import ImageZoomPreview from '@/components/item/ImageZoomPreview';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import { RECENT_REVIEWS_LIMIT } from '@/lib/constants';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';

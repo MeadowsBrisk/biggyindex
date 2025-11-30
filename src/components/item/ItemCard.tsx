@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
 import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom } from "@/store/atoms";
@@ -159,11 +159,6 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
 
   const endorsedLocal = useAtomValue(React.useMemo(() => selectAtom(endorsedSetAtom, (s: Set<string>) => s.has(itemKey)), [itemKey]));
   const hasVotedToday = useAtomValue(voteHasVotedAtom);
-
-  const isFirefox = useMemo(() => {
-    if (typeof navigator === 'undefined') return false;
-    return /firefox/i.test(navigator.userAgent);
-  }, []);
 
   // IntersectionObserver to control first-time entrance without relying on whileInView (reduces Firefox repaint glitches)
   const rootRef = useRef<HTMLDivElement | null>(null);

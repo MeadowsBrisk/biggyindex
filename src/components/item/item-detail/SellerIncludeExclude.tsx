@@ -1,5 +1,5 @@
 "use client";
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import { useTranslations } from 'next-intl';
 
 interface SellerIncludeExcludeProps {

@@ -3,7 +3,7 @@ import React from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { useGifAsset } from '@/lib/gifAssets';
 import { proxyImage } from '@/lib/images';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 
 /* ZoomSlide
  * Props:

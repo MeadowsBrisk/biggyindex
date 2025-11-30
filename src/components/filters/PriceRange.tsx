@@ -1,7 +1,7 @@
 "use client";
 import { useAtom } from "jotai";
 import { priceRangeAtom, activePriceBoundsAtom, priceRangeUserSetAtom, priceFilterPinnedAtom } from "@/store/atoms";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import * as Slider from "@radix-ui/react-slider";
 import { useCallback, useEffect, useRef, type ChangeEvent } from 'react';
 import { currencySymbol } from '@/lib/priceDisplay';

@@ -18,11 +18,16 @@ import { useLocale, useTranslations } from 'next-intl';
 const RECENT_ITEMS_LIMIT = 25;
 
 // Types for page props
+interface CategoryInfo {
+  count?: number;
+  subcategories?: Record<string, number | { count?: number }>;
+}
+
 interface StatsProps {
   items: number | null;
   sellers: number | null;
   lastUpdated: string | null;
-  categories: Record<string, unknown> | null;
+  categories: Record<string, CategoryInfo> | null;
 }
 
 interface ItemCardLite {

@@ -4,7 +4,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
 import { VanIcon } from '@/components/common/icons';
 import { decodeEntities } from '@/lib/format';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import { formatUSD } from '@/lib/priceDisplay';
 import VariantPriceList from '@/components/item/VariantPriceList';
 import { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';

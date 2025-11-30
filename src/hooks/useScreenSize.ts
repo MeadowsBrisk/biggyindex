@@ -34,6 +34,16 @@ const defaultState: ScreenSizeState = {
   isSuperwide: false,
 };
 
+// Pre-defined state objects to avoid creating new objects on every resize
+const STATES: Record<string, ScreenSizeState> = {
+  mobile: { size: "mobile", isMobile: true, isTablet: false, isSmallDesktop: false, isMediumDesktop: false, isDesktop: false, isUltrawide: false, isSuperwide: false },
+  tablet: { size: "tablet", isMobile: false, isTablet: true, isSmallDesktop: false, isMediumDesktop: false, isDesktop: false, isUltrawide: false, isSuperwide: false },
+  smallDesktop: { size: "small-desktop", isMobile: false, isTablet: false, isSmallDesktop: true, isMediumDesktop: false, isDesktop: true, isUltrawide: false, isSuperwide: false },
+  mediumDesktop: { size: "medium-desktop", isMobile: false, isTablet: false, isSmallDesktop: false, isMediumDesktop: true, isDesktop: true, isUltrawide: false, isSuperwide: false },
+  ultrawide: { size: "ultrawide", isMobile: false, isTablet: false, isSmallDesktop: false, isMediumDesktop: true, isDesktop: true, isUltrawide: true, isSuperwide: false },
+  superwide: { size: "superwide", isMobile: false, isTablet: false, isSmallDesktop: false, isMediumDesktop: true, isDesktop: true, isUltrawide: true, isSuperwide: true },
+};
+
 /**
  * Hook to detect current screen size based on breakpoints.
  * Returns flags for each size category.
@@ -45,89 +55,38 @@ export function useScreenSize(): ScreenSizeState {
     const width = window.innerWidth;
     
     if (width < BREAKPOINTS.mobile) {
-      setScreenSize({ 
-        size: "mobile", 
-        isMobile: true, 
-        isTablet: false, 
-        isSmallDesktop: false, 
-        isMediumDesktop: false, 
-        isDesktop: false, 
-        isUltrawide: false, 
-        isSuperwide: false 
-      });
+      setScreenSize(STATES.mobile);
     } else if (width < BREAKPOINTS.tablet) {
-      setScreenSize({ 
-        size: "mobile", 
-        isMobile: true, 
-        isTablet: false, 
-        isSmallDesktop: false, 
-        isMediumDesktop: false, 
-        isDesktop: false, 
-        isUltrawide: false, 
-        isSuperwide: false 
-      });
+      setScreenSize(STATES.mobile);
     } else if (width < BREAKPOINTS.smallDesktop) {
-      setScreenSize({ 
-        size: "tablet", 
-        isMobile: false, 
-        isTablet: true, 
-        isSmallDesktop: false, 
-        isMediumDesktop: false, 
-        isDesktop: false, 
-        isUltrawide: false, 
-        isSuperwide: false 
-      });
+      setScreenSize(STATES.tablet);
     } else if (width < BREAKPOINTS.mediumDesktop) {
-      setScreenSize({ 
-        size: "small-desktop", 
-        isMobile: false, 
-        isTablet: false, 
-        isSmallDesktop: true, 
-        isMediumDesktop: false, 
-        isDesktop: true, 
-        isUltrawide: false, 
-        isSuperwide: false 
-      });
+      setScreenSize(STATES.smallDesktop);
     } else if (width < BREAKPOINTS.ultrawide) {
-      setScreenSize({ 
-        size: "medium-desktop", 
-        isMobile: false, 
-        isTablet: false, 
-        isSmallDesktop: false, 
-        isMediumDesktop: true, 
-        isDesktop: true, 
-        isUltrawide: false, 
-        isSuperwide: false 
-      });
+      setScreenSize(STATES.mediumDesktop);
     } else if (width < BREAKPOINTS.superwide) {
-      setScreenSize({ 
-        size: "ultrawide", 
-        isMobile: false, 
-        isTablet: false, 
-        isSmallDesktop: false, 
-        isMediumDesktop: true, 
-        isDesktop: true, 
-        isUltrawide: true, 
-        isSuperwide: false 
-      });
+      setScreenSize(STATES.ultrawide);
     } else {
-      setScreenSize({ 
-        size: "superwide", 
-        isMobile: false, 
-        isTablet: false, 
-        isSmallDesktop: false, 
-        isMediumDesktop: true, 
-        isDesktop: true, 
-        isUltrawide: true, 
-        isSuperwide: true 
-      });
+      setScreenSize(STATES.superwide);
     }
   }, []);
 
   useEffect(() => {
     checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
+    // Throttle resize handler with rAF to prevent excessive re-renders
+    let rafId: number | null = null;
+    const throttledCheck = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        checkScreenSize();
+        rafId = null;
+      });
+    };
+    window.addEventListener("resize", throttledCheck, { passive: true });
+    return () => {
+      window.removeEventListener("resize", throttledCheck);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [checkScreenSize]);
 
   return screenSize;

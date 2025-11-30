@@ -3,22 +3,46 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import AnimatedLogoHeader from "@/components/layout/AnimatedLogoHeader";
 import CategoryTooltip from "@/components/filters/CategoryTooltip";
 import { useTranslations, useFormatter } from 'next-intl';
 import { useLocale } from '@/providers/IntlProvider';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomyLabels';
 import { isHostBasedEnv } from '@/lib/market';
+import type { ReactElement } from "react";
 
+interface CategoryInfo {
+  count?: number;
+  subcategories?: Record<string, number | { count?: number }>;
+}
 
-function formatStatNumber(format, value, fallback) {
+interface Stats {
+  items?: number | null;
+  sellers?: number | null;
+  categories?: Record<string, CategoryInfo> | null;
+}
+
+interface HeroSectionProps {
+  stats?: Stats | null;
+}
+
+interface CategoryEntry {
+  name: string;
+  count: number;
+  subcategories: Record<string, number | { count?: number }>;
+  parent?: string;
+  isSubcategory?: boolean;
+  _displayName?: string;
+}
+
+function formatStatNumber(format: ReturnType<typeof useFormatter>, value: number | undefined | null, fallback: string): string {
   const n = typeof value === "number" && Number.isFinite(value) ? value : null;
   if (n != null && n > 0) return format.number(n, { maximumFractionDigits: 0 });
   return fallback;
 }
 
-const CATEGORY_EMOJI_MAP = {
+const CATEGORY_EMOJI_MAP: Record<string, string> = {
   flower: "🌿",
   hash: "🧱",
   hashish: "🧱",
@@ -32,13 +56,13 @@ const CATEGORY_EMOJI_MAP = {
   other: "💊",
 };
 
-function extractCount(value) {
+function extractCount(value: number | { count?: number } | undefined): number {
   if (typeof value === "number") return value;
   if (value && typeof value === "object" && typeof value.count === "number") return value.count;
   return 0;
 }
 
-function getSubcategoryCount(subcategories, target) {
+function getSubcategoryCount(subcategories: Record<string, number | { count?: number }> | undefined, target: string): number {
   if (!subcategories || typeof subcategories !== "object") return 0;
   const targetLower = target.toLowerCase();
   for (const [key, value] of Object.entries(subcategories)) {
@@ -49,14 +73,14 @@ function getSubcategoryCount(subcategories, target) {
   return 0;
 }
 
-export default function HeroSection({ stats }) {
+export default function HeroSection({ stats }: HeroSectionProps): ReactElement {
   const tHome = useTranslations('Home');
   const tCats = useTranslations('Categories');
   const format = useFormatter();
   const { locale } = useLocale();
   const items = formatStatNumber(format, stats?.items, "800+");
   const sellers = formatStatNumber(format, stats?.sellers, "180+");
-  const rawCategories = Object.entries(stats?.categories || {}).map(([name, info]) => {
+  const rawCategories: CategoryEntry[] = Object.entries(stats?.categories || {}).map(([name, info]) => {
     const subcategories = info && typeof info === "object" ? info.subcategories || {} : {};
     return {
       name,
@@ -79,14 +103,14 @@ export default function HeroSection({ stats }) {
     psychedelicsEntry.count = Math.max(adjusted, 0);
   }
 
-  const highlightedSubcategories = [];
+  const highlightedSubcategories: CategoryEntry[] = [];
   if (mushroomsCount > 0) {
     highlightedSubcategories.push({ 
       name: "Mushrooms", 
       count: mushroomsCount, 
       parent: "Psychedelics", 
       isSubcategory: true,
-      subcategories: {} // No subcategories for this highlighted item
+      subcategories: {}
     });
   }
 
@@ -94,14 +118,14 @@ export default function HeroSection({ stats }) {
 
   const desiredOrder = ["Flower", "Hash", "Vapes", "Edibles", "Concentrates", "Mushrooms", "Psychedelics", "Other"];
 
-  const matchByName = (arr, target) => {
+  const matchByName = (arr: CategoryEntry[], target: string): CategoryEntry | null => {
     const targetLower = target.toLowerCase();
     return arr.find((entry) => entry.name?.toLowerCase() === targetLower) || null;
   };
 
   const ordered = desiredOrder
     .map((label) => matchByName(combinedCategories, label))
-    .filter((entry) => entry && entry.name !== "Tips" && entry.count > 0);
+    .filter((entry): entry is CategoryEntry => entry !== null && entry.name !== "Tips" && entry.count > 0);
 
   const remaining = combinedCategories.filter((entry) => {
     if (!entry || entry.name === "Tips" || entry.count <= 0) return false;
@@ -110,7 +134,7 @@ export default function HeroSection({ stats }) {
 
   const categories = [...ordered, ...remaining].slice(0, desiredOrder.length);
 
-  // Precompute translated category/subcategory labels once (avoid hook usage inside loops and ensure DE translations load)
+  // Precompute translated category/subcategory labels once
   const translatedCategories = categories.map(entry => {
     if (!entry) return entry;
     const parentKey = catKeyForManifest(entry.parent || entry.name);
@@ -133,12 +157,12 @@ export default function HeroSection({ stats }) {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900 transition-colors duration-300 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 dark:text-white">
-      <motion.div {...fadeInUp({ distance: 20, trigger: "animate" })} className="absolute inset-0">
+      <motion.div {...(fadeInUp({ distance: 20, trigger: "animate" }) as any)} className="absolute inset-0">
         <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl dark:bg-emerald-500/20" />
         <div className="pointer-events-none absolute -right-24 bottom-20 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl dark:bg-blue-500/10" />
       </motion.div>
       <div className="relative mx-auto flex min-h-[70vh] max-w-6xl flex-col justify-center gap-12 px-6 py-16 lg:flex-row lg:items-center lg:py-24">
-        <motion.div {...fadeInUp({ distance: 24, trigger: "animate" })} className="mx-auto max-w-2xl text-balance text-center lg:mx-0 lg:max-w-xl lg:text-left">
+        <motion.div {...(fadeInUp({ distance: 24, trigger: "animate" }) as any)} className="mx-auto max-w-2xl text-balance text-center lg:mx-0 lg:max-w-xl lg:text-left">
           <AnimatedLogoHeader className="justify-center text-slate-900 dark:text-white lg:justify-start" />
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80">
             {tHome('hero.badge')}
@@ -172,7 +196,7 @@ export default function HeroSection({ stats }) {
         </motion.div>
 
         <motion.div
-          {...fadeInUp({ distance: 24, delay: 0.1, trigger: "animate" })}
+          {...(fadeInUp({ distance: 24, delay: 0.1, trigger: "animate" }) as any)}
           className="mx-auto w-full max-w-md rounded-3xl border border-white/50 bg-white/80 p-6 shadow-lg shadow-emerald-500/10 backdrop-blur transition-colors duration-300 dark:border-white/15 dark:bg-white/[0.06] lg:mx-0"
         >
           <dl className="space-y-5 text-sm text-slate-600 dark:text-white/65">
@@ -193,8 +217,13 @@ export default function HeroSection({ stats }) {
                   const displayName = _displayName;
                   const parentLabel = parentKey ? (safeTranslate(tCats, parentKey) || parent) : parent;
                   const title = isSubcategory && parentLabel ? tHome('hero.tooltip.inParent', { name: displayName, parent: parentLabel }) : undefined;
+                  // Normalize subcategories to simple number record for CategoryTooltip
+                  const normalizedSubs: Record<string, number> = {};
+                  for (const [k, v] of Object.entries(subcategories || {})) {
+                    normalizedSubs[k] = extractCount(v);
+                  }
                   return (
-                    <CategoryTooltip key={name} categoryName={name} subcategories={subcategories}>
+                    <CategoryTooltip key={name} categoryName={name} subcategories={normalizedSubs}>
                       <span
                         title={title}
                         className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 font-medium text-emerald-700 transition hover:bg-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-200 dark:hover:bg-emerald-500/25 cursor-pointer"
@@ -214,4 +243,3 @@ export default function HeroSection({ stats }) {
     </section>
   );
 }
-

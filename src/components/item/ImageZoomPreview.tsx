@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Keyboard, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-fade';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import { useAtomValue } from 'jotai';
 import { pauseGifsAtom } from '@/store/atoms';
 import { proxyImage } from '@/lib/images';

@@ -2,7 +2,7 @@
 import React from "react";
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from "framer-motion";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 
 function getRatingClasses(rating: number | undefined) {
   if (typeof rating !== "number") return "bg-gray-500 text-white";

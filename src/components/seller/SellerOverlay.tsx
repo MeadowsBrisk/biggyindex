@@ -7,7 +7,7 @@ import { useSellerDetail } from '@/hooks/useSellerDetail';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useHistoryState } from '@/hooks/useHistoryState';
 import { motion, AnimatePresence } from 'framer-motion';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';
 import { decodeEntities, timeAgo } from '@/lib/format';
 import { proxyImage } from '@/lib/images';

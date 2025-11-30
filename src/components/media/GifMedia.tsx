@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { pauseGifsAtom } from '@/store/atoms';
 import { useGifAsset } from '@/lib/gifAssets';
 import { proxyImage } from '@/lib/images';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 
 interface GifMediaProps {
   url: string;

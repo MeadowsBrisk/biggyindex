@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { proxyImage } from '@/lib/images';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 
 /* Minimal thumbnail strip extracted from ImageZoomPreview.
    Props:

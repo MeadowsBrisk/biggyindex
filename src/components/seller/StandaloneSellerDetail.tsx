@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { includedSellersAtom, excludedSellersAtom } from '@/store/atoms';
 // import { motion, AnimatePresence } from 'framer-motion';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';
 import { decodeEntities } from '@/lib/format';
 import { proxyImage } from '@/lib/images';

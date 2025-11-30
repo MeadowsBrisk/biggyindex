@@ -1,21 +1,33 @@
-const DEFAULT_EASE = [0.25, 0.6, 0.3, 1];
+import type { Variants, Transition, Easing } from "framer-motion";
 
-/**
- * @typedef {"animate" | "view"} Trigger
- * @typedef {object} BaseMotionOptions
- * @property {number} [duration]
- * @property {number} [delay]
- * @property {Trigger} [trigger]
- * @property {boolean} [once]
- * @property {number} [viewportAmount]
- * @typedef {BaseMotionOptions & { distance?: number }} MotionOptionsWithDistance
- */
+const DEFAULT_EASE: Easing = [0.25, 0.6, 0.3, 1];
+
+type Trigger = "animate" | "view";
+
+interface BaseMotionOptions {
+  duration?: number;
+  delay?: number;
+  trigger?: Trigger;
+  once?: boolean;
+  viewportAmount?: number;
+}
+
+interface MotionOptionsWithDistance extends BaseMotionOptions {
+  distance?: number;
+}
+
+interface MotionPreset {
+  initial: { opacity: number; y?: number };
+  transition: Transition;
+  animate?: { opacity: number; y?: number };
+  whileInView?: { opacity: number; y?: number };
+  viewport?: { once?: boolean; amount?: number };
+}
 
 /**
  * Shared fade-in helper for Framer Motion components.
- * @param {BaseMotionOptions} [options]
  */
-export function fadeIn(options = {}) {
+export function fadeIn(options: BaseMotionOptions = {}): MotionPreset {
   const {
     duration = 0.6,
     delay = 0,
@@ -24,13 +36,13 @@ export function fadeIn(options = {}) {
     viewportAmount = 0.5,
   } = options;
 
-  const preset = {
+  const preset: MotionPreset = {
     initial: { opacity: 0 },
     transition: { duration, delay, ease: DEFAULT_EASE, type: "tween" },
   };
 
   const targetKey = trigger === "view" ? "whileInView" : "animate";
-  preset[targetKey] = trigger === "view" ? { opacity: 1 } : { opacity: 1 };
+  preset[targetKey] = { opacity: 1 };
 
   if (trigger === "view") {
     preset.viewport = once
@@ -43,9 +55,8 @@ export function fadeIn(options = {}) {
 
 /**
  * Shared fade-in + translate-up helper for Framer Motion components.
- * @param {MotionOptionsWithDistance} [options]
  */
-export function fadeInUp(options = {}) {
+export function fadeInUp(options: MotionOptionsWithDistance = {}): MotionPreset {
   const {
     distance = 24,
     duration = 0.6,
@@ -55,7 +66,7 @@ export function fadeInUp(options = {}) {
     viewportAmount = 0.5,
   } = options;
 
-  const preset = {
+  const preset: MotionPreset = {
     initial: { opacity: 0, y: distance },
     transition: { duration, delay, ease: DEFAULT_EASE, type: "tween" },
   };
@@ -71,4 +82,3 @@ export function fadeInUp(options = {}) {
 
   return preset;
 }
-

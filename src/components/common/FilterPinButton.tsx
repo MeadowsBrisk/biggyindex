@@ -1,5 +1,5 @@
 import React from 'react';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 
 export type FilterPinButtonProps = {
   pinned: boolean;

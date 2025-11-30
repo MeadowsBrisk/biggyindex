@@ -1,13 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
 import ChevronDown from "@/components/common/icons/ChevronDown";
 import { useTranslations } from 'next-intl';
-// Questions and labels are localized via Home translations
 
-function AccordionItem({ question, answer, isOpen, onToggle }) {
+interface FaqItem {
+  question?: string;
+  q?: string;
+  answer?: string;
+  a?: string;
+}
+
+interface AccordionItemProps {
+  question: string;
+  answer: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+function AccordionItem({ question, answer, isOpen, onToggle }: AccordionItemProps): ReactElement {
   return (
     <motion.div
       layout
@@ -45,7 +58,11 @@ function AccordionItem({ question, answer, isOpen, onToggle }) {
   );
 }
 
-function Accordion({ questions }) {
+interface AccordionProps {
+  questions: FaqItem[];
+}
+
+function Accordion({ questions }: AccordionProps): ReactElement {
   const [openIndex, setOpenIndex] = useState(0);
   const items = Array.isArray(questions) ? questions : [];
 
@@ -68,9 +85,15 @@ function Accordion({ questions }) {
   );
 }
 
-export default function FaqSection() {
+interface Tab {
+  key: string;
+  label: string;
+  questions: FaqItem[];
+}
+
+export default function FaqSection(): ReactElement {
   const tHome = useTranslations('Home');
-  const tabs = useMemo(() => ([
+  const tabs = useMemo<Tab[]>(() => ([
     { key: 'about', label: tHome('faq.tabs.about'), questions: tHome.raw('faq.about') || [] },
     { key: 'crypto', label: tHome('faq.tabs.crypto'), questions: tHome.raw('faq.crypto') || [] },
   ]), [tHome]);
@@ -110,10 +133,10 @@ export default function FaqSection() {
         </div>
         <div className="mt-10">
           <AnimatePresence mode="wait">
-          <motion.div
-            key={currentTab.key}
-            {...fadeInUp({ distance: 12, duration: 0.25, viewportAmount: 1, once: false })}
-          >
+            <motion.div
+              key={currentTab.key}
+              {...(fadeInUp({ distance: 12, duration: 0.25, viewportAmount: 1, once: false }) as any)}
+            >
               <Accordion questions={currentTab.questions} />
             </motion.div>
           </AnimatePresence>
@@ -122,4 +145,3 @@ export default function FaqSection() {
     </section>
   );
 }
-

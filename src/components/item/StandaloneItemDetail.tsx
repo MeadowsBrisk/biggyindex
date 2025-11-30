@@ -34,7 +34,7 @@ import { useDisplayCurrency } from '@/providers/IntlProvider';
 import formatDescription from '@/lib/formatDescription';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/countries';
 import { proxyImage } from '@/lib/images';
-import cn from '@/app/cn';
+import cn from '@/lib/cn';
 import MobileTabs from '@/components/item/item-detail/MobileTabs';
 import MobileActionsFab from '@/components/item/item-detail/MobileActionsFab';
 import DesktopHeaderActions from '@/components/item/item-detail/DesktopHeaderActions';
@@ -112,7 +112,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   // Favourites
   const toggleFav = useSetAtom(toggleFavouriteAtom);
   const isFavAtom = useMemo(() => selectAtom(favouritesAtom as any, (favs: any[]) => Array.isArray(favs) && baseItem && favs.includes((baseItem as any).id)), [baseItem]);
-  const isFav = useAtomValue(isFavAtom as any);
+  const isFav = useAtomValue(isFavAtom as any) as boolean;
   
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);

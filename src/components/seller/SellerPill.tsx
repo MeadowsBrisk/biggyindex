@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import { useAtom, useAtomValue } from 'jotai';
 import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom, pushOverlayAtom, includedSellersAtom, excludedSellersAtom } from '@/store/atoms';

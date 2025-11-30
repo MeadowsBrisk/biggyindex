@@ -1,7 +1,7 @@
 "use client";
 import { useAtom, useAtomValue } from "jotai";
 import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, excludedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
-import cn from "@/app/cn";
+import cn from "@/lib/cn";
 import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { countryLabel } from '@/lib/countries';
