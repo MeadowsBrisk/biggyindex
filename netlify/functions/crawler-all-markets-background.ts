@@ -10,6 +10,7 @@ import { listMarkets } from "../../scripts/unified-crawler/shared/env/markets";
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 import { marketStore } from "../../scripts/unified-crawler/shared/env/markets";
+import { tryRevalidateAllMarkets } from "../../scripts/unified-crawler/shared/revalidation/revalidate";
 
 // Index stage (wrapper delegates to stage implementation)
 // Prefer wrapper if present to preserve existing behavior
@@ -150,6 +151,12 @@ export const handler: Handler = async (event) => {
       console.error(`${logPrefix("pruning")} error:`, e?.message || e);
     }
     console.log(`${logPrefix("pruning")} elapsed=${since(tPrune)}s`);
+
+    // Trigger on-demand ISR revalidation for all markets after successful pipeline completion
+    console.log(`${logPrefix("revalidate")} start`);
+    const tRevalidate = Date.now();
+    await tryRevalidateAllMarkets();
+    console.log(`${logPrefix("revalidate")} elapsed=${since(tRevalidate)}s`);
 
     console.log(`${logPrefix("orchestrator")} done total=${since(started)}s`);
     // Background functions ignore returned body; return to end execution

@@ -4,6 +4,7 @@ import { marketStore } from "../../scripts/unified-crawler/shared/env/markets";
 import { indexMarket } from "../../scripts/unified-crawler/indexer/indexMarket";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
+import { tryRevalidateMarket } from "../../scripts/unified-crawler/shared/revalidation/revalidate";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
@@ -37,6 +38,8 @@ export const handler: Handler = async (event) => {
           notes: { snapshotMeta: res?.snapshotMeta },
         });
       } catch {}
+      // Trigger on-demand ISR revalidation for instant cache updates
+      await tryRevalidateMarket(code as any);
     } catch (e: any) {
       errlog(`error market=${code} ${e?.message || e}`);
     }

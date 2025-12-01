@@ -8,6 +8,7 @@ import { listMarkets, marketStore } from "../../scripts/unified-crawler/shared/e
 import { indexMarket } from "../../scripts/unified-crawler/indexer/indexMarket";
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
+import { tryRevalidateAllMarkets } from "../../scripts/unified-crawler/shared/revalidation/revalidate";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 
@@ -63,6 +64,12 @@ export const handler: Handler = async (event) => {
 
     const totalElapsed = since(started);
     log(`done total=${totalElapsed}s totalItems=${totalIndexed}`);
+
+    // Trigger on-demand ISR revalidation for all markets after successful indexing
+    log("triggering ISR revalidation for all markets");
+    const tRevalidate = Date.now();
+    await tryRevalidateAllMarkets();
+    log(`revalidation complete elapsed=${since(tRevalidate)}s`);
 
     return {
       statusCode: 200,
