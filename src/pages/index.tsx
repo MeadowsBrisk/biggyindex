@@ -68,6 +68,10 @@ export const getStaticProps: GetStaticProps = async () => {
     // This reduces page data size by ~40-50%
     const items = rawItems;
     
+    // CRITICAL: If we got empty data, use very short revalidate to retry quickly
+    // This prevents caching bad ISR responses for a long time
+    const hasData = items.length > 0 && Object.keys(manifest?.categories || {}).length > 0;
+    
     // NOTE: Reviews and media are now lazy-loaded by the LatestReviewsModal component
     // when it opens, rather than being included in __NEXT_DATA__. This saves ~200-400KB.
     
@@ -77,18 +81,19 @@ export const getStaticProps: GetStaticProps = async () => {
         initialManifest: manifest,
         snapshotMeta: meta,
       },
-      revalidate: 1000, // Rebuild every ~16 minutes (aligns with crawler cadence)
+      // If data is empty, retry in 10 seconds instead of 16 minutes
+      revalidate: hasData ? 1000 : 10,
     };
   } catch (e) {
     console.error('[ISR] Failed to fetch data:', e);
-    // Fallback to empty data rather than failing the build
+    // Fallback to empty data with short revalidate to retry quickly
     return {
       props: {
         initialItems: [],
         initialManifest: { categories: {}, totalItems: 0 },
         snapshotMeta: null,
       },
-      revalidate: 1000,
+      revalidate: 10, // Retry in 10 seconds
     };
   }
 };
@@ -375,7 +380,10 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
             const targetCat = category.toLowerCase();
             return itemCat === targetCat;
           });
-          setItems(filtered);
+          // Only set filtered if we got results, otherwise keep current items
+          if (filtered.length > 0) {
+            setItems(filtered);
+          }
         }
         setIsLoading(false);
         // Clear pending URL category state once filtering is complete
@@ -397,9 +405,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         }
       } catch {}
       
-      // Set items and cache the full dataset
-      setItems(items);
+      // Only set items if we got a valid response - never clear existing items with empty data
       if (items.length > 0) {
+        setItems(items);
         setAllItems(items);
       }
       setIsLoading(false);

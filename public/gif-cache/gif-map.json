@@ -1023,9 +1023,7 @@
     "hash": "e07044ef7224",
     "poster": "/gif-cache/posters/e07044ef7224.jpg",
     "video": "/gif-cache/videos/e07044ef7224.mp4",
-    "width": 800,
-    "height": 436,
-    "frames": 28,
-    "status": "ok"
+    "status": "skipped",
+    "reason": "exists"
   }
 }

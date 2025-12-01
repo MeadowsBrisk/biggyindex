@@ -1,7 +1,6 @@
 import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, type Market } from '@/lib/market/market';
 
 const API_ENDPOINT = '/api/index/sellers';
-const STATIC_ENDPOINT = '/sellers.json';
 
 // Maintain per-market caches so navigating between locales loads correct index
 const sellersByName: Partial<Record<Market, Map<string, any>>> = {};
@@ -49,17 +48,11 @@ async function fetchSellersList(market: Market): Promise<any[]> {
       const json = await resApi.json();
       if (Array.isArray(json?.sellers)) list = json.sellers;
     }
-  } catch {}
-  if (!Array.isArray(list) || list.length === 0) {
-    try {
-      const resStatic = await fetch(STATIC_ENDPOINT, { cache: 'force-cache' });
-      if (resStatic && resStatic.ok) {
-        const json = await resStatic.json();
-        if (Array.isArray(json)) list = json;
-        else if (Array.isArray(json?.sellers)) list = json.sellers;
-      }
-    } catch {}
+  } catch (e) {
+    console.warn('[sellersIndex] API fetch failed:', e);
   }
+  // No static fallback - /sellers.json doesn't exist in production
+  // The API is the only source for sellers data
   return list;
 }
 

@@ -2,7 +2,8 @@
 
 // Cloudinary cloud name
 const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD || 'YOUR_CLOUD_NAME';
-const USE_CLOUDINARY = CLOUDINARY_CLOUD !== 'YOUR_CLOUD_NAME';
+// const USE_CLOUDINARY = CLOUDINARY_CLOUD !== 'YOUR_CLOUD_NAME';
+const USE_CLOUDINARY = true;
 
 // Cloudinary fetch URL builder with responsive sizing
 // - f_avif: force AVIF format for best compression
