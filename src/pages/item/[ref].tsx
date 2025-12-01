@@ -46,16 +46,14 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     const detail = await fetchItemDetail(ref, market);
     if (!detail) return { notFound: true };
     
-    // Load messages for server-side translation
+    // Load messages for server-side translation (core only - no home messages needed)
     let messages: Record<string, any> = {};
     try {
-      const coreMessages = await import(`@/messages/${serverLocale}.json`);
-      const homeMessages = await import(`@/home-messages/${serverLocale}.json`);
-      messages = { ...coreMessages.default, ...homeMessages.default };
+      const coreMessages = await import(`@/messages/${serverLocale}/index.json`);
+      messages = { ...coreMessages.default };
     } catch {
-      const coreMessages = await import('@/messages/en-GB.json');
-      const homeMessages = await import('@/home-messages/en-GB.json');
-      messages = { ...coreMessages.default, ...homeMessages.default };
+      const coreMessages = await import('@/messages/en-GB/index.json');
+      messages = { ...coreMessages.default };
     }
     
     const seo: ItemSEO = {

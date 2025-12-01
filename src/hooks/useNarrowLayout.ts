@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useScreenSize } from './useScreenSize';
 
 export interface NarrowLayoutState {
   narrow: boolean;
@@ -9,52 +9,24 @@ export interface NarrowLayoutState {
 
 /**
  * Hook to detect narrow (mobile) layout.
- * Optimized: single immediate measurement + rAF-throttled resize handler to reduce layout thrash.
+ * Now delegates to useScreenSize for consistency.
+ * 
+ * NOTE: Previously used breakpoint of 1023px (width <= 1023 = narrow).
+ * Now uses useScreenSize which treats < 850px as mobile/tablet.
+ * If the old 1023px breakpoint is needed, revert to the previous implementation
+ * or adjust BREAKPOINTS.tablet in useScreenSize.ts.
  */
 export function useNarrowLayout(): NarrowLayoutState {
-  const [state, setState] = useState<NarrowLayoutState>({ narrow: false, width: 0, ready: false });
-  const frameRef = useRef<number>(0);
-  const last = useRef<NarrowLayoutState>({ narrow: false, width: 0, ready: false });
-  const pendingResize = useRef(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const measure = (markReady = false) => {
-      const vv = window.visualViewport?.width;
-      const w = Math.min(window.innerWidth, vv || window.innerWidth);
-      const narrow = w <= 1023;
-      const next: NarrowLayoutState = { narrow, width: w, ready: markReady || state.ready };
-      
-      // Only update if something changed (prevents extra renders during rapid resizes)
-      if (last.current.narrow !== next.narrow || last.current.width !== next.width || last.current.ready !== next.ready) {
-        last.current = next;
-        setState(next);
-      }
-    };
-
-    // Initial synchronous measure (mark ready immediately to avoid layout jump)
-    measure(true);
-
-    const onResize = () => {
-      if (pendingResize.current) return;
-      pendingResize.current = true;
-      frameRef.current = requestAnimationFrame(() => {
-        pendingResize.current = false;
-        measure(true);
-      });
-    };
-
-    window.addEventListener('resize', onResize, { passive: true });
-    window.visualViewport?.addEventListener('resize', onResize, { passive: true });
-
-    return () => {
-      cancelAnimationFrame(frameRef.current);
-      window.removeEventListener('resize', onResize);
-      window.visualViewport?.removeEventListener('resize', onResize);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return state;
+  const screenSize = useScreenSize();
+  
+  // Narrow = mobile or tablet (< smallDesktop breakpoint of 1280px)
+  // This is close to the old 1023px threshold
+  const narrow = screenSize.isMobile || screenSize.isTablet;
+  
+  return {
+    narrow,
+    // Width is not tracked in useScreenSize, return 0 (most consumers only use `narrow`)
+    width: 0,
+    ready: screenSize.size !== null,
+  };
 }

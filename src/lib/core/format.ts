@@ -28,29 +28,6 @@ export function formatBritishDateTime(value: string | number | Date): string {
   }
 }
 
-export function timeAgo(dateStr: string): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  if (isNaN(d as any)) return "";
-  const now = Date.now();
-  const diffMs = now - d.getTime();
-  const sec = Math.floor(diffMs / 1000);
-  if (sec < 60) return "just now";
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
-  const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}d ago`;
-  const weeks = Math.floor(day / 7);
-  if (weeks < 4) return `${weeks}w ago`;
-  try {
-    return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', timeZone: 'Europe/London' } as any).format(d);
-  } catch {
-    return d.toUTCString().slice(5, 16); // e.g., "29 Sep 2025"
-  }
-}
-
 // Decode basic HTML entities (&amp;, &quot;, &#x2026;, etc.) into plain text for display
 export function decodeEntities(str: string): string {
   if (!str) return "";

@@ -37,9 +37,9 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import { useExchangeRates, convertToGBP } from '@/hooks/useExchangeRates';
-import { roundDisplayGBP } from '@/lib/pricing/pricing';
+import { roundDisplayGBP } from '@/lib/pricing/priceDisplay';
 import { formatUSD, currencySymbol } from '@/lib/pricing/priceDisplay';
-import { usePerUnitLabel } from '@/hooks/usePerUnitLabel';
+import { perUnitSuffix } from '@/hooks/usePerUnitLabel';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import formatDescription from '@/lib/ui/formatDescription';
@@ -189,7 +189,6 @@ export default function ItemDetailOverlay() {
   const rates = useExchangeRates();
   const { currency: ctxCurrency } = useDisplayCurrency();
   const displayCurrency = ctxCurrency || 'GBP';
-  const { perUnitSuffix } = usePerUnitLabel();
   // Shipping options (detail) for inclusion toggle
   const shippingOptions = useMemo(() => {
     const shipping = (detail as any)?.shipping;

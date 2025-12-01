@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from 'next/router';
-import enGBMessages from "../messages/en-GB.json";
+import enGBCoreMessages from "../messages/en-GB/index.json";
 import { IntlProvider as NextIntlProvider, useTranslations } from "next-intl";
 import { getMarketFromPath, getLocaleForMarket, getMarketFromHost, isHostBasedEnv } from '@/lib/market/market';
 
@@ -73,33 +73,48 @@ export function useLocale(): LocaleContextValue {
   return ctx;
 }
 
-// Lightweight messages loader; in production you may want to code-split messages by locale.
-async function loadMessages(locale: Locale) {
-  let core: any;
-  let home: any;
+// Load only core messages (always needed)
+async function loadCoreMessages(locale: Locale): Promise<Record<string, any>> {
   switch (locale) {
     case "de-DE":
-      core = (await import("../messages/de-DE.json")).default;
-      home = (await import("../home-messages/de-DE.json")).default;
-      break;
+      return (await import("../messages/de-DE/index.json")).default;
     case "fr-FR":
-      core = (await import("../messages/fr-FR.json")).default;
-      home = (await import("../home-messages/fr-FR.json")).default;
-      break;
+      return (await import("../messages/fr-FR/index.json")).default;
     case "pt-PT":
-      core = (await import("../messages/pt-PT.json")).default;
-      home = (await import("../home-messages/pt-PT.json")).default;
-      break;
+      return (await import("../messages/pt-PT/index.json")).default;
     case "it-IT":
-      core = (await import("../messages/it-IT.json")).default;
-      home = (await import("../home-messages/it-IT.json")).default;
-      break;
+      return (await import("../messages/it-IT/index.json")).default;
     default:
-      core = (await import("../messages/en-GB.json")).default;
-      home = (await import("../home-messages/en-GB.json")).default;
+      return (await import("../messages/en-GB/index.json")).default;
   }
-  // Shallow merge; Home lives under its own namespace, so no collisions expected
-  return { ...core, ...home };
+}
+
+// Load home messages (only needed on home pages) - exported for HomeMessagesProvider
+export async function loadHomeMessages(locale: Locale): Promise<Record<string, any>> {
+  switch (locale) {
+    case "de-DE":
+      return (await import("../messages/de-DE/home.json")).default;
+    case "fr-FR":
+      return (await import("../messages/fr-FR/home.json")).default;
+    case "pt-PT":
+      return (await import("../messages/pt-PT/home.json")).default;
+    case "it-IT":
+      return (await import("../messages/it-IT/home.json")).default;
+    default:
+      return (await import("../messages/en-GB/home.json")).default;
+  }
+}
+
+// Context for merged messages (core + home when available)
+const MessagesContext = createContext<{
+  messages: Record<string, any>;
+  addMessages: (extra: Record<string, any>) => void;
+} | undefined>(undefined);
+
+export function useMessages() {
+  const ctx = useContext(MessagesContext);
+  if (!ctx) throw new Error("useMessages must be used within IntlProvider");
+  return ctx;
 }
 
 export function IntlProvider({ children }: { children: React.ReactNode }) {
@@ -110,14 +125,14 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
   const initialLocale = normalizeLocale(router.locale);
   
   const [locale, setLocale] = useState<Locale>(initialLocale);
-  // Start with English messages as fallback, load correct locale async
-  const [messages, setMessages] = useState<Record<string, any>>(enGBMessages as Record<string, any>);
+  // Start with English core messages as fallback, load correct locale async
+  const [messages, setMessages] = useState<Record<string, any>>(enGBCoreMessages as Record<string, any>);
   const [currency, setCurrency] = useState<Currency>(currencyForLocale(initialLocale));
 
-  // Load messages for the current locale
+  // Load core messages for the current locale
   useEffect(() => {
     let cancelled = false;
-    loadMessages(locale).then((m) => {
+    loadCoreMessages(locale).then((m) => {
       if (!cancelled) setMessages(m);
     });
     setCurrency(currencyForLocale(locale));
@@ -135,8 +150,13 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
     }
   }, [router.locale, locale]);
 
-  // Expose a simple API to change locale later if needed
-  const value = useMemo(() => ({ currency, setCurrency }), [currency]);
+  // Function to merge in additional messages (e.g., home messages)
+  const addMessages = useMemo(() => (extra: Record<string, any>) => {
+    setMessages(prev => ({ ...prev, ...extra }));
+  }, []);
+
+  const currencyValue = useMemo(() => ({ currency, setCurrency }), [currency]);
+  const messagesValue = useMemo(() => ({ messages, addMessages }), [messages, addMessages]);
 
   return (
     <NextIntlProvider
@@ -151,7 +171,11 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
       getMessageFallback={({ key }: any) => key}
     >
       <LocaleContext.Provider value={{ locale, setLocale }}>
-        <DisplayCurrencyContext.Provider value={value}>{children}</DisplayCurrencyContext.Provider>
+        <DisplayCurrencyContext.Provider value={currencyValue}>
+          <MessagesContext.Provider value={messagesValue}>
+            {children}
+          </MessagesContext.Provider>
+        </DisplayCurrencyContext.Provider>
       </LocaleContext.Provider>
     </NextIntlProvider>
   );

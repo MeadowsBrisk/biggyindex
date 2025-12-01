@@ -7,7 +7,6 @@ import "swiper/css/navigation";
 import cn from "@/lib/core/cn";
 import Image from "next/image";
 import { proxyImage } from "@/lib/ui/images";
-import { timeAgo } from "@/lib/core/format";
 import { AnimatePresence, motion } from "framer-motion";
 import SellerAvatarTooltip from "@/components/seller/SellerAvatarTooltip";
 import { useTranslations } from 'next-intl';

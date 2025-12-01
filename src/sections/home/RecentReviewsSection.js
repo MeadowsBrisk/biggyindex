@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 import { fadeInUp } from "@/sections/home/motionPresets";
-import { decodeEntities, timeAgo } from "@/lib/core/format";
+import { decodeEntities } from "@/lib/core/format";
 import { relativeCompact } from "@/lib/ui/relativeTimeCompact";
 import { useTranslations } from 'next-intl';
 import { panelClassForReviewScore } from "@/theme/reviewScoreColors";

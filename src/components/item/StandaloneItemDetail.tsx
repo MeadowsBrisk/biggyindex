@@ -27,9 +27,9 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import { useExchangeRates, convertToGBP } from '@/hooks/useExchangeRates';
-import { roundDisplayGBP } from '@/lib/pricing/pricing';
+import { roundDisplayGBP } from '@/lib/pricing/priceDisplay';
 import { formatUSD } from '@/lib/pricing/priceDisplay';
-import { usePerUnitLabel } from '@/hooks/usePerUnitLabel';
+import { perUnitSuffix } from '@/hooks/usePerUnitLabel';
 import { useDisplayCurrency } from '@/providers/IntlProvider';
 import formatDescription from '@/lib/ui/formatDescription';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/countries';
@@ -87,7 +87,6 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const rates = useExchangeRates();
   const { currency: ctxCurrency } = useDisplayCurrency();
   const displayCurrency = ctxCurrency || 'GBP';
-  const { perUnitSuffix } = usePerUnitLabel();
   
   // Shipping options
   const shippingOptions = useMemo(() => {

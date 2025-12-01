@@ -24,13 +24,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext): Promis
   // Load messages for translations
   let messages: Record<string, unknown> = {};
   try {
-    const coreMessages = await import(`@/messages/${serverLocale}.json`);
-    const homeMessages = await import(`@/home-messages/${serverLocale}.json`);
-    messages = { ...coreMessages.default, ...homeMessages.default };
+    const coreMessages = await import(`@/messages/${serverLocale}/index.json`);
+    messages = { ...coreMessages.default };
   } catch {
-    const coreMessages = await import('@/messages/en-GB.json');
-    const homeMessages = await import('@/home-messages/en-GB.json');
-    messages = { ...coreMessages.default, ...homeMessages.default };
+    const coreMessages = await import('@/messages/en-GB/index.json');
+    messages = { ...coreMessages.default };
   }
   
   return { props: { locale: shortLocale, messages } };

@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Review Score Styles
+   Central styling for review scores 1-10
+   Migrated from src/theme/reviewScoreColors.ts for better CSS performance
+   ========================================================================== */
+
+/* ==========================================================================
+   Score Header Text Colors (1-10)
+   ========================================================================== */
+
+.review-score-1  { @apply text-red-700 dark:text-red-400; }
+.review-score-2  { @apply text-red-600 dark:text-red-400/90; }
+.review-score-3  { @apply text-orange-600 dark:text-orange-400; }
+.review-score-4  { @apply text-amber-600 dark:text-amber-400; }
+.review-score-5  { @apply text-yellow-600 dark:text-yellow-400; }
+.review-score-6  { @apply text-lime-600 dark:text-lime-400; }
+.review-score-7  { @apply text-green-600 dark:text-green-400; }
+.review-score-8  { @apply text-emerald-600 dark:text-emerald-400; }
+.review-score-9  { @apply text-teal-600 dark:text-teal-400; }
+.review-score-10 { @apply text-cyan-600 dark:text-cyan-400; }
+
+.review-score-default { @apply text-gray-500 dark:text-gray-400; }
+
+/* ==========================================================================
+   Panel Styles (Background + Border)
+   Subtle hex tint palettes for scores 1-10
+   Light: very soft pastels | Dark: muted deep tints
+   Text color intentionally NOT overridden to maintain theme
+   ========================================================================== */
+
+.review-panel-1 {
+	@apply border;
+	background-color: #fff5f5;
+	border-color: #f9e1e1;
+}
+.dark .review-panel-1 {
+	background-color: #3a1e21;
+	border-color: #4a272a;
+}
+
+.review-panel-2 {
+	@apply border;
+	background-color: #fff0f0;
+	border-color: #f5dcdc;
+}
+.dark .review-panel-2 {
+	background-color: #3a2424;
+	border-color: #4a2c2c;
+}
+
+.review-panel-3 {
+	@apply border;
+	background-color: #fff8eb;
+	border-color: #f3e6cf;
+}
+.dark .review-panel-3 {
+	background-color: #392b1c;
+	border-color: #473323;
+}
+
+.review-panel-4 {
+	@apply border;
+	background-color: #fefbe8;
+	border-color: #efe6bb;
+}
+.dark .review-panel-4 {
+	background-color: #343018;
+	border-color: #403a20;
+}
+
+.review-panel-5 {
+	@apply border;
+	background-color: #f5fae5;
+	border-color: #e3edc5;
+}
+.dark .review-panel-5 {
+	background-color: #28331a;
+	border-color: #334024;
+}
+
+.review-panel-6 {
+	@apply border;
+	background-color: #eef9e9;
+	border-color: #d8edd3;
+}
+.dark .review-panel-6 {
+	background-color: #203525;
+	border-color: #2a4330;
+}
+
+.review-panel-7 {
+	@apply border;
+	background-color: #e9f9f2;
+	border-color: #d2ede3;
+}
+.dark .review-panel-7 {
+	background-color: #193631;
+	border-color: #23433f;
+}
+
+.review-panel-8 {
+	@apply border;
+	background-color: #e6f8f7;
+	border-color: #cfecec;
+}
+.dark .review-panel-8 {
+	background-color: #16363a;
+	border-color: #204347;
+}
+
+.review-panel-9 {
+	@apply border;
+	background-color: #e6f6fb;
+	border-color: #d0eaf3;
+}
+.dark .review-panel-9 {
+	background-color: #15323d;
+	border-color: #1f4150;
+}
+
+.review-panel-10 {
+	@apply border;
+	background-color: #e6f4ff;
+	border-color: #d0e5f5;
+}
+.dark .review-panel-10 {
+	background-color: #142d40;
+	border-color: #1d3a4d;
+}
+
+.review-panel-default {
+	@apply border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/50;
+}

@@ -14,6 +14,7 @@ import { RECENT_REVIEWS_LIMIT } from '@/lib/core/constants';
 import { hostForLocale } from '@/lib/market/routing';
 import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market/market';
 import { useLocale, useTranslations } from 'next-intl';
+import { HomeMessagesProvider } from '@/providers/HomeMessagesProvider';
 
 const RECENT_ITEMS_LIMIT = 25;
 
@@ -334,17 +335,19 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
       </Head>
-      <main className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+      <HomeMessagesProvider>
+        <main className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
   <HeroSection stats={stats} />
-        <RecentItemsSection items={recentItems} />
-        {/* <WhyItHelpsSection /> */}
-        <QuickStartSection />
-        <RecentReviewsSection reviews={recentReviews} />
-        <RecentMediaSection mediaEntries={recentMedia} />
-        <SellerLeaderboardSection leaderboard={sellersLeaderboard} sellersIndex={sellersIndex} />
-        <FaqSection />
-        <FooterSection lastCrawlTime={stats?.lastUpdated || null} buildTime={buildTime} />
-      </main>
+          <RecentItemsSection items={recentItems} />
+          {/* <WhyItHelpsSection /> */}
+          <QuickStartSection />
+          <RecentReviewsSection reviews={recentReviews} />
+          <RecentMediaSection mediaEntries={recentMedia} />
+          <SellerLeaderboardSection leaderboard={sellersLeaderboard} sellersIndex={sellersIndex} />
+          <FaqSection />
+          <FooterSection lastCrawlTime={stats?.lastUpdated || null} buildTime={buildTime} />
+        </main>
+      </HomeMessagesProvider>
     </>
   );
 };

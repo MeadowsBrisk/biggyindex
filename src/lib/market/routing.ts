@@ -1,5 +1,8 @@
 // Central locale routing configuration
 // Provides helpers for building canonical item/seller URLs and resolving host per locale.
+
+import { getMarketFromHost, getLocaleForMarket } from '@/lib/market/market';
+
 export const LOCALE_HOST: Record<string, string> = {
   'en': 'https://biggyindex.com',
   'en-GB': 'https://biggyindex.com',
@@ -38,12 +41,8 @@ export function buildSellerUrl(id: string | number, locale: string): string {
 }
 
 // Attempt to detect locale from an incoming host header
+// Delegates to getMarketFromHost() to avoid duplicate subdomain logic
 export function localeFromHost(host?: string | null): string {
-  if (!host) return 'en';
-  host = host.toLowerCase();
-  if (host.startsWith('fr.')) return 'fr';
-  if (host.startsWith('de.')) return 'de';
-  if (host.startsWith('it.')) return 'it';
-  if (host.startsWith('pt.')) return 'pt';
-  return 'en';
+  const market = getMarketFromHost(host ?? undefined);
+  return getLocaleForMarket(market);
 }

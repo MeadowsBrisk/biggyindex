@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useSetAtom, useAtomValue } from "jotai";
 import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom } from "@/store/atoms";
 import SellerPill from "@/components/seller/SellerPill";
-import { usePerUnitLabel } from "@/hooks/usePerUnitLabel";
+import { perUnitSuffix } from "@/hooks/usePerUnitLabel";
 import ImageZoomPreview from "@/components/item/ImageZoomPreview";
 import { selectAtom } from "jotai/utils";
 import ReviewStatsBadge from "@/components/reviews/ReviewStatsBadge";
@@ -107,7 +107,6 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const selectedSubs = useAtomValue(selectedSubcategoriesAtom);
   const thumbAspect = useAtomValue(thumbnailAspectAtom); // added
   const [expanded, setExpanded] = React.useState(false);
-  const { perUnitSuffix } = usePerUnitLabel();
   const setExpandedRef = useSetAtom(expandedRefNumAtom);
   // Treat an update if lua (lastUpdatedAt) exists and either fsa (firstSeenAt) is missing (pre-baseline legacy item) or they differ
   const hasUpdate = !!item.lua && (!item.fsa || item.lua !== item.fsa);

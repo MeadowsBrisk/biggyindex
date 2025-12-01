@@ -6,7 +6,7 @@
     "price": "Price",
     "sellers": "Sellers",
     "allSellers": "All Sellers",
-  "all": "All",
+    "all": "All",
     "reviews": "Reviews",
     "reset": "Reset",
     "sort": "Sort",
@@ -170,8 +170,7 @@
       "variantsNoun": "{count, plural, one {variant} other {variants}}"
     },
     "noImage": "No image"
-  }
-  ,
+  },
   "UI": {
     "searchPlaceholder": "Search items...",
     "searchAria": "Search items",
@@ -185,8 +184,7 @@
     "removeInclude": "Remove include",
     "exclude": "Exclude",
     "removeExclude": "Remove exclude"
-  }
-  ,
+  },
   "Overlay": {
     "browseIndex": "Browse the Index",
     "description": "Description",
@@ -224,8 +222,7 @@
     "totalShort": "total",
     "recentShort": "Recent",
     "avgArrival": "avg arrival {days, plural, one {# day} other {# days}}"
-  }
-  ,
+  },
   "Basket": {
     "button": "Basket",
     "open": "Virtual shopping basket",
@@ -241,15 +238,13 @@
     "change": "Change",
     "variant": "Variant {num}",
     "remove": "Remove"
-  }
-  ,
+  },
   "Reviews": {
     "took": "took {arrival}",
     "arrival": "{days, plural, =0 {same day} one {# day} other {# days}}",
     "reviewImageAlt": "review",
     "soldBy": "sold by"
-  }
-  ,
+  },
   "Zoom": {
     "triggerAria": "Preview image",
     "imagePreview": "Image preview",
@@ -266,8 +261,7 @@
     "rotateLeft": "Rotate left",
     "rotateRight": "Rotate right",
     "gifPausedGlobal": "GIF paused (global)"
-  }
-  ,
+  },
   "Countries": {
     "uk": "UK",
     "us": "US",
@@ -292,10 +286,9 @@
     "tr": "Turkey",
     "multi": "Multi",
     "und": "Undeclared"
-  }
-  ,
+  },
   "Rel": {
-    "agoPrefix": "", 
+    "agoPrefix": "",
     "agoSuffix": " ago",
     "year": "yr",
     "month": "mo",
@@ -305,8 +298,7 @@
     "minute": "min",
     "second": "s",
     "now": "now"
-  }
-  ,
+  },
   "Analytics": {
     "title": "Sellers on LittleBiggy",
     "updated": "Updated",
@@ -324,8 +316,7 @@
     },
     "footerHint": "Click any seller to view their full profile",
     "unknownSeller": "Unknown"
-  }
-  ,
+  },
   "LatestReviews": {
     "title": "Latest Reviews",
     "withImagesCount": "{count} reviews with images",
@@ -338,15 +329,13 @@
     "footerRefresh": "Reviews from LittleBiggy refreshed every 4 hours",
     "itemImageAlt": "Item image",
     "reviewMediaAlt": "Review media"
-  }
-  ,
+  },
   "Theme": {
     "dark": "Dark",
     "light": "Light",
     "toggleTitle": "Toggle dark mode",
     "toggleSr": "Toggle dark mode"
-  }
-  ,
+  },
   "Share": {
     "menuAria": "Share menu",
     "copyLink": "Copy link",
@@ -368,7 +357,7 @@
   "Endorse": {
     "cta": "Endorse",
     "already": "Already endorsed",
-    "usedToday": "You’ve already used today’s endorsement",
+    "usedToday": "You've already used today's endorsement",
     "onePerDay": "One endorsement per day"
   },
   "Meta": {

@@ -1,7 +1,7 @@
 {
   "Home": {
     "hero": {
-      "badge": "Find what you’re looking for",
+      "badge": "Find what you're looking for",
       "title": "An index for the <accent>420</accent> marketplace",
       "subtitle": "Browse LittleBiggy faster with smarter search, tidy categories, and quick stats tailored for UK buyers.",
       "cta": { "browse": "Browse items", "how": "How it works" },
@@ -33,7 +33,7 @@
           "def": "A neutral service that holds funds and only releases them when both sides are happy."
         }
       },
-  "steps": {
+      "steps": {
         "1": {
           "title": "Get Some Bitcoin",
           "emoji": "🪙",
@@ -109,7 +109,7 @@
         }
       }
     },
-  "reviews": {
+    "reviews": {
       "header": {
         "label": "Community pulse",
         "title": "Recent reviews",
@@ -135,7 +135,7 @@
       "placeholder": {
         "sellerName": "LittleBiggy Buyer",
         "itemTitle": "Fresh reviews incoming",
-        "text": "We’re refreshing the combined reviews feed. Real highlights from LittleBiggy shoppers will appear here soon.\n\nStay tuned!"
+        "text": "We're refreshing the combined reviews feed. Real highlights from LittleBiggy shoppers will appear here soon.\n\nStay tuned!"
       }
     },
     "footer": {
@@ -264,7 +264,7 @@
       "highlights": [
         {
           "title": "Find UK cannabis fast",
-          "description": "Search LittleBiggy’s public listings with filters built for the UK. Avoid heavy markups or scams associated with clearnet sources."
+          "description": "Search LittleBiggy's public listings with filters built for the UK. Avoid heavy markups or scams associated with clearnet sources."
         },
         {
           "title": "Fresh data from the indexer",

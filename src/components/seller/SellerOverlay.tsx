@@ -9,7 +9,7 @@ import { useHistoryState } from '@/hooks/useHistoryState';
 import { motion, AnimatePresence } from 'framer-motion';
 import cn from '@/lib/core/cn';
 import ReviewsList, { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';
-import { decodeEntities, timeAgo } from '@/lib/core/format';
+import { decodeEntities } from '@/lib/core/format';
 import { proxyImage } from '@/lib/ui/images';
 import ImageZoomPreview from '@/components/item/ImageZoomPreview';
 import SellerIncludeExclude from '@/components/item/item-detail/SellerIncludeExclude';

@@ -2,7 +2,7 @@
 import { useCallback } from "react";
 import { formatMoney, type DisplayCurrency } from '@/lib/pricing/priceDisplay';
 
-interface ParsedQuantity {
+export interface ParsedQuantity {
   qty: number;
   unit: string;
 }
@@ -20,7 +20,8 @@ interface DosageToken {
   pos: number;
 }
 
-function normalizeCountLabel(label: string | null): string | null {
+/** Normalize count labels to canonical form (e.g., 'tablets' → 'tab') */
+export function normalizeCountLabel(label: string | null): string | null {
   if (!label) return null;
   switch (label) {
     case 'pack':
@@ -81,7 +82,8 @@ function normalizeCountLabel(label: string | null): string | null {
   }
 }
 
-function detectImplicitUnit(d: string): string | null {
+/** Detect implicit unit from description text (e.g., 'pack', 'bottle', 'gummy') */
+export function detectImplicitUnit(d: string): string | null {
   // Order of precedence for implicit unit detection after an 'x'
   const patterns = [
     { re: /\bpack(s)?\b/, unit: 'pk' },
@@ -104,8 +106,11 @@ function isChocolateBarLike(d: string): boolean {
   return /(choc|chocolate|biscoff|oreo|lindor|hershey|crunch|terry|milk chocolate|white chocolate|dark chocolate)/.test(d);
 }
 
-// Parses a description like "1g", "2 grams", "500 mg", "10ml", "2 items" and returns { qty, unit }
-function parseQuantity(description: string | null | undefined): ParsedQuantity | null {
+/**
+ * Parse a description like "1g", "2 grams", "500 mg", "10ml", "2 items"
+ * and return { qty, unit }. Returns null if no quantity found.
+ */
+export function parseQuantity(description: string | null | undefined): ParsedQuantity | null {
   const d = (description || "").toLowerCase().trim();
   const edibleLikeRe = /(choc|chocolate|edible|gummy|gummies|brownie|bar|cookie|cookies|biscuit|biscoff|oreo|crunch|lindor|hershey|strawberry)/;
 
@@ -218,20 +223,37 @@ function parseQuantity(description: string | null | undefined): ParsedQuantity |
   return null;
 }
 
-export function usePerUnitLabel() {
-  // Accepts description and a price in given currency, returns a suffix like " (£10/g)" or " ($10/g)"
-  const perUnitSuffix = useCallback((description: string | null | undefined, priceAmount: number | null | undefined, currency: DisplayCurrency = 'GBP'): string | null => {
-    if (priceAmount == null || !isFinite(priceAmount)) return null;
-    const parsed = parseQuantity(description);
-    if (!parsed || !(parsed.qty > 0)) return null;
-    const { unit, qty } = parsed;
-    // If it's exactly 1 item, skip showing a redundant per-item price
-    if (unit === 'item' && qty === 1) return null;
-    const per = priceAmount / qty;
-    if (!isFinite(per)) return null;
-    const money = formatMoney(per, currency, { decimals: 2 });
-    return ` (${money}/${unit})`;
-  }, []);
+/**
+ * Calculate per-unit price suffix like " (£10/g)" or " ($10/g)".
+ * Pure function - can be used without the hook.
+ */
+export function perUnitSuffix(
+  description: string | null | undefined,
+  priceAmount: number | null | undefined,
+  currency: DisplayCurrency = 'GBP'
+): string | null {
+  if (priceAmount == null || !isFinite(priceAmount)) return null;
+  const parsed = parseQuantity(description);
+  if (!parsed || !(parsed.qty > 0)) return null;
+  const { unit, qty } = parsed;
+  // If it's exactly 1 item, skip showing a redundant per-item price
+  if (unit === 'item' && qty === 1) return null;
+  const per = priceAmount / qty;
+  if (!isFinite(per)) return null;
+  const money = formatMoney(per, currency, { decimals: 2 });
+  return ` (${money}/${unit})`;
+}
 
-  return { perUnitSuffix };
+/**
+ * Hook wrapper for perUnitSuffix (for backwards compatibility).
+ * Prefer using perUnitSuffix() directly for new code.
+ */
+export function usePerUnitLabel() {
+  const perUnitSuffixFn = useCallback(
+    (description: string | null | undefined, priceAmount: number | null | undefined, currency: DisplayCurrency = 'GBP') =>
+      perUnitSuffix(description, priceAmount, currency),
+    []
+  );
+
+  return { perUnitSuffix: perUnitSuffixFn };
 }

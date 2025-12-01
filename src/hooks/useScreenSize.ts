@@ -54,9 +54,8 @@ export function useScreenSize(): ScreenSizeState {
   const checkScreenSize = useCallback(() => {
     const width = window.innerWidth;
     
-    if (width < BREAKPOINTS.mobile) {
-      setScreenSize(STATES.mobile);
-    } else if (width < BREAKPOINTS.tablet) {
+    // Mobile: anything under tablet breakpoint (850px)
+    if (width < BREAKPOINTS.tablet) {
       setScreenSize(STATES.mobile);
     } else if (width < BREAKPOINTS.smallDesktop) {
       setScreenSize(STATES.tablet);
