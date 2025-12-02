@@ -346,7 +346,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   // Share link (compact): carry forward if previously embedded; else use aggregate if present
   if (prev?.sl) entry.sl = prev.sl;
   else if (canonicalKey && sharesAgg[canonicalKey]) entry.sl = sharesAgg[canonicalKey];
-    // Shipping summary (minified key): carry forward if present; else will attempt backfill below when available
+    // Shipping summary (minified key): prefer fresh aggregate data, then fall back to previous index
     // Normalize older shapes: convert free:boolean -> 1/0 and drop cnt
     function normalizeSh(x: any) {
       if (!x || typeof x !== 'object') return undefined;
@@ -357,12 +357,10 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       else if (typeof x.free === 'boolean') out.free = x.free ? 1 : 0;
       return Object.keys(out).length ? out : undefined;
     }
-    const sh1 = prev?.sh ? normalizeSh(prev.sh) : undefined;
-    const sh2 = !sh1 && prev?.ship ? normalizeSh(prev.ship) : undefined;
-    const sh3 = canonicalKey && shipAgg[canonicalKey] ? normalizeSh(shipAgg[canonicalKey]) : undefined;
-    if (sh1) entry.sh = sh1;
-    else if (sh2) entry.sh = sh2;
-    else if (sh3) entry.sh = sh3;
+    // Priority: fresh aggregate > previous sh > previous ship (legacy key)
+    const shFromAgg = canonicalKey && shipAgg[canonicalKey] ? normalizeSh(shipAgg[canonicalKey]) : undefined;
+    const shFromPrev = prev?.sh ? normalizeSh(prev.sh) : (prev?.ship ? normalizeSh(prev.ship) : undefined);
+    entry.sh = shFromAgg ?? shFromPrev;
     // Index into lookup maps for later endorsement join
     try {
       if (numKey) byNumId.set(numKey, entry as Record<string, any>);

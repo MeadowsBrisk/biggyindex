@@ -6,18 +6,19 @@
  * 
  * Environment Variables:
  *   REVALIDATE_SECRET_TOKEN - Shared secret for API authentication
- *   REVALIDATE_BASE_URL - Base URL for revalidation (defaults to production)
+ *   REVALIDATE_BASE_URL - Base URL override (for local testing only)
  */
 
-const REVALIDATE_PATHS = {
-  GB: '/',
-  DE: '/de',
-  FR: '/fr',
-  PT: '/pt',
-  IT: '/it',
+// Production uses subdomains for each market
+const MARKET_DOMAINS = {
+  GB: 'https://biggyindex.com',
+  DE: 'https://de.biggyindex.com',
+  FR: 'https://fr.biggyindex.com',
+  PT: 'https://pt.biggyindex.com',
+  IT: 'https://it.biggyindex.com',
 } as const;
 
-type Market = keyof typeof REVALIDATE_PATHS;
+type Market = keyof typeof MARKET_DOMAINS;
 
 interface RevalidateOptions {
   baseUrl?: string;
@@ -38,8 +39,9 @@ export async function revalidateMarket(
   market: Market,
   options: RevalidateOptions = {}
 ): Promise<RevalidateResult> {
-  const path = REVALIDATE_PATHS[market];
-  const baseUrl = options.baseUrl || process.env.REVALIDATE_BASE_URL || 'https://biggyindex.com';
+  // Each market has its own subdomain in production; always revalidate root path
+  const baseUrl = options.baseUrl || MARKET_DOMAINS[market];
+  const path = '/';
   const secret = options.secret || process.env.REVALIDATE_SECRET_TOKEN;
 
   if (!secret) {
@@ -49,7 +51,7 @@ export async function revalidateMarket(
 
   try {
     const url = `${baseUrl}/api/revalidate?secret=${encodeURIComponent(secret)}&path=${encodeURIComponent(path)}`;
-    console.log(`[revalidate] Requesting revalidation for ${market} (${path})`);
+    console.log(`[revalidate] Requesting revalidation for ${market} (${baseUrl})`);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -63,7 +65,7 @@ export async function revalidateMarket(
       return { success: false, path, error: data.error || response.statusText };
     }
 
-    console.log(`[revalidate] Success for ${market} (${path}) at ${data.timestamp}`);
+    console.log(`[revalidate] Success for ${market} (${baseUrl}) at ${data.timestamp}`);
     return { success: true, path, timestamp: data.timestamp };
   } catch (err: any) {
     console.error(`[revalidate] Network error for ${market}:`, err?.message || err);
