@@ -79,6 +79,26 @@ export function getLocaleForMarket(market: Market): string {
   }
 }
 
+// Map a BCP 47 locale string to a market code
+export function localeToMarket(locale: string | undefined): Market {
+  switch (locale) {
+    case 'de-DE':
+    case 'de':
+      return 'DE';
+    case 'fr-FR':
+    case 'fr':
+      return 'FR';
+    case 'pt-PT':
+    case 'pt':
+      return 'PT';
+    case 'it-IT':
+    case 'it':
+      return 'IT';
+    default:
+      return 'GB';
+  }
+}
+
 // Server-side: derive market from request headers
 // Note: Header-based detection removed. Middleware injects ?mkt from host, and
 // client-side derives market from host or path as appropriate.

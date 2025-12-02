@@ -21,6 +21,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const recentItemsCompact: any = await getRecentItemsCompact(mkt);
   const sellerImagesMap: any = await getSellerImages();
   const updatedAt: string = meta?.updatedAt || new Date().toISOString();
+  
+  // Safety check: if reviews is empty, don't cache it (likely a blob read failure)
+  const isEmpty = !reviewsRaw || reviewsRaw.length === 0;
+  if (isEmpty) {
+    console.warn(`[recent-reviews] Empty response for market=${mkt}`);
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+  }
 
   const imageByRefFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byRef || {}) as Record<string,string>));
   const imageByIdFromRecent = new Map<string, string>(Object.entries((itemImageLookup?.byId || {}) as Record<string,string>));
@@ -76,6 +84,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     prefix: `recent-reviews-${mkt}`,
     version,
     updatedAt,
+    // Don't cache empty responses
+    ...(isEmpty ? { cacheControl: 'no-store, no-cache, must-revalidate' } : {}),
     getBody: async () => reviews
   });
 }

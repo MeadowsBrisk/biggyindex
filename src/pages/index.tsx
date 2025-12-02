@@ -42,16 +42,17 @@ import { hostForLocale } from '@/lib/market/routing';
 import LocaleSelector from '@/components/layout/LocaleSelector';
 import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
-import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market/market';
+import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket } from '@/lib/market/market';
 
 let lastVotesSigCache = '';
 let allVotesSigCache = '';
 let prefetchedAllNonEndorseCache = false;
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async (context) => {
   // ISR: Pre-fetch all items and manifest at build time / revalidation
   // This eliminates client-side API calls, reducing function invocations by ~95%
-  const market = 'GB'; // Default market for static generation
+  // Derive market from locale (set by Next.js i18n domain routing)
+  const market = localeToMarket(context.locale);
   
   try {
     const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/data/indexData');
