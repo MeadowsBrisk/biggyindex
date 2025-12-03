@@ -162,6 +162,35 @@ export default function LatestReviewsModal(): React.ReactElement | null {
     onClose: () => setOpen(false)
   });
 
+  // Sync URL hash with modal state for shareable URLs
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // On open, set hash to #reviews
+    if (open && window.location.hash !== '#reviews') {
+      window.history.replaceState(null, '', '#reviews');
+    }
+    // On close, remove hash (if it's #reviews)
+    if (!open && window.location.hash === '#reviews') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [open]);
+
+  // Open modal if page loads with #reviews hash
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash === '#reviews' && !open) {
+      setOpen(true);
+    }
+    // Listen for hash changes (e.g., user clicks a link with #reviews)
+    const onHashChange = () => {
+      if (window.location.hash === '#reviews' && !open) {
+        setOpen(true);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [open, setOpen]);
+
   // Listen for external close requests (e.g., from SellerOverlay when navigating)
   useEffect(() => {
     if (!open) return;

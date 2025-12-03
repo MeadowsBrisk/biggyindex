@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { EventEmitter } from 'events';
@@ -11,6 +12,7 @@ import { buildItemsWorklist } from './stages/items/run';
 import { processSingleItem } from './stages/items/processItem';
 import { runSellers } from './stages/sellers/run';
 import { runPruning } from './stages/pruning/run';
+import { runTranslate } from './stages/translate/run';
 import { detectItemChanges } from './shared/logic/changes';
 import { Keys } from './shared/persistence/keys';
 import { getBlobClient } from './shared/persistence/blobs';
@@ -23,7 +25,7 @@ const argv = yargs(hideBin(process.argv))
   .scriptName('unified-crawler')
   .option('stage', {
     type: 'string',
-    choices: ['index', 'items', 'sellers', 'pruning', 'all', 'cat-tests'],
+    choices: ['index', 'items', 'sellers', 'pruning', 'translate', 'all', 'cat-tests'],
     default: 'index',
     describe: 'Which stage(s) to run',
   })
@@ -39,7 +41,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('limit', {
     type: 'number',
-    describe: 'Limit number of items to process in items stage (for quick tests)',
+    describe: 'Limit number of items to process in items/translate stage (for quick tests)',
   })
   .option('concurrency', {
     type: 'number',
@@ -64,6 +66,30 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     describe: 'Comma-separated list of item IDs to process (for targeting specific items)'
   })
+  // Translation stage options
+  .option('locales', {
+    type: 'string',
+    describe: 'Comma-separated target locales for translate stage (e.g., de,fr). Defaults to de,fr,pt,it'
+  })
+  .option('dry-run', {
+    type: 'boolean',
+    default: false,
+    describe: 'Preview what would be translated without making API calls'
+  })
+  .option('budget-check', {
+    type: 'boolean',
+    default: false,
+    describe: 'Show remaining translation budget for this month'
+  })
+  .option('budget-init', {
+    type: 'number',
+    describe: 'Initialize budget with this many chars already used (for recovery after blob deletion)'
+  })
+  .option('delay', {
+    type: 'number',
+    default: 60,
+    describe: 'Delay between translation batches in seconds (free tier needs ~60s)'
+  })
   .help()
   .strict()
   .parseSync();
@@ -80,7 +106,7 @@ async function main() {
   const defaultMkts = cfgMarkets(env.markets);
   const markets = (argv.markets ? argv.markets.split(',').map((s: string) => s.trim().toUpperCase()) : defaultMkts) as MarketCode[];
 
-  const stage = argv.stage as 'index' | 'items' | 'sellers' | 'pruning' | 'all' | 'cat-tests';
+  const stage = argv.stage as 'index' | 'items' | 'sellers' | 'pruning' | 'translate' | 'all' | 'cat-tests';
   const started = Date.now();
   const since = (t: number) => Math.round((Date.now() - t) / 1000);
 
@@ -336,10 +362,50 @@ async function main() {
 
     if (stage === 'pruning' || stage === 'all') {
       const t0 = Date.now();
-      log.cli.info(`pruning start`);
-      const res = await runPruning(markets);
+      const dryRun = argv['dry-run'] && stage === 'pruning';
+      log.cli.info(`pruning start`, { dryRun });
+      const res = await runPruning(markets, { dryRun });
       const perMarket = res.counts?.perMarket ? Object.entries(res.counts.perMarket).map(([m, c]) => `${m}:shipDel=${c.shipDeleted},aggTrim=${c.shipSummaryTrimmed}`).join(' | ') : 'n/a';
-      log.cli.info(`pruning done`, { ok: res.ok, orphanCores: res.counts?.itemsDeleted ?? 0, sellersDel: res.counts?.sellersDeleted ?? 0, perMarket, secs: since(t0) });
+      log.cli.info(`pruning ${dryRun ? 'dry run' : 'done'}`, { 
+        ok: res.ok, 
+        orphanCores: res.counts?.itemsDeleted ?? 0, 
+        translationsPruned: res.counts?.translationsPruned ?? 0,
+        sellersDel: res.counts?.sellersDeleted ?? 0, 
+        perMarket, 
+        dryRun,
+        secs: since(t0) 
+      });
+    }
+
+    // Translation stage (separate from 'all' to avoid consuming budget on routine crawls)
+    if (stage === 'translate') {
+      const t0 = Date.now();
+      
+      // Parse locales if provided
+      const locales = argv.locales 
+        ? String(argv.locales).split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+        : undefined;
+      
+      const res = await runTranslate({
+        limit: typeof argv.limit === 'number' ? argv.limit : undefined,
+        locales,
+        force: argv.force,
+        dryRun: argv['dry-run'],
+        budgetCheck: argv['budget-check'],
+        budgetInit: typeof argv['budget-init'] === 'number' ? argv['budget-init'] : undefined,
+        batchDelayMs: (argv.delay as number) * 1000,
+      });
+      
+      if (res.budgetExhausted) {
+        log.translate.warn(`budget exhausted`, { translated: res.translated, secs: since(t0) });
+      } else {
+        log.translate.info(`done`, { 
+          translated: res.translated, 
+          charCount: res.charCount.toLocaleString(),
+          dryRun: res.dryRun ? 'yes' : 'no',
+          secs: since(t0) 
+        });
+      }
     }
 
     log.cli.info(`completed`, { stage, totalSecs: since(started) });

@@ -284,7 +284,7 @@ export default function ItemDetailOverlay() {
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
   const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
-  // Prefer full description from detail JSON; fall back to detail.description; then list summary
+  // Prefer full description from detail JSON; fall back to detail.description; then list summary (translated)
   const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);
@@ -889,7 +889,10 @@ export default function ItemDetailOverlay() {
               <div className="2xl:sticky 2xl:top-0 2xl:z-10 2xl:bg-white/85 2xl:dark:bg-[#0f1725]/85 2xl:backdrop-blur-md 2xl:border-b 2xl:border-gray-200/70 2xl:dark:border-gray-700/70 2xl:pt-2 2xl:pb-2">
               <div className="hidden md:flex pt-1 items-start justify-between gap-3 md:pr-10 2xl:pr-0">
                 <div className="min-w-0">
-                  <h2 className="font-semibold text-lg md:text-xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-semibold text-lg md:text-xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
+                    <TranslationToggle hasTranslation={hasTranslation} />
+                  </div>
                   <div className="mt-1 flex items-center flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
                     {hasSellerInfo && (
                       <>

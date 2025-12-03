@@ -79,6 +79,35 @@ export default function SellerAnalyticsModal(): React.ReactElement | null {
     onClose: () => setOpen(false)
   });
 
+  // Sync URL hash with modal state for shareable URLs
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // On open, set hash to #sellers
+    if (open && window.location.hash !== '#sellers') {
+      window.history.replaceState(null, '', '#sellers');
+    }
+    // On close, remove hash (if it's #sellers)
+    if (!open && window.location.hash === '#sellers') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [open]);
+
+  // Open modal if page loads with #sellers hash
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash === '#sellers' && !open) {
+      setOpen(true);
+    }
+    // Listen for hash changes (e.g., user clicks a link with #sellers)
+    const onHashChange = () => {
+      if (window.location.hash === '#sellers' && !open) {
+        setOpen(true);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [open, setOpen]);
+
   useEffect(() => {
     if (!open) return;
     

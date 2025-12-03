@@ -7,11 +7,14 @@ export const Keys = {
     sellerReviewsCache: () => `sellers/_reviews-cache.json`,
     state: () => `shared/state-global.json`,
     cookies: () => `shared/cookies/jar.json`,
+    translation: (id: string) => `translations/${id}.json`,
     aggregates: {
       shares: () => `aggregates/shares.json`,
       indexMeta: () => `aggregates/index-meta.json`,
       shippingMeta: () => `aggregates/shipping-meta.json`,
       sellerState: () => `aggregates/seller-state.json`,
+      translationMeta: () => `aggregates/translation-meta.json`,
+      translations: () => `aggregates/translations.json`,
     },
     analytics: {
       sellers: () => `seller-analytics.json`,

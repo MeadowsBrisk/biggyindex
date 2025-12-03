@@ -9,8 +9,18 @@ import { log } from "../../shared/logging/logger";
 export interface PruningRunResult {
   ok: boolean;
   markets: MarketCode[];
-  counts?: { itemsDeleted?: number; sellersDeleted?: number; perMarket?: Record<string, { shipDeleted: number; shipSummaryTrimmed: number }> };
+  dryRun?: boolean;
+  counts?: { 
+    itemsDeleted?: number; 
+    sellersDeleted?: number; 
+    translationsPruned?: number;
+    perMarket?: Record<string, { shipDeleted: number; shipSummaryTrimmed: number }>;
+  };
   note?: string;
+}
+
+export interface PruningOptions {
+  dryRun?: boolean;
 }
 
 // Phase A pruning: safe, reference-based cleanup
@@ -18,11 +28,12 @@ export interface PruningRunResult {
 // - Per market: trim aggregates/ship.json to only include currently indexed items
 // - Shared: delete items/<id>.json when id not present in ANY market index
 // Sellers: not deleted in Phase A (kept for analytics continuity)
-export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResult> {
+export async function runPruning(markets?: MarketCode[], opts: PruningOptions = {}): Promise<PruningRunResult> {
+  const dryRun = opts.dryRun ?? false;
   try {
     const env = loadEnv();
     const mkts = (markets && markets.length ? markets : env.markets) as MarketCode[];
-    log.cli.info(`pruning start`, { markets: mkts.join(',') });
+    log.cli.info(`pruning start`, { markets: mkts.join(','), dryRun });
     const sharedBlob = getBlobClient(env.stores.shared);
 
     // 1) Build active item id sets per market and union across markets
@@ -47,17 +58,47 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
     }
 
     // Shared aggregate fallback: drop metadata entries for items no longer present anywhere
+    let indexMetaPruned = 0;
     try {
       let indexMetaAgg: Record<string, IndexMetaEntry> = {};
       const agg = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
       if (agg && typeof agg === 'object') indexMetaAgg = agg as Record<string, IndexMetaEntry>;
       const { removed } = pruneIndexMeta(indexMetaAgg, unionActive);
+      indexMetaPruned = removed;
       if (removed > 0) {
-        await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
-        log.cli.info(`pruning: pruned index-meta`, { entries: removed });
+        if (!dryRun) {
+          await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
+        }
+        log.cli.info(`pruning: ${dryRun ? 'would prune' : 'pruned'} index-meta`, { entries: removed });
       }
     } catch (e: any) {
       log.cli.warn(`pruning: failed to prune index-meta aggregate`, { reason: e?.message || String(e) });
+    }
+
+    // Prune translations aggregate: remove entries for items no longer in any market
+    let translationsPruned = 0;
+    try {
+      const translationsAgg = await sharedBlob.getJSON<Record<string, any>>(Keys.shared.aggregates.translations());
+      if (translationsAgg && typeof translationsAgg === 'object') {
+        const toDelete: string[] = [];
+        for (const refNum of Object.keys(translationsAgg)) {
+          if (!unionActive.has(refNum)) {
+            toDelete.push(refNum);
+          }
+        }
+        translationsPruned = toDelete.length;
+        if (toDelete.length > 0) {
+          if (!dryRun) {
+            for (const refNum of toDelete) {
+              delete translationsAgg[refNum];
+            }
+            await sharedBlob.putJSON(Keys.shared.aggregates.translations(), translationsAgg);
+          }
+          log.cli.info(`pruning: ${dryRun ? 'would prune' : 'pruned'} translations aggregate`, { entries: translationsPruned });
+        }
+      }
+    } catch (e: any) {
+      log.cli.warn(`pruning: failed to prune translations aggregate`, { reason: e?.message || String(e) });
     }
 
     // 2) Per-market: delete stale shipping files and trim ship summary aggregate
@@ -76,7 +117,10 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
           const id = match?.[1];
           if (!id) continue;
           if (!active.has(id)) {
-            try { await blob.del(key); shipDeleted++; } catch {}
+            if (!dryRun) {
+              try { await blob.del(key); } catch {}
+            }
+            shipDeleted++;
           }
         }
       } catch (e: any) {
@@ -87,11 +131,14 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
       try {
         const aggKey = Keys.market.aggregates.shipSummary();
         const existing = (await blob.getJSON<Record<string, { min: number; max: number; free: number }>>(aggKey)) || {};
-        let changed = false;
+        const toDelete: string[] = [];
         for (const id of Object.keys(existing)) {
-          if (!active.has(id)) { delete (existing as any)[id]; changed = true; shipSummaryTrimmed++; }
+          if (!active.has(id)) { toDelete.push(id); shipSummaryTrimmed++; }
         }
-        if (changed) {
+        if (toDelete.length > 0 && !dryRun) {
+          for (const id of toDelete) {
+            delete (existing as any)[id];
+          }
           await blob.putJSON(aggKey, existing);
         }
       } catch (e: any) {
@@ -99,7 +146,7 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
       }
 
       perMarketCounts[mkt] = { shipDeleted, shipSummaryTrimmed };
-      log.cli.info(`pruning: market complete`, { market: mkt, shipDeleted, shipSummaryTrimmed });
+      log.cli.info(`pruning: market ${dryRun ? 'scan' : 'complete'}`, { market: mkt, shipDeleted, shipSummaryTrimmed, dryRun });
     }
 
     // 3) Shared: delete orphaned item cores (not present in any market)
@@ -111,7 +158,10 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
         const id = match?.[1];
         if (!id) continue;
         if (!unionActive.has(id)) {
-          try { await sharedBlob.del(key); orphanCores++; } catch {}
+          if (!dryRun) {
+            try { await sharedBlob.del(key); } catch {}
+          }
+          orphanCores++;
         }
       }
     } catch (e: any) {
@@ -121,10 +171,10 @@ export async function runPruning(markets?: MarketCode[]): Promise<PruningRunResu
     // Sellers: keep for now (Phase A)
     const sellersDeleted = 0;
 
-    log.cli.info(`pruning complete`, { orphanCores });
-    return { ok: true, markets: mkts, counts: { itemsDeleted: orphanCores, sellersDeleted, perMarket: perMarketCounts } };
+    log.cli.info(`pruning ${dryRun ? 'dry run' : 'complete'}`, { orphanCores, translationsPruned, dryRun });
+    return { ok: true, markets: mkts, dryRun, counts: { itemsDeleted: orphanCores, sellersDeleted, translationsPruned, perMarket: perMarketCounts } };
   } catch (e: any) {
     log.cli.error(`pruning error`, { reason: e?.message || String(e) });
-    return { ok: false, markets: (loadEnv().markets as MarketCode[]), counts: { itemsDeleted: 0, sellersDeleted: 0 }, note: e?.message || String(e) } as any;
+    return { ok: false, markets: (loadEnv().markets as MarketCode[]), counts: { itemsDeleted: 0, sellersDeleted: 0, translationsPruned: 0 }, note: e?.message || String(e) } as any;
   }
 }

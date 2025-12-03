@@ -1,5 +1,6 @@
 #!/usr/bin/env ts-node
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 import { loadEnv } from '../shared/env/loadEnv';
 import { getBlobClient } from '../shared/persistence/blobs';
 import { Keys } from '../shared/persistence/keys';
