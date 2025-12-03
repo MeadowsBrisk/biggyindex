@@ -87,12 +87,17 @@ export function computeIndexSignature(entry: Record<string, any>): string {
 
 // Diff two compact market index entries and return human-readable reasons
 // Mirrors legacy indexer semantics: Description/Images/Variants/Price bounds
+// NOTE: For description comparison, prefer dEn (stored English original) over d (may be translated)
+// to avoid false "Description changed" when comparing translated prev.d against English curr.d
 export function diffMarketIndexEntries(prev: Record<string, any> | null | undefined, curr: Record<string, any>) {
   const reasons: string[] = [];
   if (!prev || typeof prev !== 'object') return { changed: false, reasons };
   try {
-    // Description
-    const prevDesc: string = prev?.d ?? prev?.description ?? '';
+    // Description: compare English-to-English to avoid false triggers on translated markets
+    // prev.dEn = stored English original (if translations were applied)
+    // prev.d = possibly translated description
+    // curr.d = always English (from API, before translation applied)
+    const prevDesc: string = prev?.dEn ?? prev?.d ?? prev?.description ?? '';
     const curDesc: string = curr?.d ?? '';
     if (prevDesc !== curDesc) reasons.push('Description changed');
 

@@ -891,7 +891,6 @@ export default function ItemDetailOverlay() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <h2 className="font-semibold text-lg md:text-xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
-                    <TranslationToggle hasTranslation={hasTranslation} />
                   </div>
                   <div className="mt-1 flex items-center flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
                     {hasSellerInfo && (
