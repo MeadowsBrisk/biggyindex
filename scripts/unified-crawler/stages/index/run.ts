@@ -326,14 +326,15 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     } catch {}
 
   // Change detection vs previous index to update lua/lur like legacy indexer (modified: strict semantics)
-  // NOTE: This MUST happen BEFORE applying translations to avoid false "Description changed" triggers
+  // NOTE: Description comparison only for GB (English market) - non-GB have translated descriptions
     let prev = prevByRef.get(String(ref || ''));
     if (!prev && numId != null) prev = prevByNum.get(String(numId));
     const nowIso = new Date().toISOString();
     // Timestamps (minified keys). Prefer previously written short keys; fallback to legacy long keys.
   const metaHit = canonicalKey ? indexMetaAgg[canonicalKey] : undefined;
     if (metaHit) appliedMeta++;
-    const { changed, reasons: changeReasons } = diffMarketIndexEntries(prev, entry);
+    const isEnglishMarket = code === 'GB';
+    const { changed, reasons: changeReasons } = diffMarketIndexEntries(prev, entry, isEnglishMarket);
   // Timestamp policy (PARITY + REQUIREMENTS):
   //  firstSeenAt (fsa):
   //    - Carry prev/aggregate when present
@@ -353,10 +354,12 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   else if (!prev && !metaHit?.fsa && !coldStart) entry.fsa = nowIso;
   // Last updated + reason: if we detected a change this run, stamp now + reasons; otherwise carry forward
   // Priority for lua: aggregate > prev (aggregate is source of truth)
+  // NOTE: metaHit.lua === '' means explicitly cleared (no lua) - don't fall back to prev
   let carriedLua: string | undefined = undefined;
+  const metaLuaExplicitlyCleared = metaHit && 'lua' in metaHit && metaHit.lua === '';
   if (metaHit?.lua) carriedLua = metaHit.lua;
-  else if (prev?.lua) carriedLua = prev.lua;
-  else if (prev?.lastUpdatedAt) carriedLua = prev.lastUpdatedAt;
+  else if (!metaLuaExplicitlyCleared && prev?.lua) carriedLua = prev.lua;
+  else if (!metaLuaExplicitlyCleared && prev?.lastUpdatedAt) carriedLua = prev.lastUpdatedAt;
   const carriedLur = metaHit?.lur ?? prev?.lur ?? prev?.lastUpdateReason ?? null;
   if (changed && changeReasons.length > 0) {
     // Real change detected: stamp lua + lur

@@ -284,7 +284,7 @@ export default function ItemDetailOverlay() {
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
   const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
-  // Prefer full description from detail JSON; fall back to detail.description; then list summary (translated)
+  // Full description: prefer detail JSON (will have translated full desc once API updated), fall back to short from index
   const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);

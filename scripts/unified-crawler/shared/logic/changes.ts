@@ -87,19 +87,20 @@ export function computeIndexSignature(entry: Record<string, any>): string {
 
 // Diff two compact market index entries and return human-readable reasons
 // Mirrors legacy indexer semantics: Description/Images/Variants/Price bounds
-// NOTE: For description comparison, prefer dEn (stored English original) over d (may be translated)
-// to avoid false "Description changed" when comparing translated prev.d against English curr.d
-export function diffMarketIndexEntries(prev: Record<string, any> | null | undefined, curr: Record<string, any>) {
+// NOTE: Description comparison only meaningful for GB market (English source)
+// Non-GB markets have translated descriptions so we skip that comparison
+// Pass isEnglishMarket=true for GB, false for others
+export function diffMarketIndexEntries(prev: Record<string, any> | null | undefined, curr: Record<string, any>, isEnglishMarket = true) {
   const reasons: string[] = [];
   if (!prev || typeof prev !== 'object') return { changed: false, reasons };
   try {
-    // Description: compare English-to-English to avoid false triggers on translated markets
-    // prev.dEn = stored English original (if translations were applied)
-    // prev.d = possibly translated description
-    // curr.d = always English (from API, before translation applied)
-    const prevDesc: string = prev?.dEn ?? prev?.d ?? prev?.description ?? '';
-    const curDesc: string = curr?.d ?? '';
-    if (prevDesc !== curDesc) reasons.push('Description changed');
+    // Description: only compare for English market (GB)
+    // Non-GB markets have translated d, can't reliably compare against English curr.d
+    if (isEnglishMarket) {
+      const prevDesc: string = prev?.d ?? prev?.description ?? '';
+      const curDesc: string = curr?.d ?? '';
+      if (prevDesc !== curDesc) reasons.push('Description changed');
+    }
 
     // Images: primary or thumbnail count
     const prevPrimary = prev?.i ?? null;

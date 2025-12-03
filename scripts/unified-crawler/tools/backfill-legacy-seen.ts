@@ -23,6 +23,8 @@ import { mergeIndexMetaEntry, type IndexMetaEntry } from '../shared/logic/indexM
    MIGRATE_DRY=0 yarn ts-node scripts/unified-crawler/tools/backfill-legacy-seen.ts
 */
 
+//yarn tsx scripts/unified-crawler/tools/backfill-legacy-seen.ts
+
 interface LegacySeenEntry {
   firstSeenAt?: string;
   lastUpdatedAt?: string | null;

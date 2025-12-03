@@ -72,13 +72,13 @@
 
 # Lightweight index-only function for all markets (replaces 5 separate market schedules)
 # Does NOT run items/sellers/pruning - those have separate schedules
-#[functions."index-all-markets-background"]
+[functions."index-all-markets-background"]
   # Run every 15 minutes on the dot: :00, :15, :30, :45
-#  schedule = "0,15,30,45 * * * *"
-#  node_bundler = "esbuild"
-#  included_files = [
- #   "scripts/unified-crawler/**"
- # ]
+  schedule = "0,20,40 * * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
 
 # Full orchestrator - for manual triggers only, NOT scheduled
 # Runs index + items + sellers + pruning (very intensive)
