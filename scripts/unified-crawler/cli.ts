@@ -19,7 +19,7 @@ import { getBlobClient } from './shared/persistence/blobs';
 import { marketStore } from './shared/env/markets';
 import { ensureAuthedClient } from './shared/http/authedClient';
 import { log, timer } from './shared/logging/logger';
-import { tryRevalidateAllMarkets } from './shared/revalidation/revalidate';
+import { tryRevalidateMarkets } from './shared/revalidation/revalidate';
 
 const argv = yargs(hideBin(process.argv))
   .scriptName('unified-crawler')
@@ -128,10 +128,10 @@ async function main() {
       }
       log.index.info(`all markets done`, { totalItems: total, secs: since(t0) });
       
-      // Trigger on-demand ISR revalidation after successful indexing
-      log.index.info(`triggering ISR revalidation`);
+      // Trigger on-demand ISR revalidation only for markets that were indexed
+      log.index.info(`triggering ISR revalidation`, { markets: markets.join(',') });
       const tRevalidate = Date.now();
-      await tryRevalidateAllMarkets();
+      await tryRevalidateMarkets(markets);
       log.index.info(`revalidation complete`, { secs: since(tRevalidate) });
     }
 

@@ -3,8 +3,8 @@ import type { MarketCode } from '../../shared/env/loadEnv';
 import { getBlobClient } from '../../shared/persistence/blobs';
 import { Keys } from '../../shared/persistence/keys';
 import { log } from '../../shared/logging/logger';
-import { computeSourceHash, estimateCharCount } from './hash';
-import { translateBatch, azureCodeToLocale, parseTranslatedText, TARGET_LOCALES, type TargetLocale } from './azure';
+import { computeSourceHash, estimateCharCount, type VariantForHash } from './hash';
+import { translateBatch, azureCodeToLocale, parseTranslatedTextWithVariants, VARIANT_SEPARATOR, TARGET_LOCALES, type TargetLocale } from './azure';
 import { checkBudget, wouldExceedBudget, recordUsage, recordError, formatBudgetStatus, initBudget, MONTHLY_CHAR_BUDGET } from './budget';
 
 // Map market codes to locale codes for translation
@@ -31,7 +31,7 @@ export interface TranslationBlob {
   };
 }
 
-// Aggregate: maps refNum -> { sourceHash, locales: { locale: { n, d } } }
+// Aggregate: maps refNum -> { sourceHash, locales: { locale: { n, d, v? } } }
 // Used by index stage to quickly populate market indexes without reading individual blobs
 export interface TranslationAggregate {
   [refNum: string]: {
@@ -40,6 +40,7 @@ export interface TranslationAggregate {
       [locale: string]: {
         n: string;   // Translated name
         d: string;   // Translated short description (for index)
+        v?: { vid: string | number; d: string }[]; // Translated variant descriptions
       };
     };
   };
@@ -186,7 +187,17 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
   });
 
   // 3. Find items needing translation (only those in non-GB markets)
-  const pending: { refNum: string; name: string; description: string; hash: string; locales: TargetLocale[]; charEstimate: number }[] = [];
+  interface PendingItem {
+    refNum: string;
+    name: string;
+    description: string;
+    variants: VariantForHash[];  // Variants with vid and d
+    hash: string;
+    locales: TargetLocale[];
+    charEstimate: number;
+    variantsOnly: boolean;  // If true, only translate variants (n/d already done)
+  }
+  const pending: PendingItem[] = [];
 
   for (const [refNum, locales] of presenceMap) {
     // Get English content - prefer GB index, but fall back to any market where item exists
@@ -208,31 +219,74 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     const name = itemData.n || '';
     const description = itemData.d || ''; // Short description from index
     
+    // Extract variants (minified key: v)
+    const rawVariants = itemData.v || [];
+    const variants: VariantForHash[] = rawVariants.map((v: any) => ({
+      vid: v.vid,
+      d: v.d || '',
+    })).filter((v: VariantForHash) => v.d); // Only include variants with descriptions
+    
     if (!name && !description) continue;
 
+    // Hash only includes name + description (not variants) for backward compatibility
     const hash = computeSourceHash(name, description);
     let localesArray = Array.from(locales);
+    let variantsOnly = false;
 
-    // Check if already translated with same hash
     const existingEntry = existingAgg[refNum];
-    if (!opts.force && existingEntry?.sourceHash === hash) {
-      // Check which locales are missing - only translate those
-      const missingLocales = localesArray.filter(l => !existingEntry.locales[azureCodeToLocale(l)]);
-      if (missingLocales.length === 0) {
-        continue; // Already fully translated, skip
+    
+    // Check which locales already have translations (regardless of hash)
+    const localesWithTranslation = localesArray.filter(l => existingEntry?.locales?.[azureCodeToLocale(l)]?.n);
+    const missingLocales = localesArray.filter(l => !existingEntry?.locales?.[azureCodeToLocale(l)]?.n);
+    
+    // Check if any locale with translation is missing variants
+    let needsVariantTranslation = false;
+    if (variants.length > 0) {
+      for (const locale of localesWithTranslation) {
+        const localeData = existingEntry?.locales?.[azureCodeToLocale(locale)];
+        if (localeData && (!localeData.v || localeData.v.length === 0)) {
+          needsVariantTranslation = true;
+          break;
+        }
       }
-      // Only translate missing locales (incremental addition)
-      localesArray = missingLocales;
-    } else if (!opts.force && existingEntry && existingEntry.sourceHash !== hash) {
-      // Source content changed - need to re-translate all locales this item needs
-      // (existing translations are stale)
     }
+    
+    // Decision logic:
+    // 1. If hash matches AND all locales have translations with variants → skip
+    // 2. If all locales have n/d translations but missing variants → variantsOnly
+    // 3. If some locales missing translations entirely → full translation for those
+    // 4. If hash changed → only re-translate if --force (name/desc translations are still valid)
+    
+    if (!opts.force && existingEntry) {
+      if (missingLocales.length === 0 && !needsVariantTranslation) {
+        continue; // Fully translated with variants, skip
+      }
+      
+      if (missingLocales.length === 0 && needsVariantTranslation) {
+        // All locales have n/d, just need variants
+        variantsOnly = true;
+      } else if (missingLocales.length > 0 && !needsVariantTranslation) {
+        // Only translate missing locales (full)
+        localesArray = missingLocales;
+      } else {
+        // Some locales missing, some need variants - translate missing fully, variants for existing
+        // For simplicity, if there are missing locales, do full translation for all needed
+        // (variant backfill will happen on next run)
+        localesArray = missingLocales;
+      }
+    }
+    // If no existing entry, full translation for all locales (default)
 
-    // Estimate chars: text length × number of locales THIS ITEM needs
-    const textLength = name.length + description.length;
-    const charEstimate = textLength * localesArray.length;
+    // Estimate chars based on what we're sending
+    const variantChars = variants.reduce((sum, v) => sum + (v.d?.length || 0), 0);
+    const charEstimate = variantsOnly 
+      ? variantChars * localesArray.length
+      : estimateCharCount(name, description, variants) * localesArray.length;
 
-    pending.push({ refNum, name, description, hash, locales: localesArray, charEstimate });
+    // Skip items with no variants if we're in variantsOnly mode
+    if (variantsOnly && variants.length === 0) continue;
+
+    pending.push({ refNum, name, description, variants, hash, locales: localesArray, charEstimate, variantsOnly });
   }
 
   // Apply limit if specified
@@ -296,11 +350,11 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
       break;
     }
 
-    // Group batch items by locale set for efficient API calls
-    // Items with same locales can share an API call
+    // Group batch items by locale set AND variantsOnly flag for efficient API calls
+    // Items with same locales and mode can share an API call
     const byLocaleKey = new Map<string, typeof batch>();
     for (const item of batch) {
-      const key = item.locales.sort().join(',');
+      const key = `${item.variantsOnly ? 'v:' : ''}${item.locales.sort().join(',')}`;
       if (!byLocaleKey.has(key)) byLocaleKey.set(key, []);
       byLocaleKey.get(key)!.push(item);
     }
@@ -310,12 +364,30 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     try {
       // Process each locale group
       for (const [localeKey, groupItems] of byLocaleKey) {
-        const locales = localeKey.split(',') as TargetLocale[];
+        const isVariantsOnly = localeKey.startsWith('v:');
+        const locales = (isVariantsOnly ? localeKey.slice(2) : localeKey).split(',') as TargetLocale[];
         
-        // Prepare texts: combine name + description with separator
+        // Prepare texts based on mode
+        // Full mode: "name\n\ndescription||VAR||variant1||VAR||variant2..."
+        // Variants only: "variant1||VAR||variant2..." (no name/description)
         const texts = groupItems.map(b => {
-          const combined = `${b.name}\n\n${b.description}`;
-          return combined.slice(0, MAX_TEXT_LENGTH);
+          const sortedVariants = [...b.variants].sort((a, v) => 
+            String(a.vid || '').localeCompare(String(v.vid || ''))
+          );
+          
+          if (b.variantsOnly) {
+            // Only send variants
+            return sortedVariants.map(v => v.d || '').join(VARIANT_SEPARATOR);
+          } else {
+            // Full translation: name + description + variants
+            let combined = `${b.name}\n\n${b.description}`;
+            for (const v of sortedVariants) {
+              if (v.d) {
+                combined += `${VARIANT_SEPARATOR}${v.d}`;
+              }
+            }
+            return combined.slice(0, MAX_TEXT_LENGTH);
+          }
         });
 
         const { results, charCount: groupChars } = await translateBatch(texts, locales);
@@ -342,15 +414,53 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
             locales: { ...existingLocales }, // Preserve existing translations if hash matches
           };
 
+          // Get sorted vids to match variants back (same order as text preparation)
+          const sortedVariants = [...item.variants].sort((a, v) => 
+            String(a.vid || '').localeCompare(String(v.vid || ''))
+          );
+
           // Add/update new translations
           for (const t of result.translations) {
             const locale = azureCodeToLocale(t.to);
-            const { name, description } = parseTranslatedText(t.text);
-            const descShort = truncateDescription(description);
+            
+            // For variantsOnly mode, the text is just variants joined by separator (no name/desc)
+            // For full mode, it's "name\n\ndesc||VAR||var1||VAR||var2..."
+            let translatedName = '';
+            let translatedDescShort = '';
+            let translatedVariants: string[] = [];
+            
+            if (item.variantsOnly) {
+              // Text was just variants, split them back
+              translatedVariants = t.text.split(VARIANT_SEPARATOR).map(s => s.trim());
+              // Preserve existing n/d from aggregate
+              const existingLocaleData = existingLocales[locale];
+              translatedName = existingLocaleData?.n || '';
+              translatedDescShort = existingLocaleData?.d || '';
+            } else {
+              // Full translation - parse name, description, and variants
+              const parsed = parseTranslatedTextWithVariants(t.text);
+              translatedName = parsed.name;
+              translatedDescShort = truncateDescription(parsed.description);
+              translatedVariants = parsed.variants;
+            }
+
+            // Map translated variants back to vids
+            const variantTranslations: { vid: string | number; d: string }[] = [];
+            for (let vi = 0; vi < sortedVariants.length && vi < translatedVariants.length; vi++) {
+              const originalVariant = sortedVariants[vi];
+              const translatedText = translatedVariants[vi];
+              if (originalVariant.vid !== undefined && translatedText) {
+                variantTranslations.push({
+                  vid: originalVariant.vid,
+                  d: translatedText,
+                });
+              }
+            }
 
             aggEntry.locales[locale] = {
-              n: name,
-              d: descShort,
+              n: translatedName,
+              d: translatedDescShort,
+              ...(variantTranslations.length > 0 ? { v: variantTranslations } : {}),
             };
           }
 

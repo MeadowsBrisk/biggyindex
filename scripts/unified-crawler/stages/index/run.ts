@@ -162,10 +162,11 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   const overridesP = overridesEnabled ? sharedBlob.getJSON<any>('category-overrides.json').catch(() => null) : Promise.resolve(null);
   
   // Translations: only load for non-GB markets
-  // Format: { [refNum]: { sourceHash, locales: { de: { n, d }, fr: { n, d }, ... } } }
+  // Format: { [refNum]: { sourceHash, locales: { de-DE: { n, d, v? }, fr-FR: { n, d, v? }, ... } } }
+  // v = variant translations: [{ vid, d }]
   const needsTranslation = code !== 'GB';
   const translationsP = needsTranslation 
-    ? sharedBlob.getJSON<Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string }> }>>(Keys.shared.aggregates.translations()).catch(() => null)
+    ? sharedBlob.getJSON<Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }>>(Keys.shared.aggregates.translations()).catch(() => null)
     : Promise.resolve(null);
   
   // Map market code to FULL locale code for translation lookup (aggregate uses de-DE, fr-FR, etc.)
@@ -175,7 +176,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   let sharesAgg: Record<string, string> = {};
   let shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }> = {};
   let indexMetaAgg: Record<string, IndexMetaEntry> = {};
-  let translationsAgg: Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string }> }> = {};
+  let translationsAgg: Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }> = {};
   const categoryOverrides = new Map<string, { primary: string; subcategories: string[] }>();
   
   try {
@@ -374,6 +375,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   // Translation handling for non-GB markets (AFTER change detection to avoid false triggers)
   // - n/d: Replace with translated content if available
   // - nEn/dEn: Store original English for future frontend toggle
+  // - v[].d: Replace variant descriptions with translated versions
+  // - v[].dEn: Store original English variant descriptions (for usePerUnitLabel parsing)
   if (needsTranslation && targetLocale && canonicalKey) {
     const itemTranslation = translationsAgg[canonicalKey];
     const localeTranslation = itemTranslation?.locales?.[targetLocale];
@@ -386,6 +389,30 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       entry.n = localeTranslation.n;
       if (localeTranslation.d) entry.d = localeTranslation.d;
       appliedTranslations++;
+      
+      // Apply variant translations if available
+      if (localeTranslation.v && Array.isArray(localeTranslation.v) && Array.isArray(entry.v)) {
+        // Build a map of vid -> translated description
+        const variantTranslationMap = new Map<string | number, string>();
+        for (const vt of localeTranslation.v) {
+          if (vt.vid !== undefined && vt.d) {
+            variantTranslationMap.set(vt.vid, vt.d);
+          }
+        }
+        
+        // Apply translations to each variant, storing English in dEn
+        for (const variant of entry.v) {
+          if (variant.vid !== undefined) {
+            const translatedDesc = variantTranslationMap.get(variant.vid);
+            if (translatedDesc && variant.d) {
+              // Store English original for usePerUnitLabel parsing
+              variant.dEn = variant.d;
+              // Apply translation
+              variant.d = translatedDesc;
+            }
+          }
+        }
+      }
     }
   }
   

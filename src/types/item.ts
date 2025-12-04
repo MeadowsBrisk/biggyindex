@@ -31,8 +31,10 @@
 export interface ItemVariant {
   /** Variant ID */
   vid?: string | number;
-  /** Variant description (e.g., "3.5g", "1oz") */
+  /** Variant description (e.g., "3.5g", "1oz") - may be translated for non-GB markets */
   d: string;
+  /** English variant description (for usePerUnitLabel parsing) - only present in non-GB markets */
+  dEn?: string;
   /** Price in USD */
   usd: number;
 }

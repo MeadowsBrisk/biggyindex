@@ -124,3 +124,27 @@ export async function tryRevalidateAllMarkets(
     console.warn('[revalidate] Best-effort revalidation failed for all markets:', err?.message || err);
   }
 }
+
+/**
+ * Best-effort revalidation for specific markets (doesn't throw)
+ */
+export async function tryRevalidateMarkets(
+  markets: Market[],
+  options: RevalidateOptions = {}
+): Promise<void> {
+  if (!markets.length) return;
+  
+  console.log(`[revalidate] Starting revalidation for markets: ${markets.join(', ')}`);
+  
+  for (const market of markets) {
+    try {
+      await revalidateMarket(market, options);
+    } catch (err: any) {
+      console.warn(`[revalidate] Best-effort revalidation failed for ${market}:`, err?.message || err);
+    }
+    // Small delay to avoid overwhelming the API
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  
+  console.log(`[revalidate] Completed revalidation for ${markets.length} market(s)`);
+}

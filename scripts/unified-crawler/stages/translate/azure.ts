@@ -16,8 +16,9 @@ export const TARGET_LOCALES = ['de', 'fr', 'pt', 'it'] as const;
 export type TargetLocale = typeof TARGET_LOCALES[number];
 
 // Retry configuration for rate limiting
-const MAX_RETRIES = 3;
-const INITIAL_DELAY_MS = 2000; // Start with 2 second delay
+// F0 tier: 2M chars/hour, but strict per-minute throttling (~33k/min)
+const MAX_RETRIES = 5;
+const INITIAL_DELAY_MS = 10000; // Start with 10 second delay (Azure needs longer cooldown)
 
 async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -128,4 +129,31 @@ export function parseTranslatedText(text: string): { name: string; description: 
   const name = parts[0] || '';
   const description = parts.slice(1).join('\n\n');
   return { name, description };
+}
+
+/** Separator used between name+description and each variant in combined translation text 
+ * Using ||VAR|| as it's unlikely to be translated (unlike SEP which becomes SETEMBRO in Portuguese)
+ */
+export const VARIANT_SEPARATOR = '\n||VAR||\n';
+
+/**
+ * Parse a translated text that includes variants.
+ * Format: "name\n\ndescription\n---SEP---\nvariant1\n---SEP---\nvariant2..."
+ * Returns name, description, and array of variant descriptions (in order sent).
+ */
+export function parseTranslatedTextWithVariants(text: string): { 
+  name: string; 
+  description: string; 
+  variants: string[];
+} {
+  const sections = text.split(VARIANT_SEPARATOR);
+  
+  // First section is name\n\ndescription
+  const nameDescPart = sections[0] || '';
+  const { name, description } = parseTranslatedText(nameDescPart);
+  
+  // Remaining sections are variant descriptions (trimmed)
+  const variants = sections.slice(1).map(v => v.trim());
+  
+  return { name, description, variants };
 }
