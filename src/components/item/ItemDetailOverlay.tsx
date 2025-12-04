@@ -44,6 +44,7 @@ import { useDisplayCurrency } from '@/providers/IntlProvider';
 import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import formatDescription from '@/lib/ui/formatDescription';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/countries';
+import { getMarketFromPath } from '@/lib/market/market';
 import { proxyImage } from '@/lib/ui/images';
 import cn from '@/lib/core/cn';
 import ShareMenu from '@/components/actions/ShareMenu';
@@ -305,8 +306,11 @@ export default function ItemDetailOverlay() {
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
   const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
-  // Full description: prefer detail JSON (will have translated full desc once API updated), fall back to short from index
-  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
+  // Full description: prefer translated for non-GB markets, fall back to English
+  const market = typeof window !== 'undefined' ? getMarketFromPath(window.location.pathname) : 'GB';
+  const description = (market !== 'GB' && (detail as any)?.descriptionTranslated)
+    ? (detail as any).descriptionTranslated
+    : (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) && (baseItem as any).v.length > 0;

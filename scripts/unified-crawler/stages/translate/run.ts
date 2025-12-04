@@ -710,14 +710,18 @@ async function runBackfillFullDesc(
     return { ok: true, translated: 0, charCount: 0, budgetExhausted: false };
   }
 
-  // Process in batches
+  // Process in batches - use smaller batch size for backfill since full descriptions are large
+  // Azure F0 tier: ~33,300 chars/minute limit. Full desc avg ~1000 chars × 4 locales = 4000 chars/item
+  // So max ~8 items per minute to stay under rate limit
+  const BACKFILL_BATCH_SIZE = 5;  // Smaller batches to avoid rate limiting
+  
   let translated = 0;
   let charCount = 0;
   let budgetExhausted = false;
   const errors: string[] = [];
 
-  for (let i = 0; i < toProcess.length; i += BATCH_SIZE) {
-    const batch = toProcess.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < toProcess.length; i += BACKFILL_BATCH_SIZE) {
+    const batch = toProcess.slice(i, i + BACKFILL_BATCH_SIZE);
     const batchChars = batch.reduce((sum, b) => sum + b.charEstimate, 0);
 
     // Check budget
@@ -792,8 +796,8 @@ async function runBackfillFullDesc(
       // Record usage
       const updatedBudget = await recordUsage(sharedBlob, batchActualChars, batch.length);
 
-      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
-      const totalBatches = Math.ceil(toProcess.length / BATCH_SIZE);
+      const batchNum = Math.floor(i / BACKFILL_BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(toProcess.length / BACKFILL_BATCH_SIZE);
       log.translate.info(`backfill batch ${batchNum}/${totalBatches}`, {
         items: batch.length,
         chars: batchActualChars.toLocaleString(),
@@ -802,7 +806,7 @@ async function runBackfillFullDesc(
 
       // Rate limit delay
       const delayMs = opts.batchDelayMs ?? 60000;
-      if (i + BATCH_SIZE < toProcess.length && delayMs > 0) {
+      if (i + BACKFILL_BATCH_SIZE < toProcess.length && delayMs > 0) {
         log.translate.info('rate limit delay', { delaySecs: Math.round(delayMs / 1000) });
         await sleep(delayMs);
       }
