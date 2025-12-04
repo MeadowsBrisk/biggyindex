@@ -132,13 +132,13 @@ export function parseTranslatedText(text: string): { name: string; description: 
 }
 
 /** Separator used between name+description and each variant in combined translation text 
- * Using ||VAR|| as it's unlikely to be translated (unlike SEP which becomes SETEMBRO in Portuguese)
+ * Using |||###||| - pure symbols that Azure won't translate (unlike VAR which becomes OÙ OUI in French)
  */
-export const VARIANT_SEPARATOR = '\n||VAR||\n';
+export const VARIANT_SEPARATOR = '\n|||###|||\n';
 
 /**
  * Parse a translated text that includes variants.
- * Format: "name\n\ndescription\n---SEP---\nvariant1\n---SEP---\nvariant2..."
+ * Format: "name\n\ndescription\n|||###|||\nvariant1\n|||###|||\nvariant2..."
  * Returns name, description, and array of variant descriptions (in order sent).
  */
 export function parseTranslatedTextWithVariants(text: string): { 
@@ -146,7 +146,8 @@ export function parseTranslatedTextWithVariants(text: string): {
   description: string; 
   variants: string[];
 } {
-  const sections = text.split(VARIANT_SEPARATOR);
+  // Split by the separator - use regex to match with flexible whitespace
+  const sections = text.split(/\n?\|\|\|###\|\|\|\n?/);
   
   // First section is name\n\ndescription
   const nameDescPart = sections[0] || '';

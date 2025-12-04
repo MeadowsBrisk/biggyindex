@@ -124,6 +124,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   (detailObj as any).shipping = { ...((detailObj as any).shipping || {}), options: ship.options };
                   merged = true;
                   try { res.setHeader('X-Crawler-Ship-Key', shipKey); } catch {}
+                  
+                  // Extract translated description from shipping blob (non-GB markets only)
+                  if (ship.translations?.description) {
+                    (detailObj as any).descriptionTranslated = ship.translations.description;
+                  }
+                  
                   break;
                 }
               } catch {}

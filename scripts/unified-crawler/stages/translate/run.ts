@@ -3,8 +3,9 @@ import type { MarketCode } from '../../shared/env/loadEnv';
 import { getBlobClient } from '../../shared/persistence/blobs';
 import { Keys } from '../../shared/persistence/keys';
 import { log } from '../../shared/logging/logger';
+import { marketStore } from '../../shared/env/markets';
 import { computeSourceHash, estimateCharCount, type VariantForHash } from './hash';
-import { translateBatch, azureCodeToLocale, parseTranslatedTextWithVariants, VARIANT_SEPARATOR, TARGET_LOCALES, type TargetLocale } from './azure';
+import { translateBatch, azureCodeToLocale, parseTranslatedText, TARGET_LOCALES, type TargetLocale, type TranslationResult } from './azure';
 import { checkBudget, wouldExceedBudget, recordUsage, recordError, formatBudgetStatus, initBudget, MONTHLY_CHAR_BUDGET } from './budget';
 
 // Map market codes to locale codes for translation
@@ -13,6 +14,14 @@ const MARKET_TO_LOCALE: Record<string, TargetLocale> = {
   'FR': 'fr',
   'PT': 'pt',
   'IT': 'it',
+};
+
+// Reverse mapping: locale to market
+const LOCALE_TO_MARKET: Record<TargetLocale, MarketCode> = {
+  'de': 'DE',
+  'fr': 'FR',
+  'pt': 'PT',
+  'it': 'IT',
 };
 
 // Translation blob schema (per-item detail)
@@ -54,6 +63,7 @@ export interface TranslateOptions {
   budgetCheck?: boolean;
   budgetInit?: number;  // Initialize budget with this many chars already used
   batchDelayMs?: number;
+  backfillFullDesc?: boolean;  // Backfill full descriptions to shipping blobs for already-translated items
 }
 
 export interface TranslateResult {
@@ -134,6 +144,11 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     return { ok: false, translated: 0, charCount: 0, budgetExhausted: true };
   }
 
+  // Backfill mode: translate full descriptions for items already in aggregate, write to shipping blobs
+  if (opts.backfillFullDesc) {
+    return runBackfillFullDesc(opts, env, sharedBlob, targetLocales, initialRemaining);
+  }
+
   log.translate.info('starting', {
     remaining: initialRemaining.toLocaleString(),
     locales: targetLocales.join(','),
@@ -203,12 +218,14 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     // Get English content - prefer GB index, but fall back to any market where item exists
     // (Items not in GB are still in English, just don't ship to GB)
     let itemData: any = gbIndex.get(refNum);
+    let isFromNonGB = false;
     if (!itemData) {
       // Try to get from first available market
       for (const market of ['DE', 'FR', 'IT', 'PT'] as MarketCode[]) {
         const marketIndex = marketIndexes.get(market);
         if (marketIndex?.has(refNum)) {
           itemData = marketIndex.get(refNum);
+          isFromNonGB = true;
           break;
         }
       }
@@ -216,14 +233,15 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     
     if (!itemData) continue; // Shouldn't happen
 
-    const name = itemData.n || '';
-    const description = itemData.d || ''; // Short description from index
+    // For non-GB items, use English originals (nEn, dEn) if available
+    const name = isFromNonGB ? (itemData.nEn || itemData.n || '') : (itemData.n || '');
+    const description = isFromNonGB ? (itemData.dEn || itemData.d || '') : (itemData.d || '');
     
-    // Extract variants (minified key: v)
+    // Extract variants - use dEn (English original) for non-GB items to avoid translating corrupted text
     const rawVariants = itemData.v || [];
     const variants: VariantForHash[] = rawVariants.map((v: any) => ({
       vid: v.vid,
-      d: v.d || '',
+      d: isFromNonGB ? (v.dEn || v.d || '') : (v.d || ''),
     })).filter((v: VariantForHash) => v.d); // Only include variants with descriptions
     
     if (!name && !description) continue;
@@ -367,93 +385,139 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
         const isVariantsOnly = localeKey.startsWith('v:');
         const locales = (isVariantsOnly ? localeKey.slice(2) : localeKey).split(',') as TargetLocale[];
         
-        // Prepare texts based on mode
-        // Full mode: "name\n\ndescription||VAR||variant1||VAR||variant2..."
-        // Variants only: "variant1||VAR||variant2..." (no name/description)
-        const texts = groupItems.map(b => {
-          const sortedVariants = [...b.variants].sort((a, v) => 
+        // NEW APPROACH: Send each text separately to avoid emoji corruption from concatenation
+        // For each item, we send: [name\n\ndesc, variant1, variant2, ...]
+        // This avoids the separator-based joining that was corrupting multi-byte characters
+        
+        // Process items one by one (simpler, avoids complex batching across item boundaries)
+        for (const item of groupItems) {
+          const sortedVariants = [...item.variants].sort((a, v) => 
             String(a.vid || '').localeCompare(String(v.vid || ''))
           );
           
-          if (b.variantsOnly) {
-            // Only send variants
-            return sortedVariants.map(v => v.d || '').join(VARIANT_SEPARATOR);
-          } else {
-            // Full translation: name + description + variants
-            let combined = `${b.name}\n\n${b.description}`;
+          // Build texts array: either just variants, or name+desc followed by variants
+          const textsToTranslate: string[] = [];
+          
+          if (item.variantsOnly) {
+            // Only send variants (no name/description)
             for (const v of sortedVariants) {
-              if (v.d) {
-                combined += `${VARIANT_SEPARATOR}${v.d}`;
-              }
+              if (v.d) textsToTranslate.push(v.d);
             }
-            return combined.slice(0, MAX_TEXT_LENGTH);
+          } else {
+            // Full translation: name+desc as first text, then each variant
+            textsToTranslate.push(`${item.name}\n\n${item.description}`.slice(0, MAX_TEXT_LENGTH));
+            for (const v of sortedVariants) {
+              if (v.d) textsToTranslate.push(v.d);
+            }
           }
-        });
+          
+          if (textsToTranslate.length === 0) continue;
+          
+          // Azure allows 25 texts per call - split if needed
+          const AZURE_MAX_TEXTS = 25;
+          let allResults: TranslationResult[] = [];
+          
+          for (let textIdx = 0; textIdx < textsToTranslate.length; textIdx += AZURE_MAX_TEXTS) {
+            const textBatch = textsToTranslate.slice(textIdx, textIdx + AZURE_MAX_TEXTS);
+            const { results: batchResults, charCount: batchChars } = await translateBatch(textBatch, locales);
+            batchActualChars += batchChars;
+            allResults.push(...batchResults);
+            
+            // Small delay between sub-batches to avoid rate limiting
+            if (textIdx + AZURE_MAX_TEXTS < textsToTranslate.length) {
+              await sleep(1000);
+            }
+          }
 
-        const { results, charCount: groupChars } = await translateBatch(texts, locales);
-        batchActualChars += groupChars;
-
-        // Process results
-        for (let j = 0; j < groupItems.length; j++) {
-          const item = groupItems[j];
-          const result = results[j];
-
-          if (!result?.translations) {
+          // Process results for this item
+          if (allResults.length === 0 || !allResults[0]?.translations) {
             log.translate.warn('no translations returned', { refNum: item.refNum });
             continue;
           }
 
           // Check if we should preserve existing translations
-          // Only preserve if source hash matches (content unchanged, just adding new locales)
           const existingEntry = existingAgg[item.refNum];
           const shouldPreserve = existingEntry?.sourceHash === item.hash;
           const existingLocales = shouldPreserve ? (existingEntry?.locales || {}) : {};
           
           const aggEntry: TranslationAggregate[string] = {
             sourceHash: item.hash,
-            locales: { ...existingLocales }, // Preserve existing translations if hash matches
+            locales: { ...existingLocales },
           };
 
-          // Get sorted vids to match variants back (same order as text preparation)
-          const sortedVariants = [...item.variants].sort((a, v) => 
-            String(a.vid || '').localeCompare(String(v.vid || ''))
-          );
-
-          // Add/update new translations
-          for (const t of result.translations) {
-            const locale = azureCodeToLocale(t.to);
+          // Parse results - each locale gets results from all texts
+          for (let localeIdx = 0; localeIdx < locales.length; localeIdx++) {
+            const locale = azureCodeToLocale(locales[localeIdx]);
             
-            // For variantsOnly mode, the text is just variants joined by separator (no name/desc)
-            // For full mode, it's "name\n\ndesc||VAR||var1||VAR||var2..."
             let translatedName = '';
             let translatedDescShort = '';
-            let translatedVariants: string[] = [];
+            const variantTranslations: { vid: string | number; d: string }[] = [];
             
             if (item.variantsOnly) {
-              // Text was just variants, split them back
-              translatedVariants = t.text.split(VARIANT_SEPARATOR).map(s => s.trim());
-              // Preserve existing n/d from aggregate
-              const existingLocaleData = existingLocales[locale];
-              translatedName = existingLocaleData?.n || '';
-              translatedDescShort = existingLocaleData?.d || '';
-            } else {
-              // Full translation - parse name, description, and variants
-              const parsed = parseTranslatedTextWithVariants(t.text);
-              translatedName = parsed.name;
-              translatedDescShort = truncateDescription(parsed.description);
-              translatedVariants = parsed.variants;
-            }
-
-            // Map translated variants back to vids
-            const variantTranslations: { vid: string | number; d: string }[] = [];
-            for (let vi = 0; vi < sortedVariants.length && vi < translatedVariants.length; vi++) {
-              const originalVariant = sortedVariants[vi];
-              const translatedText = translatedVariants[vi];
-              if (originalVariant.vid !== undefined && translatedText) {
-                variantTranslations.push({
-                  vid: originalVariant.vid,
-                  d: translatedText,
+              // Results are just variants (preserve existing n/d)
+              const existingLocaleData = existingAgg[item.refNum]?.locales?.[locale];
+              if (existingLocaleData?.n && existingLocaleData?.d) {
+                translatedName = existingLocaleData.n;
+                translatedDescShort = existingLocaleData.d;
+              } else {
+                log.translate.warn('variantsOnly item missing existing translations', {
+                  refNum: item.refNum, locale,
                 });
+              }
+              
+              // Map results to variants
+              for (let vi = 0; vi < sortedVariants.length && vi < allResults.length; vi++) {
+                const translatedText = allResults[vi]?.translations?.[localeIdx]?.text || '';
+                if (sortedVariants[vi].vid !== undefined && translatedText) {
+                  variantTranslations.push({ vid: sortedVariants[vi].vid!, d: translatedText.trim() });
+                }
+              }
+            } else {
+              // First result is name+desc, rest are variants
+              const nameDescText = allResults[0]?.translations?.[localeIdx]?.text || '';
+              const { name, description: fullDescription } = parseTranslatedText(nameDescText);
+              translatedName = name;
+              translatedDescShort = truncateDescription(fullDescription);
+              
+              // Write full description to market shipping blob
+              const market = LOCALE_TO_MARKET[locales[localeIdx]];
+              if (market && fullDescription) {
+                try {
+                  const mktStoreName = marketStore(market, env.stores as any);
+                  const mktBlob = getBlobClient(mktStoreName);
+                  const shipKey = Keys.market.shipping(item.refNum);
+                  
+                  // Load existing shipping blob (may not exist yet)
+                  const existingShip = await mktBlob.getJSON<any>(shipKey) || {
+                    id: item.refNum,
+                    market,
+                    options: [],
+                    warnings: [],
+                  };
+                  
+                  // Add/update translations field
+                  existingShip.translations = {
+                    description: fullDescription,
+                    sourceHash: item.hash,
+                    updatedAt: new Date().toISOString(),
+                  };
+                  
+                  await mktBlob.putJSON(shipKey, existingShip);
+                } catch (shipErr: any) {
+                  log.translate.warn('failed to write shipping blob translation', {
+                    refNum: item.refNum,
+                    market,
+                    error: shipErr?.message || String(shipErr),
+                  });
+                }
+              }
+              
+              // Map remaining results to variants
+              for (let vi = 0; vi < sortedVariants.length && vi + 1 < allResults.length; vi++) {
+                const translatedText = allResults[vi + 1]?.translations?.[localeIdx]?.text || '';
+                if (sortedVariants[vi].vid !== undefined && translatedText) {
+                  variantTranslations.push({ vid: sortedVariants[vi].vid!, d: translatedText.trim() });
+                }
               }
             }
 
@@ -526,6 +590,238 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
   // 6. Final status
   const { budget: finalBudget } = await checkBudget(sharedBlob);
   log.translate.info('completed', {
+    translated,
+    charCount: charCount.toLocaleString(),
+    budget: formatBudgetStatus(finalBudget),
+    budgetExhausted: budgetExhausted ? 'yes' : 'no',
+    errors: errors.length,
+  });
+
+  return {
+    ok: errors.length === 0 || translated > 0,
+    translated,
+    charCount,
+    budgetExhausted,
+    errors: errors.length > 0 ? errors : undefined,
+  };
+}
+
+/**
+ * Backfill mode: For items already translated (in aggregate), translate FULL descriptions
+ * and write to market shipping blobs. Does NOT update the aggregate (already has short d).
+ * 
+ * This is for backfilling full descriptions for items translated before this feature was added.
+ */
+async function runBackfillFullDesc(
+  opts: TranslateOptions,
+  env: ReturnType<typeof loadEnv>,
+  sharedBlob: ReturnType<typeof getBlobClient>,
+  targetLocales: TargetLocale[],
+  initialRemaining: number
+): Promise<TranslateResult> {
+  log.translate.info('backfill-fulldesc starting', {
+    remaining: initialRemaining.toLocaleString(),
+    locales: targetLocales.join(','),
+    limit: opts.limit || 'none',
+  });
+
+  // Load existing aggregate - these are items that need backfill
+  const existingAgg = await sharedBlob.getJSON<TranslationAggregate>(Keys.shared.aggregates.translations()) || {};
+  const aggRefNums = Object.keys(existingAgg);
+  log.translate.info('loaded translation aggregate', { items: aggRefNums.length });
+
+  if (aggRefNums.length === 0) {
+    log.translate.info('no items in aggregate to backfill');
+    return { ok: true, translated: 0, charCount: 0, budgetExhausted: false };
+  }
+
+  // Apply limit early - only process up to limit items (avoids loading all core blobs)
+  const refNumsToProcess = opts.limit ? aggRefNums.slice(0, opts.limit) : aggRefNums;
+
+  // Build list of items to backfill: need core item blob for full English description
+  interface BackfillItem {
+    refNum: string;
+    fullDescription: string;
+    locales: TargetLocale[];
+    charEstimate: number;
+  }
+  const pending: BackfillItem[] = [];
+
+  log.translate.info('loading core item blobs', { count: refNumsToProcess.length });
+
+  for (const refNum of refNumsToProcess) {
+    const aggEntry = existingAgg[refNum];
+    if (!aggEntry?.locales) continue;
+
+    // Get locales this item has translations for
+    const itemLocales = Object.keys(aggEntry.locales)
+      .map(l => {
+        // Convert long locale (de-DE) to short (de) if needed
+        const short = l.split('-')[0] as TargetLocale;
+        return targetLocales.includes(short) ? short : null;
+      })
+      .filter((l): l is TargetLocale => l !== null);
+
+    if (itemLocales.length === 0) continue;
+
+    // Load core item blob to get full English description
+    const coreKey = Keys.shared.itemCore(refNum);
+    let coreItem: any = null;
+    try {
+      coreItem = await sharedBlob.getJSON<any>(coreKey);
+    } catch {
+      // Item blob may not exist
+    }
+
+    if (!coreItem?.description) continue;
+
+    const fullDescription = String(coreItem.description).slice(0, MAX_TEXT_LENGTH);
+    if (fullDescription.length < 50) continue; // Skip very short descriptions
+
+    pending.push({
+      refNum,
+      fullDescription,
+      locales: itemLocales,
+      charEstimate: fullDescription.length * itemLocales.length,
+    });
+  }
+
+  // No need to apply limit here - already applied to refNumsToProcess above
+  const toProcess = pending;
+  const totalCharsNeeded = toProcess.reduce((sum, p) => sum + p.charEstimate, 0);
+
+  log.translate.info('backfill scan complete', {
+    inAggregate: aggRefNums.length,
+    scanned: refNumsToProcess.length,
+    withFullDesc: pending.length,
+    estimatedChars: totalCharsNeeded.toLocaleString(),
+  });
+
+  if (opts.dryRun) {
+    log.translate.info('dry run complete', {
+      wouldBackfill: toProcess.length,
+      estimatedChars: totalCharsNeeded.toLocaleString(),
+    });
+    return { ok: true, translated: 0, charCount: 0, budgetExhausted: false, dryRun: true };
+  }
+
+  if (toProcess.length === 0) {
+    log.translate.info('nothing to backfill');
+    return { ok: true, translated: 0, charCount: 0, budgetExhausted: false };
+  }
+
+  // Process in batches
+  let translated = 0;
+  let charCount = 0;
+  let budgetExhausted = false;
+  const errors: string[] = [];
+
+  for (let i = 0; i < toProcess.length; i += BATCH_SIZE) {
+    const batch = toProcess.slice(i, i + BATCH_SIZE);
+    const batchChars = batch.reduce((sum, b) => sum + b.charEstimate, 0);
+
+    // Check budget
+    const { allowed, remaining } = await wouldExceedBudget(sharedBlob, batchChars);
+    if (!allowed) {
+      log.translate.warn('budget would be exceeded, stopping', {
+        remaining: remaining.toLocaleString(),
+        needed: batchChars.toLocaleString(),
+        translated,
+      });
+      budgetExhausted = true;
+      break;
+    }
+
+    let batchActualChars = 0;
+
+    try {
+      // Process each item in batch
+      for (const item of batch) {
+        // Translate full description to all locales
+        const { results, charCount: itemChars } = await translateBatch([item.fullDescription], item.locales);
+        batchActualChars += itemChars;
+
+        if (!results[0]?.translations) {
+          log.translate.warn('no translation returned', { refNum: item.refNum });
+          continue;
+        }
+
+        // Write to each market's shipping blob
+        for (let localeIdx = 0; localeIdx < item.locales.length; localeIdx++) {
+          const locale = item.locales[localeIdx];
+          const market = LOCALE_TO_MARKET[locale];
+          const translatedDesc = results[0].translations[localeIdx]?.text || '';
+
+          if (!market || !translatedDesc) continue;
+
+          try {
+            const mktStoreName = marketStore(market, env.stores as any);
+            const mktBlob = getBlobClient(mktStoreName);
+            const shipKey = Keys.market.shipping(item.refNum);
+
+            // Load existing shipping blob
+            const existingShip = await mktBlob.getJSON<any>(shipKey) || {
+              id: item.refNum,
+              market,
+              options: [],
+              warnings: [],
+            };
+
+            // Add/update translations
+            existingShip.translations = {
+              description: translatedDesc,
+              sourceHash: existingAgg[item.refNum]?.sourceHash || '',
+              updatedAt: new Date().toISOString(),
+            };
+
+            await mktBlob.putJSON(shipKey, existingShip);
+          } catch (shipErr: any) {
+            log.translate.warn('failed to write shipping blob', {
+              refNum: item.refNum,
+              market,
+              error: shipErr?.message || String(shipErr),
+            });
+          }
+        }
+
+        translated++;
+      }
+
+      charCount += batchActualChars;
+
+      // Record usage
+      const updatedBudget = await recordUsage(sharedBlob, batchActualChars, batch.length);
+
+      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(toProcess.length / BATCH_SIZE);
+      log.translate.info(`backfill batch ${batchNum}/${totalBatches}`, {
+        items: batch.length,
+        chars: batchActualChars.toLocaleString(),
+        remaining: (MONTHLY_CHAR_BUDGET - updatedBudget.charsUsed).toLocaleString(),
+      });
+
+      // Rate limit delay
+      const delayMs = opts.batchDelayMs ?? 60000;
+      if (i + BATCH_SIZE < toProcess.length && delayMs > 0) {
+        log.translate.info('rate limit delay', { delaySecs: Math.round(delayMs / 1000) });
+        await sleep(delayMs);
+      }
+
+    } catch (e: any) {
+      const errorMsg = e.message || String(e);
+      errors.push(`batch ${Math.floor(i / BATCH_SIZE) + 1}: ${errorMsg}`);
+      log.translate.error('batch failed', { error: errorMsg });
+
+      if (errorMsg.includes('QUOTA_EXCEEDED') || errorMsg.includes('RATE_LIMITED')) {
+        budgetExhausted = true;
+        break;
+      }
+    }
+  }
+
+  // Final status
+  const { budget: finalBudget } = await checkBudget(sharedBlob);
+  log.translate.info('backfill completed', {
     translated,
     charCount: charCount.toLocaleString(),
     budget: formatBudgetStatus(finalBudget),

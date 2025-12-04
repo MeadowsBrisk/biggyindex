@@ -64,10 +64,31 @@ export default function ItemDetailOverlay() {
   const tOv = useTranslations('Overlay');
   const tCats = useTranslations('Categories');
   const tCountries = useTranslations('Countries');
+  const tUnits = useTranslations('Units');
   const fmt = useFormatter();
   const [refNum, setRefNum] = useAtom(expandedRefNumAtom);
   const items = useAtomValue(itemsAtom);
   const sortedItems = useAtomValue(sortedItemsAtom);
+  
+  // Get unit labels for per-unit suffix translation
+  const unitLabels = React.useMemo(() => {
+    try {
+      const keys = ['g', 'mg', 'ml', 'kg', 'oz', 'joint', 'item', 'tab', 'cap', 'gummy', 'pk', 'pc', 'bottle', 'jar', 'bar', 'chew', 'square', 'star', 'x'];
+      const labels: Record<string, string> = {};
+      for (const k of keys) {
+        try { labels[k] = tUnits(k); } catch { labels[k] = k; }
+      }
+      return labels;
+    } catch {
+      return undefined;
+    }
+  }, [tUnits]);
+
+  // Wrapped perUnitSuffix with unit labels
+  const perUnitSuffixWithLabels = React.useCallback(
+    (desc: string, price: number | null, currency?: any) => perUnitSuffix(desc, price, currency, unitLabels),
+    [unitLabels]
+  );
   
   // Simple O(n) lookup for baseItem - only runs when refNum changes
   const baseItem = useMemo(() => {
@@ -639,7 +660,7 @@ export default function ItemDetailOverlay() {
                   selectedShipIdx={selectedShipIdx}
                   setSelectedShipIdx={setSelectedShipIdx}
                   variantPriceRangeText={variantPriceRangeText}
-                  perUnitSuffix={perUnitSuffix}
+                  perUnitSuffix={perUnitSuffixWithLabels}
                   reviews={reviews}
                   loading={loading}
                   error={!!error}
@@ -750,7 +771,7 @@ export default function ItemDetailOverlay() {
                     shippingUsd={selectedShippingUsd}
                     selectedVariantIds={selectedVariantIds}
                     onToggle={toggleVariantSelected as any}
-                    perUnitSuffix={perUnitSuffix as any}
+                    perUnitSuffix={perUnitSuffixWithLabels as any}
                     selectionEnabled={showSelection}
                     className="sm:grid-cols-1 max-h-44"
                     itemClassName="text-sm md:text-[12x]"

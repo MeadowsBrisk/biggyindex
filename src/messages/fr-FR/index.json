@@ -401,5 +401,26 @@
     "recentLowRatings": "{count} notes basses récentes",
     "seeStore": "Voir la boutique sur Little Biggy",
     "showOnIndex": "Afficher dans l'index"
+  },
+  "Units": {
+    "g": "g",
+    "mg": "mg",
+    "ml": "ml",
+    "kg": "kg",
+    "oz": "oz",
+    "joint": "joint",
+    "item": "pce",
+    "tab": "cp",
+    "cap": "gél",
+    "gummy": "bonbon",
+    "pk": "paq",
+    "pc": "pce",
+    "bottle": "bout",
+    "jar": "pot",
+    "bar": "barre",
+    "chew": "bonbon",
+    "square": "carré",
+    "star": "étoile",
+    "x": "×"
   }
 }

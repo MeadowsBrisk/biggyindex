@@ -57,6 +57,27 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const tCats = useTranslations('Categories');
   const tCountries = useTranslations('Countries');
   const tRel = useTranslations('Rel');
+  const tUnits = useTranslations('Units');
+  
+  // Get unit labels for per-unit suffix translation
+  const unitLabels = React.useMemo(() => {
+    try {
+      const keys = ['g', 'mg', 'ml', 'kg', 'oz', 'joint', 'item', 'tab', 'cap', 'gummy', 'pk', 'pc', 'bottle', 'jar', 'bar', 'chew', 'square', 'star', 'x'];
+      const labels: Record<string, string> = {};
+      for (const k of keys) {
+        try { labels[k] = tUnits(k); } catch { labels[k] = k; }
+      }
+      return labels;
+    } catch {
+      return undefined;
+    }
+  }, [tUnits]);
+
+  // Wrapped perUnitSuffix with unit labels
+  const perUnitSuffixWithLabels = React.useCallback(
+    (desc: string, price: number | null, currency?: any) => perUnitSuffix(desc, price, currency, unitLabels),
+    [unitLabels]
+  );
   
   // We don't use refNum atom here, but we need a ref for keys
   const refNum = baseItem?.refNum || String(baseItem?.id);
@@ -407,7 +428,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                   selectedShipIdx={selectedShipIdx}
                   setSelectedShipIdx={setSelectedShipIdx}
                   variantPriceRangeText={variantPriceRangeText}
-                  perUnitSuffix={perUnitSuffix}
+                  perUnitSuffix={perUnitSuffixWithLabels}
                   reviews={reviews}
                   loading={false}
                   error={false}
@@ -509,7 +530,7 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
                     shippingUsd={selectedShippingUsd}
                     selectedVariantIds={selectedVariantIds}
                     onToggle={toggleVariantSelected as any}
-                    perUnitSuffix={perUnitSuffix as any}
+                    perUnitSuffix={perUnitSuffixWithLabels as any}
                     selectionEnabled={showSelection}
                     className="sm:grid-cols-1 max-h-64"
                     itemClassName="text-sm"

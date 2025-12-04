@@ -386,5 +386,26 @@
     "description": "Esplora Little Biggy con categorie, filtri, recensioni e statistiche venditori. Nuovo sul marketplace?",
     "button": "Scopri di più",
     "close": "Chiudi"
+  },
+  "Units": {
+    "g": "g",
+    "mg": "mg",
+    "ml": "ml",
+    "kg": "kg",
+    "oz": "oz",
+    "joint": "canna",
+    "item": "pz",
+    "tab": "cp",
+    "cap": "cps",
+    "gummy": "gommosa",
+    "pk": "conf",
+    "pc": "pz",
+    "bottle": "bott",
+    "jar": "vaso",
+    "bar": "barr",
+    "chew": "gomma",
+    "square": "quad",
+    "star": "stella",
+    "x": "×"
   }
 }

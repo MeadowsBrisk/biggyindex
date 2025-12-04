@@ -85,6 +85,11 @@ const argv = yargs(hideBin(process.argv))
     type: 'number',
     describe: 'Initialize budget with this many chars already used (for recovery after blob deletion)'
   })
+  .option('backfill-fulldesc', {
+    type: 'boolean',
+    default: false,
+    describe: 'Backfill full descriptions to shipping blobs for already-translated items'
+  })
   .option('delay', {
     type: 'number',
     default: 60,
@@ -394,6 +399,7 @@ async function main() {
         budgetCheck: argv['budget-check'],
         budgetInit: typeof argv['budget-init'] === 'number' ? argv['budget-init'] : undefined,
         batchDelayMs: (argv.delay as number) * 1000,
+        backfillFullDesc: Boolean(argv['backfill-fulldesc']),
       });
       
       if (res.budgetExhausted) {

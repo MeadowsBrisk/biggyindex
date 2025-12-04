@@ -386,5 +386,26 @@
     "description": "Navegue no Little Biggy com categorias, filtros, avaliações e estatísticas de vendedores. Novo no marketplace?",
     "button": "Saber mais",
     "close": "Fechar"
+  },
+  "Units": {
+    "g": "g",
+    "mg": "mg",
+    "ml": "ml",
+    "kg": "kg",
+    "oz": "oz",
+    "joint": "charro",
+    "item": "un",
+    "tab": "cp",
+    "cap": "cáps",
+    "gummy": "goma",
+    "pk": "pct",
+    "pc": "un",
+    "bottle": "garr",
+    "jar": "frasco",
+    "bar": "barra",
+    "chew": "past",
+    "square": "quad",
+    "star": "estrela",
+    "x": "×"
   }
 }

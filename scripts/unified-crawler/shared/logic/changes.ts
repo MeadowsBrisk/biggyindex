@@ -109,36 +109,67 @@ export function diffMarketIndexEntries(prev: Record<string, any> | null | undefi
     const curThumbCount = Array.isArray(curr?.is) ? curr.is.length : 0;
     if (prevPrimary !== curPrimary || prevThumbCount !== curThumbCount) reasons.push('Images changed');
 
-    // Variants: added/removed and price changes per description bucket
+    // Variants comparison
     const prevV: Array<Record<string, any>> = Array.isArray(prev?.v) ? prev.v : [];
     const curV: Array<Record<string, any>> = Array.isArray(curr?.v) ? curr.v : [];
-    const toKey = (x: any) => `${x?.d ?? ''}|${typeof x?.usd === 'number' ? x.usd : ''}`;
-    const prevSet = new Set(prevV.map(toKey));
-    const curSet = new Set(curV.map(toKey));
-    let added = 0, removed = 0;
-    for (const k of curSet) if (!prevSet.has(k)) added++;
-    for (const k of prevSet) if (!curSet.has(k)) removed++;
-    const prevDescMap: Record<string, Set<number>> = {};
-    for (const pv of prevV) {
-      const d = pv?.d ?? '';
-      const amt = (typeof pv?.usd === 'number' ? pv.usd : NaN);
-      if (!prevDescMap[d]) prevDescMap[d] = new Set<number>();
-      if (Number.isFinite(amt)) prevDescMap[d].add(amt);
-    }
-    let priceChanged = 0;
-    for (const cv of curV) {
-      const d = cv?.d ?? '';
-      const amt = (typeof cv?.usd === 'number' ? cv.usd : NaN);
-      if (!Number.isFinite(amt)) continue;
-      const set = prevDescMap[d];
-      if (set && !set.has(amt)) priceChanged++;
-    }
-    if (priceChanged) reasons.push('Price changed');
-    if (added || removed) {
-      const label = (added && removed)
-        ? `+${added} / -${removed} variants`
-        : (added ? `+${added} variants` : `-${removed} variants`);
-      reasons.push(label);
+    
+    if (isEnglishMarket) {
+      // GB market: compare by description + price (full comparison)
+      const toKey = (x: any) => `${x?.d ?? ''}|${typeof x?.usd === 'number' ? x.usd : ''}`;
+      const prevSet = new Set(prevV.map(toKey));
+      const curSet = new Set(curV.map(toKey));
+      
+      let added = 0, removed = 0;
+      for (const k of curSet) if (!prevSet.has(k)) added++;
+      for (const k of prevSet) if (!curSet.has(k)) removed++;
+      
+      // Price change detection by description
+      const prevDescMap: Record<string, Set<number>> = {};
+      for (const pv of prevV) {
+        const d = pv?.d ?? '';
+        const amt = (typeof pv?.usd === 'number' ? pv.usd : NaN);
+        if (!prevDescMap[d]) prevDescMap[d] = new Set<number>();
+        if (Number.isFinite(amt)) prevDescMap[d].add(amt);
+      }
+      let priceChanged = 0;
+      for (const cv of curV) {
+        const d = cv?.d ?? '';
+        const amt = (typeof cv?.usd === 'number' ? cv.usd : NaN);
+        if (!Number.isFinite(amt)) continue;
+        const set = prevDescMap[d];
+        if (set && !set.has(amt)) priceChanged++;
+      }
+      
+      if (priceChanged) reasons.push('Price changed');
+      if (added || removed) {
+        const label = (added && removed)
+          ? `+${added} / -${removed} variants`
+          : (added ? `+${added} variants` : `-${removed} variants`);
+        reasons.push(label);
+      }
+    } else {
+      // Non-GB markets: compare by COUNT and PRICES only (not descriptions)
+      // This avoids false positives from translated vs English description mismatches
+      
+      // Count change
+      if (prevV.length !== curV.length) {
+        const diff = curV.length - prevV.length;
+        if (diff > 0) reasons.push(`+${diff} variants`);
+        else reasons.push(`${diff} variants`);
+      }
+      
+      // Price set comparison (ignoring descriptions)
+      const prevPrices = prevV.map(v => typeof v?.usd === 'number' ? v.usd : null).filter(p => p !== null).sort((a, b) => (a as number) - (b as number));
+      const curPrices = curV.map(v => typeof v?.usd === 'number' ? v.usd : null).filter(p => p !== null).sort((a, b) => (a as number) - (b as number));
+      
+      // Compare sorted price arrays
+      const pricesMatch = prevPrices.length === curPrices.length && 
+        prevPrices.every((p, i) => p === curPrices[i]);
+      
+      if (!pricesMatch && prevV.length === curV.length) {
+        // Same count but different prices
+        reasons.push('Price changed');
+      }
     }
 
     // Bounds change: uMin/uMax

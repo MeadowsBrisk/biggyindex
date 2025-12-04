@@ -226,11 +226,13 @@ export function parseQuantity(description: string | null | undefined): ParsedQua
 /**
  * Calculate per-unit price suffix like " (£10/g)" or " ($10/g)".
  * Pure function - can be used without the hook.
+ * @param unitLabels - Optional map of canonical unit → display label (for i18n)
  */
 export function perUnitSuffix(
   description: string | null | undefined,
   priceAmount: number | null | undefined,
-  currency: DisplayCurrency = 'GBP'
+  currency: DisplayCurrency = 'GBP',
+  unitLabels?: Record<string, string>
 ): string | null {
   if (priceAmount == null || !isFinite(priceAmount)) return null;
   const parsed = parseQuantity(description);
@@ -241,18 +243,19 @@ export function perUnitSuffix(
   const per = priceAmount / qty;
   if (!isFinite(per)) return null;
   const money = formatMoney(per, currency, { decimals: 2 });
-  return ` (${money}/${unit})`;
+  const displayUnit = unitLabels?.[unit] ?? unit;
+  return ` (${money}/${displayUnit})`;
 }
 
 /**
- * Hook wrapper for perUnitSuffix (for backwards compatibility).
- * Prefer using perUnitSuffix() directly for new code.
+ * Hook wrapper for perUnitSuffix with i18n support.
+ * Pass unitLabels from useTranslations('Units').raw('') or similar.
  */
-export function usePerUnitLabel() {
+export function usePerUnitLabel(unitLabels?: Record<string, string>) {
   const perUnitSuffixFn = useCallback(
     (description: string | null | undefined, priceAmount: number | null | undefined, currency: DisplayCurrency = 'GBP') =>
-      perUnitSuffix(description, priceAmount, currency),
-    []
+      perUnitSuffix(description, priceAmount, currency, unitLabels),
+    [unitLabels]
   );
 
   return { perUnitSuffix: perUnitSuffixFn };

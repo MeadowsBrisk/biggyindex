@@ -389,5 +389,26 @@
     "recentLowRatings": "{count} recent low ratings",
     "seeStore": "See store on Little Biggy",
     "showOnIndex": "Show items on Index"
+  },
+  "Units": {
+    "g": "g",
+    "mg": "mg",
+    "ml": "ml",
+    "kg": "kg",
+    "oz": "oz",
+    "joint": "joint",
+    "item": "item",
+    "tab": "tab",
+    "cap": "cap",
+    "gummy": "gummy",
+    "pk": "pk",
+    "pc": "pc",
+    "bottle": "bottle",
+    "jar": "jar",
+    "bar": "bar",
+    "chew": "chew",
+    "square": "sq",
+    "star": "star",
+    "x": "×"
   }
 }

@@ -27,13 +27,7 @@ import VariantPillsScroll from '@/components/item/VariantPillsScroll';
 
 // Types - using minified keys (n=name, d=description, i=imageUrl, sn=sellerName, etc.)
 // See src/types/item.ts for full key reference
-export interface ItemVariant {
-  vid?: string | number;
-  /** d = description */
-  d: string;
-  /** usd = price in USD */
-  usd: number;
-}
+import type { ItemVariant } from '@/types/item';
 
 export interface ItemShippingSummary { min?: number | null; max?: number | null; free?: number | boolean | null; }
 
@@ -93,7 +87,23 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const tRel = useTranslations('Rel');
   const tCountries = useTranslations('Countries');
   const tCats = useTranslations('Categories');
+  const tUnits = useTranslations('Units');
   const { locale } = useLocale();
+  
+  // Get unit labels for per-unit suffix (e.g., "g", "joint" → translated)
+  const unitLabels = useMemo(() => {
+    try {
+      // Get all unit translations as a record
+      const keys = ['g', 'mg', 'ml', 'kg', 'oz', 'joint', 'item', 'tab', 'cap', 'gummy', 'pk', 'pc', 'bottle', 'jar', 'bar', 'chew', 'square', 'star', 'x'];
+      const labels: Record<string, string> = {};
+      for (const k of keys) {
+        try { labels[k] = tUnits(k); } catch { labels[k] = k; }
+      }
+      return labels;
+    } catch {
+      return undefined;
+    }
+  }, [tUnits]);
   const itemKey = String(item.id); // normalized id as string
   // Destructure minified keys with aliased names for readability
   const { i: imageUrl, is: imageUrls, n: name, d: description, sn: sellerName, sid: sellerId, url, rs: reviewStats, v: variants, sellerOnline, sf: shipsFrom, refNum } = item;
@@ -549,9 +559,10 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                       const usd = typeof v.usd === 'number' ? v.usd : null;
                       if (usd == null) return '';
                       const amountText = formatUSD(usd, displayCurrency, rates, { decimals: 2 }) as string;
-                      const desc = decodeEntities(v.d);
+                      // Use dEn (English) for unit parsing if available, else fall back to d
+                      const descForParsing = decodeEntities(v.dEn || v.d);
                       const numericDisplayed = convertUSDToDisplay(usd, displayCurrency, rates) as number;
-                      const per = perUnitSuffix(desc, numericDisplayed, displayCurrency);
+                      const per = perUnitSuffix(descForParsing, numericDisplayed, displayCurrency, unitLabels);
                       return (
                         <>
                           <span className="variant-price">{amountText}</span>

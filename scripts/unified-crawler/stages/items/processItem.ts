@@ -240,6 +240,7 @@ export async function processSingleItem(
       const gbShipping = descRes.gbShipping;
       
       // Write GB shipping immediately and remove from refresh list
+      // Note: GB is English source, never has translations - no need to preserve existing
       const store = marketStore('GB', env.stores as any);
       const blob = getBlobClient(store);
       const shipKey = Keys.market.shipping(itemId);
@@ -285,7 +286,10 @@ export async function processSingleItem(
               const store = marketStore(mkt, env.stores as any);
               const blob = getBlobClient(store);
               const shipKey = Keys.market.shipping(itemId);
+              // Load existing to preserve translations field (added by translate stage)
+              const existingMkt = await blob.getJSON<any>(shipKey) || {};
               const payload = {
+                ...existingMkt,  // Preserve translations if present
                 id: itemId,
                 market: mkt,
                 options: res.options || [],

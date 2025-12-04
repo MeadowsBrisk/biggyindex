@@ -401,5 +401,26 @@
     "recentLowRatings": "{count} aktuelle niedrige Bewertungen",
     "seeStore": "Shop auf Little Biggy ansehen",
     "showOnIndex": "Im Index anzeigen"
+  },
+  "Units": {
+    "g": "g",
+    "mg": "mg",
+    "ml": "ml",
+    "kg": "kg",
+    "oz": "oz",
+    "joint": "Joint",
+    "item": "Stk",
+    "tab": "Tab",
+    "cap": "Kps",
+    "gummy": "Gummi",
+    "pk": "Pk",
+    "pc": "Stk",
+    "bottle": "Fl",
+    "jar": "Glas",
+    "bar": "Riegel",
+    "chew": "Kau",
+    "square": "Stk",
+    "star": "Stern",
+    "x": "×"
   }
 }

@@ -61,10 +61,11 @@ export default function VariantPriceList({
           selectedVariantIds,
           variantId: vid,
         });
-        // Use minified d key for description
+        // Use minified d key for description, dEn (English) for unit parsing
         const descRaw = (v.d && typeof v.d === 'string') ? v.d : '';
+        const descEnRaw = (v.dEn && typeof v.dEn === 'string') ? v.dEn : descRaw;
         const desc = descRaw ? decodeEntities(descRaw) : '';
-        const per = perUnitSuffix(descRaw, numericDisplayed, displayCurrency);
+        const per = perUnitSuffix(descEnRaw, numericDisplayed, displayCurrency);
         return (
           <li
             key={vid}
