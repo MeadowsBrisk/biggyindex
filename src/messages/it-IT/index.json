@@ -188,6 +188,7 @@
   }
   ,
   "Overlay": {
+    "prices": "Prezzi",
     "description": "Descrizione",
     "noDescription": "Nessuna descrizione.",
     "reviews": "Recensioni",
@@ -386,6 +387,20 @@
     "description": "Esplora Little Biggy con categorie, filtri, recensioni e statistiche venditori. Nuovo sul marketplace?",
     "button": "Scopri di più",
     "close": "Chiudi"
+  },
+  "SellerPage": {
+    "joined": "iscritto {date}",
+    "orders": "{count} ordini",
+    "disputed": "{percent}% contestati",
+    "open": "{percent}% aperti",
+    "itemsListed": "{count} articoli in vendita",
+    "manifesto": "Manifesto",
+    "noManifesto": "Nessun manifesto.",
+    "items": "Articoli ({count})",
+    "reviewsSnapshot": "Panoramica recensioni",
+    "recentLowRatings": "{count} valutazioni basse recenti",
+    "seeStore": "Vedi negozio su Little Biggy",
+    "showOnIndex": "Mostra nell'indice"
   },
   "Units": {
     "g": "g",

@@ -187,6 +187,7 @@
   },
   "Overlay": {
     "browseIndex": "Browse the Index",
+    "prices": "Prices",
     "description": "Description",
     "noDescription": "No description.",
     "reviews": "Reviews",

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
 import { VanIcon } from '@/components/common/icons';
@@ -63,6 +64,7 @@ export default function MobileTabs({
   displayName,
   leadImage,
 }: Props) {
+  const tOv = useTranslations('Overlay');
   // Load persisted tab choice or default to 'description'
   const [tab, setTab] = useState(() => {
     if (typeof window === 'undefined') return 'description';
@@ -73,6 +75,13 @@ export default function MobileTabs({
       return 'description';
     }
   });
+  
+  // Tab label map for i18n
+  const tabLabels: Record<string, string> = {
+    prices: tOv('prices'),
+    description: tOv('description'),
+    reviews: tOv('reviews'),
+  };
   
   // Persist tab choice when it changes
   useEffect(() => {
@@ -157,7 +166,7 @@ export default function MobileTabs({
               'flex-1 text-center text-[12px] py-1.5 capitalize transition-colors',
               tab === key ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
             )}
-          >{key}</button>
+          >{tabLabels[key]}</button>
         ))}
       </div>
 
@@ -167,7 +176,7 @@ export default function MobileTabs({
             <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-2">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Variant Prices</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{tOv('variantPrices')}</div>
                   {(internalRangeText || variantPriceRangeText) && (
                     <div className="mt-0.5 text-base font-bold tabular-nums text-gray-900 dark:text-gray-100">{internalRangeText || variantPriceRangeText}</div>
                   )}
@@ -191,8 +200,8 @@ export default function MobileTabs({
                         includeShipping ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60'
                       )}
                       onClick={() => setIncludeShipping(v => !v)}
-                      title="Simulate basket"
-                    >Simulate basket</button>
+                      title={tOv('simulateBasket')}
+                    >{tOv('simulateBasket')}</button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -203,13 +212,13 @@ export default function MobileTabs({
                         showSelection ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60'
                       )}
                       onClick={() => setSelectionMode(v => !v)}
-                      title="Select variants to simulate basket"
-                    >{showSelection ? 'Selection on' : 'Simulate basket'}</button>
+                      title={tOv('simulateBasket')}
+                    >{showSelection ? tOv('selectionOn') : tOv('simulateBasket')}</button>
                   </div>
                 )}
               </div>
               {showSelection && (
-                <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">Tap to select variants. Use Select all/Clear.</div>
+                <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">{tOv('selectVariantsHint')}</div>
               )}
               <VariantPriceList
                 variants={variants}
@@ -226,7 +235,7 @@ export default function MobileTabs({
               {showSelection && (
               <div className="mt-2 flex items-center justify-between">
                 <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <span>{selected.size || 0} selected</span>
+                  <span>{selected.size || 0} {tOv('selectedLabel')}</span>
                   <button type="button" className="underline hover:no-underline" onClick={() => {
                     const all = new Set();
                     for (let i = 0; i < variants.length; i++) {
@@ -234,12 +243,12 @@ export default function MobileTabs({
                       all.add(v.vid ?? v.id ?? i);
                     }
                     setSelected(all);
-                  }}>Select all</button>
-                  <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>Clear</button>
+                  }}>{tOv('selectAll')}</button>
+                  <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>{tOv('clear')}</button>
                 </div>
                 <div className="flex items-center gap-2">
                   {selectedTotalText && (
-                    <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">Total: {selectedTotalText}</span>
+                    <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">{tOv('total')} {selectedTotalText}</span>
                   )}
                   <button
                     type="button"
@@ -283,12 +292,12 @@ export default function MobileTabs({
                       });
                     }
                     setSelected(new Set());
-                    showToast('Added to basket');
+                    showToast(tOv('addedToBasket'));
                     }}
                     className={cn('text-xs font-semibold px-3 h-7 rounded-full', selected.size === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500' : 'bg-blue-600 hover:bg-blue-500 text-white')}
-                  >Add selected</button>
+                  >{tOv('addSelected')}</button>
                   {inBasket && (
-                    <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">In basket</span>
+                    <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{tOv('inBasket')}</span>
                   )}
                 </div>
               </div>
@@ -299,7 +308,7 @@ export default function MobileTabs({
           {(shippingOptions && shippingOptions.length > 0) && (
             <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/40 p-2">
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" /> Shipping Options</span>
+                <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" /> {tOv('shippingOptions')}</span>
               </div>
               <ul className="space-y-1 max-h-48 overflow-auto pr-1 custom-scroll">
                 {!loading && shippingOptions && shippingOptions.map((opt, i) => {
@@ -331,7 +340,7 @@ export default function MobileTabs({
                             onChange={() => setSelectedShipIdx(i)}
                           />
                         )}
-                        <span className="truncate text-gray-700 dark:text-gray-300" title={opt.label ? decodeEntities(opt.label) : ''}>{opt.label ? decodeEntities(opt.label) : 'Option'}</span>
+                        <span className="truncate text-gray-700 dark:text-gray-300" title={opt.label ? decodeEntities(opt.label) : ''}>{opt.label ? decodeEntities(opt.label) : tOv('option')}</span>
                       </label>
                       <span className="font-mono font-semibold text-gray-800 dark:text-gray-200 shrink-0">{priceText}</span>
                     </li>
@@ -345,7 +354,7 @@ export default function MobileTabs({
 
       {tab === 'description' && (
         <div className="mt-2">
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Description</h3>
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{tOv('description')}</h3>
           {loading && (
             <div className="animate-pulse space-y-2">
               <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
@@ -354,7 +363,7 @@ export default function MobileTabs({
             </div>
           )}
           {!loading && description && formatDescription(description)}
-          {!loading && !description && <div className="text-xs italic text-gray-400">No description.</div>}
+          {!loading && !description && <div className="text-xs italic text-gray-400">{tOv('noDescription')}</div>}
         </div>
       )}
 
@@ -373,18 +382,18 @@ export default function MobileTabs({
             const displayLimit = REVIEWS_DISPLAY_LIMIT;
 
             const tokensLeft: any[] = [];
-            if (avgRating != null) tokensLeft.push(`${avgRating.toFixed(1)} avg`);
+            if (avgRating != null) tokensLeft.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
             if (reviewsTotal != null) {
               if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
-                tokensLeft.push(`${displayLimit} Recent (${reviewsTotal} total)`);
+                tokensLeft.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
               } else {
-                tokensLeft.push(`${reviewsTotal} total`);
+                tokensLeft.push(`${reviewsTotal} ${tOv('totalShort')}`);
               }
             }
             const rightTokens: any[] = [];
             if (avgDays != null) {
               const d = Math.round(avgDays);
-              rightTokens.push(`avg arrival ${d === 1 ? '1 day' : d + ' days'}`);
+              rightTokens.push(tOv('avgArrival', { days: d }));
             }
             return (
               <div className="mb-2">
@@ -407,10 +416,10 @@ export default function MobileTabs({
             </div>
           )}
           {error && (
-            <div className="text-xs text-red-500">Failed to load. <button className="underline" onClick={reload}>Retry</button></div>
+            <div className="text-xs text-red-500">{tOv('failedToLoad')} <button className="underline" onClick={reload}>{tOv('retry')}</button></div>
           )}
           {!loading && reviews.length === 0 && !error && (
-            <div className="text-xs text-gray-500">No reviews.</div>
+            <div className="text-xs text-gray-500">{tOv('noReviews')}</div>
           )}
           {!loading && reviews.length > 0 && (
             <ReviewsList
@@ -427,7 +436,7 @@ export default function MobileTabs({
             if (!isTruncated || !sl) return null;
             return (
               <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
-                Read more reviews at:
+                {tOv('readMoreReviewsAt')}
               </div>
             );
           })()}

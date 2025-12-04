@@ -189,6 +189,7 @@
   }
   ,
   "Overlay": {
+    "prices": "Preise",
     "description": "Beschreibung",
     "noDescription": "Keine Beschreibung.",
     "reviews": "Bewertungen",
