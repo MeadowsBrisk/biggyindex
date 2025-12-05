@@ -67,8 +67,12 @@ export interface Item {
   refNum?: string | number | null;
   /** Item name */
   n: string;
+  /** English name (original, for non-GB markets when translated) */
+  nEn?: string | null;
   /** Item description */
   d?: string | null;
+  /** English description (original, for non-GB markets when translated) */
+  dEn?: string | null;
   /** Primary image URL */
   i?: string | null;
   /** Additional image URLs */
@@ -122,7 +126,11 @@ export interface ItemCardItem {
   id: string | number;
   refNum?: string | number | null;
   n: string;
+  /** English name (original, for non-GB markets when translated) */
+  nEn?: string | null;
   d?: string | null;
+  /** English description (original, for non-GB markets when translated) */
+  dEn?: string | null;
   i?: string | null;
   is?: string[] | null;
   sn?: string | null;

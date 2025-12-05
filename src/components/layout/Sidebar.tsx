@@ -11,11 +11,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNarrowLayout } from "@/hooks/useNarrowLayout";
 import { useAtom, useAtomValue } from "jotai";
 import { useTranslations } from "next-intl";
+import { Settings } from "lucide-react";
 import { 
   activeFiltersCountAtom, 
   resetFiltersAtom, 
   sellerAnalyticsOpenAtom, 
   latestReviewsModalOpenAtom,
+  optionsModalOpenAtom,
   includedSellersAtom,
   excludedSellersAtom,
   priceRangeAtom,
@@ -53,6 +55,7 @@ export default function Sidebar(): React.ReactElement {
   const [, resetFilters] = useAtom(resetFiltersAtom as any);
   const [, setAnalyticsOpen] = useAtom(sellerAnalyticsOpenAtom as any);
   const [, setReviewsOpen] = useAtom(latestReviewsModalOpenAtom as any);
+  const [, setOptionsOpen] = useAtom(optionsModalOpenAtom as any);
   
   const includedSellers = useAtomValue(includedSellersAtom as any) as any[];
   const excludedSellers = useAtomValue(excludedSellersAtom as any) as any[];
@@ -125,6 +128,15 @@ export default function Sidebar(): React.ReactElement {
             className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
           >
             {t('reviews')}
+          </motion.button>
+          <motion.button
+            variants={itemVariants}
+            type="button"
+            onClick={() => setOptionsOpen(true)}
+            className="shrink-0 w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500/40"
+            aria-label={t('options')}
+          >
+            <Settings className="w-4 h-4" />
           </motion.button>
         </div>
   <InfoButton content={null} />
@@ -215,6 +227,15 @@ export default function Sidebar(): React.ReactElement {
                     className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                   >
                     {t('reviews')}
+                  </motion.button>
+                  <motion.button
+                    variants={itemVariants}
+                    type="button"
+                    onClick={() => { setOptionsOpen(true); setOpen(false); }}
+                    className="shrink-0 w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500/40"
+                    aria-label={t('options')}
+                  >
+                    <Settings className="w-4 h-4" />
                   </motion.button>
                 </div>
                 <InfoButton content={null} />

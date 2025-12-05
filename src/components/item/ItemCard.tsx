@@ -1,7 +1,7 @@
 import cn from "@/lib/core/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
-import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom } from "@/store/atoms";
+import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom, highResImagesAtom } from "@/store/atoms";
 import SellerPill from "@/components/seller/SellerPill";
 import { perUnitSuffix } from "@/hooks/usePerUnitLabel";
 import ImageZoomPreview from "@/components/item/ImageZoomPreview";
@@ -11,7 +11,7 @@ import { voteHasVotedAtom, endorsedSetAtom } from "@/store/votesAtoms";
 import EndorseButton from "@/components/actions/EndorseButton";
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { formatUSDRange, formatUSD, convertUSDToDisplay, currencySymbol } from '@/lib/pricing/priceDisplay';
-import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
+import { useDisplayCurrency, useLocale, useForceEnglish } from '@/providers/IntlProvider';
 import { VanIcon } from '@/components/common/icons';
 import { useTranslations } from 'next-intl';
 import { decodeEntities, formatBritishDateTime } from '@/lib/core/format';
@@ -40,8 +40,12 @@ export interface ItemCardItem {
   is?: string[] | null;
   /** n = name */
   n: string;
+  /** nEn = English name (original, for non-GB markets) */
+  nEn?: string | null;
   /** d = description */
   d?: string | null;
+  /** dEn = English description (original, for non-GB markets) */
+  dEn?: string | null;
   /** sn = sellerName */
   sn?: string | null;
   /** sid = sellerId */
@@ -106,7 +110,13 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   }, [tUnits]);
   const itemKey = String(item.id); // normalized id as string
   // Destructure minified keys with aliased names for readability
-  const { i: imageUrl, is: imageUrls, n: name, d: description, sn: sellerName, sid: sellerId, url, rs: reviewStats, v: variants, sellerOnline, sf: shipsFrom, refNum } = item;
+  const { i: imageUrl, is: imageUrls, n: name, nEn: nameEn, d: description, dEn: descriptionEn, sn: sellerName, sid: sellerId, url, rs: reviewStats, v: variants, sellerOnline, sf: shipsFrom, refNum } = item;
+  
+  // Use English content when forceEnglish is enabled (and English version is available)
+  const { forceEnglish } = useForceEnglish();
+  const displayName = (forceEnglish && nameEn) ? nameEn : name;
+  const displayDesc = (forceEnglish && descriptionEn) ? descriptionEn : description;
+  
   // Define GIF detection helper for this component (used for conditional GifMedia rendering)
   const isGif = typeof imageUrl === 'string' && /\.gif($|[?#])/i.test(imageUrl);
   // atoms & derived flags
@@ -137,11 +147,13 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
 
   const rates = useExchangeRates();
   const { currency: displayCurrency } = useDisplayCurrency();
-  const descDecoded = useMemo(() => decodeEntities(description || ''), [description]);
-  const nameDecoded = useMemo(() => decodeEntities(name || ''), [name]);
+  const descDecoded = useMemo(() => decodeEntities(displayDesc || ''), [displayDesc]);
+  const nameDecoded = useMemo(() => decodeEntities(displayName || ''), [displayName]);
   // Use 800px width for card thumbnails (crisp on 2-3x DPR screens at ~304px display)
-  const [thumbSrc, setThumbSrc] = useState(() => proxyImage(imageUrl || '', 800));
-  useEffect(() => { setThumbSrc(proxyImage(imageUrl || '', 800)); }, [imageUrl]);
+  // If highResImages is enabled, use full resolution (no width constraint)
+  const highResImages = useAtomValue(highResImagesAtom);
+  const [thumbSrc, setThumbSrc] = useState(() => proxyImage(imageUrl || '', highResImages ? undefined : 800));
+  useEffect(() => { setThumbSrc(proxyImage(imageUrl || '', highResImages ? undefined : 800)); }, [imageUrl, highResImages]);
   const onThumbError = useCallback(() => {
     if (thumbSrc !== imageUrl) setThumbSrc(imageUrl || '');
   }, [thumbSrc, imageUrl]);

@@ -4,7 +4,7 @@ import cn from '@/lib/core/cn';
 import { decodeEntities } from '@/lib/core/format';
 import { displayedAmount, formatDisplayedAmount } from '@/lib/pricing/variantPricingDisplay';
 import type { DisplayCurrency } from '@/lib/pricing/priceDisplay';
-import { useDisplayCurrency } from '@/providers/IntlProvider';
+import { useDisplayCurrency, useForceEnglish } from '@/providers/IntlProvider';
 
 type Variant = any;
 type Props = {
@@ -35,6 +35,7 @@ export default function VariantPriceList({
   itemClassName = '',
 }: Props) {
   const { currency: ctxCurrency } = useDisplayCurrency();
+  const { forceEnglish } = useForceEnglish();
   const chosenCurrency: DisplayCurrency = displayCurrency || (ctxCurrency as DisplayCurrency) || 'GBP';
   return (
     <ul className={cn('grid grid-cols-1 gap-1 max-h-52 overflow-auto pr-1 custom-scroll', className)}>
@@ -62,9 +63,11 @@ export default function VariantPriceList({
           variantId: vid,
         });
         // Use minified d key for description, dEn (English) for unit parsing
+        // When forceEnglish is enabled, show English label if available
         const descRaw = (v.d && typeof v.d === 'string') ? v.d : '';
         const descEnRaw = (v.dEn && typeof v.dEn === 'string') ? v.dEn : descRaw;
-        const desc = descRaw ? decodeEntities(descRaw) : '';
+        const descToDisplay = forceEnglish && v.dEn ? descEnRaw : descRaw;
+        const desc = descToDisplay ? decodeEntities(descToDisplay) : '';
         const per = perUnitSuffix(descEnRaw, numericDisplayed, displayCurrency);
         return (
           <li

@@ -8,6 +8,7 @@
     "allSellers": "Tutti i venditori",
     "all": "Tutti",
     "reviews": "Recensioni",
+    "options": "Opzioni",
     "reset": "Reimposta",
     "sort": "Ordina",
     "openFilters": "Apri filtri",
@@ -38,6 +39,17 @@
     "clearAllIncluded": "Pulisci tutti gli inclusi",
     "clearAllExcluded": "Pulisci tutti gli esclusi",
     "removeSeller": "Rimuovi {name}"
+  },
+  "Options": {
+    "title": "Opzioni",
+    "close": "Chiudi",
+    "highResImages": "Immagini ad alta risoluzione",
+    "highResImagesDesc": "Usa immagini a dimensione piena nelle schede articoli (consuma più dati)",
+    "forceEnglish": "Forza inglese",
+    "forceEnglishDesc": "Mostra le descrizioni degli articoli in inglese invece della lingua locale",
+    "clearData": "Cancella tutti i dati",
+    "clearDataHint": "Rimuove preferiti, filtri e tutte le preferenze salvate",
+    "clearDataConfirm": "Questo cancellerà tutti i dati salvati inclusi preferiti, filtri e preferenze. Continuare?"
   },
   "Categories": {
     "flower": "Fiori",

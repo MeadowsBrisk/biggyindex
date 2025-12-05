@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from 'next/router';
 import enGBCoreMessages from "../messages/en-GB/index.json";
 import { IntlProvider as NextIntlProvider, useTranslations } from "next-intl";
@@ -73,6 +73,20 @@ export function useLocale(): LocaleContextValue {
   return ctx;
 }
 
+// Force English context - allows components to force UI to English regardless of locale
+type ForceEnglishContextValue = {
+  forceEnglish: boolean;
+  setForceEnglish: (v: boolean) => void;
+};
+
+const ForceEnglishContext = createContext<ForceEnglishContextValue | undefined>(undefined);
+
+export function useForceEnglish(): ForceEnglishContextValue {
+  const ctx = useContext(ForceEnglishContext);
+  if (!ctx) return { forceEnglish: false, setForceEnglish: () => {} };
+  return ctx;
+}
+
 // Load only core messages (always needed)
 async function loadCoreMessages(locale: Locale): Promise<Record<string, any>> {
   switch (locale) {
@@ -120,35 +134,64 @@ export function useMessages() {
 export function IntlProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   
-  // Use Next.js i18n locale from router (set by domain config in next.config.ts)
-  // This ensures SSR and client render with the same initial locale
+  // Use router.locale for SSR consistency (avoids hydration mismatch)
+  // Path-based locale detection happens in useEffect on client
   const initialLocale = normalizeLocale(router.locale);
   
   const [locale, setLocale] = useState<Locale>(initialLocale);
   // Start with English core messages as fallback, load correct locale async
   const [messages, setMessages] = useState<Record<string, any>>(enGBCoreMessages as Record<string, any>);
   const [currency, setCurrency] = useState<Currency>(currencyForLocale(initialLocale));
+  
+  // Force English preference - default false on SSR, sync from localStorage in effect
+  const [forceEnglish, setForceEnglishState] = useState<boolean>(false);
+  
+  // Callback to update force English and persist to localStorage
+  const setForceEnglish = useCallback((value: boolean) => {
+    setForceEnglishState(value);
+    try {
+      window.localStorage.setItem('forceEnglish', JSON.stringify(value));
+    } catch {}
+  }, []);
 
-  // Load core messages for the current locale
+  // Sync forceEnglish from localStorage on mount (client-only)
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem('forceEnglish');
+      if (stored === 'true') setForceEnglishState(true);
+    } catch {}
+  }, []);
+
+  // Load core messages for the current locale (or English if forced)
   useEffect(() => {
     let cancelled = false;
-    loadCoreMessages(locale).then((m) => {
+    // If forceEnglish is enabled, always load English messages
+    const messageLocale = forceEnglish ? 'en-GB' : locale;
+    loadCoreMessages(messageLocale).then((m) => {
       if (!cancelled) setMessages(m);
     });
-    setCurrency(currencyForLocale(locale));
+    setCurrency(currencyForLocale(locale)); // Keep currency based on actual locale
     try { if (typeof window !== 'undefined') window.localStorage.setItem('app:locale', locale); } catch {}
     return () => {
       cancelled = true;
     };
-  }, [locale]);
+  }, [locale, forceEnglish]);
 
-  // Sync locale when router.locale changes (e.g., navigating between localized pages)
+  // Sync locale when router changes (path or locale)
   useEffect(() => {
+    // Check path-based locale first (for localhost /de, /fr paths)
+    const pathLocale = typeof window !== 'undefined' 
+      ? localeFromEnvironment(window.location.pathname) 
+      : 'en-GB';
     const routerLocale = normalizeLocale(router.locale);
-    if (routerLocale !== locale) {
-      setLocale(routerLocale);
+    
+    // Prefer path-based locale on localhost, router.locale in production
+    const detectedLocale = pathLocale !== 'en-GB' ? pathLocale : routerLocale;
+    
+    if (detectedLocale !== locale) {
+      setLocale(detectedLocale);
     }
-  }, [router.locale, locale]);
+  }, [router.locale, router.asPath, locale]);
 
   // Function to merge in additional messages (e.g., home messages)
   const addMessages = useMemo(() => (extra: Record<string, any>) => {
@@ -157,10 +200,11 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
 
   const currencyValue = useMemo(() => ({ currency, setCurrency }), [currency]);
   const messagesValue = useMemo(() => ({ messages, addMessages }), [messages, addMessages]);
+  const forceEnglishValue = useMemo(() => ({ forceEnglish, setForceEnglish }), [forceEnglish, setForceEnglish]);
 
   return (
     <NextIntlProvider
-      locale={locale}
+      locale={forceEnglish ? 'en-GB' : locale}
       messages={messages}
       timeZone="UTC"
       onError={(err: any) => {
@@ -171,11 +215,13 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
       getMessageFallback={({ key }: any) => key}
     >
       <LocaleContext.Provider value={{ locale, setLocale }}>
-        <DisplayCurrencyContext.Provider value={currencyValue}>
-          <MessagesContext.Provider value={messagesValue}>
-            {children}
-          </MessagesContext.Provider>
-        </DisplayCurrencyContext.Provider>
+        <ForceEnglishContext.Provider value={forceEnglishValue}>
+          <DisplayCurrencyContext.Provider value={currencyValue}>
+            <MessagesContext.Provider value={messagesValue}>
+              {children}
+            </MessagesContext.Provider>
+          </DisplayCurrencyContext.Provider>
+        </ForceEnglishContext.Provider>
       </LocaleContext.Provider>
     </NextIntlProvider>
   );

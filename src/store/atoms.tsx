@@ -484,6 +484,11 @@ export const displayCurrencyAtom = atomWithStorage<'GBP' | 'USD'>("displayCurren
 // First visit banner dismissal state
 export const firstVisitBannerDismissedAtom = atomWithStorage<boolean>("firstVisitBannerDismissed", false);
 
+// Options modal settings (persisted)
+export const highResImagesAtom = atomWithStorage<boolean>("highResImages", false);
+export const forceEnglishAtom = atomWithStorage<boolean>("forceEnglish", false);
+export const optionsModalOpenAtom = atom<boolean>(false);
+
 // Expanded item (detail overlay) - uses refNum identity (string)
 export const expandedRefNumAtom = atom<string | null>(null);
 // Seller overlay (numeric id)

@@ -5,9 +5,10 @@
     "category": "Kategorie",
     "price": "Preis",
     "sellers": "Verkäufer",
-    "allSellers": "Alle Verkäufer",
+    "allSellers": "Verkäufer",
   "all": "Alle",
     "reviews": "Bewertungen",
+    "options": "Optionen",
     "reset": "Zurücksetzen",
     "sort": "Sortieren",
     "openFilters": "Filter öffnen",
@@ -38,6 +39,17 @@
     "clearAllIncluded": "Alle eingeschlossenen Verkäufer löschen",
     "clearAllExcluded": "Alle ausgeschlossenen Verkäufer löschen",
     "removeSeller": "{name} entfernen"
+  },
+  "Options": {
+    "title": "Optionen",
+    "close": "Schließen",
+    "highResImages": "Hochauflösende Bilder",
+    "highResImagesDesc": "Vollauflösende Bilder in Artikelkarten verwenden (mehr Datenverbrauch)",
+    "forceEnglish": "Englisch erzwingen",
+    "forceEnglishDesc": "Artikelbeschreibungen auf Englisch statt in der lokalen Sprache anzeigen",
+    "clearData": "Alle Daten löschen",
+    "clearDataHint": "Entfernt Favoriten, Filter und alle gespeicherten Einstellungen",
+    "clearDataConfirm": "Dies löscht alle gespeicherten Daten einschließlich Favoriten, Filter und Einstellungen. Fortfahren?"
   },
   "Categories": {
     "flower": "Blüten",

@@ -40,7 +40,7 @@ import { useExchangeRates, convertToGBP } from '@/hooks/useExchangeRates';
 import { roundDisplayGBP } from '@/lib/pricing/priceDisplay';
 import { formatUSD, currencySymbol } from '@/lib/pricing/priceDisplay';
 import { perUnitSuffix } from '@/hooks/usePerUnitLabel';
-import { useDisplayCurrency } from '@/providers/IntlProvider';
+import { useDisplayCurrency, useForceEnglish } from '@/providers/IntlProvider';
 import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import formatDescription from '@/lib/ui/formatDescription';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/countries';
@@ -305,12 +305,33 @@ export default function ItemDetailOverlay() {
     return () => window.removeEventListener('keydown', onKey as any);
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
 
-  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
-  // Full description: prefer translated for non-GB markets, fall back to English
+  // Force English preference for item content
+  const { forceEnglish } = useForceEnglish();
+  
+  // Name: use English original (nEn) when forceEnglish is enabled
+  const name = decodeEntities(
+    forceEnglish && (baseItem as any)?.nEn 
+      ? (baseItem as any).nEn 
+      : (baseItem as any)?.n || (detail as any)?.name || 'Item'
+  );
+  
+  // Full description: 
+  // - If forceEnglish: always use English (descriptionFull/description from detail, or dEn/d from baseItem)
+  // - Else for non-GB: prefer translated, fall back to English
   const market = typeof window !== 'undefined' ? getMarketFromPath(window.location.pathname) : 'GB';
-  const description = (market !== 'GB' && (detail as any)?.descriptionTranslated)
-    ? (detail as any).descriptionTranslated
-    : (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
+  const description = useMemo(() => {
+    // If forcing English, use English content
+    if (forceEnglish) {
+      return (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.dEn || (baseItem as any)?.d || '';
+    }
+    // For non-GB markets, prefer translated content
+    if (market !== 'GB' && (detail as any)?.descriptionTranslated) {
+      return (detail as any).descriptionTranslated;
+    }
+    // Fall back to English
+    return (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
+  }, [forceEnglish, detail, baseItem, market]);
+  
   const reviews = (detail as any)?.reviews || [];
   const globalLoading = useAtomValue(isLoadingAtom);
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) && (baseItem as any).v.length > 0;

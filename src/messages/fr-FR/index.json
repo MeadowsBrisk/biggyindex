@@ -8,6 +8,7 @@
     "allSellers": "Vendeurs",
   "all": "Tous",
     "reviews": "Avis",
+    "options": "Options",
     "reset": "Réinitialiser",
     "sort": "Trier",
     "openFilters": "Ouvrir les filtres",
@@ -38,6 +39,17 @@
     "clearAllIncluded": "Effacer tous les vendeurs inclus",
     "clearAllExcluded": "Effacer tous les vendeurs exclus",
     "removeSeller": "Retirer {name}"
+  },
+  "Options": {
+    "title": "Options",
+    "close": "Fermer",
+    "highResImages": "Images haute résolution",
+    "highResImagesDesc": "Utiliser des images en pleine résolution dans les cartes d'articles (plus de données)",
+    "forceEnglish": "Forcer l'anglais",
+    "forceEnglishDesc": "Afficher les descriptions d'articles en anglais au lieu de la langue locale",
+    "clearData": "Effacer toutes les données",
+    "clearDataHint": "Supprime les favoris, filtres et toutes les préférences enregistrées",
+    "clearDataConfirm": "Cela effacera toutes vos données enregistrées, y compris les favoris, filtres et préférences. Continuer ?"
   },
   "Categories": {
     "flower": "Fleurs",

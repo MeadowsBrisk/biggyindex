@@ -8,6 +8,7 @@
     "allSellers": "All Sellers",
     "all": "All",
     "reviews": "Reviews",
+    "options": "Options",
     "reset": "Reset",
     "sort": "Sort",
     "openFilters": "Open filters",
@@ -38,6 +39,17 @@
     "clearAllIncluded": "Clear all included sellers",
     "clearAllExcluded": "Clear all excluded sellers",
     "removeSeller": "Remove {name}"
+  },
+  "Options": {
+    "title": "Options",
+    "close": "Close",
+    "highResImages": "High-resolution images",
+    "highResImagesDesc": "Use full-size images in item cards (uses more data)",
+    "forceEnglish": "Force English",
+    "forceEnglishDesc": "Show item descriptions in English instead of the local language",
+    "clearData": "Clear all data",
+    "clearDataHint": "Removes favourites, filters, and all saved preferences",
+    "clearDataConfirm": "This will clear all your saved data including favourites, filters, and preferences. Continue?"
   },
   "Categories": {
     "flower": "Flower",

@@ -1,10 +1,12 @@
 import React from 'react';
 import { decodeEntities } from '@/lib/core/format';
+import { useForceEnglish } from '@/providers/IntlProvider';
 
-// Minified keys: vid = variant id, d = description, usd = price in USD
+// Minified keys: vid = variant id, d = description, dEn = English description, usd = price in USD
 interface Variant {
   vid?: string | number;
   d: string;
+  dEn?: string;
   usd?: number | null;
 }
 
@@ -14,6 +16,7 @@ interface VariantPillsScrollProps {
 }
 
 export default function VariantPillsScroll({ variants, className = '' }: VariantPillsScrollProps) {
+  const { forceEnglish } = useForceEnglish();
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [isScrollable, setIsScrollable] = React.useState(false);
   const [isAtStart, setIsAtStart] = React.useState(true);
@@ -73,7 +76,7 @@ export default function VariantPillsScroll({ variants, className = '' }: Variant
       >
         {variants.map((v, idx) => (
           <span key={(v.vid as any) || idx} className="variant-pill">
-            {decodeEntities(v.d)}
+            {decodeEntities((forceEnglish && v.dEn) ? v.dEn : v.d)}
           </span>
         ))}
         {isScrollable && <div className="shrink-0 w-1" aria-hidden="true" />}
