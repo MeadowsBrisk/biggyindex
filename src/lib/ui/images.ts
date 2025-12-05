@@ -2,8 +2,13 @@
 
 // Cloudinary cloud name
 const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD || 'YOUR_CLOUD_NAME';
-// const USE_CLOUDINARY = CLOUDINARY_CLOUD !== 'YOUR_CLOUD_NAME';
 const USE_CLOUDINARY = true;
+
+// Cloudflare edge caching: wrap Cloudinary URLs through CF worker to reduce Cloudinary requests
+// Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to your CF worker domain (e.g., 'https://biggyindex.com')
+// Leave empty to use relative path (same domain) or disable CF caching entirely
+const CF_IMAGE_PROXY_BASE = process.env.NEXT_PUBLIC_CF_IMAGE_PROXY_BASE || '';
+const USE_CF_CACHE = CF_IMAGE_PROXY_BASE !== '';
 
 // Cloudinary fetch URL builder with responsive sizing
 // - f_avif: force AVIF format for best compression
@@ -18,10 +23,18 @@ function cloudinaryFetch(url: string, width?: number): string {
 }
 
 /**
- * Proxy image URLs via Cloudinary for optimization.
+ * Wrap a URL through Cloudflare worker for edge caching.
+ * This dramatically reduces origin requests (Cloudinary in our case).
+ */
+function wrapWithCloudflare(url: string): string {
+  return `${CF_IMAGE_PROXY_BASE}/cf-image-proxy?url=${encodeURIComponent(url)}`;
+}
+
+/**
+ * Proxy image URLs via Cloudinary for optimization, optionally cached via Cloudflare.
+ * Flow: Browser → CF Worker (edge cache) → Cloudinary (AVIF/resize) → origin
  * - Skips local paths (/, ./)
  * - Skips already-proxied URLs
- * - Returns original if Cloudinary not configured
  */
 export function proxyImage(url: string, width?: number): string {
   if (!url || typeof url !== 'string') return url as any;
@@ -30,11 +43,18 @@ export function proxyImage(url: string, width?: number): string {
   if (url.startsWith('/') || url.startsWith('./')) return url;
   
   // Skip already proxied URLs
-  if (url.includes('res.cloudinary.com/')) return url;
+  if (url.includes('res.cloudinary.com/') || url.includes('/cf-image-proxy')) return url;
   
-  // Use Cloudinary if configured
+  // Use Cloudinary for AVIF conversion and resizing
   if (USE_CLOUDINARY) {
-    return cloudinaryFetch(url, width);
+    const cloudinaryUrl = cloudinaryFetch(url, width);
+    
+    // Wrap through Cloudflare for edge caching (reduces Cloudinary requests)
+    if (USE_CF_CACHE) {
+      return wrapWithCloudflare(cloudinaryUrl);
+    }
+    
+    return cloudinaryUrl;
   }
   
   // Not configured - return original

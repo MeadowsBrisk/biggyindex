@@ -16,6 +16,8 @@ import SellerIncludeExclude from '@/components/item/item-detail/SellerIncludeExc
 import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import { loadSellersIndex, getCachedSellerById } from '@/lib/data/sellersIndex';
 import formatDescription from '@/lib/ui/formatDescription';
+import { translateOnlineStatus } from '@/lib/ui/relativeTimeCompact';
+import { useTranslations } from 'next-intl';
 
 type OpenPreviewSignal = { ts: number; index: number; guard: unknown } | null;
 type ReviewGallerySignal = { images: string[]; index: number; ts: number; guard: unknown } | null;
@@ -27,6 +29,9 @@ export default function SellerOverlay() {
   const [currentItemRef, setItemRef] = useAtom(expandedRefNumAtom as any) as [string | null, (v: any) => void];
   const [included, setIncluded] = useAtom(includedSellersAtom as any) as [string[], (v: any) => void];
   const [excluded, setExcluded] = useAtom(excludedSellersAtom as any) as [string[], (v: any) => void];
+  // Translations for online status
+  let tRel: any;
+  try { tRel = useTranslations('Rel'); } catch { tRel = (k: string) => null; }
   useBodyScrollLock(!!sellerId);
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -91,7 +96,6 @@ export default function SellerOverlay() {
   const name = decodeEntities(detail?.sellerName || 'Seller');
   const manifesto = detail?.manifesto || '';
   const manifestoNode = useMemo(() => formatDescription(manifesto || null), [manifesto]);
-  const online = detail?.sellerOnline || null;
   const joined = detail?.sellerJoined || null;
   const shareLink = useMemo(() => {
     if (!detail) return null;
@@ -137,6 +141,8 @@ export default function SellerOverlay() {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [sellerId]);
+  // online status: prefer per-seller profile (richer values from crawler), fall back to sellers.json index (from API)
+  const online = detail?.sellerOnline || sellerMeta?.online || null;
   const rawSellerImage = detail?.sellerImageUrl ?? detail?.imageUrl ?? sellerMeta?.sellerImageUrl ?? sellerMeta?.imageUrl ?? null;
   const img: string | null = useMemo(() => {
     if (!rawSellerImage) return null;
@@ -232,7 +238,7 @@ export default function SellerOverlay() {
                 <div className="min-w-0 flex-1">
                   <h2 className="font-semibold text-base md:text-lg text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h2>
                   <div className="mt-1 text-xs text-gray-600 dark:text-gray-300 flex items-center gap-3 flex-wrap">
-                    {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> online {online}</span>}
+                    {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {translateOnlineStatus(online, tRel)}</span>}
                     {joined && <span>joined {joined}</span>}
                     {disputes && (
                       <span className="opacity-80">{(disputes.approximateOrders!=null?`${disputes.approximateOrders}+`:'~')} orders • {disputes.percentDisputed}% disputed • {disputes.percentDisputesOpen}% open</span>

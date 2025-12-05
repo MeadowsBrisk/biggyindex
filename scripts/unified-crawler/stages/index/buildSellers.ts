@@ -27,19 +27,25 @@ export function buildMarketSellers({
     if (!firstSeen.has(key)) firstSeen.set(key, { sid: sid ?? null, sn: sn || null });
   }
 
-  // Online flags sourced from raw items; prefer 'today' if any item reports it
-  const onlineMap = new Map<string, 'today' | 'yesterday' | null>();
+  // Online flags sourced from raw items; prefer 'today' if any item reports it, else keep best value
+  const onlineMap = new Map<string, string | null>();
   try {
     for (const it of Array.isArray(rawItems) ? rawItems : []) {
       const sid = it?.seller?.id ?? it?.sellerId ?? null;
       const sn = it?.seller?.name ?? null;
-      const online = (it?.seller?.online ?? null) as any;
+      const online = (it?.seller?.online ?? null) as string | null;
       if (sid == null && !sn) continue;
       const k = (sid != null) ? `id:${String(sid)}` : `name:${String(sn || '')}`;
       const prev = onlineMap.get(k) || null;
-      if (online === 'today') onlineMap.set(k, 'today');
-      else if (online === 'yesterday' && prev !== 'today') onlineMap.set(k, 'yesterday');
-      else if (!prev && online) onlineMap.set(k, null);
+      // Prefer 'today' > 'yesterday' > any other value (e.g., '2 days ago')
+      if (online === 'today') {
+        onlineMap.set(k, 'today');
+      } else if (online === 'yesterday' && prev !== 'today') {
+        onlineMap.set(k, 'yesterday');
+      } else if (!prev && online) {
+        // First occurrence with a value like '2 days ago', '3 days ago', etc.
+        onlineMap.set(k, online);
+      }
     }
   } catch {}
 

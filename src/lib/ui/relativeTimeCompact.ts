@@ -36,12 +36,14 @@ export function relativeCompact(ts: number | string | Date | null | undefined, t
   ];
   // Edge: just now (<30s) show now token if present
   if (sec < 30) {
-    const nowToken = safeT(tRel, 'now') || safeT(tRel, 'second') || 's';
+    const nowToken = safeT(tRel, 'now');
     const suffix = safeT(tRel, 'agoSuffix') ?? ' ago';
     const prefix = safeT(tRel, 'agoPrefix') ?? '';
-    // Represent "now" without number if dedicated key exists
-    if (safeT(tRel, 'now')) return prefix + nowToken + suffix;
-    return prefix + '0' + nowToken + suffix;
+    // Represent "now" without suffix if dedicated key exists (e.g., "now" is complete, no "ago" needed)
+    if (nowToken) return nowToken;
+    // Fallback: use second abbreviation with prefix/suffix
+    const secAbbr = safeT(tRel, 'second') || 's';
+    return prefix + '0' + secAbbr + suffix;
   }
   for (const [label, size] of units) {
     if (sec >= size) {
@@ -74,4 +76,40 @@ function defaultAbbr(label: string): string {
     case 'second': return 's';
     default: return label.charAt(0);
   }
+}
+
+/**
+ * Translate an English online status string (from the API) to the current locale.
+ * Handles: "today", "yesterday", "2 days ago", "3 days ago", etc.
+ * @param online - The English online status string from the API
+ * @param tRel - Translation function for "Rel" namespace
+ * @returns Translated string, or original if parsing fails
+ */
+export function translateOnlineStatus(online: string | null | undefined, tRel?: (key: string, vars?: any) => string): string | null {
+  if (!online) return null;
+  const lower = online.toLowerCase().trim();
+  
+  // Direct matches
+  if (lower === 'today') {
+    return safeT(tRel, 'today') || 'today';
+  }
+  if (lower === 'yesterday') {
+    return safeT(tRel, 'yesterday') || 'yesterday';
+  }
+  
+  // Pattern: "X days ago" or "X day ago"
+  const daysMatch = lower.match(/^(\d+)\s*days?\s*ago$/);
+  if (daysMatch) {
+    const count = parseInt(daysMatch[1], 10);
+    const translated = safeT(tRel, 'daysAgo', { count });
+    if (translated) return translated;
+    // Fallback to compact format using existing prefix/suffix
+    const prefix = safeT(tRel, 'agoPrefix') ?? '';
+    const suffix = safeT(tRel, 'agoSuffix') ?? ' ago';
+    const dayAbbr = safeT(tRel, 'day') || 'd';
+    return prefix + count + dayAbbr + suffix;
+  }
+  
+  // Return original if we can't parse it
+  return online;
 }

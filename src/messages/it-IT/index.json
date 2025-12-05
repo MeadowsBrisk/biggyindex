@@ -305,7 +305,10 @@
     "hour": "h",
     "minute": "min",
     "second": "s",
-    "now": "ora"
+    "now": "ora",
+    "today": "oggi",
+    "yesterday": "ieri",
+    "daysAgo": "{count} giorni fa"
   }
   ,
   "Analytics": {
@@ -314,6 +317,7 @@
     "sellersTracked": "{count} venditori monitorati",
     "close": "Chiudi",
     "online": "online",
+    "yesterday": "ieri",
     "columns": {
       "seller": "Venditore",
       "reviews": "Recensioni",

@@ -298,7 +298,10 @@
     "hour": "h",
     "minute": "min",
     "second": "s",
-    "now": "now"
+    "now": "now",
+    "today": "today",
+    "yesterday": "yesterday",
+    "daysAgo": "{count} days ago"
   },
   "Analytics": {
     "title": "Sellers on LittleBiggy",
@@ -306,6 +309,7 @@
     "sellersTracked": "{count} sellers tracked",
     "close": "Close",
     "online": "online",
+    "yesterday": "yesterday",
     "columns": {
       "seller": "Seller",
       "reviews": "Reviews",

@@ -10,7 +10,7 @@ import SellerAvatarTooltip from '@/components/seller/SellerAvatarTooltip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useHistoryState } from '@/hooks/useHistoryState';
 import { formatBritishDateTime } from '@/lib/core/format';
-import { relativeCompact } from '@/lib/ui/relativeTimeCompact';
+import { relativeCompact, translateOnlineStatus } from '@/lib/ui/relativeTimeCompact';
 import { useTranslations } from 'next-intl';
 
 const SORT_COLUMNS = {
@@ -27,12 +27,6 @@ type SortKey = keyof typeof SORT_COLUMNS;
 function getNestedValue(obj: any, path: string | null) {
   if (!path) return null;
   return path.split('.').reduce((acc: any, part: string) => acc?.[part], obj);
-}
-
-// Last-seen: prefer localized compact relative time
-function formatLastSeenRel(isoDate?: string | null, tRel?: (k: string) => string | null) {
-  if (!isoDate) return '';
-  return relativeCompact(isoDate, tRel as any);
 }
 
 // Safely access translations; fall back to defaults when provider context missing.
@@ -125,7 +119,7 @@ export default function SellerAnalyticsModal(): React.ReactElement | null {
         if (sellersData?.sellers) {
           const map = new Map<any, any>();
           sellersData.sellers.forEach((s: any) => {
-            if (s.id) map.set(s.id, s);
+            if (s.id != null) map.set(String(s.id), s);
           });
           setSellersIndex(map);
         }
@@ -286,12 +280,11 @@ export default function SellerAnalyticsModal(): React.ReactElement | null {
                         ? ((seller.lifetime.positiveCount / seller.lifetime.totalReviews) * 100).toFixed(1)
                         : '0.0';
                       
-                      const sellerInfo = sellersIndex?.get(seller.sellerId);
-                      const lastSeenLabel = sellerInfo?.online === true
-                        ? tA('online')
-                        : (sellerInfo?.online && typeof sellerInfo.online === 'string')
-                          ? sellerInfo.online
-                          : formatLastSeenRel(seller.lastSeenAt, tRel);
+                      const sellerInfo = sellersIndex?.get(String(seller.sellerId));
+                      // online field from sellers index: 'today', 'yesterday', '2 days ago', etc.
+                      // Use translateOnlineStatus for proper i18n
+                      const onlineVal = sellerInfo?.online;
+                      const lastSeenLabel = translateOnlineStatus(onlineVal, tRel);
                       
                       return (
                         <tr
