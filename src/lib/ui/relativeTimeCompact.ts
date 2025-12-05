@@ -101,13 +101,15 @@ export function translateOnlineStatus(online: string | null | undefined, tRel?: 
   const daysMatch = lower.match(/^(\d+)\s*days?\s*ago$/);
   if (daysMatch) {
     const count = parseInt(daysMatch[1], 10);
-    const translated = safeT(tRel, 'daysAgo', { count });
-    if (translated) return translated;
-    // Fallback to compact format using existing prefix/suffix
-    const prefix = safeT(tRel, 'agoPrefix') ?? '';
-    const suffix = safeT(tRel, 'agoSuffix') ?? ' ago';
-    const dayAbbr = safeT(tRel, 'day') || 'd';
-    return prefix + count + dayAbbr + suffix;
+    // Call tRel directly since we need to pass variables
+    if (tRel) {
+      try {
+        const translated = tRel('daysAgo', { count });
+        if (translated && translated !== 'daysAgo') return translated;
+      } catch {}
+    }
+    // Fallback to English
+    return `${count} days ago`;
   }
   
   // Return original if we can't parse it
