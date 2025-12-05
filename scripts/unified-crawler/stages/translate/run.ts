@@ -64,6 +64,7 @@ export interface TranslateOptions {
   budgetInit?: number;  // Initialize budget with this many chars already used
   batchDelayMs?: number;
   backfillFullDesc?: boolean;  // Backfill full descriptions to shipping blobs for already-translated items
+  items?: string[];  // Specific refNums to force-translate (ignores hash check)
 }
 
 export interface TranslateResult {
@@ -77,7 +78,7 @@ export interface TranslateResult {
 
 const BATCH_SIZE = 25; // Azure limit
 const MAX_TEXT_LENGTH = 5000; // Truncate to save chars on free tier
-const SHORT_DESC_LENGTH = 200; // For index snippet
+const SHORT_DESC_LENGTH = 260; // For index snippet (aggregate)
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -201,6 +202,22 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     itemsInOtherMarkets: itemsNeedingTranslation,
   });
 
+  // If --items specified, filter presence map to only those items
+  // AND add any --items that are GB-only (not in presenceMap) so they can be translated too
+  const itemsFilter = opts.items?.length ? new Set(opts.items) : null;
+  if (itemsFilter) {
+    log.translate.info('filtering to specific items', { count: itemsFilter.size, items: Array.from(itemsFilter).join(', ') });
+    
+    // Add GB-only items to presenceMap if they're in the filter but not already present
+    for (const refNum of itemsFilter) {
+      if (!presenceMap.has(refNum) && gbIndex.has(refNum)) {
+        // GB-only item - add it with all target locales so it gets translated
+        presenceMap.set(refNum, new Set(targetLocales));
+        log.translate.info('added GB-only item to translate', { refNum });
+      }
+    }
+  }
+
   // 3. Find items needing translation (only those in non-GB markets)
   interface PendingItem {
     refNum: string;
@@ -215,6 +232,12 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
   const pending: PendingItem[] = [];
 
   for (const [refNum, locales] of presenceMap) {
+    // If --items filter specified, skip items not in the filter
+    if (itemsFilter && !itemsFilter.has(refNum)) continue;
+    
+    // Force translation for items in --items filter (treat as if --force for these)
+    const forceThisItem = opts.force || (itemsFilter && itemsFilter.has(refNum));
+    
     // Get English content - prefer GB index, but fall back to any market where item exists
     // (Items not in GB are still in English, just don't ship to GB)
     let itemData: any = gbIndex.get(refNum);
@@ -233,9 +256,28 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     
     if (!itemData) continue; // Shouldn't happen
 
-    // For non-GB items, use English originals (nEn, dEn) if available
+    // Get name from index (short is fine for name)
     const name = isFromNonGB ? (itemData.nEn || itemData.n || '') : (itemData.n || '');
-    const description = isFromNonGB ? (itemData.dEn || itemData.d || '') : (itemData.d || '');
+    
+    // Get FULL description from core item blob (index only has truncated 'd')
+    // Skip items that haven't been crawled yet (no core blob) - they'll be picked up next run
+    let fullDescription = '';
+    let hasCoreBlob = false;
+    try {
+      const coreKey = Keys.shared.itemCore(refNum);
+      const coreItem = await sharedBlob.getJSON<any>(coreKey);
+      if (coreItem?.description) {
+        fullDescription = coreItem.description;
+        hasCoreBlob = true;
+      }
+    } catch {
+      // Core blob doesn't exist - item not yet crawled by items stage
+    }
+    
+    // Skip items without core blob (not yet crawled) - they'll be translated after items stage runs
+    if (!hasCoreBlob) {
+      continue;
+    }
     
     // Extract variants - use dEn (English original) for non-GB items to avoid translating corrupted text
     const rawVariants = itemData.v || [];
@@ -244,10 +286,11 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
       d: isFromNonGB ? (v.dEn || v.d || '') : (v.d || ''),
     })).filter((v: VariantForHash) => v.d); // Only include variants with descriptions
     
-    if (!name && !description) continue;
+    if (!name && !fullDescription) continue;
 
     // Hash only includes name + description (not variants) for backward compatibility
-    const hash = computeSourceHash(name, description);
+    // Use full description for hash so changes to full desc trigger re-translation
+    const hash = computeSourceHash(name, fullDescription);
     let localesArray = Array.from(locales);
     let variantsOnly = false;
 
@@ -273,9 +316,9 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     // 1. If hash matches AND all locales have translations with variants → skip
     // 2. If all locales have n/d translations but missing variants → variantsOnly
     // 3. If some locales missing translations entirely → full translation for those
-    // 4. If hash changed → only re-translate if --force (name/desc translations are still valid)
+    // 4. If hash changed → only re-translate if --force or --items (name/desc translations are still valid)
     
-    if (!opts.force && existingEntry) {
+    if (!forceThisItem && existingEntry) {
       if (missingLocales.length === 0 && !needsVariantTranslation) {
         continue; // Fully translated with variants, skip
       }
@@ -299,12 +342,12 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     const variantChars = variants.reduce((sum, v) => sum + (v.d?.length || 0), 0);
     const charEstimate = variantsOnly 
       ? variantChars * localesArray.length
-      : estimateCharCount(name, description, variants) * localesArray.length;
+      : estimateCharCount(name, fullDescription, variants) * localesArray.length;
 
     // Skip items with no variants if we're in variantsOnly mode
     if (variantsOnly && variants.length === 0) continue;
 
-    pending.push({ refNum, name, description, variants, hash, locales: localesArray, charEstimate, variantsOnly });
+    pending.push({ refNum, name, description: fullDescription, variants, hash, locales: localesArray, charEstimate, variantsOnly });
   }
 
   // Apply limit if specified

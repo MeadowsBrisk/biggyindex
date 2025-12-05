@@ -1025,5 +1025,14 @@
     "video": "/gif-cache/videos/e07044ef7224.mp4",
     "status": "skipped",
     "reason": "exists"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/_zabJTECrxbtLTVVl.gif": {
+    "hash": "3318ffe4f047",
+    "poster": "/gif-cache/posters/3318ffe4f047.jpg",
+    "video": "/gif-cache/videos/3318ffe4f047.mp4",
+    "width": 420,
+    "height": 746,
+    "frames": 42,
+    "status": "ok"
   }
 }

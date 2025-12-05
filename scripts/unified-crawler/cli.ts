@@ -13,6 +13,7 @@ import { processSingleItem } from './stages/items/processItem';
 import { runSellers } from './stages/sellers/run';
 import { runPruning } from './stages/pruning/run';
 import { runTranslate } from './stages/translate/run';
+import { runCleanupShortDesc } from './stages/translate/cleanup-short-desc';
 import { detectItemChanges } from './shared/logic/changes';
 import { Keys } from './shared/persistence/keys';
 import { getBlobClient } from './shared/persistence/blobs';
@@ -89,6 +90,15 @@ const argv = yargs(hideBin(process.argv))
     type: 'boolean',
     default: false,
     describe: 'Backfill full descriptions to shipping blobs for already-translated items'
+  })
+  .option('cleanup-short-desc', {
+    type: 'boolean',
+    default: false,
+    describe: 'Update aggregate short descriptions from shipping blob full translations (max 260 chars)'
+  })
+  .option('items', {
+    type: 'string',
+    describe: 'Comma-separated refNums to force-translate (translate stage only)'
   })
   .option('delay', {
     type: 'number',
@@ -386,6 +396,24 @@ async function main() {
     if (stage === 'translate') {
       const t0 = Date.now();
       
+      // Cleanup mode: update aggregate from shipping blobs
+      if (argv['cleanup-short-desc']) {
+        const res = await runCleanupShortDesc({
+          dryRun: argv['dry-run'],
+          limit: typeof argv.limit === 'number' ? argv.limit : undefined,
+          env,
+        });
+        
+        log.translate.info('cleanup-short-desc complete', {
+          scanned: res.scanned,
+          updated: res.updated,
+          skipped: res.skipped,
+          errors: res.errors.length,
+          secs: since(t0),
+        });
+        return;
+      }
+      
       // Parse locales if provided
       const locales = argv.locales 
         ? String(argv.locales).split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
@@ -400,6 +428,7 @@ async function main() {
         budgetInit: typeof argv['budget-init'] === 'number' ? argv['budget-init'] : undefined,
         batchDelayMs: (argv.delay as number) * 1000,
         backfillFullDesc: Boolean(argv['backfill-fulldesc']),
+        items: argv.items ? String(argv.items).split(',').map(s => s.trim()).filter(Boolean) : undefined,
       });
       
       if (res.budgetExhausted) {
