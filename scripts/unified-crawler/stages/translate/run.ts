@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { loadEnv } from '../../shared/env/loadEnv';
 import type { MarketCode } from '../../shared/env/loadEnv';
 import { getBlobClient } from '../../shared/persistence/blobs';
@@ -537,47 +538,50 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
                     warnings: [],
                   };
                   
-                  // Translate shipping option labels if present and not already translated
+                  // Translate shipping option labels if present and changed
                   let translatedShippingOptions: { label: string; cost: number }[] | undefined;
                   const originalOptions = existingShip.options || [];
                   const existingTranslatedOptions = existingShip.translations?.shippingOptions;
+                  const existingSourceLabelsHash = existingShip.translations?.sourceLabelsHash;
                   
-                  // Only translate if we have options and they're not already translated
-                  if (originalOptions.length > 0 && !existingTranslatedOptions) {
-                    const labelsToTranslate = originalOptions
-                      .map((opt: any) => opt.label || '')
-                      .filter((label: string) => label.length > 0);
-                    
-                    if (labelsToTranslate.length > 0) {
-                      try {
-                        // Translate shipping labels (single locale at a time)
-                        const { results: labelResults, charCount: labelChars } = await translateBatch(
-                          labelsToTranslate, 
-                          [locales[localeIdx]]
-                        );
-                        batchActualChars += labelChars;
-                        
-                        // Map translated labels back to options
-                        translatedShippingOptions = originalOptions.map((opt: any, idx: number) => ({
-                          label: labelResults[idx]?.translations?.[0]?.text || opt.label || '',
-                          cost: opt.cost ?? 0,
-                        }));
-                      } catch (labelErr: any) {
-                        log.translate.warn('failed to translate shipping labels', {
-                          refNum: item.refNum,
-                          market,
-                          error: labelErr?.message || String(labelErr),
-                        });
-                      }
+                  // Compute hash of current source labels to detect changes
+                  const currentLabels = originalOptions.map((opt: any) => opt.label || '').filter(Boolean);
+                  const currentLabelsHash = currentLabels.length > 0 
+                    ? createHash('md5').update(currentLabels.join('|')).digest('hex').slice(0, 8)
+                    : undefined;
+                  
+                  // Translate if: we have labels AND (no existing translation OR labels changed)
+                  const labelsChanged = currentLabelsHash && currentLabelsHash !== existingSourceLabelsHash;
+                  if (currentLabels.length > 0 && (!existingTranslatedOptions || labelsChanged)) {
+                    try {
+                      // Translate shipping labels (single locale at a time)
+                      const { results: labelResults, charCount: labelChars } = await translateBatch(
+                        currentLabels, 
+                        [locales[localeIdx]]
+                      );
+                      batchActualChars += labelChars;
+                      
+                      // Map translated labels back to options
+                      translatedShippingOptions = originalOptions.map((opt: any, idx: number) => ({
+                        label: labelResults[idx]?.translations?.[0]?.text || opt.label || '',
+                        cost: opt.cost ?? 0,
+                      }));
+                    } catch (labelErr: any) {
+                      log.translate.warn('failed to translate shipping labels', {
+                        refNum: item.refNum,
+                        market,
+                        error: labelErr?.message || String(labelErr),
+                      });
                     }
                   }
                   
-                  // Add/update translations field
+                  // Add/update translations field (include sourceLabelsHash for change detection)
                   existingShip.translations = {
                     description: fullDescription,
                     ...(translatedShippingOptions ? { shippingOptions: translatedShippingOptions } : 
                         existingTranslatedOptions ? { shippingOptions: existingTranslatedOptions } : {}),
                     sourceHash: item.hash,
+                    ...(currentLabelsHash ? { sourceLabelsHash: currentLabelsHash } : {}),
                     updatedAt: new Date().toISOString(),
                   };
                   

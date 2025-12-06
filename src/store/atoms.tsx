@@ -481,6 +481,9 @@ export const includeShippingPrefAtom = atomWithStorage<boolean>("includeShipping
 // Display currency preference: 'GBP' (default) or 'USD'
 export const displayCurrencyAtom = atomWithStorage<'GBP' | 'USD'>("displayCurrency", "GBP");
 
+// Announcement banner dismissals keyed by banner id
+export const announcementBannerDismissalsAtom = atomWithStorage<Record<string, string>>("announcementBannerDismissals", {});
+
 // First visit banner dismissal state
 export const firstVisitBannerDismissedAtom = atomWithStorage<boolean>("firstVisitBannerDismissed", false);
 

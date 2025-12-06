@@ -21,7 +21,7 @@ export interface ProcessItemResult {
   shippingWritten: number;
   shareLink?: string | null;
   shipSummaryByMarket?: Record<string, { min: number; max: number; free: number }>;
-  shippingMetaUpdate?: { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string };
+  shippingMetaUpdate?: { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string; lastFullCrawl?: string };
   errors?: string[];
 }
 
@@ -321,10 +321,15 @@ export async function processSingleItem(
         
         // Prepare shipping metadata update (will be batched at end by cli.ts)
         // Include lastIndexedLua on full crawls to enable change detection on future runs
+        // Include lastFullCrawl when description is actually written (critical for mode detection on next run)
         if (marketsRefreshed.length > 0) {
           const updated = updateShippingMeta(shippingMetaAgg, itemId, marketsRefreshed, { lastIndexedLua: opts.indexLua });
           const entry = updated[itemId];
           if (entry) {
+            // Add lastFullCrawl if this was a successful full crawl with description
+            if (descriptionWritten) {
+              (entry as any).lastFullCrawl = new Date().toISOString();
+            }
             shipSummaryByMarket['__shippingMetaUpdate'] = entry as any; // temporary holder
           }
         }
@@ -339,8 +344,24 @@ export async function processSingleItem(
     }
 
     // Extract shippingMetaUpdate from temporary holder (set in both full and reviews-only modes)
-    const shippingMetaUpdate = shipSummaryByMarket['__shippingMetaUpdate'] as any;
+    let shippingMetaUpdate = shipSummaryByMarket['__shippingMetaUpdate'] as any;
     delete shipSummaryByMarket['__shippingMetaUpdate'];
+    
+    // For full mode: ensure lastFullCrawl is set when description was written
+    // This is critical for mode detection on future runs - without it, items get stuck in reviews-only
+    if (mode === 'full' && descriptionWritten) {
+      const now = new Date().toISOString();
+      if (!shippingMetaUpdate) {
+        // Create a new entry if shipping wasn't refreshed (but description was)
+        const existingEntry = shippingMetaAgg[itemId];
+        shippingMetaUpdate = existingEntry
+          ? { ...existingEntry, lastRefresh: now, lastFullCrawl: now }
+          : { markets: {}, lastRefresh: now, lastFullCrawl: now };
+      } else if (!shippingMetaUpdate.lastFullCrawl) {
+        // Add lastFullCrawl if not already set (shouldn't happen but be safe)
+        shippingMetaUpdate.lastFullCrawl = now;
+      }
+    }
     
     // For reviews-only mode, create the update if not already set
     if (mode === 'reviews-only' && !shippingMetaUpdate) {

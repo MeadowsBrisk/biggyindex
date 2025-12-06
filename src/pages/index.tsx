@@ -30,6 +30,7 @@ const ItemDetailOverlay = dynamic(() => import('@/components/item/ItemDetailOver
 const SellerOverlay = dynamic(() => import('@/components/seller/SellerOverlay'), { ssr: false });
 const SellerAnalyticsModal = dynamic(() => import('@/components/seller/SellerAnalyticsModal'), { ssr: false });
 const LatestReviewsModal = dynamic(() => import('@/components/reviews/LatestReviewsModal'), { ssr: false });
+const AnnouncementBanner = dynamic(() => import('@/components/banners/AnnouncementBanner'), { ssr: false });
 const FirstVisitBanner = dynamic(() => import('@/components/banners/FirstVisitBanner'), { ssr: false });
 import OptionsModal from '@/components/common/OptionsModal';
 import SortControls from '@/components/filters/SortControls';
@@ -581,6 +582,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         ) as any}
       />
       <ToastHost />
+      {/*<AnnouncementBanner />*/}
       {isRouting && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-white/70 backdrop-blur-sm dark:bg-slate-900/70">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />

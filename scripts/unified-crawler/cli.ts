@@ -185,6 +185,7 @@ async function main() {
         
         // Determine mode for each item
         let indexChangedCount = 0;
+        let noFullCrawlCount = 0;
         for (const id of work.uniqueIds) {
           const marketsFor = Array.from(work.presenceMap.get(id) || []) as MarketCode[];
           const indexLua = work.idLua.get(id);
@@ -192,13 +193,19 @@ async function main() {
           
           let mode: 'full' | 'reviews-only' = 'reviews-only';
           
-          // Full mode if: new item or stale (older than CRAWLER_FULL_REFRESH_DAYS)
+          // Full mode if: new item, never had full crawl, or stale (older than CRAWLER_FULL_REFRESH_DAYS)
           if (!metaEntry || !metaEntry.lastRefresh) {
             mode = 'full'; // New item (never crawled)
+          } else if (!metaEntry.lastFullCrawl) {
+            // CRITICAL: Item was crawled (has lastRefresh) but never had a full crawl
+            // This happens when a prior run got reviews but failed to get description
+            // Without this check, such items get stuck in reviews-only forever
+            mode = 'full';
+            noFullCrawlCount++;
           } else {
-            const lastRefreshTime = new Date(metaEntry.lastRefresh).getTime();
-            if (lastRefreshTime < cutoffTime) {
-              mode = 'full'; // Stale (older than CRAWLER_FULL_REFRESH_DAYS)
+            const lastFullCrawlTime = new Date(metaEntry.lastFullCrawl).getTime();
+            if (lastFullCrawlTime < cutoffTime) {
+              mode = 'full'; // Stale (lastFullCrawl older than CRAWLER_FULL_REFRESH_DAYS)
             } else if (indexLua) {
               // Compare index lua to stored lastIndexedLua (legacy pattern: item.lastUpdatedAt vs rec.lastIndexedUpdatedAt)
               const lastIndexedLua = metaEntry.lastIndexedLua;
@@ -213,6 +220,9 @@ async function main() {
         }
         if (indexChangedCount > 0) {
           log.items.info(`index changes detected`, { count: indexChangedCount });
+        }
+        if (noFullCrawlCount > 0) {
+          log.items.info(`items missing lastFullCrawl (will get full crawl)`, { count: noFullCrawlCount });
         }
       }
 
