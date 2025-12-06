@@ -30,7 +30,7 @@ const ItemDetailOverlay = dynamic(() => import('@/components/item/ItemDetailOver
 const SellerOverlay = dynamic(() => import('@/components/seller/SellerOverlay'), { ssr: false });
 const SellerAnalyticsModal = dynamic(() => import('@/components/seller/SellerAnalyticsModal'), { ssr: false });
 const LatestReviewsModal = dynamic(() => import('@/components/reviews/LatestReviewsModal'), { ssr: false });
-const AnnouncementBanner = dynamic(() => import('@/components/banners/AnnouncementBanner'), { ssr: false });
+// const AnnouncementBanner = dynamic(() => import('@/components/banners/AnnouncementBanner'), { ssr: false });
 const FirstVisitBanner = dynamic(() => import('@/components/banners/FirstVisitBanner'), { ssr: false });
 import OptionsModal from '@/components/common/OptionsModal';
 import SortControls from '@/components/filters/SortControls';
