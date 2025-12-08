@@ -1,5 +1,9 @@
 export type AnnouncementBannerConfig = {
   id: string;
+  /** 
+   * Messages by locale. Use {{mbr}} to insert a mobile-only line break.
+   * Example: "First part.{{mbr}}Second part." 
+   */
   messageByLocale: Record<string, string>;
   allowedLocales?: string[];
   href?: string;
@@ -10,7 +14,7 @@ export type AnnouncementBannerConfig = {
 export const announcementBanner: AnnouncementBannerConfig = {
   id: '2025-xmas-last-post',
   messageByLocale: {
-    'en-GB': 'Christmas last post: 2nd Class: Weds 17 Dec | 1st Class: Sat 20 Dec | Special Delivery: Tues 23 Dec',
+    'en-GB': 'Royal Mail Christmas last post: Sat 20 Dec | SNDD: Tues 23 Dec. {{mbr}}Check seller schedules and expect delays.',
   },
   allowedLocales: ['en-GB', 'en'],
   severity: 'info',

@@ -30,7 +30,7 @@ const ItemDetailOverlay = dynamic(() => import('@/components/item/ItemDetailOver
 const SellerOverlay = dynamic(() => import('@/components/seller/SellerOverlay'), { ssr: false });
 const SellerAnalyticsModal = dynamic(() => import('@/components/seller/SellerAnalyticsModal'), { ssr: false });
 const LatestReviewsModal = dynamic(() => import('@/components/reviews/LatestReviewsModal'), { ssr: false });
-// const AnnouncementBanner = dynamic(() => import('@/components/banners/AnnouncementBanner'), { ssr: false });
+const AnnouncementBanner = dynamic(() => import('@/components/banners/AnnouncementBanner'), { ssr: false });
 const FirstVisitBanner = dynamic(() => import('@/components/banners/FirstVisitBanner'), { ssr: false });
 import OptionsModal from '@/components/common/OptionsModal';
 import SortControls from '@/components/filters/SortControls';
@@ -55,10 +55,10 @@ export const getStaticProps: GetStaticProps = async (context) => {
   // This eliminates client-side API calls, reducing function invocations by ~95%
   // Derive market from locale (set by Next.js i18n domain routing)
   const market = localeToMarket(context.locale);
-  
+
   try {
     const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/data/indexData');
-    
+
     // Only fetch items and manifest for initial page load
     // Reviews/media are lazy-loaded by modals when opened (reduces __NEXT_DATA__ by ~200-400KB)
     const [rawItems, manifest, meta] = await Promise.all([
@@ -66,18 +66,18 @@ export const getStaticProps: GetStaticProps = async (context) => {
       getManifest(market as any),
       getSnapshotMeta(market as any),
     ]);
-    
+
     // Keep items minified - normalization happens client-side in setItemsAtom/setAllItemsAtom
     // This reduces page data size by ~40-50%
     const items = rawItems;
-    
+
     // CRITICAL: If we got empty data, use very short revalidate to retry quickly
     // This prevents caching bad ISR responses for a long time
     const hasData = items.length > 0 && Object.keys(manifest?.categories || {}).length > 0;
-    
+
     // NOTE: Reviews and media are now lazy-loaded by the LatestReviewsModal component
     // when it opens, rather than being included in __NEXT_DATA__. This saves ~200-400KB.
-    
+
     return {
       props: {
         initialItems: items,
@@ -101,7 +101,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 };
 
-type HomeProps = { 
+type HomeProps = {
   suppressDefaultHead?: boolean;
   initialItems?: any[];
   initialManifest?: any;
@@ -151,7 +151,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         default: return '/home';
       }
     })();
-    router.prefetch(homePath).catch(() => {});
+    router.prefetch(homePath).catch(() => { });
 
     const handleStart = (url: string) => {
       if (url === '/home') setIsRouting(true);
@@ -173,11 +173,11 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   useEffect(() => {
     if (!router.isReady || categoryHydrated.current) return;
     categoryHydrated.current = true;
-    
+
     const urlCat = typeof router.query.cat === 'string' ? router.query.cat : null;
     const urlSub = typeof router.query.sub === 'string' ? router.query.sub : null;
     const urlExcl = typeof router.query.excl === 'string' ? router.query.excl : null;
-    
+
     if (urlCat) {
       // Convert lowercase URL to proper case (e.g., 'flower' -> 'Flower')
       const properCaseCat = urlCat.charAt(0).toUpperCase() + urlCat.slice(1).toLowerCase();
@@ -206,39 +206,39 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   // Sync category and subcategories to URL
   useEffect(() => {
     if (!router.isReady || !categoryHydrated.current) return;
-    
+
     const currentCat = typeof router.query.cat === 'string' ? router.query.cat : null;
     const currentSub = typeof router.query.sub === 'string' ? router.query.sub : null;
     const currentExcl = typeof router.query.excl === 'string' ? router.query.excl : null;
     const targetSub = selectedSubs.length > 0 ? selectedSubs.map(s => s.toLowerCase()).join(',') : null;
     const targetExcl = excludedSubs.length > 0 ? excludedSubs.map(s => s.toLowerCase()).join(',') : null;
     const targetCat = category !== 'All' ? category.toLowerCase() : null;
-    
+
     const needsCatUpdate = (targetCat !== currentCat);
     const needsSubUpdate = targetSub !== currentSub;
     const needsExclUpdate = targetExcl !== currentExcl;
-    
+
     if (needsCatUpdate || needsSubUpdate || needsExclUpdate) {
       const newQuery: any = { ...router.query };
-      
+
       if (targetCat) {
         newQuery.cat = targetCat;
       } else {
         delete newQuery.cat;
       }
-      
+
       if (targetSub) {
         newQuery.sub = targetSub;
       } else {
         delete newQuery.sub;
       }
-      
+
       if (targetExcl) {
         newQuery.excl = targetExcl;
       } else {
         delete newQuery.excl;
       }
-      
+
       router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true, scroll: false });
     }
   }, [category, selectedSubs, excludedSubs, router]);
@@ -269,7 +269,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   // Global scroll-to-top event (e.g., when clicking "Show items" from seller overlay)
   useEffect(() => {
     const onScrollTop = () => {
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
     };
     window.addEventListener('lb:scroll-top', onScrollTop);
     return () => window.removeEventListener('lb:scroll-top', onScrollTop);
@@ -315,14 +315,14 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   useEffect(() => {
     if (isrHydrated.current) return;
     if (!initialManifest && !initialItems) return;
-    
+
     isrHydrated.current = true;
-    
+
     // Hydrate manifest from ISR props
     if (initialManifest && Object.keys((initialManifest as any).categories || {}).length > 0) {
       setManifest(initialManifest);
     }
-    
+
     // Check if URL has a category filter - parse directly from window.location for reliability
     // router.query may not be ready yet during initial hydration
     let hasUrlCategory = false;
@@ -331,21 +331,21 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         const params = new URLSearchParams(window.location.search);
         const urlCat = params.get('cat');
         hasUrlCategory = !!(urlCat && urlCat.toLowerCase() !== 'all');
-      } catch {}
+      } catch { }
     }
-    
+
     // Hydrate items from ISR props
     if (initialItems && initialItems.length > 0) {
       // Always cache all items for filtering
       setAllItems(initialItems);
-      
+
       // Only set displayed items if no URL category filter (otherwise loadItems will filter)
       if (!hasUrlCategory && category === 'All') {
         setItems(initialItems);
         setIsLoading(false);
       }
     }
-    
+
     // NOTE: Reviews/media are now lazy-loaded by LatestReviewsModal when opened
   }, [initialManifest, initialItems, setManifest, setItems, setAllItems, setIsLoading, category]);
 
@@ -355,14 +355,14 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     const hasValidManifest = manifest && Object.keys((manifest as any).categories || {}).length > 0;
     if (hasValidManifest) return;
     if (!isrHydrated.current) return;
-    
+
     let cancelled = false;
     (async () => {
       let mf: any = null;
       try {
         const r = await fetch(`/api/index/manifest?mkt=${market}`);
         if (r.ok) mf = await r.json();
-      } catch {}
+      } catch { }
       if (!cancelled && mf) setManifest(mf);
     })();
     return () => { cancelled = true; };
@@ -371,7 +371,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   useEffect(() => {
     const loadItems = async () => {
       if (!manifest) return;
-      
+
       // If we have allItems cached, filter locally instead of API call
       if (allItems.length > 0) {
         if (category === 'All') {
@@ -395,19 +395,19 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         }
         return;
       }
-      
+
       // Fallback: fetch from API only when allItems not available
       setIsLoading(true);
       let items: any[] = [];
-      
+
       try {
         const r = await fetch(`/api/index/items?mkt=${market}`);
         if (r.ok) {
           const data = await r.json();
           items = Array.isArray(data.items) ? data.items : [];
         }
-      } catch {}
-      
+      } catch { }
+
       // Only set items if we got a valid response - never clear existing items with empty data
       if (items.length > 0) {
         setItems(items);
@@ -439,7 +439,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           } else {
             // No filesystem fallback in blobs-only mode
           }
-        } catch {}
+        } catch { }
       })();
       return () => { cancelled = true; };
     }
@@ -494,15 +494,15 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     const catLabel = safeTranslate(tCats, parentKey) || activeCategory;
     const subLabels = hasSubs
       ? subs.map((s: string) => {
-          const sk = subKeyForManifest(s);
-          return translateSubLabel(tCats, parentKey, sk) || s;
-        })
+        const sk = subKeyForManifest(s);
+        return translateSubLabel(tCats, parentKey, sk) || s;
+      })
       : [] as string[];
     const excludedLabels = hasExcluded
       ? excludedSubsList.map((s: string) => {
-          const sk = subKeyForManifest(s);
-          return translateSubLabel(tCats, parentKey, sk) || s;
-        })
+        const sk = subKeyForManifest(s);
+        return translateSubLabel(tCats, parentKey, sk) || s;
+      })
       : [] as string[];
     if (hasSubs || hasExcluded) {
       const parts: React.ReactNode[] = [];
@@ -566,70 +566,70 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           <meta name="twitter:card" content="summary" />
           <meta name="twitter:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta name="twitter:description" content={tMeta('indexDescription')} />
-          {['en','de','fr','it','pt'].map(l => (
+          {['en', 'de', 'fr', 'it', 'pt'].map(l => (
             <link key={l} rel="alternate" href={hostForLocale(l)} hrefLang={l} />
           ))}
           <link rel="alternate" href={hostForLocale('en')} hrefLang="x-default" />
         </Head>
       )}
+      <AnnouncementBanner />
       <main className="mx-auto max-w-auto p-4">
-      <AnimatedLogoHeader
-        rightSlot={(
-          <div className="flex items-center gap-2">
-            <LocaleSelector />
-            <Basket />
+        <AnimatedLogoHeader
+          rightSlot={(
+            <div className="flex items-center gap-2">
+              <LocaleSelector />
+              <Basket />
+            </div>
+          ) as any}
+        />
+        <ToastHost />
+        {isRouting && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-white/70 backdrop-blur-sm dark:bg-slate-900/70">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
           </div>
-        ) as any}
-      />
-      <ToastHost />
-      {/*<AnnouncementBanner />*/}
-      {isRouting && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-white/70 backdrop-blur-sm dark:bg-slate-900/70">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
-        </div>
-      )}
-      <div className="flex gap-6">
-        <Sidebar />
-        <div className="flex-1">
-          {!narrow && (
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="text-sm text-gray-600 dark:text-gray-300">{baseLabel}{desktopBreadcrumb}{freeShipNoteDesktop}{includeExcludeInline}</div>
-              <div className="flex items-center gap-2">
-                <SortControls />
-              </div>
-            </div>
-          )}
-          {narrow && (
-            <div className="mb-4">
-              <div className="text-sm text-gray-600 dark:text-gray-300 flex flex-wrap items-baseline gap-x-1">
-                <span>{baseLabel}:</span>
-                {desktopCrumbContent && desktopCrumbContent}
-                {freeShipOnly && (
-                  <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">{tList('freeShippingNote')}</span>
-                )}
-              </div>
-              {includeExcludeBlock}
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tSidebar('sort')}: {mobileSortSummary}</div>
-            </div>
-          )}
-          <div className="relative min-h-40">
-            {loadingUi && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+        )}
+        <div className="flex gap-6">
+          <Sidebar />
+          <div className="flex-1">
+            {!narrow && (
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="text-sm text-gray-600 dark:text-gray-300">{baseLabel}{desktopBreadcrumb}{freeShipNoteDesktop}{includeExcludeInline}</div>
+                <div className="flex items-center gap-2">
+                  <SortControls />
+                </div>
               </div>
             )}
-            {!loadingUi && <ItemList />}
+            {narrow && (
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 dark:text-gray-300 flex flex-wrap items-baseline gap-x-1">
+                  <span>{baseLabel}:</span>
+                  {desktopCrumbContent && desktopCrumbContent}
+                  {freeShipOnly && (
+                    <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">{tList('freeShippingNote')}</span>
+                  )}
+                </div>
+                {includeExcludeBlock}
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tSidebar('sort')}: {mobileSortSummary}</div>
+              </div>
+            )}
+            <div className="relative min-h-40">
+              {loadingUi && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+                </div>
+              )}
+              {!loadingUi && <ItemList />}
+            </div>
           </div>
         </div>
-      </div>
-      {/*  Renable soon */}
-  <InfoButton content={null as any} />
-      <ItemDetailOverlay />
-      <SellerOverlay />
-      <SellerAnalyticsModal />
-      <LatestReviewsModal />
-      <OptionsModal />
-      <FirstVisitBanner />
+        {/*  Renable soon */}
+        <InfoButton content={null as any} />
+        <ItemDetailOverlay />
+        <SellerOverlay />
+        <SellerAnalyticsModal />
+        <LatestReviewsModal />
+        <OptionsModal />
+        <FirstVisitBanner />
       </main>
     </>
   );

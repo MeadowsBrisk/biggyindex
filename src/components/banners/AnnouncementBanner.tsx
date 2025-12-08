@@ -26,11 +26,11 @@ type Severity = NonNullable<typeof announcementBanner.severity>;
 function severityClasses(severity: Severity = 'info') {
   switch (severity) {
     case 'warning':
-      return 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-50';
+      return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
     case 'success':
-      return 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-50';
+      return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300';
     default:
-      return 'border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-50';
+      return 'bg-sky-500/10 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300';
   }
 }
 
@@ -38,21 +38,29 @@ export default function AnnouncementBanner(): React.ReactElement | null {
   const { locale } = useLocale();
   const [dismissals, setDismissals] = useAtom(announcementBannerDismissalsAtom);
   const [mounted, setMounted] = React.useState(false);
+  const [isClosing, setIsClosing] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   const message = pickMessage(locale);
   const id = announcementBanner.id;
 
+  const isDismissed = dismissals && typeof dismissals === 'object' && dismissals[id];
+
+  // Don't render at all if not mounted or no message
+  if (!mounted) return null;
   if (!id || !message) return null;
-  if (dismissals && typeof dismissals === 'object' && dismissals[id]) return null;
+  // Only hide after animation completes
+  if (isDismissed && !isClosing) return null;
 
   const close = () => {
-    setDismissals((prev = {}) => ({ ...prev, [id]: new Date().toISOString() }));
+    setIsClosing(true);
+    // Wait for animation to complete before actually dismissing
+    setTimeout(() => {
+      setDismissals((prev = {}) => ({ ...prev, [id]: new Date().toISOString() }));
+    }, 300);
   };
 
   const hasCta = Boolean(announcementBanner.href && announcementBanner.ctaLabel);
@@ -60,30 +68,46 @@ export default function AnnouncementBanner(): React.ReactElement | null {
 
   return (
     <div
-      className={`mb-4 rounded-lg border px-4 py-3 text-sm shadow-sm transition-colors ${severityClasses(severity)}`}
-      role="status"
-      aria-live="polite"
+      className={`grid transition-all duration-300 ease-out ${isClosing ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+        }`}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <p className="font-medium leading-relaxed">{message}</p>
-          {hasCta && announcementBanner.href && announcementBanner.ctaLabel && (
-            <a
-              className="mt-2 inline-flex items-center text-sm font-semibold underline-offset-4 hover:underline"
-              href={announcementBanner.href}
-            >
-              {announcementBanner.ctaLabel}
-            </a>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={close}
-          className="ml-3 rounded-full p-1 text-current opacity-70 transition hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-          aria-label="Dismiss banner"
+      <div className="overflow-hidden">
+        <div
+          className={`w-full px-4 py-1.5 text-xs transition-colors ${severityClasses(severity)}`}
+          role="status"
+          aria-live="polite"
         >
-          <X className="h-4 w-4" />
-        </button>
+          <div className="flex items-center justify-between">
+            {/* Spacer to balance the close button and keep text centered */}
+            <div className="w-6 hidden sm:block" />
+            <div className="flex-1 flex items-center justify-center gap-2 text-center sm:text-left sm:flex-none">
+              <p className="font-medium">
+                {message.split('{{mbr}}').map((part, i, arr) => (
+                  <React.Fragment key={i}>
+                    {part}
+                    {i < arr.length - 1 && <br className="sm:hidden" />}
+                  </React.Fragment>
+                ))}
+              </p>
+              {hasCta && announcementBanner.href && announcementBanner.ctaLabel && (
+                <a
+                  className="font-semibold underline underline-offset-2 hover:no-underline"
+                  href={announcementBanner.href}
+                >
+                  {announcementBanner.ctaLabel}
+                </a>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={close}
+              className="rounded p-0.5 opacity-60 transition hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-current"
+              aria-label="Dismiss banner"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
