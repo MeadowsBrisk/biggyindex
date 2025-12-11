@@ -1034,5 +1034,23 @@
     "height": 746,
     "frames": 42,
     "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/yITxDCXDWVUKMoZX.gif": {
+    "hash": "773354d17f73",
+    "poster": "/gif-cache/posters/773354d17f73.jpg",
+    "video": "/gif-cache/videos/773354d17f73.mp4",
+    "width": 800,
+    "height": 425,
+    "frames": 50,
+    "status": "ok"
+  },
+  "https://i2.littlebiggy.net/images/i/w/800/uuJFNDwGImoFJWTT.gif": {
+    "hash": "ebdd14991db5",
+    "poster": "/gif-cache/posters/ebdd14991db5.jpg",
+    "video": "/gif-cache/videos/ebdd14991db5.mp4",
+    "width": 515,
+    "height": 750,
+    "frames": 58,
+    "status": "ok"
   }
 }
