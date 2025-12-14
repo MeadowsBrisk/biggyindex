@@ -48,16 +48,16 @@ async function getStoreSafe(name: string): Promise<Store> {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const refNum = (req.query as any).refNum;
-  try { res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive'); } catch {}
-  if (!refNum || Array.isArray(refNum)) { res.status(400).json({ error: 'invalid refNum'}); return; }
+  try { res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive'); } catch { }
+  if (!refNum || Array.isArray(refNum)) { res.status(400).json({ error: 'invalid refNum' }); return; }
   const storeName = process.env.SHARED_STORE_NAME || 'site-index-shared';
-  const candidateKeys = [ `items/${encodeURIComponent(String(refNum))}.json` ];
+  const candidateKeys = [`items/${encodeURIComponent(String(refNum))}.json`];
   let authMode: 'explicit' | 'implicit' | 'none' = 'none';
   let attemptedKey: string | null = null;
   let detailObj: Detail | null = null;
 
   try {
-    const mod: any = await import('@netlify/blobs').catch(()=>null);
+    const mod: any = await import('@netlify/blobs').catch(() => null);
     if (mod && mod.getStore) {
       const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
       const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN;
@@ -79,11 +79,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (raw) {
               try { detailObj = JSON.parse(raw); } catch { detailObj = null; }
               if (detailObj) {
-                console.log('[detail-api] blob hit', key, 'auth='+authMode, 'bytes=' + raw.length);
+                console.log('[detail-api] blob hit', key, 'auth=' + authMode, 'bytes=' + raw.length);
                 break;
               }
             }
-          } catch {}
+          } catch { }
         }
       }
 
@@ -102,8 +102,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             try { marketStore = mod.getStore({ name: marketName, consistency: 'strong' }); }
             catch (e: any) { console.warn('[detail-api] implicit market getStore failed', e?.message); }
           }
-          try { res.setHeader('X-Crawler-Ship-Mkt', mkt); } catch {}
-          try { res.setHeader('X-Crawler-Ship-Store', marketName); } catch {}
+          try { res.setHeader('X-Crawler-Ship-Mkt', mkt); } catch { }
+          try { res.setHeader('X-Crawler-Ship-Store', marketName); } catch { }
 
           const candidateShipKeys: string[] = [];
           candidateShipKeys.push(`market-shipping/${encodeURIComponent(String(refNum))}.json`);
@@ -116,45 +116,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (marketStore) {
             for (const shipKey of candidateShipKeys) {
               let shipRaw: any = null;
-              try { shipRaw = await marketStore.get(shipKey); } catch {}
+              try { shipRaw = await marketStore.get(shipKey); } catch { }
               if (!shipRaw) continue;
               try {
                 const ship = JSON.parse(shipRaw);
                 if (ship && Array.isArray(ship.options)) {
-                  (detailObj as any).shipping = { ...((detailObj as any).shipping || {}), options: ship.options };
+                  // Use translated shipping options if available (non-GB), fall back to English
+                  const shippingOptions = (ship.translations?.shippingOptions && Array.isArray(ship.translations.shippingOptions))
+                    ? ship.translations.shippingOptions
+                    : ship.options;
+                  (detailObj as any).shipping = { ...((detailObj as any).shipping || {}), options: shippingOptions };
+                  // Also keep original English labels for reference/toggle
+                  (detailObj as any).shippingOptionsEn = ship.options;
                   merged = true;
-                  try { res.setHeader('X-Crawler-Ship-Key', shipKey); } catch {}
-                  
+                  try { res.setHeader('X-Crawler-Ship-Key', shipKey); } catch { }
+
                   // Extract translated description from shipping blob (non-GB markets only)
                   if (ship.translations?.description) {
                     (detailObj as any).descriptionTranslated = ship.translations.description;
                   }
-                  
+
                   break;
                 }
-              } catch {}
+              } catch { }
             }
           }
           if (!merged) {
-            try { res.setHeader('X-Crawler-Ship-Attempted', candidateShipKeys.join(',')); } catch {}
+            try { res.setHeader('X-Crawler-Ship-Attempted', candidateShipKeys.join(',')); } catch { }
           }
-        } catch {}
+        } catch { }
       }
 
       if (detailObj) {
         const body = JSON.stringify(detailObj);
-        const etag = 'W/"'+crypto.createHash('sha1').update(body).digest('hex').slice(0, 32)+'"';
-        res.setHeader('Content-Type','application/json');
-        res.setHeader('Cache-Control','public, max-age=30, stale-while-revalidate=120');
+        const etag = 'W/"' + crypto.createHash('sha1').update(body).digest('hex').slice(0, 32) + '"';
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
         res.setHeader('ETag', etag);
-        res.setHeader('X-Crawler-Storage','blob');
+        res.setHeader('X-Crawler-Storage', 'blob');
         if ((req.headers['if-none-match'] as any) === etag) { res.status(304).end(); return; }
         res.status(200).send(body);
         return;
       }
     }
-  } catch {}
-  console.warn('[detail-api] miss ref=' + refNum, 'auth='+authMode, attemptedKey ? 'attempted='+attemptedKey : '');
-  res.setHeader('X-Crawler-Storage','miss');
-  res.status(404).json({ error:'not_found' });
+  } catch { }
+  console.warn('[detail-api] miss ref=' + refNum, 'auth=' + authMode, attemptedKey ? 'attempted=' + attemptedKey : '');
+  res.setHeader('X-Crawler-Storage', 'miss');
+  res.status(404).json({ error: 'not_found' });
 }

@@ -166,19 +166,19 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
   const markets: MarketCode[] = ['GB', 'DE', 'FR', 'IT', 'PT'];
   const marketIndexes = new Map<MarketCode, Map<string, any>>();
   const presenceMap = new Map<string, Set<TargetLocale>>(); // refNum -> set of locales needing translation
-  
+
   for (const market of markets) {
     const storeName = env.stores[market] || `site-index-${market.toLowerCase()}`;
     const blob = getBlobClient(storeName);
     const index = await blob.getJSON<any[]>(Keys.market.index(market)) || [];
-    
+
     const itemMap = new Map<string, any>();
     for (const item of index) {
       const refNum = String(item.refNum || item.id);
       if (refNum) itemMap.set(refNum, item);
     }
     marketIndexes.set(market, itemMap);
-    
+
     // For non-GB markets, add locale to presence map
     if (market !== 'GB') {
       const locale = MARKET_TO_LOCALE[market];
@@ -189,16 +189,16 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
         }
       }
     }
-    
+
     log.translate.info('loaded market index', { market, items: itemMap.size });
   }
 
   // GB index is source of English content
   const gbIndex = marketIndexes.get('GB') || new Map();
-  
+
   // Count unique items needing translation (present in at least one non-GB market)
   const itemsNeedingTranslation = presenceMap.size;
-  log.translate.info('presence map built', { 
+  log.translate.info('presence map built', {
     gbItems: gbIndex.size,
     itemsInOtherMarkets: itemsNeedingTranslation,
   });
@@ -208,7 +208,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
   const itemsFilter = opts.items?.length ? new Set(opts.items) : null;
   if (itemsFilter) {
     log.translate.info('filtering to specific items', { count: itemsFilter.size, items: Array.from(itemsFilter).join(', ') });
-    
+
     // Add GB-only items to presenceMap if they're in the filter but not already present
     for (const refNum of itemsFilter) {
       if (!presenceMap.has(refNum) && gbIndex.has(refNum)) {
@@ -229,16 +229,17 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     locales: TargetLocale[];
     charEstimate: number;
     variantsOnly: boolean;  // If true, only translate variants (n/d already done)
+    reason: 'new' | 'updated' | 'variants-only' | 'missing-locales';  // Why this item needs translation
   }
   const pending: PendingItem[] = [];
 
   for (const [refNum, locales] of presenceMap) {
     // If --items filter specified, skip items not in the filter
     if (itemsFilter && !itemsFilter.has(refNum)) continue;
-    
+
     // Force translation for items in --items filter (treat as if --force for these)
     const forceThisItem = opts.force || (itemsFilter && itemsFilter.has(refNum));
-    
+
     // Get English content - prefer GB index, but fall back to any market where item exists
     // (Items not in GB are still in English, just don't ship to GB)
     let itemData: any = gbIndex.get(refNum);
@@ -254,23 +255,23 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
         }
       }
     }
-    
+
     if (!itemData) continue; // Shouldn't happen
 
     // Get name from index (short is fine for name)
     const name = isFromNonGB ? (itemData.nEn || itemData.n || '') : (itemData.n || '');
-    
+
     // Use index description for change detection (fast!)
     // Full description will be loaded only when actually translating
     const indexDescription = isFromNonGB ? (itemData.dEn || itemData.d || '') : (itemData.d || '');
-    
+
     // Extract variants - use dEn (English original) for non-GB items to avoid translating corrupted text
     const rawVariants = itemData.v || [];
     const variants: VariantForHash[] = rawVariants.map((v: any) => ({
       vid: v.vid,
       d: isFromNonGB ? (v.dEn || v.d || '') : (v.d || ''),
     })).filter((v: VariantForHash) => v.d); // Only include variants with descriptions
-    
+
     if (!name && !indexDescription) continue;
 
     // Hash only includes name + description (not variants) for backward compatibility
@@ -278,13 +279,17 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     const hash = computeSourceHash(name, indexDescription);
     let localesArray = Array.from(locales);
     let variantsOnly = false;
+    let reason: 'new' | 'updated' | 'variants-only' | 'missing-locales' = 'new';
 
     const existingEntry = existingAgg[refNum];
-    
+
     // Check which locales already have translations (regardless of hash)
     const localesWithTranslation = localesArray.filter(l => existingEntry?.locales?.[azureCodeToLocale(l)]?.n);
     const missingLocales = localesArray.filter(l => !existingEntry?.locales?.[azureCodeToLocale(l)]?.n);
-    
+
+    // Check if hash changed (description updated)
+    const hashChanged = existingEntry && existingEntry.sourceHash !== hash;
+
     // Check if any locale with translation is missing variants
     let needsVariantTranslation = false;
     if (variants.length > 0) {
@@ -296,48 +301,59 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
         }
       }
     }
-    
+
     // Decision logic:
-    // 1. If hash matches AND all locales have translations with variants → skip
-    // 2. If all locales have n/d translations but missing variants → variantsOnly
+    // 1. If --force or --items specified for this item → full re-translation
+    // 2. If hash changed (description updated) → full re-translation for ALL locales
     // 3. If some locales missing translations entirely → full translation for those
-    // 4. If hash changed → only re-translate if --force or --items (name/desc translations are still valid)
-    
-    if (!forceThisItem && existingEntry) {
-      if (missingLocales.length === 0 && !needsVariantTranslation) {
-        continue; // Fully translated with variants, skip
-      }
-      
-      if (missingLocales.length === 0 && needsVariantTranslation) {
-        // All locales have n/d, just need variants
-        variantsOnly = true;
-      } else if (missingLocales.length > 0 && !needsVariantTranslation) {
-        // Only translate missing locales (full)
-        localesArray = missingLocales;
-      } else {
-        // Some locales missing, some need variants - translate missing fully, variants for existing
-        // For simplicity, if there are missing locales, do full translation for all needed
-        // (variant backfill will happen on next run)
-        localesArray = missingLocales;
-      }
+    // 4. If all locales have n/d but missing variants → variantsOnly
+    // 5. If hash matches AND all locales have translations with variants → skip
+
+    if (forceThisItem) {
+      // Force flag - translate everything
+      reason = existingEntry ? 'updated' : 'new';
+    } else if (!existingEntry) {
+      // No existing translation - new item
+      reason = 'new';
+    } else if (hashChanged) {
+      // Description changed - re-translate ALL locales (not just missing)
+      reason = 'updated';
+      // Reset to all locales since content changed
+      localesArray = Array.from(locales);
+    } else if (missingLocales.length > 0) {
+      // Some locales missing - translate those
+      reason = 'missing-locales';
+      localesArray = missingLocales;
+    } else if (needsVariantTranslation) {
+      // All locales have n/d, just need variants
+      reason = 'variants-only';
+      variantsOnly = true;
+    } else {
+      // Fully translated with variants through all locales, hash matches - skip
+      continue;
     }
-    // If no existing entry, full translation for all locales (default)
 
     // Estimate chars based on what we're sending
     const variantChars = variants.reduce((sum, v) => sum + (v.d?.length || 0), 0);
-    const charEstimate = variantsOnly 
+    const charEstimate = variantsOnly
       ? variantChars * localesArray.length
       : estimateCharCount(name, indexDescription, variants) * localesArray.length;
 
     // Skip items with no variants if we're in variantsOnly mode
     if (variantsOnly && variants.length === 0) continue;
 
-    pending.push({ refNum, name, description: indexDescription, variants, hash, locales: localesArray, charEstimate, variantsOnly });
+    pending.push({ refNum, name, description: indexDescription, variants, hash, locales: localesArray, charEstimate, variantsOnly, reason });
   }
 
   // Apply limit if specified
   const toProcess = opts.limit ? pending.slice(0, opts.limit) : pending;
   const totalCharsNeeded = toProcess.reduce((sum, p) => sum + p.charEstimate, 0);
+
+  // Count by reason for better visibility
+  const countByReason = toProcess.reduce((acc, item) => {
+    acc[item.reason] = (acc[item.reason] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   log.translate.info('scan complete', {
     itemsInOtherMarkets: presenceMap.size,
@@ -345,6 +361,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
     needsTranslation: pending.length,
     processing: toProcess.length,
     estimatedChars: totalCharsNeeded.toLocaleString(),
+    breakdown: `new=${countByReason['new'] || 0}, updated=${countByReason['updated'] || 0}, missing-locales=${countByReason['missing-locales'] || 0}, variants-only=${countByReason['variants-only'] || 0}`,
   });
 
   // Dry run mode
@@ -412,17 +429,17 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
       for (const [localeKey, groupItems] of byLocaleKey) {
         const isVariantsOnly = localeKey.startsWith('v:');
         const locales = (isVariantsOnly ? localeKey.slice(2) : localeKey).split(',') as TargetLocale[];
-        
+
         // NEW APPROACH: Send each text separately to avoid emoji corruption from concatenation
         // For each item, we send: [name\n\ndesc, variant1, variant2, ...]
         // This avoids the separator-based joining that was corrupting multi-byte characters
-        
+
         // Process items one by one (simpler, avoids complex batching across item boundaries)
         for (const item of groupItems) {
-          const sortedVariants = [...item.variants].sort((a, v) => 
+          const sortedVariants = [...item.variants].sort((a, v) =>
             String(a.vid || '').localeCompare(String(v.vid || ''))
           );
-          
+
           // Load full description from core blob for translation
           // (Scan phase used index desc for fast change detection, but we need full for Azure)
           let fullEnglishDesc = item.description; // fallback to index desc
@@ -437,10 +454,10 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
               // Use index description as fallback (better than nothing)
             }
           }
-          
+
           // Build texts array: either just variants, or name+desc followed by variants
           const textsToTranslate: string[] = [];
-          
+
           if (item.variantsOnly) {
             // Only send variants (no name/description)
             for (const v of sortedVariants) {
@@ -453,19 +470,19 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
               if (v.d) textsToTranslate.push(v.d);
             }
           }
-          
+
           if (textsToTranslate.length === 0) continue;
-          
+
           // Azure allows 25 texts per call - split if needed
           const AZURE_MAX_TEXTS = 25;
           let allResults: TranslationResult[] = [];
-          
+
           for (let textIdx = 0; textIdx < textsToTranslate.length; textIdx += AZURE_MAX_TEXTS) {
             const textBatch = textsToTranslate.slice(textIdx, textIdx + AZURE_MAX_TEXTS);
             const { results: batchResults, charCount: batchChars } = await translateBatch(textBatch, locales);
             batchActualChars += batchChars;
             allResults.push(...batchResults);
-            
+
             // Small delay between sub-batches to avoid rate limiting
             if (textIdx + AZURE_MAX_TEXTS < textsToTranslate.length) {
               await sleep(1000);
@@ -482,7 +499,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
           const existingEntry = existingAgg[item.refNum];
           const shouldPreserve = existingEntry?.sourceHash === item.hash;
           const existingLocales = shouldPreserve ? (existingEntry?.locales || {}) : {};
-          
+
           const aggEntry: TranslationAggregate[string] = {
             sourceHash: item.hash,
             locales: { ...existingLocales },
@@ -491,11 +508,11 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
           // Parse results - each locale gets results from all texts
           for (let localeIdx = 0; localeIdx < locales.length; localeIdx++) {
             const locale = azureCodeToLocale(locales[localeIdx]);
-            
+
             let translatedName = '';
             let translatedDescShort = '';
             const variantTranslations: { vid: string | number; d: string }[] = [];
-            
+
             if (item.variantsOnly) {
               // Results are just variants (preserve existing n/d)
               const existingLocaleData = existingAgg[item.refNum]?.locales?.[locale];
@@ -507,7 +524,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
                   refNum: item.refNum, locale,
                 });
               }
-              
+
               // Map results to variants
               for (let vi = 0; vi < sortedVariants.length && vi < allResults.length; vi++) {
                 const translatedText = allResults[vi]?.translations?.[localeIdx]?.text || '';
@@ -521,7 +538,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
               const { name, description: fullDescription } = parseTranslatedText(nameDescText);
               translatedName = name;
               translatedDescShort = truncateDescription(fullDescription);
-              
+
               // Write full description + shipping labels to market shipping blob
               const market = LOCALE_TO_MARKET[locales[localeIdx]];
               if (market && fullDescription) {
@@ -529,7 +546,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
                   const mktStoreName = marketStore(market, env.stores as any);
                   const mktBlob = getBlobClient(mktStoreName);
                   const shipKey = Keys.market.shipping(item.refNum);
-                  
+
                   // Load existing shipping blob (may not exist yet)
                   const existingShip = await mktBlob.getJSON<any>(shipKey) || {
                     id: item.refNum,
@@ -537,30 +554,30 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
                     options: [],
                     warnings: [],
                   };
-                  
+
                   // Translate shipping option labels if present and changed
                   let translatedShippingOptions: { label: string; cost: number }[] | undefined;
                   const originalOptions = existingShip.options || [];
                   const existingTranslatedOptions = existingShip.translations?.shippingOptions;
                   const existingSourceLabelsHash = existingShip.translations?.sourceLabelsHash;
-                  
+
                   // Compute hash of current source labels to detect changes
                   const currentLabels = originalOptions.map((opt: any) => opt.label || '').filter(Boolean);
-                  const currentLabelsHash = currentLabels.length > 0 
+                  const currentLabelsHash = currentLabels.length > 0
                     ? createHash('md5').update(currentLabels.join('|')).digest('hex').slice(0, 8)
                     : undefined;
-                  
+
                   // Translate if: we have labels AND (no existing translation OR labels changed)
                   const labelsChanged = currentLabelsHash && currentLabelsHash !== existingSourceLabelsHash;
                   if (currentLabels.length > 0 && (!existingTranslatedOptions || labelsChanged)) {
                     try {
                       // Translate shipping labels (single locale at a time)
                       const { results: labelResults, charCount: labelChars } = await translateBatch(
-                        currentLabels, 
+                        currentLabels,
                         [locales[localeIdx]]
                       );
                       batchActualChars += labelChars;
-                      
+
                       // Map translated labels back to options
                       translatedShippingOptions = originalOptions.map((opt: any, idx: number) => ({
                         label: labelResults[idx]?.translations?.[0]?.text || opt.label || '',
@@ -574,17 +591,17 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
                       });
                     }
                   }
-                  
+
                   // Add/update translations field (include sourceLabelsHash for change detection)
                   existingShip.translations = {
                     description: fullDescription,
-                    ...(translatedShippingOptions ? { shippingOptions: translatedShippingOptions } : 
-                        existingTranslatedOptions ? { shippingOptions: existingTranslatedOptions } : {}),
+                    ...(translatedShippingOptions ? { shippingOptions: translatedShippingOptions } :
+                      existingTranslatedOptions ? { shippingOptions: existingTranslatedOptions } : {}),
                     sourceHash: item.hash,
                     ...(currentLabelsHash ? { sourceLabelsHash: currentLabelsHash } : {}),
                     updatedAt: new Date().toISOString(),
                   };
-                  
+
                   await mktBlob.putJSON(shipKey, existingShip);
                 } catch (shipErr: any) {
                   log.translate.warn('failed to write shipping blob translation', {
@@ -594,7 +611,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
                   });
                 }
               }
-              
+
               // Map remaining results to variants
               for (let vi = 0; vi < sortedVariants.length && vi + 1 < allResults.length; vi++) {
                 const translatedText = allResults[vi + 1]?.translations?.[localeIdx]?.text || '';
@@ -613,6 +630,13 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
 
           aggUpdates[item.refNum] = aggEntry;
           translated++;
+
+          // Log individual item completion with reason
+          log.translate.info(`translated [${item.reason}]`, {
+            refNum: item.refNum,
+            locales: item.locales.join(','),
+            variantsOnly: item.variantsOnly ? 'yes' : 'no',
+          });
         }
       }
 
@@ -664,7 +688,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
   if (Object.keys(aggUpdates).length > 0) {
     const mergedAgg = { ...existingAgg, ...aggUpdates };
     await sharedBlob.putJSON(Keys.shared.aggregates.translations(), mergedAgg);
-    log.translate.info('saved translation aggregate', { 
+    log.translate.info('saved translation aggregate', {
       newItems: Object.keys(aggUpdates).length,
       totalItems: Object.keys(mergedAgg).length,
     });
@@ -797,7 +821,7 @@ async function runBackfillFullDesc(
   // Azure F0 tier: ~33,300 chars/minute limit. Full desc avg ~1000 chars × 4 locales = 4000 chars/item
   // So max ~8 items per minute to stay under rate limit
   const BACKFILL_BATCH_SIZE = 5;  // Smaller batches to avoid rate limiting
-  
+
   let translated = 0;
   let charCount = 0;
   let budgetExhausted = false;
