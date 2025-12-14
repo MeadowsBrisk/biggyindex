@@ -45,7 +45,7 @@ export async function processSingleItem(
     // Shared store for item core
     const sharedBlob = getBlobClient(env.stores.shared);
     const key = Keys.shared.itemCore(itemId);
-    
+
     // CRITICAL: Load existing item with defensive error handling
     // If load fails, we should NOT proceed with a minimal write that would lose data
     let existing: any = null;
@@ -57,15 +57,15 @@ export async function processSingleItem(
       log.items.error(`CRITICAL: failed to load existing item - aborting to prevent data loss`, { id: itemId, reason: e?.message || String(e) });
       throw new Error(`Failed to load existing item data - cannot proceed safely to prevent data loss`);
     }
-    
+
     // null means item doesn't exist (new item), {} handles edge case
     const base = existing || {};
 
-  let reviewsWritten = false;
+    let reviewsWritten = false;
     let descriptionWritten = false;
     let shippingWritten = 0;
-  const shipSummaryByMarket: Record<string, { min: number; max: number; free: number }> = {};
-  let shareWritten = false;
+    const shipSummaryByMarket: Record<string, { min: number; max: number; free: number }> = {};
+    let shareWritten = false;
 
     // Fetch description and reviews (parallel when full mode)
     let descRes: any | null = null;
@@ -187,7 +187,7 @@ export async function processSingleItem(
       (Array.isArray(base.reviews) && base.reviews.length > 0) ||
       (typeof base.description === 'string' && base.description.length > 0)
     );
-    
+
     if (!hasReviews && !hasDescription && !hasExistingData) {
       // All fetches failed and no existing data to preserve - abort write
       const errMsg = `All fetches failed for ${itemId} - aborting write to prevent data loss. Errors: ${errors.join(', ')}`;
@@ -201,7 +201,7 @@ export async function processSingleItem(
         errors: [errMsg, ...errors],
       };
     }
-    
+
     // Log warning if fetches failed but we're preserving existing data
     if (hasExistingData && !reviewsWritten && !descriptionWritten) {
       log.items.warn(`fetches failed, preserving existing data`, { id: itemId, errors: errors.join(', ') });
@@ -209,11 +209,11 @@ export async function processSingleItem(
 
     // Single write for core
     await sharedBlob.putJSON(key, merged);
-  const descLen = merged.description ? (merged.descriptionMeta && (merged.descriptionMeta as any).length) || merged.description.length : 0;
+    const descLen = merged.description ? (merged.descriptionMeta && (merged.descriptionMeta as any).length) || merged.description.length : 0;
     const revCount = Array.isArray(merged.reviews) ? merged.reviews.length : 0;
-  // Enhanced logging: include share reuse/generation info and placeholder for shipping summary counts
-  const shareStatus = shareWritten ? 'share=new' : (merged.sl ? 'share=reused' : 'share=none');
-  log.items.info(`stored`, { id: itemId, descLen, reviews: revCount, full: descriptionWritten ? 1 : 0, shareStatus });
+    // Enhanced logging: include share reuse/generation info and placeholder for shipping summary counts
+    const shareStatus = shareWritten ? 'share=new' : (merged.sl ? 'share=reused' : 'share=none');
+    log.items.info(`stored`, { id: itemId, descLen, reviews: revCount, full: descriptionWritten ? 1 : 0, shareStatus });
 
     // Load shipping metadata aggregate (needed for both full and reviews-only modes)
     const shippingMetaAgg = await loadShippingMeta(sharedBlob);
@@ -223,63 +223,63 @@ export async function processSingleItem(
       const targetMarkets = Array.isArray(opts.shippingMarkets) && opts.shippingMarkets.length ? opts.shippingMarkets : markets;
       const forceRefreshShipping = process.env.CRAWLER_REFRESH_SHIPPING === '1';
       const { needsRefresh, staleMarkets } = isShippingStale(shippingMetaAgg, itemId, targetMarkets);
-      
+
       const marketsToRefresh = (needsRefresh || forceRefreshShipping) ? (forceRefreshShipping ? targetMarkets : staleMarkets) : [];
-      
+
       if (marketsToRefresh.length === 0) {
         log.items.info(`shipping skipped`, { id: itemId, markets: targetMarkets.join(','), reason: 'fresh' });
       } else {
         log.items.info(`shipping start`, { id: itemId, markets: marketsToRefresh.join(','), mode: forceRefreshShipping ? 'forced' : staleMarkets.length < targetMarkets.length ? 'stale-only' : 'sequential' });
-        
+
         // Track markets actually refreshed (for metadata update)
         const marketsRefreshed: MarketCode[] = [];
-        
+
         // Use GB shipping from description HTML if available (optimization)
         // Description is fetched with shipsTo=markets[0] (GB), so shipping is accurate
         if (marketsToRefresh.includes('GB') && descRes?.gbShipping) {
-      const gbShipping = descRes.gbShipping;
-      
-      // Write GB shipping immediately and remove from refresh list
-      // Note: GB is English source, never has translations - no need to preserve existing
-      const store = marketStore('GB', env.stores as any);
-      const blob = getBlobClient(store);
-      const shipKey = Keys.market.shipping(itemId);
-      const payload = {
-        id: itemId,
-        market: 'GB' as MarketCode,
-        options: gbShipping.options,
-        warnings: [...(gbShipping.warnings || []), 'from_description'],
-        lastShippingRefresh: new Date().toISOString(),
-      };
-      await blob.putJSON(shipKey, payload);
-      shippingWritten++;
-      marketsRefreshed.push('GB'); // Track GB as refreshed for metadata update
-      
-      // Compute compact summary for aggregator
-      const costs = gbShipping.options.map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
-      if (costs.length) {
-        const min = Math.min(...costs);
-        const max = Math.max(...costs);
-        const free = costs.some((c: number) => c === 0) ? 1 : 0;
-        shipSummaryByMarket['GB'] = { min, max, free };
-      }
-      
-      log.items.info(`shipping cached`, { id: itemId, market: 'GB', options: gbShipping.options.length, warns: 'from_description' });
-      
-      // Remove GB from markets to refresh (already handled via cache)
+          const gbShipping = descRes.gbShipping;
+
+          // Write GB shipping immediately and remove from refresh list
+          // Note: GB is English source, never has translations - no need to preserve existing
+          const store = marketStore('GB', env.stores as any);
+          const blob = getBlobClient(store);
+          const shipKey = Keys.market.shipping(itemId);
+          const payload = {
+            id: itemId,
+            market: 'GB' as MarketCode,
+            options: gbShipping.options,
+            warnings: [...(gbShipping.warnings || []), 'from_description'],
+            lastShippingRefresh: new Date().toISOString(),
+          };
+          await blob.putJSON(shipKey, payload);
+          shippingWritten++;
+          marketsRefreshed.push('GB'); // Track GB as refreshed for metadata update
+
+          // Compute compact summary for aggregator
+          const costs = gbShipping.options.map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
+          if (costs.length) {
+            const min = Math.min(...costs);
+            const max = Math.max(...costs);
+            const free = costs.some((c: number) => c === 0) ? 1 : 0;
+            shipSummaryByMarket['GB'] = { min, max, free };
+          }
+
+          log.items.info(`shipping cached`, { id: itemId, market: 'GB', options: gbShipping.options.length, warns: 'from_description' });
+
+          // Remove GB from markets to refresh (already handled via cache)
           const gbIndex = marketsToRefresh.indexOf('GB');
           if (gbIndex >= 0) {
             marketsToRefresh.splice(gbIndex, 1);
           }
         }
-        
+
         // Fetch shipping for remaining markets in PARALLEL using isolated per-market clients
         // Each market gets its own cookie jar to prevent LF cookie conflicts
         if (marketsToRefresh.length > 0) {
           log.items.info(`shipping parallel`, { id: itemId, markets: marketsToRefresh.join(',') });
-          
+
           const shippingResults = await extractAllMarketsShippingParallel(itemId, marketsToRefresh);
-          
+
           // Process results and write to per-market blobs
           for (const [mkt, res] of shippingResults) {
             if (res.ok) {
@@ -303,7 +303,7 @@ export async function processSingleItem(
                 ? ` warns=${payload.warnings.join(',')}`
                 : '';
               log.items.info(`shipping stored`, { id: itemId, market: mkt, options: payload.options.length, warns: warnStr.trim() || undefined });
-              
+
               // Compute compact summary for aggregator
               const costs = (res.options || []).map((o: any) => Number(o?.cost)).filter((n: any) => Number.isFinite(n));
               if (costs.length) {
@@ -318,7 +318,7 @@ export async function processSingleItem(
             }
           }
         }
-        
+
         // Prepare shipping metadata update (will be batched at end by cli.ts)
         // Include lastIndexedLua on full crawls to enable change detection on future runs
         // Include lastFullCrawl when description is actually written (critical for mode detection on next run)
@@ -334,7 +334,7 @@ export async function processSingleItem(
           }
         }
       }
-      
+
       if (targetMarkets.length) {
         const byMkt = Object.entries(shipSummaryByMarket)
           .map(([m, s]) => `${m}:${s.min}-${s.max}${s.free ? ' free' : ''}`)
@@ -346,30 +346,38 @@ export async function processSingleItem(
     // Extract shippingMetaUpdate from temporary holder (set in both full and reviews-only modes)
     let shippingMetaUpdate = shipSummaryByMarket['__shippingMetaUpdate'] as any;
     delete shipSummaryByMarket['__shippingMetaUpdate'];
-    
-    // For full mode: ensure lastFullCrawl is set when description was written
+
+    // For full mode: ensure lastFullCrawl AND lastIndexedLua are set when description was written
     // This is critical for mode detection on future runs - without it, items get stuck in reviews-only
+    // BUG FIX: Always set lastIndexedLua so the next run knows we already processed this index change!
     if (mode === 'full' && descriptionWritten) {
       const now = new Date().toISOString();
       if (!shippingMetaUpdate) {
         // Create a new entry if shipping wasn't refreshed (but description was)
         const existingEntry = shippingMetaAgg[itemId];
         shippingMetaUpdate = existingEntry
-          ? { ...existingEntry, lastRefresh: now, lastFullCrawl: now }
-          : { markets: {}, lastRefresh: now, lastFullCrawl: now };
-      } else if (!shippingMetaUpdate.lastFullCrawl) {
-        // Add lastFullCrawl if not already set (shouldn't happen but be safe)
-        shippingMetaUpdate.lastFullCrawl = now;
+          ? { ...existingEntry, lastRefresh: now, lastFullCrawl: now, lastIndexedLua: opts.indexLua || existingEntry.lastIndexedLua }
+          : { markets: {}, lastRefresh: now, lastFullCrawl: now, lastIndexedLua: opts.indexLua };
+      } else {
+        // Ensure lastFullCrawl and lastIndexedLua are set
+        if (!shippingMetaUpdate.lastFullCrawl) {
+          shippingMetaUpdate.lastFullCrawl = now;
+        }
+        // CRITICAL: Always update lastIndexedLua to record we've processed this index version
+        if (opts.indexLua) {
+          shippingMetaUpdate.lastIndexedLua = opts.indexLua;
+        }
       }
     }
-    
+
     // For reviews-only mode, create the update if not already set
+    // BUG FIX: Also set lastIndexedLua so change detection works on subsequent runs
     if (mode === 'reviews-only' && !shippingMetaUpdate) {
       const now = new Date().toISOString();
       const existingEntry = shippingMetaAgg[itemId];
       const updateEntry = existingEntry
-        ? { ...existingEntry, lastRefresh: now }
-        : { markets: {}, lastRefresh: now };
+        ? { ...existingEntry, lastRefresh: now, lastIndexedLua: opts.indexLua || existingEntry.lastIndexedLua }
+        : { markets: {}, lastRefresh: now, lastIndexedLua: opts.indexLua };
       return {
         ok: true,
         itemId,

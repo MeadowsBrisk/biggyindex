@@ -12,6 +12,8 @@ export interface ShippingMetaEntry {
   lastRefresh?: string;
   /** Index lua (lastUpdatedAt) at last full crawl - for change detection */
   lastIndexedLua?: string;
+  /** ISO timestamp of last full crawl (description + shipping) - for staleness detection */
+  lastFullCrawl?: string;
 }
 
 export interface ShippingMetaAggregate {
@@ -50,7 +52,7 @@ export function isShippingStale(
   for (const market of targetMarkets) {
     const marketRefresh = entry.markets[market];
     const lastRefresh = marketRefresh || entry.lastRefresh;
-    
+
     if (!lastRefresh || new Date(lastRefresh).getTime() < cutoffTime) {
       staleMarkets.push(market);
     }
@@ -73,7 +75,7 @@ export function updateShippingMeta(
 ): ShippingMetaAggregate {
   const now = new Date().toISOString();
   const updated = { ...meta };
-  
+
   if (!updated[itemId]) {
     updated[itemId] = { markets: {} };
   } else {
@@ -84,7 +86,7 @@ export function updateShippingMeta(
   for (const market of refreshedMarkets) {
     updated[itemId].markets[market] = now;
   }
-  
+
   // Update global timestamp
   updated[itemId].lastRefresh = now;
 
