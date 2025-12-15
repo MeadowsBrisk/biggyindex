@@ -2,7 +2,10 @@
 
 // Cloudinary cloud name
 const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD || 'YOUR_CLOUD_NAME';
-const USE_CLOUDINARY = true;
+
+// Toggle Cloudinary on/off via env var (set to 'false' to disable)
+// When disabled, images are served directly from origin (no AVIF conversion)
+const USE_CLOUDINARY = process.env.NEXT_PUBLIC_USE_CLOUDINARY !== 'false';
 
 // Cloudflare edge caching: wrap Cloudinary URLs through CF worker to reduce Cloudinary requests
 // Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to your CF worker domain (e.g., 'https://biggyindex.com')
