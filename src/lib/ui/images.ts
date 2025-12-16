@@ -60,7 +60,12 @@ export function proxyImage(url: string, width?: number): string {
     return cloudinaryUrl;
   }
   
-  // Not configured - return original
+  // Cloudinary disabled - still use CF worker for edge caching if available
+  if (USE_CF_CACHE) {
+    return wrapWithCloudflare(url);
+  }
+  
+  // No proxying configured - return original
   return url;
 }
 
