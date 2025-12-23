@@ -12,10 +12,10 @@ export type AnnouncementBannerConfig = {
 };
 
 export const announcementBanner: AnnouncementBannerConfig = {
-  id: '2025-xmas-last-post',
+  id: '2025-xmas',
   messageByLocale: {
-    'en-GB': 'Royal Mail Christmas last post: Sat 20 Dec | SNDD: Tues 23 Dec. {{mbr}}Check seller schedules and expect delays.',
+    'en-GB': 'Have a merry Christmas and a happy New Year from the Biggy Index',
   },
-  allowedLocales: ['en-GB', 'en'],
+  // allowedLocales: ['en-GB', 'en'],
   severity: 'info',
 };
