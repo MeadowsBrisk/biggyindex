@@ -5,7 +5,7 @@ import { log } from '../../shared/logging/logger';
 // Azure Free Tier: 2,000,000 chars/month
 const MONTHLY_CHAR_LIMIT = 2_000_000;
 // Safety buffer: stop at 97.5% to avoid Azure hard rejection
-const MONTHLY_CHAR_BUDGET = 1_950_000;
+const MONTHLY_CHAR_BUDGET = 1_999_500;
 
 export interface TranslationBudget {
   month: string;           // '2025-12' format
