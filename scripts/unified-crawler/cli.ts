@@ -267,7 +267,9 @@ async function main() {
       const runOne = async (entry: { id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; lua?: string }) => {
         const t1 = Date.now();
         try {
-          const res = await processSingleItem(entry.id, entry.markets as MarketCode[], { client: httpClient, mode: entry.mode === 'full' ? 'full' : 'reviews-only', indexLua: entry.lua, logPrefix: '[cli:item]', sharesAgg, forceShare: !!argv['refresh-share'] });
+          // BUG-002: Pass index entry for SEO field preservation
+          const indexEntry = work.indexEntryById?.get(entry.id);
+          const res = await processSingleItem(entry.id, entry.markets as MarketCode[], { client: httpClient, mode: entry.mode === 'full' ? 'full' : 'reviews-only', indexLua: entry.lua, logPrefix: '[cli:item]', sharesAgg, forceShare: !!argv['refresh-share'], indexEntry });
           const ms = Date.now() - t1; totalMs += ms; processed++;
           if (res.ok) {
             ok++;

@@ -180,16 +180,17 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
     }
   }, [detail, shippingOptions, includeShipping, selectedShipIdx]);
 
-  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.name || 'Item');
+  // BUG-002: Use detail.n as fallback if baseItem is missing (item delisted)
+  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.n || (detail as any)?.name || 'Item');
   const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
   const baseVariants = (baseItem as any)?.v || [];
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray(baseVariants) && baseVariants.length > 0;
+  // BUG-002: Show unavailable banner if item exists in shared blob but NOT in current index
   const showUnavailableBanner = Boolean(
     detail && 
-    Array.isArray((detail as any).variants) && (detail as any).variants.length === 0 &&
-    (!Array.isArray((detail as any).imageUrls) || (detail as any).imageUrls.length === 0) &&
-    !(detail as any).imageUrl
+    !baseItem &&  // Not in indexed_items.json (delisted)
+    ((detail as any).n || (detail as any).name)  // But we have a name from shared blob
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null);
   const reviewMeta = (detail as any)?.reviewsMeta;

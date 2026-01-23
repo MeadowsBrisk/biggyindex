@@ -310,10 +310,11 @@ export default function ItemDetailOverlay() {
   const { forceEnglish } = useForceEnglish();
 
   // Name: use English original (nEn) when forceEnglish is enabled
+  // BUG-002: Fall back to detail.n if baseItem is missing (item delisted)
   const name = decodeEntities(
     forceEnglish && (baseItem as any)?.nEn
       ? (baseItem as any).nEn
-      : (baseItem as any)?.n || (detail as any)?.name || 'Item'
+      : (baseItem as any)?.n || (detail as any)?.n || (detail as any)?.name || 'Item'
   );
 
   // Full description: 
@@ -337,11 +338,12 @@ export default function ItemDetailOverlay() {
   const globalLoading = useAtomValue(isLoadingAtom);
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) && (baseItem as any).v.length > 0;
   const hasImages = images.length > 0;
+  // BUG-002: Show unavailable banner if item exists in shared blob but NOT in current index
+  // This happens when an item is delisted - we have detail from blob but no baseItem from index
   const showUnavailableBanner = Boolean(
     !loading && !globalLoading && !error && detail &&
-    Array.isArray((detail as any).variants) && (detail as any).variants.length === 0 &&
-    (!Array.isArray((detail as any).imageUrls) || (detail as any).imageUrls.length === 0) &&
-    !(detail as any).imageUrl
+    !baseItem &&  // Not in indexed_items.json (delisted)
+    ((detail as any).n || (detail as any).name)  // But we have a name from shared blob
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null); // review image zoom state
   const reviewMeta = (detail as any)?.reviewsMeta;

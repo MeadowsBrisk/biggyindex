@@ -23,6 +23,8 @@ export interface ItemsWorklist {
   client: AxiosInstance;
   /** Index lua (lastUpdatedAt) per item - for change detection */
   idLua: Map<string, string>;
+  /** Full index entry per item - for SEO field preservation (BUG-002) */
+  indexEntryById: Map<string, any>;
   counts: { itemsPlanned: number; uniqueItems: number; toCrawl: number };
 }
 
@@ -64,12 +66,18 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
   // Build presence map: itemId -> set of markets where this item appears
   const presenceById = new Map<string, Set<MarketCode>>();
   const idLua = new Map<string, string>();
+  // BUG-002: Store full index entry for SEO field preservation
+  const indexEntryById = new Map<string, any>();
   for (const { market, items } of indexes) {
     for (const it of items) {
       const id = it.id;
       if (!id) continue;
       if (!presenceById.has(id)) presenceById.set(id, new Set());
       presenceById.get(id)!.add(market);
+      // Store full index entry (use first seen, or update if this market has more recent lua)
+      if (!indexEntryById.has(id)) {
+        indexEntryById.set(id, it.raw);
+      }
       // Extract lua (lastUpdatedAt) from index entry for change detection
       // Use the most recent lua across markets
       try {
@@ -78,6 +86,8 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
           const existingLua = idLua.get(id);
           if (!existingLua || new Date(lua) > new Date(existingLua)) {
             idLua.set(id, lua);
+            // Update index entry to the one with most recent lua
+            indexEntryById.set(id, it.raw);
           }
         }
       } catch {}
@@ -154,6 +164,7 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
     presenceMap: presenceById,
     client: anonClient,
     idLua,
+    indexEntryById,
     counts: { itemsPlanned, uniqueItems: work.uniqueIds.length, toCrawl: work.toCrawl.length },
   };
 }
