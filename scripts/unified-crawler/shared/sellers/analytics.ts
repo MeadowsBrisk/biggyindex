@@ -141,20 +141,57 @@ export async function processSellerAnalytics(input: ProcessSellerAnalyticsInput)
 
   const writeTasks: Promise<any>[] = [];
   for (const [mkt, state] of perMarketStates.entries()) {
-    const allowedIds = state.activeSellerIds;
-    const updatedAgg = updateAnalyticsAggregate(state.existingAgg, state.processed);
-    const filtered = Array.isArray(updatedAgg?.sellers) ? updatedAgg.sellers.filter((rec: any) => allowedIds.has(String(rec?.sellerId ?? ""))) : [];
-    updatedAgg.sellers = filtered;
-    updatedAgg.totalSellers = filtered.length;
+    const activeIds = state.activeSellerIds;
+    const updatedAgg = updateAnalyticsAggregate(state.existingAgg, state.processed) as any;
+    
+    // BUG-001 FIX: Don't filter out inactive sellers - preserve their cumulative stats
+    // Instead, mark them as active/inactive and track when they were last active
+    const nowIso = new Date().toISOString();
+    const allSellers: any[] = Array.isArray(updatedAgg?.sellers) ? updatedAgg.sellers : [];
+    let activeCount = 0;
+    let inactiveCount = 0;
+    
+    for (const rec of allSellers) {
+      const sellerId = String(rec?.sellerId ?? "");
+      const isActive = activeIds.has(sellerId);
+      
+      // Update active status
+      rec.active = isActive;
+      
+      if (isActive) {
+        activeCount++;
+        // Update lastActiveAt to now when seller is active
+        rec.lastActiveAt = nowIso;
+      } else {
+        inactiveCount++;
+        // Preserve existing lastActiveAt if set; if not, this is the first time we're marking them inactive
+        // In that case, use lastSeenAt as a fallback (or leave undefined if truly unknown)
+        if (!rec.lastActiveAt && rec.lastSeenAt) {
+          rec.lastActiveAt = rec.lastSeenAt;
+        }
+      }
+    }
+    
+    // Keep all sellers (active + inactive) - don't filter
+    updatedAgg.sellers = allSellers;
+    updatedAgg.totalSellers = allSellers.length;
+    updatedAgg.activeSellers = activeCount;
+    
+    if (inactiveCount > 0) {
+      console.log(`[crawler:sellers] market=${mkt} active=${activeCount} inactive=${inactiveCount} (preserved)`);
+    }
 
-    for (const sid of allowedIds) {
+    for (const sid of activeIds) {
       const meta = sellerMeta.get(sid);
       if (meta?.sellerName) state.sellerNameById.set(String(sid), meta.sellerName);
     }
 
+    // For leaderboard, only include ACTIVE sellers (inactive sellers shouldn't rank)
     const allRatings = new Map<string, any>();
-    for (const recAny of filtered as any[]) {
+    for (const recAny of allSellers as any[]) {
       const rec = recAny as any;
+      // Skip inactive sellers for leaderboard rating calculations
+      if (rec.active === false) continue;
       const sellerId = String(rec.sellerId);
       allRatings.set(sellerId, {
         sellerId,
@@ -169,7 +206,7 @@ export async function processSellerAnalytics(input: ProcessSellerAnalyticsInput)
     }
 
     const weeklyPositives = new Map<string, any>();
-    for (const sid of allowedIds) {
+    for (const sid of activeIds) {
       const reviews = state.allReviewsBySeller.get(String(sid)) || [];
       const counts = new Map<number, number>();
       let positive = 0;
@@ -207,7 +244,7 @@ export async function processSellerAnalytics(input: ProcessSellerAnalyticsInput)
 
     const recent: any[] = [];
     const mediaRecent: any[] = [];
-    for (const sid of allowedIds) {
+    for (const sid of activeIds) {
       const reviews = state.allReviewsBySeller.get(String(sid)) || [];
       const name = state.sellerNameById.get(String(sid)) || null;
       for (const rv of reviews) {

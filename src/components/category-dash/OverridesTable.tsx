@@ -134,7 +134,7 @@ export default function OverridesTable({ overrides, onEdit, onDelete }: Props) {
                         {override.itemName}
                         {!itemExists && (
                           <span className="ml-2 px-2 py-0.5 text-xs font-medium rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                            Deleted
+                            Unlisted on LB
                           </span>
                         )}
                       </div>
