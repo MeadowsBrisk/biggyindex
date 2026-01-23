@@ -193,8 +193,10 @@ export default function ItemDetailOverlay() {
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
     const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : [];
-    const primary = (baseItem as any)?.i || (detail as any)?.imageUrl;
-    let list = dImgs.length ? dImgs : bImgs;
+    // BUG-002: Fallback to shipping blob SEO images for unavailable items
+    const shipSeoImgs = Array.isArray((detail as any)?._shipSeo?.is) ? (detail as any)._shipSeo.is : [];
+    const primary = (baseItem as any)?.i || (detail as any)?.imageUrl || (detail as any)?._shipSeo?.i;
+    let list = dImgs.length ? dImgs : (bImgs.length ? bImgs : shipSeoImgs);
     if ((!list || list.length === 0) && primary) list = [primary];
     const seen = new Set<string>();
     const out: string[] = [];
@@ -240,13 +242,19 @@ export default function ItemDetailOverlay() {
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];
+  
+  // BUG-002: Extract SEO fallback from shipping blob for unavailable items
+  const shipSeo = (detail as any)?._shipSeo;
+  
   const resolvedSellerName = useMemo(() => {
     if (typeof (detail as any)?.sellerName === 'string' && (detail as any).sellerName) return decodeEntities((detail as any).sellerName);
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
     if (typeof (baseItem as any)?.sn === 'string' && (baseItem as any).sn) return decodeEntities((baseItem as any).sn);
     if (typeof (baseItem as any)?.sellerName === 'string' && (baseItem as any).sellerName) return decodeEntities((baseItem as any).sellerName);
+    // BUG-002: Fallback to shipping blob SEO
+    if (typeof shipSeo?.sn === 'string' && shipSeo.sn) return decodeEntities(shipSeo.sn);
     return '';
-  }, [detail, baseItem]);
+  }, [detail, baseItem, shipSeo]);
   const resolvedSellerUrl = useMemo(() => {
     if (typeof (detail as any)?.sellerUrl === 'string' && (detail as any).sellerUrl) return (detail as any).sellerUrl;
     if ((detail as any)?.seller && typeof (detail as any).seller.url === 'string' && (detail as any).seller.url) return (detail as any).seller.url;
@@ -310,11 +318,11 @@ export default function ItemDetailOverlay() {
   const { forceEnglish } = useForceEnglish();
 
   // Name: use English original (nEn) when forceEnglish is enabled
-  // BUG-002: Fall back to detail.n if baseItem is missing (item delisted)
+  // BUG-002: Fall back to detail.n, then _shipSeo.n if baseItem is missing (item delisted)
   const name = decodeEntities(
     forceEnglish && (baseItem as any)?.nEn
       ? (baseItem as any).nEn
-      : (baseItem as any)?.n || (detail as any)?.n || (detail as any)?.name || 'Item'
+      : (baseItem as any)?.n || (detail as any)?.n || shipSeo?.n || (detail as any)?.name || 'Item'
   );
 
   // Full description: 
@@ -340,15 +348,17 @@ export default function ItemDetailOverlay() {
   const hasImages = images.length > 0;
   // BUG-002: Show unavailable banner if item exists in shared blob but NOT in current index
   // This happens when an item is delisted - we have detail from blob but no baseItem from index
+  // Also check _shipSeo.n from shipping blob as fallback
   const showUnavailableBanner = Boolean(
     !loading && !globalLoading && !error && detail &&
     !baseItem &&  // Not in indexed_items.json (delisted)
-    ((detail as any).n || (detail as any).name)  // But we have a name from shared blob
+    ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared blob or shipping blob
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null); // review image zoom state
   const reviewMeta = (detail as any)?.reviewsMeta;
-  const category = (baseItem as any)?.c || null;
-  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : [];
+  // BUG-002: Fallback to _shipSeo for category/subcategories when item is unavailable
+  const category = (baseItem as any)?.c || shipSeo?.c || null;
+  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : (Array.isArray(shipSeo?.sc) ? shipSeo.sc : []);
   const shipsFrom = (baseItem as any)?.sf || null;
   const lastUpdatedAt = (baseItem as any)?.lua || null;
   const lastUpdateReason = (baseItem as any)?.lur || null;

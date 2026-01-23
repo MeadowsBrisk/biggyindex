@@ -136,6 +136,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     (detailObj as any).descriptionTranslated = ship.translations.description;
                   }
 
+                  // BUG-002: Store shipping blob SEO fields for fallback when item is unavailable
+                  // These are used by the frontend when baseItem is null (item delisted)
+                  (detailObj as any)._shipSeo = {
+                    n: ship.n,       // name (translated for non-GB)
+                    sn: ship.sn,     // sellerName
+                    sid: ship.sid,   // sellerId
+                    i: ship.i,       // primary image
+                    is: ship.is,     // image array
+                    c: ship.c,       // category
+                    sc: ship.sc,     // subcategories
+                  };
+
                   break;
                 }
               } catch { }

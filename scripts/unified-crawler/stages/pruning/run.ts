@@ -14,6 +14,9 @@ export interface PruningRunResult {
     itemsDeleted?: number; 
     sellersDeleted?: number; 
     translationsPruned?: number;
+    indexMetaRemoved?: number;
+    indexMetaRetained?: number;
+    indexMetaMigrated?: number;
     perMarket?: Record<string, { shipDeleted: number; shipSummaryTrimmed: number }>;
   };
   note?: string;
@@ -21,20 +24,55 @@ export interface PruningRunResult {
 
 export interface PruningOptions {
   dryRun?: boolean;
+  retentionDays?: number;  // Default 365 - items not seen for this long are pruned
+  confirmed?: boolean;     // Must be true to actually prune (safety flag)
 }
 
-// Phase A pruning: safe, reference-based cleanup
-// - Per market: delete market-shipping/<id>.json when id not present in current indexed_items.json
-// - Per market: trim aggregates/ship.json to only include currently indexed items
-// - Shared: delete items/<id>.json when id not present in ANY market index
-// Sellers: not deleted in Phase A (kept for analytics continuity)
+const DEFAULT_RETENTION_DAYS = 365;
+
+/**
+ * Retention-based pruning stage.
+ * 
+ * Items are only pruned if:
+ * 1. Not in any current market index
+ * 2. AND lastSeenInIndex (lsi) is older than retentionDays (default 365)
+ * 
+ * Safety: requires --confirmed flag or opts.confirmed=true to actually delete.
+ * Without confirmation, runs as dry-run automatically.
+ * 
+ * Per market:
+ * - Delete market-shipping/<id>.json only if item is past retention period
+ * - Trim aggregates/ship.json entries past retention period
+ * 
+ * Shared:
+ * - Delete items/<id>.json only if item is past retention period in ALL markets
+ * - Update indexMeta aggregate with retention-aware logic
+ * 
+ * Sellers: not deleted (kept for analytics continuity)
+ */
 export async function runPruning(markets?: MarketCode[], opts: PruningOptions = {}): Promise<PruningRunResult> {
-  const dryRun = opts.dryRun ?? false;
+  const retentionDays = opts.retentionDays ?? DEFAULT_RETENTION_DAYS;
+  
+  // Safety: force dry-run unless explicitly confirmed
+  const dryRun = !opts.confirmed || opts.dryRun === true;
+  
+  if (!opts.confirmed && !opts.dryRun) {
+    log.cli.warn(`pruning: safety mode - running as dry-run. Use --confirmed to actually delete data.`);
+  }
+  
   try {
     const env = loadEnv();
     const mkts = (markets && markets.length ? markets : env.markets) as MarketCode[];
-    log.cli.info(`pruning start`, { markets: mkts.join(','), dryRun });
+    log.cli.info(`pruning start`, { 
+      markets: mkts.join(','), 
+      dryRun, 
+      retentionDays,
+      confirmed: opts.confirmed ?? false 
+    });
     const sharedBlob = getBlobClient(env.stores.shared);
+    const now = new Date();
+    const cutoffMs = now.getTime() - (retentionDays * 24 * 60 * 60 * 1000);
+    const cutoffDate = new Date(cutoffMs).toISOString();
 
     // 1) Build active item id sets per market and union across markets
     const activeByMarket = new Map<string, Set<string>>();
@@ -50,39 +88,63 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
           if (id) { ids.add(id); unionActive.add(id); }
         }
         activeByMarket.set(mkt, ids);
-        log.cli.info(`pruning market`, { market: mkt, activeItems: ids.size });
+        log.cli.info(`pruning market scan`, { market: mkt, activeItems: ids.size });
       } catch (e: any) {
         log.cli.warn(`pruning: failed to read index`, { market: mkt, reason: e?.message || String(e) });
         activeByMarket.set(mkt, new Set());
       }
     }
 
-    // Shared aggregate fallback: drop metadata entries for items no longer present anywhere
-    let indexMetaPruned = 0;
+    // Load indexMeta to check lsi (lastSeenInIndex) for retention decisions
+    let indexMetaAgg: Record<string, IndexMetaEntry> = {};
     try {
-      let indexMetaAgg: Record<string, IndexMetaEntry> = {};
       const agg = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
       if (agg && typeof agg === 'object') indexMetaAgg = agg as Record<string, IndexMetaEntry>;
-      const { removed } = pruneIndexMeta(indexMetaAgg, unionActive);
-      indexMetaPruned = removed;
-      if (removed > 0) {
-        if (!dryRun) {
-          await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
-        }
-        log.cli.info(`pruning: ${dryRun ? 'would prune' : 'pruned'} index-meta`, { entries: removed });
+    } catch (e: any) {
+      log.cli.warn(`pruning: failed to load index-meta`, { reason: e?.message || String(e) });
+    }
+
+    // Helper: check if an item is past retention period
+    const isPastRetention = (id: string): boolean => {
+      const meta = indexMetaAgg[id];
+      if (!meta?.lsi) return false;  // No lsi = not safe to prune (migration case)
+      const lsiTs = Date.parse(meta.lsi);
+      if (!Number.isFinite(lsiTs)) return false;
+      return lsiTs < cutoffMs;
+    };
+
+    // Update indexMeta with retention-aware pruning
+    let indexMetaRemoved = 0;
+    let indexMetaRetained = 0;
+    let indexMetaMigrated = 0;
+    try {
+      const result = pruneIndexMeta(indexMetaAgg, unionActive, { retentionDays, now });
+      indexMetaRemoved = result.removed;
+      indexMetaRetained = result.retained;
+      indexMetaMigrated = result.migrated;
+      
+      if (!dryRun && (result.removed > 0 || result.migrated > 0)) {
+        await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
       }
+      log.cli.info(`pruning: indexMeta ${dryRun ? 'scan' : 'update'}`, { 
+        removed: indexMetaRemoved, 
+        retained: indexMetaRetained, 
+        migrated: indexMetaMigrated,
+        cutoffDate,
+        dryRun 
+      });
     } catch (e: any) {
       log.cli.warn(`pruning: failed to prune index-meta aggregate`, { reason: e?.message || String(e) });
     }
 
-    // Prune translations aggregate: remove entries for items no longer in any market
+    // Prune translations aggregate: remove entries past retention period
     let translationsPruned = 0;
     try {
       const translationsAgg = await sharedBlob.getJSON<Record<string, any>>(Keys.shared.aggregates.translations());
       if (translationsAgg && typeof translationsAgg === 'object') {
         const toDelete: string[] = [];
         for (const refNum of Object.keys(translationsAgg)) {
-          if (!unionActive.has(refNum)) {
+          if (!unionActive.has(refNum) && isPastRetention(refNum)) {
             toDelete.push(refNum);
           }
         }
@@ -94,14 +156,14 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
             }
             await sharedBlob.putJSON(Keys.shared.aggregates.translations(), translationsAgg);
           }
-          log.cli.info(`pruning: ${dryRun ? 'would prune' : 'pruned'} translations aggregate`, { entries: translationsPruned });
+          log.cli.info(`pruning: translations ${dryRun ? 'would prune' : 'pruned'}`, { entries: translationsPruned });
         }
       }
     } catch (e: any) {
       log.cli.warn(`pruning: failed to prune translations aggregate`, { reason: e?.message || String(e) });
     }
 
-    // 2) Per-market: delete stale shipping files and trim ship summary aggregate
+    // 2) Per-market: delete stale shipping files and trim ship summary aggregate (only if past retention)
     const perMarketCounts: Record<string, { shipDeleted: number; shipSummaryTrimmed: number }> = {};
     for (const mkt of mkts) {
       const storeName = marketStore(mkt, env.stores as any);
@@ -116,7 +178,8 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
           const match = key.match(/^market-shipping\/(.+)\.json$/);
           const id = match?.[1];
           if (!id) continue;
-          if (!active.has(id)) {
+          // Only prune if NOT active AND past retention period
+          if (!active.has(id) && isPastRetention(id)) {
             if (!dryRun) {
               try { await blob.del(key); } catch {}
             }
@@ -127,13 +190,16 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
         log.cli.warn(`pruning: list shipping failed`, { market: mkt, reason: e?.message || String(e) });
       }
 
-      // Trim aggregates/ship.json to current active set
+      // Trim aggregates/ship.json - only entries past retention period
       try {
         const aggKey = Keys.market.aggregates.shipSummary();
         const existing = (await blob.getJSON<Record<string, { min: number; max: number; free: number }>>(aggKey)) || {};
         const toDelete: string[] = [];
         for (const id of Object.keys(existing)) {
-          if (!active.has(id)) { toDelete.push(id); shipSummaryTrimmed++; }
+          if (!active.has(id) && isPastRetention(id)) { 
+            toDelete.push(id); 
+            shipSummaryTrimmed++; 
+          }
         }
         if (toDelete.length > 0 && !dryRun) {
           for (const id of toDelete) {
@@ -146,10 +212,15 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
       }
 
       perMarketCounts[mkt] = { shipDeleted, shipSummaryTrimmed };
-      log.cli.info(`pruning: market ${dryRun ? 'scan' : 'complete'}`, { market: mkt, shipDeleted, shipSummaryTrimmed, dryRun });
+      log.cli.info(`pruning: market ${dryRun ? 'scan' : 'complete'}`, { 
+        market: mkt, 
+        shipDeleted, 
+        shipSummaryTrimmed, 
+        dryRun 
+      });
     }
 
-    // 3) Shared: delete orphaned item cores (not present in any market)
+    // 3) Shared: delete orphaned item cores only if past retention period in ALL markets
     let orphanCores = 0;
     try {
       const coreKeys = await sharedBlob.list("items/");
@@ -157,7 +228,8 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
         const match = key.match(/^items\/(.+)\.json$/);
         const id = match?.[1];
         if (!id) continue;
-        if (!unionActive.has(id)) {
+        // Only prune if NOT in any market AND past retention period
+        if (!unionActive.has(id) && isPastRetention(id)) {
           if (!dryRun) {
             try { await sharedBlob.del(key); } catch {}
           }
@@ -168,13 +240,40 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
       log.cli.warn(`pruning: shared list cores failed`, { reason: e?.message || String(e) });
     }
 
-    // Sellers: keep for now (Phase A)
+    // Sellers: keep for now (never deleted - valuable for analytics)
     const sellersDeleted = 0;
 
-    log.cli.info(`pruning ${dryRun ? 'dry run' : 'complete'}`, { orphanCores, translationsPruned, dryRun });
-    return { ok: true, markets: mkts, dryRun, counts: { itemsDeleted: orphanCores, sellersDeleted, translationsPruned, perMarket: perMarketCounts } };
+    log.cli.info(`pruning ${dryRun ? 'dry run complete' : 'complete'}`, { 
+      orphanCores, 
+      translationsPruned, 
+      indexMetaRemoved,
+      indexMetaRetained,
+      retentionDays,
+      cutoffDate,
+      dryRun 
+    });
+    
+    return { 
+      ok: true, 
+      markets: mkts, 
+      dryRun, 
+      counts: { 
+        itemsDeleted: orphanCores, 
+        sellersDeleted, 
+        translationsPruned,
+        indexMetaRemoved,
+        indexMetaRetained,
+        indexMetaMigrated,
+        perMarket: perMarketCounts 
+      } 
+    };
   } catch (e: any) {
     log.cli.error(`pruning error`, { reason: e?.message || String(e) });
-    return { ok: false, markets: (loadEnv().markets as MarketCode[]), counts: { itemsDeleted: 0, sellersDeleted: 0, translationsPruned: 0 }, note: e?.message || String(e) } as any;
+    return { 
+      ok: false, 
+      markets: (loadEnv().markets as MarketCode[]), 
+      counts: { itemsDeleted: 0, sellersDeleted: 0, translationsPruned: 0 }, 
+      note: e?.message || String(e) 
+    } as any;
   }
 }

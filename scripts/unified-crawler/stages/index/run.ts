@@ -448,6 +448,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
         fsa: typeof entry.fsa === 'string' ? entry.fsa : null,
         lua: typeof entry.lua === 'string' ? entry.lua : null,
         lur: typeof entry.lur === 'string' ? entry.lur : null,
+        lsi: new Date().toISOString(),  // lastSeenInIndex - track when item was last in any index
       };
       const { changed, next } = mergeIndexMetaEntry(indexMetaAgg[canonicalKey], candidate);
       if (changed) {

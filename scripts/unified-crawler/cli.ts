@@ -96,6 +96,16 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     describe: 'Update aggregate short descriptions from shipping blob full translations (max 260 chars)'
   })
+  .option('confirmed', {
+    type: 'boolean',
+    default: false,
+    describe: 'Required for pruning stage to actually delete data (safety flag)'
+  })
+  .option('retention-days', {
+    type: 'number',
+    default: 365,
+    describe: 'Days to retain unlisted items before pruning (default 365)'
+  })
   .option('items', {
     type: 'string',
     describe: 'Comma-separated refNums to force-translate (translate stage only)'
@@ -390,16 +400,22 @@ async function main() {
     if (stage === 'pruning' || stage === 'all') {
       const t0 = Date.now();
       const dryRun = argv['dry-run'] && stage === 'pruning';
-      log.cli.info(`pruning start`, { dryRun });
-      const res = await runPruning(markets, { dryRun });
+      const confirmed = argv['confirmed'] === true && stage === 'pruning';
+      const retentionDays = typeof argv['retention-days'] === 'number' ? argv['retention-days'] : 365;
+      log.cli.info(`pruning start`, { dryRun, confirmed, retentionDays });
+      const res = await runPruning(markets, { dryRun, confirmed, retentionDays });
       const perMarket = res.counts?.perMarket ? Object.entries(res.counts.perMarket).map(([m, c]) => `${m}:shipDel=${c.shipDeleted},aggTrim=${c.shipSummaryTrimmed}`).join(' | ') : 'n/a';
-      log.cli.info(`pruning ${dryRun ? 'dry run' : 'done'}`, { 
+      log.cli.info(`pruning ${res.dryRun ? 'dry run' : 'done'}`, { 
         ok: res.ok, 
         orphanCores: res.counts?.itemsDeleted ?? 0, 
         translationsPruned: res.counts?.translationsPruned ?? 0,
+        indexMetaRemoved: res.counts?.indexMetaRemoved ?? 0,
+        indexMetaRetained: res.counts?.indexMetaRetained ?? 0,
+        indexMetaMigrated: res.counts?.indexMetaMigrated ?? 0,
         sellersDel: res.counts?.sellersDeleted ?? 0, 
-        perMarket, 
-        dryRun,
+        perMarket,
+        retentionDays,
+        dryRun: res.dryRun,
         secs: since(t0) 
       });
     }

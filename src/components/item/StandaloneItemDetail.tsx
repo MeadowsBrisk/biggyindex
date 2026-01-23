@@ -89,8 +89,10 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
     const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : [];
-    const primary = (baseItem as any)?.i || (detail as any)?.imageUrl;
-    let list = dImgs.length ? dImgs : bImgs;
+    // BUG-002: Fallback to shipping blob SEO images for unavailable items
+    const shipSeoImgs = Array.isArray((detail as any)?._shipSeo?.is) ? (detail as any)._shipSeo.is : [];
+    const primary = (baseItem as any)?.i || (detail as any)?.imageUrl || (detail as any)?._shipSeo?.i;
+    let list = dImgs.length ? dImgs : (bImgs.length ? bImgs : shipSeoImgs);
     if ((!list || list.length === 0) && primary) list = [primary];
     const seen = new Set<string>();
     const out: string[] = [];
@@ -138,12 +140,17 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];
 
+  // BUG-002: Extract SEO fallback from shipping blob early for use in seller resolution
+  const shipSeo = (detail as any)?._shipSeo;
+
   const resolvedSellerName = useMemo(() => {
     if (typeof (detail as any)?.sellerName === 'string' && (detail as any).sellerName) return decodeEntities((detail as any).sellerName);
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
     if (typeof (baseItem as any)?.sn === 'string' && (baseItem as any).sn) return decodeEntities((baseItem as any).sn);
+    // BUG-002: Fallback to shipping blob SEO
+    if (typeof shipSeo?.sn === 'string' && shipSeo.sn) return decodeEntities(shipSeo.sn);
     return '';
-  }, [detail, baseItem]);
+  }, [detail, baseItem, shipSeo]);
 
   const resolvedSellerUrl = useMemo(() => {
     if (typeof (detail as any)?.sellerUrl === 'string' && (detail as any).sellerUrl) return (detail as any).sellerUrl;
@@ -180,8 +187,8 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
     }
   }, [detail, shippingOptions, includeShipping, selectedShipIdx]);
 
-  // BUG-002: Use detail.n as fallback if baseItem is missing (item delisted)
-  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.n || (detail as any)?.name || 'Item');
+  // BUG-002: Use detail.n or _shipSeo.n as fallback if baseItem is missing (item delisted)
+  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.n || shipSeo?.n || (detail as any)?.name || 'Item');
   const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
   const reviews = (detail as any)?.reviews || [];
   const baseVariants = (baseItem as any)?.v || [];
@@ -190,12 +197,13 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const showUnavailableBanner = Boolean(
     detail && 
     !baseItem &&  // Not in indexed_items.json (delisted)
-    ((detail as any).n || (detail as any).name)  // But we have a name from shared blob
+    ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared blob or shipping blob
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null);
   const reviewMeta = (detail as any)?.reviewsMeta;
-  const category = (baseItem as any)?.c || null;
-  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : [];
+  // BUG-002: Fallback to _shipSeo for category/subcategories when item is unavailable
+  const category = (baseItem as any)?.c || shipSeo?.c || null;
+  const subcategories = Array.isArray((baseItem as any)?.sc) ? (baseItem as any).sc : (Array.isArray(shipSeo?.sc) ? shipSeo.sc : []);
   const shipsFrom = (baseItem as any)?.sf || null;
   const lastUpdatedAt = (baseItem as any)?.lua || null;
   const lastUpdateReason = (baseItem as any)?.lur || null;

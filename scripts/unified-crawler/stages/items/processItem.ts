@@ -132,28 +132,9 @@ export async function processSingleItem(
       merged.lastFullCrawl = base.lastFullCrawl;
     }
 
-    // BUG-002: Store SEO-critical fields for unavailable item fallback
-    // Only write if MISSING from existing blob - these fields rarely change
-    // This ensures old items get the fields added, but we don't wastefully rewrite them
-    if (opts.indexEntry) {
-      const ie = opts.indexEntry;
-      // Only set if not already present in base (existing blob data)
-      if (!base?.n && ie.n) merged.n = ie.n;           // name
-      if (!base?.sn && ie.sn) merged.sn = ie.sn;        // sellerName
-      if (base?.sid == null && ie.sid != null) merged.sid = ie.sid;  // sellerId
-      if (!base?.i && ie.i) merged.i = ie.i;           // primary image
-      if ((!base?.is || !base.is.length) && Array.isArray(ie.is) && ie.is.length) merged.is = ie.is;  // image array
-      if (!base?.c && ie.c) merged.c = ie.c;           // category
-      if ((!base?.sc || !base.sc.length) && Array.isArray(ie.sc)) merged.sc = ie.sc;  // subcategories
-    }
-    // Also preserve any existing SEO fields from base into merged
-    if (base?.n && !merged.n) merged.n = base.n;
-    if (base?.sn && !merged.sn) merged.sn = base.sn;
-    if (base?.sid != null && merged.sid == null) merged.sid = base.sid;
-    if (base?.i && !merged.i) merged.i = base.i;
-    if (Array.isArray(base?.is) && base.is.length && !merged.is) merged.is = base.is;
-    if (base?.c && !merged.c) merged.c = base.c;
-    if (Array.isArray(base?.sc) && base.sc.length && !merged.sc) merged.sc = base.sc;
+    // NOTE: SEO fields (n, sn, sid, i, is, c, sc) are stored in market shipping blobs, not shared blob
+    // This allows unavailable items to show translated SEO data per market
+    // See shipping write sections below (GB and non-GB)
 
     // Always update lastRefresh timestamp when we process the item
     merged.lastRefresh = new Date().toISOString();
@@ -267,13 +248,27 @@ export async function processSingleItem(
           const store = marketStore('GB', env.stores as any);
           const blob = getBlobClient(store);
           const shipKey = Keys.market.shipping(itemId);
-          const payload = {
+          
+          // BUG-002: Include SEO fields for unavailable item fallback
+          // These come from the index entry and are used when item is delisted but we still have shipping data
+          const ie = opts.indexEntry;
+          const payload: any = {
             id: itemId,
             market: 'GB' as MarketCode,
             options: gbShipping.options,
             warnings: [...(gbShipping.warnings || []), 'from_description'],
             lastShippingRefresh: new Date().toISOString(),
           };
+          // Add SEO fields if available from index entry
+          if (ie) {
+            if (ie.n) payload.n = ie.n;           // name
+            if (ie.sn) payload.sn = ie.sn;        // sellerName  
+            if (ie.sid != null) payload.sid = ie.sid;  // sellerId
+            if (ie.i) payload.i = ie.i;           // primary image
+            if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
+            if (ie.c) payload.c = ie.c;           // category
+            if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
+          }
           await blob.putJSON(shipKey, payload);
           shippingWritten++;
           marketsRefreshed.push('GB'); // Track GB as refreshed for metadata update
@@ -311,7 +306,11 @@ export async function processSingleItem(
               const shipKey = Keys.market.shipping(itemId);
               // Load existing to preserve translations field (added by translate stage)
               const existingMkt = await blob.getJSON<any>(shipKey) || {};
-              const payload = {
+              
+              // BUG-002: Include SEO fields for unavailable item fallback
+              // For non-GB markets, get SEO from index entry (already translated by index stage)
+              const ie = opts.indexEntry;
+              const payload: any = {
                 ...existingMkt,  // Preserve translations if present
                 id: itemId,
                 market: mkt,
@@ -319,6 +318,16 @@ export async function processSingleItem(
                 warnings: res.warnings || [],
                 lastShippingRefresh: new Date().toISOString(),
               };
+              // Add SEO fields if available from index entry (translated for non-GB)
+              if (ie) {
+                if (ie.n) payload.n = ie.n;           // name (translated for this market)
+                if (ie.sn) payload.sn = ie.sn;        // sellerName  
+                if (ie.sid != null) payload.sid = ie.sid;  // sellerId
+                if (ie.i) payload.i = ie.i;           // primary image
+                if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
+                if (ie.c) payload.c = ie.c;           // category
+                if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
+              }
               await blob.putJSON(shipKey, payload);
               shippingWritten++;
               marketsRefreshed.push(mkt);
