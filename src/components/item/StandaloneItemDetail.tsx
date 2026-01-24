@@ -209,7 +209,8 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const lastUpdateReason = (baseItem as any)?.lur || null;
   const compactUpdateReason = useUpdateReason(lastUpdateReason);
   const createdAt = (baseItem as any)?.fsa || (detail as any)?.createdAt || null;
-  const sl = (detail as any)?.sl || (detail as any)?.share?.shortLink || (baseItem as any)?.share || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
+  // BUG-002: Fall back to detail.sl from shared blob for referral link when item is delisted
+  const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
   
   const shareRef = refNum as any;
   const shareUrl = typeof window !== 'undefined'

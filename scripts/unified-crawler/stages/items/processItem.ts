@@ -268,6 +268,7 @@ export async function processSingleItem(
             if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
             if (ie.c) payload.c = ie.c;           // category
             if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
+            // Note: sl (shareLink) is stored in shared blob, not shipping blob
           }
           await blob.putJSON(shipKey, payload);
           shippingWritten++;
@@ -327,6 +328,7 @@ export async function processSingleItem(
                 if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
                 if (ie.c) payload.c = ie.c;           // category
                 if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
+                // Note: sl (shareLink) is stored in shared blob, not shipping blob
               }
               await blob.putJSON(shipKey, payload);
               shippingWritten++;

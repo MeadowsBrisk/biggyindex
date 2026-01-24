@@ -138,6 +138,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                   // BUG-002: Store shipping blob SEO fields for fallback when item is unavailable
                   // These are used by the frontend when baseItem is null (item delisted)
+                  // Note: sl (shareLink) is in the shared blob (detailObj.sl), not shipping blob
                   (detailObj as any)._shipSeo = {
                     n: ship.n,       // name (translated for non-GB)
                     sn: ship.sn,     // sellerName

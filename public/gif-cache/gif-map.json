@@ -1129,18 +1129,14 @@
     "hash": "570cefd0719e",
     "poster": "/gif-cache/posters/570cefd0719e.jpg",
     "video": "/gif-cache/videos/570cefd0719e.mp4",
-    "width": 480,
-    "height": 270,
-    "frames": 16,
-    "status": "ok"
+    "status": "skipped",
+    "reason": "exists"
   },
   "https://i2.littlebiggy.net/images/i/w/800/CxLCSjcHWgeAHaOe.gif": {
     "hash": "e8d659eff636",
     "poster": "/gif-cache/posters/e8d659eff636.jpg",
     "video": "/gif-cache/videos/e8d659eff636.mp4",
-    "width": 800,
-    "height": 1168,
-    "frames": 10,
-    "status": "ok"
+    "status": "skipped",
+    "reason": "exists"
   }
 }

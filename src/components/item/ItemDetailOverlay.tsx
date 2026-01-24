@@ -371,7 +371,8 @@ export default function ItemDetailOverlay() {
     if (minShip == null && maxShip == null) return null;
     return { minShip, maxShip };
   })();
-  const sl = (baseItem as any)?.sl || (detail as any)?.share?.shortLink || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
+  // BUG-002: Fall back to detail.sl from shared blob for referral link when item is delisted
+  const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
   // const sl = baseItem?.url || detail?.url || null;
   // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum as any;
