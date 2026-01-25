@@ -21,7 +21,7 @@ import {
   freeShippingOnlyAtom,
   expandedRefNumAtom,
 } from '@/store/atoms';
-import { fetchVotesActionAtom, prefetchAllVotesActionAtom } from '@/store/votesAtoms';
+import { useVotesPrefetch, votesInitialFetchTriggeredAtom } from '@/hooks/useVotesPrefetch';
 import Sidebar from '@/components/layout/Sidebar';
 import ItemList from '@/components/item/ItemList';
 import { useRouter } from 'next/router';
@@ -45,10 +45,6 @@ import LocaleSelector from '@/components/layout/LocaleSelector';
 import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
 import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket } from '@/lib/market/market';
-
-let lastVotesSigCache = '';
-let allVotesSigCache = '';
-let prefetchedAllNonEndorseCache = false;
 
 export const getStaticProps: GetStaticProps = async (context) => {
   // ISR: Pre-fetch all items and manifest at build time / revalidation
@@ -277,8 +273,8 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const [isLoading, setIsLoading] = useAtom<boolean>(isLoadingAtom as any);
   const [sorted] = useAtom<any[]>(sortedItemsAtom as any);
   const [manifest, setManifest] = useAtom<any>(manifestAtom as any);
-  const fetchVotes = useSetAtom(fetchVotesActionAtom as any);
-  const prefetchAllVotes = useSetAtom(prefetchAllVotesActionAtom as any);
+  // Vote prefetching is now handled by useVotesPrefetch hook
+  useVotesPrefetch();
   const endorsementsReady = useAtomValue<boolean>(endorsementsInitialReadyAtom as any);
   const sortKey = useAtomValue<string>(sortKeyAtom as any);
   const sortDir = useAtomValue<'asc' | 'desc'>(sortDirAtom as any);
@@ -301,6 +297,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const manifestLoading = !manifest || Object.keys(((manifest as any).categories || {})).length === 0;
 
   const [maxWaitElapsed, setMaxWaitElapsed] = React.useState(false);
+  const votesInitialFetchTriggered = useAtomValue(votesInitialFetchTriggeredAtom);
   React.useEffect(() => {
     if (sortKey === 'endorsements' && !endorsementsReady) {
       setMaxWaitElapsed(false);
@@ -309,7 +306,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     }
   }, [sortKey, endorsementsReady]);
 
-  const loadingUi = isLoading || manifestLoading || pendingUrlCategory !== null || (sortKey === 'endorsements' && !endorsementsReady && !maxWaitElapsed && lastVotesSigCache === '');
+  const loadingUi = isLoading || manifestLoading || pendingUrlCategory !== null || (sortKey === 'endorsements' && !endorsementsReady && !maxWaitElapsed && !votesInitialFetchTriggered);
 
   // ISR Hydration: Use server-rendered data on initial load, fall back to API only if needed
   useEffect(() => {
@@ -445,43 +442,6 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     }
   }, [manifest, category, allItems.length, setAllItems, market]);
 
-  useEffect(() => {
-    if (isLoading) return;
-    if (!sorted || sorted.length === 0) return;
-    if (sortKey === 'endorsements') return;
-    const ids = sorted.slice(0, 120).map((it: any) => it.id).filter(Boolean);
-    if (ids.length === 0) return;
-    const sig = ids.join(',');
-    if (lastVotesSigCache === sig) return;
-    lastVotesSigCache = sig;
-    const t = setTimeout(() => fetchVotes(ids), 40);
-    return () => clearTimeout(t);
-  }, [isLoading, sorted, category, fetchVotes, sortKey]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (sortKey !== 'endorsements') return;
-    if (!sorted || sorted.length === 0) return;
-    const sigObj = { kind: 'all', count: sorted.length, first: sorted[0]?.id, last: sorted[sorted.length - 1]?.id };
-    const sig = JSON.stringify(sigObj);
-    if (allVotesSigCache === sig) return;
-    allVotesSigCache = sig;
-    prefetchAllVotes(sorted.map((it: any) => it.id));
-  }, [isLoading, sortKey, sorted, prefetchAllVotes]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (sortKey === 'endorsements') return;
-    if (!sorted || sorted.length === 0) return;
-    if (sorted.length <= 120) return;
-    if (prefetchedAllNonEndorseCache) return;
-    const t = setTimeout(() => {
-      prefetchAllVotes(sorted.map((it: any) => it.id));
-      prefetchedAllNonEndorseCache = true;
-    }, 400);
-    return () => clearTimeout(t);
-  }, [isLoading, sortKey, sorted, prefetchAllVotes]);
-
   const activeCategory = category && category !== 'All' ? category : null;
   const subs = Array.isArray(selectedSubs) ? selectedSubs : [];
   const excludedSubsList = Array.isArray(excludedSubs) ? excludedSubs : [];
@@ -547,6 +507,73 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   // Item count for SEO title - use manifest.totalItems from ISR
   const itemCount = (initialManifest as any)?.totalItems || (manifest as any)?.totalItems || 0;
 
+  // JSON-LD structured data for SEO
+  const origin = hostForLocale(locale);
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Biggy Index',
+    url: origin,
+    description: tMeta('indexDescription'),
+    inLanguage: locale || 'en-GB',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${origin}?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  // Organization schema for brand entity recognition
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Biggy Index',
+    url: 'https://biggyindex.com',
+    logo: 'https://biggyindex.com/og-image.png',
+    sameAs: [], // Add social profiles if available
+  };
+
+  // BreadcrumbList schema for category navigation (helps Google understand page hierarchy)
+  const breadcrumbJsonLd = React.useMemo(() => {
+    const items: Array<{ '@type': string; position: number; name: string; item?: string }> = [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: origin,
+      },
+    ];
+
+    // Add category breadcrumb if filtering by category
+    if (activeCategory) {
+      const parentKey = catKeyForManifest(activeCategory);
+      const catLabel = safeTranslate(tCats, parentKey) || activeCategory;
+      items.push({
+        '@type': 'ListItem',
+        position: 2,
+        name: catLabel,
+        item: `${origin}?cat=${activeCategory.toLowerCase()}`,
+      });
+
+      // Add subcategory if filtering by subcategory
+      if (subs.length === 1) {
+        const sk = subKeyForManifest(subs[0]);
+        const subLabel = translateSubLabel(tCats, parentKey, sk) || subs[0];
+        items.push({
+          '@type': 'ListItem',
+          position: 3,
+          name: subLabel,
+        });
+      }
+    }
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items,
+    };
+  }, [origin, activeCategory, subs, tCats]);
+
   return (
     <>
       {!suppressDefaultHead && (
@@ -559,17 +586,27 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           <meta property="og:url" content={hostForLocale(locale)} />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="Biggy Index" />
+          <meta property="og:image" content={`${hostForLocale(locale)}/og-image.png`} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content="Biggy Index - Browse LittleBiggy with filters" />
           <meta property="og:locale" content={localeToOgFormat(locale || 'en-GB')} />
           {getOgLocaleAlternates(locale || 'en-GB').map(ogLoc => (
             <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
           ))}
-          <meta name="twitter:card" content="summary" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:image" content={`${hostForLocale(locale)}/og-image.png`} />
           <meta name="twitter:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta name="twitter:description" content={tMeta('indexDescription')} />
           {['en', 'de', 'fr', 'it', 'pt'].map(l => (
             <link key={l} rel="alternate" href={hostForLocale(l)} hrefLang={l} />
           ))}
           <link rel="alternate" href={hostForLocale('en')} hrefLang="x-default" />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+          {activeCategory && (
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+          )}
         </Head>
       )}
       {/*<AnnouncementBanner />*/}

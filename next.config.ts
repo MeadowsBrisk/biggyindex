@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Optimize package imports for better tree-shaking
   experimental: {
-    optimizePackageImports: ['framer-motion', 'motion', 'lucide-react', 'jotai'],
+    optimizePackageImports: ['framer-motion', 'motion', 'lucide-react', 'jotai', '@radix-ui/react-slider'],
   },
   // Internationalization with domain-based routing
   // Production: subdomains (de.biggyindex.com, fr.biggyindex.com)

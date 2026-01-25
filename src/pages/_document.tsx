@@ -7,8 +7,12 @@ class MyDocument extends Document {
   }
 
   render() {
+    // Dynamic lang: Next.js sets __NEXT_DATA__.locale from i18n config
+    const locale = this.props.__NEXT_DATA__?.locale || 'en-GB';
+    const lang = locale.split('-')[0]; // e.g., 'en-GB' → 'en'
+
     return (
-      <Html lang="en">
+      <Html lang={lang}>
         <Head>
           {/* Removed viewport meta per Next.js recommendation; moved to _app.tsx */}
           <meta name="HandheldFriendly" content="true" />

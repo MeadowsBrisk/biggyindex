@@ -246,6 +246,13 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
   const locale = useLocale();
   const origin = hostForLocale(locale);
   const tMeta = useTranslations('Meta');
+  const tHome = useTranslations('Home');
+  
+  // Build FAQ schema from translations (supports DE, FR, PT, IT)
+  const faqAbout = tHome.raw('faq.about') as Array<{ q: string; a: string }> || [];
+  const faqCrypto = tHome.raw('faq.crypto') as Array<{ q: string; a: string }> || [];
+  const allFaqItems = [...faqAbout, ...faqCrypto];
+  
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -253,51 +260,20 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
     url: origin,
     inLanguage: locale,
   };
+  
+  // Generate FAQ schema from translated content
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'What is the Biggy Index?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'The Biggy Index provides an easier way to browse the LittleBiggy marketplace, with item categorisation, additional sorting options, and other handy tools tailored for UK shoppers.',
-        },
+    inLanguage: locale,
+    mainEntity: allFaqItems.map(item => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
       },
-      {
-        '@type': 'Question',
-        name: 'Do you sell or ship items?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'No. Biggy Index is read-only and sends you back to LittleBiggy to complete your order.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How do I buy Bitcoin in the UK?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Most buyers use Revolut, Monzo, Kraken, or Coinbase. Top up in pounds, purchase the amount of Bitcoin shown at checkout, and allow a few pounds for fees.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How does Transaxe escrow work?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Your payment goes to a Transaxe escrow address. Sellers have about 80 hours to mark orders as shipped or funds are automatically refunded. Disputes can be raised after nine days if needed.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Is this legal in the UK?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Cannabis laws still apply. It’s the buyer’s responsibility to comply with local regulations and verify details on LittleBiggy.',
-        },
-      },
-    ],
+    })),
   };
   const webPageJsonLd = {
     '@context': 'https://schema.org',
@@ -324,11 +300,16 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <meta property="og:url" content={`${origin}/home`} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Biggy Index" />
+        <meta property="og:image" content={`${origin}/og-image.png`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Biggy Index - Browse LittleBiggy with filters" />
         <meta property="og:locale" content={localeToOgFormat(locale)} />
         {getOgLocaleAlternates(locale).map(ogLoc => (
           <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
         ))}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={`${origin}/og-image.png`} />
         <meta name="twitter:title" content={tMeta('homeTitle')} />
         <meta name="twitter:description" content={tMeta('homeDescription')} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

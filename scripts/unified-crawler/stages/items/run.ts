@@ -38,28 +38,33 @@ export async function buildItemsWorklist(markets: MarketCode[]): Promise<ItemsWo
   // Create a lightweight cookie-enabled HTTP client without logging in; actual auth happens per-item
   const { client: anonClient } = await createCookieHttp({ headers: { "User-Agent": "UnifiedCrawler/Worklist" }, timeoutMs: 10000 });
 
-  // Collect items from each market index
-  let itemsPlanned = 0;
-  const indexes: Array<{ market: MarketCode; items: Array<{ id: string; n?: string; raw?: any }> }> = [];
+  // Collect items from each market index (parallel reads for better performance)
   const tIdxStart = Date.now();
   log.items.info(`reading market indexes`, { markets: enabled.length });
-  const marketSizes: string[] = [];
-  for (const code of enabled) {
+  
+  // Fetch all market indexes in parallel
+  const indexPromises = enabled.map(async (code) => {
     const storeName = (env.stores as any)[code];
     const blob = getBlobClient(storeName);
     const index = (await blob.getJSON<any[]>(Keys.market.index(code))) || [];
     const list = Array.isArray(index) ? index : [];
-    itemsPlanned += list.length;
-    // Prefer canonical ref-based identifier for dedupe; fall back to numeric id if no ref exists.
-    indexes.push({
+    return {
       market: code,
       items: list.map((it) => ({
         id: String(it?.refNum ?? it?.ref ?? it?.id ?? "").trim(),
         n: it?.n || it?.name,
         raw: it,
       })),
-    });
-    marketSizes.push(`${code}=${list.length}`);
+    };
+  });
+  const indexes = await Promise.all(indexPromises);
+  
+  // Calculate totals after parallel fetch
+  let itemsPlanned = 0;
+  const marketSizes: string[] = [];
+  for (const { market, items } of indexes) {
+    itemsPlanned += items.length;
+    marketSizes.push(`${market}=${items.length}`);
   }
   log.items.info(`indexes loaded`, { markets: marketSizes.join(' '), planned: itemsPlanned, ms: Math.max(0, Date.now() - tIdxStart) });
 
