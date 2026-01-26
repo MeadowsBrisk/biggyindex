@@ -49,6 +49,9 @@
         "copyright": "© {year} Biggy Index.",
         "lastCrawled": "Données explorées : {date}",
         "pageRefreshed": "Page actualisée : {date}"
+      },
+      "languages": {
+        "label": "Également disponible en"
       }
     },
     "leaderboard": {

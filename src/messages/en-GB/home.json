@@ -153,6 +153,9 @@
         "copyright": "© {year} Biggy Index.",
         "lastCrawled": "Data last crawled: {date}",
         "pageRefreshed": "Page refreshed: {date}"
+      },
+      "languages": {
+        "label": "Also available in"
       }
     },
     "faq": {

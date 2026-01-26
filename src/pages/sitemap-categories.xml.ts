@@ -1,16 +1,26 @@
 import type { GetServerSideProps } from 'next';
 import { localeFromHost, hostForLocale } from '@/lib/market/routing';
+
+const CATEGORIES = ['flower', 'hash', 'vapes', 'edibles', 'concentrates', 'psychedelics', 'tincture', 'other'];
+
 export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   const host = req?.headers?.host || 'biggyindex.com';
   const locale = localeFromHost(host);
   const origin = hostForLocale(locale);
+  const now = new Date().toISOString();
+  
+  const urls = CATEGORIES.map(slug => `
+  <url>
+    <loc>${origin}/category/${slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>${now}</lastmod>
+  </url>`).join('');
+  
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap><loc>${origin}/sitemap-static.xml</loc></sitemap>
-  <sitemap><loc>${origin}/sitemap-categories.xml</loc></sitemap>
-  <sitemap><loc>${origin}/sitemap-items.xml</loc></sitemap>
-  <sitemap><loc>${origin}/sitemap-sellers.xml</loc></sitemap>
-</sitemapindex>`;
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}
+</urlset>`;
+  
   res.setHeader('Content-Type', 'application/xml');
   res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=3600');
   res.write(xml);
@@ -18,4 +28,4 @@ export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   return { props: {} };
 };
 
-export default function SiteMapIndex() { return null; }
+export default function SiteMapCategories() { return null; }

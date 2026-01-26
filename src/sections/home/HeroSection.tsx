@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { fadeInUp } from "@/sections/home/motionPresets";
 import cn from "@/lib/core/cn";
 import AnimatedLogoHeader from "@/components/layout/AnimatedLogoHeader";
+import LocaleSelector from "@/components/layout/LocaleSelector";
 import CategoryTooltip from "@/components/filters/CategoryTooltip";
 import { useTranslations, useFormatter } from 'next-intl';
 import { useLocale } from '@/providers/IntlProvider';
@@ -163,7 +164,10 @@ export default function HeroSection({ stats }: HeroSectionProps): ReactElement {
       </motion.div>
       <div className="relative mx-auto flex min-h-[70vh] max-w-6xl flex-col justify-center gap-12 px-6 py-16 lg:flex-row lg:items-center lg:py-24">
         <motion.div {...(fadeInUp({ distance: 24, trigger: "animate" }) as any)} className="mx-auto max-w-2xl text-balance text-center lg:mx-0 lg:max-w-xl lg:text-left">
-          <AnimatedLogoHeader className="justify-center text-slate-900 dark:text-white lg:justify-start" />
+          <div className="flex items-center justify-center gap-3 lg:justify-start mb-2">
+            <AnimatedLogoHeader className="text-slate-900 dark:text-white" />
+            <LocaleSelector />
+          </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80">
             {tHome('hero.badge')}
           </span>

@@ -385,7 +385,43 @@
     "latestReviewsTitle": "Latest Reviews | Biggy Index",
     "latestReviewsDescription": "See the most recent LittleBiggy buyer reviews: ratings, arrival times, media and item links.",
     "sellersTitle": "Sellers | Biggy Index",
-    "sellersDescription": "Analyse LittleBiggy sellers: total reviews, positive rate, negatives, perfect 10/10s, average rating & shipping times."
+    "sellersDescription": "Analyse LittleBiggy sellers: total reviews, positive rate, negatives, perfect 10/10s, average rating & shipping times.",
+    "categoryTitle": "{category} on LittleBiggy UK | {count} Items | Browse & Compare | Biggy Index",
+    "categoryDescription": "Browse {count} {category} listings on LittleBiggy. Compare prices, read reviews, and shop with Bitcoin. Updated daily."
+  },
+  "CategoryPage": {
+    "itemsAvailable": "{count} items available",
+    "pricesFrom": "Prices from {price}",
+    "browseItems": "Browse Items",
+    "subcategories": "Subcategories",
+    "featured": "Featured Items",
+    "relatedCategories": "Related Categories",
+    "items": "items",
+    "tabs": {
+      "hottest": "Hottest",
+      "recentlyUpdated": "Recently Updated"
+    },
+    "viewAll": "View all",
+    "noItems": "No items available",
+    "intro": {
+      "default": "Discover {count} {category} listings from trusted LittleBiggy vendors. Compare prices, read verified buyer reviews, and find the best deals. All items are indexed daily with transparent seller ratings and shipping information.",
+      "flower": "Browse premium cannabis flower from verified LittleBiggy sellers. From exotic strains like Zkittlez and Gelato to classic favourites, compare prices across vendors and read real buyer reviews before you purchase.",
+      "hash": "Explore a curated selection of hashish including Moroccan, bubble hash, temple balls, and premium dry sift. Compare quality grades and prices from trusted vendors with verified buyer feedback.",
+      "vapes": "Shop disposable vapes, cartridges, and vape accessories from LittleBiggy's top-rated sellers. Find live resin carts, distillate pens, and more with transparent pricing and real customer reviews.",
+      "edibles": "Discover cannabis-infused edibles including gummies, chocolates, capsules, and baked goods. Compare dosages, prices, and read verified reviews to find your perfect product.",
+      "concentrates": "Browse premium concentrates including wax, shatter, rosin, and live resin. Compare potency, prices, and vendor ratings to find high-quality extracts from trusted sellers.",
+      "psychedelics": "Explore LittleBiggy's psychedelics selection including LSD, mushrooms, and DMT products. Read verified buyer experiences and compare prices across trusted vendors.",
+      "tincture": "Shop cannabis tinctures and sublingual products for precise dosing. Compare strengths, prices, and read customer reviews from verified LittleBiggy purchases.",
+      "other": "Discover unique products and accessories from LittleBiggy vendors. Browse seeds, grow kits, and specialty items with transparent pricing and buyer reviews.",
+      "subcategoriesInclude": "Includes",
+      "more": "more"
+    },
+    "footer": {
+      "description": "Browse LittleBiggy with categories, filters, reviews & seller stats.",
+      "browseAll": "Browse All Items",
+      "aboutUs": "About Biggy Index",
+      "alsoAvailable": "Also available in"
+    }
   },
   "FirstVisitBanner": {
     "title": "Welcome to the Biggy Index",

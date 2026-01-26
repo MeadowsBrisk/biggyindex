@@ -389,14 +389,50 @@
     "onePerDay": "Una raccomandazione al giorno"
   },
   "Meta": {
-    "indexTitle": "Sfoglia {count} articoli | Biggy Index",
-    "indexDescription": "Filtra per categoria, prezzo, valutazione venditore e spedizione. Confronta varianti, leggi recensioni e trova le migliori offerte.",
-    "homeTitle": "Il tuo compagno LittleBiggy | Biggy Index",
+    "indexTitle": "Sfoglia {count} articoli | Recensioni & Confronti | Biggy Index",
+    "indexDescription": "Filtra per categoria, prezzo, valutazione venditore e spedizione. Confronta varianti, leggi recensioni e trova le migliori offerte su LittleBiggy.",
+    "homeTitle": "Recensioni & Guida LittleBiggy Italia | Biggy Index",
     "homeDescription": "Un modo migliore per navigare LittleBiggy: annunci categorizzati, classifiche venditori, recensioni recenti e filtri potenti.",
     "latestReviewsTitle": "Ultime recensioni | Biggy Index",
     "latestReviewsDescription": "Vedi le recensioni recenti degli acquirenti LittleBiggy: valutazioni, tempi di arrivo, media e link agli articoli.",
     "sellersTitle": "Venditori | Biggy Index",
-    "sellersDescription": "Analizza i venditori: totale recensioni, percentuale positive, negative, 10/10 perfette, valutazione media e tempi di spedizione."
+    "sellersDescription": "Analizza i venditori: totale recensioni, percentuale positive, negative, 10/10 perfette, valutazione media e tempi di spedizione.",
+    "categoryTitle": "{category} su LittleBiggy Italia | {count} Articoli | Recensioni & Confronti | Biggy Index",
+    "categoryDescription": "Sfoglia {count} annunci {category} su LittleBiggy. Confronta prezzi, leggi recensioni e paga con Bitcoin. Aggiornato quotidianamente."
+  },
+  "CategoryPage": {
+    "itemsAvailable": "{count} articoli disponibili",
+    "pricesFrom": "Prezzi da {price}",
+    "browseItems": "Sfoglia articoli",
+    "subcategories": "Sottocategorie",
+    "featured": "Articoli in evidenza",
+    "relatedCategories": "Categorie correlate",
+    "items": "articoli",
+    "tabs": {
+      "hottest": "Più popolari",
+      "recentlyUpdated": "Aggiornati di recente"
+    },
+    "viewAll": "Vedi tutti",
+    "noItems": "Nessun articolo disponibile",
+    "intro": {
+      "default": "Scopri {count} annunci {category} da venditori LittleBiggy affidabili. Confronta i prezzi, leggi le recensioni verificate degli acquirenti e trova le migliori offerte. Tutti gli articoli sono indicizzati quotidianamente con valutazioni trasparenti.",
+      "flower": "Sfoglia fiori di cannabis premium da venditori LittleBiggy verificati. Dalle varietà esotiche come Zkittlez e Gelato ai classici preferiti, confronta i prezzi e leggi le vere recensioni degli acquirenti.",
+      "hash": "Esplora una selezione curata di hashish tra cui marocchino, bubble hash, temple balls e dry sift premium. Confronta i gradi di qualità e i prezzi da venditori affidabili.",
+      "vapes": "Acquista vape usa e getta, cartucce e accessori dai venditori più apprezzati di LittleBiggy. Trova cart live resin, penne distillato e altro con prezzi trasparenti.",
+      "edibles": "Scopri edibili alla cannabis tra cui gummies, cioccolatini, capsule e prodotti da forno. Confronta dosaggi, prezzi e leggi le recensioni verificate.",
+      "concentrates": "Sfoglia concentrati premium tra cui wax, shatter, rosin e live resin. Confronta potenza, prezzi e valutazioni dei venditori per estratti di alta qualità.",
+      "psychedelics": "Esplora la selezione di psichedelici LittleBiggy tra cui LSD, funghi e prodotti DMT. Leggi le esperienze verificate degli acquirenti e confronta i prezzi.",
+      "tincture": "Acquista tinture di cannabis e prodotti sublinguali per un dosaggio preciso. Confronta le concentrazioni, i prezzi e leggi le recensioni dei clienti.",
+      "other": "Scopri prodotti unici e accessori dai venditori LittleBiggy. Sfoglia semi, kit di coltivazione e articoli speciali con prezzi trasparenti.",
+      "subcategoriesInclude": "Include",
+      "more": "altri"
+    },
+    "footer": {
+      "description": "Esplora LittleBiggy con categorie, filtri, recensioni & statistiche venditori.",
+      "browseAll": "Sfoglia tutti gli articoli",
+      "aboutUs": "Informazioni su Biggy Index",
+      "alsoAvailable": "Disponibile anche in"
+    }
   },
   "FirstVisitBanner": {
     "title": "Benvenuto sul Biggy Index",

@@ -21,11 +21,11 @@ interface Market {
 
 // Market configuration with flags and labels
 const MARKETS: Market[] = [
-  { code: 'GB', Flag: FlagGB, label: 'United Kingdom', path: '/', currency: 'GBP', currencySymbol: '£' },
-  { code: 'DE', Flag: FlagDE, label: 'Germany', path: '/de', currency: 'EUR', currencySymbol: '€' },
-  { code: 'FR', Flag: FlagFR, label: 'France', path: '/fr', currency: 'EUR', currencySymbol: '€' },
-  { code: 'IT', Flag: FlagIT, label: 'Italy', path: '/it', currency: 'EUR', currencySymbol: '€' },
-  { code: 'PT', Flag: FlagPT, label: 'Portugal', path: '/pt', currency: 'EUR', currencySymbol: '€' },
+  { code: 'GB', Flag: FlagGB, label: 'English', path: '/', currency: 'GBP', currencySymbol: '£' },
+  { code: 'DE', Flag: FlagDE, label: 'Deutsch', path: '/de', currency: 'EUR', currencySymbol: '€' },
+  { code: 'FR', Flag: FlagFR, label: 'Français', path: '/fr', currency: 'EUR', currencySymbol: '€' },
+  { code: 'IT', Flag: FlagIT, label: 'Italiano', path: '/it', currency: 'EUR', currencySymbol: '€' },
+  { code: 'PT', Flag: FlagPT, label: 'Português', path: '/pt', currency: 'EUR', currencySymbol: '€' },
 ];
 
 /**

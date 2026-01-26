@@ -2,9 +2,22 @@
 
 import Link from "next/link";
 import { RedditIcon } from '@/components/common/icons';
+import FlagGB from '@/components/common/flags/FlagGB';
+import FlagDE from '@/components/common/flags/FlagDE';
+import FlagFR from '@/components/common/flags/FlagFR';
+import FlagIT from '@/components/common/flags/FlagIT';
+import FlagPT from '@/components/common/flags/FlagPT';
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactElement, type MouseEvent as ReactMouseEvent } from "react";
 import { useFormatter, useTranslations } from 'next-intl';
+
+const LOCALE_LINKS = [
+  { code: 'en', href: 'https://biggyindex.com', label: 'English', Flag: FlagGB },
+  { code: 'fr', href: 'https://fr.biggyindex.com', label: 'Français', Flag: FlagFR },
+  { code: 'de', href: 'https://de.biggyindex.com', label: 'Deutsch', Flag: FlagDE },
+  { code: 'it', href: 'https://it.biggyindex.com', label: 'Italiano', Flag: FlagIT },
+  { code: 'pt', href: 'https://pt.biggyindex.com', label: 'Português', Flag: FlagPT },
+];
 
 interface FooterSectionProps {
   lastCrawlTime?: string | number | null;
@@ -162,6 +175,28 @@ export default function FooterSection({ lastCrawlTime, buildTime }: FooterSectio
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+
+        {/* Language selector row */}
+        <div className="relative border-t border-white/10 px-6 py-4 transition-colors duration-300 dark:border-slate-200/20">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-3">
+            <span className="text-xs uppercase tracking-[0.2em] text-white/50 dark:text-slate-500">
+              {tHome('footer.languages.label', { fallback: 'Also available in' })}
+            </span>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {LOCALE_LINKS.map(({ code, href, label, Flag }) => (
+                <a
+                  key={code}
+                  href={href}
+                  className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white dark:border-slate-300/20 dark:bg-slate-900/5 dark:text-slate-500 dark:hover:border-slate-300/30 dark:hover:bg-slate-900/10 dark:hover:text-slate-700"
+                  hrefLang={code}
+                >
+                  <Flag className="h-4 w-4 rounded-sm" />
+                  <span>{label}</span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
