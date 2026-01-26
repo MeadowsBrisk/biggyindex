@@ -16,6 +16,7 @@ import { processImages } from "../../scripts/unified-crawler/stages/images/optim
 import { checkBudget, formatBudgetStatus } from "../../scripts/unified-crawler/stages/images/budget";
 import { listMarkets } from "../../scripts/unified-crawler/shared/env/markets";
 import { loadEnv } from "../../scripts/unified-crawler/shared/env/loadEnv";
+import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 const log = (msg: string) => console.log(`[crawler:images] ${msg}`);
@@ -41,17 +42,20 @@ export const handler: Handler = async (event) => {
       return { statusCode: 500, body: "Missing R2 credentials" };
     }
 
+    // Load env and get blob client for budget check
+    const env = loadEnv();
+    const sharedBlob = getBlobClient(env.stores.shared);
+
     // Check budget before starting
-    const budget = await checkBudget();
-    log(`budget ${formatBudgetStatus(budget)}`);
+    const budgetCheck = await checkBudget(sharedBlob);
+    log(`budget ${formatBudgetStatus(budgetCheck.budget)}`);
     
-    if (budget.storage.remaining < 10) {
+    if (budgetCheck.budget.storageUsedMB >= 9500) {
       log("error: storage budget exhausted");
       return { statusCode: 429, body: "Storage budget exhausted" };
     }
 
     // Load markets and process images
-    const env = loadEnv();
     const markets = listMarkets(env.markets);
     log(`processing markets=${markets.join(",")}`);
 
