@@ -35,7 +35,7 @@ export default function ZoomSlide({
   thumbSrc,
 }) {
   const isGif = typeof src === 'string' && /\.gif($|[?#])/i.test(src);
-  const { video, posterProxied } = useGifAsset(isGif ? src : null);
+  const { anim, poster, hasAnim } = useGifAsset(isGif ? src : null);
   const rawSrc = src;
   const displaySrc = !isGif && useProxy ? proxyImage(src) : rawSrc;
   
@@ -43,21 +43,6 @@ export default function ZoomSlide({
   const [fullLoaded, setFullLoaded] = React.useState(false);
   const thumbProxied = thumbSrc && useProxy ? proxyImage(thumbSrc, 800) : thumbSrc;
   React.useEffect(() => { setFullLoaded(false); }, [src]);
-  
-  const videoRef = React.useRef(null);
-  // sync pause state to video
-  React.useEffect(() => {
-    if (!videoRef.current) return;
-    if (paused) { try { videoRef.current.pause(); } catch {} }
-    else { try { videoRef.current.play(); } catch {} }
-  }, [paused]);
-  // reset playback when slide becomes active to keep smooth
-  React.useEffect(() => {
-    if (activeIndex !== idx) return;
-    if (videoRef.current && !paused) {
-      try { videoRef.current.play(); } catch {}
-    }
-  }, [activeIndex, idx, paused]);
 
   return (
     <div className="!h-full flex items-center justify-center swiper-zoom-slide">
@@ -92,17 +77,16 @@ export default function ZoomSlide({
                   data-zoom-content
                 >
                   {isGif ? (
-                    video ? (
-                      <video
-                        ref={videoRef}
-                        src={video}
-                        poster={posterProxied || undefined}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
+                    hasAnim ? (
+                      <img
+                        src={paused ? poster : anim}
+                        alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
                         style={{ maxHeight: '90vh', maxWidth: '90vw' }}
-                        className="w-auto h-auto block select-none object-contain" />
+                        className="w-auto h-auto block select-none object-contain"
+                        draggable={false}
+                        loading="eager"
+                        decoding="async"
+                      />
                     ) : (
                       <img
                         src={displaySrc}

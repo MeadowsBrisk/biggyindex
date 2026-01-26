@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { pauseGifsAtom } from '@/store/atoms';
 import { useGifAsset } from '@/lib/ui/gifAssets';
-import { proxyImage } from '@/lib/ui/images';
 import cn from '@/lib/core/cn';
 
 interface GifMediaProps {
@@ -15,16 +14,13 @@ interface GifMediaProps {
 
 /**
  * GIF media component with global pause support.
- * Uses poster when global pause is active.
+ * Uses R2 poster (thumb.avif) when paused, animated WebP (anim.webp) when playing.
  */
 export function GifMedia({ url, alt, className, onOpenPreview }: GifMediaProps) {
   const pauseGlobal = useAtomValue(pauseGifsAtom);
-  const { loading, hasEntry, posterProxied, video } = useGifAsset(url);
+  const { loading, isGif, hasAnim, poster, anim } = useGifAsset(url);
 
-  // Source selection
-  const gifSrc = useMemo(() => proxyImage(url), [url]);
-  const posterSrc = useMemo(() => posterProxied || proxyImage(url), [posterProxied, url]);
-  const showPoster = pauseGlobal;
+  const showPoster = pauseGlobal || !hasAnim;
 
   const Wrapper = onOpenPreview ? 'button' : 'div';
   
@@ -35,12 +31,11 @@ export function GifMedia({ url, alt, className, onOpenPreview }: GifMediaProps) 
   const renderMedia = () => {
     const content = (() => {
       if (showPoster) {
-        return <img src={posterSrc} alt={alt || ''} loading="lazy" decoding="async" draggable={false} className={mediaClassName} />;
+        // Show static poster (thumb.avif)
+        return <img src={poster} alt={alt || ''} loading="lazy" decoding="async" draggable={false} className={mediaClassName} />;
       }
-      if (video) {
-        return <video src={video} poster={posterSrc} autoPlay loop muted playsInline draggable={false} aria-hidden="true" className={mediaClassName} />;
-      }
-      return <img src={gifSrc} alt={alt || ''} loading="lazy" decoding="async" draggable={false} className={mediaClassName} />;
+      // Show animated WebP
+      return <img src={anim!} alt={alt || ''} loading="lazy" decoding="async" draggable={false} className={mediaClassName} />;
     })();
 
     if (onOpenPreview) {
@@ -68,7 +63,7 @@ export function GifMedia({ url, alt, className, onOpenPreview }: GifMediaProps) 
       </Wrapper>
 
       {/* GIF badge */}
-      {hasEntry && (
+      {isGif && (
         <div className="absolute top-1 left-1 flex items-center gap-1 z-20 pointer-events-none select-none">
           <div className="px-1.5 py-0.5 rounded bg-black/55 text-[10px] font-medium text-white tracking-wide">GIF</div>
         </div>

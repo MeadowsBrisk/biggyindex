@@ -15,6 +15,8 @@ export const Keys = {
       sellerState: () => `aggregates/seller-state.json`,
       translationMeta: () => `aggregates/translation-meta.json`,
       translations: () => `aggregates/translations.json`,
+      r2Meta: () => `aggregates/r2-meta.json`,
+      gifMap: () => `aggregates/gif-map`,
     },
     analytics: {
       sellers: () => `seller-analytics.json`,

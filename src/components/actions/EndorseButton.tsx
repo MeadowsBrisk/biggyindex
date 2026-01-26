@@ -21,14 +21,16 @@ type Props = { itemId: string | number; onHydrated?: () => void; compact?: boole
 export default function EndorseButton({ itemId, onHydrated, compact = false }: Props) {
   const id = String(itemId);
   const t = useTranslations('Endorse');
-  // Narrow subscriptions to just this item's vote count & endorsed membership
+  // Narrow subscriptions to just this item's vote count & baseline
+  // selectAtom is appropriate for Map values (votesAtom/baselines are Record<id, number>)
   const voteCountAtom = React.useMemo(() => selectAtom(votesAtom, (v: any) => v[id] || 0), [id]);
   const count = useAtomValue(voteCountAtom);
   // Baseline captured pre-increment; allows us to restore optimistic +1 even if snapshot seeding overwrote count after refresh
   const baselineAtom = React.useMemo(() => selectAtom(endorsementBaselinesAtom, (b: any) => b[id] || 0), [id]);
   const baseline = useAtomValue(baselineAtom);
-  const endorsedForIdAtom = React.useMemo(() => selectAtom(endorsedSetAtom, (s) => s.has(id)), [id]);
-  const endorsed = useAtomValue(endorsedForIdAtom);
+  // Use shared Set atom directly for O(1) endorsed check (no selectAtom needed for Set)
+  const endorsedSet = useAtomValue(endorsedSetAtom);
+  const endorsed = endorsedSet.has(id);
   // If endorsed, guarantee UI shows at least baseline+1 (optimistic) without waiting for reconciliation atom
   const displayCount = endorsed ? Math.max(count, baseline + 1) : count;
   const hasVotedToday = useAtomValue(voteHasVotedAtom);

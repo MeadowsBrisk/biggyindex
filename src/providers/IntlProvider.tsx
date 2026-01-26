@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useRouter } from 'next/router';
 import enGBCoreMessages from "../messages/en-GB/index.json";
 import { IntlProvider as NextIntlProvider, useTranslations } from "next-intl";
@@ -131,7 +131,13 @@ export function useMessages() {
   return ctx;
 }
 
-export function IntlProvider({ children }: { children: React.ReactNode }) {
+interface IntlProviderProps {
+  children: React.ReactNode;
+  /** SSR-loaded messages from getStaticProps (avoids async loading flash) */
+  ssrMessages?: Record<string, any> | null;
+}
+
+export function IntlProvider({ children, ssrMessages }: IntlProviderProps) {
   const router = useRouter();
   
   // Use router.locale for SSR consistency (avoids hydration mismatch)
@@ -139,9 +145,17 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
   const initialLocale = normalizeLocale(router.locale);
   
   const [locale, setLocale] = useState<Locale>(initialLocale);
-  // Start with English core messages as fallback, load correct locale async
-  const [messages, setMessages] = useState<Record<string, any>>(enGBCoreMessages as Record<string, any>);
+  // Use SSR messages if available, otherwise fall back to English core messages
+  // This eliminates the async loading flash on initial render
+  const [messages, setMessages] = useState<Record<string, any>>(
+    ssrMessages && Object.keys(ssrMessages).length > 0 
+      ? ssrMessages 
+      : enGBCoreMessages as Record<string, any>
+  );
   const [currency, setCurrency] = useState<Currency>(currencyForLocale(initialLocale));
+  
+  // Track if we've received SSR messages to skip initial async load
+  const hadSsrMessages = useRef(ssrMessages && Object.keys(ssrMessages).length > 0);
   
   // Force English preference - default false on SSR, sync from localStorage in effect
   const [forceEnglish, setForceEnglishState] = useState<boolean>(false);
@@ -163,10 +177,18 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Load core messages for the current locale (or English if forced)
+  // Skip initial load if we already have SSR messages for the correct locale
   useEffect(() => {
     let cancelled = false;
     // If forceEnglish is enabled, always load English messages
     const messageLocale = forceEnglish ? 'en-GB' : locale;
+    
+    // Skip async load if we have SSR messages and locale matches (first render)
+    if (hadSsrMessages.current && messageLocale === initialLocale && !forceEnglish) {
+      hadSsrMessages.current = false; // Only skip once
+      return;
+    }
+    
     loadCoreMessages(messageLocale).then((m) => {
       if (!cancelled) setMessages(m);
     });
@@ -175,7 +197,7 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [locale, forceEnglish]);
+  }, [locale, forceEnglish, initialLocale]);
 
   // Sync locale when router changes (path or locale)
   useEffect(() => {

@@ -51,9 +51,15 @@ export const getStaticProps: GetStaticProps = async (context) => {
   // This eliminates client-side API calls, reducing function invocations by ~95%
   // Derive market from locale (set by Next.js i18n domain routing)
   const market = localeToMarket(context.locale);
+  const locale = context.locale || 'en-GB';
 
   try {
     const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/data/indexData');
+
+    // Load messages at build time for SSR (per next-intl best practices)
+    // This eliminates client-side async loading flash
+    const messagesModule = await import(`../messages/${locale}/index.json`);
+    const messages = messagesModule.default;
 
     // Only fetch items and manifest for initial page load
     // Reviews/media are lazy-loaded by modals when opened (reduces __NEXT_DATA__ by ~200-400KB)
@@ -79,6 +85,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
         initialItems: items,
         initialManifest: manifest,
         snapshotMeta: meta,
+        messages, // SSR messages for next-intl
       },
       // If data is empty, retry in 10 seconds instead of 16 minutes
       revalidate: hasData ? 1000 : 10,
@@ -86,11 +93,18 @@ export const getStaticProps: GetStaticProps = async (context) => {
   } catch (e) {
     console.error('[ISR] Failed to fetch data:', e);
     // Fallback to empty data with short revalidate to retry quickly
+    // Also load fallback messages
+    let messages = {};
+    try {
+      const fallbackLocale = context.locale || 'en-GB';
+      messages = (await import(`../messages/${fallbackLocale}/index.json`)).default;
+    } catch {}
     return {
       props: {
         initialItems: [],
         initialManifest: { categories: {}, totalItems: 0 },
         snapshotMeta: null,
+        messages,
       },
       revalidate: 10, // Retry in 10 seconds
     };

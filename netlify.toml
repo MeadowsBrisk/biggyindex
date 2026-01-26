@@ -167,6 +167,17 @@
     "scripts/unified-crawler/**"
   ]
 
+# Daily image optimization - uploads new images to Cloudflare R2
+# Runs once daily at 5:30 AM UTC - after translate-background at 5:10 has completed
+# Uses R2 free tier (10GB storage, 10M reads/month) with budget tracking
+# Incremental by default; add ?force=1 to reprocess all images
+[functions."crawler-images-background"]
+  schedule = "30 5 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
 # Redirects for legacy localized item/seller paths (301 permanent redirects)
 [[redirects]]
   from = "/produit/:ref"

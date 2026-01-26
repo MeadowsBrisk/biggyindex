@@ -1,8 +1,7 @@
 import cn from "@/lib/core/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
-import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesAtom, favouritesOnlyAtom } from "@/store/atoms";
-import { selectAtom } from "jotai/utils";
+import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesSetAtom, favouritesOnlyAtom } from "@/store/atoms";
 import { voteHasVotedAtom, endorsedSetAtom } from "@/store/votesAtoms";
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { formatUSDRange, currencySymbol, type DisplayCurrency, type ExchangeRates } from '@/lib/pricing/priceDisplay';
@@ -11,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { decodeEntities } from '@/lib/core/format';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/countries';
 import { isDomesticShipping } from '@/lib/market/localeUtils';
+import { observeElement, unobserveElement } from '@/lib/ui/sharedIntersectionObserver';
 
 // Extracted sub-components for better maintainability
 import { ItemCardVariantList } from '@/components/item/ItemCardVariantList';
@@ -87,6 +87,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const { locale } = useLocale();
   
   // Get unit labels for per-unit suffix (e.g., "g", "joint" → translated)
+  // Use locale as stable dependency instead of tUnits (which creates new refs on parent renders)
   const unitLabels = useMemo(() => {
     try {
       // Get all unit translations as a record
@@ -99,7 +100,8 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     } catch {
       return undefined;
     }
-  }, [tUnits]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
   const itemKey = String(item.id); // normalized id as string
   // Destructure minified keys with aliased names for readability
   const { i: imageUrl, is: imageUrls, n: name, nEn: nameEn, d: description, dEn: descriptionEn, sn: sellerName, sid: sellerId, url, rs: reviewStats, v: variants, sellerOnline, sf: shipsFrom, refNum } = item;
@@ -109,8 +111,9 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const displayName = (forceEnglish && nameEn) ? nameEn : name;
   const displayDesc = (forceEnglish && descriptionEn) ? descriptionEn : description;
   
-  // atoms & derived flags
-  const isFav = useAtomValue(React.useMemo(() => selectAtom(favouritesAtom, (favs: unknown) => Array.isArray(favs as any[]) && (favs as any[]).includes(item.id as any)), [item.id]));
+  // atoms & derived flags - use shared Set atom for O(1) lookup instead of per-item selectAtom
+  const favSet = useAtomValue(favouritesSetAtom);
+  const isFav = favSet.has(item.id);
   const favouritesOnly = useAtomValue(favouritesOnlyAtom);
   const showFavAccent = isFav && !favouritesOnly;
   const category = useAtomValue(categoryAtom);
@@ -159,62 +162,70 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     return formatUSDRange(minUSD, maxUSD, displayCurrency, rates, { decimals: 2 }) as string;
   }, [variants, rates, displayCurrency]);
 
-  const endorsedLocal = useAtomValue(React.useMemo(() => selectAtom(endorsedSetAtom, (s: Set<string>) => s.has(itemKey)), [itemKey]));
+  // Use shared Set atom for O(1) lookup instead of per-item selectAtom
+  const endorsedSet = useAtomValue(endorsedSetAtom);
+  const endorsedLocal = endorsedSet.has(itemKey);
   const hasVotedToday = useAtomValue(voteHasVotedAtom);
 
-  // IntersectionObserver to control first-time entrance without relying on whileInView (reduces Firefox repaint glitches)
+  // Shared IntersectionObserver for first-time entrance (reduces Firefox repaint glitches)
+  // Uses a single shared observer across all ItemCards instead of 2000+ individual observers
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const [entered, setEntered] = useState(initialAppear ? false : false); // will flip to true
+  const [entered, setEntered] = useState(false);
   const [animDone, setAnimDone] = useState(false);
-  const fallbackRef = useRef<any>(null);
+  const fallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const enteredRef = useRef(false); // Ref to track entered state for callbacks
+
   // Staggered appearance for initial viewport batch
   useEffect(() => {
     if (initialAppear) {
-      // For initial batch: immediate viewport check + stagger
-      if (rootRef.current) {
-        const rect = rootRef.current.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-          // still apply stagger but ensure we'll enter
-        }
-      }
-      const t = setTimeout(() => { setEntered(true); }, staggerDelay);
+      const t = setTimeout(() => {
+        setEntered(true);
+        enteredRef.current = true;
+      }, staggerDelay);
       return () => clearTimeout(t);
     }
   }, [initialAppear, staggerDelay]);
-  // Intersection observer for non-initial or late-added items + immediate check + fallback
+
+  // Shared intersection observer for non-initial items
   useEffect(() => {
     if (initialAppear) return; // handled by stagger timing
     if (!rootRef.current) return;
-    // Immediate synchronous visibility check (covers already-in-view elements before observer fires)
-    const rect = rootRef.current.getBoundingClientRect();
-    if (!entered && rect.top < window.innerHeight && rect.bottom > 0) {
-      setEntered(true);
-    }
-    if (entered) return; // no need for observer
+    if (enteredRef.current) return; // already entered
+
     const el = rootRef.current;
-    const observer = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          setEntered(true);
-          observer.disconnect();
-          break;
-        }
-      }
-    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
-    observer.observe(el);
-    // Fallback: after 1500ms, force enter if still visible (guards against missed intersection edge cases)
+
+    // Immediate synchronous visibility check (covers already-in-view elements)
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setEntered(true);
+      enteredRef.current = true;
+      return;
+    }
+
+    // Use shared observer
+    const onEnter = () => {
+      setEntered(true);
+      enteredRef.current = true;
+      if (fallbackRef.current) clearTimeout(fallbackRef.current);
+    };
+    observeElement(el, onEnter);
+
+    // Fallback: after 1500ms, force enter if still visible
     fallbackRef.current = setTimeout(() => {
-      if (!rootRef.current || entered) return;
+      if (enteredRef.current || !rootRef.current) return;
       const r2 = rootRef.current.getBoundingClientRect();
       if (r2.top < window.innerHeight && r2.bottom > 0) {
         setEntered(true);
+        enteredRef.current = true;
+        unobserveElement(el);
       }
     }, 1500);
+
     return () => {
-      observer.disconnect();
+      unobserveElement(el);
       if (fallbackRef.current) clearTimeout(fallbackRef.current);
     };
-  }, [initialAppear, entered]);
+  }, [initialAppear]);
   const refKey = (refNum ?? String(item.id)) as string | number;
   const showVariants = Array.isArray(variants) && variants.length > 0;
   const pricingPanelId = `item-pricing-${itemKey}`;

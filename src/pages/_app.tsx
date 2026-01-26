@@ -27,6 +27,9 @@ const nunito = Nunito_Sans({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  // Pass SSR-loaded messages to IntlProvider to eliminate async loading flash
+  const ssrMessages = pageProps.messages || null;
+  
   return (
     <>
       <Head>
@@ -45,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeSync />
       <VotesHydrator />
       <FXHydrator />
-      <IntlProvider>
+      <IntlProvider ssrMessages={ssrMessages}>
         <Component {...pageProps} />
         {/* Place FixedControls inside the IntlProvider so useTranslations has context */}
         <FixedControls />

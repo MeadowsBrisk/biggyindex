@@ -14,6 +14,7 @@ import { runSellers } from './stages/sellers/run';
 import { runPruning } from './stages/pruning/run';
 import { runTranslate } from './stages/translate/run';
 import { runCleanupShortDesc } from './stages/translate/cleanup-short-desc';
+import { processImages, clearAllImages } from './stages/images';
 import { detectItemChanges } from './shared/logic/changes';
 import { Keys } from './shared/persistence/keys';
 import { getBlobClient } from './shared/persistence/blobs';
@@ -26,7 +27,7 @@ const argv = yargs(hideBin(process.argv))
   .scriptName('unified-crawler')
   .option('stage', {
     type: 'string',
-    choices: ['index', 'items', 'sellers', 'pruning', 'translate', 'all', 'cat-tests'],
+    choices: ['index', 'items', 'sellers', 'pruning', 'translate', 'images', 'all', 'cat-tests'],
     default: 'index',
     describe: 'Which stage(s) to run',
   })
@@ -115,6 +116,11 @@ const argv = yargs(hideBin(process.argv))
     default: 60,
     describe: 'Delay between translation batches in seconds (free tier needs ~60s)'
   })
+  .option('clear', {
+    type: 'boolean',
+    default: false,
+    describe: 'Clear all images from R2 before processing (use when changing sizes)'
+  })
   .help()
   .strict()
   .parseSync();
@@ -131,7 +137,7 @@ async function main() {
   const defaultMkts = cfgMarkets(env.markets);
   const markets = (argv.markets ? argv.markets.split(',').map((s: string) => s.trim().toUpperCase()) : defaultMkts) as MarketCode[];
 
-  const stage = argv.stage as 'index' | 'items' | 'sellers' | 'pruning' | 'translate' | 'all' | 'cat-tests';
+  const stage = argv.stage as 'index' | 'items' | 'sellers' | 'pruning' | 'translate' | 'images' | 'all' | 'cat-tests';
   const started = Date.now();
   const since = (t: number) => Math.round((Date.now() - t) / 1000);
 
@@ -469,6 +475,66 @@ async function main() {
           secs: since(t0) 
         });
       }
+    }
+
+    // Images stage: optimize images and upload to R2
+    if (stage === 'images') {
+      const t0 = Date.now();
+      const sharedBlob = getBlobClient('site-index-shared');
+      
+      // Clear all existing images if --clear flag is set
+      if (argv.clear) {
+        log.image.info('clearing existing images (--clear flag)');
+        const { deleted, errors } = await clearAllImages();
+        log.image.info('clear result', { deleted, errors });
+      }
+      
+      // Gather all image URLs from all markets
+      const imageUrls: string[] = [];
+      for (const m of markets) {
+        const storeName = marketStore(m, env.stores);
+        const blob = getBlobClient(storeName);
+        const items = await blob.getJSON<any[]>(Keys.market.index(m)) || [];
+        for (const item of items) {
+          // Main image (minified key: i)
+          const mainImg = item.i || item.imageUrl;
+          if (mainImg && typeof mainImg === 'string') {
+            imageUrls.push(mainImg);
+          }
+          // Gallery images (minified key: is)
+          const gallery = item.is || item.imageUrls;
+          if (Array.isArray(gallery)) {
+            for (const img of gallery) {
+              if (img && typeof img === 'string') {
+                imageUrls.push(img);
+              }
+            }
+          }
+        }
+      }
+      
+      // Deduplicate URLs
+      const uniqueUrls = [...new Set(imageUrls)];
+      log.image.info('discovered images', { total: imageUrls.length, unique: uniqueUrls.length });
+      
+      const { stats } = await processImages(uniqueUrls, {
+        concurrency: argv.concurrency || 10,
+        force: argv.force || argv.clear, // Force re-process if clearing
+        maxImages: typeof argv.limit === 'number' ? argv.limit : undefined,
+        sharedBlob,
+        dryRun: argv['dry-run'],
+      });
+      
+      // No gif-map needed! Frontend detects GIFs by checking if anim.webp exists
+      
+      log.image.info('complete', {
+        processed: stats.processed,
+        cached: stats.cached,
+        failed: stats.failed,
+        gifs: stats.gifs,
+        budgetLimited: stats.budgetLimited,
+        secs: since(t0),
+      });
     }
 
     log.cli.info(`completed`, { stage, totalSecs: since(started) });

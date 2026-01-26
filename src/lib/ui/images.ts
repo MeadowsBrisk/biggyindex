@@ -1,17 +1,53 @@
 // Image-related utilities
 
-// Cloudinary cloud name
+// Cloudinary cloud name (legacy - kept for reference)
 const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD || 'YOUR_CLOUD_NAME';
 
 // Toggle Cloudinary on/off via env var (set to 'false' to disable)
 // When disabled, images are served directly from origin (no AVIF conversion)
-const USE_CLOUDINARY = process.env.NEXT_PUBLIC_USE_CLOUDINARY !== 'false';
+const USE_CLOUDINARY = process.env.NEXT_PUBLIC_USE_CLOUDINARY !== 'false' && process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD;
+
+// Cloudflare R2 image optimization (free alternative to Cloudinary)
+// Images are pre-optimized by the crawler and stored in R2
+// New unified structure: {hash}/thumb.avif, {hash}/full.avif, {hash}/anim.webp
+const R2_IMAGE_URL = process.env.NEXT_PUBLIC_R2_IMAGE_URL || '';
+const USE_R2 = !!R2_IMAGE_URL;
 
 // Cloudflare edge caching: wrap Cloudinary URLs through CF worker to reduce Cloudinary requests
 // Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to your CF worker domain (e.g., 'https://biggyindex.com')
 // Leave empty to use relative path (same domain) or disable CF caching entirely
 const CF_IMAGE_PROXY_BASE = process.env.NEXT_PUBLIC_CF_IMAGE_PROXY_BASE || '';
 const USE_CF_CACHE = CF_IMAGE_PROXY_BASE !== '';
+
+/**
+ * Generate a stable hash for an image URL.
+ * Uses FNV-1a hash which produces consistent results and is fast.
+ * Note: The image-optimizer uses the same hash function for server-side processing.
+ */
+function hashUrl(url: string): string {
+  let hash = 2166136261; // FNV offset basis
+  for (let i = 0; i < url.length; i++) {
+    hash ^= url.charCodeAt(i);
+    hash = Math.imul(hash, 16777619); // FNV prime
+  }
+  // Convert to hex, ensure positive, pad to 8 chars
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+/**
+ * Get optimized image URL from R2 bucket
+ * New unified structure: {hash}/thumb.avif (600px) or {hash}/full.avif (original)
+ * 
+ * Width logic:
+ * - undefined = full (high-res/zoom mode)
+ * - any number = thumb (card thumbnails don't need full)
+ */
+function r2ImageUrl(url: string, width?: number): string {
+  const hash = hashUrl(url);
+  // undefined = full-res mode; any width specified = use thumb
+  const variant = width === undefined ? 'full' : 'thumb';
+  return `${R2_IMAGE_URL}/${hash}/${variant}.avif`;
+}
 
 // Cloudinary fetch URL builder with responsive sizing
 // - f_avif: force AVIF format for best compression
@@ -34,8 +70,8 @@ function wrapWithCloudflare(url: string): string {
 }
 
 /**
- * Proxy image URLs via Cloudinary for optimization, optionally cached via Cloudflare.
- * Flow: Browser → CF Worker (edge cache) → Cloudinary (AVIF/resize) → origin
+ * Proxy image URLs via optimized source (R2, Cloudinary, or direct).
+ * Priority: R2 (free, pre-optimized) > Cloudinary (paid) > CF cache > direct
  * - Skips local paths (/, ./)
  * - Skips already-proxied URLs
  */
@@ -46,9 +82,14 @@ export function proxyImage(url: string, width?: number): string {
   if (url.startsWith('/') || url.startsWith('./')) return url;
   
   // Skip already proxied URLs
-  if (url.includes('res.cloudinary.com/') || url.includes('/cf-image-proxy')) return url;
+  if (url.includes('res.cloudinary.com/') || url.includes('/cf-image-proxy') || url.includes(R2_IMAGE_URL)) return url;
   
-  // Use Cloudinary for AVIF conversion and resizing
+  // Priority 1: Use R2 pre-optimized images (free, fastest)
+  if (USE_R2) {
+    return r2ImageUrl(url, width);
+  }
+  
+  // Priority 2: Use Cloudinary for on-the-fly AVIF conversion (paid)
   if (USE_CLOUDINARY) {
     const cloudinaryUrl = cloudinaryFetch(url, width);
     
@@ -60,7 +101,7 @@ export function proxyImage(url: string, width?: number): string {
     return cloudinaryUrl;
   }
   
-  // Cloudinary disabled - still use CF worker for edge caching if available
+  // Priority 3: Use CF worker for edge caching only (no optimization)
   if (USE_CF_CACHE) {
     return wrapWithCloudflare(url);
   }

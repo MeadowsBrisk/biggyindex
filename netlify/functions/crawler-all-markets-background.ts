@@ -1,7 +1,7 @@
 // Netlify background orchestrator for the Unified Crawler
 // Runs stages sequentially: Index → Items (worklist build for now) → Sellers (TODO) → Pruning (TODO)
 // Scheduling is configured in netlify.toml. File name suffix "-background" ensures background execution.
-
+// UNUSED
 import type { Handler } from "@netlify/functions";
 
 // Keep imports lean; rely on shared stage modules we've already built

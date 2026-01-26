@@ -1,112 +1,99 @@
-// GIF asset mapping loader + React hook
-// Provides poster/video lookup for original GIF URLs.
-// Mapping file shape (per entry): { hash, poster, video, width, height, frames, status, reason }
+/**
+ * GIF Asset Utilities (R2-based)
+ * 
+ * No gif-map.json needed! Uses unified R2 folder structure:
+ *   {hash}/thumb.avif - Poster/thumbnail (all images)
+ *   {hash}/anim.webp  - Animated version (GIFs only)
+ * 
+ * GIF detection: URL extension (.gif) - if it ends in .gif, anim.webp exists.
+ */
 
-let _cache: Record<string, any> | null = null;            // resolved mapping object
-let _pending: Promise<Record<string, any>> | null = null;  // in-flight promise
-let _subscribers: Set<() => void> = new Set(); // listeners to notify on first load
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_IMAGE_URL || '';
 
-async function fetchMap(): Promise<Record<string, any>> {
-  try {
-    const res = await fetch('/gif-cache/gif-map.json', { cache: 'no-store' });
-    if (!res.ok) return {} as any;
-    const json = await res.json();
-    return (json && typeof json === 'object') ? json : ({} as any);
-  } catch {
-    return {} as any;
+/**
+ * FNV-1a hash - must match crawler's hashUrl
+ */
+function hashUrl(url: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < url.length; i++) {
+    hash ^= url.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
   }
+  return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+/**
+ * Check if URL is a GIF by extension
+ */
+export function isGifUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  return /\.gif(?:$|[?#])/i.test(url);
+}
+
+/**
+ * Get R2 URLs for a source image
+ */
+export function getR2Urls(sourceUrl: string): {
+  thumb: string;
+  full: string;
+  anim: string;
+} {
+  if (!R2_PUBLIC_URL || !sourceUrl) {
+    return { thumb: sourceUrl, full: sourceUrl, anim: '' };
+  }
+  const hash = hashUrl(sourceUrl);
+  return {
+    thumb: `${R2_PUBLIC_URL}/${hash}/thumb.avif`,
+    full: `${R2_PUBLIC_URL}/${hash}/full.avif`,
+    anim: `${R2_PUBLIC_URL}/${hash}/anim.webp`,
+  };
+}
+
+/**
+ * React hook for GIF assets
+ * Returns poster and animation URLs.
+ * No HEAD check needed - if URL ends in .gif, we assume anim.webp exists.
+ */
+export function useGifAsset(originalUrl: string | null | undefined) {
+  const isGif = isGifUrl(originalUrl);
+  const urls = originalUrl ? getR2Urls(originalUrl) : null;
+  
+  return {
+    loading: false,
+    isGif,
+    hasAnim: isGif, // If it's a GIF URL, anim.webp exists (crawler creates it)
+    hasEntry: isGif, // Backwards compat
+    // Poster is always thumb.avif
+    poster: urls?.thumb || originalUrl || '',
+    posterProxied: urls?.thumb || originalUrl || '',
+    // Animation is anim.webp (for GIFs)
+    anim: isGif ? urls?.anim : null,
+    video: isGif ? urls?.anim : null, // Backwards compat alias
+    // Full size for static images
+    full: urls?.full || originalUrl || '',
+  };
+}
+
+/**
+ * Legacy exports for backwards compatibility
+ */
 export function loadGifMap(): Promise<Record<string, any>> {
-  if (_cache) return Promise.resolve(_cache);
-  if (_pending) return _pending;
-  _pending = fetchMap().then(m => {
-    _cache = m;
-    _pending = null;
-    for (const fn of _subscribers) {
-      try { fn(); } catch {}
-    }
-    _subscribers.clear();
-    return _cache!;
-  });
-  return _pending;
-}
-
-function normalizeAssetPath(p: string | null | undefined){
-  if(!p || typeof p !== 'string') return p as any;
-  if (p.startsWith('/public/')) return p.slice('/public'.length) || '/';
-  if (p.startsWith('public/')) return p.slice('public'.length) || '/';
-  return p;
+  // No-op - no gif-map needed
+  return Promise.resolve({});
 }
 
 export function getGifEntry(url: string | null | undefined) {
-  if (!_cache || !url) return null;
-  const entry = _cache[url] || null;
-  if (entry) {
-    if (entry.poster) entry.poster = normalizeAssetPath(entry.poster);
-    if (entry.video) entry.video = normalizeAssetPath(entry.video);
-  }
-  return entry;
-}
-
-export async function refreshGifMap() {
-  _cache = null; _pending = null; return loadGifMap();
-}
-
-function onLoaded(cb: () => void) {
-  if (_cache) { cb(); return () => {}; }
-  _subscribers.add(cb);
-  return () => _subscribers.delete(cb);
-}
-
-// React hook
-import { useEffect, useState, useRef } from 'react';
-import { proxyImage } from '@/lib/ui/images';
-
-function buildPosterProxy(posterPath: string | null): string | null {
-  if (!posterPath) return null;
-  if (typeof window === 'undefined') return posterPath; // SSR returns raw path
-  try {
-    const abs = posterPath.startsWith('http') ? posterPath : new URL(posterPath, window.location.origin).href;
-    return proxyImage(abs); // leverage main CDN proxy (skips gifs/png, proxies jpg/webp)
-  } catch {
-    return posterPath;
-  }
-}
-
-export function useGifAsset(originalUrl: string | null | undefined) {
-  const [state, setState] = useState(() => ({ loading: true, entry: null as any }));
-  const urlRef = useRef(originalUrl);
-  if (urlRef.current !== originalUrl) {
-    urlRef.current = originalUrl;
-  }
-  useEffect(() => {
-    let mounted = true;
-    if (!_cache) {
-      loadGifMap();
-      const unsub = onLoaded(() => {
-        if (!mounted) return;
-        setState({ loading: false, entry: getGifEntry(urlRef.current as any) });
-      });
-      return () => { mounted = false; unsub(); };
-    } else {
-      setState({ loading: false, entry: getGifEntry(urlRef.current as any) });
-    }
-    return () => { mounted = false; };
-  }, [originalUrl]);
-
-  const entry = state.entry as any;
-  const poster = entry?.poster ? normalizeAssetPath(entry.poster) : null;
-  const video = entry?.video ? normalizeAssetPath(entry.video) : null;
-  // Derive proxied poster: internal proxy preferred; fall back to external generic proxy for remote GIF host if mapping missing.
-  const posterProxied = poster ? buildPosterProxy(poster) : (originalUrl ? proxyImage(originalUrl as any) : null);
+  if (!url || !isGifUrl(url)) return null;
+  const urls = getR2Urls(url);
+  // Return a compatible entry shape for ThemeSync
   return {
-    loading: state.loading,
-    hasEntry: !!entry,
-    poster,
-    posterProxied,
-    video,
-    status: entry?.status || (entry ? 'ok' : null),
-    reason: entry?.reason as string | undefined,
+    poster: urls.thumb,
+    video: null, // No video/MP4 anymore, using anim.webp
+    anim: urls.anim,
   };
+}
+
+export function refreshGifMap() {
+  // No-op - no cache needed
+  return Promise.resolve({});
 }

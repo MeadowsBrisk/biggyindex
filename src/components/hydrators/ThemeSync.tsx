@@ -2,8 +2,7 @@
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { darkModeAtom, pauseGifsAtom } from '@/store/atoms';
-import { loadGifMap, getGifEntry } from '@/lib/ui/gifAssets';
-import { proxyImage } from '@/lib/ui/images';
+import { getGifEntry } from '@/lib/ui/gifAssets';
 
 /**
  * Syncs theme and GIF pause state across the app.
@@ -50,7 +49,7 @@ export default function ThemeSync(): null {
     }, 0);
   }, [darkMode]);
 
-  // Global GIF pause using precomputed posters (no /api/image-proxy, no canvas capture)
+  // Global GIF pause using R2 posters
   useEffect(() => {
     const isGif = (u: string | null | undefined): boolean => /\.gif($|[?#])/i.test(u || '');
     let cancelled = false;
@@ -60,14 +59,10 @@ export default function ThemeSync(): null {
       if (!img || !isGif(img.currentSrc || img.src)) return;
       if (!img.dataset.origSrc) img.dataset.origSrc = img.currentSrc || img.src;
       const entry = getGifEntry(img.dataset.origSrc);
-      if (!entry || !entry.poster) return; // no processed asset yet
-      try {
-        const abs = entry.poster.startsWith('http') ? entry.poster : new URL(entry.poster, window.location.origin).href;
-        img.src = proxyImage(abs);
-        img.dataset.gifPausedMode = 'poster';
-      } catch {
-        // Ignore URL parsing errors
-      }
+      if (!entry || !entry.poster) return;
+      // entry.poster is already an absolute R2 URL
+      img.src = entry.poster;
+      img.dataset.gifPausedMode = 'poster';
     }
 
     function restore(img: HTMLImageElement) {
@@ -85,8 +80,7 @@ export default function ThemeSync(): null {
       delete img.dataset.gifPausedMode;
     }
 
-    async function applyPause() {
-      await loadGifMap().catch(() => {});
+    function applyPause() {
       if (cancelled) return;
       Array.from(document.images).forEach(swapToPoster);
     }

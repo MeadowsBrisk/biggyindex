@@ -1,9 +1,8 @@
 import React from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { selectAtom } from 'jotai/utils';
 import cn from '@/lib/core/cn';
 import { StarIcon } from '@/components/common/icons';
-import { favouritesAtom, toggleFavouriteAtom, favouritesOnlyAtom } from '@/store/atoms';
+import { favouritesSetAtom, toggleFavouriteAtom, favouritesOnlyAtom } from '@/store/atoms';
 
 export type FavButtonProps = {
   itemId: string | number;
@@ -16,11 +15,9 @@ export type FavButtonProps = {
  */
 export default function FavButton({ itemId, className }: FavButtonProps): React.ReactElement {
   const toggleFav = useSetAtom(toggleFavouriteAtom as any);
-  const isFavAtom = React.useMemo(
-    () => selectAtom(favouritesAtom as any, (favs: any) => Array.isArray(favs) && favs.includes(itemId)),
-    [itemId]
-  );
-  const active = useAtomValue(isFavAtom);
+  // Use shared Set atom for O(1) lookup instead of per-item selectAtom
+  const favSet = useAtomValue(favouritesSetAtom);
+  const active = favSet.has(itemId);
   const favouritesOnly = useAtomValue(favouritesOnlyAtom as any);
 
   const onClick = React.useCallback(() => {

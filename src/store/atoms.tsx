@@ -378,6 +378,8 @@ export const activePriceBoundsAtom = atom<{ min: number; max: number }>((get: an
 
 // Favourites
 export const favouritesAtom = atomWithStorage<string[]>("favourites", []);
+// Derived Set for O(1) membership checks (avoids creating selectAtom per ItemCard)
+export const favouritesSetAtom = atom<Set<string | number>>((get) => new Set(get(favouritesAtom)));
 export const favouritesOnlyAtom = atomWithStorage<boolean>("favouritesOnly", false);
 export const toggleFavouriteAtom = atom<null, [any], void>(null, (get: any, set: any, itemId: any) => {
   const curr: any[] = get(favouritesAtom) || [];
@@ -386,12 +388,13 @@ export const toggleFavouriteAtom = atom<null, [any], void>(null, (get: any, set:
   set(favouritesAtom, next);
 });
 
-// Derived filtered items
+// Derived filtered items - TRUE SINGLE-PASS filtering for performance
 export const filteredItemsAtom = atom<Item[]>((get: any) => {
   const rates = get(exchangeRatesAtom) as ExchangeRates;
   const items = get(itemsAtom) as Item[];
   const category = get(categoryAtom) as string;
   const selectedSubs = get(selectedSubcategoriesAtom) as string[];
+  const excludedSubs = get(excludedSubcategoriesAtom) as string[];
   const selectedShips = get(selectedShipFromAtom) as string[];
   const excludedShips = get(excludedShipFromAtom) as string[];
   const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
@@ -405,77 +408,73 @@ export const filteredItemsAtom = atom<Item[]>((get: any) => {
   const favouritesOnly = get(favouritesOnlyAtom) as boolean;
   const favouriteIds = favouritesOnly ? (get(favouritesAtom) as any[] || []) : [];
 
-  const excludedSubs = get(excludedSubcategoriesAtom) as string[];
+  // Pre-build Sets once for O(1) lookups in the loop
+  const hasCategoryFilter = category && category !== 'All';
+  const selectedSubsSet = hasCategoryFilter && selectedSubs.length > 0 ? new Set(selectedSubs) : null;
+  const excludedSubsSet = hasCategoryFilter && excludedSubs.length > 0 ? new Set(excludedSubs) : null;
+  const shipSet = selectedShips.length > 0 ? new Set(selectedShips) : null;
+  const excludeShipSet = excludedShips.length > 0 ? new Set(excludedShips) : null;
+  const includedSet = includedSellers.length > 0 ? new Set(includedSellers) : null;
+  const excludedSet = excludedSellers.length > 0 ? new Set(excludedSellers) : null;
+  const favSet = favouritesOnly ? new Set(favouriteIds) : null;
 
-  // Filter by category (c) and subcategories (sc)
-  let list: any[] = category && category !== "All"
-    ? (items || []).filter((it: any) => it.c === category)
-    : (items || []);
-  if (category && category !== 'All' && Array.isArray(selectedSubs) && selectedSubs.length > 0) {
-    list = list.filter((it) => Array.isArray(it.sc) && it.sc.some((s: any) => selectedSubs.includes(s)));
-  }
-  // Exclude items with excluded subcategories
-  if (category && category !== 'All' && Array.isArray(excludedSubs) && excludedSubs.length > 0) {
-    list = list.filter((it) => !Array.isArray(it.sc) || !it.sc.some((s: any) => excludedSubs.includes(s)));
-  }
-  // Filter by ships from (sf) - include selected, exclude excluded
-  if (Array.isArray(selectedShips) && selectedShips.length > 0) {
-    const set = new Set(selectedShips);
-    list = list.filter((it) => {
-      if (!it || typeof it.sf !== 'string') return false;
-      const code = normalizeShipFromCode(it.sf);
-      return code ? set.has(code) : false;
-    });
-  }
-  // Exclude items from excluded ship origins
-  if (Array.isArray(excludedShips) && excludedShips.length > 0) {
-    const excludeSet = new Set(excludedShips);
-    list = list.filter((it) => {
-      if (!it || typeof it.sf !== 'string') return true; // keep items without ship info
-      const code = normalizeShipFromCode(it.sf);
-      return code ? !excludeSet.has(code) : true;
-    });
-  }
-  // Free shipping filter (uses computed minShip/shippingPriceRange)
-  if (freeShipOnly) {
-    const freeList: any[] = [];
-    for (const it of list) {
-      if (!it) continue;
-      let isFree = false;
-      if (it.minShip != null) isFree = it.minShip === 0;
-      else if (it.shippingPriceRange && it.shippingPriceRange.min != null) isFree = it.shippingPriceRange.min === 0;
-      else if (it.sh && (it.sh.free === 1 || it.sh.free === true || it.sh.min === 0)) isFree = true;
-      if (isFree) freeList.push(it);
+  // Single-pass filter
+  const result: Item[] = [];
+  for (const it of (items || [])) {
+    if (!it) continue;
+
+    // Category filter
+    if (hasCategoryFilter && it.c !== category) continue;
+
+    // Selected subcategories filter (item must have at least one selected sub)
+    if (selectedSubsSet) {
+      if (!Array.isArray(it.sc) || !it.sc.some((s: any) => selectedSubsSet.has(s))) continue;
     }
-    list = freeList;
-  }
-  // Filter by seller name (sn)
-  if (includedSellers.length > 0) {
-    list = list.filter((it) => includedSellers.includes((it.sn || "").toLowerCase()));
-  }
-  if (favouritesOnly) {
-    list = list.filter((it) => favouriteIds.includes(it.id));
-  }
-  if (excludedSellers.length > 0) list = list.filter((it) => !excludedSellers.includes((it.sn || "").toLowerCase()));
-  // Price filter using uMin/uMax (USD), convert to GBP for display
-  list = list.filter((it) => {
-    if (it.uMin == null && it.uMax == null) {
-      return minFilter <= boundMin && maxFilter >= boundMax;
+
+    // Excluded subcategories filter (item must not have any excluded sub)
+    if (excludedSubsSet) {
+      if (Array.isArray(it.sc) && it.sc.some((s: any) => excludedSubsSet.has(s))) continue;
     }
-    const baseMin = it.uMin ?? it.uMax ?? 0;
-    const baseMax = it.uMax ?? it.uMin ?? 0;
-    const convMin = toDisplayGBP(convertUsdToGbp(baseMin, rates));
-    const convMax = toDisplayGBP(convertUsdToGbp(baseMax, rates));
-    return convMax >= minFilter && convMin <= maxFilter;
-  });
 
-  if (!query) return list as Item[];
+    // Ship from filter (include only these origins)
+    if (shipSet) {
+      if (typeof it.sf !== 'string') continue;
+      const code = normalizeShipFromCode(it.sf);
+      if (!code || !shipSet.has(code)) continue;
+    }
 
-  // Search filter using n (name) and d (description)
-  return (list as any[]).filter((it) => {
-    const haystack = `${it.n || ""} ${it.d || ""}`.toLowerCase();
-    return haystack.includes(query);
-  }) as Item[];
+    // Exclude ship origins
+    if (excludeShipSet && typeof it.sf === 'string') {
+      const code = normalizeShipFromCode(it.sf);
+      if (code && excludeShipSet.has(code)) continue;
+    }
+
+    // Free shipping only
+    if (freeShipOnly && !isFreeShipping(it)) continue;
+
+    // Seller include filter
+    const sellerLower = (it.sn || '').toLowerCase();
+    if (includedSet && !includedSet.has(sellerLower)) continue;
+
+    // Seller exclude filter
+    if (excludedSet && excludedSet.has(sellerLower)) continue;
+
+    // Favourites only
+    if (favSet && !favSet.has(it.id)) continue;
+
+    // Price filter
+    if (!matchesPriceFilter(it, minFilter, maxFilter, boundMin, boundMax, rates)) continue;
+
+    // Search query
+    if (query) {
+      const hay = `${it.n || ''} ${it.d || ''}`.toLowerCase();
+      if (!hay.includes(query)) continue;
+    }
+
+    result.push(it);
+  }
+
+  return result;
 });
 
 // Theme persistence via localStorage
@@ -674,12 +673,16 @@ export const thumbnailAspectAtom = atomWithStorage<'landscape' | 'standard' | 'p
 export const priceAccordionOpenAtom = atomWithStorage<boolean>("accordionPriceOpen", true);
 export const sellersAccordionOpenAtom = atomWithStorage<boolean>("accordionSellersOpen", true);
 
-// Dynamic per-category counts reflecting current global filters (excluding category/subcategory filters)
-export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) => {
+// ============================================================================
+// SHARED BASE-FILTERED ITEMS (optimization to avoid duplicate filtering)
+// ============================================================================
+// This atom applies all non-category filters to allItems ONCE.
+// Both categoryLiveCountsAtom and subcategoryLiveCountsAtom use this,
+// avoiding duplicate O(n) filtering work when only category/subcategory counts differ.
+const baseFilteredAllItemsAtom = atom<Item[]>((get: any) => {
   const rates = get(exchangeRatesAtom) as ExchangeRates;
   const allItemsFull = get(allItemsAtom) as Item[];
   const itemsSource: Item[] = Array.isArray(allItemsFull) && allItemsFull.length > 0 ? allItemsFull : get(itemsAtom);
-  const manifest = get(manifestAtom) as Manifest;
   const selectedShips = get(selectedShipFromAtom) as string[];
   const excludedShips = get(excludedShipFromAtom) as string[];
   const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
@@ -692,20 +695,10 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
   const { boundMin, boundMax } = norm;
   const minFilter = norm.min;
   const maxFilter = norm.max;
-  const hasExcludedShips = Array.isArray(excludedShips) && excludedShips.length > 0;
   
-  // Early return: use manifest counts if no filters are active
-  if ((!Array.isArray(allItemsFull) || allItemsFull.length === 0) && manifest && (manifest as any).totalItems && (manifest as any).totalItems > ((itemsSource as any[])?.length || 0) && (!Array.isArray(selectedShips) || selectedShips.length === 0) && !hasExcludedShips && !freeShipOnly && includedSellers.length === 0) {
-    const counts: Record<string, number> = { __total: (manifest as any).totalItems } as any;
-    for (const [cat, info] of Object.entries((manifest.categories || {}))) {
-      if (cat === 'Tips') continue;
-      counts[cat] = (info as any)?.count || 0;
-    }
-    return counts;
-  }
-  if (!Array.isArray(itemsSource) || itemsSource.length === 0) return { __total: 0 } as any;
+  if (!Array.isArray(itemsSource) || itemsSource.length === 0) return [];
   
-  // Apply shared filter logic
+  // Apply shared filter logic (all filters except category/subcategory)
   let list = (itemsSource as any[]).filter(it => !!it);
   list = applyBaseFilters(list, {
     rates, selectedShips, excludedShips, freeShipOnly,
@@ -713,51 +706,60 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
     minFilter, maxFilter, boundMin, boundMax, query
   });
   
+  return list as Item[];
+});
+
+// Dynamic per-category counts reflecting current global filters (excluding category/subcategory filters)
+export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) => {
+  const allItemsFull = get(allItemsAtom) as Item[];
+  const manifest = get(manifestAtom) as Manifest;
+  const selectedShips = get(selectedShipFromAtom) as string[];
+  const excludedShips = get(excludedShipFromAtom) as string[];
+  const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
+  const includedSellers = get(includedSellersAtom) as string[];
+  const hasExcludedShips = Array.isArray(excludedShips) && excludedShips.length > 0;
+  
+  // Early return: use manifest counts if no filters are active
+  if ((!Array.isArray(allItemsFull) || allItemsFull.length === 0) && manifest && (manifest as any).totalItems && (!Array.isArray(selectedShips) || selectedShips.length === 0) && !hasExcludedShips && !freeShipOnly && includedSellers.length === 0) {
+    const counts: Record<string, number> = { __total: (manifest as any).totalItems } as any;
+    for (const [cat, info] of Object.entries((manifest.categories || {}))) {
+      if (cat === 'Tips') continue;
+      counts[cat] = (info as any)?.count || 0;
+    }
+    return counts;
+  }
+  
+  // Use pre-filtered items from shared atom (avoids duplicate filtering work)
+  const list = get(baseFilteredAllItemsAtom) as Item[];
+  if (!Array.isArray(list) || list.length === 0) return { __total: 0 } as any;
+  
   // Count by category
   const counts: Record<string, number> = {};
   for (const it of list) {
     if (!it.c) continue;
     counts[it.c] = (counts[it.c] || 0) + 1;
   }
-  counts.__total = (list as any[]).length;
+  counts.__total = list.length;
   return counts;
 });
 
 // Live subcategory counts for the currently selected category, respecting filters
 export const subcategoryLiveCountsAtom = atom<Record<string, number>>((get: any) => {
-  const rates = get(exchangeRatesAtom) as ExchangeRates;
-  const allItemsFull = get(allItemsAtom) as Item[];
-  const itemsSource: Item[] = Array.isArray(allItemsFull) && allItemsFull.length > 0 ? allItemsFull : get(itemsAtom);
-  const selectedShips = get(selectedShipFromAtom) as string[];
-  const excludedShips = get(excludedShipFromAtom) as string[];
-  const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
-  const query = ((get(searchQueryAtom) || '') as string).trim().toLowerCase();
-  const favouritesOnly = get(favouritesOnlyAtom) as boolean;
-  const favouriteIds = favouritesOnly ? (get(favouritesAtom) as any[] || []) : [];
-  const excludedSellers = (get(excludedSellersAtom) || []).map((s: string) => s.toLowerCase());
-  const includedSellers = (get(includedSellersAtom) || []).map((s: string) => s.toLowerCase());
-  const norm = get(normalizedPriceRangeAtom);
-  const { boundMin, boundMax } = norm;
-  const minFilter = norm.min;
-  const maxFilter = norm.max;
   const category = get(categoryAtom) as string;
   const excludedSubs = get(excludedSubcategoriesAtom) as string[];
   
   if (!category || category === 'All') return {};
-  if (!Array.isArray(itemsSource) || itemsSource.length === 0) return {};
   
-  // Pre-filter by category and excluded subcategories
-  let list = (itemsSource as any[]).filter(it => !!it && it.c === category);
+  // Use pre-filtered items from shared atom (avoids duplicate filtering work)
+  const baseFiltered = get(baseFilteredAllItemsAtom) as Item[];
+  if (!Array.isArray(baseFiltered) || baseFiltered.length === 0) return {};
+  
+  // Filter to current category and apply excluded subcategories
+  let list = baseFiltered.filter(it => it.c === category);
   if (Array.isArray(excludedSubs) && excludedSubs.length > 0) {
-    list = list.filter(it => !Array.isArray(it.sc) || !it.sc.some((s: any) => excludedSubs.includes(s)));
+    const excludedSet = new Set(excludedSubs);
+    list = list.filter(it => !Array.isArray(it.sc) || !it.sc.some((s: any) => excludedSet.has(s)));
   }
-  
-  // Apply shared filter logic
-  list = applyBaseFilters(list, {
-    rates, selectedShips, excludedShips, freeShipOnly,
-    includedSellers, excludedSellers, favouritesOnly, favouriteIds,
-    minFilter, maxFilter, boundMin, boundMax, query
-  });
   
   // Count by subcategory
   const counts: Record<string, number> = {};

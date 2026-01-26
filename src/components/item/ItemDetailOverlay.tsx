@@ -3,14 +3,13 @@ import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react'
 import { createPortal } from 'react-dom';
 import { useAtom, useAtomValue } from 'jotai';
 import { useSetAtom } from 'jotai';
-import { selectAtom } from 'jotai/utils';
 import { useUpdateReason } from '@/hooks/useUpdateReason';
 import {
   expandedRefNumAtom,
   itemsAtom,
   sortedItemsAtom,
   includeShippingPrefAtom,
-  favouritesAtom,
+  favouritesSetAtom,
   toggleFavouriteAtom,
   categoryAtom,
   selectedSubcategoriesAtom,
@@ -237,8 +236,9 @@ export default function ItemDetailOverlay() {
   // no sorting UI for variants to keep it simple
   // Favourite state + actions (defined early to avoid TDZ in effects)
   const toggleFav = useSetAtom(toggleFavouriteAtom);
-  const isFavAtom = useMemo(() => selectAtom(favouritesAtom as any, (favs: any[]) => Array.isArray(favs) && baseItem && favs.includes((baseItem as any).id)), [baseItem]);
-  const isFav = useAtomValue(isFavAtom as any) as boolean;
+  // Use shared Set atom for O(1) lookup instead of per-item selectAtom
+  const favSet = useAtomValue(favouritesSetAtom);
+  const isFav = baseItem ? favSet.has((baseItem as any).id) : false;
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];

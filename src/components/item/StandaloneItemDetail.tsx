@@ -2,11 +2,10 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { selectAtom } from 'jotai/utils';
 import { useUpdateReason } from '@/hooks/useUpdateReason';
 import {
   includeShippingPrefAtom,
-  favouritesAtom,
+  favouritesSetAtom,
   toggleFavouriteAtom,
   addToBasketAtom,
   basketAtom,
@@ -133,8 +132,9 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
 
   // Favourites
   const toggleFav = useSetAtom(toggleFavouriteAtom);
-  const isFavAtom = useMemo(() => selectAtom(favouritesAtom as any, (favs: any[]) => Array.isArray(favs) && baseItem && favs.includes((baseItem as any).id)), [baseItem]);
-  const isFav = useAtomValue(isFavAtom as any) as boolean;
+  // Use shared Set atom for O(1) lookup instead of per-item selectAtom
+  const favSet = useAtomValue(favouritesSetAtom);
+  const isFav = baseItem ? favSet.has((baseItem as any).id) : false;
   
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
