@@ -14,9 +14,10 @@
 import type { Handler } from "@netlify/functions";
 import { processImages } from "../../scripts/unified-crawler/stages/images/optimizer";
 import { checkBudget, formatBudgetStatus } from "../../scripts/unified-crawler/stages/images/budget";
-import { listMarkets } from "../../scripts/unified-crawler/shared/env/markets";
+import { listMarkets, marketStore } from "../../scripts/unified-crawler/shared/env/markets";
 import { loadEnv } from "../../scripts/unified-crawler/shared/env/loadEnv";
 import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
+import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 
 const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
 const log = (msg: string) => console.log(`[crawler:images] ${msg}`);
@@ -55,17 +56,45 @@ export const handler: Handler = async (event) => {
       return { statusCode: 429, body: "Storage budget exhausted" };
     }
 
-    // Load markets and process images
+    // Load markets and gather image URLs
     const markets = listMarkets(env.markets);
-    log(`processing markets=${markets.join(",")}`);
+    log(`gathering images from markets=${markets.join(",")}`);
 
-    const stats = await processImages({
-      markets: markets as any,
-      force,
+    // Gather all image URLs from all markets (same as CLI)
+    const imageUrls: string[] = [];
+    for (const m of markets) {
+      const storeName = marketStore(m, env.stores as any);
+      const blob = getBlobClient(storeName);
+      const items = await blob.getJSON<any[]>(Keys.market.index(m)) || [];
+      for (const item of items) {
+        // Main image (minified key: i)
+        const mainImg = item.i || item.imageUrl;
+        if (mainImg && typeof mainImg === 'string') {
+          imageUrls.push(mainImg);
+        }
+        // Gallery images (minified key: is)
+        const gallery = item.is || item.imageUrls;
+        if (Array.isArray(gallery)) {
+          for (const img of gallery) {
+            if (img && typeof img === 'string') {
+              imageUrls.push(img);
+            }
+          }
+        }
+      }
+    }
+
+    // Deduplicate URLs
+    const uniqueUrls = [...new Set(imageUrls)];
+    log(`discovered images total=${imageUrls.length} unique=${uniqueUrls.length}`);
+
+    const { stats } = await processImages(uniqueUrls, {
       concurrency: 10,
+      force,
+      sharedBlob,
     });
 
-    log(`complete processed=${stats.processed} cached=${stats.cached} failed=${stats.failed} gifs=${stats.gifs} sizeMB=${stats.totalSizeMB.toFixed(1)} elapsed=${since(started)}s`);
+    log(`complete processed=${stats.processed} cached=${stats.cached} failed=${stats.failed} gifs=${stats.gifs} sizeMB=${(stats.totalSizeBytes / 1024 / 1024).toFixed(1)} elapsed=${since(started)}s`);
 
     return {
       statusCode: 200,
