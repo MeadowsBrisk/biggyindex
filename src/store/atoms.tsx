@@ -685,6 +685,10 @@ export const thumbnailAspectAtom = atomWithStorage<'landscape' | 'standard' | 'p
 export const priceAccordionOpenAtom = atomWithStorage<boolean>("accordionPriceOpen", true);
 export const sellersAccordionOpenAtom = atomWithStorage<boolean>("accordionSellersOpen", true);
 
+// Mobile item detail tab preference
+export type MobileDetailTab = 'prices' | 'description' | 'reviews';
+export const mobileDetailTabAtom = atomWithStorage<MobileDetailTab>("itemDetailMobileTab", "description");
+
 // ============================================================================
 // SHARED BASE-FILTERED ITEMS (optimization to avoid duplicate filtering)
 // ============================================================================

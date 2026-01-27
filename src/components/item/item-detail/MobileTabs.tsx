@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom, mobileDetailTabAtom } from '@/store/atoms';
 import { VanIcon } from '@/components/common/icons';
 import { decodeEntities } from '@/lib/core/format';
 import cn from '@/lib/core/cn';
@@ -65,30 +65,16 @@ export default function MobileTabs({
   leadImage,
 }: Props) {
   const tOv = useTranslations('Overlay');
-  // Load persisted tab choice or default to 'description'
-  const [tab, setTab] = useState(() => {
-    if (typeof window === 'undefined') return 'description';
-    try {
-      const saved = localStorage.getItem('itemDetailMobileTab');
-      return (saved && ['prices', 'description', 'reviews'].includes(saved)) ? saved : 'description';
-    } catch {
-      return 'description';
-    }
-  });
-  
+  // Use Jotai atomWithStorage for hydration-safe tab persistence
+  const [tab, setTab] = useAtom(mobileDetailTabAtom);
+
   // Tab label map for i18n
   const tabLabels: Record<string, string> = {
     prices: tOv('prices'),
     description: tOv('description'),
     reviews: tOv('reviews'),
   };
-  
-  // Persist tab choice when it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('itemDetailMobileTab', tab);
-    } catch {}
-  }, [tab]);
+
   const [selectionMode, setSelectionMode] = useState(false);
   // Auto-select preferred shipping when enabling includeShipping
   React.useEffect(() => {
@@ -157,7 +143,7 @@ export default function MobileTabs({
   return (
     <div className="mt-3 flex flex-col">
       <div className="flex rounded-md overflow-hidden border border-gray-200 dark:border-gray-700" data-nosnippet>
-        {['prices','description','reviews'].map(key => (
+        {(['prices', 'description', 'reviews'] as const).map(key => (
           <button
             key={key}
             type="button"
@@ -183,11 +169,11 @@ export default function MobileTabs({
                 </div>
                 {!allShippingFree && shippingOptions.length > 0 ? (
                   <div className="flex items-center gap-2">
-        {includeShipping && selectedShipIdx != null && shippingOptions[selectedShipIdx] && (
+                    {includeShipping && selectedShipIdx != null && shippingOptions[selectedShipIdx] && (
                       <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         {(() => {
                           const usd = shippingOptions[selectedShipIdx].cost || 0;
-          if (displayCurrency === 'USD') return `incl ${formatUSD(usd, 'USD', rates, { zeroIsFree: true })} ship`;
+                          if (displayCurrency === 'USD') return `incl ${formatUSD(usd, 'USD', rates, { zeroIsFree: true })} ship`;
                           const gbp = convertToGBP(usd, 'USD', rates) || 0;
                           return `incl £${gbp.toFixed(2)} ship`;
                         })()}
@@ -233,74 +219,74 @@ export default function MobileTabs({
                 className="max-h-52"
               />
               {showSelection && (
-              <div className="mt-2 flex items-center justify-between">
-                <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <span>{selected.size || 0} {tOv('selectedLabel')}</span>
-                  <button type="button" className="underline hover:no-underline" onClick={() => {
-                    const all = new Set();
-                    for (let i = 0; i < variants.length; i++) {
-                      const v = variants[i];
-                      all.add(v.vid ?? v.id ?? i);
-                    }
-                    setSelected(all);
-                  }}>{tOv('selectAll')}</button>
-                  <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>{tOv('clear')}</button>
-                </div>
-                <div className="flex items-center gap-2">
-                  {selectedTotalText && (
-                    <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">{tOv('total')} {selectedTotalText}</span>
-                  )}
-                  <button
-                    type="button"
-                    disabled={selected.size === 0}
-                    onClick={() => {
-                    let shippingUsd = null;
-                    if (includeShipping) {
-                      if (selectedShipIdx != null && shippingOptions[selectedShipIdx] && typeof shippingOptions[selectedShipIdx].cost === 'number') {
-                        shippingUsd = shippingOptions[selectedShipIdx].cost;
-                      } else if (shippingOptions && shippingOptions.length > 0) {
-                        const freeOpt = shippingOptions.find(o => o && typeof o.cost === 'number' && o.cost === 0);
-                        if (freeOpt) shippingUsd = 0;
-                        else {
-                          let min = null;
-                          for (const o of shippingOptions) { if (o && typeof o.cost === 'number') min = (min == null ? o.cost : Math.min(min, o.cost)); }
-                          if (min != null) shippingUsd = min;
-                        }
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <span>{selected.size || 0} {tOv('selectedLabel')}</span>
+                    <button type="button" className="underline hover:no-underline" onClick={() => {
+                      const all = new Set();
+                      for (let i = 0; i < variants.length; i++) {
+                        const v = variants[i];
+                        all.add(v.vid ?? v.id ?? i);
                       }
-                    }
-                    const sel = new Set(selected);
-                    for (let i = 0; i < variants.length; i++) {
-                      const v = variants[i];
-                      const vid = v.vid ?? v.id ?? i;
-                      if (!sel.has(vid)) continue;
-                      const descRaw = (v.d || '');
-                      const desc = typeof descRaw === 'string' && descRaw ? decodeEntities(descRaw) : '';
-                      const priceUsd = typeof v.usd === 'number' ? v.usd : typeof v.baseAmount === 'number' ? v.baseAmount : null;
-                      addToBasket({
-                        id: baseItem?.id,
-                        refNum: baseItem?.refNum,
-                        variantId: vid,
-                        variantDesc: desc || 'Variant',
-                        name: displayName || baseItem?.n,
-                        sellerName: baseItem?.sn,
-                        qty: 1,
-                        priceUSD: priceUsd,
-                        shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
-                        includeShip: !!includeShipping,
-                        imageUrl: leadImage || baseItem?.i,
-                        sl,
-                      });
-                    }
-                    setSelected(new Set());
-                    showToast(tOv('addedToBasket'));
-                    }}
-                    className={cn('text-xs font-semibold px-3 h-7 rounded-full', selected.size === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500' : 'bg-blue-600 hover:bg-blue-500 text-white')}
-                  >{tOv('addSelected')}</button>
-                  {inBasket && (
-                    <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{tOv('inBasket')}</span>
-                  )}
+                      setSelected(all);
+                    }}>{tOv('selectAll')}</button>
+                    <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>{tOv('clear')}</button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedTotalText && (
+                      <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">{tOv('total')} {selectedTotalText}</span>
+                    )}
+                    <button
+                      type="button"
+                      disabled={selected.size === 0}
+                      onClick={() => {
+                        let shippingUsd = null;
+                        if (includeShipping) {
+                          if (selectedShipIdx != null && shippingOptions[selectedShipIdx] && typeof shippingOptions[selectedShipIdx].cost === 'number') {
+                            shippingUsd = shippingOptions[selectedShipIdx].cost;
+                          } else if (shippingOptions && shippingOptions.length > 0) {
+                            const freeOpt = shippingOptions.find(o => o && typeof o.cost === 'number' && o.cost === 0);
+                            if (freeOpt) shippingUsd = 0;
+                            else {
+                              let min = null;
+                              for (const o of shippingOptions) { if (o && typeof o.cost === 'number') min = (min == null ? o.cost : Math.min(min, o.cost)); }
+                              if (min != null) shippingUsd = min;
+                            }
+                          }
+                        }
+                        const sel = new Set(selected);
+                        for (let i = 0; i < variants.length; i++) {
+                          const v = variants[i];
+                          const vid = v.vid ?? v.id ?? i;
+                          if (!sel.has(vid)) continue;
+                          const descRaw = (v.d || '');
+                          const desc = typeof descRaw === 'string' && descRaw ? decodeEntities(descRaw) : '';
+                          const priceUsd = typeof v.usd === 'number' ? v.usd : typeof v.baseAmount === 'number' ? v.baseAmount : null;
+                          addToBasket({
+                            id: baseItem?.id,
+                            refNum: baseItem?.refNum,
+                            variantId: vid,
+                            variantDesc: desc || 'Variant',
+                            name: displayName || baseItem?.n,
+                            sellerName: baseItem?.sn,
+                            qty: 1,
+                            priceUSD: priceUsd,
+                            shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
+                            includeShip: !!includeShipping,
+                            imageUrl: leadImage || baseItem?.i,
+                            sl,
+                          });
+                        }
+                        setSelected(new Set());
+                        showToast(tOv('addedToBasket'));
+                      }}
+                      className={cn('text-xs font-semibold px-3 h-7 rounded-full', selected.size === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500' : 'bg-blue-600 hover:bg-blue-500 text-white')}
+                    >{tOv('addSelected')}</button>
+                    {inBasket && (
+                      <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{tOv('inBasket')}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
               )}
             </div>
           )}
@@ -374,9 +360,9 @@ export default function MobileTabs({
             const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
               ? (stats?.avg ?? stats?.averageRating)
               : (reviews.length
-                  ? (reviews.map(r => typeof r.rating === 'number' ? r.rating : 0).reduce((a,b)=>a+b,0) /
-                     (reviews.filter(r=> typeof r.rating === 'number').length || 1))
-                  : null);
+                ? (reviews.map(r => typeof r.rating === 'number' ? r.rating : 0).reduce((a, b) => a + b, 0) /
+                  (reviews.filter(r => typeof r.rating === 'number').length || 1))
+                : null);
             const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
             const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviews.length);
             const displayLimit = REVIEWS_DISPLAY_LIMIT;
