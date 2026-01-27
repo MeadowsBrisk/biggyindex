@@ -144,7 +144,7 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
     // proper Product schema. Seller page should only describe the seller profile.
 
     return schema;
-  }, [name, manifesto, img, ratingStats, detail]);
+  }, [name, manifesto, rawSellerImage, ratingStats, detail]);
 
   return (
     <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
