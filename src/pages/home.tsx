@@ -120,7 +120,7 @@ export async function buildHomeProps(market: string = 'GB') {
             if (Number.isFinite(c)) fromCategories += c;
           }
         }
-      } catch {}
+      } catch { }
       if (fromManifest > 0) return fromManifest;
       if (fromSnapshot > 0) return fromSnapshot;
       if (fromCategories > 0) return fromCategories;
@@ -180,52 +180,52 @@ export async function buildHomeProps(market: string = 'GB') {
 
   const recentReviews: ReviewLite[] = Array.isArray(recentReviewsRaw)
     ? (recentReviewsRaw as any[]).slice(0, RECENT_REVIEWS_LIMIT).map((review) => {
-        const ref = (review as any)?.item?.refNum;
-        const itemId = (review as any)?.item?.id;
-        const imageUrl =
-          (review as any)?.item?.imageUrl ||
-          (ref != null && imageByRefFromRecent.get(String(ref))) ||
-          (itemId != null && imageByIdFromRecent.get(String(itemId))) ||
-          null;
-        const sellerId = (review as any)?.sellerId ?? (review as any)?.seller?.id ?? null;
-        const sellerImageUrl = sellerId ? sellerImageById.get(sellerId) || null : null;
-        return {
-          ...review,
-          itemImageUrl: imageUrl ?? null,
-          sellerImageUrl: sellerImageUrl ?? null,
-        } as ReviewLite;
-      })
+      const ref = (review as any)?.item?.refNum;
+      const itemId = (review as any)?.item?.id;
+      const imageUrl =
+        (review as any)?.item?.imageUrl ||
+        (ref != null && imageByRefFromRecent.get(String(ref))) ||
+        (itemId != null && imageByIdFromRecent.get(String(itemId))) ||
+        null;
+      const sellerId = (review as any)?.sellerId ?? (review as any)?.seller?.id ?? null;
+      const sellerImageUrl = sellerId ? sellerImageById.get(sellerId) || null : null;
+      return {
+        ...review,
+        itemImageUrl: imageUrl ?? null,
+        sellerImageUrl: sellerImageUrl ?? null,
+      } as ReviewLite;
+    })
     : [];
 
   const recentMedia: MediaEntryLite[] = Array.isArray(recentMediaRaw)
     ? (recentMediaRaw as any[])
-        .slice(0, 40)
-        .map((entry, index) => {
-          if (!entry || !Array.isArray((entry as any).segments)) return null;
-          const textSnippet = (entry as any).segments
-            .filter((segment: any) => segment && segment.type === 'text' && typeof segment.value === 'string')
-            .map((segment: any) => segment.value)
-            .join('')
-            .replace(/\s+/g, ' ')
-            .trim();
-          const images = (entry as any).segments
-            .filter((segment: any) => segment && segment.type === 'image' && segment.url)
-            .map((segment: any) => segment.url)
-            .filter(Boolean) as string[];
-          if (!images.length) return null;
-          return {
-            id: (entry as any).id ?? `media-${index}`,
-            images,
-            sellerName: (entry as any).sellerName || 'Unknown seller',
-            rating: typeof (entry as any).rating === 'number' ? (entry as any).rating : null,
-            daysToArrive: Number.isFinite((entry as any).daysToArrive) ? (entry as any).daysToArrive : null,
-            createdAt: (entry as any).created ? new Date((entry as any).created * 1000).toISOString() : null,
-            itemName: (entry as any).item?.name || 'Unknown item',
-            refNum: (entry as any).item?.refNum || null,
-            text: textSnippet || null,
-          } as MediaEntryLite;
-        })
-        .filter(Boolean) as MediaEntryLite[]
+      .slice(0, 40)
+      .map((entry, index) => {
+        if (!entry || !Array.isArray((entry as any).segments)) return null;
+        const textSnippet = (entry as any).segments
+          .filter((segment: any) => segment && segment.type === 'text' && typeof segment.value === 'string')
+          .map((segment: any) => segment.value)
+          .join('')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const images = (entry as any).segments
+          .filter((segment: any) => segment && segment.type === 'image' && segment.url)
+          .map((segment: any) => segment.url)
+          .filter(Boolean) as string[];
+        if (!images.length) return null;
+        return {
+          id: (entry as any).id ?? `media-${index}`,
+          images,
+          sellerName: (entry as any).sellerName || 'Unknown seller',
+          rating: typeof (entry as any).rating === 'number' ? (entry as any).rating : null,
+          daysToArrive: Number.isFinite((entry as any).daysToArrive) ? (entry as any).daysToArrive : null,
+          createdAt: (entry as any).created ? new Date((entry as any).created * 1000).toISOString() : null,
+          itemName: (entry as any).item?.name || 'Unknown item',
+          refNum: (entry as any).item?.refNum || null,
+          text: textSnippet || null,
+        } as MediaEntryLite;
+      })
+      .filter(Boolean) as MediaEntryLite[]
     : [];
 
   return {
@@ -247,12 +247,12 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
   const origin = hostForLocale(locale);
   const tMeta = useTranslations('Meta');
   const tHome = useTranslations('Home');
-  
+
   // Build FAQ schema from translations (supports DE, FR, PT, IT)
   const faqAbout = tHome.raw('faq.about') as Array<{ q: string; a: string }> || [];
   const faqCrypto = tHome.raw('faq.crypto') as Array<{ q: string; a: string }> || [];
   const allFaqItems = [...faqAbout, ...faqCrypto];
-  
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -260,7 +260,7 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
     url: origin,
     inLanguage: locale,
   };
-  
+
   // Generate FAQ schema from translated content
   const faqJsonLd = {
     '@context': 'https://schema.org',
@@ -291,7 +291,7 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <title>{tMeta('homeTitle')}</title>
         <meta name="description" content={tMeta('homeDescription')} />
         <link rel="canonical" href={`${origin}/home`} />
-        {['en','de','fr','it','pt'].map(l => (
+        {['en', 'de', 'fr', 'it', 'pt'].map(l => (
           <link key={l} rel="alternate" href={`${hostForLocale(l)}/home`} hrefLang={l} />
         ))}
         <link rel="alternate" href={`${hostForLocale('en')}/home`} hrefLang="x-default" />
@@ -318,7 +318,7 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
       </Head>
       <HomeMessagesProvider>
         <main className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
-  <HeroSection stats={stats} />
+          <HeroSection stats={stats} />
           <RecentItemsSection items={recentItems} />
           {/* <WhyItHelpsSection /> */}
           <QuickStartSection />
@@ -341,11 +341,36 @@ export const getServerSideProps: GetServerSideProps<HomeLandingProps> = async (c
     const host = String(ctx.req?.headers?.host || '');
     const path = String((ctx.resolvedUrl || ctx.req?.url || '/'));
     const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(path);
+    const locale = getLocaleForMarket(market);
     const result = await buildHomeProps(market);
+
+    // Load messages at SSR time to prevent translation flash (same pattern as index.tsx)
+    // Must load both core (index.json) and home-specific (home.json) messages
+    let messages: Record<string, any> = {};
+    try {
+      const coreMessages = (await import(`../messages/${locale}/index.json`)).default;
+      const homeMessages = (await import(`../messages/${locale}/home.json`)).default;
+      messages = { ...coreMessages, ...homeMessages };
+    } catch {
+      // Fallback to English if locale messages fail to load
+      try {
+        const coreMessages = (await import(`../messages/en-GB/index.json`)).default;
+        const homeMessages = (await import(`../messages/en-GB/home.json`)).default;
+        messages = { ...coreMessages, ...homeMessages };
+      } catch { }
+    }
+
     // buildHomeProps returns { props, revalidate } for SSG compatibility; we just return props here
-    return { props: result.props as any };
+    return { props: { ...result.props, messages } as any };
   } catch {
     const result = await buildHomeProps('GB');
-    return { props: result.props as any };
+    // Fallback: load English messages
+    let messages: Record<string, any> = {};
+    try {
+      const coreMessages = (await import(`../messages/en-GB/index.json`)).default;
+      const homeMessages = (await import(`../messages/en-GB/home.json`)).default;
+      messages = { ...coreMessages, ...homeMessages };
+    } catch { }
+    return { props: { ...result.props, messages } as any };
   }
 };

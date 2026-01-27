@@ -8,6 +8,7 @@ import {
   expandedRefNumAtom,
   itemsAtom,
   sortedItemsAtom,
+  sortedItemsMapAtom,
   includeShippingPrefAtom,
   favouritesSetAtom,
   toggleFavouriteAtom,
@@ -17,7 +18,7 @@ import {
   excludedSellersAtom,
   isLoadingAtom,
 } from '@/store/atoms';
-import { addToBasketAtom, basketAtom } from '@/store/atoms';
+import { addToBasketAtom } from '@/store/atoms';
 import { showToastAtom } from '@/store/atoms';
 import { useItemDetail } from '@/hooks/useItemDetail';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
@@ -37,7 +38,7 @@ import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import { useExchangeRates, convertToGBP } from '@/hooks/useExchangeRates';
 import { roundDisplayGBP } from '@/lib/pricing/priceDisplay';
-import { formatUSD, currencySymbol } from '@/lib/pricing/priceDisplay';
+import { formatUSD } from '@/lib/pricing/priceDisplay';
 import { perUnitSuffix } from '@/hooks/usePerUnitLabel';
 import { useDisplayCurrency, useForceEnglish } from '@/providers/IntlProvider';
 import { classForReviewScore, panelClassForReviewScore } from '@/theme/reviewScoreColors';
@@ -53,7 +54,12 @@ import MobileActionsFab from '@/components/item/item-detail/MobileActionsFab';
 import DesktopHeaderActions from '@/components/item/item-detail/DesktopHeaderActions';
 import TabletActionsDock from '@/components/item/item-detail/TabletActionsDock';
 import VariantPriceList from '@/components/item/VariantPriceList';
-import { variantRangeText, displayedAmount } from '@/lib/pricing/variantPricingDisplay';
+import InBasketIndicator from '@/components/item/InBasketIndicator';
+import ItemGallerySwiper from '@/components/item/item-detail/ItemGallerySwiper';
+import ItemVariantPanel from '@/components/item/item-detail/ItemVariantPanel';
+import ShippingOptionsPanel from '@/components/item/item-detail/ShippingOptionsPanel';
+import ReviewsSection from '@/components/item/item-detail/ReviewsSection';
+import { variantRangeText } from '@/lib/pricing/variantPricingDisplay';
 import { useTranslations, useFormatter } from 'next-intl';
 import { translateCategoryAndSubs } from '@/lib/taxonomy/taxonomyLabels';
 // Use shared buttons to avoid duplication across card/overlay
@@ -69,6 +75,7 @@ export default function ItemDetailOverlay() {
   const [refNum, setRefNum] = useAtom(expandedRefNumAtom);
   const items = useAtomValue(itemsAtom);
   const sortedItems = useAtomValue(sortedItemsAtom);
+  const sortedItemsMap = useAtomValue(sortedItemsMapAtom);
 
   // Get unit labels for per-unit suffix translation
   const unitLabels = React.useMemo(() => {
@@ -90,14 +97,11 @@ export default function ItemDetailOverlay() {
     [unitLabels]
   );
 
-  // Simple O(n) lookup for baseItem - only runs when refNum changes
+  // O(1) lookup using Map - only runs when refNum or map changes
   const baseItem = useMemo(() => {
     if (!refNum) return null;
-    const key = String(refNum);
-    return (sortedItems as any[]).find((it: any) => String(it.refNum || it.id) === key)
-      || (items as any[]).find((it: any) => String(it.refNum || it.id) === key)
-      || null;
-  }, [refNum, sortedItems, items]);
+    return sortedItemsMap.get(String(refNum)) || null;
+  }, [refNum, sortedItemsMap]);
 
   // Compute prev/next lazily only when navigation buttons are clicked
   // This avoids building a full index on every overlay open
@@ -134,7 +138,7 @@ export default function ItemDetailOverlay() {
   const hasNext = selfIndex >= 0 && selfIndex < sortedItems.length - 1;
 
   // Pass baseItem.lua to enable smart cache invalidation - if item was updated in index, refetch detail
-  const { detail, loading, error, reload } = useItemDetail(refNum as any, baseItem?.lua);
+  const { detail, loading, error, reload } = useItemDetail(refNum as any, baseItem?.lua || undefined);
   useBodyScrollLock(!!refNum);
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const [openPreviewSignal, setOpenPreviewSignal] = useState<any>(null);
@@ -241,11 +245,11 @@ export default function ItemDetailOverlay() {
   const isFav = baseItem ? favSet.has((baseItem as any).id) : false;
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
-  const basketItems = useAtomValue(basketAtom) || [];
-  
+  // basketItems removed - now handled by isolated InBasketIndicator component
+
   // BUG-002: Extract SEO fallback from shipping blob for unavailable items
   const shipSeo = (detail as any)?._shipSeo;
-  
+
   const resolvedSellerName = useMemo(() => {
     if (typeof (detail as any)?.sellerName === 'string' && (detail as any).sellerName) return decodeEntities((detail as any).sellerName);
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
@@ -754,193 +758,36 @@ export default function ItemDetailOverlay() {
                         guardKey={refNum as any}
                       />
                     )}
-                    {/* Variant prices (per-unit) with large range */}
-                    {baseVariants.length > 0 && (
-                      <div className="hidden md:block mt-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-2">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div>
-                            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{tOv('variantPrices')}</div>
-                            {variantPriceRangeText && (
-                              <div className="mt-0.5 text-lg md:text-xl font-bold tabular-nums text-gray-900 dark:text-gray-100">{variantPriceRangeText}</div>
-                            )}
-                          </div>
-                          {!allShippingFree && shippingOptions.length > 0 ? (
-                            <div className="flex items-center gap-2">
-                              {includeShipping && selectedShipIdx != null && shippingOptions[selectedShipIdx] && (
-                                <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                  {(() => {
-                                    const usd = (shippingOptions as any)[selectedShipIdx].cost || 0;
-                                    const amountText = formatUSD(usd, displayCurrency as any, rates as any, { zeroIsFree: true, freeLabel: tItem('shippingFree'), decimals: 2, ceilNonUSD: false } as any);
-                                    return tOv('inclShip', { amount: amountText });
-                                  })()}
-                                </span>
-                              )}
-                              <button
-                                type="button"
-                                className={cn(
-                                  "text-[10px] font-semibold px-2 h-6 rounded-full",
-                                  includeShipping ? "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60"
-                                )}
-                                onClick={() => setIncludeShipping(v => !v)}
-                                title={tOv('simulateBasket')}
-                              >{tOv('simulateBasket')}</button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                className={cn(
-                                  "text-[10px] font-semibold px-2 h-6 rounded-full",
-                                  showSelection ? "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60"
-                                )}
-                                onClick={() => setSelectionMode(v => !v)}
-                                title={tOv('simulateBasket')}
-                              >{showSelection ? tOv('selectionOn') : tOv('simulateBasket')}</button>
-                            </div>
-                          )}
-                        </div>
-                        {showSelection && (
-                          <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">{tOv('selectVariantsHint')}</div>
-                        )}
-                        <VariantPriceList
-                          variants={baseVariants}
-                          rates={rates}
-                          displayCurrency={displayCurrency}
-                          includeShipping={includeShipping || selectionMode}
-                          shippingUsd={selectedShippingUsd}
-                          selectedVariantIds={selectedVariantIds}
-                          onToggle={toggleVariantSelected as any}
-                          perUnitSuffix={perUnitSuffixWithLabels as any}
-                          selectionEnabled={showSelection}
-                          className="sm:grid-cols-1 max-h-44"
-                          itemClassName="text-sm md:text-[12x]"
-                        />
-                        {/* Add selected button under shipping panel (desktop) */}
-                        {showSelection && (
-                          <div className="mt-2 flex items-center justify-between">
-                            <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                              <span>{selectedVariantIds.size || 0} {tOv('selectedLabel')}</span>
-                              <button type="button" className="underline hover:no-underline" onClick={() => {
-                                const all = new Set<any>();
-                                for (let i = 0; i < baseVariants.length; i++) { const v = baseVariants[i]; all.add(v.vid ?? v.id ?? i); }
-                                setSelectedVariantIds(all);
-                              }}>{tOv('selectAll')}</button>
-                              <button type="button" className="underline hover:no-underline" onClick={() => setSelectedVariantIds(new Set())}>{tOv('clear')}</button>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {selectedTotalText && (
-                                <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">{tOv('total')} {selectedTotalText}</span>
-                              )}
-                              <button
-                                type="button"
-                                disabled={selectedVariantIds.size === 0}
-                                onClick={() => {
-                                  // Compute shipping fallback only when includeShipping is enabled
-                                  let shippingUsd: number | null = null;
-                                  if (includeShipping) {
-                                    if (selectedShipIdx != null && (shippingOptions as any)[selectedShipIdx] && typeof (shippingOptions as any)[selectedShipIdx].cost === 'number') {
-                                      shippingUsd = (shippingOptions as any)[selectedShipIdx].cost;
-                                    } else if (shippingOptions && (shippingOptions as any).length > 0) {
-                                      const freeOpt = (shippingOptions as any).find((o: any) => o && typeof o.cost === 'number' && o.cost === 0);
-                                      if (freeOpt) shippingUsd = 0;
-                                      else {
-                                        let min: number | null = null;
-                                        for (const o of (shippingOptions as any)) { if (o && typeof o.cost === 'number') min = (min == null ? o.cost : Math.min(min, o.cost)); }
-                                        if (min != null) shippingUsd = min;
-                                      }
-                                    }
-                                  }
-                                  // Add each selected variant (shipping will be deduped per seller in totals)
-                                  const selIds = new Set(selectedVariantIds);
-                                  for (let idx = 0; idx < baseVariants.length; idx++) {
-                                    const v = baseVariants[idx];
-                                    const vid = v.vid ?? v.id ?? idx;
-                                    if (!selIds.has(vid)) continue;
-                                    const descRaw = v.d || '';
-                                    const desc = descRaw ? decodeEntities(descRaw) : '';
-                                    addToBasket({
-                                      id: (baseItem as any)?.id,
-                                      refNum: (baseItem as any)?.refNum,
-                                      variantId: vid,
-                                      variantDesc: desc || 'Variant',
-                                      name,
-                                      sellerName: resolvedSellerName,
-                                      qty: 1,
-                                      priceUSD: typeof v.usd === 'number' ? v.usd : null,
-                                      shippingUsd: includeShipping ? ((shippingUsd ?? null) as any) : null,
-                                      includeShip: !!includeShipping,
-                                      imageUrl: images?.[0] || (baseItem as any)?.i,
-                                      sl,
-                                    });
-                                  }
-                                  setSelectedVariantIds(new Set());
-                                  showToast(tOv('addedToBasket'));
-                                }}
-                                className={cn(
-                                  "text-xs font-semibold px-3 h-7 rounded-full",
-                                  selectedVariantIds.size === 0 ? "bg-gray-200 dark:bg-gray-700 text-gray-500" : "bg-blue-600 hover:bg-blue-500 text-white"
-                                )}
-                              >{tOv('addSelected')}</button>
-                              {(() => {
-                                if (!baseItem) return null;
-                                const ref = (baseItem as any).refNum || String((baseItem as any).id);
-                                const exists = (basketItems as any[]).some(it => (it?.refNum && String(it.refNum) === String(ref)) || (it?.id && String(it.id) === String((baseItem as any).id)));
-                                return exists ? (
-                                  <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{tOv('inBasket')}</span>
-                                ) : null;
-                              })()}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {/* Shipping options (restored) */}
-                    {(((detail as any)?.shipping?.options && (detail as any).shipping.options.length > 0) || loading) && (
-                      <div className="hidden md:block mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/40 p-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" /> {tOv('shippingOptions')}</span>
-                        </div>
-                        <ul className="space-y-1 max-h-48 overflow-auto pr-1 custom-scroll">
-                          {loading && !detail && (
-                            Array.from({ length: 3 }).map((_, i) => (
-                              <li key={i} className="h-6 rounded bg-white/50 dark:bg-gray-900/30 border border-dashed border-gray-300/60 dark:border-gray-700/60 animate-pulse" />
-                            ))
-                          )}
-                          {!loading && (detail as any)?.shipping?.options && (detail as any).shipping.options.map((opt: any, i: number) => {
-                            const usd = typeof opt.cost === 'number' ? opt.cost : null;
-                            const inputId = `shipOpt-${i}`;
-                            const selectable = includeShipping && !allShippingFree && typeof usd === 'number';
-                            const priceText = (usd == null)
-                              ? ''
-                              : formatUSD(usd, displayCurrency as any, rates as any, { zeroIsFree: true, freeLabel: tItem('shippingFree'), decimals: 2, ceilNonUSD: false } as any);
-                            return (
-                              <li key={i} className={cn(
-                                "flex items-center justify-between gap-2 text-sm md:text-[14px] rounded px-2 py-1.5 border bg-white/70 dark:bg-gray-900/30",
-                                "border-gray-200/70 dark:border-gray-700/70",
-                                selectable ? "cursor-pointer" : "cursor-default opacity-100"
-                              )}
-                                onClick={() => { if (selectable) setSelectedShipIdx(i); }}
-                              >
-                                <label htmlFor={inputId} className="flex items-center gap-2 min-w-0 w-full cursor-pointer">
-                                  {selectable && (
-                                    <input
-                                      id={inputId}
-                                      type="radio"
-                                      name="shipOpt"
-                                      className="h-3.5 w-3.5 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 cursor-pointer"
-                                      checked={selectedShipIdx === i}
-                                      onChange={() => setSelectedShipIdx(i)}
-                                    />
-                                  )}
-                                  <span className="truncate text-gray-700 dark:text-gray-300" title={opt.label ? decodeEntities(opt.label) : ''}>{opt.label ? decodeEntities(opt.label) : tOv('option')}</span>
-                                </label>
-                                <span className="font-mono font-semibold text-gray-800 dark:text-gray-200 shrink-0">{priceText}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    )}
+                    {/* Variant prices (per-unit) with large range - extracted for performance */}
+                    <ItemVariantPanel
+                      baseItem={baseItem}
+                      baseVariants={baseVariants}
+                      rates={rates}
+                      displayCurrency={displayCurrency}
+                      includeShipping={includeShipping}
+                      setIncludeShipping={setIncludeShipping}
+                      shippingOptions={shippingOptions}
+                      allShippingFree={allShippingFree}
+                      selectedShipIdx={selectedShipIdx}
+                      selectedShippingUsd={selectedShippingUsd}
+                      perUnitSuffix={perUnitSuffixWithLabels}
+                      name={name}
+                      resolvedSellerName={resolvedSellerName}
+                      images={images}
+                      sl={sl}
+                    />
+                    {/* Shipping options - extracted for performance */}
+                    <ShippingOptionsPanel
+                      options={(detail as any)?.shipping?.options || []}
+                      loading={loading}
+                      detail={detail}
+                      includeShipping={includeShipping}
+                      allShippingFree={allShippingFree}
+                      selectedShipIdx={selectedShipIdx}
+                      setSelectedShipIdx={setSelectedShipIdx}
+                      displayCurrency={displayCurrency}
+                      rates={rates}
+                    />
 
                   </div>
                   {/* Column 2: details & description + reviews (hidden for mobile; reviews hidden on 2xl) */}
@@ -1013,119 +860,33 @@ export default function ItemDetailOverlay() {
                       {!loading && !description && <div className="text-xs italic text-gray-400">{tOv('noDescription')}</div>}
                     </div>
 
-                    <div className="2xl:hidden">
-                      {(() => {
-                        const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
-                        const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
-                          ? (stats?.avg ?? stats?.averageRating)
-                          : (reviews.length
-                            ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number, b: number) => a + b, 0) /
-                              ((reviews as any[]).filter((r: any) => typeof r.rating === 'number').length || 1))
-                            : null);
-                        const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviewMeta?.fetched || reviews.length);
-                        const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
-                        const displayLimit = REVIEWS_DISPLAY_LIMIT;
-                        const leftTokens: string[] = [];
-                        if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
-                        if (reviewsTotal != null) {
-                          if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
-                            leftTokens.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
-                          } else {
-                            leftTokens.push(`${reviewsTotal} ${tOv('totalShort')}`);
-                          }
-                        }
-                        const rightText = (avgDays != null) ? tOv('avgArrival', { days: Math.round(avgDays) }) : null;
-                        return (
-                          <div className="mb-2">
-                            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200" data-nosnippet>{tOv('reviews')}</h3>
-                            {(leftTokens.length > 0 || rightText) && (
-                              <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
-                                <span>{leftTokens.join(' • ')}</span>
-                                {rightText && <span className="shrink-0">{rightText}</span>}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
-                      {loading && !detail && (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-                        </div>
-                      )}
-                      {error && (
-                        <div className="text-xs text-red-500">{tOv('failedToLoad')} <button className="underline" onClick={reload}>{tOv('retry')}</button></div>
-                      )}
-                      {!loading && reviews.length === 0 && !error && (
-                        <div className="text-xs text-gray-500">{tOv('noReviews')}</div>
-                      )}
-                      {!loading && reviews.length > 0 && (
-                        <ReviewsList
-                          reviews={reviews}
-                          fullTimeAgo={fullTimeAgo as any}
-                          onImageClick={(src: string, images: string[], index: number) => { setOpenPreviewSignal(null); setReviewGallery({ images, index, ts: Date.now(), guard: refNum }); }}
-                        />
-                      )}
-                      {!loading && reviews.length > 0 && (() => {
-                        const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
-                        const total = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviewMeta?.fetched || reviews.length);
-                        const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-                        if (!isTruncated || !sl) return null;
-                        return (
-                          <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
-                            {tOv('readMoreReviewsAt')}
-                          </div>
-                        );
-                      })()}
-                    </div>
+                    {/* Reviews (non-ultrawide) - extracted for performance */}
+                    <ReviewsSection
+                      reviews={reviews}
+                      baseItem={baseItem}
+                      reviewMeta={reviewMeta}
+                      loading={loading && !detail}
+                      error={error}
+                      reload={reload}
+                      fullTimeAgo={fullTimeAgo}
+                      onImageClick={(src: string, images: string[], index: number) => { setOpenPreviewSignal(null); setReviewGallery({ images, index, ts: Date.now(), guard: refNum }); }}
+                      sl={sl}
+                    />
                   </div>
-                  {/* Column 3 (ultrawide): reviews */}
+                  {/* Column 3 (ultrawide): reviews - extracted for performance */}
                   <div className="hidden 2xl:block min-w-0 md:overflow-y-auto custom-scroll pr-1 pt-6 pb-13">
-                    {(() => {
-                      const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
-                      const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number' ? (stats?.avg ?? stats?.averageRating) : null;
-                      const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
-                      const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
-                      const displayLimit = REVIEWS_DISPLAY_LIMIT;
-                      const leftTokens: string[] = [];
-                      if (avgRating != null) leftTokens.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
-                      if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
-                        leftTokens.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
-                      } else {
-                        leftTokens.push(`${reviewsTotal} ${tOv('totalShort')}`);
-                      }
-                      const rightText = (avgDays != null) ? tOv('avgArrival', { days: Math.round(avgDays) }) : null;
-                      return (
-                        <div className="mb-2">
-                          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200" data-nosnippet>{tOv('reviews')}</h3>
-                          <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
-                            <span>{leftTokens.join(' • ')}</span>
-                            {rightText && <span className="shrink-0">{rightText}</span>}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                    {loading && !detail ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-                      </div>
-                    ) : (
-                      <ReviewsList
-                        reviews={reviews}
-                        fullTimeAgo={fullTimeAgo as any}
-                        onImageClick={(src: string, images: string[], index: number) => { setOpenPreviewSignal(null); setReviewGallery({ images, index, ts: Date.now(), guard: refNum }); }}
-                      />
-                    )}
-                    {(!loading && reviews.length > 0) && (() => {
-                      const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
-                      const total = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
-                      const isTruncated = total > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-                      if (!isTruncated || !sl) return null;
-                      return (
-                        <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-3">
-                          {tOv('readMoreReviewsAt')}
-                        </div>
-                      );
-                    })()}
+                    <ReviewsSection
+                      reviews={reviews}
+                      baseItem={baseItem}
+                      reviewMeta={reviewMeta}
+                      loading={loading && !detail}
+                      error={error}
+                      reload={reload}
+                      fullTimeAgo={fullTimeAgo}
+                      onImageClick={(src: string, images: string[], index: number) => { setOpenPreviewSignal(null); setReviewGallery({ images, index, ts: Date.now(), guard: refNum }); }}
+                      sl={sl}
+                      ultrawide
+                    />
                   </div>
                 </div>
                 {/* Tablet/desktop actions dock (md to xl): bottom-left of overlay */}
