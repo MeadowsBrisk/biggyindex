@@ -593,6 +593,46 @@ export async function clearAllImages(): Promise<{ deleted: number; errors: numbe
   return { deleted, errors };
 }
 
+/**
+ * Delete a single image folder from R2 (for cleanup when seller avatar changes)
+ * Deletes all files in {hash}/ folder: thumb.avif, full.avif, anim.webp
+ */
+export async function deleteImageFolder(hash: string): Promise<boolean> {
+  const config = getR2Config();
+  if (!config.accountId || !config.accessKeyId || !config.secretAccessKey) {
+    return false;
+  }
+
+  const r2Client = createR2Client();
+  
+  // List all objects in the hash folder
+  try {
+    const listResponse = await r2Client.send(new ListObjectsV2Command({
+      Bucket: config.bucketName,
+      Prefix: `${hash}/`,
+      MaxKeys: 10, // At most 3 files per folder, but be safe
+    }));
+
+    const objects = listResponse.Contents || [];
+    if (objects.length === 0) return true; // Nothing to delete
+
+    const deleteKeys = objects
+      .filter(obj => obj.Key)
+      .map(obj => ({ Key: obj.Key! }));
+
+    await r2Client.send(new DeleteObjectsCommand({
+      Bucket: config.bucketName,
+      Delete: { Objects: deleteKeys },
+    }));
+
+    log.image.debug('deleted image folder', { hash, files: deleteKeys.length });
+    return true;
+  } catch (err) {
+    log.image.warn('failed to delete image folder', { hash, error: (err as Error).message });
+    return false;
+  }
+}
+
 // ============================================================================
 // Exports for client-side (default sizes)
 // ============================================================================

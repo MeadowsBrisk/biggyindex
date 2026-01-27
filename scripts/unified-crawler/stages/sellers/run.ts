@@ -7,11 +7,12 @@ import { buildSellerWorklist } from "../../shared/sellers/worklist";
 import { planSellerEnrichmentSync, buildSellerStateEntry, runSellerEnrichment, type SellerEnrichmentConfig, type SellerPipelineTask } from "../../shared/sellers/enrichment";
 import { processSellerAnalytics } from "../../shared/sellers/analytics";
 import { log, timer } from "../../shared/logging/logger";
+import { processImages } from "../images/optimizer";
 
 export interface SellersRunResult {
   ok: boolean;
   markets: MarketCode[];
-  counts?: { processed?: number };
+  counts?: { processed?: number; images?: number };
   note?: string;
 }
 
@@ -254,8 +255,35 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
       log.sellers.warn(`failed to update seller-state aggregate: ${stateErr?.message || stateErr}`);
     }
 
+    // Process seller avatar images to R2
+    // Read from seller-images.json (already populated by enrichment)
+    let imagesProcessed = 0;
+    const skipSellerImages = /^(1|true|yes|on)$/i.test(String(process.env.SELLER_SKIP_IMAGES || "").trim());
+    if (!skipSellerImages) {
+      try {
+        const sellerImagesMap = await sharedBlob.getJSON<Record<string, string>>(Keys.shared.images.sellers());
+        if (sellerImagesMap && Object.keys(sellerImagesMap).length > 0) {
+          const uniqueUrls = [...new Set(Object.values(sellerImagesMap).filter(Boolean))];
+          log.sellers.info(`processing seller avatars`, { count: uniqueUrls.length });
+          const { stats } = await processImages(uniqueUrls, {
+            concurrency: 5,
+            force: forceFull,
+            sharedBlob,
+          });
+          imagesProcessed = stats.processed;
+          log.sellers.success(`seller avatars complete`, {
+            processed: stats.processed,
+            cached: stats.cached,
+            failed: stats.failed,
+          });
+        }
+      } catch (imgErr: any) {
+        log.sellers.warn(`failed to process seller avatars: ${imgErr?.message || imgErr}`);
+      }
+    }
+
     log.sellers.complete(stageTimer.elapsed(), { processed: processedTotal });
-    return { ok: true, markets, counts: { processed: processedTotal } };
+    return { ok: true, markets, counts: { processed: processedTotal, images: imagesProcessed } };
   } catch (e: any) {
     log.sellers.fail(`error: ${e?.message || e}`);
     return { ok: false, markets, counts: { processed: 0 }, note: e?.message || String(e) } as any;

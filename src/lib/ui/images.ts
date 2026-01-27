@@ -10,8 +10,15 @@ const USE_CLOUDINARY = process.env.NEXT_PUBLIC_USE_CLOUDINARY !== 'false' && pro
 // Cloudflare R2 image optimization (free alternative to Cloudinary)
 // Images are pre-optimized by the crawler and stored in R2
 // New unified structure: {hash}/thumb.avif, {hash}/full.avif, {hash}/anim.webp
+// Item images (/images/i/) and seller avatars (/images/u/) are processed to R2
+// Review images (/images/r/) use CF proxy (small, not worth crawling)
 const R2_IMAGE_URL = process.env.NEXT_PUBLIC_R2_IMAGE_URL || '';
 const USE_R2 = !!R2_IMAGE_URL;
+
+// Pattern to identify images that are pre-processed in R2
+// LittleBiggy URL structure: /images/i/ = items, /images/u/ = user avatars, /images/r/ = reviews
+// We crawl items + avatars; reviews are small and use CF proxy fallback
+const R2_IMAGE_PATTERN = /littlebiggy\.net\/images\/[iu]\//i;
 
 // Cloudflare edge caching: wrap Cloudinary URLs through CF worker to reduce Cloudinary requests
 // Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to your CF worker domain (e.g., 'https://biggyindex.com')
@@ -37,14 +44,22 @@ function hashUrl(url: string): string {
 /**
  * Get optimized image URL from R2 bucket
  * New unified structure: {hash}/thumb.avif (600px) or {hash}/full.avif (original)
+ * For GIFs: {hash}/anim.webp (animated) - always used for GIFs regardless of size
  * 
  * Width logic:
- * - undefined = full (high-res/zoom mode)
- * - any number = thumb (card thumbnails don't need full)
+ * - GIFs always get anim.webp (600px animated, good for any display size)
+ * - Static: undefined = full, any number = thumb
  */
 function r2ImageUrl(url: string, width?: number): string {
   const hash = hashUrl(url);
-  // undefined = full-res mode; any width specified = use thumb
+  const isGif = /\.gif(?:$|[?#])/i.test(url);
+  
+  // GIFs always get animated webp (it's already 600px max, works for any size)
+  if (isGif) {
+    return `${R2_IMAGE_URL}/${hash}/anim.webp`;
+  }
+  
+  // Static images: undefined = full-res mode; any width specified = use thumb
   const variant = width === undefined ? 'full' : 'thumb';
   return `${R2_IMAGE_URL}/${hash}/${variant}.avif`;
 }
@@ -71,7 +86,9 @@ function wrapWithCloudflare(url: string): string {
 
 /**
  * Proxy image URLs via optimized source (R2, Cloudinary, or direct).
- * Priority: R2 (free, pre-optimized) > Cloudinary (paid) > CF cache > direct
+ * Priority: R2 (free, pre-optimized) > CF cache > Cloudinary (paid) > direct
+ * 
+ * R2 only contains item images (/images/i/) - other images use CF proxy fallback.
  * - Skips local paths (/, ./)
  * - Skips already-proxied URLs
  */
@@ -82,28 +99,23 @@ export function proxyImage(url: string, width?: number): string {
   if (url.startsWith('/') || url.startsWith('./')) return url;
   
   // Skip already proxied URLs
-  if (url.includes('res.cloudinary.com/') || url.includes('/cf-image-proxy') || url.includes(R2_IMAGE_URL)) return url;
+  if (url.includes('res.cloudinary.com/') || url.includes('/cf-image-proxy') || (R2_IMAGE_URL && url.includes(R2_IMAGE_URL))) return url;
   
-  // Priority 1: Use R2 pre-optimized images (free, fastest)
-  if (USE_R2) {
+  // Priority 1: Use R2 for ITEM and SELLER images (pre-optimized, free, fastest)
+  // Items (/images/i/) and avatars (/images/a/) are crawled and stored in R2
+  const isR2Image = R2_IMAGE_PATTERN.test(url);
+  if (USE_R2 && isR2Image) {
     return r2ImageUrl(url, width);
   }
   
-  // Priority 2: Use Cloudinary for on-the-fly AVIF conversion (paid)
-  if (USE_CLOUDINARY) {
-    const cloudinaryUrl = cloudinaryFetch(url, width);
-    
-    // Wrap through Cloudflare for edge caching (reduces Cloudinary requests)
-    if (USE_CF_CACHE) {
-      return wrapWithCloudflare(cloudinaryUrl);
-    }
-    
-    return cloudinaryUrl;
-  }
-  
-  // Priority 3: Use CF worker for edge caching only (no optimization)
+  // Priority 2: Use CF worker for edge caching (seller avatars, review images, etc.)
   if (USE_CF_CACHE) {
     return wrapWithCloudflare(url);
+  }
+  
+  // Priority 3: Use Cloudinary for on-the-fly AVIF conversion (paid, disabled)
+  if (USE_CLOUDINARY) {
+    return cloudinaryFetch(url, width);
   }
   
   // No proxying configured - return original

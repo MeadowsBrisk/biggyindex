@@ -37,6 +37,7 @@ export interface SellerStateEntry {
   hasShare: boolean;
   hasReviews: boolean;
   reviewCount: number;
+  imageHash?: string;       // Hash of imageUrl for R2 cleanup when avatar changes
 }
 
 export interface SellerStateAggregate {

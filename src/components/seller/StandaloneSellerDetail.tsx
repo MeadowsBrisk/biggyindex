@@ -76,7 +76,8 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
   }, [reviews]);
 
   const rawSellerImage = detail?.sellerImageUrl ?? detail?.imageUrl ?? null;
-  const img: string | null = useMemo(() => {
+  // Thumbnail URL for display (with width for static thumb)
+  const thumbImg: string | null = useMemo(() => {
     if (!rawSellerImage) return null;
     // 7rem avatar = ~112px, request 224px for 2x DPR
     const proxied = proxyImage(rawSellerImage, 224);
@@ -171,12 +172,12 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
                     <button
                       type="button"
                       className="image-border-inner relative w-full h-full overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-blue-500"
-                      onClick={() => { if (img) setOpenPreviewSignal({ ts: Date.now(), index: 0, guard: sellerId }); }}
+                      onClick={() => { if (thumbImg) setOpenPreviewSignal({ ts: Date.now(), index: 0, guard: sellerId }); }}
                       aria-label="Open seller image"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {img ? (
-                        <img src={img} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      {thumbImg ? (
+                        <img src={thumbImg} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"><div className="h-8 w-8 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" /></div>
                       )}
@@ -244,8 +245,8 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
                 </div>
               )}
 
-              {img && (
-                <ImageZoomPreview imageUrl={img} imageUrls={[img]} alt={name} openSignal={openPreviewSignal as any} hideTrigger guardKey={sellerId as any} onOpenChange={setZoomOpen} />
+              {rawSellerImage && (
+                <ImageZoomPreview imageUrl={rawSellerImage} imageUrls={[rawSellerImage]} alt={name} openSignal={openPreviewSignal as any} hideTrigger guardKey={sellerId as any} onOpenChange={setZoomOpen} />
               )}
               <div className="pb-8" />
             </div>
