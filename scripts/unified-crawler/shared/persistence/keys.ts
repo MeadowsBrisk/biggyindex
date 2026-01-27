@@ -44,6 +44,9 @@ export const Keys = {
       sellersLeaderboard: () => `aggregates/sellers-leaderboard.json`,
       recentReviews: () => `aggregates/recent-reviews.json`,
       recentMedia: () => `aggregates/recent-media.json`,
+      // Pricing aggregates for price-per-gram sorting
+      pricingSummary: () => `aggregates/pricing/summary.json`,
+      pricingByWeight: (weight: number) => `aggregates/pricing/${weight}g.json`,
     },
   },
   runMeta: {

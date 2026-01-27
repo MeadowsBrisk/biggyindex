@@ -50,6 +50,7 @@ export const log = {
   pruning: createStageLogger("pruning"),
   translate: createStageLogger("translate"),
   image: createStageLogger("image"),
+  pricing: createStageLogger("pricing"),
   cli: createStageLogger("cli"),
 
   // Generic logging (for shared modules)

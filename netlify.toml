@@ -178,6 +178,16 @@
     "scripts/unified-crawler/**"
   ]
 
+# Daily pricing aggregates - generates price-per-gram data for Flower/Hash/Concentrates
+# Runs once daily at 5:45 AM UTC - after images at 5:30 has completed
+# Generates pricing-{weight}g.json files for frontend ppg sorting
+[functions."crawler-pricing-background"]
+  schedule = "45 5 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
+
 # Redirects for legacy localized item/seller paths (301 permanent redirects)
 [[redirects]]
   from = "/produit/:ref"

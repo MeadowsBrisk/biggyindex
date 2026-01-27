@@ -58,6 +58,7 @@
     "concentrates": "Konzentrate",
     "hash": "Hasch",
     "tincture": "Tinkturen",
+    "preRolls": "Pre-Rolls",
     "psychedelics": "Psychedelika",
     "other": "Sonstiges",
     "subs": {
@@ -68,11 +69,13 @@
       "og": "OG",
       "diesel": "Diesel",
       "shake": "Shake/Trim",
-      "preRolls": "Pre-Rolls",
       "imported": "Importiert",
       "landrace": "Landrasse",
       "exotics": "Exoten",
       "smalls": "Smalls",
+      "infused": "Infused",
+      "singles": "Einzeln",
+      "packs": "Packungen",
       "moroccan": "Marokkanisch",
       "mousse": "Mousse",
       "blonde": "Blond",
@@ -150,6 +153,13 @@
       "wide": "Breit",
       "square": "Quadrat",
       "tall": "Hoch"
+    },
+    "budget": {
+      "label": "Sortieren €/g:",
+      "clear": "Löschen",
+      "pillTitle": "Nach Preis pro Gramm für {weight}g Varianten sortieren",
+      "toggleTitle": "Nach Preis pro Gramm sortieren",
+      "activeTitle": "Sortierung nach €/g für {weight}g (klicken zum Löschen)"
     },
     "gifsPausedTitle": "GIFs pausiert – klicken zum Abspielen",
     "gifsPlayTitle": "GIFs abspielen – klicken zum Pausieren",

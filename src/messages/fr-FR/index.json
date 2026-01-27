@@ -47,6 +47,8 @@
     "highResImagesDesc": "Utiliser des images en pleine résolution dans les cartes d'articles (plus de données)",
     "forceEnglish": "Forcer l'anglais",
     "forceEnglishDesc": "Afficher les descriptions d'articles en anglais au lieu de la langue locale",
+    "loadAllItems": "Charger tous les articles en une fois",
+    "loadAllItemsDesc": "Permet la recherche Ctrl+F mais peut ralentir le chargement initial",
     "clearData": "Effacer toutes les données",
     "clearDataHint": "Supprime les favoris, filtres et toutes les préférences enregistrées",
     "clearDataConfirm": "Cela effacera toutes vos données enregistrées, y compris les favoris, filtres et préférences. Continuer ?"
@@ -58,6 +60,7 @@
     "concentrates": "Concentrés",
     "hash": "Haschich",
     "tincture": "Teintures",
+    "preRolls": "Pré-Roulés",
     "psychedelics": "Psychédéliques",
     "other": "Autre",
     "subs": {
@@ -68,11 +71,13 @@
       "og": "OG",
       "diesel": "Diesel",
       "shake": "Shake/Trim",
-      "preRolls": "Pre-rolls",
       "imported": "Importé",
       "landrace": "Landrace",
       "exotics": "Exotiques",
       "smalls": "Smalls",
+      "infused": "Infusé",
+      "singles": "Unités",
+      "packs": "Paquets",
       "moroccan": "Marocain",
       "mousse": "Mousse",
       "blonde": "Blond",
@@ -150,6 +155,13 @@
       "wide": "Large",
       "square": "Carré",
       "tall": "Haut"
+    },
+    "budget": {
+      "label": "Trier par €/g :",
+      "clear": "Effacer",
+      "pillTitle": "Trier par prix au gramme pour les variantes de {weight}g",
+      "toggleTitle": "Trier par prix au gramme",
+      "activeTitle": "Tri par €/g pour {weight}g (cliquer pour effacer)"
     },
     "gifsPausedTitle": "GIF en pause – cliquer pour lire",
     "gifsPlayTitle": "Lire les GIF – cliquer pour mettre en pause",

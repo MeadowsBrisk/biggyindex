@@ -17,10 +17,6 @@ export const TAXONOMY: Taxonomy = {
       OG: [" og ","og "],
       Diesel: ["diesel"],
       Shake: ["shake","trim","popcorn","sugar leaf","sugarleaf"],
-      PreRolls: [
-        "pre-roll","pre-rolls","pre roll","pre rolls","preroll","prerolls","prerolled","pre-rolled","pre rolled",
-        "joint","joints","blunt","blunts","spliff","spliffs","hand rolled","hand-rolled","cone","cones","stick","sticks"
-      ],
       Imported: [
         "dispensary jar","dispensary jars","dispensary pack","dispensary packs","3.5g pack","jungle boys","alien labs","wizard trees","doja","connected","the ten co","don merfos","cali","california","imported directly","directly imported","imported loose"
       ],
@@ -84,6 +80,17 @@ export const TAXONOMY: Taxonomy = {
       Piatella: ["piatella","cold cure","cold-cure","6*","6 star","6star","six star","wpff"],
       Distillates: ["distillate","distilate","delta 8","delta 9","delta"],
       Pots: ["resale pots","labeled pots","labelled pots"],
+    }
+  },
+  PreRolls: {
+    keywords: [
+      "pre-roll","pre-rolls","pre roll","pre rolls","preroll","prerolls","prerolled","pre-rolled","pre rolled",
+      "joint","joints","blunt","blunts","spliff","spliffs","hand rolled","hand-rolled","cone","cones"
+    ],
+    children: {
+      Infused: ["infused","hash infused","kief","dipped","moonrock"],
+      Singles: ["single","1g","0.5g"],
+      Packs: ["pack","packs","multi","bundle"],
     }
   },
   Edibles: {

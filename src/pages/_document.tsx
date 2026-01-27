@@ -17,6 +17,9 @@ class MyDocument extends Document {
           {/* Removed viewport meta per Next.js recommendation; moved to _app.tsx */}
           <meta name="HandheldFriendly" content="true" />
           <meta name="MobileOptimized" content="320" />
+          {/* Preconnect to R2 image CDN for faster LCP */}
+          <link rel="preconnect" href="https://img.biggyindex.com" />
+          <link rel="dns-prefetch" href="https://img.biggyindex.com" />
           <script
             dangerouslySetInnerHTML={{
               __html: `(() => { try { const ls = localStorage.getItem('darkMode'); const isDark = ls === 'true'; const root = document.documentElement; if (isDark) { root.classList.add('dark'); root.setAttribute('data-theme','dark'); root.style.setProperty('--background','#0a0a0a'); root.style.setProperty('--foreground','#ededed'); } else { root.classList.remove('dark'); root.setAttribute('data-theme','light'); root.style.setProperty('--background','#ffffff'); root.style.setProperty('--foreground','#171717'); } } catch(_) {} })();`

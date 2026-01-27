@@ -25,10 +25,8 @@ export function ediblesFalsePositiveDemotionRule(ctx: CatContext) {
   if (/(chocolate\s+cone(s)?|cone\s+edibles|baked\s+cones)/.test(text)) {
     ctx.add('Edibles', 8);
     if (scores.Flower) ctx.demote('Flower', 6);
-    if (subsByCat.Flower && subsByCat.Flower.has('PreRolls')) {
-      subsByCat.Flower.delete('PreRolls');
-      if (subsByCat.Flower.size === 0) delete subsByCat.Flower;
-    }
+    // PreRolls is now a primary category - demote it for edible cones
+    if (scores.PreRolls) ctx.demote('PreRolls', 8);
   }
   const hasMints = /\bmints?\b/.test(text);
   const isKushMints = /\bkush\s+mints?\b/.test(text);

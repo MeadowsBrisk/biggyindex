@@ -15,6 +15,7 @@
     "uc:pruning": "tsx scripts/unified-crawler/cli.ts --stage=pruning",
     "uc:translate": "tsx scripts/unified-crawler/cli.ts --stage=translate",
     "uc:images": "tsx scripts/unified-crawler/cli.ts --stage=images",
+    "uc:pricing": "tsx scripts/unified-crawler/cli.ts --stage=pricing",
     "uc:all": "tsx scripts/unified-crawler/cli.ts --stage=all",
     "gifs": "node scripts/gif-processor/process-gifs.js --video"
   },

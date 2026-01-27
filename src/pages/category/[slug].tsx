@@ -27,7 +27,7 @@ import FlagPT from '@/components/common/flags/FlagPT';
 import cn from '@/lib/core/cn';
 
 // Category slugs that have landing pages (English, used across all markets)
-const CATEGORY_SLUGS = ['flower', 'hash', 'vapes', 'edibles', 'concentrates', 'psychedelics', 'tincture', 'other'];
+const CATEGORY_SLUGS = ['flower', 'hash', 'prerolls', 'vapes', 'edibles', 'concentrates', 'psychedelics', 'tincture', 'other'];
 
 // Locale links for footer language selector (same as /home)
 const LOCALE_LINKS = [

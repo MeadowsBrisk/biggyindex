@@ -117,7 +117,7 @@ export default function HeroSection({ stats }: HeroSectionProps): ReactElement {
 
   const combinedCategories = [...rawCategories, ...highlightedSubcategories];
 
-  const desiredOrder = ["Flower", "Hash", "Vapes", "Edibles", "Concentrates", "Mushrooms", "Psychedelics", "Other"];
+  const desiredOrder = ["Flower", "Hash", "PreRolls", "Vapes", "Edibles", "Concentrates", "Mushrooms", "Psychedelics", "Other"];
 
   const matchByName = (arr: CategoryEntry[], target: string): CategoryEntry | null => {
     const targetLower = target.toLowerCase();
@@ -158,6 +158,10 @@ export default function HeroSection({ stats }: HeroSectionProps): ReactElement {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900 transition-colors duration-300 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 dark:text-white">
+      {/* Top-right locale selector */}
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+        <LocaleSelector />
+      </div>
       <motion.div {...(fadeInUp({ distance: 20, trigger: "animate" }) as any)} className="absolute inset-0">
         <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl dark:bg-emerald-500/20" />
         <div className="pointer-events-none absolute -right-24 bottom-20 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl dark:bg-blue-500/10" />
@@ -166,7 +170,6 @@ export default function HeroSection({ stats }: HeroSectionProps): ReactElement {
         <motion.div {...(fadeInUp({ distance: 24, trigger: "animate" }) as any)} className="mx-auto max-w-2xl text-balance text-center lg:mx-0 lg:max-w-xl lg:text-left">
           <div className="flex items-center justify-center gap-3 lg:justify-start mb-2">
             <AnimatedLogoHeader className="text-slate-900 dark:text-white" />
-            <LocaleSelector />
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80">
             {tHome('hero.badge')}

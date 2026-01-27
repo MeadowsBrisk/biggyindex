@@ -1,11 +1,12 @@
 import cn from "@/lib/core/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
-import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesSetAtom, favouritesOnlyAtom } from "@/store/atoms";
+import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesSetAtom, favouritesOnlyAtom, ppgDataAtom, selectedWeightAtom, type PpgItemInfo } from "@/store/atoms";
 import { voteHasVotedAtom, endorsedSetAtom } from "@/store/votesAtoms";
 import { useExchangeRates } from '@/hooks/useExchangeRates';
-import { formatUSDRange, currencySymbol, type DisplayCurrency, type ExchangeRates } from '@/lib/pricing/priceDisplay';
+import { formatUSDRange, formatUSD, currencySymbol, type DisplayCurrency, type ExchangeRates } from '@/lib/pricing/priceDisplay';
 import { useDisplayCurrency, useLocale, useForceEnglish } from '@/providers/IntlProvider';
+import { parseQuantity, matchWeightBreakpoint } from '@/lib/pricing/parseQuantity';
 import { useTranslations } from 'next-intl';
 import { decodeEntities } from '@/lib/core/format';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/countries';
@@ -161,6 +162,72 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     const maxUSD = Math.max(...usdValues);
     return formatUSDRange(minUSD, maxUSD, displayCurrency, rates, { decimals: 2 }) as string;
   }, [variants, rates, displayCurrency]);
+
+  // PPG sorting: when a weight is selected, show that weight's price instead of range
+  const selectedWeight = useAtomValue(selectedWeightAtom);
+  const ppgData = useAtomValue(ppgDataAtom);
+  const ppgInfo = React.useMemo(() => {
+    if (!ppgData || selectedWeight === null) return null;
+    const itemRef = String(refNum ?? item.id ?? '');
+    return ppgData.lookup.get(itemRef) ?? null;
+  }, [ppgData, selectedWeight, refNum, item.id]);
+
+  // Fallback PPG: when item doesn't have the selected weight, compute best PPG from variants
+  // This shows users the closest available price-per-gram info
+  const fallbackPpgInfo = React.useMemo(() => {
+    // Only compute fallback if we're in PPG mode but this item isn't in the lookup
+    if (!ppgData || selectedWeight === null || ppgInfo) return null;
+    if (!Array.isArray(variants) || variants.length === 0) return null;
+    
+    // Find variants with valid weight parsing and compute their PPG
+    const variantPpgs: { usd: number; ppg: number; grams: number; d: string }[] = [];
+    for (const v of variants) {
+      if (typeof v.usd !== 'number' || !v.d) continue;
+      const parsed = parseQuantity(v.dEn ?? v.d);
+      if (!parsed || parsed.unit !== 'g' || parsed.qty <= 0) continue;
+      variantPpgs.push({ 
+        usd: v.usd, 
+        ppg: v.usd / parsed.qty, 
+        grams: parsed.qty,
+        d: v.d 
+      });
+    }
+    if (variantPpgs.length === 0) return null;
+    
+    // Find the one closest to the selected weight (for most relevant comparison)
+    // If multiple at same distance, pick the one with lowest ppg (best value)
+    const sorted = variantPpgs.sort((a, b) => {
+      const distA = Math.abs(a.grams - selectedWeight);
+      const distB = Math.abs(b.grams - selectedWeight);
+      if (distA !== distB) return distA - distB;
+      return a.ppg - b.ppg;
+    });
+    const best = sorted[0];
+    return { usd: best.usd, ppg: best.ppg, grams: best.grams, isFallback: true };
+  }, [ppgData, selectedWeight, ppgInfo, variants]);
+
+  // Price text: show ppg-specific price when weight selected, otherwise show range
+  const priceDisplayText = React.useMemo(() => {
+    if (ppgInfo && rates) {
+      // Show the selected weight's price with ppg annotation
+      const priceText = formatUSD(ppgInfo.usd, displayCurrency, rates, { decimals: 2 });
+      const ppgText = formatUSD(ppgInfo.ppg, displayCurrency, rates, { decimals: 2 });
+      return { main: priceText, ppg: `${ppgText}/g`, weight: selectedWeight, isFallback: false };
+    }
+    // Fallback: show closest available weight's PPG with annotation
+    if (fallbackPpgInfo && rates && selectedWeight) {
+      const priceText = formatUSD(fallbackPpgInfo.usd, displayCurrency, rates, { decimals: 2 });
+      const ppgText = formatUSD(fallbackPpgInfo.ppg, displayCurrency, rates, { decimals: 2 });
+      // Gray color indicates fallback - no need for weight label which causes line wrap
+      return { 
+        main: priceText, 
+        ppg: `${ppgText}/g`, 
+        weight: fallbackPpgInfo.grams, 
+        isFallback: true 
+      };
+    }
+    return null;
+  }, [ppgInfo, fallbackPpgInfo, rates, displayCurrency, selectedWeight]);
 
   // Use shared Set atom for O(1) lookup instead of per-item selectAtom
   const endorsedSet = useAtomValue(endorsedSetAtom);
@@ -333,7 +400,19 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
             >
               <div className="flex flex-wrap items-center gap-2">
                 <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
-                  {rangeReady && computedRangeText ? (
+                  {priceDisplayText ? (
+                    <span className="flex items-baseline gap-1.5">
+                      <span>{priceDisplayText.main}</span>
+                      <span className={cn(
+                        "text-xs font-normal",
+                        priceDisplayText.isFallback 
+                          ? "text-gray-500 dark:text-gray-400" 
+                          : "text-green-600 dark:text-green-400"
+                      )}>
+                        ({priceDisplayText.ppg})
+                      </span>
+                    </span>
+                  ) : rangeReady && computedRangeText ? (
                     <span>{computedRangeText}</span>
                   ) : (
                     <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
@@ -349,7 +428,19 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
           ) : (
             <div className="pointer-events-auto flex flex-col justify-end gap-1 min-h-[1.25rem]">
               <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
-                {rangeReady && computedRangeText ? (
+                {priceDisplayText ? (
+                  <span className="flex items-baseline gap-1.5">
+                    <span>{priceDisplayText.main}</span>
+                    <span className={cn(
+                      "text-xs font-normal",
+                      priceDisplayText.isFallback 
+                        ? "text-gray-500 dark:text-gray-400" 
+                        : "text-green-600 dark:text-green-400"
+                    )}>
+                      ({priceDisplayText.ppg})
+                    </span>
+                  </span>
+                ) : rangeReady && computedRangeText ? (
                   <span>{computedRangeText}</span>
                 ) : (
                   <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>

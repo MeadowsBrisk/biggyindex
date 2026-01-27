@@ -29,7 +29,7 @@ export default function CategoryFilter() {
   const [shipPinned, setShipPinned] = useAtom(shipFromPinnedAtom as any) as [boolean, (v: any) => void];
   const includedSellers = useAtomValue(includedSellersAtom as any) as string[] || [];
 
-  const desiredOrder = ["Flower","Hash","Edibles","Concentrates","Vapes","Tincture","Psychedelics"]; // preferred ordering
+  const desiredOrder = ["Flower","Hash","PreRolls","Edibles","Concentrates","Vapes","Tincture","Psychedelics"]; // preferred ordering
   const rawCats = Object.keys(manifest.categories || {}).filter((c: string) => c !== 'Tips');
   const ordered = [
     ...desiredOrder.filter(c => rawCats.includes(c)),

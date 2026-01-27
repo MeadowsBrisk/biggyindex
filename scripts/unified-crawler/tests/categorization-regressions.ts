@@ -12,8 +12,10 @@ export type CatCase = {
 const cases: CatCase[] = [
   // Flower vs preroll, edible, paraphernalia, psychedelic, concentrates, hash variants
   { name: 'OG Kush 3.5g', description: 'Top shelf indica flower, dense buds.', expectPrimary: 'Flower' },
-  // Legacy parity: prerolls are a Flower subcategory, not a primary
-  { name: 'Wedding Cake Pre-Roll 1g', description: 'slow burn preroll joint', expectPrimary: 'Flower', expectSub: ['PreRolls'] },
+  // PreRolls is now a top-level category (not Flower subcategory)
+  { name: 'Wedding Cake Pre-Roll 1g', description: 'slow burn preroll joint', expectPrimary: 'PreRolls' },
+  { name: '5 Pack Premium Pre-Rolls', description: 'Five pre-rolled joints in a sealed pack hand rolled cones', expectPrimary: 'PreRolls' },
+  { name: 'Infused Pre-Roll Hash', description: 'hash infused preroll kief dipped cone', expectPrimary: 'PreRolls', expectSub: ['Infused'] },
   { name: 'Psilocybin Chocolate Bar 3g', description: 'microdose psychedelic shroom chocolate', expectPrimary: 'Psychedelics' },
   // Legacy parity: battery listings are treated as Vapes (Battery/Cartridge subs may appear)
   { name: 'USB Rechargeable Battery', description: 'charger and battery for vape carts', expectPrimary: 'Vapes' },

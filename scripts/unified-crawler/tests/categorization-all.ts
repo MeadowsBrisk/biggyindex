@@ -5,7 +5,7 @@
 import { categorize } from '../shared/categorization/index';
 import { isTipListing } from '../shared/categorization/util/exclusions';
 
-interface Case { name: string; desc: string; expectPrimary: string; expectSub?: string; expectHasPreRolls?: boolean; }
+interface Case { name: string; desc: string; expectPrimary: string; expectSub?: string; }
 
 // Flower refinement & misclassification corrections
 const flowerRefine: Case[] = [
@@ -43,7 +43,8 @@ const prerollRefinement: Case[] = [
   { name: 'HIGH THC TRIM X SHAKE *FREE SHIPPING*', desc: 'This is perfect for extracting, cooking or topping up your joint. Best value for money', expectPrimary: 'Flower', expectHasPreRolls: false },
   { name: 'Ultimate Preroll Quality Shake - Kushmints', desc: 'Absolutely dank shake Perfect for smoking Perfect shake in house UK grown Kushmints', expectPrimary: 'Flower', expectHasPreRolls: false },
   { name: 'Thai Stick Natural Mellow Weed', desc: 'Great bit of Thai weed Sungrown Organic nice mellow puff', expectPrimary: 'Flower', expectHasPreRolls: false },
-  { name: '5 Pack Premium Pre-Rolls', desc: 'Five pre-rolled joints in a sealed pack hand rolled cones', expectPrimary: 'Flower', expectHasPreRolls: true },
+  // PreRolls is now a top-level category
+  { name: '5 Pack Premium Pre-Rolls', desc: 'Five pre-rolled joints in a sealed pack hand rolled cones', expectPrimary: 'PreRolls', expectSubcategory: 'Packs' },
 ];
 
 // Edible sauce refinement
@@ -69,7 +70,7 @@ const distillateRefine: Case[] = [
 
 // New regressions & paraphernalia
 const newRegressions: Case[] = [
-  { name: 'Flavour Packs - Raw Cones/Pre rolls', desc: 'try my strains Moonrocks joints rolled with pure weed', expectPrimary: 'Flower', expectHasPreRolls: true },
+  { name: 'Flavour Packs - Raw Cones/Pre rolls', desc: 'try my strains Moonrocks joints rolled with pure weed', expectPrimary: 'PreRolls' },
   { name: 'Mad Honey', desc: 'Mad honey directly from Nepal potent harvest', expectPrimary: 'Other' },
   { name: 'THC Chocolate Bars 🌿 420mg', desc: 'In-house Made Chocolate Bars 420mg total pieces Delta 9 THC Distillate', expectPrimary: 'Edibles' },
   { name: 'Glass Bong 12"', desc: 'borosilicate bong for smoking', expectPrimary: 'Other', expectSub: 'Bongs' },
@@ -147,12 +148,11 @@ function run() {
   for (const c of allCases) {
     const { primary, subcategories = [] } = categorize(c.name, c.desc);
     const okPrimary = primary === c.expectPrimary;
-    const prerollOk = c.expectHasPreRolls === undefined ? true : (subcategories.includes('PreRolls') === c.expectHasPreRolls);
     const subOk = c.expectSub ? subcategories.includes(c.expectSub) : true;
-    const ok = okPrimary && prerollOk && subOk;
+    const ok = okPrimary && subOk;
     if (!ok) fail++;
     const detail = `primary=${primary} subs=[${subcategories.join(',')}]`;
-    console.log(`${ok ? 'OK' : 'FAIL'} | ${c.name} => ${detail} expected=${c.expectPrimary}${c.expectSub?` sub=${c.expectSub}`:''}${c.expectHasPreRolls!==undefined?` preRolls=${c.expectHasPreRolls}`:''}`);
+    console.log(`${ok ? 'OK' : 'FAIL'} | ${c.name} => ${detail} expected=${c.expectPrimary}${c.expectSub?` sub=${c.expectSub}`:''}`);
   }
   console.log(`\n[categorization:all] Completed cases=${allCases.length} failed=${fail}`);
   if (fail) process.exit(1);

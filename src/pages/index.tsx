@@ -34,6 +34,7 @@ const LatestReviewsModal = dynamic(() => import('@/components/reviews/LatestRevi
 const FirstVisitBanner = dynamic(() => import('@/components/banners/FirstVisitBanner'), { ssr: false });
 import OptionsModal from '@/components/common/OptionsModal';
 import SortControls from '@/components/filters/SortControls';
+import { PpgSortButton, PpgWeightPills } from '@/components/filters/PpgSort';
 import { useNarrowLayout } from '@/hooks/useNarrowLayout';
 import AnimatedLogoHeader from '@/components/layout/AnimatedLogoHeader';
 import InfoButton from '@/components/common/InfoButton';
@@ -643,11 +644,15 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           <Sidebar />
           <div className="flex-1">
             {!narrow && (
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="text-sm text-gray-600 dark:text-gray-300">{baseLabel}{desktopBreadcrumb}{freeShipNoteDesktop}{includeExcludeInline}</div>
-                <div className="flex items-center gap-2">
-                  <SortControls />
+              <div className="mb-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm text-gray-600 dark:text-gray-300">{baseLabel}{desktopBreadcrumb}{freeShipNoteDesktop}{includeExcludeInline}</div>
+                  <div className="flex items-center gap-2">
+                    <PpgSortButton />
+                    <SortControls />
+                  </div>
                 </div>
+                <PpgWeightPills />
               </div>
             )}
             {narrow && (
@@ -660,7 +665,11 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
                   )}
                 </div>
                 {includeExcludeBlock}
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tSidebar('sort')}: {mobileSortSummary}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{tSidebar('sort')}: {mobileSortSummary}</span>
+                  <PpgSortButton />
+                </div>
+                <PpgWeightPills />
               </div>
             )}
             <div className="relative min-h-40">

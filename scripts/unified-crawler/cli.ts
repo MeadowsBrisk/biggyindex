@@ -15,6 +15,7 @@ import { runPruning } from './stages/pruning/run';
 import { runTranslate } from './stages/translate/run';
 import { runCleanupShortDesc } from './stages/translate/cleanup-short-desc';
 import { processImages, clearAllImages } from './stages/images';
+import { runPricing } from './stages/pricing';
 import { detectItemChanges } from './shared/logic/changes';
 import { Keys } from './shared/persistence/keys';
 import { getBlobClient } from './shared/persistence/blobs';
@@ -27,7 +28,7 @@ const argv = yargs(hideBin(process.argv))
   .scriptName('unified-crawler')
   .option('stage', {
     type: 'string',
-    choices: ['index', 'items', 'sellers', 'pruning', 'translate', 'images', 'all', 'cat-tests'],
+    choices: ['index', 'items', 'sellers', 'pruning', 'translate', 'images', 'pricing', 'all', 'cat-tests'],
     default: 'index',
     describe: 'Which stage(s) to run',
   })
@@ -535,6 +536,14 @@ async function main() {
         budgetLimited: stats.budgetLimited,
         secs: since(t0),
       });
+    }
+
+    // Pricing stage: generate price-per-gram aggregates
+    if (stage === 'pricing') {
+      const t0 = Date.now();
+      log.pricing.info('starting pricing aggregation');
+      await runPricing(markets);
+      log.pricing.info('complete', { secs: since(t0) });
     }
 
     log.cli.info(`completed`, { stage, totalSecs: since(started) });

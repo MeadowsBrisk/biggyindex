@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import { localeFromHost, hostForLocale } from '@/lib/market/routing';
 
-const CATEGORIES = ['flower', 'hash', 'vapes', 'edibles', 'concentrates', 'psychedelics', 'tincture', 'other'];
+const CATEGORIES = ['flower', 'hash', 'prerolls', 'vapes', 'edibles', 'concentrates', 'psychedelics', 'tincture', 'other'];
 
 export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   const host = req?.headers?.host || 'biggyindex.com';

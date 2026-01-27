@@ -208,3 +208,16 @@ export async function getItemImageLookup(market?: Market): Promise<{ byRef: Reco
   if (blob) return blob;
   return { byRef: {}, byId: {} };
 }
+
+// Pricing aggregates for price-per-gram sorting
+export async function getPricingSummary(market?: Market): Promise<any | null>
+{
+  const blob = await readBlobJSON<any>('aggregates/pricing/summary.json', { market, useCache: true });
+  return blob || null;
+}
+
+export async function getPricingByWeight(weight: number, market?: Market): Promise<any | null>
+{
+  const blob = await readBlobJSON<any>(`aggregates/pricing/${weight}g.json`, { market, useCache: true });
+  return blob || null;
+}
