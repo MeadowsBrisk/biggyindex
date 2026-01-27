@@ -290,8 +290,8 @@ export default function SellerOverlay() {
                   <div className="text-xs italic text-gray-400">No manifesto.</div>
                 )}
               </div>
-              {img && (
-                <ImageZoomPreview imageUrl={img} imageUrls={[img]} alt={name} openSignal={openPreviewSignal as any} hideTrigger guardKey={sellerId as any} onOpenChange={setZoomOpen} />
+              {rawSellerImage && (
+                <ImageZoomPreview imageUrl={rawSellerImage} imageUrls={[rawSellerImage]} alt={name} openSignal={openPreviewSignal as any} hideTrigger guardKey={sellerId as any} onOpenChange={setZoomOpen} />
               )}
             </div>
 

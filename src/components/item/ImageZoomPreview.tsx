@@ -314,7 +314,6 @@ export default function ImageZoomPreview({ imageUrl, imageUrls, alt = '', openSi
                       controlsRef={controlsRef}
                       currentScaleRef={currentScaleRef}
                       paused={(pausedGif[idx] ?? globalPause) === true}
-                      thumbSrc={src}
                     />
                   </SwiperSlide>
                 ))}
