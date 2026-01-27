@@ -35,17 +35,17 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
   try {
     const ref = typeof ctx.params?.ref === 'string' ? ctx.params.ref : null;
     if (!ref) return { notFound: true };
-    
+
     // Derive market and locale from host or path for proper SEO meta
     const host = ctx.req.headers.host || '';
     const pathname = ctx.resolvedUrl || '/';
     const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
-    
+
     const detail = await fetchItemDetail(ref, market);
     if (!detail) return { notFound: true };
-    
+
     // Load messages for server-side translation (core only - no home messages needed)
     let messages: Record<string, any> = {};
     try {
@@ -55,7 +55,7 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
       const coreMessages = await import('@/messages/en-GB/index.json');
       messages = { ...coreMessages.default };
     }
-    
+
     const seo: ItemSEO = {
       ref: String(detail.refNum || detail.ref || ref),
       name: detail.name || '',
@@ -68,7 +68,9 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
       reviewsCount: detail.reviewsCount || (detail.reviews ? detail.reviews.length : null),
       reviewsRating: detail.reviewsRating || null,
     };
-    return { props: { seo, detail, messages, locale: shortLocale, market } };
+    // Sanitize detail object: JSON round-trip converts undefined to null (Next.js requires serializable props)
+    const sanitizedDetail = JSON.parse(JSON.stringify(detail));
+    return { props: { seo, detail: sanitizedDetail, messages, locale: shortLocale, market } };
   } catch {
     return { notFound: true };
   }
@@ -97,7 +99,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
 
   const effectiveRef = String(seo?.ref || ref || '');
   const canonical = buildItemUrl(effectiveRef, serverLocale);
-  const altLocales = ['en','de','fr','it','pt'];
+  const altLocales = ['en', 'de', 'fr', 'it', 'pt'];
 
   return (
     <>

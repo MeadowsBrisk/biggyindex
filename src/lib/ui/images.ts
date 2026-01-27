@@ -16,9 +16,10 @@ const R2_IMAGE_URL = process.env.NEXT_PUBLIC_R2_IMAGE_URL || '';
 const USE_R2 = !!R2_IMAGE_URL;
 
 // Pattern to identify images that are pre-processed in R2
-// LittleBiggy URL structure: /images/i/ = items, /images/u/ = user avatars, /images/r/ = reviews
-// We crawl items + avatars; reviews are small and use CF proxy fallback
-const R2_IMAGE_PATTERN = /littlebiggy\.net\/images\/[iu]\//i;
+// LittleBiggy URL structure: /images/i/ = items, /images/u/ = user avatars
+// Review images use /images/or/ or /images/r/ - NOT in R2, use CF proxy
+// We only crawl items + avatars; reviews are small and use CF proxy fallback
+const R2_IMAGE_PATTERN = /littlebiggy\.net\/images\/(i|u)\//i;
 
 // Cloudflare edge caching: wrap Cloudinary URLs through CF worker to reduce Cloudinary requests
 // Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to your CF worker domain (e.g., 'https://biggyindex.com')
