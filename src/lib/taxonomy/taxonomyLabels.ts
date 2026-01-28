@@ -2,6 +2,8 @@
 
 // Canonical keys for top-level categories from manifest values
 export function catKeyForManifest(cat: string): string {
+  // Special case: PreRolls -> preRolls (camelCase, not all lowercase)
+  if (cat === 'PreRolls') return 'preRolls';
   return String(cat || '').toLowerCase();
 }
 

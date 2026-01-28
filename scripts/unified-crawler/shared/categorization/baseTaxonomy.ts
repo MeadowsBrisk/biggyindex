@@ -85,12 +85,12 @@ export const TAXONOMY: Taxonomy = {
   PreRolls: {
     keywords: [
       "pre-roll","pre-rolls","pre roll","pre rolls","preroll","prerolls","prerolled","pre-rolled","pre rolled",
-      "joint","joints","blunt","blunts","spliff","spliffs","hand rolled","hand-rolled","cone","cones"
+      "hand rolled joint","hand-rolled joint","hand rolled cone","hand-rolled cone"
     ],
     children: {
-      Infused: ["infused","hash infused","kief","dipped","moonrock"],
-      Singles: ["single","1g","0.5g"],
-      Packs: ["pack","packs","multi","bundle"],
+      Infused: ["infused preroll","infused pre-roll","infused joint","hash infused","kief dipped"],
+      Singles: ["single preroll","1g preroll","1g pre-roll","0.5g preroll"],
+      Packs: ["preroll pack","pre-roll pack","joint pack","multi pack preroll","bundle"],
     }
   },
   Edibles: {

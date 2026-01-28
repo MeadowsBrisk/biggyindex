@@ -3,7 +3,7 @@ import type { CatContext } from '../types';
 // Parity port of 90-precedenceResolution.js
 
 export const PRECEDENCE = [
-  'Flower','Hash','Edibles','Concentrates','Vapes','Tincture','Psychedelics','Other'
+  'Flower','Hash','PreRolls','Edibles','Concentrates','Vapes','Tincture','Psychedelics','Other'
 ];
 
 export function precedenceResolutionRule(ctx: CatContext) {

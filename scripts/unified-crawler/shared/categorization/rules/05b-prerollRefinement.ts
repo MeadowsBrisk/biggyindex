@@ -6,19 +6,35 @@ import type { CatContext } from '../types';
  * Since PreRolls is now a top-level category (not a Flower subcategory),
  * this rule handles disambiguation between PreRolls and Flower:
  * 
+ * - Boosts PreRolls when explicit pre-roll terms appear in NAME (highest priority)
  * - Demotes PreRolls when text describes shake/trim/popcorn with usage phrases
  *   like "perfect for joints" (these are loose flower, not actual pre-rolls)
+ *   UNLESS the name contains explicit pre-roll terms
  * - Boosts PreRolls when explicit pack/count indicators are present
  * - Handles moonrock pre-rolls (hash-infused)
  */
 
 export function prerollRefinementRule(ctx: CatContext) {
-  const { text, scores, subsByCat } = ctx;
+  const { text, name, scores, subsByCat } = ctx;
   
   // Check if PreRolls is even in consideration
-  const hasPrerollScore = scores.PreRolls && scores.PreRolls > 0;
+  let hasPrerollScore = scores.PreRolls && scores.PreRolls > 0;
   const hasFlowerScore = scores.Flower && scores.Flower > 0;
   
+  // Check if NAME contains explicit pre-roll terms (strong signal)
+  // But exclude "preroll quality" which describes shake/trim suitable for making pre-rolls
+  const nameLower = (name || '').toLowerCase();
+  const isPrerollQualityDescriptor = /preroll\s*quality|pre[- ]?roll\s*quality/i.test(nameLower);
+  const nameHasPrerollTerm = !isPrerollQualityDescriptor && /pre[- ]?roll|preroll|joint|cone|blunt|doob/i.test(nameLower);
+  
+  // If name has pre-roll terms but no PreRolls score yet, add it
+  // This handles cases where taxonomy keywords are narrow but the name is explicit
+  if (nameHasPrerollTerm && !hasPrerollScore) {
+    ctx.add('PreRolls', 6);  // Higher initial score for name match
+    hasPrerollScore = true; // Update our local check
+  }
+  
+  // Early exit if no relevant category scores
   if (!hasPrerollScore && !hasFlowerScore) return;
   
   const hasShakeLike = /(shake|trim|dust|popcorn)/.test(text);
@@ -33,7 +49,17 @@ export function prerollRefinementRule(ctx: CatContext) {
   const preRolledTerm = /pre[- ]?rolled/;
   const isPack = packIndicators.test(text) || explicitCountPre.test(text) || preRolledTerm.test(text);
   
+  // If NAME explicitly mentions pre-roll terms, strongly boost PreRolls
+  // This overrides shake/trim context in description
+  if (nameHasPrerollTerm && hasPrerollScore) {
+    ctx.add('PreRolls', 10);  // Strong boost for explicit name match
+    ctx.demote('Flower', 8);   // Strong demotion since name is explicit
+    // Don't demote further even if shake mentioned in description
+    return;
+  }
+  
   // If it's shake/trim described as "good for rolling" - demote PreRolls, boost Flower
+  // Only if name doesn't have explicit pre-roll terms
   const isLooseFlowerContext = (
     (hasShakeLike && !isPack) ||
     (prerollQuality && hasShakeLike) ||
@@ -42,13 +68,14 @@ export function prerollRefinementRule(ctx: CatContext) {
     shakeQuality
   );
   
-  if (isLooseFlowerContext && hasPrerollScore) {
+  if (isLooseFlowerContext && hasPrerollScore && !nameHasPrerollTerm) {
     ctx.demote('PreRolls', 8);
     ctx.add('Flower', 3);
     // Remove any PreRolls subcategories
     if (subsByCat.PreRolls) {
       delete subsByCat.PreRolls;
     }
+    return;
   }
   
   // If explicit pre-roll pack with hash/kief infusion, tag Infused subcategory

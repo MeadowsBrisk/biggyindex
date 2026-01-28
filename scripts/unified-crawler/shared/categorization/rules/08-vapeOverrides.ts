@@ -4,10 +4,16 @@ import type { CatContext } from '../types';
 
 export function vapeOverridesRule(ctx: CatContext) {
   const { text, scores, subsByCat, name } = ctx;
+  
+  // Check if "vape" appears in a "usage" context (what the product can be used for)
+  // e.g., "perfect for blunts, edibles, concentrates, dry vape"
+  const usageContextPattern = /(perfect|great|ideal|good)\s+for\s+[^.]*\bvape/i;
+  const isUsageContext = usageContextPattern.test(text);
+  
   const disclaimerPattern = /(do not (?:smoke|vape)(?: or (?:smoke|vape))?|not for (?:vaping|smoking)(?: or (?:vaping|smoking))?)/g;
   const sanitized = text.replace(disclaimerPattern, ' ');
   const vapeDeliveryRegex = /(\b(vape|vapes|cart|carts|cartridge|cartridges|disposable|disposables|ccell|kera|vision box|510\s*thread|510\b|preheat|voltage|extract vape cart|vape cart|pen|pens|pod|pods|device|battery|batteries|buttonless|hands?-?free|palm pro|pure one)\b)/;
-  if (vapeDeliveryRegex.test(sanitized)) {
+  if (vapeDeliveryRegex.test(sanitized) && !isUsageContext) {
     ctx.add('Vapes', 6);
     const hasCartToken = /(cart|carts|cartridge|cartridges|510)/.test(sanitized);
     const hasResinOrDist = /(live resin|distillate|distilate|delta 9|delta-9|delta9|d9|htfse|liquid\s+diamonds?)/.test(sanitized);

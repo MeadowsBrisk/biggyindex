@@ -191,7 +191,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
 
     if (urlCat) {
       // Convert lowercase URL to proper case (e.g., 'flower' -> 'Flower')
-      const properCaseCat = urlCat.charAt(0).toUpperCase() + urlCat.slice(1).toLowerCase();
+      // Special case for multi-word categories like PreRolls
+      let properCaseCat = urlCat.charAt(0).toUpperCase() + urlCat.slice(1).toLowerCase();
+      if (urlCat.toLowerCase() === 'prerolls') properCaseCat = 'PreRolls';
       if (properCaseCat !== category) {
         // Set pending state to show loader until filtering completes
         setPendingUrlCategory(properCaseCat);

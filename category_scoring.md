@@ -189,16 +189,19 @@ See pipeline.ts list (20 rules). Changing insertion points affects regression ca
 Changing insertion points can indirectly affect dozens of regression cases—add new narrow rules close to their most related existing stage (usually before late precedence adjustments).
 
 ## Category Precedence (Tie Break)
-File: 90-precedenceResolution.js
-Order: [Flower, Hash, Edibles, Concentrates, Vapes, Tincture, Psychedelics, Other]
+File: 90-precedenceResolution.ts
+Order: [Flower, Hash, PreRolls, Edibles, Concentrates, Vapes, Tincture, Psychedelics, Other]
 - Highest numeric score wins. On tie, earlier precedence entry selected.
 - Other requires explicit Other keyword presence; otherwise a null (uncategorized) result is produced if only Other scored.
 
 ## Major Rule Modules (Behavioural Summaries)
 
 prerollRefinementRule (05b-prerollRefinement)
-- Removes false PreRolls subcategory in contexts like shake / trim / dust / Thai Stick when listing not a true preroll.
-- Demotes accidental Hash classification caused by moonrock mentions in preroll listings (keeps Flower + PreRolls).
+- PreRolls is now a TOP-LEVEL CATEGORY (not a Flower subcategory).
+- Boosts PreRolls when NAME contains explicit pre-roll terms (highest priority).
+- Demotes PreRolls to Flower when text describes shake/trim/dust with usage phrases like "perfect for joints" or "preroll quality shake" (these are loose flower, not actual pre-rolls).
+- Excludes "preroll quality" descriptor from triggering PreRolls boost.
+- Tags Infused subcategory for hash/kief-infused pre-rolls.
 
 psychedelicOverridesRule (04-psychedelicOverrides)
 - Consolidates mushroom vs microdose tokens, dedupes overlapping psychedelic triggers, reduces false cross-category boosts.
@@ -249,7 +252,8 @@ precedenceResolutionRule (90-precedenceResolution)
 - Guards Other.
 
 ## Taxonomy Highlights
-- Flower children: include PreRolls detection; PreRolls removal refinements rely on earlier base tagging before refinement demotion.
+- PreRolls: Now a TOP-LEVEL CATEGORY (not Flower subcategory). Has children: Infused, Singles, Packs. Keywords include pre-roll, joint, cone, blunt, doob, spliff.
+- Flower children: Haze, Kush, rs11, Zkittlez, OG, Diesel, Shake, Imported, Landrace, Exotics, Smalls.
 - Hash extended with "simpson kush" (treated like a hash-specific token despite name overlap).
 - Edibles includes spreads & infused oils; generic honey/nutella were previously removed to prevent false positives; now careful explicit canna/cannabis qualifiers plus targeted rule boosts fill the gap.
 - Distillate tokens appear in both Vapes and Concentrates; disambiguation relies on hardware vs ingestion context plus late concentrate vs tincture logic.

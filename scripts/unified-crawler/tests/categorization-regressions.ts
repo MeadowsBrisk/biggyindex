@@ -16,6 +16,9 @@ const cases: CatCase[] = [
   { name: 'Wedding Cake Pre-Roll 1g', description: 'slow burn preroll joint', expectPrimary: 'PreRolls' },
   { name: '5 Pack Premium Pre-Rolls', description: 'Five pre-rolled joints in a sealed pack hand rolled cones', expectPrimary: 'PreRolls' },
   { name: 'Infused Pre-Roll Hash', description: 'hash infused preroll kief dipped cone', expectPrimary: 'PreRolls', expectSub: ['Infused'] },
+  // User-reported pre-roll cases that were misclassified as Flower
+  { name: '*** 1G ORIGINAL RAW® PRE ROLL CONES***', description: 'We are delighted to offer our very own in house RAW® pre filled cones made from various different shake/trim strains. Each cone is tightly packed with 1g raw concentrated fine blend shake which consists of small buds finely grinded', expectPrimary: 'PreRolls' },
+  { name: 'Pre Rolls 1g - Free Delivery', description: 'Budget - 1g pre roll 100% Pure Joint Made from own personal stash - Mystery (could contain: ak47, zoap, guava dawg, ammi, stardawg, biscotti) Choice of: - 3 Satvia () - 3 Hybrid () - 3 Indica () - 1 of each', expectPrimary: 'PreRolls' },
   { name: 'Psilocybin Chocolate Bar 3g', description: 'microdose psychedelic shroom chocolate', expectPrimary: 'Psychedelics' },
   // Legacy parity: battery listings are treated as Vapes (Battery/Cartridge subs may appear)
   { name: 'USB Rechargeable Battery', description: 'charger and battery for vape carts', expectPrimary: 'Vapes' },
