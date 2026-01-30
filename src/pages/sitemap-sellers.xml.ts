@@ -1,16 +1,19 @@
 import type { GetServerSideProps } from 'next';
 import { localeFromHost, hostForLocale } from '@/lib/market/routing';
+import { localeToMarket } from '@/lib/market/market';
+
 export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   const host = req?.headers?.host || 'biggyindex.com';
   const locale = localeFromHost(host);
+  const market = localeToMarket(locale);
   const origin = hostForLocale(locale);
   let sellers: any[] = [];
   try {
     const mod = await import('@/lib/data/indexData');
     if (mod && typeof mod.getSellers === 'function') {
-      sellers = await mod.getSellers();
+      sellers = await mod.getSellers(market);
     }
-  } catch {}
+  } catch { }
 
   const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   // Use consistent 'seller' path across all locales
