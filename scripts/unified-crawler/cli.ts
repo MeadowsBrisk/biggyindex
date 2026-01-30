@@ -128,7 +128,7 @@ const argv = yargs(hideBin(process.argv))
 
 async function main() {
   // Avoid noisy MaxListeners warnings under higher concurrency in local runs
-  try { EventEmitter.defaultMaxListeners = Math.max(50, EventEmitter.defaultMaxListeners || 10); } catch {}
+  try { EventEmitter.defaultMaxListeners = Math.max(50, EventEmitter.defaultMaxListeners || 10); } catch { }
   if (argv.persist) process.env.CRAWLER_PERSIST = argv.persist;
   if (argv.force) process.env.CRAWLER_FORCE = '1';
   if (argv['refresh-share']) process.env.CRAWLER_REFRESH_SHARE = '1';
@@ -159,7 +159,7 @@ async function main() {
         }
       }
       log.index.info(`all markets done`, { totalItems: total, secs: since(t0) });
-      
+
       // Trigger on-demand ISR revalidation only for markets that were indexed
       log.index.info(`triggering ISR revalidation`, { markets: markets.join(',') });
       const tRevalidate = Date.now();
@@ -180,16 +180,16 @@ async function main() {
 
     if (stage === 'items' || stage === 'all') {
       const t0 = Date.now();
-  log.items.info(`build worklist`);
-  const work = await buildItemsWorklist(markets);
-  const forceAll = !!argv.force || /^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_FORCE||''));
-  const explicitLimit = (typeof argv.limit === 'number' && argv.limit > 0) ? argv.limit : undefined;
-      
+      log.items.info(`build worklist`);
+      const work = await buildItemsWorklist(markets);
+      const forceAll = !!argv.force || /^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_FORCE || ''));
+      const explicitLimit = (typeof argv.limit === 'number' && argv.limit > 0) ? argv.limit : undefined;
+
       // Determine staleness threshold for full refresh (default: 80 days from env)
       const fullRefreshDays = Number.parseInt(process.env.CRAWLER_FULL_REFRESH_DAYS || '80', 10);
       const fullRefreshMs = fullRefreshDays * 24 * 60 * 60 * 1000;
       const cutoffTime = Date.now() - fullRefreshMs;
-      
+
       // Plan modes: full for new/stale/changed, reviews-only for the rest (every run) unless --force
       let planned: Array<{ id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; lua?: string }> = [];
       if (forceAll) {
@@ -199,7 +199,7 @@ async function main() {
         // Use shipping-meta aggregate to check lastRefresh (one file load instead of 943!)
         const sharedBlob = getBlobClient(env.stores.shared);
         const shippingMeta = await sharedBlob.getJSON<any>(Keys.shared.aggregates.shippingMeta()).catch(() => ({}));
-        
+
         // Determine mode for each item
         let indexChangedCount = 0;
         let noFullCrawlCount = 0;
@@ -207,9 +207,9 @@ async function main() {
           const marketsFor = Array.from(work.presenceMap.get(id) || []) as MarketCode[];
           const indexLua = work.idLua.get(id);
           const metaEntry = shippingMeta[id];
-          
+
           let mode: 'full' | 'reviews-only' = 'reviews-only';
-          
+
           // Full mode if: new item, never had full crawl, or stale (older than CRAWLER_FULL_REFRESH_DAYS)
           if (!metaEntry || !metaEntry.lastRefresh) {
             mode = 'full'; // New item (never crawled)
@@ -232,7 +232,7 @@ async function main() {
               }
             }
           }
-          
+
           planned.push({ id, markets: marketsFor, mode, lua: indexLua });
         }
         if (indexChangedCount > 0) {
@@ -243,30 +243,30 @@ async function main() {
         }
       }
 
-  // Apply --ids filter if specified
-  if (argv.ids) {
-    const filterIds = String(argv.ids).split(',').map(s => s.trim()).filter(Boolean);
-    planned = planned.filter(item => filterIds.includes(item.id));
-    log.items.info(`filtered by --ids`, { count: planned.length, ids: filterIds.join(', ') });
-  }
+      // Apply --ids filter if specified
+      if (argv.ids) {
+        const filterIds = String(argv.ids).split(',').map(s => s.trim()).filter(Boolean);
+        planned = planned.filter(item => filterIds.includes(item.id));
+        log.items.info(`filtered by --ids`, { count: planned.length, ids: filterIds.join(', ') });
+      }
 
-  // Apply limit only if explicitly provided via CLI; otherwise process all planned
-  let toProcess = typeof explicitLimit === 'number' ? planned.slice(0, explicitLimit) : planned;
+      // Apply limit only if explicitly provided via CLI; otherwise process all planned
+      let toProcess = typeof explicitLimit === 'number' ? planned.slice(0, explicitLimit) : planned;
       const fullCt = toProcess.filter(p => p.mode === 'full').length;
       const revCt = toProcess.length - fullCt;
       const desired = (typeof argv.concurrency === 'number' && argv.concurrency > 0) ? argv.concurrency : (env.maxParallel || 6);
-  const limitNote = explicitLimit ?? 'none';
-  log.items.info(`planning`, { toProcess: toProcess.length, full: fullCt, reviews: revCt, limit: limitNote, concurrency: desired, force: forceAll ? 1 : 0 });
+      const limitNote = explicitLimit ?? 'none';
+      log.items.info(`planning`, { toProcess: toProcess.length, full: fullCt, reviews: revCt, limit: limitNote, concurrency: desired, force: forceAll ? 1 : 0 });
 
-  // Establish a single authenticated client (reuses persisted cookies; falls back to anon if creds missing)
-  const { client: httpClient } = await ensureAuthedClient();
+      // Establish a single authenticated client (reuses persisted cookies; falls back to anon if creds missing)
+      const { client: httpClient } = await ensureAuthedClient();
 
-  // Stable position map for progress like (x/N) even under concurrency
+      // Stable position map for progress like (x/N) even under concurrency
       const total = toProcess.length;
       const positionById = new Map<string, number>();
       toProcess.forEach((e, idx) => positionById.set(e.id, idx + 1));
 
-  const PQueue = (await import('p-queue')).default;
+      const PQueue = (await import('p-queue')).default;
       const q = new PQueue({ concurrency: desired });
       let ok = 0; let fail = 0; let processed = 0; let totalMs = 0;
 
@@ -276,7 +276,7 @@ async function main() {
         const sharedBlob = getBlobClient(env.stores.shared);
         const map = await sharedBlob.getJSON<any>(Keys.shared.aggregates.shares());
         if (map && typeof map === 'object') sharesAgg = map as Record<string, string>;
-      } catch {}
+      } catch { }
       const shareUpdates: Record<string, string> = {};
       const shipUpdatesByMarket: Record<string, Record<string, { min: number; max: number; free: number }>> = {};
       const shippingMetaUpdates: Record<string, { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string }> = {};
@@ -307,8 +307,8 @@ async function main() {
           }
           const pos = positionById.get(entry.id) || processed;
           log.items.time(`(${pos}/${total}) id=${entry.id}`, ms, { mode: entry.mode, ok: res.ok ? 1 : 0 });
-          if (processed % Math.max(10, Math.floor(toProcess.length/10) || 10) === 0) {
-            const avg = processed ? Math.round(totalMs/processed) : 0;
+          if (processed % Math.max(10, Math.floor(toProcess.length / 10) || 10) === 0) {
+            const avg = processed ? Math.round(totalMs / processed) : 0;
             log.items.info(`progress`, { processed: `${processed}/${toProcess.length}`, ok, fail, avgMs: avg });
           }
         } catch (e: any) {
@@ -321,7 +321,7 @@ async function main() {
       for (const entry of toProcess) q.add(() => runOne(entry as any));
       await q.onIdle();
 
-      const avg = processed ? Math.round(totalMs/processed) : 0;
+      const avg = processed ? Math.round(totalMs / processed) : 0;
       log.items.info(`done`, { ok, fail, total: toProcess.length, avgMs: avg, secs: since(t0) });
 
       // Merge-write aggregates (shares + shipping summaries) to live Blobs
@@ -367,7 +367,7 @@ async function main() {
             log.items.info(`aggregates: shipSummary unchanged`, { market: mkt, candidates: Object.keys(updates).length });
           }
         }
-        
+
         // Shipping metadata aggregate (staleness tracking)
         if (Object.keys(shippingMetaUpdates).length > 0) {
           const metaKey = Keys.shared.aggregates.shippingMeta();
@@ -412,25 +412,25 @@ async function main() {
       log.cli.info(`pruning start`, { dryRun, confirmed, retentionDays });
       const res = await runPruning(markets, { dryRun, confirmed, retentionDays });
       const perMarket = res.counts?.perMarket ? Object.entries(res.counts.perMarket).map(([m, c]) => `${m}:shipDel=${c.shipDeleted},aggTrim=${c.shipSummaryTrimmed}`).join(' | ') : 'n/a';
-      log.cli.info(`pruning ${res.dryRun ? 'dry run' : 'done'}`, { 
-        ok: res.ok, 
-        orphanCores: res.counts?.itemsDeleted ?? 0, 
+      log.cli.info(`pruning ${res.dryRun ? 'dry run' : 'done'}`, {
+        ok: res.ok,
+        orphanCores: res.counts?.itemsDeleted ?? 0,
         translationsPruned: res.counts?.translationsPruned ?? 0,
         indexMetaRemoved: res.counts?.indexMetaRemoved ?? 0,
         indexMetaRetained: res.counts?.indexMetaRetained ?? 0,
         indexMetaMigrated: res.counts?.indexMetaMigrated ?? 0,
-        sellersDel: res.counts?.sellersDeleted ?? 0, 
+        sellersDel: res.counts?.sellersDeleted ?? 0,
         perMarket,
         retentionDays,
         dryRun: res.dryRun,
-        secs: since(t0) 
+        secs: since(t0)
       });
     }
 
     // Translation stage (separate from 'all' to avoid consuming budget on routine crawls)
     if (stage === 'translate') {
       const t0 = Date.now();
-      
+
       // Cleanup mode: update aggregate from shipping blobs
       if (argv['cleanup-short-desc']) {
         const res = await runCleanupShortDesc({
@@ -438,7 +438,7 @@ async function main() {
           limit: typeof argv.limit === 'number' ? argv.limit : undefined,
           env,
         });
-        
+
         log.translate.info('cleanup-short-desc complete', {
           scanned: res.scanned,
           updated: res.updated,
@@ -448,12 +448,12 @@ async function main() {
         });
         return;
       }
-      
+
       // Parse locales if provided
-      const locales = argv.locales 
+      const locales = argv.locales
         ? String(argv.locales).split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
         : undefined;
-      
+
       const res = await runTranslate({
         limit: typeof argv.limit === 'number' ? argv.limit : undefined,
         locales,
@@ -465,77 +465,167 @@ async function main() {
         backfillFullDesc: Boolean(argv['backfill-fulldesc']),
         items: argv.items ? String(argv.items).split(',').map(s => s.trim()).filter(Boolean) : undefined,
       });
-      
+
       if (res.budgetExhausted) {
         log.translate.warn(`budget exhausted`, { translated: res.translated, secs: since(t0) });
       } else {
-        log.translate.info(`done`, { 
-          translated: res.translated, 
+        log.translate.info(`done`, {
+          translated: res.translated,
           charCount: res.charCount.toLocaleString(),
           dryRun: res.dryRun ? 'yes' : 'no',
-          secs: since(t0) 
+          secs: since(t0)
         });
       }
     }
 
     // Images stage: optimize images and upload to R2
+    // Smart change detection: only processes NEW or UPDATED items (based on lua)
     if (stage === 'images') {
       const t0 = Date.now();
       const sharedBlob = getBlobClient('site-index-shared');
-      
+
+      // Import image meta helpers
+      const {
+        loadImageMeta,
+        saveImageMeta,
+        getItemsNeedingImageUpdate,
+        updateItemImageMeta,
+        getStaleHashes
+      } = await import('./stages/images/imageMeta');
+      const { hashUrl, deleteImageFolder } = await import('./stages/images/optimizer');
+
       // Clear all existing images if --clear flag is set
       if (argv.clear) {
         log.image.info('clearing existing images (--clear flag)');
         const { deleted, errors } = await clearAllImages();
         log.image.info('clear result', { deleted, errors });
       }
-      
-      // Gather all image URLs from all markets
-      const imageUrls: string[] = [];
+
+      // Load image metadata (tracks which images we've processed per item)
+      const imageMeta = argv.clear ? {} : await loadImageMeta(sharedBlob);
+      log.image.info('loaded image metadata', { itemsTracked: Object.keys(imageMeta).length });
+
+      // Gather all items with their image URLs from all markets
+      // Use minified keys: id->id, lua->lastUpdatedAt, i->imageUrl, is->imageUrls
+      type IndexItem = { id: string; lua?: string; i?: string; imageUrl?: string; is?: string[]; imageUrls?: string[] };
+      const allItems: IndexItem[] = [];
+      const seenIds = new Set<string>();
+
       for (const m of markets) {
         const storeName = marketStore(m, env.stores);
         const blob = getBlobClient(storeName);
-        const items = await blob.getJSON<any[]>(Keys.market.index(m)) || [];
+        const items = await blob.getJSON<IndexItem[]>(Keys.market.index(m)) || [];
         for (const item of items) {
-          // Main image (minified key: i)
-          const mainImg = item.i || item.imageUrl;
-          if (mainImg && typeof mainImg === 'string') {
-            imageUrls.push(mainImg);
-          }
-          // Gallery images (minified key: is)
-          const gallery = item.is || item.imageUrls;
-          if (Array.isArray(gallery)) {
-            for (const img of gallery) {
-              if (img && typeof img === 'string') {
-                imageUrls.push(img);
-              }
+          if (!item.id || seenIds.has(item.id)) continue;
+          seenIds.add(item.id);
+          allItems.push(item);
+        }
+      }
+
+      // Normalize items to consistent format for change detection
+      const normalizedItems = allItems.map(item => ({
+        id: item.id,
+        lua: item.lua,
+        imageUrl: item.i || item.imageUrl,
+        imageUrls: item.is || item.imageUrls || [],
+      }));
+
+      // Determine which items need image processing (new or lua changed)
+      const forceAll = argv.force || argv.clear;
+      let itemsToProcess = forceAll
+        ? normalizedItems.map(item => ({
+          id: item.id,
+          lua: item.lua || '',
+          imageUrls: [item.imageUrl, ...(item.imageUrls || [])].filter(Boolean) as string[],
+          existingHashes: imageMeta[item.id]?.hashes || [],
+        }))
+        : getItemsNeedingImageUpdate(normalizedItems, imageMeta);
+
+      // Count total images across all items
+      const totalImageUrls = normalizedItems.reduce((sum, item) => {
+        return sum + (item.imageUrl ? 1 : 0) + (item.imageUrls?.length || 0);
+      }, 0);
+      const uniqueImageUrls = new Set(normalizedItems.flatMap(item =>
+        [item.imageUrl, ...(item.imageUrls || [])].filter(Boolean)
+      )).size;
+
+      log.image.info('discovered images', {
+        totalItems: allItems.length,
+        total: totalImageUrls,
+        unique: uniqueImageUrls,
+        itemsNeedingUpdate: itemsToProcess.length,
+        force: forceAll,
+      });
+
+      if (itemsToProcess.length === 0) {
+        log.image.info('no items need image updates');
+        log.image.info('complete', { processed: 0, cached: 0, failed: 0, gifs: 0, secs: since(t0) });
+      } else {
+        // Apply --limit if specified (limit number of items, not images)
+        if (typeof argv.limit === 'number' && argv.limit > 0) {
+          itemsToProcess = itemsToProcess.slice(0, argv.limit);
+          log.image.info('limited to items', { count: itemsToProcess.length });
+        }
+
+        // Collect all image URLs and track which item each belongs to
+        const urlToItemId = new Map<string, string>();
+        const imageUrls: string[] = [];
+        for (const item of itemsToProcess) {
+          for (const url of item.imageUrls) {
+            if (!urlToItemId.has(url)) {
+              urlToItemId.set(url, item.id);
+              imageUrls.push(url);
             }
           }
         }
+
+        // Process images
+        const { stats, results } = await processImages(imageUrls, {
+          concurrency: argv.concurrency || 10,
+          force: forceAll,
+          sharedBlob,
+          dryRun: argv['dry-run'],
+        });
+
+        // Delete stale image hashes (images that were replaced or removed from the item)
+        let staleDeleted = 0;
+        if (!argv['dry-run']) {
+          for (const item of itemsToProcess) {
+            const newHashes = item.imageUrls.map(url => hashUrl(url));
+            const staleHashes = getStaleHashes(item.existingHashes, newHashes);
+
+            for (const hash of staleHashes) {
+              const deleted = await deleteImageFolder(hash);
+              if (deleted) staleDeleted++;
+            }
+          }
+          if (staleDeleted > 0) {
+            log.image.info('deleted stale images', { count: staleDeleted });
+          }
+        }
+
+        // Update image metadata for processed items
+        if (!argv['dry-run']) {
+          let updatedMeta = { ...imageMeta };
+          for (const item of itemsToProcess) {
+            const newHashes = item.imageUrls.map(url => hashUrl(url));
+            updatedMeta = updateItemImageMeta(updatedMeta, item.id, item.lua, newHashes);
+          }
+          await saveImageMeta(sharedBlob, updatedMeta);
+          log.image.info('saved image metadata', { itemsTracked: Object.keys(updatedMeta).length });
+        }
+
+        log.image.info('complete', {
+          itemsProcessed: itemsToProcess.length,
+          processed: stats.processed,
+          cached: stats.cached,
+          failed: stats.failed,
+          gifs: stats.gifs,
+          staleDeleted,
+          budgetLimited: stats.budgetLimited,
+          secs: since(t0),
+        });
       }
-      
-      // Deduplicate URLs
-      const uniqueUrls = [...new Set(imageUrls)];
-      log.image.info('discovered images', { total: imageUrls.length, unique: uniqueUrls.length });
-      
-      const { stats } = await processImages(uniqueUrls, {
-        concurrency: argv.concurrency || 10,
-        force: argv.force || argv.clear, // Force re-process if clearing
-        maxImages: typeof argv.limit === 'number' ? argv.limit : undefined,
-        sharedBlob,
-        dryRun: argv['dry-run'],
-      });
-      
-      // No gif-map needed! Frontend detects GIFs by checking if anim.webp exists
-      
-      log.image.info('complete', {
-        processed: stats.processed,
-        cached: stats.cached,
-        failed: stats.failed,
-        gifs: stats.gifs,
-        budgetLimited: stats.budgetLimited,
-        secs: since(t0),
-      });
     }
 
     // Pricing stage: generate price-per-gram aggregates

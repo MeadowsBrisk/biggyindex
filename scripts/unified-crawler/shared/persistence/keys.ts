@@ -16,6 +16,7 @@ export const Keys = {
       translationMeta: () => `aggregates/translation-meta.json`,
       translations: () => `aggregates/translations.json`,
       r2Meta: () => `aggregates/r2-meta.json`,
+      imageMeta: () => `aggregates/image-meta.json`,
       gifMap: () => `aggregates/gif-map`,
     },
     analytics: {
