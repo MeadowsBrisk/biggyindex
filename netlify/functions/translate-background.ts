@@ -53,9 +53,10 @@ export const handler: Handler = async (event) => {
         // Run translation stage
         // Use conservative rate limiting for background function (60s delay)
         // Don't set a limit - process all pending items until budget exhausted or done
-        log("running translation stage");
+        log("running translation stage (type=all)");
         const result = await runTranslate({
             batchDelayMs: 60000, // 60s between batches for rate limiting
+            type: 'all',
         });
 
         const elapsed = since(started);
@@ -79,6 +80,10 @@ export const handler: Handler = async (event) => {
         } catch (e: any) {
             warn(`failed to append run meta: ${e?.message || e}`);
         }
+
+        // Log final summary explicitly for user visibility
+        log(`SUMMARY: translated=${result.translated} chars=${result.charCount.toLocaleString()} errors=${result.errors?.length || 0}`);
+        log(`BUDGET:Exhausted=${result.budgetExhausted} Remaining=${(remaining - result.charCount).toLocaleString()}`);
 
         return {
             statusCode: 200,

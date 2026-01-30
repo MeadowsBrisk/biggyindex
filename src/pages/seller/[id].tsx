@@ -38,12 +38,12 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
   try {
     const sellerId = parseSellerId(ctx.params?.id as string | string[] | undefined);
     if (!sellerId) return { notFound: true };
-    
+
     // Derive market and locale from host or path for proper SEO meta
     const host = ctx.req.headers.host || '';
     const pathname = ctx.resolvedUrl || '/';
     const market = isHostBasedEnv(host) ? getMarketFromHost(host) : getMarketFromPath(pathname);
-    
+
     const detail = await fetchSellerDetail(sellerId);
     if (!detail) return { notFound: true };
 
@@ -68,7 +68,14 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
 
     const serverLocale = getLocaleForMarket(market);
     const shortLocale = serverLocale.split('-')[0];
-    
+
+    // INJECT TRANSLATION IF AVAILABLE
+    // Check if we have a translation for this locale
+    if (detail?.translations?.locales?.[serverLocale]?.manifesto) {
+      detail.originalManifesto = detail.manifesto; // Backup original
+      detail.manifesto = detail.translations.locales[serverLocale].manifesto;
+    }
+
     // Load messages for server-side translation (core only - no home messages needed)
     let messages: Record<string, any> = {};
     try {
@@ -78,7 +85,7 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
       const coreMessages = await import('@/messages/en-GB/index.json');
       messages = { ...coreMessages.default };
     }
-    
+
     const seo: SellerSEO = {
       id: sellerId,
       sellerName: detail.sellerName || null,
@@ -106,11 +113,13 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
   const title = seo?.sellerName ? `${seo.sellerName} – Seller Profile | Biggy Index` : `Seller Profile | Biggy Index`;
   const description = [
     seo?.sellerName || null,
+    // Use part of manifesto for description if available (SEO friendly)
+    detail?.manifesto ? detail.manifesto.slice(0, 150).replace(/\s+/g, ' ').trim() + (detail.manifesto.length > 150 ? '...' : '') : null,
     typeof seo?.itemsCount === 'number' ? `${seo.itemsCount} items` : null,
   ].filter(Boolean).join(' • ');
   const effectiveId = String(seo?.id ?? sellerId ?? '');
   const canonical = buildSellerUrl(effectiveId, serverLocale);
-  const altLocales = ['en','de','fr','it','pt'];
+  const altLocales = ['en', 'de', 'fr', 'it', 'pt'];
 
   return (
     <>

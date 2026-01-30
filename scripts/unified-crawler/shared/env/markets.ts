@@ -1,5 +1,7 @@
 import type { MarketCode } from "./loadEnv";
 
+export const MARKET_CODES: MarketCode[] = ["GB", "DE", "FR", "IT", "PT"];
+
 export const ACCEPT_LANGUAGE: Record<MarketCode, string> = {
   GB: "en-GB,en;q=0.9",
   DE: "de-DE,de;q=0.9",

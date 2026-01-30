@@ -4,10 +4,11 @@ import type { MarketCode } from '../../shared/env/loadEnv';
 import { getBlobClient } from '../../shared/persistence/blobs';
 import { Keys } from '../../shared/persistence/keys';
 import { log } from '../../shared/logging/logger';
-import { marketStore } from '../../shared/env/markets';
+import { marketStore, MARKET_CODES } from '../../shared/env/markets';
 import { computeSourceHash, estimateCharCount, type VariantForHash } from './hash';
 import { translateBatch, azureCodeToLocale, parseTranslatedText, TARGET_LOCALES, type TargetLocale, type TranslationResult } from './azure';
 import { checkBudget, wouldExceedBudget, recordUsage, recordError, formatBudgetStatus, initBudget, MONTHLY_CHAR_BUDGET } from './budget';
+import { runTranslateSellers } from './sellers';
 
 // Map market codes to locale codes for translation
 const MARKET_TO_LOCALE: Record<string, TargetLocale> = {
@@ -66,6 +67,7 @@ export interface TranslateOptions {
   batchDelayMs?: number;
   backfillFullDesc?: boolean;  // Backfill full descriptions to shipping blobs for already-translated items
   items?: string[];  // Specific refNums to force-translate (ignores hash check)
+  type?: 'items' | 'sellers' | 'all';
 }
 
 export interface TranslateResult {
@@ -98,6 +100,47 @@ function truncateDescription(text: string, maxLen: number = SHORT_DESC_LENGTH): 
 
 /**
  * Main translation stage entry point.
+ * Orchestrates translation of items and sellers.
+ */
+export async function runTranslate(opts: TranslateOptions = {}): Promise<TranslateResult> {
+  const type = opts.type || 'all';
+  const results: TranslateResult = {
+    ok: true,
+    translated: 0,
+    charCount: 0,
+    budgetExhausted: false,
+    dryRun: opts.dryRun,
+    errors: []
+  };
+
+  // Run items if requested
+  if (type === 'all' || type === 'items') {
+    const itemRes = await runTranslateItems(opts);
+    results.translated += itemRes.translated;
+    results.charCount += itemRes.charCount;
+    if (itemRes.budgetExhausted) results.budgetExhausted = true;
+    if (itemRes.errors) results.errors?.push(...itemRes.errors);
+    if (!itemRes.ok) results.ok = false;
+
+    // Stop if budget exhausted or critical error
+    if (results.budgetExhausted) return results;
+  }
+
+  // Run sellers if requested
+  if (type === 'all' || type === 'sellers') {
+    const sellerRes = await runTranslateSellers(opts);
+    results.translated += sellerRes.translated;
+    results.charCount += sellerRes.charCount;
+    if (sellerRes.budgetExhausted) results.budgetExhausted = true;
+    if (sellerRes.errors) results.errors?.push(...sellerRes.errors);
+    if (!sellerRes.ok) results.ok = false;
+  }
+
+  return results;
+}
+
+/**
+ * Item translation logic (original runTranslate)
  * 
  * Uses aggregate-based approach:
  * 1. Load existing translation aggregate (fast, single blob read)
@@ -106,7 +149,7 @@ function truncateDescription(text: string, maxLen: number = SHORT_DESC_LENGTH): 
  * 4. Translate in batches
  * 5. Update both per-item blobs AND aggregate
  */
-export async function runTranslate(opts: TranslateOptions = {}): Promise<TranslateResult> {
+async function runTranslateItems(opts: TranslateOptions = {}): Promise<TranslateResult> {
   const env = loadEnv();
   const sharedBlob = getBlobClient(env.stores.shared);
   const targetLocales = (opts.locales?.length ? opts.locales : [...TARGET_LOCALES]) as TargetLocale[];
@@ -163,7 +206,7 @@ export async function runTranslate(opts: TranslateOptions = {}): Promise<Transla
 
   // 2. Load ALL market indexes to build presence map
   // Only translate items that exist in non-GB markets, and only to locales where they're available
-  const markets: MarketCode[] = ['GB', 'DE', 'FR', 'IT', 'PT'];
+  const markets: MarketCode[] = MARKET_CODES;
   const marketIndexes = new Map<MarketCode, Map<string, any>>();
   const presenceMap = new Map<string, Set<TargetLocale>>(); // refNum -> set of locales needing translation
 

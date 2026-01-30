@@ -98,6 +98,12 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     describe: 'Update aggregate short descriptions from shipping blob full translations (max 260 chars)'
   })
+  .option('type', {
+    type: 'string',
+    choices: ['items', 'sellers', 'all'],
+    default: 'all',
+    describe: 'Which entities to translate (requires --stage=translate)'
+  })
   .option('confirmed', {
     type: 'boolean',
     default: false,
@@ -464,6 +470,7 @@ async function main() {
         batchDelayMs: (argv.delay as number) * 1000,
         backfillFullDesc: Boolean(argv['backfill-fulldesc']),
         items: argv.items ? String(argv.items).split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        type: argv.type as 'items' | 'sellers' | 'all',
       });
 
       if (res.budgetExhausted) {
