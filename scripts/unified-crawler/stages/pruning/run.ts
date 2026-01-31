@@ -5,19 +5,24 @@ import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
 import { pruneIndexMeta, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
 import { log } from "../../shared/logging/logger";
+import { createR2Client, getR2Config } from "../images/optimizer";
+import { ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import { loadImageMeta } from "../images/imageMeta";
 
 export interface PruningRunResult {
   ok: boolean;
   markets: MarketCode[];
   dryRun?: boolean;
-  counts?: { 
-    itemsDeleted?: number; 
-    sellersDeleted?: number; 
+  counts?: {
+    itemsDeleted?: number;
+    sellersDeleted?: number;
     translationsPruned?: number;
     indexMetaRemoved?: number;
     indexMetaRetained?: number;
     indexMetaMigrated?: number;
     perMarket?: Record<string, { shipDeleted: number; shipSummaryTrimmed: number }>;
+    imagesPruned?: number;
+    imagesErrors?: number;
   };
   note?: string;
 }
@@ -52,22 +57,22 @@ const DEFAULT_RETENTION_DAYS = 365;
  */
 export async function runPruning(markets?: MarketCode[], opts: PruningOptions = {}): Promise<PruningRunResult> {
   const retentionDays = opts.retentionDays ?? DEFAULT_RETENTION_DAYS;
-  
+
   // Safety: force dry-run unless explicitly confirmed
   const dryRun = !opts.confirmed || opts.dryRun === true;
-  
+
   if (!opts.confirmed && !opts.dryRun) {
     log.cli.warn(`pruning: safety mode - running as dry-run. Use --confirmed to actually delete data.`);
   }
-  
+
   try {
     const env = loadEnv();
     const mkts = (markets && markets.length ? markets : env.markets) as MarketCode[];
-    log.cli.info(`pruning start`, { 
-      markets: mkts.join(','), 
-      dryRun, 
+    log.cli.info(`pruning start`, {
+      markets: mkts.join(','),
+      dryRun,
       retentionDays,
-      confirmed: opts.confirmed ?? false 
+      confirmed: opts.confirmed ?? false
     });
     const sharedBlob = getBlobClient(env.stores.shared);
     const now = new Date();
@@ -122,16 +127,16 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
       indexMetaRemoved = result.removed;
       indexMetaRetained = result.retained;
       indexMetaMigrated = result.migrated;
-      
+
       if (!dryRun && (result.removed > 0 || result.migrated > 0)) {
         await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
       }
-      log.cli.info(`pruning: indexMeta ${dryRun ? 'scan' : 'update'}`, { 
-        removed: indexMetaRemoved, 
-        retained: indexMetaRetained, 
+      log.cli.info(`pruning: indexMeta ${dryRun ? 'scan' : 'update'}`, {
+        removed: indexMetaRemoved,
+        retained: indexMetaRetained,
         migrated: indexMetaMigrated,
         cutoffDate,
-        dryRun 
+        dryRun
       });
     } catch (e: any) {
       log.cli.warn(`pruning: failed to prune index-meta aggregate`, { reason: e?.message || String(e) });
@@ -181,7 +186,7 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
           // Only prune if NOT active AND past retention period
           if (!active.has(id) && isPastRetention(id)) {
             if (!dryRun) {
-              try { await blob.del(key); } catch {}
+              try { await blob.del(key); } catch { }
             }
             shipDeleted++;
           }
@@ -196,9 +201,9 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
         const existing = (await blob.getJSON<Record<string, { min: number; max: number; free: number }>>(aggKey)) || {};
         const toDelete: string[] = [];
         for (const id of Object.keys(existing)) {
-          if (!active.has(id) && isPastRetention(id)) { 
-            toDelete.push(id); 
-            shipSummaryTrimmed++; 
+          if (!active.has(id) && isPastRetention(id)) {
+            toDelete.push(id);
+            shipSummaryTrimmed++;
           }
         }
         if (toDelete.length > 0 && !dryRun) {
@@ -212,11 +217,11 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
       }
 
       perMarketCounts[mkt] = { shipDeleted, shipSummaryTrimmed };
-      log.cli.info(`pruning: market ${dryRun ? 'scan' : 'complete'}`, { 
-        market: mkt, 
-        shipDeleted, 
-        shipSummaryTrimmed, 
-        dryRun 
+      log.cli.info(`pruning: market ${dryRun ? 'scan' : 'complete'}`, {
+        market: mkt,
+        shipDeleted,
+        shipSummaryTrimmed,
+        dryRun
       });
     }
 
@@ -231,7 +236,7 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
         // Only prune if NOT in any market AND past retention period
         if (!unionActive.has(id) && isPastRetention(id)) {
           if (!dryRun) {
-            try { await sharedBlob.del(key); } catch {}
+            try { await sharedBlob.del(key); } catch { }
           }
           orphanCores++;
         }
@@ -240,40 +245,150 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
       log.cli.warn(`pruning: shared list cores failed`, { reason: e?.message || String(e) });
     }
 
+    // 4) Images: prune orphaned image folders in R2
+    // Strategy:
+    // A. First, ensure pruned items are removed from image-meta.json (so their hashes become orphans)
+    // B. Then scan R2. Any hash NOT in image-meta.json is trash (replaced or expired).
+
+    let imagesPruned = 0;
+    let imagesErrors = 0;
+
+    try {
+      const imageMeta = await loadImageMeta(sharedBlob);
+      let imageMetaChanged = false;
+
+      // A. Remove pruned items from image-meta
+      // We know 'unionActive' has all currently listed items
+      // We check retention for items NOT in unionActive
+      const imageMetaKeys = Object.keys(imageMeta);
+      for (const id of imageMetaKeys) {
+        // If item is not active AND is past retention -> Remove from image-meta
+        if (!unionActive.has(id) && isPastRetention(id)) {
+          delete imageMeta[id];
+          imageMetaChanged = true;
+        }
+      }
+
+      if (imageMetaChanged && !dryRun) {
+        await sharedBlob.putJSON(Keys.shared.aggregates.imageMeta(), imageMeta);
+        log.cli.info('pruning: updated image-meta (removed expired items)');
+      }
+
+      // B. Scan R2 for orphans
+      // An orphan is any R2 folder hash that is NOT in the Values of image-meta
+      const config = getR2Config();
+      if (config.accountId) {
+        log.cli.info('pruning: starting image scan...');
+
+        // Collect all valid hashes
+        const validHashes = new Set<string>();
+        for (const entry of Object.values(imageMeta)) {
+          if (Array.isArray(entry.hashes)) {
+            entry.hashes.forEach(h => validHashes.add(h));
+          }
+        }
+
+        const r2Client = createR2Client();
+        let continuationToken: string | undefined;
+        const potentialOrphans = new Set<string>();
+
+        // Scan R2 folders (prefixes)
+        do {
+          const listResponse: any = await r2Client.send(new ListObjectsV2Command({
+            Bucket: config.bucketName,
+            ContinuationToken: continuationToken,
+            MaxKeys: 1000,
+          }));
+
+          const objects = listResponse.Contents || [];
+          for (const obj of objects) {
+            if (!obj.Key) continue;
+            // Key format: {hash}/filename
+            const match = obj.Key.match(/^([a-f0-9]{8})\//);
+            if (match) {
+              const hash = match[1];
+              if (!validHashes.has(hash)) {
+                potentialOrphans.add(hash);
+              }
+            }
+          }
+          continuationToken = listResponse.NextContinuationToken;
+        } while (continuationToken);
+
+        const toDeleteHashes = Array.from(potentialOrphans);
+        log.cli.info(`pruning: found ${toDeleteHashes.length} orphaned image folders (safe to delete)`);
+
+        if (!dryRun && toDeleteHashes.length > 0) {
+          const BATCH_SIZE = 10;
+          const chunks = [];
+          for (let i = 0; i < toDeleteHashes.length; i += BATCH_SIZE) {
+            chunks.push(toDeleteHashes.slice(i, i + BATCH_SIZE));
+          }
+
+          for (const chunk of chunks) {
+            await Promise.all(chunk.map(async (hash) => {
+              try {
+                const listRes: any = await r2Client.send(new ListObjectsV2Command({
+                  Bucket: config.bucketName,
+                  Prefix: `${hash}/`
+                }));
+                if (listRes.Contents && listRes.Contents.length > 0) {
+                  const keys = listRes.Contents.map((o: any) => ({ Key: o.Key }));
+                  await r2Client.send(new DeleteObjectsCommand({
+                    Bucket: config.bucketName,
+                    Delete: { Objects: keys }
+                  }));
+                  imagesPruned++;
+                }
+              } catch (e) {
+                imagesErrors++;
+              }
+            }));
+          }
+        } else if (dryRun) {
+          imagesPruned = toDeleteHashes.length;
+        }
+      }
+    } catch (e: any) {
+      log.cli.error('pruning: image cleanup failed', { reason: e?.message || String(e) });
+    }
+
     // Sellers: keep for now (never deleted - valuable for analytics)
     const sellersDeleted = 0;
 
-    log.cli.info(`pruning ${dryRun ? 'dry run complete' : 'complete'}`, { 
-      orphanCores, 
-      translationsPruned, 
+    log.cli.info(`pruning ${dryRun ? 'dry run complete' : 'complete'}`, {
+      orphanCores,
+      translationsPruned,
       indexMetaRemoved,
       indexMetaRetained,
       retentionDays,
       cutoffDate,
-      dryRun 
+      dryRun
     });
-    
-    return { 
-      ok: true, 
-      markets: mkts, 
-      dryRun, 
-      counts: { 
-        itemsDeleted: orphanCores, 
-        sellersDeleted, 
+
+    return {
+      ok: true,
+      markets: mkts,
+      dryRun,
+      counts: {
+        itemsDeleted: orphanCores,
+        sellersDeleted,
         translationsPruned,
         indexMetaRemoved,
         indexMetaRetained,
         indexMetaMigrated,
-        perMarket: perMarketCounts 
-      } 
+        perMarket: perMarketCounts,
+        imagesPruned,
+        imagesErrors
+      }
     };
   } catch (e: any) {
     log.cli.error(`pruning error`, { reason: e?.message || String(e) });
-    return { 
-      ok: false, 
-      markets: (loadEnv().markets as MarketCode[]), 
-      counts: { itemsDeleted: 0, sellersDeleted: 0, translationsPruned: 0 }, 
-      note: e?.message || String(e) 
+    return {
+      ok: false,
+      markets: (loadEnv().markets as MarketCode[]),
+      counts: { itemsDeleted: 0, sellersDeleted: 0, translationsPruned: 0 },
+      note: e?.message || String(e)
     } as any;
   }
 }

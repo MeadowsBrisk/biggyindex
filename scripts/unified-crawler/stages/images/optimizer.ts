@@ -21,10 +21,10 @@ import sharp from 'sharp';
 import { S3Client, PutObjectCommand, HeadObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import type { BlobClient } from '../../shared/persistence/blobs';
 import { log } from '../../shared/logging/logger';
-import { 
-  checkBudget, 
-  wouldExceedBudget, 
-  recordUsage, 
+import {
+  checkBudget,
+  wouldExceedBudget,
+  recordUsage,
   recordError,
   formatBudgetStatus,
   getRemainingCapacity,
@@ -34,7 +34,7 @@ import {
 // Configuration
 // ============================================================================
 
-const getR2Config = () => ({
+export const getR2Config = () => ({
   accountId: process.env.R2_ACCOUNT_ID || '',
   accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
   secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
@@ -59,7 +59,7 @@ const isGifUrl = (url: string) => GIF_REGEX.test(url);
 // R2 Client
 // ============================================================================
 
-function createR2Client(): S3Client {
+export function createR2Client(): S3Client {
   const config = getR2Config();
   return new S3Client({
     region: 'auto',
@@ -131,13 +131,13 @@ async function downloadImage(url: string, timeoutMs = 30000): Promise<Buffer | n
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
-    
+
     const response = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BiggyIndex/1.0)' },
       signal: controller.signal,
     });
     clearTimeout(timeout);
-    
+
     if (!response.ok) return null;
     return Buffer.from(await response.arrayBuffer());
   } catch (err) {
@@ -221,7 +221,7 @@ async function processGif(
   // Check cache (use thumb as proxy, same as static)
   const thumbKey = `${hash}/thumb.avif`;
   const animKey = `${hash}/anim.webp`;
-  
+
   if (!force && await objectExists(r2Client, thumbKey)) {
     // Already processed
     return { totalSize: 0 };
@@ -280,7 +280,7 @@ export async function processImage(
 ): Promise<ProcessImageResult> {
   const hash = hashUrl(sourceUrl);
   const isGif = isGifUrl(sourceUrl);
-  
+
   const result: ProcessImageResult = {
     sourceUrl,
     hash,
@@ -354,18 +354,18 @@ export interface ProcessImagesStats {
 export async function processImages(
   urls: string[],
   options: ProcessImagesOptions = {}
-): Promise<{ 
-  results: Map<string, ProcessImageResult>; 
+): Promise<{
+  results: Map<string, ProcessImageResult>;
   stats: ProcessImagesStats;
 }> {
-  const { 
-    concurrency = CONCURRENT_DOWNLOADS, 
-    force = false, 
+  const {
+    concurrency = CONCURRENT_DOWNLOADS,
+    force = false,
     maxImages,
     sharedBlob,
     dryRun = false,
   } = options;
-  
+
   const results = new Map<string, ProcessImageResult>();
   const stats: ProcessImagesStats = {
     total: urls.length,
@@ -390,16 +390,16 @@ export async function processImages(
   if (sharedBlob) {
     const { allowed, budget } = await checkBudget(sharedBlob);
     log.image.info('R2 budget status', { status: formatBudgetStatus(budget) });
-    
+
     if (!allowed) {
       log.image.warn('monthly R2 budget exhausted, skipping image optimization');
       stats.budgetLimited = true;
       return { results, stats };
     }
 
-    const { allowed: batchAllowed, remainingWrites } = 
+    const { allowed: batchAllowed, remainingWrites } =
       await wouldExceedBudget(sharedBlob, urls.length * 2); // 2 files per image avg
-    
+
     if (!batchAllowed) {
       const { imagesRemaining } = await getRemainingCapacity(sharedBlob);
       log.image.warn('limiting batch to fit budget', {
@@ -420,7 +420,7 @@ export async function processImages(
 
   if (dryRun) {
     const gifCount = imagesToProcess.filter(isGifUrl).length;
-    log.image.info('dry run complete', { 
+    log.image.info('dry run complete', {
       wouldProcess: imagesToProcess.length,
       gifs: gifCount,
       static: imagesToProcess.length - gifCount,
@@ -434,7 +434,7 @@ export async function processImages(
   }
 
   const gifCount = imagesToProcess.filter(isGifUrl).length;
-  log.image.info('starting optimization', { 
+  log.image.info('starting optimization', {
     total: imagesToProcess.length,
     gifs: gifCount,
     static: imagesToProcess.length - gifCount,
@@ -443,17 +443,17 @@ export async function processImages(
   });
 
   const r2Client = createR2Client();
-  
+
   // Process in batches
   for (let i = 0; i < imagesToProcess.length; i += concurrency) {
     const batch = imagesToProcess.slice(i, i + concurrency);
     const batchResults = await Promise.all(
       batch.map(url => processImage(r2Client, url, { force }))
     );
-    
+
     for (const result of batchResults) {
       results.set(result.sourceUrl, result);
-      
+
       if (result.cached) {
         stats.cached++;
       } else if (result.error) {
@@ -465,12 +465,12 @@ export async function processImages(
         stats.processed++;
         stats.totalSizeBytes += result.totalSizeBytes;
       }
-      
+
       if (result.isGif) {
         stats.gifs++;
       }
     }
-    
+
     // Progress log
     const current = Math.min(i + concurrency, imagesToProcess.length);
     if (current % 50 === 0 || current >= imagesToProcess.length) {
@@ -604,7 +604,7 @@ export async function deleteImageFolder(hash: string): Promise<boolean> {
   }
 
   const r2Client = createR2Client();
-  
+
   // List all objects in the hash folder
   try {
     const listResponse = await r2Client.send(new ListObjectsV2Command({
@@ -652,7 +652,7 @@ if (require.main === module) {
     console.log('  R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL');
     process.exit(1);
   }
-  
+
   const r2Client = createR2Client();
   processImage(r2Client, testUrl, { force: true })
     .then(result => {
