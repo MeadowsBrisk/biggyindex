@@ -6,6 +6,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const locale = localeFromHost(host);
   const origin = hostForLocale(locale);
   const lines = [
+    'User-agent: BabbarBot',
+    'Disallow: /',
+    'User-agent: Barkrowler',
+    'Disallow: /',
+    '',
     'User-agent: *',
     'Allow: /',
     '',
