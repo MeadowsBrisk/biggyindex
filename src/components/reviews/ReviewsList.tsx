@@ -44,7 +44,7 @@ function linkify(text: string): React.ReactNode[] {
   while ((m = urlRegex.exec(text)) !== null) {
     if (m.index > last) parts.push(text.slice(last, m.index));
     const url = m[1]; const trailing = m[2] || '';
-    parts.push(<a key={parts.length+url} href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400">{url}</a>);
+    parts.push(<a key={parts.length + url} href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400">{url}</a>);
     if (trailing) parts.push(trailing);
     last = m.index + m[0].length;
   }
@@ -56,9 +56,9 @@ function renderParagraphs(text: string): React.ReactNode {
   // Split on two-or-more newlines to form paragraphs
   const rawParas = text.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 0);
   if (!rawParas.length) return null;
-  return rawParas.map((p,i) => {
+  return rawParas.map((p, i) => {
     // Within paragraph, keep single newlines as spaces to avoid awkward line breaks from original editor
-    const inline = p.replace(/\n+/g,' ').replace(/\s{2,}/g,' ');
+    const inline = p.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ');
     return <p key={i} className="mb-2 text-[13px] leading-snug">{linkify(inline)}</p>;
   });
 }
@@ -73,7 +73,7 @@ export type ReviewsListProps = {
   renderItemLink?: (r: Review) => React.ReactNode;
 };
 
-export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_LIMIT, onImageClick, renderItemLink }: ReviewsListProps) {
+export default function ReviewsList({ reviews, fullTimeAgo, max = REVIEWS_DISPLAY_LIMIT, onImageClick, renderItemLink }: ReviewsListProps) {
   const t = useTranslations('Reviews');
   const fmt = useFormatter();
   if (!Array.isArray(reviews) || !reviews.length) return null;
@@ -94,11 +94,11 @@ export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_
         const hasText = text.trim().length > 0;
         return (
           <li key={(r.id as any) || r.created as any}
-              className={
-                'relative rounded-md border backdrop-blur-sm transition-colors transition-opacity duration-200 group-hover:opacity-90 hover:opacity-100 ' +
-                (hasText ? panelClass + ' p-3 shadow-sm hover:shadow' : 'border-dashed ' + panelClass + ' px-2 py-1 text-xs font-medium')
-              }>
-            <div className={"flex items-start justify-between gap-3 " + (hasText ? 'mb-1' : 'mb-0 items-center') }>
+            className={
+              'relative rounded-md border backdrop-blur-sm transition-colors transition-opacity duration-200 group-hover:opacity-90 hover:opacity-100 ' +
+              (hasText ? panelClass + ' p-3 shadow-sm hover:shadow' : 'border-dashed ' + panelClass + ' px-2 py-1 text-xs font-medium')
+            }>
+            <div className={"flex items-start justify-between gap-3 " + (hasText ? 'mb-1' : 'mb-0 items-center')}>
               <div className={"flex gap-2 min-w-0 items-center"}>
                 <span className="font-bold text-lg leading-none tabular-nums">{displayScore}</span>
                 {arrival && (
@@ -120,8 +120,8 @@ export default function ReviewsList({ reviews, fullTimeAgo, max=REVIEWS_DISPLAY_
             {images.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {images.map((src, idx) => (
-                  <button key={idx+src} type="button" onClick={() => onImageClick && onImageClick(src, images, idx)}
-                          className="group/img relative w-20 h-20 rounded-md overflow-hidden border border-gray-300/60 dark:border-gray-700/70 bg-gray-100 dark:bg-gray-800 hover:ring-2 hover:ring-blue-400/60 focus:outline-none focus-visible:ring-2 ring-blue-500">
+                  <button key={idx + src} type="button" onClick={() => onImageClick && onImageClick(src, images, idx)}
+                    className="group/img relative w-20 h-20 rounded-md overflow-hidden border border-gray-300/60 dark:border-gray-700/70 bg-gray-100 dark:bg-gray-800 hover:ring-2 hover:ring-blue-400/60 focus:outline-none focus-visible:ring-2 ring-blue-500">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={proxyImage(src, 160)} alt={t('reviewImageAlt')} className="object-cover w-full h-full transition-transform duration-300 group-hover/img:scale-110" loading="lazy" decoding="async" />
                   </button>

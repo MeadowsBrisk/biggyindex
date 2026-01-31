@@ -88,9 +88,9 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     logger.info(`[index:${code}] FAST mode enabled: skipping warm/seed.`);
   } else {
     // Warm once against the primary host (non-API) to establish baseline cookies
-    try { await warmCookieJar(client, primaryUrl); } catch {}
+    try { await warmCookieJar(client, primaryUrl); } catch { }
     // Seed location filter cookie to match the target market to avoid extra LF POSTs
-    try { await seedLocationFilterCookie(client, code); } catch {}
+    try { await seedLocationFilterCookie(client, code); } catch { }
   }
 
   const tryFetch = async (url: string) => {
@@ -104,11 +104,11 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     try {
       const srs = (message as any)?.sellerReviewSummaries || (message as any)?.seller_review_summaries || (message as any)?.sellerReviews || null;
       if (srs && typeof srs === 'object') sellerReviewSummaries = srs as Record<string, any>;
-    } catch {}
+    } catch { }
     try {
       const irs = (message as any)?.itemReviewSummaries || (message as any)?.item_review_summaries || null;
       if (irs && typeof irs === 'object') itemReviewSummaries = irs as Record<string, any>;
-    } catch {}
+    } catch { }
     if (Array.isArray(items)) {
       itemsCount = items.length;
       rawItems = items;
@@ -123,7 +123,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     const ok = await tryFetch(primaryUrl);
     if (!ok && fallbackUrl) {
       // Warm fallback host only if needed
-      try { await warmCookieJar(client, fallbackUrl); } catch {}
+      try { await warmCookieJar(client, fallbackUrl); } catch { }
       await tryFetch(fallbackUrl);
     }
   } catch (e: any) {
@@ -133,7 +133,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   // Build snapshot meta but do not overwrite previous non-empty meta if this run produced zero items (resilience on upstream outage)
   const snapshotMetaKey = Keys.market.snapshotMeta();
   let priorSnapshotMeta: any = null;
-  try { priorSnapshotMeta = await blob.getJSON<any>(snapshotMetaKey); } catch {}
+  try { priorSnapshotMeta = await blob.getJSON<any>(snapshotMetaKey); } catch { }
   const newSnapshotMeta = {
     updatedAt: new Date().toISOString(),
     itemsCount,
@@ -149,49 +149,64 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     logger.warn(`[index:${code}] Upstream fetch empty; preserved previous snapshot_meta.json (itemsCount=${priorSnapshotMeta.itemsCount}).`);
   }
 
-  
+
   // Kick off aggregate loads in parallel: shares, indexMeta, shipSummary, category overrides, translations, and previous index
   const sharedBlob = getBlobClient(env.stores.shared);
   const sharesP = sharedBlob.getJSON<any>(Keys.shared.aggregates.shares()).catch(() => null);
   const indexMetaP = sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta()).catch(() => null);
   const shipAggP = blob.getJSON<any>(Keys.market.aggregates.shipSummary()).catch(() => null);
-  
+
   // Category overrides: Map<itemId, { primary, subcategories }>
   // Can be disabled via DISABLE_CATEGORY_OVERRIDES=1 env var
   const overridesEnabled = process.env.DISABLE_CATEGORY_OVERRIDES !== '1' && process.env.DISABLE_CATEGORY_OVERRIDES !== 'true';
   const overridesP = overridesEnabled ? sharedBlob.getJSON<any>('category-overrides.json').catch(() => null) : Promise.resolve(null);
-  
+
   // Translations: only load for non-GB markets
   // Format: { [refNum]: { sourceHash, locales: { de-DE: { n, d, v? }, fr-FR: { n, d, v? }, ... } } }
   // v = variant translations: [{ vid, d }]
   const needsTranslation = code !== 'GB';
-  const translationsP = needsTranslation 
+  const translationsP = needsTranslation
     ? sharedBlob.getJSON<Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }>>(Keys.shared.aggregates.translations()).catch(() => null)
     : Promise.resolve(null);
-  
+
+  // Img optimization: check aggregates/image-meta.json to flag items with optimized images
+  const imageMetaP = sharedBlob.getJSON<any>(Keys.shared.aggregates.imageMeta()).catch(() => null);
+
   // Map market code to FULL locale code for translation lookup (aggregate uses de-DE, fr-FR, etc.)
   const MARKET_TO_LOCALE: Record<string, string> = { 'DE': 'de-DE', 'FR': 'fr-FR', 'PT': 'pt-PT', 'IT': 'it-IT' };
   const targetLocale = MARKET_TO_LOCALE[code] || null;
-  
+
   let sharesAgg: Record<string, string> = {};
   let shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }> = {};
   let indexMetaAgg: Record<string, IndexMetaEntry> = {};
+  let imageMetaAgg: Record<string, { hashes: string[] }> = {};
   let translationsAgg: Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }> = {};
   const categoryOverrides = new Map<string, { primary: string; subcategories: string[] }>();
-  
+
+  // FNV-1a hash function (must match image-optimizer.ts and frontend)
+  function hashUrl(url: string): string {
+    let hash = 2166136261;
+    for (let i = 0; i < url.length; i++) {
+      hash ^= url.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  }
+
   try {
-    const [sRes, imRes, ssRes, oRes, tRes, previousIndex] = await Promise.all([sharesP, indexMetaP, shipAggP, overridesP, translationsP, prevIndexP]);
+    const [sRes, imRes, ssRes, oRes, tRes, previousIndex, imgRes] = await Promise.all([sharesP, indexMetaP, shipAggP, overridesP, translationsP, prevIndexP, imageMetaP]);
     if (sRes && typeof sRes === 'object') sharesAgg = sRes as any;
     if (imRes && typeof imRes === 'object') indexMetaAgg = imRes as any;
+    if (imgRes && typeof imgRes === 'object') imageMetaAgg = imgRes as any;
     if (ssRes && typeof ssRes === 'object') shipAgg = ssRes as any;
     if (tRes && typeof tRes === 'object') translationsAgg = tRes as any;
-    
+
     // Log translation aggregate load for non-GB markets
     if (needsTranslation) {
       const translationCount = Object.keys(translationsAgg).length;
       logger.info(`[index:${code}] Loaded ${translationCount} translations for locale '${targetLocale}'.`);
     }
-    
+
     // Load category overrides (if enabled)
     if (overridesEnabled && oRes && typeof oRes === 'object' && Array.isArray(oRes.overrides)) {
       for (const override of oRes.overrides) {
@@ -216,7 +231,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
         if (pidNum) prevByNum.set(pidNum, e);
       }
     }
-  } catch {}
+  } catch { }
   const coldStart = prevByRef.size === 0 && prevByNum.size === 0;
 
   // Write a lightweight market index with minified fields and normalized variants (USD/BTC) and aggregate enrichments
@@ -226,18 +241,19 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
 
   let appliedMeta = 0;
   let appliedTranslations = 0;
+  let appliedImageMeta = 0;
   const metaUpdates: Record<string, IndexMetaEntry> = {};
 
   const marketIndexItems = (Array.isArray(rawItems) ? rawItems : []).map((it: any) => {
-  // Canonical ID: use refNum everywhere now
-  const ref = it?.refNum ?? it?.refnum ?? it?.ref;
-  const numId = it?.id;
-  const refKey = ref != null ? String(ref) : null;
-  const numKey = numId != null ? String(numId) : null;
-  const canonicalKey = refKey ?? numKey;
-  if (!canonicalKey) return null;
-  const numericValue = typeof numId === 'number' ? numId : (numKey && /^\d+$/.test(numKey) ? Number(numKey) : null);
-  const entryId = (numericValue != null ? numericValue : (numKey ?? canonicalKey));
+    // Canonical ID: use refNum everywhere now
+    const ref = it?.refNum ?? it?.refnum ?? it?.ref;
+    const numId = it?.id;
+    const refKey = ref != null ? String(ref) : null;
+    const numKey = numId != null ? String(numId) : null;
+    const canonicalKey = refKey ?? numKey;
+    if (!canonicalKey) return null;
+    const numericValue = typeof numId === 'number' ? numId : (numKey && /^\d+$/.test(numKey) ? Number(numKey) : null);
+    const entryId = (numericValue != null ? numericValue : (numKey ?? canonicalKey));
     const name = it?.name;
     const description = it?.description || "";
     // Exclusions: tip jars, custom orders/listings (legacy-compatible heuristics)
@@ -245,7 +261,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       if (isTipListing(name, description) || isCustomListing(name, description)) {
         return null; // skip excluded listings
       }
-    } catch {}
+    } catch { }
     const images: string[] = Array.isArray(it?.images) ? it.images : [];
     const primaryImg = images[0] || undefined;
     const imgSmall = images.length ? images.slice(0, 3) : undefined;
@@ -273,18 +289,31 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     const sid = it?.seller?.id ?? it?.sellerId;
     const sn = it?.seller?.name;
     const h = it?.hotness;
-  const sf = it?.shipsFrom ?? it?.ships_from;
+    const sf = it?.shipsFrom ?? it?.ships_from;
 
-  const entry: Record<string, any> = { id: entryId };
-  if (canonicalKey) entry.refNum = canonicalKey;
-  
-  // IMPORTANT: For change detection, we must use the ENGLISH name/description
-  // Translation is applied AFTER change detection to avoid false "Description changed" triggers
-  // Store English first, we'll apply translations after diffMarketIndexEntries
-  if (name) entry.n = name;
-  if (description) entry.d = description;
-  
-    if (primaryImg) entry.i = primaryImg;
+    const entry: Record<string, any> = { id: entryId };
+    if (canonicalKey) entry.refNum = canonicalKey;
+
+    // IMPORTANT: For change detection, we must use the ENGLISH name/description
+    // Translation is applied AFTER change detection to avoid false "Description changed" triggers
+    // Store English first, we'll apply translations after diffMarketIndexEntries
+    if (name) entry.n = name;
+    if (description) entry.d = description;
+
+    if (primaryImg) {
+      entry.i = primaryImg;
+      // Check if image is optimized in R2 (has io flag)
+      const hash = hashUrl(primaryImg);
+      const meta = canonicalKey ? imageMetaAgg[canonicalKey] : undefined;
+      // Also check by numeric ID in case meta is stored that way (less common now but possible)
+      const metaNum = numKey ? imageMetaAgg[numKey] : undefined;
+
+      const hashes = meta?.hashes || metaNum?.hashes;
+      if (hashes && Array.isArray(hashes) && hashes.includes(hash)) {
+        entry.io = 1;
+        appliedImageMeta++;
+      }
+    }
     if (imgSmall && imgSmall.length) entry.is = imgSmall;
     if (v.length) entry.v = v;
     if (uMin != null) entry.uMin = uMin;
@@ -292,7 +321,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     if (sid != null) entry.sid = sid;
     if (sn) entry.sn = sn;
     if (h != null) entry.h = h;
-  if (sf) entry.sf = sf;
+    if (sf) entry.sf = sf;
 
     // Review stats (minified key: rs)
     const ir = (canonicalKey && itemReviewSummaries?.[canonicalKey]) ?? (numKey ? itemReviewSummaries?.[numKey] : undefined);
@@ -307,9 +336,9 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     // Categorization: check for manual override first, then use automated pipeline
     try {
       // Check for manual override by refNum or numeric id
-      const override = categoryOverrides.get(String(canonicalKey)) || 
-                      (numKey ? categoryOverrides.get(String(numKey)) : null);
-      
+      const override = categoryOverrides.get(String(canonicalKey)) ||
+        (numKey ? categoryOverrides.get(String(numKey)) : null);
+
       if (override) {
         // Apply manual override
         entry.c = override.primary;
@@ -324,105 +353,105 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
         if (cat?.primary) entry.c = cat.primary;
         if (Array.isArray(cat?.subcategories) && cat.subcategories.length) entry.sc = cat.subcategories;
       }
-    } catch {}
+    } catch { }
 
-  // Change detection vs previous index to update lua/lur like legacy indexer (modified: strict semantics)
-  // NOTE: Description comparison only for GB (English market) - non-GB have translated descriptions
+    // Change detection vs previous index to update lua/lur like legacy indexer (modified: strict semantics)
+    // NOTE: Description comparison only for GB (English market) - non-GB have translated descriptions
     let prev = prevByRef.get(String(ref || ''));
     if (!prev && numId != null) prev = prevByNum.get(String(numId));
     const nowIso = new Date().toISOString();
     // Timestamps (minified keys). Prefer previously written short keys; fallback to legacy long keys.
-  const metaHit = canonicalKey ? indexMetaAgg[canonicalKey] : undefined;
+    const metaHit = canonicalKey ? indexMetaAgg[canonicalKey] : undefined;
     if (metaHit) appliedMeta++;
     const isEnglishMarket = code === 'GB';
     const { changed, reasons: changeReasons } = diffMarketIndexEntries(prev, entry, isEnglishMarket);
-  // Timestamp policy (PARITY + REQUIREMENTS):
-  //  firstSeenAt (fsa):
-  //    - Carry prev/aggregate when present
-  //    - If new item (no prev, no aggregate) and NOT cold start, stamp now
-  //    - If cold start (baseline run), DO NOT synthesize fsa (leave undefined for existing legacy items)
-  //  lastUpdatedAt (lua):
-  //    - ONLY set when we detect a change (diff) THIS run
-  //    - Otherwise carry forward existing lua (prev or aggregate) if it exists
-  //    - Never derive lua from fsa; never default lua to now on baseline/cold start
-  //  lastUpdateReason (lur):
-  //    - Set when change detected
-  //    - Carry forward existing lur if we carried an existing lua; else omit
-  // This ensures initial baseline run does not incorrectly stamp lua for every item.
-  // Priority for fsa: aggregate > prev (aggregate is source of truth for historical timestamps)
-  const fsa = metaHit?.fsa || prev?.fsa || prev?.firstSeenAt;
-  if (fsa) entry.fsa = fsa;
-  else if (!prev && !metaHit?.fsa && !coldStart) entry.fsa = nowIso;
-  // Last updated + reason: if we detected a change this run, stamp now + reasons; otherwise carry forward
-  // Priority for lua: aggregate > prev (aggregate is source of truth)
-  // NOTE: metaHit.lua === '' means explicitly cleared (no lua) - don't fall back to prev
-  let carriedLua: string | undefined = undefined;
-  const metaLuaExplicitlyCleared = metaHit && 'lua' in metaHit && metaHit.lua === '';
-  if (metaHit?.lua) carriedLua = metaHit.lua;
-  else if (!metaLuaExplicitlyCleared && prev?.lua) carriedLua = prev.lua;
-  else if (!metaLuaExplicitlyCleared && prev?.lastUpdatedAt) carriedLua = prev.lastUpdatedAt;
-  const carriedLur = metaHit?.lur ?? prev?.lur ?? prev?.lastUpdateReason ?? null;
-  if (changed && changeReasons.length > 0) {
-    // Real change detected: stamp lua + lur
-    entry.lua = nowIso;
-    entry.lur = changeReasons.join(', ');
-  } else if (carriedLua) {
-    // Only carry forward lua if it existed previously; do NOT synthesize
-    entry.lua = carriedLua;
-    if (carriedLur != null) entry.lur = carriedLur;
-  }
-  
-  // Translation handling for non-GB markets (AFTER change detection to avoid false triggers)
-  // - n/d: Replace with translated content if available
-  // - nEn/dEn: Store original English for future frontend toggle
-  // - v[].d: Replace variant descriptions with translated versions
-  // - v[].dEn: Store original English variant descriptions (for usePerUnitLabel parsing)
-  if (needsTranslation && targetLocale && canonicalKey) {
-    const itemTranslation = translationsAgg[canonicalKey];
-    const localeTranslation = itemTranslation?.locales?.[targetLocale];
-    
-    if (localeTranslation?.n) {
-      // Store English originals for future toggle
-      if (entry.n) entry.nEn = entry.n;
-      if (entry.d) entry.dEn = entry.d;
-      // Apply translations
-      entry.n = localeTranslation.n;
-      if (localeTranslation.d) entry.d = localeTranslation.d;
-      appliedTranslations++;
-      
-      // Apply variant translations if available
-      if (localeTranslation.v && Array.isArray(localeTranslation.v) && Array.isArray(entry.v)) {
-        // Build a map of vid -> translated description
-        const variantTranslationMap = new Map<string | number, string>();
-        for (const vt of localeTranslation.v) {
-          if (vt.vid !== undefined && vt.d) {
-            variantTranslationMap.set(vt.vid, vt.d);
+    // Timestamp policy (PARITY + REQUIREMENTS):
+    //  firstSeenAt (fsa):
+    //    - Carry prev/aggregate when present
+    //    - If new item (no prev, no aggregate) and NOT cold start, stamp now
+    //    - If cold start (baseline run), DO NOT synthesize fsa (leave undefined for existing legacy items)
+    //  lastUpdatedAt (lua):
+    //    - ONLY set when we detect a change (diff) THIS run
+    //    - Otherwise carry forward existing lua (prev or aggregate) if it exists
+    //    - Never derive lua from fsa; never default lua to now on baseline/cold start
+    //  lastUpdateReason (lur):
+    //    - Set when change detected
+    //    - Carry forward existing lur if we carried an existing lua; else omit
+    // This ensures initial baseline run does not incorrectly stamp lua for every item.
+    // Priority for fsa: aggregate > prev (aggregate is source of truth for historical timestamps)
+    const fsa = metaHit?.fsa || prev?.fsa || prev?.firstSeenAt;
+    if (fsa) entry.fsa = fsa;
+    else if (!prev && !metaHit?.fsa && !coldStart) entry.fsa = nowIso;
+    // Last updated + reason: if we detected a change this run, stamp now + reasons; otherwise carry forward
+    // Priority for lua: aggregate > prev (aggregate is source of truth)
+    // NOTE: metaHit.lua === '' means explicitly cleared (no lua) - don't fall back to prev
+    let carriedLua: string | undefined = undefined;
+    const metaLuaExplicitlyCleared = metaHit && 'lua' in metaHit && metaHit.lua === '';
+    if (metaHit?.lua) carriedLua = metaHit.lua;
+    else if (!metaLuaExplicitlyCleared && prev?.lua) carriedLua = prev.lua;
+    else if (!metaLuaExplicitlyCleared && prev?.lastUpdatedAt) carriedLua = prev.lastUpdatedAt;
+    const carriedLur = metaHit?.lur ?? prev?.lur ?? prev?.lastUpdateReason ?? null;
+    if (changed && changeReasons.length > 0) {
+      // Real change detected: stamp lua + lur
+      entry.lua = nowIso;
+      entry.lur = changeReasons.join(', ');
+    } else if (carriedLua) {
+      // Only carry forward lua if it existed previously; do NOT synthesize
+      entry.lua = carriedLua;
+      if (carriedLur != null) entry.lur = carriedLur;
+    }
+
+    // Translation handling for non-GB markets (AFTER change detection to avoid false triggers)
+    // - n/d: Replace with translated content if available
+    // - nEn/dEn: Store original English for future frontend toggle
+    // - v[].d: Replace variant descriptions with translated versions
+    // - v[].dEn: Store original English variant descriptions (for usePerUnitLabel parsing)
+    if (needsTranslation && targetLocale && canonicalKey) {
+      const itemTranslation = translationsAgg[canonicalKey];
+      const localeTranslation = itemTranslation?.locales?.[targetLocale];
+
+      if (localeTranslation?.n) {
+        // Store English originals for future toggle
+        if (entry.n) entry.nEn = entry.n;
+        if (entry.d) entry.dEn = entry.d;
+        // Apply translations
+        entry.n = localeTranslation.n;
+        if (localeTranslation.d) entry.d = localeTranslation.d;
+        appliedTranslations++;
+
+        // Apply variant translations if available
+        if (localeTranslation.v && Array.isArray(localeTranslation.v) && Array.isArray(entry.v)) {
+          // Build a map of vid -> translated description
+          const variantTranslationMap = new Map<string | number, string>();
+          for (const vt of localeTranslation.v) {
+            if (vt.vid !== undefined && vt.d) {
+              variantTranslationMap.set(vt.vid, vt.d);
+            }
           }
-        }
-        
-        // Apply translations to each variant, storing English in dEn
-        for (const variant of entry.v) {
-          if (variant.vid !== undefined) {
-            const translatedDesc = variantTranslationMap.get(variant.vid);
-            if (translatedDesc && variant.d) {
-              // Store English original for usePerUnitLabel parsing
-              variant.dEn = variant.d;
-              // Apply translation
-              variant.d = translatedDesc;
+
+          // Apply translations to each variant, storing English in dEn
+          for (const variant of entry.v) {
+            if (variant.vid !== undefined) {
+              const translatedDesc = variantTranslationMap.get(variant.vid);
+              if (translatedDesc && variant.d) {
+                // Store English original for usePerUnitLabel parsing
+                variant.dEn = variant.d;
+                // Apply translation
+                variant.d = translatedDesc;
+              }
             }
           }
         }
       }
     }
-  }
-  
+
     // Endorsements (minified key): preserve or default 0
     entry.ec = typeof prev?.ec === 'number'
       ? prev.ec
       : (typeof prev?.endorsementCount === 'number' ? prev.endorsementCount : 0);
-  // Share link (compact): carry forward if previously embedded; else use aggregate if present
-  if (prev?.sl) entry.sl = prev.sl;
-  else if (canonicalKey && sharesAgg[canonicalKey]) entry.sl = sharesAgg[canonicalKey];
+    // Share link (compact): carry forward if previously embedded; else use aggregate if present
+    if (prev?.sl) entry.sl = prev.sl;
+    else if (canonicalKey && sharesAgg[canonicalKey]) entry.sl = sharesAgg[canonicalKey];
     // Shipping summary (minified key): prefer fresh aggregate data, then fall back to previous index
     // Normalize older shapes: convert free:boolean -> 1/0 and drop cnt
     function normalizeSh(x: any) {
@@ -442,7 +471,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     try {
       if (numKey) byNumId.set(numKey, entry as Record<string, any>);
       if (canonicalKey) byCanonId.set(canonicalKey, entry as Record<string, any>);
-    } catch {}
+    } catch { }
     if (canonicalKey) {
       const candidate = {
         fsa: typeof entry.fsa === 'string' ? entry.fsa : null,
@@ -498,9 +527,10 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   if (marketIndexItems.length > 0) {
     const metaNote = appliedMeta ? ` indexMetaHits=${appliedMeta}` : '';
     const transNote = appliedTranslations ? ` translations=${appliedTranslations}` : '';
+    const imgNote = appliedImageMeta ? ` optimizedImages=${appliedImageMeta}` : '';
     writeTasks.push(
       blob.putJSON(indexKey, marketIndexItems)
-        .then(() => logger.info(`[index:${code}] Wrote ${indexKey} (${marketIndexItems.length} items).${metaNote}${transNote}`))
+        .then(() => logger.info(`[index:${code}] Wrote ${indexKey} (${marketIndexItems.length} items).${metaNote}${transNote}${imgNote}`))
         .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${indexKey}: ${e?.message || e}`))
     );
   } else {
@@ -519,7 +549,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     );
   } else {
     logger.warn(`[index:${code}] Empty fetch; preserving previous ${sellersKey} if present.`);
-    try { sellersList = (await blob.getJSON<any[]>(sellersKey)) || []; } catch {}
+    try { sellersList = (await blob.getJSON<any[]>(sellersKey)) || []; } catch { }
   }
 
   // Derive categories and manifest from the finalized marketIndexItems
@@ -570,7 +600,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   // Write manifest with totals and categories (+ lightweight sellersCount) unless empty fetch with prior manifest
   const manifestKey = Keys.market.manifest(code);
   let priorManifest: any = null;
-  try { priorManifest = await blob.getJSON<any>(manifestKey); } catch {}
+  try { priorManifest = await blob.getJSON<any>(manifestKey); } catch { }
   const sellerIds = new Set<string>();
   for (const e of marketIndexItems as Entry[]) {
     const sid = (e as any).sid;
@@ -589,7 +619,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   if (shouldWriteManifest) {
     writeTasks.push(
       blob.putJSON(manifestKey, manifest)
-  .then(() => logger.info(`[index:${code}] Wrote ${manifestKey} (cats=${Object.keys(catObj).length}, sellers=${sellersCount}).`))
+        .then(() => logger.info(`[index:${code}] Wrote ${manifestKey} (cats=${Object.keys(catObj).length}, sellers=${sellersCount}).`))
         .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${manifestKey}: ${e?.message || e}`))
     );
   } else {
@@ -598,7 +628,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
 
   // Flush all writes concurrently
   if (writeTasks.length) {
-    try { await Promise.allSettled(writeTasks); } catch {}
+    try { await Promise.allSettled(writeTasks); } catch { }
   }
 
   const metaUpdateKeys = Object.keys(metaUpdates);
@@ -607,7 +637,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     try {
       const fresh = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
       if (fresh && typeof fresh === 'object') latestMeta = fresh as Record<string, IndexMetaEntry>;
-    } catch {}
+    } catch { }
     for (const key of metaUpdateKeys) {
       const { next } = mergeIndexMetaEntry(latestMeta[key], metaUpdates[key]);
       latestMeta[key] = next;
@@ -622,7 +652,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   // Backfills no longer needed when aggregates are present
 
   // Persist cookies for reuse across stages/markets
-  try { if (jar) await saveCookieJar(jar); } catch {}
+  try { if (jar) await saveCookieJar(jar); } catch { }
 
   // Append per-market run-meta entry for observability
   try {

@@ -65,6 +65,8 @@ export interface ItemCardItem {
   sh?: ItemShippingSummary | null;
   /** lur = lastUpdateReason */
   lur?: string | null;
+  /** io = imageOptimized (1=yes) */
+  io?: number;
 }
 
 export interface ItemCardProps {
@@ -86,7 +88,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const tCountries = useTranslations('Countries');
   const tUnits = useTranslations('Units');
   const { locale } = useLocale();
-  
+
   // Get unit labels for per-unit suffix (e.g., "g", "joint" → translated)
   // Use locale as stable dependency instead of tUnits (which creates new refs on parent renders)
   const unitLabels = useMemo(() => {
@@ -101,17 +103,17 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     } catch {
       return undefined;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
   const itemKey = String(item.id); // normalized id as string
   // Destructure minified keys with aliased names for readability
   const { i: imageUrl, is: imageUrls, n: name, nEn: nameEn, d: description, dEn: descriptionEn, sn: sellerName, sid: sellerId, url, rs: reviewStats, v: variants, sellerOnline, sf: shipsFrom, refNum } = item;
-  
+
   // Use English content when forceEnglish is enabled (and English version is available)
   const { forceEnglish } = useForceEnglish();
   const displayName = (forceEnglish && nameEn) ? nameEn : name;
   const displayDesc = (forceEnglish && descriptionEn) ? descriptionEn : description;
-  
+
   // atoms & derived flags - use shared Set atom for O(1) lookup instead of per-item selectAtom
   const favSet = useAtomValue(favouritesSetAtom);
   const isFav = favSet.has(item.id);
@@ -122,12 +124,12 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const thumbAspect = useAtomValue(thumbnailAspectAtom); // added
   const [expanded, setExpanded] = React.useState(false);
   const setExpandedRef = useSetAtom(expandedRefNumAtom);
-  
+
   // Memoized callback for body expand click
   const handleExpandClick = useCallback((refKey: string) => {
     setExpandedRef(refKey);
   }, [setExpandedRef]);
-  
+
   // Treat an update if lua (lastUpdatedAt) exists and either fsa (firstSeenAt) is missing (pre-baseline legacy item) or they differ
   const hasUpdate = !!item.lua && (!item.fsa || item.lua !== item.fsa);
   // Show Created label (independent of current sort) for newly indexed items after cutoff
@@ -178,22 +180,22 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     // Only compute fallback if we're in PPG mode but this item isn't in the lookup
     if (!ppgData || selectedWeight === null || ppgInfo) return null;
     if (!Array.isArray(variants) || variants.length === 0) return null;
-    
+
     // Find variants with valid weight parsing and compute their PPG
     const variantPpgs: { usd: number; ppg: number; grams: number; d: string }[] = [];
     for (const v of variants) {
       if (typeof v.usd !== 'number' || !v.d) continue;
       const parsed = parseQuantity(v.dEn ?? v.d);
       if (!parsed || parsed.unit !== 'g' || parsed.qty <= 0) continue;
-      variantPpgs.push({ 
-        usd: v.usd, 
-        ppg: v.usd / parsed.qty, 
+      variantPpgs.push({
+        usd: v.usd,
+        ppg: v.usd / parsed.qty,
         grams: parsed.qty,
-        d: v.d 
+        d: v.d
       });
     }
     if (variantPpgs.length === 0) return null;
-    
+
     // Find the one closest to the selected weight (for most relevant comparison)
     // If multiple at same distance, pick the one with lowest ppg (best value)
     const sorted = variantPpgs.sort((a, b) => {
@@ -219,11 +221,11 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       const priceText = formatUSD(fallbackPpgInfo.usd, displayCurrency, rates, { decimals: 2 });
       const ppgText = formatUSD(fallbackPpgInfo.ppg, displayCurrency, rates, { decimals: 2 });
       // Gray color indicates fallback - no need for weight label which causes line wrap
-      return { 
-        main: priceText, 
-        ppg: `${ppgText}/g`, 
-        weight: fallbackPpgInfo.grams, 
-        isFallback: true 
+      return {
+        main: priceText,
+        ppg: `${ppgText}/g`,
+        weight: fallbackPpgInfo.grams,
+        isFallback: true
       };
     }
     return null;
@@ -360,53 +362,82 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
       )}
     >
       <div className={cn('item-card-inner', showFavAccent && "fav-card-inner")}>
-      {showFavAccent && (
-        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-[0] h-1/2 bg-gradient-to-t", "fav-card-bottom-glow", "to-transparent")} />
-      )}
-      <ItemCardImage
-        itemId={item.id}
-        imageUrl={imageUrl}
-        imageUrls={imageUrls}
-        name={name}
-        nameDecoded={nameDecoded}
-        refNum={refNum}
-        shareLink={item.sl}
-        itemCategory={item.c}
-        showFavAccent={showFavAccent}
-        aspectClass={aspectClass}
-        priority={priority}
-      />
-      <ItemCardBody
-        refKey={refKey}
-        nameDecoded={nameDecoded}
-        description={description}
-        descDecoded={descDecoded}
-        sellerName={sellerName}
-        sellerUrl={url}
-        sellerOnline={sellerOnline}
-        variants={variants}
-        onExpandClick={handleExpandClick}
-      />
-      {/** Footer with price + optional shipping range */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 pb-3 pt-2 px-3 bg-gradient-to-t from-white/95 dark:from-[#0f1725]/95 via-white/40 dark:via-[#0f1725]/50 to-transparent z-40">
-        <div className="flex w-full items-end justify-between lg:gap-4">
-          {showVariants ? (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
-              aria-expanded={expanded}
-              aria-controls={pricingPanelId}
-              className={cn('price-area-button pointer-events-auto', expanded && 'price-area-button--active')}
-            >
-              <div className="flex flex-wrap items-center gap-2">
+        {showFavAccent && (
+          <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-[0] h-1/2 bg-gradient-to-t", "fav-card-bottom-glow", "to-transparent")} />
+        )}
+        <ItemCardImage
+          itemId={item.id}
+          imageUrl={imageUrl}
+          imageUrls={imageUrls}
+          name={name}
+          nameDecoded={nameDecoded}
+          refNum={refNum}
+          shareLink={item.sl}
+          itemCategory={item.c}
+          showFavAccent={showFavAccent}
+          aspectClass={aspectClass}
+          priority={priority}
+          isOptimized={item.io === 1}
+        />
+        <ItemCardBody
+          refKey={refKey}
+          nameDecoded={nameDecoded}
+          description={description}
+          descDecoded={descDecoded}
+          sellerName={sellerName}
+          sellerUrl={url}
+          sellerOnline={sellerOnline}
+          variants={variants}
+          onExpandClick={handleExpandClick}
+        />
+        {/** Footer with price + optional shipping range */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 pb-3 pt-2 px-3 bg-gradient-to-t from-white/95 dark:from-[#0f1725]/95 via-white/40 dark:via-[#0f1725]/50 to-transparent z-40">
+          <div className="flex w-full items-end justify-between lg:gap-4">
+            {showVariants ? (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
+                aria-expanded={expanded}
+                aria-controls={pricingPanelId}
+                className={cn('price-area-button pointer-events-auto', expanded && 'price-area-button--active')}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
+                    {priceDisplayText ? (
+                      <span className="flex items-baseline gap-1.5">
+                        <span>{priceDisplayText.main}</span>
+                        <span className={cn(
+                          "text-xs font-normal",
+                          priceDisplayText.isFallback
+                            ? "text-gray-500 dark:text-gray-400"
+                            : "text-green-600 dark:text-green-400"
+                        )}>
+                          ({priceDisplayText.ppg})
+                        </span>
+                      </span>
+                    ) : rangeReady && computedRangeText ? (
+                      <span>{computedRangeText}</span>
+                    ) : (
+                      <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
+                    )}
+                  </div>
+                  <span className="price-area-button__hint" aria-hidden="true">
+                    <span>{expanded ? tItem('hidePrices') : tItem('showPrices')}</span>
+                    <span className="price-area-button__hint-arrow" data-expanded={expanded ? 'true' : 'false'}>▲</span>
+                  </span>
+                </div>
+                {shippingMeta}
+              </button>
+            ) : (
+              <div className="pointer-events-auto flex flex-col justify-end gap-1 min-h-[1.25rem]">
                 <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
                   {priceDisplayText ? (
                     <span className="flex items-baseline gap-1.5">
                       <span>{priceDisplayText.main}</span>
                       <span className={cn(
                         "text-xs font-normal",
-                        priceDisplayText.isFallback 
-                          ? "text-gray-500 dark:text-gray-400" 
+                        priceDisplayText.isFallback
+                          ? "text-gray-500 dark:text-gray-400"
                           : "text-green-600 dark:text-green-400"
                       )}>
                         ({priceDisplayText.ppg})
@@ -418,80 +449,52 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
                     <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
                   )}
                 </div>
-                <span className="price-area-button__hint" aria-hidden="true">
-                  <span>{expanded ? tItem('hidePrices') : tItem('showPrices')}</span>
-                  <span className="price-area-button__hint-arrow" data-expanded={expanded ? 'true' : 'false'}>▲</span>
-                </span>
+                {shippingMeta}
               </div>
-              {shippingMeta}
-            </button>
-          ) : (
-            <div className="pointer-events-auto flex flex-col justify-end gap-1 min-h-[1.25rem]">
-              <div className="text-sm font-price font-semibold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
-                {priceDisplayText ? (
-                  <span className="flex items-baseline gap-1.5">
-                    <span>{priceDisplayText.main}</span>
-                    <span className={cn(
-                      "text-xs font-normal",
-                      priceDisplayText.isFallback 
-                        ? "text-gray-500 dark:text-gray-400" 
-                        : "text-green-600 dark:text-green-400"
-                    )}>
-                      ({priceDisplayText.ppg})
-                    </span>
-                  </span>
-                ) : rangeReady && computedRangeText ? (
-                  <span>{computedRangeText}</span>
-                ) : (
-                  <span className="opacity-0 select-none">{currencySymbol(displayCurrency)}00.00 - {currencySymbol(displayCurrency)}00.00</span>
-                )}
-              </div>
-              {shippingMeta}
-            </div>
-          )}
-          <ItemCardFooterActions
-            itemKey={itemKey}
-            hasVotedToday={hasVotedToday as boolean}
-            endorsedLocal={endorsedLocal}
-            reviewStats={reviewStats}
-            timestamp={{
-              hasUpdate,
-              showCreated,
-              lua: item.lua,
-              lur: item.lur,
-              fsa: item.fsa,
-            }}
-          />
-        </div>
-      </div>
-      {showVariants && (
-        <div
-          id={pricingPanelId}
-          aria-labelledby={pricingTitleId}
-          className={cn(
-            'item-card__pricing-overlay',
-            expanded && 'item-card__pricing-overlay--open',
-            suppressPanelAnim && 'item-card__pricing-overlay--static'
-          )}
-          role="dialog"
-          aria-modal="false"
-          aria-hidden={!expanded}
-        >
-          <div className="item-card__pricing-inner">
-            <div className="item-card__pricing-header" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
-              <div id={pricingTitleId} className="item-card__pricing-title">{variants.length} {variants.length === 1 ? 'variant' : 'variants'}</div>
-            </div>
-            <div className="item-card__pricing-scroll" onClick={(e) => e.stopPropagation()}>
-              <ItemCardVariantList
-                variants={variants}
-                displayCurrency={displayCurrency as DisplayCurrency}
-                rates={rates as ExchangeRates}
-                unitLabels={unitLabels}
-              />
-            </div>
+            )}
+            <ItemCardFooterActions
+              itemKey={itemKey}
+              hasVotedToday={hasVotedToday as boolean}
+              endorsedLocal={endorsedLocal}
+              reviewStats={reviewStats}
+              timestamp={{
+                hasUpdate,
+                showCreated,
+                lua: item.lua,
+                lur: item.lur,
+                fsa: item.fsa,
+              }}
+            />
           </div>
         </div>
-      )}
+        {showVariants && (
+          <div
+            id={pricingPanelId}
+            aria-labelledby={pricingTitleId}
+            className={cn(
+              'item-card__pricing-overlay',
+              expanded && 'item-card__pricing-overlay--open',
+              suppressPanelAnim && 'item-card__pricing-overlay--static'
+            )}
+            role="dialog"
+            aria-modal="false"
+            aria-hidden={!expanded}
+          >
+            <div className="item-card__pricing-inner">
+              <div className="item-card__pricing-header" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                <div id={pricingTitleId} className="item-card__pricing-title">{variants.length} {variants.length === 1 ? 'variant' : 'variants'}</div>
+              </div>
+              <div className="item-card__pricing-scroll" onClick={(e) => e.stopPropagation()}>
+                <ItemCardVariantList
+                  variants={variants}
+                  displayCurrency={displayCurrency as DisplayCurrency}
+                  rates={rates as ExchangeRates}
+                  unitLabels={unitLabels}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

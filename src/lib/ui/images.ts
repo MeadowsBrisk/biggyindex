@@ -19,7 +19,6 @@ const USE_R2 = !!R2_IMAGE_URL;
 // LittleBiggy URL structure: /images/i/ = items, /images/u/ = user avatars
 // Review images use /images/or/ or /images/r/ - NOT in R2, use CF proxy
 // We only crawl items + avatars; reviews are small and use CF proxy fallback
-const R2_IMAGE_PATTERN = /littlebiggy\.net\/images\/(i|u)\//i;
 
 // Cloudflare edge caching: wrap Cloudinary URLs through CF worker to reduce Cloudinary requests
 // Set NEXT_PUBLIC_CF_IMAGE_PROXY_BASE to your CF worker domain (e.g., 'https://biggyindex.com')
@@ -54,12 +53,12 @@ function hashUrl(url: string): string {
 function r2ImageUrl(url: string, width?: number): string {
   const hash = hashUrl(url);
   const isGif = /\.gif(?:$|[?#])/i.test(url);
-  
+
   // GIFs always get animated webp (it's already 600px max, works for any size)
   if (isGif) {
     return `${R2_IMAGE_URL}/${hash}/anim.webp`;
   }
-  
+
   // Static images: undefined = full-res mode; any width specified = use thumb
   const variant = width === undefined ? 'full' : 'thumb';
   return `${R2_IMAGE_URL}/${hash}/${variant}.avif`;
@@ -71,7 +70,7 @@ function r2ImageUrl(url: string, width?: number): string {
 // - w_X: resize to specified width
 // - c_limit: only downscale, never upscale
 function cloudinaryFetch(url: string, width?: number): string {
-  const transforms = width 
+  const transforms = width
     ? `f_avif,q_auto,w_${width},c_limit`
     : 'f_avif,q_auto';
   return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/fetch/${transforms}/${encodeURIComponent(url)}`;
@@ -95,30 +94,31 @@ function wrapWithCloudflare(url: string): string {
  */
 export function proxyImage(url: string, width?: number): string {
   if (!url || typeof url !== 'string') return url as any;
-  
+
   // Skip local paths
   if (url.startsWith('/') || url.startsWith('./')) return url;
-  
+
   // Skip already proxied URLs
   if (url.includes('res.cloudinary.com/') || url.includes('/cf-image-proxy') || (R2_IMAGE_URL && url.includes(R2_IMAGE_URL))) return url;
-  
+
   // Priority 1: Use R2 for ITEM and SELLER images (pre-optimized, free, fastest)
-  // Items (/images/i/) and avatars (/images/a/) are crawled and stored in R2
-  const isR2Image = R2_IMAGE_PATTERN.test(url);
-  if (USE_R2 && isR2Image) {
+  // Items (/images/i/) and avatars (/images/u/) are crawled and stored in R2
+  // Check for these path segments. "littlebiggy.net" domain check is implicit as we filter local paths above.
+  const isR2Candidate = url.includes('/images/i/') || url.includes('/images/u/');
+  if (USE_R2 && isR2Candidate) {
     return r2ImageUrl(url, width);
   }
-  
+
   // Priority 2: Use CF worker for edge caching (seller avatars, review images, etc.)
   if (USE_CF_CACHE) {
     return wrapWithCloudflare(url);
   }
-  
+
   // Priority 3: Use Cloudinary for on-the-fly AVIF conversion (paid, disabled)
   if (USE_CLOUDINARY) {
     return cloudinaryFetch(url, width);
   }
-  
+
   // No proxying configured - return original
   return url;
 }

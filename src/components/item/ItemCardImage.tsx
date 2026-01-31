@@ -23,6 +23,7 @@ export interface ItemCardImageProps {
   showFavAccent: boolean;
   aspectClass: string;
   priority?: boolean;
+  isOptimized?: boolean;
 }
 
 /**
@@ -45,6 +46,7 @@ function ItemCardImageInner({
   showFavAccent,
   aspectClass,
   priority = false,
+  isOptimized = false,
 }: ItemCardImageProps) {
   const tItem = useTranslations('Item');
   const tCats = useTranslations('Categories');
@@ -54,15 +56,9 @@ function ItemCardImageInner({
   // GIF detection
   const isGif = typeof imageUrl === 'string' && GIF_REGEX.test(imageUrl);
 
-  // Thumbnail source with proxy and error fallback
-  const [thumbSrc, setThumbSrc] = useState(() => proxyImage(imageUrl || '', highResImages ? undefined : 800));
-  useEffect(() => { 
-    setThumbSrc(proxyImage(imageUrl || '', highResImages ? undefined : 800)); 
-  }, [imageUrl, highResImages]);
-  
-  const onThumbError = useCallback(() => {
-    if (thumbSrc !== imageUrl) setThumbSrc(imageUrl || '');
-  }, [thumbSrc, imageUrl]);
+  // Thumbnail source with optimization check
+  // If isOptimized (io=1), we can safely proxy. Otherwise use raw URL.
+  const thumbSrc = isOptimized ? proxyImage(imageUrl || '', highResImages ? undefined : 800) : (imageUrl || '');
 
   // Zoom preview signal
   const [openPreviewSignal, setOpenPreviewSignal] = useState<number | null>(null);
@@ -75,15 +71,15 @@ function ItemCardImageInner({
   const categoryLabel = React.useMemo(() => {
     if (!itemCategory) return null;
     try {
-      const map: Record<string, string> = { 
-        Flower: 'flower', Hash: 'hash', Edibles: 'edibles', 
-        Concentrates: 'concentrates', Vapes: 'vapes', Tincture: 'tincture', 
-        Psychedelics: 'psychedelics', Other: 'other' 
+      const map: Record<string, string> = {
+        Flower: 'flower', Hash: 'hash', Edibles: 'edibles',
+        Concentrates: 'concentrates', Vapes: 'vapes', Tincture: 'tincture',
+        Psychedelics: 'psychedelics', Other: 'other'
       };
       const key = map[itemCategory] || String(itemCategory).toLowerCase();
       return tCats(key);
-    } catch { 
-      return itemCategory; 
+    } catch {
+      return itemCategory;
     }
   }, [itemCategory, tCats]);
 
@@ -108,10 +104,10 @@ function ItemCardImageInner({
             <button
               type="button"
               aria-label={nameDecoded ? tItem('previewWithName', { name: nameDecoded }) : tItem('previewImage')}
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-                setOpenPreviewSignal(Date.now()); 
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOpenPreviewSignal(Date.now());
               }}
               className="card-preview-trigger relative w-full h-full overflow-hidden focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-400 rounded-sm rounded-br-0 rounded-bl-0 pointer-events-auto"
             >
@@ -122,7 +118,6 @@ function ItemCardImageInner({
                 loading={priority ? 'eager' : 'lazy'}
                 decoding={priority ? 'sync' : 'async'}
                 fetchPriority={priority ? 'high' : undefined}
-                onError={onThumbError}
                 draggable={false}
               />
             </button>
@@ -148,13 +143,13 @@ function ItemCardImageInner({
               <span aria-hidden="true" className="inline-block text-base leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1 motion-reduce:transition-none">→</span>
             </a>
           </div>
-          <ImageZoomPreview 
-            imageUrl={imageUrl} 
-            imageUrls={imageUrls as any} 
-            alt={name} 
-            openSignal={openPreviewSignal as any} 
-            hideTrigger 
-            onOpenChange={() => {}} 
+          <ImageZoomPreview
+            imageUrl={imageUrl}
+            imageUrls={imageUrls as any}
+            alt={name}
+            openSignal={openPreviewSignal as any}
+            hideTrigger
+            onOpenChange={() => { }}
           />
         </>
       )}

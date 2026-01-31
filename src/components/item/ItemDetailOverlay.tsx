@@ -212,6 +212,14 @@ export default function ItemDetailOverlay() {
   useEffect(() => { setOpenPreviewSignal(null); }, [refNum]);
   // Clear any review gallery when switching items
   useEffect(() => { setReviewGallery && setReviewGallery(null); }, [refNum]);
+
+  // Clear any review gallery when switching items
+  useEffect(() => { setReviewGallery && setReviewGallery(null); }, [refNum]);
+
+  // Use DB flag to determine if images are optimized in R2 (io=1)
+  // If not flagged, assume origin (no proxy) to avoid 404s
+  const isOptimized = (baseItem as any)?.io === 1;
+
   const [activeSlide, setActiveSlide] = useState(0);
   const [mainSwiper, setMainSwiper] = useState<any>(null);
   const rates = useExchangeRates();
@@ -605,7 +613,7 @@ export default function ItemDetailOverlay() {
                                   >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
-                                      src={proxyImage(src)}
+                                      src={isOptimized ? proxyImage(src) : src}
                                       alt={name}
                                       loading={idx === 0 ? 'eager' : 'lazy'}
                                       decoding="async"
@@ -647,7 +655,11 @@ export default function ItemDetailOverlay() {
                                     title={tOv('imageNum', { num: idx + 1 })}
                                   >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={proxyImage(src, 112)} alt="thumb" className="w-full h-full object-cover" />
+                                    <img
+                                      src={isOptimized ? proxyImage(src, 112) : src}
+                                      alt="thumb"
+                                      className="w-full h-full object-cover"
+                                    />
                                   </button>
                                 </SwiperSlide>
                               ))}

@@ -38,6 +38,9 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
   const [openPreviewSignal, setOpenPreviewSignal] = useState<OpenPreviewSignal>(null);
   const [reviewGallery, setReviewGallery] = useState<ReviewGallerySignal>(null);
 
+  // Reset local error state when seller changes
+  useEffect(() => { setAvatarLoadFailed(false); }, [sellerId]);
+
   const name = decodeEntities(detail?.sellerName || 'Seller');
   const manifesto = detail?.manifesto || '';
   const manifestoNode = useMemo(() => formatDescription(manifesto || null), [manifesto]);
@@ -76,13 +79,16 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
   }, [reviews]);
 
   const rawSellerImage = detail?.sellerImageUrl ?? detail?.imageUrl ?? null;
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
   // Thumbnail URL for display (with width for static thumb)
   const thumbImg: string | null = useMemo(() => {
     if (!rawSellerImage) return null;
+    if (avatarLoadFailed) return rawSellerImage;
     // 7rem avatar = ~112px, request 224px for 2x DPR
     const proxied = proxyImage(rawSellerImage, 224);
     return proxied || null;
-  }, [rawSellerImage]);
+  }, [rawSellerImage, avatarLoadFailed]);
 
   const lowerSeller = (detail?.sellerName || '').toLowerCase();
   const isIncluded = (included || []).includes(lowerSeller);
@@ -177,7 +183,14 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     {thumbImg ? (
-                      <img src={thumbImg} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      <img
+                        src={thumbImg}
+                        alt={name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        onError={() => setAvatarLoadFailed(true)}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center"><div className="h-8 w-8 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-transparent animate-spin" /></div>
                     )}

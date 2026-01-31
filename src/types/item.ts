@@ -109,6 +109,8 @@ export interface Item {
   lua?: string | null;
   /** Last update reason */
   lur?: string | null;
+  /** Image Optimized in R2 (1 = yes, otherwise assume origin/unprocessed) */
+  io?: number;
 
   // Computed fields (added by atoms, not in blob)
   /** First seen timestamp (ms) - computed for sorting */
@@ -146,4 +148,5 @@ export interface ItemCardItem {
   sl?: string | null;
   sh?: ItemShipping | null;
   lur?: string | null;
+  io?: number;
 }
