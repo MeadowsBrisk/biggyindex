@@ -3,18 +3,24 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import BrowseIndexButton from '@/components/actions/BrowseIndexButton';
 import { useTranslations } from 'next-intl';
+import cn from '@/lib/core/cn';
 
 export default function NotFound() {
   const router = useRouter();
   const tOv = useTranslations('Overlay');
   const t = useTranslations('NotFound');
   const [type, setType] = useState<'item' | 'seller' | 'page'>('page');
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     // Check for /item/ or /seller/ segments (works with locale prefixes like /fr/item/...)
     if (router.asPath.includes('/item/')) setType('item');
     else if (router.asPath.includes('/seller/')) setType('seller');
     else setType('page');
+
+    // Small delay to ensure type is set before revealing
+    const timer = setTimeout(() => setReady(true), 100);
+    return () => clearTimeout(timer);
   }, [router.asPath]);
 
   const config = {
@@ -56,16 +62,22 @@ export default function NotFound() {
         <meta name="robots" content="noindex" />
       </Head>
       <main className="flex min-h-[100dvh] items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 transition-colors">
-        <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-gray-100 dark:border-gray-800 p-8 md:p-12 text-center">
-          <div className="flex justify-center">{icon}</div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+        <div className={cn(
+          "w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-gray-100 dark:border-gray-800 p-8 md:p-12 text-center",
+          "transition-opacity duration-700 ease-out",
+          ready ? "opacity-100" : "opacity-0"
+        )}>
+          <div className={cn("flex justify-center transition-opacity duration-700 delay-100 ease-out", ready ? "opacity-100" : "opacity-0")}>
+            {icon}
+          </div>
+          <h1 className={cn("text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3 transition-opacity duration-700 delay-200 ease-out", ready ? "opacity-100" : "opacity-0")}>
             {title}
           </h1>
-          <div className="w-12 h-1 bg-gray-200 dark:bg-gray-700 mx-auto mb-4 rounded-full" />
-          <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+          <div className={cn("w-12 h-1 bg-gray-200 dark:bg-gray-700 mx-auto mb-4 rounded-full transition-opacity duration-700 delay-300 ease-out", ready ? "opacity-100" : "opacity-0")} />
+          <p className={cn("text-gray-600 dark:text-gray-300 mb-8 leading-relaxed transition-opacity duration-700 delay-500 ease-out", ready ? "opacity-100" : "opacity-0")}>
             {desc}
           </p>
-          <div className="flex justify-center">
+          <div className={cn("flex justify-center transition-opacity duration-700 delay-700 ease-out", ready ? "opacity-100" : "opacity-0")}>
             <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
           </div>
         </div>
