@@ -6,7 +6,7 @@
     "price": "Prix",
     "sellers": "Vendeurs",
     "allSellers": "Vendeurs",
-  "all": "Tous",
+    "all": "Tous",
     "reviews": "Avis",
     "options": "Options",
     "reset": "Réinitialiser",
@@ -195,8 +195,7 @@
       "variantsNoun": "{count, plural, one {variante} other {variantes}}"
     },
     "noImage": "Pas d'image"
-  }
-  ,
+  },
   "UI": {
     "searchPlaceholder": "Rechercher des articles...",
     "searchAria": "Rechercher des articles",
@@ -210,8 +209,7 @@
     "removeInclude": "Retirer l’inclusion",
     "exclude": "Exclure",
     "removeExclude": "Retirer l’exclusion"
-  }
-  ,
+  },
   "Overlay": {
     "prices": "Prix",
     "description": "Description",
@@ -250,8 +248,7 @@
     "totalShort": "total",
     "recentShort": "Récents",
     "avgArrival": "arrivée moy. {days, plural, one {# jour} other {# jours}}"
-  }
-  ,
+  },
   "Basket": {
     "button": "Panier",
     "open": "Panier virtuel",
@@ -267,15 +264,13 @@
     "change": "Changer",
     "variant": "Variante {num}",
     "remove": "Retirer"
-  }
-  ,
+  },
   "Reviews": {
     "took": "a pris {arrival}",
     "arrival": "{days, plural, =0 {le même jour} one {# jour} other {# jours}}",
     "reviewImageAlt": "avis",
     "soldBy": "vendu par"
-  }
-  ,
+  },
   "Zoom": {
     "triggerAria": "Aperçu de l’image",
     "imagePreview": "Aperçu de l’image",
@@ -292,8 +287,7 @@
     "rotateLeft": "Pivoter à gauche",
     "rotateRight": "Pivoter à droite",
     "gifPausedGlobal": "GIF en pause (global)"
-  }
-  ,
+  },
   "Countries": {
     "uk": "R-U",
     "us": "É-U",
@@ -318,8 +312,7 @@
     "tr": "Turquie",
     "multi": "Multi",
     "und": "Non déclaré"
-  }
-  ,
+  },
   "Rel": {
     "agoPrefix": "il y a ",
     "agoSuffix": "",
@@ -334,8 +327,7 @@
     "today": "aujourd'hui",
     "yesterday": "hier",
     "daysAgo": "il y a {count} jours"
-  }
-  ,
+  },
   "Analytics": {
     "title": "Vendeurs sur LittleBiggy",
     "updated": "Mise à jour",
@@ -354,8 +346,7 @@
     },
     "footerHint": "Cliquez sur un vendeur pour voir son profil complet",
     "unknownSeller": "Inconnu"
-  }
-  ,
+  },
   "LatestReviews": {
     "title": "Derniers avis",
     "withImagesCount": "{count} avis avec images",
@@ -368,15 +359,13 @@
     "footerRefresh": "Avis de LittleBiggy rafraîchis toutes les 4 heures",
     "itemImageAlt": "Image d'article",
     "reviewMediaAlt": "Média d'avis"
-  }
-  ,
+  },
   "Theme": {
     "dark": "Sombre",
     "light": "Clair",
     "toggleTitle": "Basculer le mode sombre",
     "toggleSr": "Basculer le mode sombre"
-  }
-  ,
+  },
   "Share": {
     "menuAria": "Menu de partage",
     "copyLink": "Copier le lien",
@@ -487,5 +476,13 @@
     "square": "carré",
     "star": "étoile",
     "x": "×"
+  },
+  "NotFound": {
+    "itemTitle": "Article indisponible",
+    "itemDesc": "Cet article n'est plus listé. Il a peut-être été vendu, délisté ou supprimé.",
+    "sellerTitle": "Vendeur indisponible",
+    "sellerDesc": "Ce profil vendeur est introuvable. La boutique a peut-être fermé ou changé de nom.",
+    "pageTitle": "Page non trouvée",
+    "pageDesc": "La page que vous recherchez n'existe pas ou a été déplacée."
   }
 }

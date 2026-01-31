@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
   </url>
 </urlset>`;
   res.setHeader('Content-Type', 'application/xml');
-  res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=3600');
+  res.setHeader('Cache-Control', 'public, s-maxage=43200, stale-while-revalidate=86400');
   res.write(xml);
   res.end();
   return { props: {} };

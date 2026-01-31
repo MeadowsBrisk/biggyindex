@@ -6,7 +6,7 @@
     "price": "Preis",
     "sellers": "Verkäufer",
     "allSellers": "Verkäufer",
-  "all": "Alle",
+    "all": "Alle",
     "reviews": "Bewertungen",
     "options": "Optionen",
     "reset": "Zurücksetzen",
@@ -193,8 +193,7 @@
       "variantsNoun": "{count, plural, one {Variante} other {Varianten}}"
     },
     "noImage": "Kein Bild"
-  }
-  ,
+  },
   "UI": {
     "searchPlaceholder": "Artikel suchen...",
     "searchAria": "Artikel suchen",
@@ -208,8 +207,7 @@
     "removeInclude": "Einschluss entfernen",
     "exclude": "Ausschließen",
     "removeExclude": "Ausschluss entfernen"
-  }
-  ,
+  },
   "Overlay": {
     "prices": "Preise",
     "description": "Beschreibung",
@@ -248,8 +246,7 @@
     "totalShort": "gesamt",
     "recentShort": "Aktuell",
     "avgArrival": "Ø Ankunft {days, plural, one {# Tag} other {# Tage}}"
-  }
-  ,
+  },
   "Basket": {
     "button": "Warenkorb",
     "open": "Virtueller Warenkorb",
@@ -265,15 +262,13 @@
     "change": "Ändern",
     "variant": "Variante {num}",
     "remove": "Entfernen"
-  }
-  ,
+  },
   "Reviews": {
     "took": "dauerte {arrival}",
     "arrival": "{days, plural, =0 {am selben Tag} one {# Tag} other {# Tage}}",
     "reviewImageAlt": "Bewertung",
     "soldBy": "verkauft von"
-  }
-  ,
+  },
   "Zoom": {
     "triggerAria": "Bildvorschau",
     "imagePreview": "Bildvorschau",
@@ -290,8 +285,7 @@
     "rotateLeft": "Nach links drehen",
     "rotateRight": "Nach rechts drehen",
     "gifPausedGlobal": "GIF pausiert (global)"
-  }
-  ,
+  },
   "Countries": {
     "uk": "UK",
     "us": "USA",
@@ -316,8 +310,7 @@
     "tr": "Türkei",
     "multi": "Multi",
     "und": "Ohne Angabe"
-  }
-  ,
+  },
   "Rel": {
     "agoPrefix": "vor ",
     "agoSuffix": "",
@@ -332,8 +325,7 @@
     "today": "heute",
     "yesterday": "gestern",
     "daysAgo": "vor {count} Tagen"
-  }
-  ,
+  },
   "Analytics": {
     "title": "Verkäufer auf LittleBiggy",
     "updated": "Aktualisiert",
@@ -352,8 +344,7 @@
     },
     "footerHint": "Klicken Sie auf einen Verkäufer, um sein vollständiges Profil zu sehen",
     "unknownSeller": "Unbekannt"
-  }
-  ,
+  },
   "LatestReviews": {
     "title": "Neueste Bewertungen",
     "withImagesCount": "{count} Bewertungen mit Bildern",
@@ -366,15 +357,13 @@
     "footerRefresh": "Bewertungen von LittleBiggy alle 4 Stunden aktualisiert",
     "itemImageAlt": "Artikelbild",
     "reviewMediaAlt": "Bewertungsmedien"
-  }
-  ,
+  },
   "Theme": {
     "dark": "Dunkel",
     "light": "Hell",
     "toggleTitle": "Dark-Mode umschalten",
     "toggleSr": "Dark-Mode umschalten"
-  }
-  ,
+  },
   "Share": {
     "menuAria": "Freigabe-Menü",
     "copyLink": "Link kopieren",
@@ -485,5 +474,13 @@
     "square": "Stk",
     "star": "Stern",
     "x": "×"
+  },
+  "NotFound": {
+    "itemTitle": "Artikel nicht verfügbar",
+    "itemDesc": "Dieser Artikel ist nicht mehr gelistet. Er könnte ausverkauft, ausgelistet oder entfernt worden sein.",
+    "sellerTitle": "Verkäufer nicht verfügbar",
+    "sellerDesc": "Dieses Verkäuferprofil konnte nicht gefunden werden. Der Shop könnte geschlossen oder umbenannt worden sein.",
+    "pageTitle": "Seite nicht gefunden",
+    "pageDesc": "Die gesuchte Seite existiert nicht oder wurde verschoben."
   }
 }

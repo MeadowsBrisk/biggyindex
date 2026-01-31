@@ -94,7 +94,7 @@
       "piatella": "Piatella",
       "spray": "Spray",
       "sublingual": "Sublingual",
-  "liveResin": "Resina viva",
+      "liveResin": "Resina viva",
       "disposable": "Descartável",
       "cartridge": "Cartucho",
       "distillate": "Destilado",
@@ -192,8 +192,7 @@
       "imagesChanged": "Imagens alteradas",
       "variantsNoun": "{count, plural, one {variante} other {variantes}}"
     }
-  }
-  ,
+  },
   "UI": {
     "searchPlaceholder": "Pesquisar artigos...",
     "searchAria": "Pesquisar artigos",
@@ -207,8 +206,7 @@
     "removeInclude": "Remover inclusão",
     "exclude": "Excluir",
     "removeExclude": "Remover exclusão"
-  }
-  ,
+  },
   "Overlay": {
     "prices": "Preços",
     "description": "Descrição",
@@ -247,8 +245,7 @@
     "totalShort": "total",
     "recentShort": "Recentes",
     "avgArrival": "chegada méd. {days, plural, one {# dia} other {# dias}}"
-  }
-  ,
+  },
   "Basket": {
     "button": "Cesto",
     "open": "Cesto virtual",
@@ -264,15 +261,13 @@
     "change": "Alterar",
     "variant": "Variante {num}",
     "remove": "Remover"
-  }
-  ,
+  },
   "Reviews": {
     "took": "demorou {arrival}",
     "arrival": "{days, plural, =0 {no mesmo dia} one {# dia} other {# dias}}",
     "reviewImageAlt": "avaliação",
     "soldBy": "vendido por"
-  }
-  ,
+  },
   "Zoom": {
     "triggerAria": "Pré-visualizar imagem",
     "imagePreview": "Pré-visualização da imagem",
@@ -289,8 +284,7 @@
     "rotateLeft": "Rodar à esquerda",
     "rotateRight": "Rodar à direita",
     "gifPausedGlobal": "GIF em pausa (global)"
-  }
-  ,
+  },
   "Countries": {
     "uk": "UK",
     "us": "EUA",
@@ -315,8 +309,7 @@
     "tr": "Turquia",
     "multi": "Multi",
     "und": "Não declarado"
-  }
-  ,
+  },
   "Rel": {
     "agoPrefix": "há ",
     "agoSuffix": "",
@@ -331,8 +324,7 @@
     "today": "hoje",
     "yesterday": "ontem",
     "daysAgo": "há {count} dias"
-  }
-  ,
+  },
   "Analytics": {
     "title": "Vendedores no LittleBiggy",
     "updated": "Atualizado",
@@ -351,8 +343,7 @@
     },
     "footerHint": "Clica num vendedor para ver o perfil completo",
     "unknownSeller": "Desconhecido"
-  }
-  ,
+  },
   "LatestReviews": {
     "title": "Últimas avaliações",
     "withImagesCount": "{count} avaliações com imagens",
@@ -365,15 +356,13 @@
     "footerRefresh": "Avaliações do LittleBiggy atualizadas a cada 4 horas",
     "itemImageAlt": "Imagem do artigo",
     "reviewMediaAlt": "Média da avaliação"
-  }
-  ,
+  },
   "Theme": {
     "dark": "Escuro",
     "light": "Claro",
     "toggleTitle": "Alternar modo escuro",
     "toggleSr": "Alternar modo escuro"
-  }
-  ,
+  },
   "Share": {
     "menuAria": "Menu de partilha",
     "copyLink": "Copiar link",
@@ -484,5 +473,13 @@
     "square": "quad",
     "star": "estrela",
     "x": "×"
+  },
+  "NotFound": {
+    "itemTitle": "Artigo indisponível",
+    "itemDesc": "Este artigo já não se encontra listado. Pode ter esgotado, sido removido ou eliminado.",
+    "sellerTitle": "Vendedor indisponível",
+    "sellerDesc": "Este perfil de vendedor não foi encontrado. A loja pode ter fechado ou mudado de nome.",
+    "pageTitle": "Página não encontrada",
+    "pageDesc": "A página que procura não existe ou foi movida."
   }
 }
