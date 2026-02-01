@@ -2,9 +2,10 @@
 import React, { useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, buildSellerUrl, hostForLocale } from '@/lib/market/routing';
+import cn from '@/lib/core/cn';
 
-type Props = { url: string; title?: string; onClose: () => void };
-export default function ShareMenu({ url, title = 'Item', onClose }: Props) {
+type Props = { url: string; title?: string; onClose: () => void; className?: string };
+export default function ShareMenu({ url, title = 'Item', onClose, className }: Props) {
   const t = useTranslations('Share');
   const locale = useLocale();
   // If passed an absolute URL that contains /item/ or /seller/ we attempt to localize the path segment if a locale-specific alias exists.
@@ -40,7 +41,7 @@ export default function ShareMenu({ url, title = 'Item', onClose }: Props) {
         ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'absolute'; ta.style.left = '-9999px';
         document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
       }
-    } catch {}
+    } catch { }
     onClose && onClose();
   }, [safeUrl, onClose]);
 
@@ -49,7 +50,7 @@ export default function ShareMenu({ url, title = 'Item', onClose }: Props) {
       if (navigator.share) {
         await navigator.share({ title, url: safeUrl });
       }
-    } catch {}
+    } catch { }
     onClose && onClose();
   }, [title, safeUrl, onClose]);
 
@@ -64,7 +65,10 @@ export default function ShareMenu({ url, title = 'Item', onClose }: Props) {
 
   return (
     <div
-      className="absolute right-0 mt-1 z-20 min-w-[240px] rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg p-2"
+      className={cn(
+        "absolute z-20 min-w-[240px] rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl p-2",
+        className || "right-0 mt-1"
+      )}
       onPointerDown={stop}
       onMouseDown={stop}
       onClick={stop}

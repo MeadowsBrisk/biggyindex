@@ -65,18 +65,84 @@ export default function MobileTabs({
   leadImage,
 }: Props) {
   const tOv = useTranslations('Overlay');
-  // Use Jotai atomWithStorage for hydration-safe tab persistence
   const [tab, setTab] = useAtom(mobileDetailTabAtom);
+  const [isManualScroll, setIsManualScroll] = useState(false);
 
-  // Tab label map for i18n
+  const pricesRef = React.useRef<HTMLDivElement>(null);
+  const descRef = React.useRef<HTMLDivElement>(null);
+  const reviewsRef = React.useRef<HTMLDivElement>(null);
+
   const tabLabels: Record<string, string> = {
     prices: tOv('prices'),
     description: tOv('description'),
     reviews: tOv('reviews'),
   };
 
+  // Scroll spy to update tab on scroll
+  useEffect(() => {
+    if (isManualScroll) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      // Find all intersecting elements
+      const visible = entries.filter(e => e.isIntersecting);
+      if (visible.length > 0) {
+        // Sort by how close the top of the element is to the sticky header (approx 50px offset)
+        // This effectively picks the section that is currently starting at or scrolling past the top reading line.
+        const sorted = visible.sort((a, b) => {
+          const topA = Math.abs(a.boundingClientRect.top - 50);
+          const topB = Math.abs(b.boundingClientRect.top - 50);
+          return topA - topB;
+        });
+
+        const id = sorted[0].target.getAttribute('data-section-id');
+        if (id && id !== tab && (id === 'prices' || id === 'description' || id === 'reviews')) {
+          setTab(id as any);
+        }
+      }
+    }, { threshold: 0, rootMargin: '-50px 0px -50% 0px' });
+
+    if (pricesRef.current) observer.observe(pricesRef.current);
+    if (descRef.current) observer.observe(descRef.current);
+    if (reviewsRef.current) observer.observe(reviewsRef.current);
+
+    return () => observer.disconnect();
+  }, [tab, isManualScroll, setTab]);
+
+  // Handle manual tab click
+  const scrollToSection = (key: 'prices' | 'description' | 'reviews') => {
+    setTab(key);
+    setIsManualScroll(true);
+    setTimeout(() => setIsManualScroll(false), 1000); // Re-enable observer after scroll
+
+    let ref = null;
+    if (key === 'prices') ref = pricesRef;
+    if (key === 'description') ref = descRef;
+    if (key === 'reviews') ref = reviewsRef;
+
+    if (ref && ref.current) {
+      // Offset for sticky header (approx 48px + 12px margin)
+      const y = ref.current.getBoundingClientRect().top + window.scrollY; // This logic might be flawed in a portal/overlay without window scroll.
+      // Better: scrollIntoView
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Since it's inside a overflow-y-auto container, scrollIntoView works well.
+      // But we have a sticky header covering the top part.
+      // We need to account for scroll-margin-top on the elements via CSS classes.
+    }
+  };
+
+  // Initial scroll if a specific tab is active (and not prices/default top)
+  useEffect(() => {
+    // Small delay to ensure layout
+    const timer = setTimeout(() => {
+      if (tab === 'description' && descRef.current) descRef.current.scrollIntoView({ block: 'start' });
+      if (tab === 'reviews' && reviewsRef.current) reviewsRef.current.scrollIntoView({ block: 'start' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []); // Run once on mount
+
   const [selectionMode, setSelectionMode] = useState(false);
-  // Auto-select preferred shipping when enabling includeShipping
+  // ... (Shipping logic - kept exactly as is) ...
   React.useEffect(() => {
     if (!includeShipping) return;
     if (!Array.isArray(shippingOptions) || shippingOptions.length === 0) return;
@@ -92,13 +158,14 @@ export default function MobileTabs({
       setSelectedShipIdx(cheapestIdx >= 0 ? cheapestIdx : 0);
     }
   }, [includeShipping, shippingOptions, selectedShipIdx, setSelectedShipIdx]);
+
   const addToBasket = useSetAtom(addToBasketAtom);
   const showToast = useSetAtom(showToastAtom);
   const basketItems = (useAtomValue(basketAtom) || []) as any[];
   const displayCurrency = useAtomValue(displayCurrencyAtom);
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const toggle = (vid: any) => setSelected(prev => { const n = new Set(prev); if (n.has(vid)) n.delete(vid); else n.add(vid); return n; });
-  // Compute range text using shared utility so it matches list and overlay exactly
+
   const selectedShippingUsd = useMemo(() => {
     if (!includeShipping) return null;
     const opt = (selectedShipIdx != null) ? shippingOptions[selectedShipIdx] : null;
@@ -109,14 +176,7 @@ export default function MobileTabs({
   const variants = Array.isArray(baseItem?.v) ? baseItem.v : [];
   const internalRangeText = useMemo(() => {
     if (variants.length === 0) return '';
-    return variantRangeText({
-      variants,
-      displayCurrency,
-      rates,
-      shippingUsd: selectedShippingUsd,
-      includeShipping,
-      selectedVariantIds: selected,
-    });
+    return variantRangeText({ variants, displayCurrency, rates, shippingUsd: selectedShippingUsd, includeShipping, selectedVariantIds: selected });
   }, [variants, displayCurrency, rates, selectedShippingUsd, includeShipping, selected]);
 
   const selectedTotalText = useMemo(() => {
@@ -135,299 +195,312 @@ export default function MobileTabs({
     if (displayCurrency === 'USD') return formatUSD(total, 'USD', rates, { decimals: 2 });
     return `£${total.toFixed(2).replace(/\.00$/, '')}`;
   }, [variants, selected, displayCurrency, rates, selectedShippingUsd, includeShipping]);
+
   const inBasket = useMemo(() => {
     if (!baseItem) return false;
     const ref = baseItem.refNum || String(baseItem.id);
     return basketItems.some(it => (it?.refNum && String(it.refNum) === String(ref)) || (it?.id && String(it.id) === String(baseItem.id)));
   }, [basketItems, baseItem]);
+
   return (
-    <div className="mt-3 flex flex-col">
-      <div className="flex rounded-md overflow-hidden border border-gray-200 dark:border-gray-700" data-nosnippet>
-        {(['prices', 'description', 'reviews'] as const).map(key => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setTab(key)}
-            className={cn(
-              'flex-1 text-center text-[12px] py-1.5 capitalize transition-colors',
-              tab === key ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-            )}
-          >{tabLabels[key]}</button>
-        ))}
+    <div className="mt-0 flex flex-col min-h-[500px]">
+      {/* Sticky Tab Header */}
+      <div className="sticky top-0 z-30 pt-3 pb-2 bg-white dark:bg-[#0f1725] border-b border-gray-100 dark:border-gray-800">
+        <div className="flex rounded-md overflow-hidden border border-gray-200 dark:border-gray-700" data-nosnippet>
+          {(['prices', 'description', 'reviews'] as const).map(key => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => scrollToSection(key)}
+              className={cn(
+                'flex-1 text-center text-[13px] font-medium py-2 capitalize transition-colors',
+                tab === key ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+              )}
+            >{tabLabels[key]}</button>
+          ))}
+        </div>
       </div>
 
-      {tab === 'prices' && (
-        <div className="mt-2 space-y-2">
-          {variants.length > 0 && (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-2">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{tOv('variantPrices')}</div>
-                  {(internalRangeText || variantPriceRangeText) && (
-                    <div className="mt-0.5 text-base font-bold tabular-nums text-gray-900 dark:text-gray-100">{internalRangeText || variantPriceRangeText}</div>
+      <div className="space-y-8">
+        {/* PRICES SECTION */}
+        <div ref={pricesRef} data-section-id="prices" className="scroll-mt-[70px]">
+          <div className="mt-2 space-y-2">
+            {variants.length > 0 && (
+              <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-2">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{tOv('variantPrices')}</div>
+                    {(internalRangeText || variantPriceRangeText) && (
+                      <div className="mt-0.5 text-base font-bold tabular-nums text-gray-900 dark:text-gray-100">{internalRangeText || variantPriceRangeText}</div>
+                    )}
+                  </div>
+                  {/* ... (Previous logic for Simulate Basket toggle) ... */}
+                  {!allShippingFree && shippingOptions.length > 0 ? (
+                    <div className="flex items-center gap-2">
+                      {includeShipping && selectedShipIdx != null && shippingOptions[selectedShipIdx] && (
+                        <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                          {(() => {
+                            const usd = shippingOptions[selectedShipIdx].cost || 0;
+                            if (displayCurrency === 'USD') return `incl ${formatUSD(usd, 'USD', rates, { zeroIsFree: true })} ship`;
+                            const gbp = convertToGBP(usd, 'USD', rates) || 0;
+                            return `incl £${gbp.toFixed(2)} ship`;
+                          })()}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        className={cn(
+                          'text-[10px] font-semibold px-2 h-6 rounded-full',
+                          includeShipping ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60'
+                        )}
+                        onClick={() => setIncludeShipping(v => !v)}
+                        title={tOv('simulateBasket')}
+                      >{tOv('simulateBasket')}</button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className={cn(
+                          'text-[10px] font-semibold px-2 h-6 rounded-full',
+                          showSelection ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60'
+                        )}
+                        onClick={() => setSelectionMode(v => !v)}
+                        title={tOv('simulateBasket')}
+                      >{showSelection ? tOv('selectionOn') : tOv('simulateBasket')}</button>
+                    </div>
                   )}
                 </div>
-                {!allShippingFree && shippingOptions.length > 0 ? (
-                  <div className="flex items-center gap-2">
-                    {includeShipping && selectedShipIdx != null && shippingOptions[selectedShipIdx] && (
-                      <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {(() => {
-                          const usd = shippingOptions[selectedShipIdx].cost || 0;
-                          if (displayCurrency === 'USD') return `incl ${formatUSD(usd, 'USD', rates, { zeroIsFree: true })} ship`;
-                          const gbp = convertToGBP(usd, 'USD', rates) || 0;
-                          return `incl £${gbp.toFixed(2)} ship`;
-                        })()}
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      className={cn(
-                        'text-[10px] font-semibold px-2 h-6 rounded-full',
-                        includeShipping ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60'
+                {showSelection && (
+                  <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">{tOv('selectVariantsHint')}</div>
+                )}
+                <VariantPriceList
+                  variants={variants}
+                  rates={rates}
+                  displayCurrency={displayCurrency}
+                  includeShipping={includeShipping}
+                  shippingUsd={selectedShippingUsd}
+                  selectedVariantIds={selected}
+                  onToggle={toggle}
+                  perUnitSuffix={perUnitSuffix}
+                  selectionEnabled={showSelection}
+                  className="max-h-52"
+                />
+                {showSelection && (
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                      <span>{selected.size || 0} {tOv('selectedLabel')}</span>
+                      <button type="button" className="underline hover:no-underline" onClick={() => {
+                        const all = new Set();
+                        for (let i = 0; i < variants.length; i++) {
+                          const v = variants[i];
+                          all.add(v.vid ?? v.id ?? i);
+                        }
+                        setSelected(all);
+                      }}>{tOv('selectAll')}</button>
+                      <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>{tOv('clear')}</button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedTotalText && (
+                        <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">{tOv('total')} {selectedTotalText}</span>
                       )}
-                      onClick={() => setIncludeShipping(v => !v)}
-                      title={tOv('simulateBasket')}
-                    >{tOv('simulateBasket')}</button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className={cn(
-                        'text-[10px] font-semibold px-2 h-6 rounded-full',
-                        showSelection ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-300/60' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300/60'
+                      <button
+                        type="button"
+                        disabled={selected.size === 0}
+                        onClick={() => {
+                          let shippingUsd = null;
+                          if (includeShipping) {
+                            if (selectedShipIdx != null && shippingOptions[selectedShipIdx] && typeof shippingOptions[selectedShipIdx].cost === 'number') {
+                              shippingUsd = shippingOptions[selectedShipIdx].cost;
+                            } else if (shippingOptions && shippingOptions.length > 0) {
+                              const freeOpt = shippingOptions.find(o => o && typeof o.cost === 'number' && o.cost === 0);
+                              if (freeOpt) shippingUsd = 0;
+                              else {
+                                let min = null;
+                                for (const o of shippingOptions) { if (o && typeof o.cost === 'number') min = (min == null ? o.cost : Math.min(min, o.cost)); }
+                                if (min != null) shippingUsd = min;
+                              }
+                            }
+                          }
+                          const sel = new Set(selected);
+                          for (let i = 0; i < variants.length; i++) {
+                            const v = variants[i];
+                            const vid = v.vid ?? v.id ?? i;
+                            if (!sel.has(vid)) continue;
+                            const descRaw = (v.d || '');
+                            const desc = typeof descRaw === 'string' && descRaw ? decodeEntities(descRaw) : '';
+                            const priceUsd = typeof v.usd === 'number' ? v.usd : typeof v.baseAmount === 'number' ? v.baseAmount : null;
+                            addToBasket({
+                              id: baseItem?.id,
+                              refNum: baseItem?.refNum,
+                              variantId: vid,
+                              variantDesc: desc || 'Variant',
+                              name: displayName || baseItem?.n,
+                              sellerName: baseItem?.sn,
+                              qty: 1,
+                              priceUSD: priceUsd,
+                              shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
+                              includeShip: !!includeShipping,
+                              imageUrl: leadImage || baseItem?.i,
+                              sl,
+                            });
+                          }
+                          setSelected(new Set());
+                          showToast(tOv('addedToBasket'));
+                        }}
+                        className={cn('text-xs font-semibold px-3 h-7 rounded-full', selected.size === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500' : 'bg-blue-600 hover:bg-blue-500 text-white')}
+                      >{tOv('addSelected')}</button>
+                      {inBasket && (
+                        <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{tOv('inBasket')}</span>
                       )}
-                      onClick={() => setSelectionMode(v => !v)}
-                      title={tOv('simulateBasket')}
-                    >{showSelection ? tOv('selectionOn') : tOv('simulateBasket')}</button>
+                    </div>
                   </div>
                 )}
               </div>
-              {showSelection && (
-                <div className="mb-1 text-[11px] text-gray-500 dark:text-gray-400">{tOv('selectVariantsHint')}</div>
-              )}
-              <VariantPriceList
-                variants={variants}
-                rates={rates}
-                displayCurrency={displayCurrency}
-                includeShipping={includeShipping}
-                shippingUsd={selectedShippingUsd}
-                selectedVariantIds={selected}
-                onToggle={toggle}
-                perUnitSuffix={perUnitSuffix}
-                selectionEnabled={showSelection}
-                className="max-h-52"
-              />
-              {showSelection && (
-                <div className="mt-2 flex items-center justify-between">
-                  <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <span>{selected.size || 0} {tOv('selectedLabel')}</span>
-                    <button type="button" className="underline hover:no-underline" onClick={() => {
-                      const all = new Set();
-                      for (let i = 0; i < variants.length; i++) {
-                        const v = variants[i];
-                        all.add(v.vid ?? v.id ?? i);
-                      }
-                      setSelected(all);
-                    }}>{tOv('selectAll')}</button>
-                    <button type="button" className="underline hover:no-underline" onClick={() => setSelected(new Set())}>{tOv('clear')}</button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {selectedTotalText && (
-                      <span className="text-[11px] font-semibold font-mono text-gray-800 dark:text-gray-200">{tOv('total')} {selectedTotalText}</span>
-                    )}
-                    <button
-                      type="button"
-                      disabled={selected.size === 0}
-                      onClick={() => {
-                        let shippingUsd = null;
-                        if (includeShipping) {
-                          if (selectedShipIdx != null && shippingOptions[selectedShipIdx] && typeof shippingOptions[selectedShipIdx].cost === 'number') {
-                            shippingUsd = shippingOptions[selectedShipIdx].cost;
-                          } else if (shippingOptions && shippingOptions.length > 0) {
-                            const freeOpt = shippingOptions.find(o => o && typeof o.cost === 'number' && o.cost === 0);
-                            if (freeOpt) shippingUsd = 0;
-                            else {
-                              let min = null;
-                              for (const o of shippingOptions) { if (o && typeof o.cost === 'number') min = (min == null ? o.cost : Math.min(min, o.cost)); }
-                              if (min != null) shippingUsd = min;
-                            }
-                          }
-                        }
-                        const sel = new Set(selected);
-                        for (let i = 0; i < variants.length; i++) {
-                          const v = variants[i];
-                          const vid = v.vid ?? v.id ?? i;
-                          if (!sel.has(vid)) continue;
-                          const descRaw = (v.d || '');
-                          const desc = typeof descRaw === 'string' && descRaw ? decodeEntities(descRaw) : '';
-                          const priceUsd = typeof v.usd === 'number' ? v.usd : typeof v.baseAmount === 'number' ? v.baseAmount : null;
-                          addToBasket({
-                            id: baseItem?.id,
-                            refNum: baseItem?.refNum,
-                            variantId: vid,
-                            variantDesc: desc || 'Variant',
-                            name: displayName || baseItem?.n,
-                            sellerName: baseItem?.sn,
-                            qty: 1,
-                            priceUSD: priceUsd,
-                            shippingUsd: includeShipping ? (shippingUsd ?? null) : null,
-                            includeShip: !!includeShipping,
-                            imageUrl: leadImage || baseItem?.i,
-                            sl,
-                          });
-                        }
-                        setSelected(new Set());
-                        showToast(tOv('addedToBasket'));
-                      }}
-                      className={cn('text-xs font-semibold px-3 h-7 rounded-full', selected.size === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500' : 'bg-blue-600 hover:bg-blue-500 text-white')}
-                    >{tOv('addSelected')}</button>
-                    {inBasket && (
-                      <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{tOv('inBasket')}</span>
+            )}
+
+            {(shippingOptions && shippingOptions.length > 0) && (
+              <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/40 p-2">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" /> {tOv('shippingOptions')}</span>
+                </div>
+                <ul className="space-y-1 max-h-48 overflow-auto pr-1 custom-scroll">
+                  {!loading && shippingOptions && shippingOptions.map((opt, i) => {
+                    const usd = typeof opt.cost === 'number' ? opt.cost : null;
+                    let gbp = usd === 0 ? 0 : (usd != null ? convertToGBP(usd, 'USD', rates) : null);
+                    // Match Basket: no rounding up; display to 2 decimals
+                    // leave gbp as computed; format when rendering
+                    const inputId = `m-shipOpt-${i}`;
+                    const selectable = includeShipping && !allShippingFree && typeof usd === 'number';
+                    const priceText = displayCurrency === 'USD'
+                      ? (usd == null ? '' : formatUSD(usd, 'USD', rates, { zeroIsFree: true }))
+                      : (gbp == null ? (usd == null ? '?' : '…') : (gbp === 0 ? 'free' : `£${gbp.toFixed(2)}`));
+                    return (
+                      <li key={i} className={cn(
+                        'flex items-center justify-between gap-2 text-[13px] rounded px-2 py-1.5 border bg-white/70 dark:bg-gray-900/30',
+                        'border-gray-200/70 dark:border-gray-700/70',
+                        selectable ? 'cursor-pointer' : 'cursor-default opacity-100'
+                      )}
+                        onClick={() => { if (selectable) setSelectedShipIdx(i); }}
+                      >
+                        <label htmlFor={inputId} className="flex items-center gap-2 min-w-0 w-full cursor-pointer">
+                          {selectable && (
+                            <input
+                              id={inputId}
+                              type="radio"
+                              name="m-shipOpt"
+                              className="h-3.5 w-3.5 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 cursor-pointer"
+                              checked={selectedShipIdx === i}
+                              onChange={() => setSelectedShipIdx(i)}
+                            />
+                          )}
+                          <span className="truncate text-gray-700 dark:text-gray-300" title={opt.label ? decodeEntities(opt.label) : ''}>{opt.label ? decodeEntities(opt.label) : tOv('option')}</span>
+                        </label>
+                        <span className="font-mono font-semibold text-gray-800 dark:text-gray-200 shrink-0">{priceText}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* DESCRIPTION SECTION */}
+        <div ref={descRef} data-section-id="description" className="scroll-mt-[70px]">
+          <div className="mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-3">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 uppercase tracking-wide text-[11px]">{tOv('description')}</h3>
+            {loading && (
+              <div className="animate-pulse space-y-2">
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
+              </div>
+            )}
+            {!loading && description && formatDescription(description)}
+            {!loading && !description && <div className="text-xs italic text-gray-400">{tOv('noDescription')}</div>}
+          </div>
+        </div>
+
+        {/* REVIEWS SECTION */}
+        <div ref={reviewsRef} data-section-id="reviews" className="scroll-mt-[70px]">
+          <div className="mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-3 lg:pb-3 pb-10">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 uppercase tracking-wide text-[11px]">{tOv('reviews')}</h3>
+            {(() => {
+              const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+              const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
+                ? (stats?.avg ?? stats?.averageRating)
+                : (reviews.length
+                  ? (reviews.map(r => typeof r.rating === 'number' ? r.rating : 0).reduce((a, b) => a + b, 0) /
+                    (reviews.filter(r => typeof r.rating === 'number').length || 1))
+                  : null);
+              const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
+              const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviews.length);
+              const displayLimit = REVIEWS_DISPLAY_LIMIT;
+
+              const tokensLeft: any[] = [];
+              if (avgRating != null) tokensLeft.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
+              if (reviewsTotal != null) {
+                if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
+                  tokensLeft.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
+                } else {
+                  tokensLeft.push(`${reviewsTotal} ${tOv('totalShort')}`);
+                }
+              }
+              const rightTokens: any[] = [];
+              if (avgDays != null) {
+                const d = Math.round(avgDays);
+                rightTokens.push(tOv('avgArrival', { days: d }));
+              }
+              return (
+                <div className="mb-3 text-[11px] text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                    <span className="inline-flex items-center gap-1">
+                      {tokensLeft.join(' • ')}
+                    </span>
+                    {rightTokens.length > 0 && (
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        {rightTokens.join(' • ')}
+                      </span>
                     )}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
+              );
+            })()}
 
-          {(shippingOptions && shippingOptions.length > 0) && (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/40 p-2">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1"><VanIcon className="w-4 h-4 opacity-70" /> {tOv('shippingOptions')}</span>
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
               </div>
-              <ul className="space-y-1 max-h-48 overflow-auto pr-1 custom-scroll">
-                {!loading && shippingOptions && shippingOptions.map((opt, i) => {
-                  const usd = typeof opt.cost === 'number' ? opt.cost : null;
-                  let gbp = usd === 0 ? 0 : (usd != null ? convertToGBP(usd, 'USD', rates) : null);
-                  // Match Basket: no rounding up; display to 2 decimals
-                  // leave gbp as computed; format when rendering
-                  const inputId = `m-shipOpt-${i}`;
-                  const selectable = includeShipping && !allShippingFree && typeof usd === 'number';
-                  const priceText = displayCurrency === 'USD'
-                    ? (usd == null ? '' : formatUSD(usd, 'USD', rates, { zeroIsFree: true }))
-                    : (gbp == null ? (usd == null ? '?' : '…') : (gbp === 0 ? 'free' : `£${gbp.toFixed(2)}`));
-                  return (
-                    <li key={i} className={cn(
-                      'flex items-center justify-between gap-2 text-[13px] rounded px-2 py-1.5 border bg-white/70 dark:bg-gray-900/30',
-                      'border-gray-200/70 dark:border-gray-700/70',
-                      selectable ? 'cursor-pointer' : 'cursor-default opacity-100'
-                    )}
-                      onClick={() => { if (selectable) setSelectedShipIdx(i); }}
-                    >
-                      <label htmlFor={inputId} className="flex items-center gap-2 min-w-0 w-full cursor-pointer">
-                        {selectable && (
-                          <input
-                            id={inputId}
-                            type="radio"
-                            name="m-shipOpt"
-                            className="h-3.5 w-3.5 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 cursor-pointer"
-                            checked={selectedShipIdx === i}
-                            onChange={() => setSelectedShipIdx(i)}
-                          />
-                        )}
-                        <span className="truncate text-gray-700 dark:text-gray-300" title={opt.label ? decodeEntities(opt.label) : ''}>{opt.label ? decodeEntities(opt.label) : tOv('option')}</span>
-                      </label>
-                      <span className="font-mono font-semibold text-gray-800 dark:text-gray-200 shrink-0">{priceText}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
+            )}
+            {error && (
+              <div className="text-xs text-red-500">{tOv('failedToLoad')} <button className="underline" onClick={reload}>{tOv('retry')}</button></div>
+            )}
+            {!loading && reviews.length === 0 && !error && (
+              <div className="text-xs text-gray-500">{tOv('noReviews')}</div>
+            )}
+            {!loading && reviews.length > 0 && (
+              <ReviewsList
+                reviews={reviews}
+                fullTimeAgo={fullTimeAgo}
+                onImageClick={(src: string, images: string[], index: number) => onReviewImageClick(images, index)}
+              />
+            )}
+
+            {!loading && reviews.length > 0 && (() => {
+              const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
+              const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
+              const isTruncated = reviewsTotal > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
+              if (!isTruncated || !sl) return null;
+              return (
+                <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
+                  {tOv('readMoreReviewsAt')}
+                </div>
+              );
+            })()}
+          </div>
         </div>
-      )}
-
-      {tab === 'description' && (
-        <div className="mt-2">
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{tOv('description')}</h3>
-          {loading && (
-            <div className="animate-pulse space-y-2">
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
-            </div>
-          )}
-          {!loading && description && formatDescription(description)}
-          {!loading && !description && <div className="text-xs italic text-gray-400">{tOv('noDescription')}</div>}
-        </div>
-      )}
-
-      {tab === 'reviews' && (
-        <div className="mt-2">
-          {(() => {
-            const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
-            const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number'
-              ? (stats?.avg ?? stats?.averageRating)
-              : (reviews.length
-                ? (reviews.map(r => typeof r.rating === 'number' ? r.rating : 0).reduce((a, b) => a + b, 0) /
-                  (reviews.filter(r => typeof r.rating === 'number').length || 1))
-                : null);
-            const avgDays = typeof (stats?.days ?? stats?.averageDaysToArrive) === 'number' ? (stats?.days ?? stats?.averageDaysToArrive) : null;
-            const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : (reviews.length);
-            const displayLimit = REVIEWS_DISPLAY_LIMIT;
-
-            const tokensLeft: any[] = [];
-            if (avgRating != null) tokensLeft.push(`${avgRating.toFixed(1)} ${tOv('avgShort')}`);
-            if (reviewsTotal != null) {
-              if (reviewsTotal > displayLimit && reviews.length >= displayLimit) {
-                tokensLeft.push(`${displayLimit} ${tOv('recentShort')} (${reviewsTotal} ${tOv('totalShort')})`);
-              } else {
-                tokensLeft.push(`${reviewsTotal} ${tOv('totalShort')}`);
-              }
-            }
-            const rightTokens: any[] = [];
-            if (avgDays != null) {
-              const d = Math.round(avgDays);
-              rightTokens.push(tOv('avgArrival', { days: d }));
-            }
-            return (
-              <div className="mb-2">
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-normal text-gray-500 dark:text-gray-400">
-                    {tokensLeft.join(' • ')}
-                  </span>
-                  {rightTokens.length > 0 && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-normal text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      {rightTokens.join(' • ')}
-                    </span>
-                  )}
-                </h3>
-              </div>
-            );
-          })()}
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-            </div>
-          )}
-          {error && (
-            <div className="text-xs text-red-500">{tOv('failedToLoad')} <button className="underline" onClick={reload}>{tOv('retry')}</button></div>
-          )}
-          {!loading && reviews.length === 0 && !error && (
-            <div className="text-xs text-gray-500">{tOv('noReviews')}</div>
-          )}
-          {!loading && reviews.length > 0 && (
-            <ReviewsList
-              reviews={reviews}
-              fullTimeAgo={fullTimeAgo}
-              onImageClick={(src: string, images: string[], index: number) => onReviewImageClick(images, index)}
-            />
-          )}
-
-          {!loading && reviews.length > 0 && (() => {
-            const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
-            const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
-            const isTruncated = reviewsTotal > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-            if (!isTruncated || !sl) return null;
-            return (
-              <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
-                {tOv('readMoreReviewsAt')}
-              </div>
-            );
-          })()}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

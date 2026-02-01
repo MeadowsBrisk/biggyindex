@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 export const BREAKPOINTS = {
-  mobile: 700,
+  mobile: 650,
   tablet: 850,
   smallDesktop: 1280,
   mediumDesktop: 1700,
@@ -53,9 +53,9 @@ export function useScreenSize(): ScreenSizeState {
 
   const checkScreenSize = useCallback(() => {
     const width = window.innerWidth;
-    
-    // Mobile: anything under tablet breakpoint (850px)
-    if (width < BREAKPOINTS.tablet) {
+
+    // Mobile: anything under mobile breakpoint (700px)
+    if (width < BREAKPOINTS.mobile) {
       setScreenSize(STATES.mobile);
     } else if (width < BREAKPOINTS.smallDesktop) {
       setScreenSize(STATES.tablet);

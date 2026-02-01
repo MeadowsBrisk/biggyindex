@@ -64,8 +64,39 @@ import { useTranslations, useFormatter } from 'next-intl';
 import { translateCategoryAndSubs } from '@/lib/taxonomy/taxonomyLabels';
 // Use shared buttons to avoid duplication across card/overlay
 import FavButton from '@/components/actions/FavButton';
+import { useParallax } from '@/hooks/useParallax';
+import { useScreenSize } from '@/hooks/useScreenSize';
+
+const ParallaxImage = ({ src, alt, className, onClick, rootRef, enabled, loading, decoding, draggable }: any) => {
+  const { ref } = useParallax({
+    root: rootRef,
+    enabled,
+    strength: 40,
+    axis: 'y'
+  });
+
+  // Remove transition classes when parallax is active to prevent lag
+  const displayClass = enabled
+    ? className.replace(/transition-transform|duration-900|ease-out/g, '').trim()
+    : className;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      ref={enabled ? (ref as any) : undefined}
+      src={src}
+      alt={alt}
+      className={displayClass}
+      onClick={onClick}
+      loading={loading}
+      decoding={decoding}
+      draggable={draggable}
+    />
+  );
+};
 
 export default function ItemDetailOverlay() {
+  const { isMobile } = useScreenSize();
   const tItem = useTranslations('Item');
   const tOv = useTranslations('Overlay');
   const tCats = useTranslations('Categories');
@@ -529,12 +560,12 @@ export default function ItemDetailOverlay() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-y-auto"
+          className="fixed inset-0 z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-hidden md:overflow-y-auto"
           onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
         >
 
           {/* Grid wrapper to place full-height nav zones outside the panel */}
-          <div className="w-full md:w-full lg:w-auto grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,auto)_80px] md:gap-0.5 lg:gap-2 items-center justify-center">
+          <div className="w-full h-full md:w-full lg:w-auto grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,auto)_80px] md:gap-0.5 lg:gap-2 items-start md:items-center justify-center">
             {/* Left nav zone (md+) */}
             <div className="hidden md:flex h-full items-center justify-end">
               <button
@@ -557,7 +588,7 @@ export default function ItemDetailOverlay() {
               exit={{ opacity: 0, scale: 0.98, y: 6 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
               className={cn(
-                "relative w-full overlay-inner-border md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] md:min-h-[70vh] md:h-[90vh] md:max-h-[95vh] 2xl:h-[90vh] flex flex-col min-h-0",
+                "relative w-full overlay-inner-border md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] h-full md:min-h-[70vh] md:h-[90vh] md:max-h-[95vh] 2xl:h-[90vh] flex flex-col min-h-0",
                 isFav && "fav-card-ring"
               )}
             >
@@ -573,12 +604,12 @@ export default function ItemDetailOverlay() {
                 {/* Content grid: 2 cols desktop, 3 cols on ultrawide */}
                 <div className="flex-1 min-h-0 md:overflow-hidden grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_360px] gap-6 pl-[6px] py-[6px]">
                   {/* Column 1: gallery */}
-                  <div className="w-full flex-shrink-0 flex flex-col gap-3 md:overflow-y-auto custom-scroll pr-1 pb-35 md:pb-10 2xl:pb-0">
+                  <div className="w-full flex-shrink-0 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scroll pr-1 pb-1 md:pb-10 2xl:pb-0">
                     {images.length > 0 ? (
                       <>
                         <div
                           className={cn(
-                            "image-border",
+                            "image-border flex-shrink-0",
                             isFav && "fav-thumb-shadow"
                           )}
                           style={{ '--image-border-radius': '0.5rem', '--image-border-padding': '2.5px' } as React.CSSProperties}
@@ -602,7 +633,7 @@ export default function ItemDetailOverlay() {
                               slidesPerView={1}
                               onSwiper={setMainSwiper}
                               onSlideChange={(sw) => setActiveSlide((sw as any).activeIndex || 0)}
-                              className="w-full aspect-square minimal-swiper"
+                              className="w-full aspect-[4/3] md:aspect-[16/9] lg:aspect-square minimal-swiper"
                             >
                               {images.map((src, idx) => (
                                 <SwiperSlide key={idx + src} className="!h-full">
@@ -618,21 +649,47 @@ export default function ItemDetailOverlay() {
                                       loading={idx === 0 ? 'eager' : 'lazy'}
                                       decoding="async"
                                       draggable={false}
-                                      className="object-cover w-full h-full select-none cursor-zoom-in transition-transform duration-900 ease-out group-hover:scale-[1.04]"
+                                      className="object-cover w-full h-full select-none cursor-zoom-in group-hover:scale-[1.04] transition-transform duration-500"
                                     />
                                   </button>
                                 </SwiperSlide>
                               ))}
                             </Swiper>
+
+                            {/* Mobile Thumbnails Overlay (Absolute Bottom Left) */}
                             {images.length > 1 && (
-                              <div className="pointer-events-none absolute top-1 right-1 text-[11px] px-1.5 py-0.5 rounded-md bg-black/55 backdrop-blur-sm text-white/90 font-mono shadow-sm">
-                                {activeSlide + 1}<span className="opacity-60">/</span>{images.length}
+                              <div
+                                className="absolute bottom-3 left-3 z-20 md:hidden"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="flex gap-2 p-1.5 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 shadow-lg">
+                                  {images.map((src, idx) => (
+                                    <button
+                                      key={'mobile-thumb-' + idx}
+                                      type="button"
+                                      onClick={() => mainSwiper && (mainSwiper as any).slideTo(idx)}
+                                      className={cn(
+                                        'relative w-12 h-12 rounded-lg overflow-hidden border transition-all active:scale-95',
+                                        activeSlide === idx
+                                          ? 'ring-2 ring-blue-500 border-transparent shadow-md'
+                                          : 'border-white/10 opacity-80 hover:opacity-100 hover:border-white/30'
+                                      )}
+                                    >
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={isOptimized ? proxyImage(src, 112) : src}
+                                        alt="thumb"
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
                             )}
                           </div>
                         </div>
                         {images.length > 1 && (
-                          <div>
+                          <div className="hidden md:block">
                             <Swiper
                               modules={[FreeMode]}
                               spaceBetween={8}
@@ -911,33 +968,8 @@ export default function ItemDetailOverlay() {
                   shareBtnRef={shareBtnRef}
                   shareUrl={shareUrl}
                 />
-                {/* Mobile FAB: bottom-left, same bottom offset as Biggy; inside panel (not fixed) */}
-                <MobileActionsFab
-                  baseItem={baseItem}
-                  isFav={isFav as any}
-                  toggleFav={toggleFav}
-                  fabOpen={fabOpen}
-                  setFabOpen={setFabOpen}
-                  fabRef={fabRef}
-                  shareBtnRef={shareBtnRef}
-                  setShareOpen={setShareOpen}
-                  shareOpen={shareOpen}
-                  shareUrl={shareUrl}
-                />
-                {/* Floating biggy button (shipping info removed per design) */}
-                {sl && (
-                  <div className="pointer-events-none absolute right-3 bottom-25 md:right-3 md:bottom-3 md:bottom-3 xl:right-10">
-                    <a
-                      href={sl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
-                    >
-                      <span>Little Biggy</span>
-                      <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
-                    </a>
-                  </div>
-                )}
+
+                {/* Mobile actions are now in the fixed bottom bar */}
                 {/* Mobile Prev/Next rendered via portal so it's fixed to the viewport, not the transformed panel */}
 
               </div>
@@ -957,43 +989,81 @@ export default function ItemDetailOverlay() {
                 <span className="rounded-full md:p-2 lg:p-3 backdrop-blur-sm bg-black/35 text-white border border-white/15 shadow-sm group-hover:bg-black/45 transition-colors">›</span>
               </button>
             </div>
-          </div>
+          </div >
 
-        </motion.div>
+        </motion.div >
 
-      </AnimatePresence>
+      </AnimatePresence >
       {/* Mobile fixed bottom nav via portal (outside AnimatePresence to avoid transform/stack contexts) */}
-      {typeof document !== 'undefined' && createPortal(
-        (
-          <div className="md:hidden fixed left-2 right-2 bottom-2 z-[1000]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90 backdrop-blur supports-[backdrop-filter]:bg-white/85 supports-[backdrop-filter]:dark:bg-gray-900/80 shadow-xl p-2">
-              <div className="flex gap-2">
-                <button
-                  onClick={gotoPrev}
-                  aria-label={tOv('previousItemAria')}
-                  disabled={!hasPrev}
-                  className={cn(
-                    "h-10 flex-1 text-base font-semibold rounded-full select-none",
-                    !hasPrev ? "opacity-40 cursor-not-allowed" : "bg-gray-100 dark:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700"
-                  )}
-                >
-                  ‹ {tOv('prev')}
-                </button>
-                <button
-                  onClick={gotoNext}
-                  aria-label={tOv('nextItemAria')}
-                  disabled={!hasNext}
-                  className={cn(
-                    "h-10 flex-1 text-base font-semibold rounded-full select-none",
-                    !hasNext ? "opacity-40 cursor-not-allowed" : "bg-gray-100 dark:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700"
-                  )}
-                >
-                  {tOv('next')} ›
-                </button>
+      {
+        typeof document !== 'undefined' && createPortal(
+          (
+            <div className="md:hidden fixed left-0 right-0 bottom-0 z-[1000]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+              <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-white/75 dark:bg-[#0f1725]/75 backdrop-blur-md shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+                {/* Left Group: Menu + Nav */}
+                <div className="flex items-center gap-3">
+                  <div className="shrink-0 relative z-50">
+                    <MobileActionsFab
+                      baseItem={baseItem}
+                      isFav={isFav as any}
+                      toggleFav={toggleFav}
+                      fabOpen={fabOpen}
+                      setFabOpen={setFabOpen}
+                      fabRef={fabRef}
+                      shareBtnRef={shareBtnRef}
+                      setShareOpen={setShareOpen}
+                      shareOpen={shareOpen}
+                      shareUrl={shareUrl}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={gotoPrev}
+                      disabled={!hasPrev}
+                      className={cn(
+                        "h-10 px-5 text-sm font-semibold rounded-full transition-colors flex items-center justify-center select-none",
+                        !hasPrev
+                          ? "bg-gray-50 dark:bg-white/5 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600"
+                      )}
+                      aria-label={tOv('prev')}
+                    >
+                      <span className="text-xl leading-none mr-1 pb-0.5">‹</span> {tOv('prev')}
+                    </button>
+                    <button
+                      onClick={gotoNext}
+                      disabled={!hasNext}
+                      className={cn(
+                        "h-10 px-5 text-sm font-semibold rounded-full transition-colors flex items-center justify-center select-none",
+                        !hasNext
+                          ? "bg-gray-50 dark:bg-white/5 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600"
+                      )}
+                      aria-label={tOv('next')}
+                    >
+                      {tOv('next')} <span className="text-xl leading-none ml-1 pb-0.5">›</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right: Little Biggy Link */}
+                {sl && (
+                  <a
+                    href={sl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 group/button h-10 inline-flex items-center gap-2 text-[13px] font-semibold tracking-wide bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-4 shadow-lg shadow-emerald-600/20 dark:shadow-emerald-900/40 transition-all focus:outline-none focus-visible:ring-2 ring-offset-2 ring-emerald-500 ring-offset-white dark:ring-offset-[#0f1725]"
+                  >
+                    <span>Little Biggy</span>
+                    <span className="inline-block text-base leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
+                  </a>
+                )}
+                {!sl && <div className="w-4" />}
               </div>
             </div>
-          </div>
-        ), document.body)}
+          ), document.body)
+      }
     </>
   );
 }
