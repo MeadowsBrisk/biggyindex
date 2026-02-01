@@ -51,11 +51,17 @@ export default function ZoomThumbnails({ images, activeIndex, onSelect, useProxy
             >
               <img
                 src={thumbSrc}
+                data-original-src={src}
                 alt={alt ? `${alt} thumbnail ${i + 1}` : `Thumbnail ${i + 1}`}
                 className={cn('object-cover w-full h-full transition-transform', isActive ? 'scale-105' : 'group-hover:scale-105')}
                 draggable={false}
                 loading="lazy"
                 decoding="async"
+                onError={(e) => {
+                  const t = e.currentTarget;
+                  const o = t.getAttribute('data-original-src');
+                  if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                }}
               />
               <span
                 className={cn(

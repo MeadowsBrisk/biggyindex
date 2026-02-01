@@ -72,33 +72,51 @@ export default function ZoomSlide({
                     hasAnim ? (
                       <img
                         src={paused ? poster : anim}
+                        data-original-src={src}
                         alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
                         style={{ maxHeight: '90vh', maxWidth: '90vw' }}
                         className="w-auto h-auto block select-none object-contain"
                         draggable={false}
                         loading="eager"
                         decoding="async"
+                        onError={(e) => {
+                          const t = e.currentTarget;
+                          const o = t.getAttribute('data-original-src');
+                          if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                        }}
                       />
                     ) : (
                       <img
                         src={displaySrc}
+                        data-original-src={src}
                         alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
                         style={{ maxHeight: '90vh', maxWidth: '90vw' }}
                         className="w-auto h-auto block select-none object-contain"
                         draggable={false}
                         loading="eager"
                         decoding="async"
+                        onError={(e) => {
+                          const t = e.currentTarget;
+                          const o = t.getAttribute('data-original-src');
+                          if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                        }}
                       />
                     )
                   ) : (
                     <img
                       src={displaySrc}
+                      data-original-src={src}
                       alt={alt ? `${alt} (${idx + 1}/${total})` : `Image ${idx + 1}`}
                       style={{ maxHeight: '90vh', maxWidth: '90vw' }}
                       className="w-auto h-auto block select-none object-contain"
                       draggable={false}
                       loading="eager"
                       decoding="async"
+                      onError={(e) => {
+                        const t = e.currentTarget;
+                        const o = t.getAttribute('data-original-src');
+                        if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                      }}
                     />
                   )}
                 </div>

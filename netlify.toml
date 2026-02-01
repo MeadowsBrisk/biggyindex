@@ -172,7 +172,7 @@
 # Uses R2 free tier (10GB storage, 10M reads/month) with budget tracking
 # Incremental by default; add ?force=1 to reprocess all images
 [functions."crawler-images-background"]
-  schedule = "30 5 * * *"
+  schedule = "30 0,8-23/3 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"

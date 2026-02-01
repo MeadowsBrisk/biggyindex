@@ -645,11 +645,17 @@ export default function ItemDetailOverlay() {
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                       src={isOptimized ? proxyImage(src) : src}
+                                      data-original-src={src}
                                       alt={name}
                                       loading={idx === 0 ? 'eager' : 'lazy'}
                                       decoding="async"
                                       draggable={false}
                                       className="object-cover w-full h-full select-none cursor-zoom-in group-hover:scale-[1.04] transition-transform duration-500"
+                                      onError={(e) => {
+                                        const t = e.currentTarget;
+                                        const o = t.getAttribute('data-original-src');
+                                        if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                                      }}
                                     />
                                   </button>
                                 </SwiperSlide>
@@ -678,8 +684,14 @@ export default function ItemDetailOverlay() {
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
                                       <img
                                         src={isOptimized ? proxyImage(src, 112) : src}
+                                        data-original-src={src}
                                         alt="thumb"
                                         className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const t = e.currentTarget;
+                                          const o = t.getAttribute('data-original-src');
+                                          if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                                        }}
                                       />
                                     </button>
                                   ))}
@@ -714,8 +726,14 @@ export default function ItemDetailOverlay() {
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                       src={isOptimized ? proxyImage(src, 112) : src}
+                                      data-original-src={src}
                                       alt="thumb"
                                       className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const t = e.currentTarget;
+                                        const o = t.getAttribute('data-original-src');
+                                        if (o && t.src !== o) { t.src = o; t.removeAttribute('data-original-src'); }
+                                      }}
                                     />
                                   </button>
                                 </SwiperSlide>
