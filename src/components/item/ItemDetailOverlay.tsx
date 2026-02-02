@@ -560,7 +560,7 @@ export default function ItemDetailOverlay() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-hidden md:overflow-y-auto"
+          className="fixed inset-0 z-[130] md:z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-hidden md:overflow-y-auto"
           onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
         >
 

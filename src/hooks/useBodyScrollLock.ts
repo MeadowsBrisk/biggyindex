@@ -13,14 +13,14 @@ let savedScrollbarWidth = 0;
 export function useBodyScrollLock(active: boolean): void {
   useEffect(() => {
     if (!active) return;
-    
+
     lockCount += 1;
-    
+
     if (lockCount === 1) {
       const docEl = document.documentElement;
       // Calculate scrollbar width before hiding it
       savedScrollbarWidth = window.innerWidth - docEl.clientWidth;
-      
+
       // Apply lock - no position:fixed means no scroll jumping
       docEl.style.overflow = 'hidden';
       // Compensate for scrollbar width to prevent layout shift
@@ -28,10 +28,10 @@ export function useBodyScrollLock(active: boolean): void {
         docEl.style.paddingRight = `${savedScrollbarWidth}px`;
       }
     }
-    
+
     return () => {
       lockCount -= 1;
-      
+
       if (lockCount <= 0) {
         lockCount = 0;
         const docEl = document.documentElement;
