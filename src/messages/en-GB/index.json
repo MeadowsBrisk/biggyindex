@@ -476,9 +476,9 @@
   },
   "NotFound": {
     "itemTitle": "Item Unavailable",
-    "itemDesc": "This item is no longer listed. It may have been sold out, delisted, or removed.",
+    "itemDesc": "This item may not be available in your region, or it may have been sold out, delisted, or removed.",
     "sellerTitle": "Seller Unavailable",
-    "sellerDesc": "This seller profile cannot be found. They may have closed their store or changed their name.",
+    "sellerDesc": "This seller may not be available in your region, or they may have closed their store or changed their name.",
     "pageTitle": "Page Not Found",
     "pageDesc": "The page you are looking for does not exist or has been moved."
   }

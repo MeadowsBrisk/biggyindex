@@ -477,9 +477,9 @@
   },
   "NotFound": {
     "itemTitle": "Artikel nicht verfügbar",
-    "itemDesc": "Dieser Artikel ist nicht mehr gelistet. Er könnte ausverkauft, ausgelistet oder entfernt worden sein.",
+    "itemDesc": "Dieser Artikel ist möglicherweise nicht in Ihrer Region verfügbar, oder er wurde ausverkauft, ausgelistet oder entfernt.",
     "sellerTitle": "Verkäufer nicht verfügbar",
-    "sellerDesc": "Dieses Verkäuferprofil konnte nicht gefunden werden. Der Shop könnte geschlossen oder umbenannt worden sein.",
+    "sellerDesc": "Dieser Verkäufer ist möglicherweise nicht in Ihrer Region verfügbar, oder der Shop wurde geschlossen oder umbenannt.",
     "pageTitle": "Seite nicht gefunden",
     "pageDesc": "Die gesuchte Seite existiert nicht oder wurde verschoben."
   }

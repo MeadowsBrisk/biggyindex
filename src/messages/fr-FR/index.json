@@ -479,9 +479,9 @@
   },
   "NotFound": {
     "itemTitle": "Article indisponible",
-    "itemDesc": "Cet article n'est plus listé. Il a peut-être été vendu, délisté ou supprimé.",
+    "itemDesc": "Cet article n'est peut-être pas disponible dans votre région, ou il a été vendu, délisté ou supprimé.",
     "sellerTitle": "Vendeur indisponible",
-    "sellerDesc": "Ce profil vendeur est introuvable. La boutique a peut-être fermé ou changé de nom.",
+    "sellerDesc": "Ce vendeur n'est peut-être pas disponible dans votre région, ou la boutique a fermé ou changé de nom.",
     "pageTitle": "Page non trouvée",
     "pageDesc": "La page que vous recherchez n'existe pas ou a été déplacée."
   }
