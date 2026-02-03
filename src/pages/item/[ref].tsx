@@ -32,6 +32,9 @@ interface ItemRefPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (ctx) => {
+  // Cache for 12 hours, serve stale for another 12h while revalidating
+  ctx.res.setHeader('Cache-Control', 'public, s-maxage=43200, stale-while-revalidate=43200');
+
   try {
     const ref = typeof ctx.params?.ref === 'string' ? ctx.params.ref : null;
     if (!ref) return { notFound: true };
@@ -45,6 +48,12 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
 
     const detail = await fetchItemDetail(ref, market);
     if (!detail) return { notFound: true };
+
+    // SEO: If this is a non-GB market, verify the item exists in that market's index
+    // The _foundInMarketIndex flag is set by fetchItemDetail when backfilling from index
+    if (market !== 'GB' && !detail._foundInMarketIndex) {
+      return { notFound: true };
+    }
 
     // Load messages for server-side translation (core only - no home messages needed)
     let messages: Record<string, any> = {};

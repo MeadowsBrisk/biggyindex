@@ -35,6 +35,9 @@ function parseSellerId(idParam: string | string[] | undefined): number | null {
 }
 
 export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (ctx) => {
+  // Cache for 12 hours, serve stale for another 12h while revalidating
+  ctx.res.setHeader('Cache-Control', 'public, s-maxage=43200, stale-while-revalidate=43200');
+
   try {
     const sellerId = parseSellerId(ctx.params?.id as string | string[] | undefined);
     if (!sellerId) return { notFound: true };
@@ -64,6 +67,12 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
       });
     } catch (e) {
       console.error('Error fetching seller items:', e);
+    }
+
+    // SEO: If this is a non-GB market and the seller has no items here, return 404
+    // This prevents Google from indexing English content on localized subdomains
+    if (market !== 'GB' && items.length === 0) {
+      return { notFound: true };
     }
 
     const serverLocale = getLocaleForMarket(market);

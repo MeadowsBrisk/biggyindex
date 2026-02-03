@@ -36,13 +36,13 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
   try {
     const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
     const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN;
-    
+
     let store: any = null;
     if (siteID && token) {
-      try { store = getStore({ name: storeName, siteID, token, consistency: 'strong' }); } catch {}
+      try { store = getStore({ name: storeName, siteID, token, consistency: 'strong' }); } catch { }
     }
     if (!store) {
-      try { store = getStore({ name: storeName, consistency: 'strong' }); } catch {}
+      try { store = getStore({ name: storeName, consistency: 'strong' }); } catch { }
     }
 
     if (store) {
@@ -53,7 +53,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
             try { detailObj = JSON.parse(raw); } catch { detailObj = null; }
             if (detailObj) break;
           }
-        } catch {}
+        } catch { }
       }
     }
 
@@ -63,10 +63,10 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
         const marketName = marketStoreName(mkt);
         let marketStore: any = null;
         if (siteID && token) {
-          try { marketStore = getStore({ name: marketName, siteID, token, consistency: 'strong' }); } catch {}
+          try { marketStore = getStore({ name: marketName, siteID, token, consistency: 'strong' }); } catch { }
         }
         if (!marketStore) {
-          try { marketStore = getStore({ name: marketName, consistency: 'strong' }); } catch {}
+          try { marketStore = getStore({ name: marketName, consistency: 'strong' }); } catch { }
         }
 
         const candidateShipKeys: string[] = [];
@@ -80,7 +80,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
           // 1. Fetch shipping options
           for (const shipKey of candidateShipKeys) {
             let shipRaw: any = null;
-            try { shipRaw = await marketStore.get(shipKey); } catch {}
+            try { shipRaw = await marketStore.get(shipKey); } catch { }
             if (!shipRaw) continue;
             try {
               const ship = JSON.parse(shipRaw);
@@ -88,7 +88,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
                 detailObj.shipping = { ...(detailObj.shipping || {}), options: ship.options };
                 break;
               }
-            } catch {}
+            } catch { }
           }
 
           // 2. Fetch item from market index to backfill missing fields (price, variants, images)
@@ -115,13 +115,13 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
 
             if (index) {
               // Find item by refNum (preferred) or id
-              const found = index.find((it: any) => 
+              const found = index.find((it: any) =>
                 String(it.refNum || it.ref || it.id) === String(refNum)
               );
               if (found) {
                 // Merge index data into detailObj, preferring detailObj for description/reviews
                 // but using index for price, variants, images, seller, etc.
-                
+
                 // Map compact index fields to full names if needed (similar to atoms.tsx normalization)
                 const normalizedIndexItem = {
                   ...found,
@@ -159,6 +159,8 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
                   priceMin: normalizedIndexItem.priceMin ?? detailObj.priceMin,
                   priceMax: normalizedIndexItem.priceMax ?? detailObj.priceMax,
                   sellerName: normalizedIndexItem.sellerName || detailObj.sellerName,
+                  // Flag for caller to know item was found in market index (for 404 logic)
+                  _foundInMarketIndex: true,
                 };
               }
             }
@@ -166,9 +168,9 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
             console.warn('Failed to backfill from index:', e);
           }
         }
-      } catch {}
+      } catch { }
     }
-    
+
     return detailObj;
   } catch (e) {
     console.error('fetchItemDetail error:', e);
