@@ -30,7 +30,9 @@ export default function SellerOverlay() {
   const [currentItemRef, setItemRef] = useAtom(expandedRefNumAtom as any) as [string | null, (v: any) => void];
   const [included, setIncluded] = useAtom(includedSellersAtom as any) as [string[], (v: any) => void];
   const [excluded, setExcluded] = useAtom(excludedSellersAtom as any) as [string[], (v: any) => void];
-  // Translations for online status
+  const tOv = useTranslations('Overlay');
+  const tSP = useTranslations('SellerPage');
+  const tAn = useTranslations('Analytics');
   let tRel: any;
   try { tRel = useTranslations('Rel'); } catch { tRel = (k: string) => null; }
   useBodyScrollLock(!!sellerId);
@@ -253,22 +255,22 @@ export default function SellerOverlay() {
                       <h2 className="font-semibold text-base md:text-lg text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h2>
                       <div className="mt-1 text-xs text-gray-600 dark:text-gray-300 flex items-center gap-3 flex-wrap">
                         {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {translateOnlineStatus(online, tRel)}</span>}
-                        {joined && <span>joined {joined}</span>}
+                        {joined && <span>{tSP('joined', { date: joined })}</span>}
                         {disputes && (
-                          <span className="opacity-80">{(disputes.approximateOrders != null ? `${disputes.approximateOrders}+` : '~')} orders • {disputes.percentDisputed}% disputed • {disputes.percentDisputesOpen}% open</span>
+                          <span className="opacity-80">{(disputes.approximateOrders != null ? `${disputes.approximateOrders}+` : '~')} {tSP('orders', { count: disputes.approximateOrders })} • {tSP('disputed', { percent: disputes.percentDisputed })} • {tSP('open', { percent: disputes.percentDisputesOpen })}</span>
                         )}
                       </div>
                       <div className="mt-2 flex flex-col gap-3">
                         {overviewStats && (
                           <div className="text-xs text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-3">
                             {typeof overviewStats.itemsCount === 'number' && (
-                              <span>{overviewStats.itemsCount} items listed</span>
+                              <span>{tSP('itemsListed', { count: overviewStats.itemsCount })}</span>
                             )}
                             {typeof overviewStats.numberOfReviews === 'number' && (
-                              <span>{overviewStats.numberOfReviews} reviews</span>
+                              <span>{overviewStats.numberOfReviews} {tOv('reviews')}</span>
                             )}
                             {typeof overviewStats.averageDaysToArrive === 'number' && (
-                              <span>avg arrival {Math.round(overviewStats.averageDaysToArrive)} days</span>
+                              <span>{tOv('avgArrival', { days: Math.round(overviewStats.averageDaysToArrive) })}</span>
                             )}
                           </div>
                         )}
@@ -283,15 +285,15 @@ export default function SellerOverlay() {
                             type="button"
                             onClick={showItemsAndClose}
                             className="inline-flex items-center gap-1 text-[12px] font-semibold px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700"
-                            title="Show this seller's items"
-                          >{itemsCount != null ? `Show items (${itemsCount})` : 'Show items'}</button>
+                            title={tSP('showOnIndex')}
+                          >{itemsCount != null ? tSP('items', { count: itemsCount }) : tSP('showOnIndex')}</button>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-3">
-                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Manifesto</h3>
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{tSP('manifesto')}</h3>
                     {loading && !detail && (
                       <div className="animate-pulse space-y-2">
                         <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
@@ -301,7 +303,7 @@ export default function SellerOverlay() {
                     )}
                     {!loading && manifestoNode}
                     {!loading && !manifesto && (
-                      <div className="text-xs italic text-gray-400">No manifesto.</div>
+                      <div className="text-xs italic text-gray-400">{tSP('noManifesto')}</div>
                     )}
                   </div>
                   {rawSellerImage && (
@@ -312,18 +314,18 @@ export default function SellerOverlay() {
                 {/* Right column: reviews */}
                 <div className="min-w-0 min-h-0 flex flex-col relative">
                   <div className="sticky top-0 z-0 bg-white/85 dark:bg-[#0f1725]/85 backdrop-blur border-b border-gray-200/70 dark:border-gray-700/60 py-2 mb-2">
-                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Reviews snapshot</h3>
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">{tSP('reviewsSnapshot')}</h3>
                     <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
                       <span>
                         {(() => {
                           const fetched = detail?.reviewsMeta?.fetched || reviews.length;
                           const total = detail?.reviewsMeta?.summary?.numberOfReviews ?? null;
-                          if (total && total > fetched) return `${fetched} Recent (${total} total)`;
-                          return `${fetched} total`;
+                          if (total && total > fetched) return `${fetched} ${tOv('recentShort')} (${total} ${tOv('totalShort')})`;
+                          return `${fetched} ${tOv('totalShort')}`;
                         })()}
                       </span>
                       {typeof detail?.reviewsMeta?.summary?.averageDaysToArrive === 'number' && (
-                        <span className="shrink-0">avg arrival {Math.round(detail.reviewsMeta.summary.averageDaysToArrive)} days</span>
+                        <span className="shrink-0">{tOv('avgArrival', { days: Math.round(detail.reviewsMeta.summary.averageDaysToArrive) })}</span>
                       )}
                     </div>
                     {ratingStats.total > 0 && (
@@ -342,7 +344,7 @@ export default function SellerOverlay() {
                               "inline-block h-2 w-2 rounded-full",
                               ratingStats.recentNegatives > 6 ? "bg-red-500" : "bg-amber-500"
                             )} />
-                            {ratingStats.recentNegatives} recent low ratings
+                            {tSP('recentLowRatings', { count: ratingStats.recentNegatives })}
                           </span>
                         )}
                         {ratingStats.buckets.map(bucket => {
@@ -409,7 +411,7 @@ export default function SellerOverlay() {
                       if (!isTruncated || !shareLink) return null;
                       return (
                         <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-3">
-                          Read more reviews at:
+                          {tOv('readMoreReviewsAt')}
                         </div>
                       );
                     })()}
@@ -423,7 +425,7 @@ export default function SellerOverlay() {
                         rel="noopener noreferrer"
                         className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                       >
-                        <span>See store on Little Biggy</span>
+                        <span>{tSP('seeStore')}</span>
                         <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
                       </a>
                     </div>

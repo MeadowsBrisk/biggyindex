@@ -104,18 +104,18 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
   const setSellerId = useSetAtom(expandedSellerIdAtom);
 
   const sellerId = parseSellerId(router.query.id);
+  const tSP = useTranslations('SellerPage');
 
   useEffect(() => {
     // Clear any expanded state since we are on a standalone page
     setSellerId(null);
   }, [setSellerId]);
 
-  const title = seo?.sellerName ? `${seo.sellerName} – Seller Profile | Biggy Index` : `Seller Profile | Biggy Index`;
+  const title = seo?.sellerName ? `${seo.sellerName} | Biggy Index` : `Biggy Index`;
   const description = [
     seo?.sellerName || null,
-    // Use part of manifesto for description if available (SEO friendly)
     detail?.manifesto ? detail.manifesto.slice(0, 150).replace(/\s+/g, ' ').trim() + (detail.manifesto.length > 150 ? '...' : '') : null,
-    typeof seo?.itemsCount === 'number' ? `${seo.itemsCount} items` : null,
+    typeof seo?.itemsCount === 'number' ? tSP('itemsListed', { count: seo.itemsCount }) : null,
   ].filter(Boolean).join(' • ');
   const effectiveId = String(seo?.id ?? sellerId ?? '');
   const canonical = buildSellerUrl(effectiveId, serverLocale);
