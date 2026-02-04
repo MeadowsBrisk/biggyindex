@@ -57,11 +57,11 @@ const isFreeShipping = (it: any): boolean => {
 
 /** Check if item matches price filter (returns true if passes) */
 const matchesPriceFilter = (
-  it: any, 
-  minFilter: number, 
-  maxFilter: number, 
-  boundMin: number, 
-  boundMax: number, 
+  it: any,
+  minFilter: number,
+  maxFilter: number,
+  boundMin: number,
+  boundMax: number,
   rates: ExchangeRates
 ): boolean => {
   if (it.uMin == null && it.uMax == null) {
@@ -97,12 +97,12 @@ interface BaseFilterOptions {
  * Now uses a single loop with early continue for ~30-50% faster filtering.
  */
 const applyBaseFilters = (list: any[], opts: BaseFilterOptions): any[] => {
-  const { 
-    rates, selectedShips, excludedShips, freeShipOnly, 
+  const {
+    rates, selectedShips, excludedShips, freeShipOnly,
     includedSellers, excludedSellers, favouritesOnly, favouriteIds,
-    minFilter, maxFilter, boundMin, boundMax, query 
+    minFilter, maxFilter, boundMin, boundMax, query
   } = opts;
-  
+
   // Pre-build Sets once (O(n) creation, but O(1) lookups in loop)
   const shipSet = selectedShips.length > 0 ? new Set(selectedShips) : null;
   const excludeShipSet = excludedShips.length > 0 ? new Set(excludedShips) : null;
@@ -110,50 +110,50 @@ const applyBaseFilters = (list: any[], opts: BaseFilterOptions): any[] => {
   const excludedSet = excludedSellers.length > 0 ? new Set(excludedSellers) : null;
   const favSet = favouritesOnly ? new Set(favouriteIds) : null;
   const queryLower = query?.toLowerCase() || '';
-  
+
   const result: any[] = [];
-  
+
   for (const it of list) {
     if (!it) continue;
-    
+
     // Ship from filter (include only these origins)
     if (shipSet) {
       if (typeof it.sf !== 'string') continue;
       const code = normalizeShipFromCode(it.sf);
       if (!code || !shipSet.has(code)) continue;
     }
-    
+
     // Exclude ship origins
     if (excludeShipSet && typeof it.sf === 'string') {
       const code = normalizeShipFromCode(it.sf);
       if (code && excludeShipSet.has(code)) continue;
     }
-    
+
     // Free shipping only
     if (freeShipOnly && !isFreeShipping(it)) continue;
-    
+
     // Seller include filter
     const sellerLower = (it.sn || '').toLowerCase();
     if (includedSet && !includedSet.has(sellerLower)) continue;
-    
+
     // Seller exclude filter
     if (excludedSet && excludedSet.has(sellerLower)) continue;
-    
+
     // Favourites only
     if (favSet && !favSet.has(it.id)) continue;
-    
+
     // Price filter
     if (!matchesPriceFilter(it, minFilter, maxFilter, boundMin, boundMax, rates)) continue;
-    
+
     // Search query
     if (queryLower) {
       const hay = `${it.n || ''} ${it.d || ''}`.toLowerCase();
       if (!hay.includes(queryLower)) continue;
     }
-    
+
     result.push(it);
   }
-  
+
   return result;
 };
 
@@ -173,23 +173,23 @@ const processRawItems = (rawItems: any[]): Item[] => {
   return rawItems.map((raw: any) => {
     if (!raw || typeof raw !== 'object') return raw;
     const it: Item = { ...raw };
-    
+
     // Ensure id exists (not minified)
     if (it.id == null) it.id = raw.refNum ?? raw.ref ?? '';
     if (!it.refNum && it.id) it.refNum = String(it.id);
-    
+
     // Compute shipping fields for free-shipping filter
     if (raw.sh && typeof raw.sh === 'object') {
       const sh = raw.sh;
       const min = typeof sh.min === 'number' ? sh.min : null;
       const isFree = sh.free === 1 || sh.free === true || min === 0;
       it.minShip = isFree ? 0 : min;
-      it.shippingPriceRange = { 
-        min: min != null ? min : (isFree ? 0 : null), 
-        max: typeof sh.max === 'number' ? sh.max : null 
+      it.shippingPriceRange = {
+        min: min != null ? min : (isFree ? 0 : null),
+        max: typeof sh.max === 'number' ? sh.max : null
       };
     }
-    
+
     // Precompute numeric timestamps for sorting (avoid repeated Date.parse)
     if (it.fsa && it.fsaMs == null) {
       const t = Date.parse(it.fsa);
@@ -199,7 +199,7 @@ const processRawItems = (rawItems: any[]): Item[] => {
       const t2 = Date.parse(it.lua);
       it.luaMs = !isNaN(t2) ? t2 : (it.fsaMs || 0);
     }
-    
+
     return it;
   });
 };
@@ -213,7 +213,7 @@ export const isLoadingAtom = atom<boolean>(false);
 export const setItemsAtom = atom<null, [any[]], void>(null, (get: any, set: any, newItems: any[]) => {
   const arr = processRawItems(newItems);
   set(itemsBaseAtom, arr);
-  
+
   // Seed votesAtom with embedded ec (endorsementCount) values
   const votes = { ...(get(votesAtom) || {}) } as Record<string, number>;
   let changed = false;
@@ -590,12 +590,12 @@ export const sortedItemsAtom = atom<Item[]>((get: any) => {
   const factor = dir === "desc" ? -1 : 1;
   const toNumber = (v: any): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
   const votes = key === 'endorsements' ? (get(votesAtom) as Record<string, number> | null) : null;
-  
+
   // PPG sorting: check if weight is selected and we have ppg data
   const selectedWeight = get(selectedWeightAtom) as WeightBreakpoint | null;
   const ppgData = get(ppgDataAtom) as { weight: WeightBreakpoint; lookup: Map<string, PpgItemInfo> } | null;
   const usePpgSort = selectedWeight !== null && ppgData && ppgData.weight === selectedWeight;
-  
+
   const sorted = [...(items || [])].sort((a: any, b: any) => {
     // PPG sorting: items with ppg data sort by ppg (respecting direction), items without ppg go to end
     if (usePpgSort && ppgData) {
@@ -605,11 +605,11 @@ export const sortedItemsAtom = atom<Item[]>((get: any) => {
       const bInfo = ppgData.lookup.get(bRef);
       const aHasPpg = aInfo !== undefined;
       const bHasPpg = bInfo !== undefined;
-      
+
       // Items with ppg data come first (always)
       if (aHasPpg && !bHasPpg) return -1;
       if (!aHasPpg && bHasPpg) return 1;
-      
+
       // Both have ppg: sort by ppg using factor (asc/desc)
       if (aHasPpg && bHasPpg) {
         if (aInfo!.ppg !== bInfo!.ppg) return factor * (aInfo!.ppg - bInfo!.ppg);
@@ -617,7 +617,7 @@ export const sortedItemsAtom = atom<Item[]>((get: any) => {
       }
       // Both don't have ppg: fall through to regular sorting
     }
-    
+
     if (key === "firstSeen") {
       const at = a.fsaMs || 0;
       const bt = b.fsaMs || 0;
@@ -764,9 +764,6 @@ export const sellersAccordionOpenAtom = atomWithStorage<boolean>("accordionSelle
 // SHARED BASE-FILTERED ITEMS (optimization to avoid duplicate filtering)
 // ============================================================================
 // This atom applies all non-category filters to allItems ONCE.
-// Mobile item detail tab preference
-export type MobileDetailTab = 'prices' | 'description' | 'reviews';
-export const mobileDetailTabAtom = atomWithStorage<MobileDetailTab>("itemDetailMobileTab", "description");
 
 // Both categoryLiveCountsAtom and subcategoryLiveCountsAtom use this,
 // avoiding duplicate O(n) filtering work when only category/subcategory counts differ.
@@ -786,9 +783,9 @@ const baseFilteredAllItemsAtom = atom<Item[]>((get: any) => {
   const { boundMin, boundMax } = norm;
   const minFilter = norm.min;
   const maxFilter = norm.max;
-  
+
   if (!Array.isArray(itemsSource) || itemsSource.length === 0) return [];
-  
+
   // Apply shared filter logic (all filters except category/subcategory)
   let list = (itemsSource as any[]).filter(it => !!it);
   list = applyBaseFilters(list, {
@@ -796,7 +793,7 @@ const baseFilteredAllItemsAtom = atom<Item[]>((get: any) => {
     includedSellers, excludedSellers, favouritesOnly, favouriteIds,
     minFilter, maxFilter, boundMin, boundMax, query
   });
-  
+
   return list as Item[];
 });
 
@@ -809,7 +806,7 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
   const freeShipOnly = get(freeShippingOnlyAtom) as boolean;
   const includedSellers = get(includedSellersAtom) as string[];
   const hasExcludedShips = Array.isArray(excludedShips) && excludedShips.length > 0;
-  
+
   // Early return: use manifest counts if no filters are active
   if ((!Array.isArray(allItemsFull) || allItemsFull.length === 0) && manifest && (manifest as any).totalItems && (!Array.isArray(selectedShips) || selectedShips.length === 0) && !hasExcludedShips && !freeShipOnly && includedSellers.length === 0) {
     const counts: Record<string, number> = { __total: (manifest as any).totalItems } as any;
@@ -819,11 +816,11 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
     }
     return counts;
   }
-  
+
   // Use pre-filtered items from shared atom (avoids duplicate filtering work)
   const list = get(baseFilteredAllItemsAtom) as Item[];
   if (!Array.isArray(list) || list.length === 0) return { __total: 0 } as any;
-  
+
   // Count by category
   const counts: Record<string, number> = {};
   for (const it of list) {
@@ -838,20 +835,20 @@ export const categoryLiveCountsAtom = atom<Record<string, number>>((get: any) =>
 export const subcategoryLiveCountsAtom = atom<Record<string, number>>((get: any) => {
   const category = get(categoryAtom) as string;
   const excludedSubs = get(excludedSubcategoriesAtom) as string[];
-  
+
   if (!category || category === 'All') return {};
-  
+
   // Use pre-filtered items from shared atom (avoids duplicate filtering work)
   const baseFiltered = get(baseFilteredAllItemsAtom) as Item[];
   if (!Array.isArray(baseFiltered) || baseFiltered.length === 0) return {};
-  
+
   // Filter to current category and apply excluded subcategories
   let list = baseFiltered.filter(it => it.c === category);
   if (Array.isArray(excludedSubs) && excludedSubs.length > 0) {
     const excludedSet = new Set(excludedSubs);
     list = list.filter(it => !Array.isArray(it.sc) || !it.sc.some((s: any) => excludedSet.has(s)));
   }
-  
+
   // Count by subcategory
   const counts: Record<string, number> = {};
   for (const it of list) {

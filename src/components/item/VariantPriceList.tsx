@@ -28,7 +28,7 @@ export default function VariantPriceList({
   includeShipping = false,
   shippingUsd = null,
   selectedVariantIds = new Set(),
-  onToggle = (_: any) => {},
+  onToggle = (_: any) => { },
   perUnitSuffix = (_d: any, _p: any, _c?: any) => null,
   selectionEnabled = false,
   className = '',
@@ -38,7 +38,7 @@ export default function VariantPriceList({
   const { forceEnglish } = useForceEnglish();
   const chosenCurrency: DisplayCurrency = displayCurrency || (ctxCurrency as DisplayCurrency) || 'GBP';
   return (
-    <ul className={cn('grid grid-cols-1 gap-1 max-h-52 overflow-auto pr-1 custom-scroll', className)}>
+    <ul className={cn('grid grid-cols-1 gap-1  overflow-auto pr-1 custom-scroll', className)}>
       {variants.map((v, idx) => {
         // Support both minified keys (vid, usd, d) and legacy (id, baseAmount, description)
         const vid = v.vid || v.id || idx;

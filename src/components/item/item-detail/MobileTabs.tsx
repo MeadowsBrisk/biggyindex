@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom, mobileDetailTabAtom } from '@/store/atoms';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { addToBasketAtom, showToastAtom, basketAtom, displayCurrencyAtom } from '@/store/atoms';
 import { VanIcon } from '@/components/common/icons';
 import { decodeEntities } from '@/lib/core/format';
 import cn from '@/lib/core/cn';
@@ -65,12 +65,15 @@ export default function MobileTabs({
   leadImage,
 }: Props) {
   const tOv = useTranslations('Overlay');
-  const [tab, setTab] = useAtom(mobileDetailTabAtom);
+  const [tab, setTab] = useState<'prices' | 'description' | 'reviews' | null>(null);
   const [isManualScroll, setIsManualScroll] = useState(false);
 
   const pricesRef = React.useRef<HTMLDivElement>(null);
   const descRef = React.useRef<HTMLDivElement>(null);
   const reviewsRef = React.useRef<HTMLDivElement>(null);
+
+  // Track which sections are currently visible (IntersectionObserver only reports changes)
+  const visibleSections = React.useRef<Map<string, { top: number }>>(new Map());
 
   const tabLabels: Record<string, string> = {
     prices: tOv('prices'),
@@ -82,31 +85,74 @@ export default function MobileTabs({
   useEffect(() => {
     if (isManualScroll) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      // Find all intersecting elements
-      const visible = entries.filter(e => e.isIntersecting);
-      if (visible.length > 0) {
-        // Sort by how close the top of the element is to the sticky header (approx 50px offset)
-        // This effectively picks the section that is currently starting at or scrolling past the top reading line.
-        const sorted = visible.sort((a, b) => {
-          const topA = Math.abs(a.boundingClientRect.top - 50);
-          const topB = Math.abs(b.boundingClientRect.top - 50);
-          return topA - topB;
-        });
+    const pickActiveSection = () => {
+      const visible = visibleSections.current;
+      if (visible.size === 0) return;
 
-        const id = sorted[0].target.getAttribute('data-section-id');
-        if (id && id !== tab && (id === 'prices' || id === 'description' || id === 'reviews')) {
-          setTab(id as any);
+      // Find the section whose top is closest to (but at or above) the header line (100px)
+      const HEADER_OFFSET = 100;
+      let bestSection: string | null = null;
+      let bestTop = -Infinity;
+
+      visible.forEach(({ top }, id) => {
+        if (top <= HEADER_OFFSET && top > bestTop) {
+          bestTop = top;
+          bestSection = id;
         }
+      });
+
+      // If nothing has crossed the header yet, pick the one closest to crossing
+      if (!bestSection) {
+        let lowestTop = Infinity;
+        visible.forEach(({ top }, id) => {
+          if (top < lowestTop) {
+            lowestTop = top;
+            bestSection = id;
+          }
+        });
       }
-    }, { threshold: 0, rootMargin: '-50px 0px -50% 0px' });
+
+      if (bestSection && (bestSection === 'prices' || bestSection === 'description' || bestSection === 'reviews')) {
+        setTab(bestSection);
+      }
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      // Update our visibility map
+      entries.forEach(entry => {
+        const id = entry.target.getAttribute('data-section-id');
+        if (!id) return;
+
+        if (entry.isIntersecting) {
+          visibleSections.current.set(id, { top: entry.boundingClientRect.top });
+        } else {
+          visibleSections.current.delete(id);
+        }
+      });
+
+      // Also update the top positions of all still-visible sections
+      visibleSections.current.forEach((_, id) => {
+        let el: HTMLDivElement | null = null;
+        if (id === 'prices') el = pricesRef.current;
+        if (id === 'description') el = descRef.current;
+        if (id === 'reviews') el = reviewsRef.current;
+        if (el) {
+          visibleSections.current.set(id, { top: el.getBoundingClientRect().top });
+        }
+      });
+
+      pickActiveSection();
+    }, { threshold: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1] });
 
     if (pricesRef.current) observer.observe(pricesRef.current);
     if (descRef.current) observer.observe(descRef.current);
     if (reviewsRef.current) observer.observe(reviewsRef.current);
 
-    return () => observer.disconnect();
-  }, [tab, isManualScroll, setTab]);
+    return () => {
+      observer.disconnect();
+      visibleSections.current.clear();
+    };
+  }, [isManualScroll]);
 
   // Handle manual tab click
   const scrollToSection = (key: 'prices' | 'description' | 'reviews') => {
@@ -131,15 +177,15 @@ export default function MobileTabs({
     }
   };
 
-  // Initial scroll if a specific tab is active (and not prices/default top)
+  // Ensure we start at the top (prices)
   useEffect(() => {
-    // Small delay to ensure layout
-    const timer = setTimeout(() => {
-      if (tab === 'description' && descRef.current) descRef.current.scrollIntoView({ block: 'start' });
-      if (tab === 'reviews' && reviewsRef.current) reviewsRef.current.scrollIntoView({ block: 'start' });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []); // Run once on mount
+    setTab('prices');
+    // Also try to scroll window/container to top if possible, preventing auto-scroll
+    if (pricesRef.current) {
+      // We don't want to scrollIntoView because that might scroll the BODY or Overlay aggressively.
+      // But we want to ensure state is clean.
+    }
+  }, []);
 
   const [selectionMode, setSelectionMode] = useState(false);
   // ... (Shipping logic - kept exactly as is) ...
@@ -284,7 +330,7 @@ export default function MobileTabs({
                   onToggle={toggle}
                   perUnitSuffix={perUnitSuffix}
                   selectionEnabled={showSelection}
-                  className="max-h-52"
+                  className="xl:max-h-52"
                 />
                 {showSelection && (
                   <div className="mt-2 flex items-center justify-between">
@@ -491,7 +537,7 @@ export default function MobileTabs({
               const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
               const reviewsTotal = typeof (stats?.cnt ?? stats?.numberOfReviews) === 'number' ? (stats?.cnt ?? stats?.numberOfReviews) : reviews.length;
               const isTruncated = reviewsTotal > reviews.length && reviews.length >= REVIEWS_DISPLAY_LIMIT;
-              if (!isTruncated || !sl) return null;
+              if (!sl) return null;
               return (
                 <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
                   {tOv('readMoreReviewsAt')}

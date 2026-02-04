@@ -172,6 +172,7 @@ export default function ItemDetailOverlay() {
   const { detail, loading, error, reload } = useItemDetail(refNum as any, baseItem?.lua || undefined);
   useBodyScrollLock(!!refNum);
   const backdropRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [openPreviewSignal, setOpenPreviewSignal] = useState<any>(null);
   const [zoomOpen, setZoomOpen] = useState(false);
 
@@ -242,10 +243,13 @@ export default function ItemDetailOverlay() {
   // Reset any stale zoom-open signal whenever a new refNum (overlay instance) appears
   useEffect(() => { setOpenPreviewSignal(null); }, [refNum]);
   // Clear any review gallery when switching items
-  useEffect(() => { setReviewGallery && setReviewGallery(null); }, [refNum]);
-
   // Clear any review gallery when switching items
   useEffect(() => { setReviewGallery && setReviewGallery(null); }, [refNum]);
+
+  // Reset scroll position on navigation
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [refNum]);
 
   // Use DB flag to determine if images are optimized in R2 (io=1)
   // If not flagged, assume origin (no proxy) to avoid 404s
@@ -604,7 +608,7 @@ export default function ItemDetailOverlay() {
                 {/* Content grid: 2 cols desktop, 3 cols on ultrawide */}
                 <div className="flex-1 min-h-0 md:overflow-hidden grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_360px] gap-6 pl-[6px] py-[6px]">
                   {/* Column 1: gallery */}
-                  <div className="w-full flex-shrink-0 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scroll pr-1 pb-1 md:pb-10 2xl:pb-0">
+                  <div ref={scrollRef} className="w-full flex-shrink-0 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scroll pr-1 pb-1 md:pb-10 2xl:pb-0">
                     {images.length > 0 ? (
                       <>
                         <div
@@ -781,6 +785,7 @@ export default function ItemDetailOverlay() {
 
                           {/* Mobile tabs: Prices / Description / Reviews */}
                           <MobileTabs
+                            key={refNum}
                             baseItem={baseItem}
                             rates={rates}
                             includeShipping={includeShipping}
@@ -986,6 +991,21 @@ export default function ItemDetailOverlay() {
                   shareBtnRef={shareBtnRef}
                   shareUrl={shareUrl}
                 />
+
+                {/* Floating biggy button (shipping info removed per design) */}
+                {sl && (
+                  <div className="hidden md:block pointer-events-none absolute right-3 bottom-25 md:right-3 md:bottom-3 xl:right-10 z-20">
+                    <a
+                      href={sl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
+                    >
+                      <span>Little Biggy</span>
+                      <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
+                    </a>
+                  </div>
+                )}
 
                 {/* Mobile actions are now in the fixed bottom bar */}
                 {/* Mobile Prev/Next rendered via portal so it's fixed to the viewport, not the transformed panel */}

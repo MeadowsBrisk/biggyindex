@@ -32,7 +32,7 @@ export default function DesktopHeaderActions({
         <button
           ref={shareBtnRef}
           type="button"
-          onClick={() => setShareOpen(v=>!v)}
+          onClick={() => setShareOpen(v => !v)}
           title={t('share')}
           className="inline-flex items-center justify-center h-8 px-3 rounded-full border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 shadow-sm"
         >
@@ -55,7 +55,7 @@ export default function DesktopHeaderActions({
         <StarIcon className="w-4 h-4" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} />
       </button>
       {baseItem?.id != null && (
-        <EndorseButton itemId={baseItem.id} onHydrated={() => {}} compact />
+        <EndorseButton itemId={baseItem.id} onHydrated={() => { }} compact />
       )}
     </div>
   );

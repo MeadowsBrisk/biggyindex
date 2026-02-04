@@ -82,7 +82,7 @@ function ReviewsSectionInner({
                         onImageClick={onImageClick}
                     />
                 )}
-                {!loading && reviews.length > 0 && isTruncated && sl && (
+                {!loading && reviews.length > 0 && sl && (
                     <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-3">
                         {tOv('readMoreReviewsAt')}
                     </div>
@@ -121,7 +121,7 @@ function ReviewsSectionInner({
                     onImageClick={onImageClick}
                 />
             )}
-            {!loading && reviews.length > 0 && isTruncated && sl && (
+            {!loading && reviews.length > 0 && sl && (
                 <div className="mt-2 text-[11px] text-gray-500 dark:text-gray-400 text-right pr-2">
                     {tOv('readMoreReviewsAt')}
                 </div>
