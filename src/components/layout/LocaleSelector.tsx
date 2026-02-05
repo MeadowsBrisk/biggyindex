@@ -6,6 +6,7 @@ import FlagDE from '@/components/common/flags/FlagDE';
 import FlagFR from '@/components/common/flags/FlagFR';
 import FlagIT from '@/components/common/flags/FlagIT';
 import FlagPT from '@/components/common/flags/FlagPT';
+import FlagES from '@/components/common/flags/FlagES';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
 import { getMarketFromHost, getMarketFromPath, isHostBasedEnv, getLocaleForMarket } from '@/lib/market/market';
 import { hostForLocale } from '@/lib/market/routing';
@@ -26,6 +27,7 @@ const MARKETS: Market[] = [
   { code: 'FR', Flag: FlagFR, label: 'Français', path: '/fr', currency: 'EUR', currencySymbol: '€' },
   { code: 'IT', Flag: FlagIT, label: 'Italiano', path: '/it', currency: 'EUR', currencySymbol: '€' },
   { code: 'PT', Flag: FlagPT, label: 'Português', path: '/pt', currency: 'EUR', currencySymbol: '€' },
+  { code: 'ES', Flag: FlagES, label: 'Español', path: '/es', currency: 'EUR', currencySymbol: '€' },
 ];
 
 /**

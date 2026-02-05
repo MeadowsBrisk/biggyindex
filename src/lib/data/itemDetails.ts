@@ -17,6 +17,7 @@ function marketStoreName(mkt: Market) {
     FR: process.env.MARKET_STORE_FR,
     PT: process.env.MARKET_STORE_PT,
     IT: process.env.MARKET_STORE_IT,
+    ES: process.env.MARKET_STORE_ES,
   } as any;
   if (envMap[mkt]) return envMap[mkt] as string;
   return `site-index-${mkt.toLowerCase()}`;

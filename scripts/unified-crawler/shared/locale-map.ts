@@ -12,6 +12,7 @@ export const MARKET_TO_FULL_LOCALE: Record<string, string> = {
   FR: 'fr-FR',
   PT: 'pt-PT',
   IT: 'it-IT',
+  ES: 'es-ES',
 };
 
 /** Market code → short Azure translation target (e.g. 'DE' → 'de'). GB excluded (source lang). */
@@ -20,6 +21,7 @@ export const MARKET_TO_AZURE_LOCALE: Record<string, string> = {
   FR: 'fr',
   PT: 'pt',
   IT: 'it',
+  ES: 'es',
 };
 
 /** Reverse: short Azure locale → market code (e.g. 'de' → 'DE') */

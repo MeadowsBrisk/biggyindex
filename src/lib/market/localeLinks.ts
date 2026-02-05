@@ -3,6 +3,7 @@ import FlagDE from '@/components/common/flags/FlagDE';
 import FlagFR from '@/components/common/flags/FlagFR';
 import FlagIT from '@/components/common/flags/FlagIT';
 import FlagPT from '@/components/common/flags/FlagPT';
+import FlagES from '@/components/common/flags/FlagES';
 import type { ComponentType } from 'react';
 
 export interface LocaleLink {
@@ -22,4 +23,5 @@ export const LOCALE_LINKS: LocaleLink[] = [
   { code: 'de', href: 'https://de.biggyindex.com', label: 'Deutsch', Flag: FlagDE },
   { code: 'it', href: 'https://it.biggyindex.com', label: 'Italiano', Flag: FlagIT },
   { code: 'pt', href: 'https://pt.biggyindex.com', label: 'Português', Flag: FlagPT },
+  { code: 'es', href: 'https://es.biggyindex.com', label: 'Español', Flag: FlagES },
 ];

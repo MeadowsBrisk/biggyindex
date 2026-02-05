@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
   // 1. www → non-www redirect at CDN/DNS level
   // 2. lbindex.vip → biggyindex.com redirect at CDN/DNS level
   i18n: {
-    locales: ['en-GB', 'de-DE', 'fr-FR', 'pt-PT', 'it-IT'],
+    locales: ['en-GB', 'de-DE', 'fr-FR', 'pt-PT', 'it-IT', 'es-ES'],
     defaultLocale: 'en-GB',
     // Disable automatic locale detection - we handle this via host/path in proxy.ts
     localeDetection: false,
@@ -34,6 +34,7 @@ const nextConfig: NextConfig = {
       { domain: 'fr.biggyindex.com', defaultLocale: 'fr-FR' },
       { domain: 'pt.biggyindex.com', defaultLocale: 'pt-PT' },
       { domain: 'it.biggyindex.com', defaultLocale: 'it-IT' },
+      { domain: 'es.biggyindex.com', defaultLocale: 'es-ES' },
     ],
   },
   images: {

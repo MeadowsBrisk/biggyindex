@@ -23,6 +23,7 @@ export function loadEnv(): UnifiedEnv {
     "FR",
     "IT",
     "PT",
+    "ES",
   ];
   return {
     markets,
@@ -49,6 +50,7 @@ export function loadEnv(): UnifiedEnv {
       FR: process.env.FR_STORE || "site-index-fr",
       IT: (process.env as any).IT_STORE || "site-index-it",
       PT: (process.env as any).PT_STORE || "site-index-pt",
+      ES: (process.env as any).ES_STORE || "site-index-es",
     },
     auth: {
       username:

@@ -1,6 +1,6 @@
 // Market and locale helpers for host- and path-based routing and API calls
 
-export type Market = 'GB' | 'DE' | 'FR' | 'PT' | 'IT';
+export type Market = 'GB' | 'DE' | 'FR' | 'PT' | 'IT' | 'ES';
 
 // Host-based detection for production: subdomains on biggyindex.com (primary)
 // Also recognize lbindex.vip (legacy) as GB apex; subdomains map if ever used.
@@ -18,6 +18,7 @@ export function getMarketFromHost(hostname: string | undefined | null): Market {
       if (h.startsWith('fr.')) return 'FR';
       if (h.startsWith('pt.')) return 'PT';
       if (h.startsWith('it.')) return 'IT';
+      if (h.startsWith('es.')) return 'ES';
       return 'GB';
     }
     if (h.endsWith('.lbindex.vip')) {
@@ -25,6 +26,7 @@ export function getMarketFromHost(hostname: string | undefined | null): Market {
       if (h.startsWith('fr.')) return 'FR';
       if (h.startsWith('pt.')) return 'PT';
       if (h.startsWith('it.')) return 'IT';
+      if (h.startsWith('es.')) return 'ES';
       return 'GB';
     }
     // Netlify previews or other hosts: leave to path-based unless strong hint
@@ -32,6 +34,7 @@ export function getMarketFromHost(hostname: string | undefined | null): Market {
     if (/\bfr[.-]/.test(h)) return 'FR';
     if (/\bpt[.-]/.test(h)) return 'PT';
     if (/\bit[.-]/.test(h)) return 'IT';
+    if (/\bes[.-]/.test(h)) return 'ES';
     return 'GB';
   } catch {
     return 'GB';
@@ -57,6 +60,7 @@ export function getMarketFromPath(pathname: string = "/"): Market {
     if (seg.toLowerCase() === "fr") return "FR";
     if (seg.toLowerCase() === "pt") return "PT";
     if (seg.toLowerCase() === "it") return "IT";
+    if (seg.toLowerCase() === "es") return "ES";
     return "GB";
   } catch {
     return "GB";
@@ -74,6 +78,8 @@ export function getLocaleForMarket(market: Market): string {
       return "pt-PT";
     case "IT":
       return "it-IT";
+    case "ES":
+      return "es-ES";
     default:
       return "en-GB";
   }
@@ -94,6 +100,9 @@ export function localeToMarket(locale: string | undefined): Market {
     case 'it-IT':
     case 'it':
       return 'IT';
+    case 'es-ES':
+    case 'es':
+      return 'ES';
     default:
       return 'GB';
   }
@@ -121,7 +130,7 @@ export function isHostBasedEnv(hostname?: string | null): boolean {
 // Removed buildMarketApi: middleware normalizes API calls, and clients can pass explicit mkt when needed.
 
 // All supported markets for iteration
-export const MARKETS: Market[] = ['GB', 'DE', 'FR', 'PT', 'IT'];
+export const MARKETS: Market[] = ['GB', 'DE', 'FR', 'PT', 'IT', 'ES'];
 
 // Short locale codes for hreflang tags (GB → 'en', others → lowercase market code)
 export const HREFLANG_LOCALES: string[] = MARKETS.map(m =>

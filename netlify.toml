@@ -135,6 +135,14 @@
 #    "scripts/unified-crawler/**"
 #  ]
 
+#[functions."crawler-index-es"]
+#  # Staggered: every 20 minutes offset at :05, :25, :45
+#  schedule = "5,25,45 * * * *"
+#  node_bundler = "esbuild"
+#  included_files = [
+#    "scripts/unified-crawler/**"
+#  ]
+
 
 ### Unified background stages (items and sellers) on separate schedules
 [functions."crawler-items-background"]

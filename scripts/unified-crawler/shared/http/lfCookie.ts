@@ -8,6 +8,7 @@ export const LF_BY_MARKET: Partial<Record<MarketCode, string>> = {
   FR: "eyJzaGlwc0Zyb20iOm51bGwsInNoaXBzVG8iOiJGUiJ9",
   IT: "eyJzaGlwc0Zyb20iOm51bGwsInNoaXBzVG8iOiJJVCJ9",
   PT: "eyJzaGlwc0Zyb20iOm51bGwsInNoaXBzVG8iOiJQVCJ9",
+  ES: "eyJzaGlwc0Zyb20iOm51bGwsInNoaXBzVG8iOiJFUyJ9",
 };
 
 export function getLocationFilterCookie(market: MarketCode): string | undefined {

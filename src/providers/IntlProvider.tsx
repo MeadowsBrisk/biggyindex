@@ -1,11 +1,14 @@
 "use client";
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from 'next/router';
+import { atom } from 'jotai';
+import { atomWithStorage, useHydrateAtoms } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai/react';
 import enGBCoreMessages from "../messages/en-GB/index.json";
-import { IntlProvider as NextIntlProvider, useTranslations } from "next-intl";
+import { IntlProvider as NextIntlProvider } from "next-intl";
 import { getMarketFromPath, getLocaleForMarket, getMarketFromHost, isHostBasedEnv } from '@/lib/market/market';
 
-export type Locale = "en-GB" | "de-DE" | "fr-FR" | "pt-PT" | "it-IT";
+export type Locale = "en-GB" | "de-DE" | "fr-FR" | "pt-PT" | "it-IT" | "es-ES";
 type Currency = "GBP" | "EUR" | "USD";
 
 function normalizeLocale(input?: string | null): Locale {
@@ -14,6 +17,7 @@ function normalizeLocale(input?: string | null): Locale {
   if (raw.startsWith("fr")) return "fr-FR";
   if (raw.startsWith("pt")) return "pt-PT";
   if (raw.startsWith("it")) return "it-IT";
+  if (raw.startsWith("es")) return "es-ES";
   return "en-GB";
 }
 
@@ -23,6 +27,7 @@ function currencyForLocale(locale: Locale): Currency {
     case "fr-FR":
     case "pt-PT":
     case "it-IT":
+    case "es-ES":
       return "EUR";
     default:
       return "GBP";
@@ -44,47 +49,22 @@ function localeFromEnvironment(pathname: string): Locale {
   return getLocaleForMarket(market) as Locale;
 }
 
-type DisplayCurrencyContextValue = {
-  currency: Currency;
-  setCurrency: (c: Currency) => void;
-};
+// ── Jotai atoms (replace React contexts for locale, currency, forceEnglish) ──
+export const localeAtom = atom<Locale>("en-GB");
+export const displayCurrencyAtom = atom<Currency>("GBP");
+export const forceEnglishAtom = atomWithStorage<boolean>('forceEnglish', false);
 
-const DisplayCurrencyContext = createContext<DisplayCurrencyContextValue | undefined>(undefined);
-
-export function useDisplayCurrency(): DisplayCurrencyContextValue {
-  const ctx = useContext(DisplayCurrencyContext);
-  if (!ctx) {
-    // Fallback during early render; defaults to en-GB/GBP
-    return { currency: "GBP", setCurrency: () => {} };
-  }
-  return ctx;
+// ── Hooks (same API — consumers don't need changes) ─────────────────────────
+export function useLocale() {
+  return { locale: useAtomValue(localeAtom), setLocale: useSetAtom(localeAtom) };
 }
 
-type LocaleContextValue = {
-  locale: Locale;
-  setLocale: (l: Locale) => void;
-};
-
-const LocaleContext = createContext<LocaleContextValue | undefined>(undefined);
-
-export function useLocale(): LocaleContextValue {
-  const ctx = useContext(LocaleContext);
-  if (!ctx) return { locale: "en-GB", setLocale: () => {} };
-  return ctx;
+export function useDisplayCurrency() {
+  return { currency: useAtomValue(displayCurrencyAtom), setCurrency: useSetAtom(displayCurrencyAtom) };
 }
 
-// Force English context - allows components to force UI to English regardless of locale
-type ForceEnglishContextValue = {
-  forceEnglish: boolean;
-  setForceEnglish: (v: boolean) => void;
-};
-
-const ForceEnglishContext = createContext<ForceEnglishContextValue | undefined>(undefined);
-
-export function useForceEnglish(): ForceEnglishContextValue {
-  const ctx = useContext(ForceEnglishContext);
-  if (!ctx) return { forceEnglish: false, setForceEnglish: () => {} };
-  return ctx;
+export function useForceEnglish() {
+  return { forceEnglish: useAtomValue(forceEnglishAtom), setForceEnglish: useSetAtom(forceEnglishAtom) };
 }
 
 // Load only core messages (always needed)
@@ -95,6 +75,7 @@ const CORE_MESSAGE_LOADERS: Record<Locale, () => Promise<Record<string, any>>> =
   'fr-FR': () => import('../messages/fr-FR/index.json').then(m => m.default),
   'pt-PT': () => import('../messages/pt-PT/index.json').then(m => m.default),
   'it-IT': () => import('../messages/it-IT/index.json').then(m => m.default),
+  'es-ES': () => import('../messages/es-ES/index.json').then(m => m.default),
 };
 
 async function loadCoreMessages(locale: Locale): Promise<Record<string, any>> {
@@ -110,6 +91,7 @@ const HOME_MESSAGE_LOADERS: Record<Locale, () => Promise<Record<string, any>>> =
   'fr-FR': () => import('../messages/fr-FR/home.json').then(m => m.default),
   'pt-PT': () => import('../messages/pt-PT/home.json').then(m => m.default),
   'it-IT': () => import('../messages/it-IT/home.json').then(m => m.default),
+  'es-ES': () => import('../messages/es-ES/home.json').then(m => m.default),
 };
 
 export async function loadHomeMessages(locale: Locale): Promise<Record<string, any>> {
@@ -137,90 +119,68 @@ interface IntlProviderProps {
 
 export function IntlProvider({ children, ssrMessages }: IntlProviderProps) {
   const router = useRouter();
-  
+
   // Use router.locale for SSR consistency (avoids hydration mismatch)
-  // Path-based locale detection happens in useEffect on client
   const initialLocale = normalizeLocale(router.locale);
-  
-  const [locale, setLocale] = useState<Locale>(initialLocale);
+
+  // Hydrate atoms with SSR-correct values on first render
+  useHydrateAtoms([
+    [localeAtom, initialLocale],
+    [displayCurrencyAtom, currencyForLocale(initialLocale)],
+  ]);
+
+  const [locale, setLocale] = useAtom(localeAtom);
+  const setCurrency = useSetAtom(displayCurrencyAtom);
+  const forceEnglish = useAtomValue(forceEnglishAtom);
+
   // Use SSR messages if available, otherwise fall back to English core messages
-  // This eliminates the async loading flash on initial render
   const [messages, setMessages] = useState<Record<string, any>>(
-    ssrMessages && Object.keys(ssrMessages).length > 0 
-      ? ssrMessages 
+    ssrMessages && Object.keys(ssrMessages).length > 0
+      ? ssrMessages
       : enGBCoreMessages as Record<string, any>
   );
-  const [currency, setCurrency] = useState<Currency>(currencyForLocale(initialLocale));
-  
+
   // Track if we've received SSR messages to skip initial async load
   const hadSsrMessages = useRef(ssrMessages && Object.keys(ssrMessages).length > 0);
-  
-  // Force English preference - default false on SSR, sync from localStorage in effect
-  const [forceEnglish, setForceEnglishState] = useState<boolean>(false);
-  
-  // Callback to update force English and persist to localStorage
-  const setForceEnglish = useCallback((value: boolean) => {
-    setForceEnglishState(value);
-    try {
-      window.localStorage.setItem('forceEnglish', JSON.stringify(value));
-    } catch {}
-  }, []);
-
-  // Sync forceEnglish from localStorage on mount (client-only)
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem('forceEnglish');
-      if (stored === 'true') setForceEnglishState(true);
-    } catch {}
-  }, []);
 
   // Load core messages for the current locale (or English if forced)
   // Skip initial load if we already have SSR messages for the correct locale
   useEffect(() => {
     let cancelled = false;
-    // If forceEnglish is enabled, always load English messages
     const messageLocale = forceEnglish ? 'en-GB' : locale;
-    
+
     // Skip async load if we have SSR messages and locale matches (first render)
     if (hadSsrMessages.current && messageLocale === initialLocale && !forceEnglish) {
-      hadSsrMessages.current = false; // Only skip once
+      hadSsrMessages.current = false;
       return;
     }
-    
+
     loadCoreMessages(messageLocale).then((m) => {
       if (!cancelled) setMessages(m);
     });
-    setCurrency(currencyForLocale(locale)); // Keep currency based on actual locale
-    try { if (typeof window !== 'undefined') window.localStorage.setItem('app:locale', locale); } catch {}
-    return () => {
-      cancelled = true;
-    };
-  }, [locale, forceEnglish, initialLocale]);
+    setCurrency(currencyForLocale(locale));
+    return () => { cancelled = true; };
+  }, [locale, forceEnglish, initialLocale, setCurrency]);
 
   // Sync locale when router changes (path or locale)
   useEffect(() => {
-    // Check path-based locale first (for localhost /de, /fr paths)
-    const pathLocale = typeof window !== 'undefined' 
-      ? localeFromEnvironment(window.location.pathname) 
+    const pathLocale = typeof window !== 'undefined'
+      ? localeFromEnvironment(window.location.pathname)
       : 'en-GB';
     const routerLocale = normalizeLocale(router.locale);
-    
-    // Prefer path-based locale on localhost, router.locale in production
     const detectedLocale = pathLocale !== 'en-GB' ? pathLocale : routerLocale;
-    
+
     if (detectedLocale !== locale) {
       setLocale(detectedLocale);
     }
-  }, [router.locale, router.asPath, locale]);
+  }, [router.locale, router.asPath, locale, setLocale]);
 
   // Function to merge in additional messages (e.g., home messages)
   const addMessages = useMemo(() => (extra: Record<string, any>) => {
     setMessages(prev => ({ ...prev, ...extra }));
   }, []);
 
-  const currencyValue = useMemo(() => ({ currency, setCurrency }), [currency]);
   const messagesValue = useMemo(() => ({ messages, addMessages }), [messages, addMessages]);
-  const forceEnglishValue = useMemo(() => ({ forceEnglish, setForceEnglish }), [forceEnglish, setForceEnglish]);
 
   return (
     <NextIntlProvider
@@ -228,39 +188,14 @@ export function IntlProvider({ children, ssrMessages }: IntlProviderProps) {
       messages={messages}
       timeZone="UTC"
       onError={(err: any) => {
-        // Suppress hard errors for missing messages during first render; show warnings in dev for other issues
         if (err?.code === 'MISSING_MESSAGE') return;
         if (process.env.NODE_ENV !== 'production') console.warn('[i18n]', err);
       }}
       getMessageFallback={({ key }: any) => key}
     >
-      <LocaleContext.Provider value={{ locale, setLocale }}>
-        <ForceEnglishContext.Provider value={forceEnglishValue}>
-          <DisplayCurrencyContext.Provider value={currencyValue}>
-            <MessagesContext.Provider value={messagesValue}>
-              {children}
-            </MessagesContext.Provider>
-          </DisplayCurrencyContext.Provider>
-        </ForceEnglishContext.Provider>
-      </LocaleContext.Provider>
+      <MessagesContext.Provider value={messagesValue}>
+        {children}
+      </MessagesContext.Provider>
     </NextIntlProvider>
   );
-}
-
-// Convenience hook example (not used yet)
-export function useSidebarLabels() {
-  const t = useTranslations("Sidebar");
-  return {
-    filters: t("filters"),
-    search: t("search"),
-    category: t("category"),
-    price: t("price"),
-    sellers: t("sellers"),
-    allSellers: t("allSellers"),
-    reviews: t("reviews"),
-    reset: t("reset"),
-    sort: t("sort"),
-    openFilters: t("openFilters"),
-    closeFilters: t("closeFilters"),
-  } as const;
 }

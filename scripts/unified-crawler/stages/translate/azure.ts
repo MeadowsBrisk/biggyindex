@@ -12,7 +12,7 @@ export interface TranslateBatchResult {
 }
 
 // Target locales (excluding en-GB which is source)
-export const TARGET_LOCALES = ['de', 'fr', 'pt', 'it'] as const;
+export const TARGET_LOCALES = ['de', 'fr', 'pt', 'it', 'es'] as const;
 export type TargetLocale = typeof TARGET_LOCALES[number];
 
 // Retry configuration for rate limiting
@@ -31,6 +31,7 @@ export function azureCodeToLocale(code: string): string {
     'fr': 'fr-FR',
     'pt': 'pt-PT',
     'it': 'it-IT',
+    'es': 'es-ES',
   };
   return map[code] || code;
 }

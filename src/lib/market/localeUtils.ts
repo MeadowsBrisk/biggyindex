@@ -12,6 +12,7 @@ export function getDomesticCountry(locale: string): string {
   if (l.startsWith('fr')) return 'france';
   if (l.startsWith('it')) return 'italy';
   if (l.startsWith('pt')) return 'portugal';
+  if (l.startsWith('es')) return 'spain';
   
   // Default to UK for en-GB and any other locale
   return 'united kingdom';
