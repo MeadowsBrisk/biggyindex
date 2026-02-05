@@ -9,7 +9,7 @@ import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { hostForLocale } from '@/lib/market/routing';
-import { localeToMarket, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market/market';
+import { localeToMarket, localeToOgFormat, getOgLocaleAlternates, getLocaleForMarket, HREFLANG_LOCALES, MARKETS } from '@/lib/market/market';
 import { catKeyForManifest, safeTranslate, subKeyForManifest } from '@/lib/taxonomy/taxonomyLabels';
 import { formatUSD, type DisplayCurrency, type ExchangeRates } from '@/lib/pricing/priceDisplay';
 import { relativeCompact } from '@/lib/ui/relativeTimeCompact';
@@ -19,24 +19,11 @@ import AnimatedLogoHeader from '@/components/layout/AnimatedLogoHeader';
 import LocaleSelector from '@/components/layout/LocaleSelector';
 import ToastHost from '@/components/common/ToastHost';
 import { useLocale, useDisplayCurrency } from '@/providers/IntlProvider';
-import FlagGB from '@/components/common/flags/FlagGB';
-import FlagDE from '@/components/common/flags/FlagDE';
-import FlagFR from '@/components/common/flags/FlagFR';
-import FlagIT from '@/components/common/flags/FlagIT';
-import FlagPT from '@/components/common/flags/FlagPT';
+import { LOCALE_LINKS } from '@/lib/market/localeLinks';
 import cn from '@/lib/core/cn';
 
 // Category slugs that have landing pages (English, used across all markets)
 const CATEGORY_SLUGS = ['flower', 'hash', 'prerolls', 'vapes', 'edibles', 'concentrates', 'psychedelics', 'tincture', 'other'];
-
-// Locale links for footer language selector (same as /home)
-const LOCALE_LINKS = [
-  { code: 'en', href: 'https://biggyindex.com', label: 'English', Flag: FlagGB },
-  { code: 'fr', href: 'https://fr.biggyindex.com', label: 'Français', Flag: FlagFR },
-  { code: 'de', href: 'https://de.biggyindex.com', label: 'Deutsch', Flag: FlagDE },
-  { code: 'it', href: 'https://it.biggyindex.com', label: 'Italiano', Flag: FlagIT },
-  { code: 'pt', href: 'https://pt.biggyindex.com', label: 'Português', Flag: FlagPT },
-];
 
 // Tabs for featured sections
 const TABS = [
@@ -53,7 +40,7 @@ type CategoryPageProps = {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // Generate paths for all categories across all locales
-  const locales = ['en-GB', 'de-DE', 'fr-FR', 'it-IT', 'pt-PT'];
+  const locales = MARKETS.map(getLocaleForMarket);
   const paths: { params: { slug: string }; locale: string }[] = [];
 
   for (const locale of locales) {
@@ -241,7 +228,7 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         <link rel="canonical" href={canonicalUrl} />
 
         {/* hreflang for all markets */}
-        {['en', 'de', 'fr', 'it', 'pt'].map((l) => (
+        {HREFLANG_LOCALES.map((l) => (
           <link key={l} rel="alternate" href={`${hostForLocale(l)}/category/${slug}`} hrefLang={l} />
         ))}
         <link rel="alternate" href={`${hostForLocale('en')}/category/${slug}`} hrefLang="x-default" />

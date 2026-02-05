@@ -88,35 +88,33 @@ export function useForceEnglish(): ForceEnglishContextValue {
 }
 
 // Load only core messages (always needed)
+/** Core message loaders — add 1 line per new locale */
+const CORE_MESSAGE_LOADERS: Record<Locale, () => Promise<Record<string, any>>> = {
+  'en-GB': () => import('../messages/en-GB/index.json').then(m => m.default),
+  'de-DE': () => import('../messages/de-DE/index.json').then(m => m.default),
+  'fr-FR': () => import('../messages/fr-FR/index.json').then(m => m.default),
+  'pt-PT': () => import('../messages/pt-PT/index.json').then(m => m.default),
+  'it-IT': () => import('../messages/it-IT/index.json').then(m => m.default),
+};
+
 async function loadCoreMessages(locale: Locale): Promise<Record<string, any>> {
-  switch (locale) {
-    case "de-DE":
-      return (await import("../messages/de-DE/index.json")).default;
-    case "fr-FR":
-      return (await import("../messages/fr-FR/index.json")).default;
-    case "pt-PT":
-      return (await import("../messages/pt-PT/index.json")).default;
-    case "it-IT":
-      return (await import("../messages/it-IT/index.json")).default;
-    default:
-      return (await import("../messages/en-GB/index.json")).default;
-  }
+  const loader = CORE_MESSAGE_LOADERS[locale] || CORE_MESSAGE_LOADERS['en-GB'];
+  return loader();
 }
 
 // Load home messages (only needed on home pages) - exported for HomeMessagesProvider
+/** Home message loaders — add 1 line per new locale */
+const HOME_MESSAGE_LOADERS: Record<Locale, () => Promise<Record<string, any>>> = {
+  'en-GB': () => import('../messages/en-GB/home.json').then(m => m.default),
+  'de-DE': () => import('../messages/de-DE/home.json').then(m => m.default),
+  'fr-FR': () => import('../messages/fr-FR/home.json').then(m => m.default),
+  'pt-PT': () => import('../messages/pt-PT/home.json').then(m => m.default),
+  'it-IT': () => import('../messages/it-IT/home.json').then(m => m.default),
+};
+
 export async function loadHomeMessages(locale: Locale): Promise<Record<string, any>> {
-  switch (locale) {
-    case "de-DE":
-      return (await import("../messages/de-DE/home.json")).default;
-    case "fr-FR":
-      return (await import("../messages/fr-FR/home.json")).default;
-    case "pt-PT":
-      return (await import("../messages/pt-PT/home.json")).default;
-    case "it-IT":
-      return (await import("../messages/it-IT/home.json")).default;
-    default:
-      return (await import("../messages/en-GB/home.json")).default;
-  }
+  const loader = HOME_MESSAGE_LOADERS[locale] || HOME_MESSAGE_LOADERS['en-GB'];
+  return loader();
 }
 
 // Context for merged messages (core + home when available)

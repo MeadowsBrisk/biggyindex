@@ -10,6 +10,7 @@ import { diffMarketIndexEntries } from "../../shared/logic/changes";
 import { mergeIndexMetaEntry, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
 import axios from "axios";
 import { buildMarketSellers } from "./buildSellers";
+import { MARKET_TO_FULL_LOCALE } from '../../shared/locale-map';
 import { createCookieHttp, warmCookieJar } from "../../shared/http/client";
 import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
 import { saveCookieJar } from "../../shared/http/cookies";
@@ -173,8 +174,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   const imageMetaP = sharedBlob.getJSON<any>(Keys.shared.aggregates.imageMeta()).catch(() => null);
 
   // Map market code to FULL locale code for translation lookup (aggregate uses de-DE, fr-FR, etc.)
-  const MARKET_TO_LOCALE: Record<string, string> = { 'DE': 'de-DE', 'FR': 'fr-FR', 'PT': 'pt-PT', 'IT': 'it-IT' };
-  const targetLocale = MARKET_TO_LOCALE[code] || null;
+  const targetLocale = MARKET_TO_FULL_LOCALE[code] || null;
 
   let sharesAgg: Record<string, string> = {};
   let shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }> = {};

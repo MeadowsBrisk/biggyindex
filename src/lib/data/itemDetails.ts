@@ -1,12 +1,11 @@
 // used for item slug pages and item detail fetching
 
 import { getStore } from '@netlify/blobs';
-
-export type Market = 'GB' | 'DE' | 'FR' | 'PT' | 'IT';
+import { MARKETS, type Market } from '@/lib/market/market';
 
 function normalizeMarket(mkt: any): Market {
   const s = String(mkt || 'GB').toUpperCase();
-  return (s === 'GB' || s === 'DE' || s === 'FR' || s === 'PT' || s === 'IT') ? (s as Market) : 'GB';
+  return MARKETS.includes(s as Market) ? (s as Market) : 'GB';
 }
 
 

@@ -45,7 +45,7 @@ import { hostForLocale } from '@/lib/market/routing';
 import LocaleSelector from '@/components/layout/LocaleSelector';
 import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
-import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket } from '@/lib/market/market';
+import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket, HREFLANG_LOCALES } from '@/lib/market/market';
 
 export const getStaticProps: GetStaticProps = async (context) => {
   // ISR: Pre-fetch all items and manifest at build time / revalidation
@@ -615,7 +615,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           <meta name="twitter:image" content={`${hostForLocale(locale)}/og-image.png`} />
           <meta name="twitter:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta name="twitter:description" content={tMeta('indexDescription')} />
-          {['en', 'de', 'fr', 'it', 'pt'].map(l => (
+          {HREFLANG_LOCALES.map(l => (
             <link key={l} rel="alternate" href={hostForLocale(l)} hrefLang={l} />
           ))}
           <link rel="alternate" href={hostForLocale('en')} hrefLang="x-default" />

@@ -5,7 +5,7 @@ import { useSetAtom } from 'jotai';
 import { sellerAnalyticsOpenAtom } from '@/store/atoms';
 import { useTranslations } from 'next-intl';
 import { hostForLocale } from '@/lib/market/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES } from '@/lib/market/market';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 
 interface SellersPageProps {
@@ -78,7 +78,7 @@ export default function SellersPage({ locale: serverLocale }: SellersPageProps) 
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <link rel="canonical" href={canonical} />
-        {['en','de','fr','it','pt'].map(l => (
+        {HREFLANG_LOCALES.map(l => (
           <link key={l} rel="alternate" href={`${hostForLocale(l)}/sellers`} hrefLang={l} />
         ))}
         <link rel="alternate" href={`${hostForLocale('en')}/sellers`} hrefLang="x-default" />

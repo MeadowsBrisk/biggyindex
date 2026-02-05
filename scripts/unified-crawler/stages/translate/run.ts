@@ -9,22 +9,11 @@ import { computeSourceHash, estimateCharCount, type VariantForHash } from './has
 import { translateBatch, azureCodeToLocale, parseTranslatedText, TARGET_LOCALES, type TargetLocale, type TranslationResult } from './azure';
 import { checkBudget, wouldExceedBudget, recordUsage, recordError, formatBudgetStatus, initBudget, MONTHLY_CHAR_BUDGET } from './budget';
 import { runTranslateSellers } from './sellers';
+import { MARKET_TO_AZURE_LOCALE, AZURE_LOCALE_TO_MARKET, NON_GB_MARKETS } from '../../shared/locale-map';
 
-// Map market codes to locale codes for translation
-const MARKET_TO_LOCALE: Record<string, TargetLocale> = {
-  'DE': 'de',
-  'FR': 'fr',
-  'PT': 'pt',
-  'IT': 'it',
-};
-
-// Reverse mapping: locale to market
-const LOCALE_TO_MARKET: Record<TargetLocale, MarketCode> = {
-  'de': 'DE',
-  'fr': 'FR',
-  'pt': 'PT',
-  'it': 'IT',
-};
+// Alias for existing usage patterns in this file
+const MARKET_TO_LOCALE = MARKET_TO_AZURE_LOCALE as Record<string, TargetLocale>;
+const LOCALE_TO_MARKET = AZURE_LOCALE_TO_MARKET as Record<TargetLocale, MarketCode>;
 
 // Translation blob schema (per-item detail)
 export interface TranslationBlob {
@@ -289,7 +278,7 @@ async function runTranslateItems(opts: TranslateOptions = {}): Promise<Translate
     let isFromNonGB = false;
     if (!itemData) {
       // Try to get from first available market
-      for (const market of ['DE', 'FR', 'IT', 'PT'] as MarketCode[]) {
+      for (const market of NON_GB_MARKETS) {
         const marketIndex = marketIndexes.get(market);
         if (marketIndex?.has(refNum)) {
           itemData = marketIndex.get(refNum);

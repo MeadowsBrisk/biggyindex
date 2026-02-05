@@ -9,7 +9,7 @@ import { fetchSellerDetail } from '@/lib/data/sellerDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildSellerUrl } from '@/lib/market/routing';
 import { hostForLocale } from '@/lib/market/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES } from '@/lib/market/market';
 
 interface SellerSEO {
   id: number;
@@ -128,7 +128,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
   ].filter(Boolean).join(' • ');
   const effectiveId = String(seo?.id ?? sellerId ?? '');
   const canonical = buildSellerUrl(effectiveId, serverLocale);
-  const altLocales = ['en', 'de', 'fr', 'it', 'pt'];
+  const altLocales = HREFLANG_LOCALES;
 
   return (
     <>

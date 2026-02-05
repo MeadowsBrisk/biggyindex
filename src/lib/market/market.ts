@@ -123,6 +123,11 @@ export function isHostBasedEnv(hostname?: string | null): boolean {
 // All supported markets for iteration
 export const MARKETS: Market[] = ['GB', 'DE', 'FR', 'PT', 'IT'];
 
+// Short locale codes for hreflang tags (GB → 'en', others → lowercase market code)
+export const HREFLANG_LOCALES: string[] = MARKETS.map(m =>
+  m === 'GB' ? 'en' : m.toLowerCase()
+);
+
 // Convert locale string to Open Graph format (en-GB -> en_GB)
 export function localeToOgFormat(locale: string): string {
   return locale.replace('-', '_');

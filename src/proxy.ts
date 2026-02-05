@@ -24,16 +24,14 @@ export function proxy(request: NextRequest) {
   // If ?mkt is missing, rewrite the URL to include it
   if (!url.searchParams.has('mkt')) {
     url.searchParams.set('mkt', market);
-    return NextResponse.rewrite(url);
+    const res = NextResponse.rewrite(url);
+    try { res.cookies.set('mkt', market, { path: '/', sameSite: 'lax' }); } catch {}
+    return res;
   }
 
   // Pass through with market cookie for downstream server logic
   const response = NextResponse.next();
-  try {
-    response.cookies.set('mkt', market, { path: '/', sameSite: 'lax' });
-  } catch {
-    // Cookie setting may fail in some edge cases; non-critical
-  }
+  try { response.cookies.set('mkt', market, { path: '/', sameSite: 'lax' }); } catch {}
   return response;
 }
 

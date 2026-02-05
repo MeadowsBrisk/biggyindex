@@ -9,16 +9,17 @@
  *   REVALIDATE_BASE_URL - Base URL override (for local testing only)
  */
 
-// Production uses subdomains for each market
-const MARKET_DOMAINS = {
-  GB: 'https://biggyindex.com',
-  DE: 'https://de.biggyindex.com',
-  FR: 'https://fr.biggyindex.com',
-  PT: 'https://pt.biggyindex.com',
-  IT: 'https://it.biggyindex.com',
-} as const;
+import type { MarketCode } from '../types';
+import { MARKET_CODES } from '../env/markets';
 
-type Market = keyof typeof MARKET_DOMAINS;
+// Production uses subdomains for each market — auto-derived from MARKET_CODES
+function domainForMarket(market: MarketCode): string {
+  return market === 'GB'
+    ? 'https://biggyindex.com'
+    : `https://${market.toLowerCase()}.biggyindex.com`;
+}
+
+type Market = MarketCode;
 
 interface RevalidateOptions {
   baseUrl?: string;
@@ -40,7 +41,7 @@ export async function revalidateMarket(
   options: RevalidateOptions = {}
 ): Promise<RevalidateResult> {
   // Each market has its own subdomain in production; always revalidate root path
-  const baseUrl = options.baseUrl || MARKET_DOMAINS[market];
+  const baseUrl = options.baseUrl || domainForMarket(market);
   const path = '/';
   const secret = options.secret || process.env.REVALIDATE_SECRET_TOKEN;
 
@@ -79,7 +80,7 @@ export async function revalidateMarket(
 export async function revalidateAllMarkets(
   options: RevalidateOptions = {}
 ): Promise<RevalidateResult[]> {
-  const markets: Market[] = ['GB', 'DE', 'FR', 'PT', 'IT'];
+  const markets = MARKET_CODES
   const results: RevalidateResult[] = [];
 
   console.log('[revalidate] Starting revalidation for all markets');

@@ -8,7 +8,7 @@ import { expandedRefNumAtom } from '@/store/atoms';
 import { fetchItemDetail } from '@/lib/data/itemDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, hostForLocale } from '@/lib/market/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat } from '@/lib/market/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES } from '@/lib/market/market';
 
 interface ItemSEO {
   ref: string;
@@ -108,7 +108,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
 
   const effectiveRef = String(seo?.ref || ref || '');
   const canonical = buildItemUrl(effectiveRef, serverLocale);
-  const altLocales = ['en', 'de', 'fr', 'it', 'pt'];
+  const altLocales = HREFLANG_LOCALES;
 
   return (
     <>

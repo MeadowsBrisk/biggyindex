@@ -2,22 +2,10 @@
 
 import Link from "next/link";
 import { RedditIcon } from '@/components/common/icons';
-import FlagGB from '@/components/common/flags/FlagGB';
-import FlagDE from '@/components/common/flags/FlagDE';
-import FlagFR from '@/components/common/flags/FlagFR';
-import FlagIT from '@/components/common/flags/FlagIT';
-import FlagPT from '@/components/common/flags/FlagPT';
+import { LOCALE_LINKS } from '@/lib/market/localeLinks';
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactElement, type MouseEvent as ReactMouseEvent } from "react";
 import { useFormatter, useTranslations } from 'next-intl';
-
-const LOCALE_LINKS = [
-  { code: 'en', href: 'https://biggyindex.com', label: 'English', Flag: FlagGB },
-  { code: 'fr', href: 'https://fr.biggyindex.com', label: 'Français', Flag: FlagFR },
-  { code: 'de', href: 'https://de.biggyindex.com', label: 'Deutsch', Flag: FlagDE },
-  { code: 'it', href: 'https://it.biggyindex.com', label: 'Italiano', Flag: FlagIT },
-  { code: 'pt', href: 'https://pt.biggyindex.com', label: 'Português', Flag: FlagPT },
-];
 
 interface FooterSectionProps {
   lastCrawlTime?: string | number | null;

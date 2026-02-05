@@ -4,21 +4,24 @@
 // We support per-market stores: site-index-gb, site-index-de, site-index-fr (override via env).
 // Default market is GB.
 
-import type { Market } from '@/lib/market/market';
+import { MARKETS, type Market } from '@/lib/market/market';
 
-const DEFAULT_STORES: Record<Market, string> = {
-  GB: (process as any).env.MARKET_STORE_GB || 'site-index-gb',
-  DE: (process as any).env.MARKET_STORE_DE || 'site-index-de',
-  FR: (process as any).env.MARKET_STORE_FR || 'site-index-fr',
-  PT: (process as any).env.MARKET_STORE_PT || 'site-index-pt',
-  IT: (process as any).env.MARKET_STORE_IT || 'site-index-it',
-};
+/**
+ * Per-market blob store names, auto-derived from MARKETS.
+ * Override via env: MARKET_STORE_GB, MARKET_STORE_DE, etc.
+ */
+const DEFAULT_STORES: Record<Market, string> = Object.fromEntries(
+  MARKETS.map(m => [
+    m,
+    (process as any).env[`MARKET_STORE_${m}`] || `site-index-${m.toLowerCase()}`
+  ])
+) as Record<Market, string>;
 
 const SHARED_STORE: string = (process as any).env.SHARED_STORE_NAME || 'site-index-shared';
 
 function normalizeMarket(mkt?: string | Market): Market {
   const s = String(mkt || 'GB').toUpperCase();
-  return (s === 'GB' || s === 'DE' || s === 'FR' || s === 'PT' || s === 'IT') ? (s as Market) : 'GB';
+  return MARKETS.includes(s as Market) ? (s as Market) : 'GB';
 }
 
 function storeNameForMarket(mkt?: string | Market): string {

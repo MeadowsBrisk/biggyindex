@@ -12,7 +12,7 @@ import FooterSection from '@/sections/home/FooterSection';
 import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from '@/lib/data/indexData';
 import { RECENT_REVIEWS_LIMIT } from '@/lib/core/constants';
 import { hostForLocale } from '@/lib/market/routing';
-import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates } from '@/lib/market/market';
+import { getLocaleForMarket, getMarketFromHost, getMarketFromPath, isHostBasedEnv, localeToOgFormat, getOgLocaleAlternates, HREFLANG_LOCALES } from '@/lib/market/market';
 import { useLocale, useTranslations } from 'next-intl';
 import { HomeMessagesProvider } from '@/providers/HomeMessagesProvider';
 
@@ -291,7 +291,7 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
         <title>{tMeta('homeTitle')}</title>
         <meta name="description" content={tMeta('homeDescription')} />
         <link rel="canonical" href={`${origin}/home`} />
-        {['en', 'de', 'fr', 'it', 'pt'].map(l => (
+        {HREFLANG_LOCALES.map(l => (
           <link key={l} rel="alternate" href={`${hostForLocale(l)}/home`} hrefLang={l} />
         ))}
         <link rel="alternate" href={`${hostForLocale('en')}/home`} hrefLang="x-default" />

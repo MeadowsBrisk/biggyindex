@@ -1,20 +1,23 @@
 // Central locale routing configuration
 // Provides helpers for building canonical item/seller URLs and resolving host per locale.
 
-import { getMarketFromHost, getLocaleForMarket } from '@/lib/market/market';
+import { getMarketFromHost, getLocaleForMarket, MARKETS } from '@/lib/market/market';
 
-export const LOCALE_HOST: Record<string, string> = {
-  'en': 'https://biggyindex.com',
-  'en-GB': 'https://biggyindex.com',
-  'fr': 'https://fr.biggyindex.com',
-  'fr-FR': 'https://fr.biggyindex.com',
-  'de': 'https://de.biggyindex.com',
-  'de-DE': 'https://de.biggyindex.com',
-  'it': 'https://it.biggyindex.com',
-  'it-IT': 'https://it.biggyindex.com',
-  'pt': 'https://pt.biggyindex.com',
-  'pt-PT': 'https://pt.biggyindex.com'
-};
+/**
+ * Locale-to-host mapping, auto-generated from MARKETS.
+ * GB maps to apex biggyindex.com; others map to {market}.biggyindex.com subdomains.
+ * Both short ('de') and full ('de-DE') locale keys are included.
+ */
+export const LOCALE_HOST: Record<string, string> = Object.fromEntries(
+  MARKETS.flatMap(m => {
+    const locale = getLocaleForMarket(m);
+    const short = locale.split('-')[0];
+    const host = m === 'GB'
+      ? 'https://biggyindex.com'
+      : `https://${m.toLowerCase()}.biggyindex.com`;
+    return [[locale, host], [short, host]];
+  })
+);
 
 function short(locale: string): string { return (locale || '').split('-')[0]; }
 

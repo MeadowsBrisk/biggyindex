@@ -17,18 +17,16 @@ import { Keys } from '../../shared/persistence/keys';
 import { log } from '../../shared/logging/logger';
 import { marketStore } from '../../shared/env/markets';
 import type { MarketCode } from '../../shared/env/loadEnv';
+import { NON_GB_MARKETS, MARKET_TO_FULL_LOCALE } from '../../shared/locale-map';
 
 const SHORT_DESC_MAX = 260;
 
-const MARKETS: MarketCode[] = ['DE', 'FR', 'IT', 'PT'];
+const MARKETS = NON_GB_MARKETS;
 
 // Map market to locale code used in aggregate (full BCP-47 format)
-const MARKET_TO_LOCALE: Record<MarketCode, string> = {
+const MARKET_TO_LOCALE: Record<string, string> = {
   GB: 'en',
-  DE: 'de-DE',
-  FR: 'fr-FR',
-  IT: 'it-IT',
-  PT: 'pt-PT',
+  ...MARKET_TO_FULL_LOCALE,
 };
 
 interface CleanupOptions {

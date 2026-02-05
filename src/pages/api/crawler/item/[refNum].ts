@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
+import { MARKETS, type Market } from '@/lib/market/market';
 
 export const config = { runtime: 'nodejs' };
 
@@ -7,11 +8,9 @@ type Store = { get: (key: string) => Promise<string | null> } | null;
 
 type Detail = any; // keep broad, just pass-through JSON
 
-type Market = 'GB' | 'DE' | 'FR' | 'PT' | 'IT';
-
 function normalizeMarket(mkt: any): Market {
   const s = String(mkt || 'GB').toUpperCase();
-  return (s === 'GB' || s === 'DE' || s === 'FR' || s === 'PT' || s === 'IT') ? (s as Market) : 'GB';
+  return MARKETS.includes(s as Market) ? (s as Market) : 'GB';
 }
 
 function marketStoreName(mkt: Market) {
