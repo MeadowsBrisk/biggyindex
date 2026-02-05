@@ -59,8 +59,8 @@ export default function LocaleSelector() {
   
   const localeCurrency = React.useMemo(() => {
     const l = (locale || 'en-GB').toLowerCase();
-    if (l.startsWith('de') || l.startsWith('fr') || l.startsWith('it') || l.startsWith('pt')) return 'EUR';
-    return 'GBP';
+    const market = MARKETS.find(m => l.startsWith(m.code.toLowerCase()));
+    return market?.currency || 'GBP';
   }, [locale]);
 
   // Close dropdown when clicking outside

@@ -7,6 +7,7 @@ import { buildSellerWorklist } from '../../shared/sellers/worklist';
 import { marketStore, MARKET_CODES } from '../../shared/env/markets';
 import { computeSourceHash } from './hash';
 import { translateBatch, azureCodeToLocale, type TargetLocale } from './azure';
+import { MARKET_TO_AZURE_LOCALE } from '../../shared/locale-map';
 import { checkBudget, wouldExceedBudget, recordUsage, recordError, formatBudgetStatus, MONTHLY_CHAR_BUDGET } from './budget';
 import type { TranslateResult, TranslateOptions } from './run';
 
@@ -56,11 +57,9 @@ export async function runTranslateSellers(opts: TranslateOptions): Promise<Trans
         const marketsServed = sellerMarkets.get(sid);
         if (!marketsServed) continue;
 
-        const targetLocales: TargetLocale[] = [];
-        if (marketsServed.has('DE')) targetLocales.push('de');
-        if (marketsServed.has('FR')) targetLocales.push('fr');
-        if (marketsServed.has('IT')) targetLocales.push('it');
-        if (marketsServed.has('PT')) targetLocales.push('pt');
+        const targetLocales = [...marketsServed]
+            .map(m => MARKET_TO_AZURE_LOCALE[m])
+            .filter(Boolean) as TargetLocale[];
 
         if (targetLocales.length === 0) continue;
 
@@ -74,9 +73,11 @@ export async function runTranslateSellers(opts: TranslateOptions): Promise<Trans
         const hash = computeSourceHash(profile.sellerName || '', manifesto);
 
         // Check existing translations
-        // Strict check: if hash differs, WE RE-TRANSLATE ALL. simpler than partial updates.
+        // Re-translate if hash changed OR if any target locale is missing
         if (!opts.force && profile.translations?.sourceHash === hash) {
-            continue; // Up to date
+            const existingLocales = profile.translations?.locales || {};
+            const missingLocales = targetLocales.filter(l => !existingLocales[azureCodeToLocale(l)]);
+            if (missingLocales.length === 0) continue; // All locales up to date
         }
 
         // Estimate chars
