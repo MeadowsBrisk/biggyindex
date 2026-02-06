@@ -203,9 +203,10 @@ export default function ItemDetailOverlay() {
     }
   }, [setRefNum, refNum]);
 
-  // Use centralized history manager
+  // Use centralized history manager — stable id so item navigation doesn't
+  // push/pop history entries (only open/close transitions do).
   useHistoryState({
-    id: `item-${refNum}`,
+    id: 'item-overlay',
     type: 'item',
     isOpen: !!refNum,
     onClose: () => close({})

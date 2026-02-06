@@ -93,10 +93,11 @@ class HistoryManager {
   register(id: string, listener: HistoryListener): () => void {
     this.listeners.set(id, listener);
 
-    // Return cleanup function
+    // Return cleanup function — only removes the listener.
+    // Stack removal is handled exclusively by close() to ensure
+    // history.back() is called to balance the pushState.
     return () => {
       this.listeners.delete(id);
-      this.stack = this.stack.filter(entry => entry.id !== id);
     };
   }
 

@@ -49,7 +49,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <VotesHydrator />
       <FXHydrator />
       <IntlProvider ssrMessages={ssrMessages}>
-        <Component {...pageProps} />
+        <main>
+          <Component {...pageProps} />
+        </main>
         {/* Place FixedControls inside the IntlProvider so useTranslations has context */}
         <FixedControls />
       </IntlProvider>

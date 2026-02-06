@@ -80,13 +80,15 @@ export function useHistoryState({
       }
     });
 
-    // Cleanup when effect re-runs (isOpen false) or component unmounts
+    // Cleanup when effect re-runs (isOpen false) or component unmounts.
+    // close() MUST run before unregister() so the stack entry still exists
+    // when close() looks for it to call history.back().
     return () => {
-      unregister();
       if (didPushRef.current) {
         historyManager.close(id);
         didPushRef.current = false;
       }
+      unregister();
     };
   }, [isOpen, id, type, metadata]);
 

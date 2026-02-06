@@ -470,7 +470,7 @@ export default function MobileTabs({
 
         {/* REVIEWS SECTION */}
         <div ref={reviewsRef} data-section-id="reviews" className="scroll-mt-[70px]">
-          <div className={cn("mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-3 lg:pb-3 pb-10", reviews.length === 0 ? "mb-10 lg:mb-0" : "")}>
+          <div className={cn("mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-3 lg:pb-3 pb-15", reviews.length === 0 ? "mb-10 lg:mb-0" : "")}>
             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 uppercase tracking-wide text-[11px]">{tOv('reviews')}</h3>
             {(() => {
               const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
