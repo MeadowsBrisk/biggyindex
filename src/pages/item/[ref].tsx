@@ -29,6 +29,8 @@ interface ItemRefPageProps {
   messages: Record<string, any>;
   locale: string;
   market: string;
+  /** True when item was once available in this market but is no longer in the live index */
+  unavailable?: boolean;
 }
 
 export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (ctx) => {
@@ -49,14 +51,17 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     const detail = await fetchItemDetail(ref, market);
     if (!detail) return { notFound: true };
 
-    // SEO: Verify the item exists in this market.
-    // Primary check: shipping blob existence sets _foundInMarketIndex.
-    // Fallback: _markets array from shared blob (set by items crawler from index presence).
+    // SEO: Determine item availability in this market.
+    // Shipping blob exists = item was once indexed for this market.
+    // _markets includes current market = item is currently in the live index.
     const hasShippingBlob = !!detail._foundInMarketIndex;
     const inMarketsList = Array.isArray(detail._markets) && detail._markets.includes(market);
     if (!hasShippingBlob && !inMarketsList) {
+      // Never available in this market → 404
       return { notFound: true };
     }
+    // Was available but no longer in live index → serve page with unavailable banner
+    const unavailable = hasShippingBlob && !inMarketsList;
 
     // Load messages for server-side translation (core only - no home messages needed)
     let messages: Record<string, any> = {};
@@ -82,13 +87,13 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     };
     // Sanitize detail object: JSON round-trip converts undefined to null (Next.js requires serializable props)
     const sanitizedDetail = JSON.parse(JSON.stringify(detail));
-    return { props: { seo, detail: sanitizedDetail, messages, locale: shortLocale, market } };
+    return { props: { seo, detail: sanitizedDetail, messages, locale: shortLocale, market, ...(unavailable ? { unavailable: true } : {}) } };
   } catch {
     return { notFound: true };
   }
 };
 
-const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLocale, market }) => {
+const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLocale, market, unavailable }) => {
   const router = useRouter();
   const setExpanded = useSetAtom(expandedRefNumAtom);
   const tReviews = useTranslations('Reviews');
@@ -185,7 +190,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
           }}
         />
       </Head>
-      <StandaloneItemDetail baseItem={detail} detail={detail} />
+      <StandaloneItemDetail baseItem={detail} detail={detail} unavailable={unavailable} />
     </>
   );
 };

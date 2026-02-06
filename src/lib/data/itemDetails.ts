@@ -29,7 +29,7 @@ function marketStoreName(mkt: Market) {
  * Data layout:
  *  1. site-index-shared/items/{id}.json  → description, reviews, shareLink,
  *     PLUS locale-independent index fields: images (i, is), seller (sn, sid),
- *     variants (v), prices (uMin, uMax), timestamps (fsa, lua),
+ *     variants (v), prices (uMin, uMax), timestamps (fsa, lua, lur),
  *     shipsFrom (sf), reviewStats (rs), endorsements (ec), category (c, sc),
  *     and _markets array (which markets carry this item).
  *

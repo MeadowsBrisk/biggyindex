@@ -48,9 +48,11 @@ import BrowseIndexButton from '@/components/actions/BrowseIndexButton';
 interface StandaloneItemDetailProps {
   baseItem: any;
   detail: any;
+  /** Explicit signal that item is no longer available in this market (slug page) */
+  unavailable?: boolean;
 }
 
-export default function StandaloneItemDetail({ baseItem, detail }: StandaloneItemDetailProps) {
+export default function StandaloneItemDetail({ baseItem, detail, unavailable }: StandaloneItemDetailProps) {
   const tItem = useTranslations('Item');
   const tOv = useTranslations('Overlay');
   const tCats = useTranslations('Categories');
@@ -194,9 +196,10 @@ export default function StandaloneItemDetail({ baseItem, detail }: StandaloneIte
   const baseVariants = (baseItem as any)?.v || [];
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray(baseVariants) && baseVariants.length > 0;
   // BUG-002: Show unavailable banner if item exists in shared blob but NOT in current index
+  // Two signals: (1) overlay: !baseItem = not in Jotai index; (2) slug page: explicit `unavailable` prop
   const showUnavailableBanner = Boolean(
-    detail && 
-    !baseItem &&  // Not in indexed_items.json (delisted)
+    (unavailable || !baseItem) &&
+    detail &&
     ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared blob or shipping blob
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null);
