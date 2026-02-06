@@ -134,8 +134,9 @@ export async function processSingleItem(
 
     // BUG-014: Store locale-INDEPENDENT index fields in the shared blob.
     // These are the same across all markets (images, seller, prices, variants,
-    // hotness, timestamps, review stats). Locale-specific fields (translated
+    // timestamps, review stats). Locale-specific fields (translated
     // name, category labels) go only in per-market shipping blobs.
+    // Note: hotness (h) is omitted — only used for list sorting (from market index).
     const ie = opts.indexEntry;
     if (ie) {
       if (ie.i) merged.i = ie.i;                                // primary image
@@ -148,7 +149,6 @@ export async function processSingleItem(
       if (ie.fsa) merged.fsa = ie.fsa;                            // firstSeenAt
       if (ie.lua) merged.lua = ie.lua;                            // lastUpdatedAt
       if (ie.lur) merged.lur = ie.lur;                            // lastUpdateReason
-      if (ie.h != null) merged.h = ie.h;                          // hotness
       if (ie.sf) merged.sf = ie.sf;                                // shipsFrom
       if (ie.rs) merged.rs = ie.rs;                                // reviewStats
       if (ie.ec != null) merged.ec = ie.ec;                        // endorsementCount

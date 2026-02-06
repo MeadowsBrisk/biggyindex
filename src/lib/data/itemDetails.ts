@@ -29,7 +29,7 @@ function marketStoreName(mkt: Market) {
  * Data layout:
  *  1. site-index-shared/items/{id}.json  → description, reviews, shareLink,
  *     PLUS locale-independent index fields: images (i, is), seller (sn, sid),
- *     variants (v), prices (uMin, uMax), timestamps (fsa, lua), hotness (h),
+ *     variants (v), prices (uMin, uMax), timestamps (fsa, lua),
  *     shipsFrom (sf), reviewStats (rs), endorsements (ec), category (c, sc),
  *     and _markets array (which markets carry this item).
  *
@@ -85,7 +85,6 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
       if (detailObj.uMax != null && !detailObj.priceMax) detailObj.priceMax = detailObj.uMax;
       if (detailObj.fsa && !detailObj.firstSeenAt) detailObj.firstSeenAt = detailObj.fsa;
       if (detailObj.lua && !detailObj.lastUpdatedAt) detailObj.lastUpdatedAt = detailObj.lua;
-      if (detailObj.h != null && !detailObj.hotness) detailObj.hotness = detailObj.h;
       if (detailObj.sf && !detailObj.shipsFrom) detailObj.shipsFrom = detailObj.sf;
       // Normalize variants from index format
       if (Array.isArray(detailObj.v) && detailObj.v.length && !detailObj.variants) {
