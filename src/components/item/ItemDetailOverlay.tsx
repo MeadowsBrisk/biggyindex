@@ -568,16 +568,19 @@ export default function ItemDetailOverlay() {
             onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
           >
 
-          {/* Grid wrapper to place full-height nav zones outside the panel */}
-          <div className="w-full h-full grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,1fr)_80px] md:gap-0.5 lg:gap-2 items-start md:items-center justify-center">
+          {/* Grid wrapper to place nav zones outside the panel — constrained to panel max-width + gutters */}
+          <div
+            className="w-full h-full grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,1fr)_80px] md:max-w-[calc(72rem+80px+8px)] lg:max-w-[calc(72rem+160px+16px)] 2xl:max-w-[calc(1500px+160px+16px)] mx-auto md:gap-0.5 lg:gap-2 items-start md:items-center"
+            onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}
+          >
             {/* Left nav zone (md+) */}
-            <div className="hidden md:flex h-full items-center justify-end">
+            <div className="hidden md:flex items-center justify-end" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
               <button
                 onClick={gotoPrev}
                 aria-label={tOv('previousItemAria')}
                 disabled={!hasPrev}
                 className={cn(
-                  "w-full h-full flex items-center justify-center group select-none",
+                  "w-full max-h-[60vh] h-[60vh] flex items-center justify-center group select-none",
                   hasPrev ? "cursor-pointer" : "cursor-not-allowed opacity-40"
                 )}
               >
@@ -1014,13 +1017,13 @@ export default function ItemDetailOverlay() {
             </motion.div>
 
             {/* Right nav zone (md+) */}
-            <div className="hidden md:flex h-full items-center justify-start">
+            <div className="hidden md:flex items-center justify-start" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
               <button
                 onClick={gotoNext}
                 aria-label={tOv('nextItemAria')}
                 disabled={!hasNext}
                 className={cn(
-                  "w-full h-full flex items-center justify-center group select-none",
+                  "w-full max-h-[60vh] h-[60vh] flex items-center justify-center group select-none",
                   hasNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"
                 )}
               >

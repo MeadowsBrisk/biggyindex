@@ -147,22 +147,22 @@
 ### Unified background stages (items and sellers) on separate schedules
 [functions."crawler-items-background"]
   # Runs at :04 past the hour on 0,4,8,12,16,20 (4 mins after indexer to avoid overlap)
-  #schedule = "4 0,4,8,12,16,20 * * *"
-  #node_bundler = "esbuild"
-  #included_files = [
-  #  "scripts/unified-crawler/**"
-  #]
+  schedule = "4 0,4,8,12,16,20 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
   #[functions."crawler-items-background".environment]
   #CRAWLER_PERSIST = "blobs"
 
   
 [functions."crawler-sellers-background"]
   # Runs at :04 past the hour on 2,6,10,14,18,22 (4 mins after indexer to avoid overlap)
-  #schedule = "4 2,6,10,14,18,22 * * *"
-  #node_bundler = "esbuild"
-  #included_files = [
-  #  "scripts/unified-crawler/**"
-  #]
+  schedule = "4 2,6,10,14,18,22 * * *"
+  node_bundler = "esbuild"
+  included_files = [
+    "scripts/unified-crawler/**"
+  ]
 
 # Daily translation background function
 # Translates item names, descriptions, variants, and shipping labels for non-GB markets

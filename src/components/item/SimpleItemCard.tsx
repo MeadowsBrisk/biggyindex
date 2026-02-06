@@ -31,8 +31,8 @@ export default function SimpleItemCard({ item }: SimpleItemCardProps) {
     ? formatUSD(priceMin, displayCurrency, rates, { decimals: 2 })
     : null;
 
-  // Link to the main index with the ref query param to open the modal
-  const href = `/?ref=${encodeURIComponent(refNum)}`;
+  // Link to the item slug page (better for SEO than query-based overlay)
+  const href = `/item/${encodeURIComponent(refNum)}`;
 
   return (
     <Link 
