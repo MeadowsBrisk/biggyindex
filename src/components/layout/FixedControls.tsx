@@ -11,7 +11,7 @@ export default function FixedControls() {
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
   const t = useTranslations('Theme');
   const router = useRouter();
-  const isItemPage = router.pathname === '/item/[ref]';
+  const isSlugPage = router.pathname === '/item/[ref]' || router.pathname === '/seller/[id]';
   const [showBackToTop, setShowBackToTop] = useState(false);
   const rafRef = useRef<number | null>(null);
 
@@ -59,7 +59,7 @@ export default function FixedControls() {
   );
 
   return (
-    <div className={cn("fixed right-4 z-50 flex items-center gap-3", isItemPage ? "top-4" : "bottom-4")}>
+    <div className={cn("fixed right-4 z-50 flex items-center gap-3", isSlugPage ? "top-4" : "bottom-4")}>
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
