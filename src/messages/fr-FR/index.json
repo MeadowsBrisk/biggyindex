@@ -247,7 +247,8 @@
     "avgShort": "moy.",
     "totalShort": "total",
     "recentShort": "Récents",
-    "avgArrival": "arrivée moy. {days, plural, one {# jour} other {# jours}}"
+    "avgArrival": "arrivée moy. {days, plural, one {# jour} other {# jours}}",
+    "seeItemOnLB": "Voir l'article sur Little Biggy"
   },
   "Basket": {
     "button": "Panier",

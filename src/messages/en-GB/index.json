@@ -244,7 +244,8 @@
     "avgShort": "avg",
     "totalShort": "total",
     "recentShort": "Recent",
-    "avgArrival": "avg arrival {days, plural, one {# day} other {# days}}"
+    "avgArrival": "avg arrival {days, plural, one {# day} other {# days}}",
+    "seeItemOnLB": "See item on Little Biggy"
   },
   "Basket": {
     "button": "Basket",

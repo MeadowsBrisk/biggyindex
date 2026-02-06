@@ -76,7 +76,7 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     const seo: ItemSEO = {
       ref: String(detail.refNum || detail.ref || ref),
       name: detail.name || '',
-      description: detail.descriptionFull || detail.description || null,
+      description: detail.descriptionTranslated || detail.descriptionFull || detail.description || null,
       imageUrl: detail.imageUrl || (detail.imageUrls && detail.imageUrls[0]) || null,
       sellerName: detail.sellerName || (detail.seller && detail.seller.name) || null,
       price: detail.price || null,
@@ -190,7 +190,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
           }}
         />
       </Head>
-      <StandaloneItemDetail baseItem={detail} detail={detail} unavailable={unavailable} />
+      <StandaloneItemDetail baseItem={detail} detail={detail} unavailable={unavailable} market={market} />
     </>
   );
 };

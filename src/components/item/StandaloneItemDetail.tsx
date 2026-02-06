@@ -50,9 +50,11 @@ interface StandaloneItemDetailProps {
   detail: any;
   /** Explicit signal that item is no longer available in this market (slug page) */
   unavailable?: boolean;
+  /** Market code (GB, DE, FR, IT, PT, ES) for translation-aware rendering */
+  market?: string;
 }
 
-export default function StandaloneItemDetail({ baseItem, detail, unavailable }: StandaloneItemDetailProps) {
+export default function StandaloneItemDetail({ baseItem, detail, unavailable, market }: StandaloneItemDetailProps) {
   const tItem = useTranslations('Item');
   const tOv = useTranslations('Overlay');
   const tCats = useTranslations('Categories');
@@ -165,6 +167,10 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
   const resolvedSellerOnline = (baseItem as any)?.sellerOnline || (detail as any)?.sellerOnline || null;
   const hasSellerInfo = resolvedSellerName.trim().length > 0;
 
+  // Build internal seller page URL for slug pages (no overlay available)
+  const resolvedSellerId = (detail as any)?.sellerId ?? (baseItem as any)?.sid ?? shipSeo?.sid ?? null;
+  const sellerPageHref = resolvedSellerId != null ? `/seller/${encodeURIComponent(String(resolvedSellerId))}` : undefined;
+
   // Reset selection state when opening a different item (not really applicable here but good practice)
   useEffect(() => {
     setSelectedVariantIds(new Set());
@@ -191,7 +197,13 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
 
   // BUG-002: Use detail.n or _shipSeo.n as fallback if baseItem is missing (item delisted)
   const name = decodeEntities((baseItem as any)?.n || (detail as any)?.n || shipSeo?.n || (detail as any)?.name || 'Item');
-  const description = (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
+  // Full description: prefer translated for non-GB, then English
+  const description = useMemo(() => {
+    if (market && market !== 'GB' && (detail as any)?.descriptionTranslated) {
+      return (detail as any).descriptionTranslated;
+    }
+    return (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
+  }, [detail, baseItem, market]);
   const reviews = (detail as any)?.reviews || [];
   const baseVariants = (baseItem as any)?.v || [];
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray(baseVariants) && baseVariants.length > 0;
@@ -416,7 +428,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
                       {hasSellerInfo && (
                         <>
                           <span className="italic opacity-90">{tItem('seller')}</span>
-                          <SellerPill sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} />
+                          <SellerPill sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} sellerPageHref={sellerPageHref} />
                         </>
                       )}
                       {shipsFrom && (() => {
@@ -671,7 +683,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
                   {hasSellerInfo && (
                     <>
                       <span className="italic opacity-90">{tItem('seller')}</span>
-                      <SellerPill sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} />
+                      <SellerPill sellerName={resolvedSellerName} sellerUrl={resolvedSellerUrl || undefined} sellerOnline={resolvedSellerOnline as any} sellerPageHref={sellerPageHref} />
                     </>
                   )}
                   {shipsFrom && (() => {
@@ -776,7 +788,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
                    rel="noopener noreferrer"
                    className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                  >
-                   <span>See item on Little Biggy</span>
+                   <span>{tOv('seeItemOnLB')}</span>
                    <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
                  </a>
                </div>
@@ -837,7 +849,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
                    rel="noopener noreferrer"
                    className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                  >
-                   <span>See item on Little Biggy</span>
+                   <span>{tOv('seeItemOnLB')}</span>
                    <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
                  </a>
                </div>
@@ -855,7 +867,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable }: 
             rel="noopener noreferrer"
             className="group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
           >
-            <span>See item on Little Biggy</span>
+            <span>{tOv('seeItemOnLB')}</span>
             <span className="inline-block text-lg leading-none translate-x-0 transition-transform duration-300 ease-out group-hover/button:translate-x-1">→</span>
           </a>
         </div>

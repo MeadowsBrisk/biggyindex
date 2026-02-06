@@ -244,7 +244,8 @@
     "avgShort": "media",
     "totalShort": "totale",
     "recentShort": "Recenti",
-    "avgArrival": "arrivo medio {days, plural, one {# giorno} other {# giorni}}"
+    "avgArrival": "arrivo medio {days, plural, one {# giorno} other {# giorni}}",
+    "seeItemOnLB": "Vedi articolo su Little Biggy"
   },
   "Basket": {
     "button": "Carrello",

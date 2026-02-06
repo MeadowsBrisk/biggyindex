@@ -244,7 +244,8 @@
     "avgShort": "media",
     "totalShort": "total",
     "recentShort": "Reciente",
-    "avgArrival": "llegada media {days, plural, one {# día} other {# días}}"
+    "avgArrival": "llegada media {days, plural, one {# día} other {# días}}",
+    "seeItemOnLB": "Ver artículo en Little Biggy"
   },
   "Basket": {
     "button": "Cesta",

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
+import Link from 'next/link';
 import cn from "@/lib/core/cn";
 import { useAtom, useAtomValue } from 'jotai';
 import { useSetAtom } from 'jotai';
@@ -23,10 +24,12 @@ type Props = {
   sellerUrl?: string; 
   sellerOnline?: SellerOnlineFlag; 
   market?: string;
+  /** When set, clicking the seller badge navigates to this URL instead of opening the overlay */
+  sellerPageHref?: string;
   className?: string;
 };
 
-export default function SellerPill({ sellerName, sellerUrl, sellerOnline, market, className }: Props) {
+export default function SellerPill({ sellerName, sellerUrl, sellerOnline, market, sellerPageHref, className }: Props) {
   const tUI = useTranslations('UI');
   const openSeller = useSetAtom(expandedSellerIdAtom);
   const pushOverlay = useSetAtom(pushOverlayAtom);
@@ -100,29 +103,43 @@ export default function SellerPill({ sellerName, sellerUrl, sellerOnline, market
     }
   }, [lower, isExcluded, included, excluded, setIncluded, setExcluded]);
 
-  const disabled = sellerId == null;
+  const disabled = sellerId == null && !sellerPageHref;
   const effectiveOnline: SellerOnlineFlag = (sellerOnline ?? onlineFlag ?? null) as SellerOnlineFlag;
 
   // Determine what buttons to show
   const showBothButtons = !isIncluded && !isExcluded;
 
+  const badgeClassName = cn(
+    "shrink-0 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border-y border-l rounded-l-full transition-all duration-200",
+    disabled
+      ? "border-gray-200/70 dark:border-gray-700/50 bg-white/40 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500 cursor-default"
+      : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm dark:hover:bg-gray-700/50 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+  );
+
+  const badgeContent = (
+    <>
+      <span className="truncate max-w-[140px]">{sellerName || "Unknown"}</span>
+      <OnlineDot online={effectiveOnline} />
+    </>
+  );
+
   return (
     <div className={cn("inline-flex items-stretch", className)}>
       {/* Seller Badge - rounded left */}
-      <button
-        type="button"
-        onClick={handleSellerClick}
-        disabled={disabled}
-        className={cn(
-          "shrink-0 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border-y border-l rounded-l-full transition-all duration-200",
-          disabled
-            ? "border-gray-200/70 dark:border-gray-700/50 bg-white/40 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500 cursor-default"
-            : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm dark:hover:bg-gray-700/50 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-        )}
-      >
-        <span className="truncate max-w-[140px]">{sellerName || "Unknown"}</span>
-        <OnlineDot online={effectiveOnline} />
-      </button>
+      {sellerPageHref ? (
+        <Link href={sellerPageHref} className={badgeClassName}>
+          {badgeContent}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={handleSellerClick}
+          disabled={disabled}
+          className={badgeClassName}
+        >
+          {badgeContent}
+        </button>
+      )}
 
       {/* Include Button - conditionally shown */}
       {(showBothButtons || isIncluded) && (

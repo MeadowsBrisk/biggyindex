@@ -245,7 +245,8 @@
     "avgShort": "Ø",
     "totalShort": "gesamt",
     "recentShort": "Aktuell",
-    "avgArrival": "Ø Ankunft {days, plural, one {# Tag} other {# Tage}}"
+    "avgArrival": "Ø Ankunft {days, plural, one {# Tag} other {# Tage}}",
+    "seeItemOnLB": "Artikel auf Little Biggy ansehen"
   },
   "Basket": {
     "button": "Warenkorb",

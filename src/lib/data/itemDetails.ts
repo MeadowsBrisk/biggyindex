@@ -1,7 +1,7 @@
 // used for item slug pages and item detail fetching
 
 import { getStore } from '@netlify/blobs';
-import { MARKETS, type Market } from '@/lib/market/market';
+import { MARKETS, type Market, getLocaleForMarket } from '@/lib/market/market';
 
 function normalizeMarket(mkt: any): Market {
   const s = String(mkt || 'GB').toUpperCase();
@@ -132,9 +132,20 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
           // Shipping blob exists → item is available in this market
           detailObj._foundInMarketIndex = true;
 
-          // Merge shipping options
+          // Merge shipping options — use translated options for non-GB markets if available
           if (Array.isArray(ship.options)) {
-            detailObj.shipping = { ...(detailObj.shipping || {}), options: ship.options };
+            const translatedOpts = ship.translations?.shippingOptions;
+            const shippingOptions = (Array.isArray(translatedOpts) && translatedOpts.length > 0)
+              ? translatedOpts
+              : ship.options;
+            detailObj.shipping = { ...(detailObj.shipping || {}), options: shippingOptions };
+            // Keep English originals for reference/toggle
+            detailObj.shippingOptionsEn = ship.options;
+          }
+
+          // Translated full description from shipping blob (non-GB markets)
+          if (ship.translations?.description) {
+            detailObj.descriptionTranslated = ship.translations.description;
           }
 
           // Translated name from shipping blob takes priority (locale-specific)
@@ -148,6 +159,63 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
         }
       } catch (e) {
         console.warn('Failed to load market data:', e);
+      }
+
+      // --- Apply translations from the translation aggregate (non-GB markets) ---
+      // This provides translated item name, short description, and variant descriptions.
+      // The aggregate is the same source the index stage uses to build translated indexes.
+      if (mkt !== 'GB') {
+        try {
+          const targetLocale = getLocaleForMarket(mkt); // e.g. 'it-IT', 'de-DE'
+          const sharedStore2 = getStoreHandle(storeName);
+          if (sharedStore2) {
+            const aggKey = 'aggregates/translations.json';
+            let agg: any = null;
+            try {
+              const aggRaw = await sharedStore2.get(aggKey);
+              if (aggRaw) agg = JSON.parse(aggRaw);
+            } catch { }
+
+            if (agg) {
+              const id = String(detailObj.refNum || detailObj.ref || refNum);
+              const entry = agg[id];
+              const localeTranslation = entry?.locales?.[targetLocale];
+              if (localeTranslation) {
+                // Translated name (override shipping blob name which may be English)
+                if (localeTranslation.n) {
+                  detailObj.nEn = detailObj.n; // preserve English
+                  detailObj.n = localeTranslation.n;
+                  detailObj.name = localeTranslation.n;
+                }
+
+                // Translated short description
+                if (localeTranslation.d) {
+                  detailObj.dEn = detailObj.d; // preserve English
+                  detailObj.d = localeTranslation.d;
+                }
+
+                // Translated variant descriptions
+                if (Array.isArray(localeTranslation.v) && Array.isArray(detailObj.variants)) {
+                  const translatedMap = new Map<string, string>();
+                  for (const tv of localeTranslation.v) {
+                    if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
+                  }
+                  for (const variant of detailObj.variants) {
+                    const vid = String(variant.vid ?? variant.id);
+                    const translated = translatedMap.get(vid);
+                    if (translated) {
+                      variant.dEn = variant.d ?? variant.description; // preserve English
+                      variant.d = translated;
+                      variant.description = translated;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to load translation aggregate:', e);
+        }
       }
     }
 
