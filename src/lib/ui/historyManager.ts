@@ -17,6 +17,12 @@ class HistoryManager {
   private listeners: Map<string, HistoryListener> = new Map();
   private initialized = false;
   private preventNextPop = false;
+  /**
+   * True when close() has called history.back() but the popstate hasn't fired yet.
+   * Used by URL-sync effects to avoid racing with history.back() (BUG-009).
+   */
+  private _pendingBack = false;
+  get pendingBack() { return this._pendingBack; }
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -33,6 +39,7 @@ class HistoryManager {
   }
 
   private handlePopState = (event: PopStateEvent) => {
+    this._pendingBack = false; // BUG-009: clear pending flag on any popstate
     if (this.preventNextPop) {
       this.preventNextPop = false;
       return;
@@ -107,11 +114,13 @@ class HistoryManager {
     // If this was the top entry, we need to go back to balance history
     if (index === this.stack.length) {
       this.preventNextPop = true;
+      this._pendingBack = true; // BUG-009: signal that history.back() is in-flight
       try {
         window.history.back();
       } catch (e) {
         console.warn('[HistoryManager] Failed to go back:', e);
         this.preventNextPop = false;
+        this._pendingBack = false;
       }
     }
   }

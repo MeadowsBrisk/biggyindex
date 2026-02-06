@@ -132,9 +132,33 @@ export async function processSingleItem(
       merged.lastFullCrawl = base.lastFullCrawl;
     }
 
-    // NOTE: SEO fields (n, sn, sid, i, is, c, sc) are stored in market shipping blobs, not shared blob
-    // This allows unavailable items to show translated SEO data per market
-    // See shipping write sections below (GB and non-GB)
+    // BUG-014: Store locale-INDEPENDENT index fields in the shared blob.
+    // These are the same across all markets (images, seller, prices, variants,
+    // hotness, timestamps, review stats). Locale-specific fields (translated
+    // name, category labels) go only in per-market shipping blobs.
+    const ie = opts.indexEntry;
+    if (ie) {
+      if (ie.i) merged.i = ie.i;                                // primary image
+      if (Array.isArray(ie.is) && ie.is.length) merged.is = ie.is;  // image array
+      if (ie.sn) merged.sn = ie.sn;                              // sellerName (English)
+      if (ie.sid != null) merged.sid = ie.sid;                    // sellerId
+      if (Array.isArray(ie.v) && ie.v.length) merged.v = ie.v;   // variants (USD prices)
+      if (ie.uMin != null) merged.uMin = ie.uMin;                // priceMin USD
+      if (ie.uMax != null) merged.uMax = ie.uMax;                // priceMax USD
+      if (ie.fsa) merged.fsa = ie.fsa;                            // firstSeenAt
+      if (ie.lua) merged.lua = ie.lua;                            // lastUpdatedAt
+      if (ie.lur) merged.lur = ie.lur;                            // lastUpdateReason
+      if (ie.h != null) merged.h = ie.h;                          // hotness
+      if (ie.sf) merged.sf = ie.sf;                                // shipsFrom
+      if (ie.rs) merged.rs = ie.rs;                                // reviewStats
+      if (ie.ec != null) merged.ec = ie.ec;                        // endorsementCount
+      if (ie.io != null) merged.io = ie.io;                        // R2 image optimized
+      if (ie.c) merged.c = ie.c;                                   // category (English)
+      if (Array.isArray(ie.sc)) merged.sc = ie.sc;                 // subcategories
+    }
+
+    // BUG-015: Store which markets carry this item so hreflang tags can be accurate
+    merged._markets = [...markets].sort();
 
     // Always update lastRefresh timestamp when we process the item
     merged.lastRefresh = new Date().toISOString();
@@ -259,7 +283,7 @@ export async function processSingleItem(
             warnings: [...(gbShipping.warnings || []), 'from_description'],
             lastShippingRefresh: new Date().toISOString(),
           };
-          // Add SEO fields if available from index entry
+          // BUG-002: Add SEO fields for unavailable item fallback
           if (ie) {
             if (ie.n) payload.n = ie.n;           // name
             if (ie.sn) payload.sn = ie.sn;        // sellerName  
@@ -268,7 +292,7 @@ export async function processSingleItem(
             if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
             if (ie.c) payload.c = ie.c;           // category
             if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
-            // Note: sl (shareLink) is stored in shared blob, not shipping blob
+            // Note: locale-independent fields (v, uMin, uMax, fsa, etc.) live in shared blob
           }
           await blob.putJSON(shipKey, payload);
           shippingWritten++;
@@ -319,7 +343,7 @@ export async function processSingleItem(
                 warnings: res.warnings || [],
                 lastShippingRefresh: new Date().toISOString(),
               };
-              // Add SEO fields if available from index entry (translated for non-GB)
+              // BUG-002: Add SEO fields for unavailable item fallback (translated for non-GB)
               if (ie) {
                 if (ie.n) payload.n = ie.n;           // name (translated for this market)
                 if (ie.sn) payload.sn = ie.sn;        // sellerName  
@@ -328,7 +352,7 @@ export async function processSingleItem(
                 if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
                 if (ie.c) payload.c = ie.c;           // category
                 if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
-                // Note: sl (shareLink) is stored in shared blob, not shipping blob
+                // Note: locale-independent fields (v, uMin, uMax, fsa, etc.) live in shared blob
               }
               await blob.putJSON(shipKey, payload);
               shippingWritten++;

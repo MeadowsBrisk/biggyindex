@@ -23,152 +23,133 @@ function marketStoreName(mkt: Market) {
   return `site-index-${mkt.toLowerCase()}`;
 }
 
-// Global cache to prevent fetching the full index on every request (persists in warm serverless instances)
-const indexCache: Record<string, { data: any[]; ts: number }> = {};
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
+/**
+ * Fetch full item detail by merging shared blob + per-market shipping blob.
+ *
+ * Data layout:
+ *  1. site-index-shared/items/{id}.json  → description, reviews, shareLink,
+ *     PLUS locale-independent index fields: images (i, is), seller (sn, sid),
+ *     variants (v), prices (uMin, uMax), timestamps (fsa, lua), hotness (h),
+ *     shipsFrom (sf), reviewStats (rs), endorsements (ec), category (c, sc),
+ *     and _markets array (which markets carry this item).
+ *
+ *  2. site-index-{mkt}/market-shipping/{id}.json → shipping options +
+ *     translated SEO fields (n, sn, sid, i, is, c, sc for BUG-002 fallback).
+ *     The translated `n` (name) takes priority for non-GB markets.
+ *     Blob existence = item is available in this market.
+ */
 export async function fetchItemDetail(refNum: string | number, market: string = 'GB'): Promise<any | null> {
   if (!refNum) return null;
   const storeName = process.env.SHARED_STORE_NAME || 'site-index-shared';
-  const candidateKeys = [`items/${encodeURIComponent(String(refNum))}.json`];
+  const itemKey = `items/${encodeURIComponent(String(refNum))}.json`;
   let detailObj: any = null;
 
   try {
     const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
     const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_API_TOKEN;
 
-    let store: any = null;
-    if (siteID && token) {
-      try { store = getStore({ name: storeName, siteID, token, consistency: 'strong' }); } catch { }
-    }
-    if (!store) {
-      try { store = getStore({ name: storeName, consistency: 'strong' }); } catch { }
-    }
-
-    if (store) {
-      for (const key of candidateKeys) {
-        try {
-          const raw = await store.get(key);
-          if (raw) {
-            try { detailObj = JSON.parse(raw); } catch { detailObj = null; }
-            if (detailObj) break;
-          }
-        } catch { }
+    // Helper to get a blob store handle
+    const getStoreHandle = (name: string) => {
+      let store: any = null;
+      if (siteID && token) {
+        try { store = getStore({ name, siteID, token, consistency: 'strong' }); } catch { }
       }
+      if (!store) {
+        try { store = getStore({ name, consistency: 'strong' }); } catch { }
+      }
+      return store;
+    };
+
+    // 1. Load shared blob (all locale-independent data)
+    const sharedStore = getStoreHandle(storeName);
+    if (sharedStore) {
+      try {
+        const raw = await sharedStore.get(itemKey);
+        if (raw) {
+          try { detailObj = JSON.parse(raw); } catch { detailObj = null; }
+        }
+      } catch { }
     }
 
     if (detailObj) {
       const mkt = normalizeMarket(market);
+
+      // Expand shared blob minified keys into long-form for the front-end
+      if (detailObj.i && !detailObj.imageUrl) detailObj.imageUrl = detailObj.i;
+      if (Array.isArray(detailObj.is) && detailObj.is.length && !detailObj.imageUrls) detailObj.imageUrls = detailObj.is;
+      if (detailObj.sn && !detailObj.sellerName) detailObj.sellerName = detailObj.sn;
+      if (detailObj.sid != null && !detailObj.sellerId) detailObj.sellerId = detailObj.sid;
+      if (detailObj.c && !detailObj.category) detailObj.category = detailObj.c;
+      if (Array.isArray(detailObj.sc) && !detailObj.subcategories) detailObj.subcategories = detailObj.sc;
+      if (detailObj.uMin != null && !detailObj.priceMin) detailObj.priceMin = detailObj.uMin;
+      if (detailObj.uMax != null && !detailObj.priceMax) detailObj.priceMax = detailObj.uMax;
+      if (detailObj.fsa && !detailObj.firstSeenAt) detailObj.firstSeenAt = detailObj.fsa;
+      if (detailObj.lua && !detailObj.lastUpdatedAt) detailObj.lastUpdatedAt = detailObj.lua;
+      if (detailObj.h != null && !detailObj.hotness) detailObj.hotness = detailObj.h;
+      if (detailObj.sf && !detailObj.shipsFrom) detailObj.shipsFrom = detailObj.sf;
+      // Normalize variants from index format
+      if (Array.isArray(detailObj.v) && detailObj.v.length && !detailObj.variants) {
+        detailObj.variants = detailObj.v.map((v: any) => ({
+          id: v.vid ?? v.id,
+          description: v.d ?? v.description,
+          baseAmount: typeof v.usd === 'number' ? v.usd : v.baseAmount,
+          priceUSD: typeof v.usd === 'number' ? v.usd : v.priceUSD,
+          ...v,
+        }));
+      }
+      // Name is locale-specific — NOT stored in shared blob.
+      // It will be set from the shipping blob's translated `n` field below.
+      // Until then, use any existing name field as a fallback.
+      if (!detailObj.name && detailObj.n) detailObj.name = detailObj.n;
+      detailObj.refNum = detailObj.refNum ?? detailObj.ref ?? refNum;
+      detailObj.id = detailObj.id ?? refNum;
+
       try {
-        const marketName = marketStoreName(mkt);
-        let marketStore: any = null;
-        if (siteID && token) {
-          try { marketStore = getStore({ name: marketName, siteID, token, consistency: 'strong' }); } catch { }
-        }
-        if (!marketStore) {
-          try { marketStore = getStore({ name: marketName, consistency: 'strong' }); } catch { }
-        }
+        const mktStoreName = marketStoreName(mkt);
+        const mktStore = getStoreHandle(mktStoreName);
+        if (!mktStore) throw new Error('no market store');
 
-        const candidateShipKeys: string[] = [];
-        candidateShipKeys.push(`market-shipping/${encodeURIComponent(String(refNum))}.json`);
-        const possibleId = (detailObj && (detailObj.id || detailObj.ref || detailObj.refNum));
-        if (possibleId && possibleId !== refNum) {
-          candidateShipKeys.push(`market-shipping/${encodeURIComponent(String(possibleId))}.json`);
-        }
+        // 2. Load per-market shipping blob (shipping options + translated SEO)
+        const shipKey = `market-shipping/${encodeURIComponent(String(refNum))}.json`;
+        let ship: any = null;
+        try {
+          const shipRaw = await mktStore.get(shipKey);
+          if (shipRaw) ship = JSON.parse(shipRaw);
+        } catch { }
 
-        if (marketStore) {
-          // 1. Fetch shipping options
-          for (const shipKey of candidateShipKeys) {
-            let shipRaw: any = null;
-            try { shipRaw = await marketStore.get(shipKey); } catch { }
-            if (!shipRaw) continue;
+        // Try fallback key if item has a different internal ID
+        if (!ship) {
+          const possibleId = detailObj.id || detailObj.ref || detailObj.refNum;
+          if (possibleId && String(possibleId) !== String(refNum)) {
             try {
-              const ship = JSON.parse(shipRaw);
-              if (ship && Array.isArray(ship.options)) {
-                detailObj.shipping = { ...(detailObj.shipping || {}), options: ship.options };
-                break;
-              }
+              const altKey = `market-shipping/${encodeURIComponent(String(possibleId))}.json`;
+              const altRaw = await mktStore.get(altKey);
+              if (altRaw) ship = JSON.parse(altRaw);
             } catch { }
           }
-
-          // 2. Fetch item from market index to backfill missing fields (price, variants, images)
-          // This avoids loading the full index on the client for standalone pages
-          try {
-            const indexKey = `indexed_items.json`; // Standard index key
-            const cacheKey = `${mkt}:${indexKey}`;
-            let index: any[] | null = null;
-
-            // Check in-memory cache first
-            if (indexCache[cacheKey] && (Date.now() - indexCache[cacheKey].ts < CACHE_TTL_MS)) {
-              index = indexCache[cacheKey].data;
-            } else {
-              // Fetch fresh if missing or stale
-              const indexRaw = await marketStore.get(indexKey);
-              if (indexRaw) {
-                const parsed = JSON.parse(indexRaw);
-                if (Array.isArray(parsed)) {
-                  index = parsed;
-                  indexCache[cacheKey] = { data: parsed, ts: Date.now() };
-                }
-              }
-            }
-
-            if (index) {
-              // Find item by refNum (preferred) or id
-              const found = index.find((it: any) =>
-                String(it.refNum || it.ref || it.id) === String(refNum)
-              );
-              if (found) {
-                // Merge index data into detailObj, preferring detailObj for description/reviews
-                // but using index for price, variants, images, seller, etc.
-
-                // Map compact index fields to full names if needed (similar to atoms.tsx normalization)
-                const normalizedIndexItem = {
-                  ...found,
-                  id: found.id ?? found.refNum ?? found.ref,
-                  name: found.n ?? found.name,
-                  sellerName: found.sn ?? found.sellerName,
-                  sellerId: found.sid ?? found.sellerId,
-                  image: found.i ?? found.image,
-                  images: Array.isArray(found.is) ? found.is : (found.i ? [found.i] : []),
-                  variants: Array.isArray(found.v) ? found.v.map((v: any) => ({
-                    id: v.vid ?? v.id,
-                    description: v.d ?? v.description,
-                    baseAmount: typeof v.usd === 'number' ? v.usd : v.baseAmount,
-                    priceUSD: typeof v.usd === 'number' ? v.usd : v.priceUSD,
-                  })) : found.variants,
-                  priceMin: found.uMin ?? found.priceMin,
-                  priceMax: found.uMax ?? found.priceMax,
-                  category: found.c ?? found.category,
-                  subcategories: found.sc ?? found.subcategories,
-                  shipsFrom: found.sf ?? found.shipsFrom,
-                  hotness: found.h ?? found.hotness,
-                  firstSeenAt: found.fsa ?? found.firstSeenAt,
-                  lastUpdatedAt: found.lua ?? found.lastUpdatedAt,
-                };
-
-                // Merge strategy: keep existing detailObj fields (desc, reviews), fill gaps from index
-                detailObj = {
-                  ...normalizedIndexItem,
-                  ...detailObj, // detailObj wins for description, reviews, shipping
-                  // Ensure arrays/objects are merged if needed, but usually detailObj has better specific data
-                  // except for variants/images which are often missing in detailObj
-                  variants: normalizedIndexItem.variants || detailObj.variants,
-                  images: (normalizedIndexItem.images && normalizedIndexItem.images.length) ? normalizedIndexItem.images : detailObj.images,
-                  imageUrl: normalizedIndexItem.image || detailObj.imageUrl,
-                  priceMin: normalizedIndexItem.priceMin ?? detailObj.priceMin,
-                  priceMax: normalizedIndexItem.priceMax ?? detailObj.priceMax,
-                  sellerName: normalizedIndexItem.sellerName || detailObj.sellerName,
-                  // Flag for caller to know item was found in market index (for 404 logic)
-                  _foundInMarketIndex: true,
-                };
-              }
-            }
-          } catch (e) {
-            console.warn('Failed to backfill from index:', e);
-          }
         }
-      } catch { }
+
+        if (ship) {
+          // Shipping blob exists → item is available in this market
+          detailObj._foundInMarketIndex = true;
+
+          // Merge shipping options
+          if (Array.isArray(ship.options)) {
+            detailObj.shipping = { ...(detailObj.shipping || {}), options: ship.options };
+          }
+
+          // Translated name from shipping blob takes priority (locale-specific)
+          if (ship.n) {
+            detailObj.n = ship.n;
+            detailObj.name = ship.n;
+          }
+          // Also preserve other translated SEO fields for BUG-002 fallback
+          if (ship.c) { detailObj.c = ship.c; detailObj.category = ship.c; }
+          if (Array.isArray(ship.sc)) { detailObj.sc = ship.sc; detailObj.subcategories = ship.sc; }
+        }
+      } catch (e) {
+        console.warn('Failed to load market data:', e);
+      }
     }
 
     return detailObj;

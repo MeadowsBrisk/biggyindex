@@ -55,11 +55,8 @@ export function useHistoryState({
   // Handle open/close lifecycle
   useEffect(() => {
     if (!isOpen) {
-      // Clean up when closed
-      if (didPushRef.current) {
-        historyManager.close(id);
-        didPushRef.current = false;
-      }
+      // When closed, cleanup is handled by the previous effect's return function.
+      // No action needed here — avoids double-close race (BUG-009).
       return;
     }
 
@@ -83,7 +80,7 @@ export function useHistoryState({
       }
     });
 
-    // Cleanup
+    // Cleanup when effect re-runs (isOpen false) or component unmounts
     return () => {
       unregister();
       if (didPushRef.current) {

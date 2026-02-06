@@ -22,6 +22,7 @@ import {
   expandedRefNumAtom,
 } from '@/store/atoms';
 import { useVotesPrefetch, votesInitialFetchTriggeredAtom } from '@/hooks/useVotesPrefetch';
+import historyManager from '@/lib/ui/historyManager';
 import Sidebar from '@/components/layout/Sidebar';
 import ItemList from '@/components/item/ItemList';
 import { useRouter } from 'next/router';
@@ -273,6 +274,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     if (expandedRef && expandedRef !== currentRef) {
       router.replace({ pathname: router.pathname, query: { ...(router.query as any), ref: expandedRef as any } } as any, undefined, { shallow: true, scroll: false });
     } else if (!expandedRef && currentRef) {
+      // BUG-009: Skip router.replace() when historyManager.close() is already
+      // navigating back via history.back() — racing both causes a close-reopen flicker
+      if (historyManager.pendingBack) return;
       const { ref, ...rest } = router.query as any;
       const targetPath = router.pathname.includes('[ref]') ? '/' : router.pathname;
       router.replace({ pathname: targetPath, query: rest }, undefined, { shallow: true, scroll: false });

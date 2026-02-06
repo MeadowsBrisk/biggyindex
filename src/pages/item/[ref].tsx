@@ -49,9 +49,12 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     const detail = await fetchItemDetail(ref, market);
     if (!detail) return { notFound: true };
 
-    // SEO: If this is a non-GB market, verify the item exists in that market's index
-    // The _foundInMarketIndex flag is set by fetchItemDetail when backfilling from index
-    if (market !== 'GB' && !detail._foundInMarketIndex) {
+    // SEO: Verify the item exists in this market.
+    // Primary check: shipping blob existence sets _foundInMarketIndex.
+    // Fallback: _markets array from shared blob (set by items crawler from index presence).
+    const hasShippingBlob = !!detail._foundInMarketIndex;
+    const inMarketsList = Array.isArray(detail._markets) && detail._markets.includes(market);
+    if (!hasShippingBlob && !inMarketsList) {
       return { notFound: true };
     }
 
@@ -108,7 +111,18 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
 
   const effectiveRef = String(seo?.ref || ref || '');
   const canonical = buildItemUrl(effectiveRef, serverLocale);
-  const altLocales = HREFLANG_LOCALES;
+
+  // BUG-015: Only emit hreflang for markets where the item actually exists.
+  // _markets comes from the shared blob (set during items crawler from presenceById).
+  // Convert market codes (GB, DE, FR...) → hreflang locale codes (en, de, fr...).
+  const itemMarkets: string[] = Array.isArray(detail?._markets) ? detail._markets : [];
+  const marketToHreflang = (m: string) => m === 'GB' ? 'en' : m.toLowerCase();
+  const confirmedLocales = new Set(itemMarkets.map(marketToHreflang));
+  // Always include current market (we served a 200, so it exists here)
+  confirmedLocales.add(serverLocale);
+  const hreflangLocales = HREFLANG_LOCALES.filter(l => confirmedLocales.has(l));
+  // x-default: prefer 'en' if item is in GB, otherwise use current locale
+  const xDefaultLocale = confirmedLocales.has('en') ? 'en' : serverLocale;
 
   return (
     <>
@@ -126,10 +140,10 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
         {desc && <meta name="twitter:description" content={desc} />}
         {seo?.imageUrl && <meta name="twitter:image" content={seo.imageUrl} />}
         <link rel="canonical" href={canonical} />
-        {altLocales.map(l => (
+        {hreflangLocales.map(l => (
           <link key={l} rel="alternate" href={buildItemUrl(effectiveRef, l)} hrefLang={l} />
         ))}
-        <link rel="alternate" href={buildItemUrl(effectiveRef, 'en')} hrefLang="x-default" />
+        <link rel="alternate" href={buildItemUrl(effectiveRef, xDefaultLocale)} hrefLang="x-default" />
         {seo?.imageUrl && <meta property="og:image" content={seo.imageUrl} />}
         <script
           type="application/ld+json"

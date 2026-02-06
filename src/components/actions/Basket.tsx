@@ -44,9 +44,9 @@ const overlayVariants: Variants = {
 };
 
 const floatingButtonVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
+  hidden: { opacity: 0, scale: 0.85, y: -8 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 400, damping: 25 } },
+  exit: { opacity: 0, scale: 0.85, y: -8, transition: { duration: 0.15 } },
 };
 
 type SellerGroup = {
@@ -133,7 +133,9 @@ export default function Basket() {
   }, [groups, toGBPFromUSD]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // BUG-010: Set up observer immediately (rAF ensures DOM is painted)
+    // instead of 100ms setTimeout that caused a visible flash
+    const rafId = requestAnimationFrame(() => {
       const el = headerBtnRef.current;
       if (!el) return;
       const observer = new IntersectionObserver(
@@ -142,9 +144,9 @@ export default function Basket() {
       );
       observer.observe(el);
       (el as any).__obs = observer;
-    }, 100);
+    });
     return () => {
-      clearTimeout(timer);
+      cancelAnimationFrame(rafId);
       const el = headerBtnRef.current;
       const obs = el && (el as any).__obs;
       if (obs) {
@@ -184,10 +186,14 @@ export default function Basket() {
     if (open && panelRef.current) {
       panelRef.current.focus();
     } else if (!open && headerBtnRef.current) {
-      // Re-check visibility when drawer closes in case scroll position changed
-      const rect = headerBtnRef.current.getBoundingClientRect();
-      const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-      setHeaderVisible(isVisible);
+      // Re-check visibility when drawer closes — defer to avoid layout thrash (BUG-010)
+      requestAnimationFrame(() => {
+        const el = headerBtnRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        setHeaderVisible(isVisible);
+      });
     }
   }, [open]);
 
