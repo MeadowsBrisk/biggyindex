@@ -552,21 +552,21 @@ export default function ItemDetailOverlay() {
   const goCategory = useCallback((cat?: string) => { if (!cat) return; setCategory(cat as any); (setSubs as any)([] as any); setRefNum(null as any); }, [setCategory, setSubs, setRefNum]);
   const clickSub = useCallback((sub?: string) => { if (!sub) return; setCategory(((category as any) || (baseItem as any)?.c || 'All') as any); (setSubs as any)((curr: any[]) => curr.includes(sub) ? curr.filter((s: any) => s !== sub) : [...curr, sub]); setRefNum(null as any); }, [setCategory, setSubs, setRefNum, category, baseItem]);
 
-  // Early-out render after all hooks are declared to keep hooks order stable
-  if (!refNum) return null;
-
+  // Render AnimatePresence unconditionally so exit animations can play
   return (
     <>
       <AnimatePresence>
-        <motion.div
-          key="backdrop"
-          ref={backdropRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[130] md:z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-hidden md:overflow-y-auto"
-          onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
-        >
+        {refNum ? (
+          <motion.div
+            key="backdrop"
+            ref={backdropRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[130] md:z-[100] bg-black/60 dark:bg-black/65 backdrop-blur-sm flex items-start md:items-center justify-center p-2 md:p-2 lg:p-4 overflow-hidden md:overflow-y-auto"
+            onMouseDown={(e) => { if (e.target === backdropRef.current) close(); }}
+          >
 
           {/* Grid wrapper to place full-height nav zones outside the panel */}
           <div className="w-full h-full grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,1fr)_80px] md:gap-0.5 lg:gap-2 items-start md:items-center justify-center">
@@ -587,10 +587,10 @@ export default function ItemDetailOverlay() {
 
             <motion.div
               key="panel"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
               className={cn(
                 "relative w-full overlay-inner-border md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] h-full md:min-h-[70vh] md:h-[90vh] md:max-h-[95vh] 2xl:h-[90vh] flex flex-col min-h-0",
                 isFav && "fav-card-ring"
@@ -1031,10 +1031,11 @@ export default function ItemDetailOverlay() {
 
         </motion.div >
 
-      </AnimatePresence >
+        ) : null}
+      </AnimatePresence>
       {/* Mobile fixed bottom nav via portal (outside AnimatePresence to avoid transform/stack contexts) */}
       {
-        typeof document !== 'undefined' && createPortal(
+        refNum && typeof document !== 'undefined' && createPortal(
           (
             <div className="md:hidden fixed left-0 right-0 bottom-0 z-[1000]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
               <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-white/75 dark:bg-[#0f1725]/75 backdrop-blur-md shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">

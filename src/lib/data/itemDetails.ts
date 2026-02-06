@@ -175,10 +175,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
           } catch { }
 
           if (agg) {
-            // Try matching by refNum first, then by id
-            const refNumStr = String(detailObj.refNum || refNum);
-            const idStr = String(detailObj.id || refNum);
-            const entry = agg[refNumStr] || agg[idStr];
+            const entry = agg[String(refNum)];
             const localeTranslation = entry?.locales?.[targetLocale];
             if (localeTranslation) {
               // Translated name (override shipping blob name which may be English)

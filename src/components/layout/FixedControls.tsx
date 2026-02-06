@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/router";
 import { useAtom } from "jotai";
 import { motion, AnimatePresence } from "framer-motion";
 import { darkModeAtom } from "@/store/atoms";
@@ -9,6 +10,8 @@ import { useTranslations } from "next-intl";
 export default function FixedControls() {
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
   const t = useTranslations('Theme');
+  const router = useRouter();
+  const isItemPage = router.pathname === '/item/[ref]';
   const [showBackToTop, setShowBackToTop] = useState(false);
   const rafRef = useRef<number | null>(null);
 
@@ -56,7 +59,7 @@ export default function FixedControls() {
   );
 
   return (
-    <div className="fixed right-4 bottom-4 z-50 flex items-center gap-3">
+    <div className={cn("fixed right-4 z-50 flex items-center gap-3", isItemPage ? "top-4" : "bottom-4")}>
       <AnimatePresence>
         {showBackToTop && (
           <motion.button

@@ -110,7 +110,8 @@ export default function SellerPill({ sellerName, sellerUrl, sellerOnline, market
   const showBothButtons = !isIncluded && !isExcluded;
 
   const badgeClassName = cn(
-    "shrink-0 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border-y border-l rounded-l-full transition-all duration-200",
+    "shrink-0 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border-y border-l transition-all duration-200",
+    sellerPageHref ? "rounded-full border-r" : "rounded-l-full",
     disabled
       ? "border-gray-200/70 dark:border-gray-700/50 bg-white/40 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500 cursor-default"
       : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm dark:hover:bg-gray-700/50 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
@@ -141,8 +142,8 @@ export default function SellerPill({ sellerName, sellerUrl, sellerOnline, market
         </button>
       )}
 
-      {/* Include Button - conditionally shown */}
-      {(showBothButtons || isIncluded) && (
+      {/* Include/Exclude Buttons - SPA filter controls only (hidden on slug pages) */}
+      {!sellerPageHref && (showBothButtons || isIncluded) && (
         <button
           type="button"
           onClick={toggleInclude}
@@ -162,8 +163,8 @@ export default function SellerPill({ sellerName, sellerUrl, sellerOnline, market
         </button>
       )}
 
-      {/* Exclude Button - conditionally shown or rounded right */}
-      {(showBothButtons || isExcluded) && (
+      {/* Exclude Button - SPA filter controls only (hidden on slug pages) */}
+      {!sellerPageHref && (showBothButtons || isExcluded) && (
         <button
           type="button"
           onClick={toggleExclude}

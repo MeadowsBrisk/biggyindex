@@ -44,9 +44,9 @@ const overlayVariants: Variants = {
 };
 
 const floatingButtonVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.85, y: -8 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 400, damping: 25 } },
-  exit: { opacity: 0, scale: 0.85, y: -8, transition: { duration: 0.15 } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15 } },
+  exit: { opacity: 0, transition: { duration: 0.12 } },
 };
 
 type SellerGroup = {
@@ -257,7 +257,7 @@ export default function Basket() {
             exit="exit"
             onClick={() => setOpen(true)}
             className={cn(
-              'fixed top-4 right-4 z-[120] inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold shadow-lg backdrop-blur-sm transition-all',
+              'fixed top-4 right-4 z-[120] inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold shadow-lg backdrop-blur-sm',
               'bg-white dark:bg-[#0f1725] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100',
               'hover:shadow-xl hover:bg-gray-50 dark:hover:bg-[#141d30]'
             )}
