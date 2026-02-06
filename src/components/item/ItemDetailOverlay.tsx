@@ -569,7 +569,7 @@ export default function ItemDetailOverlay() {
         >
 
           {/* Grid wrapper to place full-height nav zones outside the panel */}
-          <div className="w-full h-full md:w-full lg:w-auto grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,auto)_80px] md:gap-0.5 lg:gap-2 items-start md:items-center justify-center">
+          <div className="w-full h-full grid grid-cols-1 md:grid-cols-[40px_minmax(0,1fr)_40px] lg:grid-cols-[80px_minmax(0,1fr)_80px] md:gap-0.5 lg:gap-2 items-start md:items-center justify-center">
             {/* Left nav zone (md+) */}
             <div className="hidden md:flex h-full items-center justify-end">
               <button
@@ -587,10 +587,10 @@ export default function ItemDetailOverlay() {
 
             <motion.div
               key="panel"
-              initial={{ opacity: 0, scale: 0.98, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 6 }}
-              transition={{ duration: 0.16, ease: 'easeOut' }}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
               className={cn(
                 "relative w-full overlay-inner-border md:max-w-6xl 2xl:w-[calc(100vw-208px)] 2xl:max-w-[1500px] h-full md:min-h-[70vh] md:h-[90vh] md:max-h-[95vh] 2xl:h-[90vh] flex flex-col min-h-0",
                 isFav && "fav-card-ring"

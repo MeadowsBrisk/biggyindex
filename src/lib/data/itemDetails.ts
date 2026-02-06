@@ -164,50 +164,49 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
       // --- Apply translations from the translation aggregate (non-GB markets) ---
       // This provides translated item name, short description, and variant descriptions.
       // The aggregate is the same source the index stage uses to build translated indexes.
-      if (mkt !== 'GB') {
+      if (mkt !== 'GB' && sharedStore) {
         try {
           const targetLocale = getLocaleForMarket(mkt); // e.g. 'it-IT', 'de-DE'
-          const sharedStore2 = getStoreHandle(storeName);
-          if (sharedStore2) {
-            const aggKey = 'aggregates/translations.json';
-            let agg: any = null;
-            try {
-              const aggRaw = await sharedStore2.get(aggKey);
-              if (aggRaw) agg = JSON.parse(aggRaw);
-            } catch { }
+          const aggKey = 'aggregates/translations.json';
+          let agg: any = null;
+          try {
+            const aggRaw = await sharedStore.get(aggKey);
+            if (aggRaw) agg = JSON.parse(aggRaw);
+          } catch { }
 
-            if (agg) {
-              const id = String(detailObj.refNum || detailObj.ref || refNum);
-              const entry = agg[id];
-              const localeTranslation = entry?.locales?.[targetLocale];
-              if (localeTranslation) {
-                // Translated name (override shipping blob name which may be English)
-                if (localeTranslation.n) {
-                  detailObj.nEn = detailObj.n; // preserve English
-                  detailObj.n = localeTranslation.n;
-                  detailObj.name = localeTranslation.n;
+          if (agg) {
+            // Try matching by refNum first, then by id
+            const refNumStr = String(detailObj.refNum || refNum);
+            const idStr = String(detailObj.id || refNum);
+            const entry = agg[refNumStr] || agg[idStr];
+            const localeTranslation = entry?.locales?.[targetLocale];
+            if (localeTranslation) {
+              // Translated name (override shipping blob name which may be English)
+              if (localeTranslation.n) {
+                detailObj.nEn = detailObj.nEn || detailObj.n; // preserve English
+                detailObj.n = localeTranslation.n;
+                detailObj.name = localeTranslation.n;
+              }
+
+              // Translated short description
+              if (localeTranslation.d) {
+                detailObj.dEn = detailObj.dEn || detailObj.d; // preserve English
+                detailObj.d = localeTranslation.d;
+              }
+
+              // Translated variant descriptions
+              if (Array.isArray(localeTranslation.v) && Array.isArray(detailObj.variants)) {
+                const translatedMap = new Map<string, string>();
+                for (const tv of localeTranslation.v) {
+                  if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
                 }
-
-                // Translated short description
-                if (localeTranslation.d) {
-                  detailObj.dEn = detailObj.d; // preserve English
-                  detailObj.d = localeTranslation.d;
-                }
-
-                // Translated variant descriptions
-                if (Array.isArray(localeTranslation.v) && Array.isArray(detailObj.variants)) {
-                  const translatedMap = new Map<string, string>();
-                  for (const tv of localeTranslation.v) {
-                    if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
-                  }
-                  for (const variant of detailObj.variants) {
-                    const vid = String(variant.vid ?? variant.id);
-                    const translated = translatedMap.get(vid);
-                    if (translated) {
-                      variant.dEn = variant.d ?? variant.description; // preserve English
-                      variant.d = translated;
-                      variant.description = translated;
-                    }
+                for (const variant of detailObj.variants) {
+                  const vid = String(variant.vid ?? variant.id);
+                  const translated = translatedMap.get(vid);
+                  if (translated) {
+                    variant.dEn = variant.dEn || variant.d || variant.description; // preserve English
+                    variant.d = translated;
+                    variant.description = translated;
                   }
                 }
               }

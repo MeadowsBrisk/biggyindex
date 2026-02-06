@@ -703,7 +703,24 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
                 {(category || subcategories.length > 0) && (
                   <div className="mt-2 text-sm italic text-gray-600 dark:text-gray-300">
                     <span className="opacity-80">{tOv('categoryLabel')}</span>
-                    <span className="ml-1">{translateCategoryAndSubs({ tCats, category, subcategories }).join(', ')}</span>
+                    <span className="ml-1">
+                      {(() => {
+                        const labels = translateCategoryAndSubs({ tCats, category, subcategories });
+                        const catSlug = category ? category.toLowerCase() : null;
+                        return labels.map((label, i) => (
+                          <React.Fragment key={label}>
+                            {i > 0 && ', '}
+                            {i === 0 && catSlug ? (
+                              <Link href={`/category/${encodeURIComponent(catSlug)}`} className="underline decoration-gray-400/50 hover:decoration-gray-600 dark:decoration-gray-500/50 dark:hover:decoration-gray-300 transition-colors">
+                                {label}
+                              </Link>
+                            ) : (
+                              <span>{label}</span>
+                            )}
+                          </React.Fragment>
+                        ));
+                      })()}
+                    </span>
                   </div>
                 )}
                 {showUnavailableBanner && (
