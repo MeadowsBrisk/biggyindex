@@ -146,7 +146,7 @@ export function PpgWeightPills() {
   // ── URL param sync ──────────────────────────────────────────────────
   const ppgHydrated = React.useRef(false);
 
-  // Hydrate PPG from URL on mount (e.g. shared link ?ppg=7)
+  // Hydrate from ?ppg URL param on mount (e.g. shared link ?ppg=7)
   useEffect(() => {
     if (!router.isReady || ppgHydrated.current) return;
     ppgHydrated.current = true;
@@ -156,18 +156,13 @@ export function PpgWeightPills() {
 
     const parsed = parseFloat(urlPpg);
     if (Number.isNaN(parsed)) return;
-    // Validate it's a real weight breakpoint
     const validWeight = (WEIGHT_BREAKPOINTS as readonly number[]).includes(parsed) ? parsed as WeightBreakpoint : null;
-    if (!validWeight || validWeight === selectedWeight) return;
+    if (!validWeight) return;
 
-    // Trigger the same flow as clicking a pill (fetch data then set atoms)
     (async () => {
       const data = await fetchPpgData(validWeight);
       if (data) {
-        // Save current sort state before switching
-        if (selectedWeight === null) {
-          setPrePpgSortState({ key: sortKey, dir: sortDir });
-        }
+        setPrePpgSortState({ key: sortKey, dir: sortDir });
         setSelectedWeight(validWeight);
         setSortKey('price');
         setSortDir('asc');
@@ -175,7 +170,6 @@ export function PpgWeightPills() {
         setIsExpanded(true);
       }
     })();
-  // Only run on mount / router ready — intentionally exclude reactive deps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
 

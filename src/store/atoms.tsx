@@ -537,7 +537,8 @@ export const sortDirAtom = atomWithStorage<SortDir>("sortDir", "desc");
 // PRICE-PER-GRAM (PPG) SORTING
 // ============================================================================
 // Selected weight breakpoint (null = off). When set, triggers ppg sort.
-export const selectedWeightAtom = atomWithStorage<WeightBreakpoint | null>("selectedWeight", null);
+// NOT persisted to localStorage — URL param (?ppg=X) is the persistence/sharing mechanism.
+export const selectedWeightAtom = atom<WeightBreakpoint | null>(null);
 
 // Store the user's sort settings before entering PPG mode, to restore on exit
 export const prePpgSortStateAtom = atom<{ key: SortKey; dir: SortDir } | null>(null);

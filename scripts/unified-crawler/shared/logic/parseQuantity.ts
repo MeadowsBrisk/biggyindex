@@ -157,12 +157,16 @@ export function parseQuantity(description: string | null | undefined): ParsedQua
 
   // Special pattern: "<count> <count>g" like "5 1g" → 5 x 1g = 5g
   // Or "<count> x <count>g" like "5 x 1g" → 5g
-  const multiPackGramPattern = /^(\d+)\s*(?:x\s*)?(\d+(?:\.\d+)?)\s*g\b/i;
+  // MUST have space or 'x' between numbers to avoid matching "14g" as "1 × 4g"
+  const multiPackGramPattern = /^(\d+)\s+(?:x\s*)?(\d+(?:\.\d+)?)\s*g\b|^(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*g\b/i;
   const multiPackMatch = d.match(multiPackGramPattern);
   if (multiPackMatch) {
-    const count = parseFloat(multiPackMatch[1]);
-    const grams = parseFloat(multiPackMatch[2]);
-    return { qty: count * grams, unit: 'g' };
+    // Pattern has two alternations - check which matched
+    const count = parseFloat(multiPackMatch[1] ?? multiPackMatch[3]);
+    const grams = parseFloat(multiPackMatch[2] ?? multiPackMatch[4]);
+    if (count > 0 && grams > 0) {
+      return { qty: count * grams, unit: 'g' };
+    }
   }
 
   // Pattern: "<count> <unit> <weight>g" like "1 jar 3.5g" → use the gram weight
@@ -218,57 +222,54 @@ export function parseQuantity(description: string | null | undefined): ParsedQua
   const labeledCounts = counts.filter(c => !!c.labelOriginal);
   const unlabeledCounts = counts.filter(c => !c.labelOriginal);
 
-  // 1. Labeled counts take precedence
+  // 1. Gram-based dosage + count pattern (e.g., "2 x 3.5g")
+  if (dosages.length === 1 && dosages[0].unit === 'g' && unlabeledCounts.length > 0) {
+    // Check if count comes before dosage (multiplier pattern)
+    const dosagePos = dosages[0].pos;
+    const countBefore = unlabeledCounts.find(c => c.pos < dosagePos);
+    if (countBefore) {
+      return { qty: countBefore.num * dosages[0].num, unit: 'g' };
+    }
+  }
+
+  // 2. If we have a gram dosage, use it directly
+  const gramDosage = dosages.find(d => d.unit === 'g');
+  if (gramDosage) {
+    return { qty: gramDosage.num, unit: 'g' };
+  }
+
+  // 3. If we have labeled counts with 'x' multiplier (e.g., "2x", "3 ×")
+  const xCounts = labeledCounts.filter(c => c.labelCanonical === 'x');
+  if (xCounts.length > 0 && dosages.length > 0) {
+    const mult = xCounts[0].num;
+    const dos = dosages[0];
+    if (dos.unit === 'kg') return { qty: mult * dos.num * 1000, unit: 'g' };
+    return { qty: mult * dos.num, unit: dos.unit };
+  }
+
+  // 4. Labeled counts (items, packs, etc.)
   if (labeledCounts.length > 0) {
-    const prefer = labeledCounts.find(c => /^(pk|pc|x)$/.test(c.labelCanonical || ''));
-    if (prefer) {
-      let unit = prefer.labelCanonical || 'item';
-      if (unit === 'x') unit = detectImplicitUnit(d) || 'item';
-      return { qty: prefer.num, unit };
-    }
-    let unit = labeledCounts[0].labelCanonical || 'item';
-    if (unit === 'x') unit = detectImplicitUnit(d) || 'item';
-    return { qty: labeledCounts[0].num, unit };
+    const first = labeledCounts[0];
+    return { qty: first.num, unit: first.labelCanonical || 'item' };
   }
 
-  // 2. Dosages
-  if (dosages.length > 0) {
-    const firstGram = dosages.find(dz => dz.unit === 'g');
-    const firstKg = dosages.find(dz => dz.unit === 'kg');
-    const firstMl = dosages.find(dz => dz.unit === 'ml');
-    const firstMg = dosages.find(dz => dz.unit === 'mg');
-
-    if (firstGram) return { qty: firstGram.num, unit: 'g' };
-    if (firstKg) return { qty: firstKg.num * 1000, unit: 'g' };
-    if (firstMl) return { qty: firstMl.num, unit: 'ml' };
-    if (firstMg) {
-      if (unlabeledCounts.length === 0 && !edibleLikeRe.test(d)) {
-        return { qty: firstMg.num, unit: 'mg' };
-      }
-      if (edibleLikeRe.test(d) && unlabeledCounts.length > 0) {
-        const implicit = detectImplicitUnit(d) || (isChocolateBarLike(d) ? 'bar' : null);
-        return { qty: unlabeledCounts[0].num, unit: implicit || 'item' };
-      }
-    }
-  }
-
-  // 3. Unlabeled counts -> items
-  if (unlabeledCounts.length > 0) {
-    const implicit = detectImplicitUnit(d) || (isChocolateBarLike(d) ? 'bar' : null);
-    return { qty: unlabeledCounts[0].num, unit: implicit || 'item' };
-  }
-
-  // 4. Fallback dosage
+  // 5. Other dosages (ml, mg, kg)
   if (dosages.length > 0) {
     const d0 = dosages[0];
     if (d0.unit === 'kg') return { qty: d0.num * 1000, unit: 'g' };
     if (d0.unit === 'mg' && edibleLikeRe.test(d)) {
       return { qty: 1, unit: detectImplicitUnit(d) || (isChocolateBarLike(d) ? 'bar' : 'item') };
     }
-    return { qty: dosages[0].num, unit: dosages[0].unit };
+    return { qty: d0.num, unit: d0.unit };
   }
 
-  // 5. Default 1 item when description mentions item word
+  // 6. Unlabeled counts - treat as items
+  if (unlabeledCounts.length > 0) {
+    const implicit = detectImplicitUnit(d) || (isChocolateBarLike(d) ? 'bar' : null);
+    return { qty: unlabeledCounts[0].num, unit: implicit || 'item' };
+  }
+
+  // 7. Default to 1 item if description mentions item-like words
   if (/\b(item|items|pcs|pieces|tabs|capsules|tablet|tablets|gummy|gummies|bar|bars|chew|chews|square|squares|stars|jars|preroll|prerolls|pre-roll|pre-rolls|joint|joints|cart|carts|cartridge|cartridges|pod|pods)\b/.test(d)) {
     return { qty: 1, unit: 'item' };
   }
