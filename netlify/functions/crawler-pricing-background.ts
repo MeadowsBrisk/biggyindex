@@ -16,7 +16,7 @@ export const handler: Handler = async (event) => {
 
   try {
     // Safety defaults for Netlify env
-    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
+    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "r2";
 
     const env = loadEnv();
     const markets = listMarkets(env.markets);

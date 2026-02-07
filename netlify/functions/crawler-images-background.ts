@@ -36,7 +36,7 @@ export const handler: Handler = async (event) => {
     }
 
     // Ensure persistence defaults for Netlify runtime
-    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
+    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "r2";
 
     // Validate R2 credentials
     if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID) {

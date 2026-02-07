@@ -3,12 +3,7 @@
  *
  * Backends:
  *   - R2DataStore  → Cloudflare R2 (S3-compatible) for production
- *   - FSDataStore  → Local filesystem for dev (mirrors current blobs.ts FS fallback)
- *   - BlobsDataStore → Netlify Blobs (wraps existing getBlobClient, for dual-write)
- *
- * Key difference from blobs.ts:
- *   getJSON returns null ONLY for "key does not exist".
- *   All other errors throw — no more silent null on 401/500.
+ *   - FSDataStore  → Local filesystem for dev
  *
  * R2 key layout (single bucket: biggyindex-data):
  *   markets/{code}/...   ← was site-index-{code}/...
@@ -46,7 +41,7 @@ export interface DataStore {
   updateJSON<T>(key: string, updater: (existing: T | null) => T): Promise<T>;
 
   /** Backend identifier for logging */
-  readonly backend: 'r2' | 'fs' | 'blobs';
+  readonly backend: 'r2' | 'fs';
 }
 
 // ---------------------------------------------------------------------------
@@ -226,49 +221,6 @@ export function createFSStore(rootDir: string): DataStore {
 }
 
 // ---------------------------------------------------------------------------
-// Blobs DataStore (wraps existing getBlobClient for dual-write compat)
-// ---------------------------------------------------------------------------
-
-export function createBlobsStore(storeName: string): DataStore {
-  // Lazy import to avoid circular deps
-  let _client: any = null;
-  const getClient = () => {
-    if (_client) return _client;
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getBlobClient } = require('./blobs') as { getBlobClient: (name: string) => any };
-    _client = getBlobClient(storeName);
-    return _client;
-  };
-
-  return {
-    backend: 'blobs' as const,
-
-    async getJSON<T>(key: string): Promise<T | null> {
-      return getClient().getJSON(key) as Promise<T | null>;
-    },
-
-    async putJSON(key: string, data: unknown): Promise<void> {
-      return getClient().putJSON(key, data);
-    },
-
-    async delete(key: string): Promise<void> {
-      return getClient().del(key);
-    },
-
-    async list(prefix?: string): Promise<string[]> {
-      return getClient().list(prefix);
-    },
-
-    async updateJSON<T>(key: string, updater: (existing: T | null) => T): Promise<T> {
-      const existing = await this.getJSON<T>(key);
-      const updated = updater(existing);
-      await this.putJSON(key, updated);
-      return updated;
-    },
-  };
-}
-
-// ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
 
@@ -276,7 +228,7 @@ const R2_DATA_BUCKET_DEFAULT = 'biggyindex-data';
 
 /**
  * Scope-to-R2-prefix mapping.
- * Netlify Blob store names → R2 key prefixes within the single data bucket.
+ * Store names → R2 key prefixes within the single data bucket.
  */
 function scopeToR2Prefix(scope: string): string {
   // Market stores: site-index-gb → markets/gb
@@ -294,80 +246,18 @@ function scopeToR2Prefix(scope: string): string {
  * Create a DataStore for the given scope (store name or market code).
  *
  * Backend selection:
- *   - CRAWLER_PERSIST=r2    → R2 only
- *   - CRAWLER_PERSIST=both  → dual-write (R2 primary, Blobs secondary)
- *   - CRAWLER_PERSIST=blobs → Netlify Blobs (current behavior, via getBlobClient)
- *   - CRAWLER_PERSIST=fs    → Local filesystem
- *   - CRAWLER_PERSIST=auto  → Blobs if creds available, else FS (current default)
+ *   - CRAWLER_PERSIST=r2 (default) → R2
+ *   - CRAWLER_PERSIST=fs           → Local filesystem (dev)
  */
 export function createStore(scope: string): DataStore {
-  const mode = process.env.CRAWLER_PERSIST || 'auto';
+  const mode = process.env.CRAWLER_PERSIST || 'r2';
   const bucket = process.env.R2_DATA_BUCKET || R2_DATA_BUCKET_DEFAULT;
-
-  if (mode === 'r2') {
-    return createR2Store(bucket, scopeToR2Prefix(scope));
-  }
-
-  if (mode === 'both') {
-    return createDualWriteStore(scope, bucket);
-  }
 
   if (mode === 'fs') {
     const path = require('path') as typeof import('path');
     return createFSStore(path.join(process.cwd(), 'public', '_blobs', scope));
   }
 
-  // 'auto' or 'blobs' — delegate to existing blobs.ts which handles auto-detection
-  return createBlobsStore(scope);
-}
-
-// ---------------------------------------------------------------------------
-// Dual-write store (R2 primary, Blobs secondary — for migration)
-// ---------------------------------------------------------------------------
-
-function createDualWriteStore(scope: string, bucket: string): DataStore {
-  const r2Store = createR2Store(bucket, scopeToR2Prefix(scope));
-  const blobsStore = createBlobsStore(scope);
-
-  return {
-    backend: 'r2' as const, // primary is R2
-
-    async getJSON<T>(key: string): Promise<T | null> {
-      // Read from Blobs (the trusted source during migration)
-      return blobsStore.getJSON<T>(key);
-    },
-
-    async putJSON(key: string, data: unknown): Promise<void> {
-      // Write to Blobs first (primary)
-      await blobsStore.putJSON(key, data);
-      // Then write to R2 (secondary, non-blocking failure)
-      try {
-        await r2Store.putJSON(key, data);
-      } catch (e: any) {
-        console.warn(`[dual-write] R2 write failed (non-blocking): ${key} — ${e?.message || e}`);
-      }
-    },
-
-    async delete(key: string): Promise<void> {
-      await blobsStore.delete(key);
-      try {
-        await r2Store.delete(key);
-      } catch (e: any) {
-        console.warn(`[dual-write] R2 delete failed (non-blocking): ${key} — ${e?.message || e}`);
-      }
-    },
-
-    async list(prefix?: string): Promise<string[]> {
-      // List from Blobs (trusted source)
-      return blobsStore.list(prefix);
-    },
-
-    async updateJSON<T>(key: string, updater: (existing: T | null) => T): Promise<T> {
-      // Read from and write to Blobs as primary
-      const existing = await blobsStore.getJSON<T>(key);
-      const updated = updater(existing);
-      await this.putJSON(key, updated); // putJSON handles dual-write
-      return updated;
-    },
-  };
+  // Default: R2
+  return createR2Store(bucket, scopeToR2Prefix(scope));
 }

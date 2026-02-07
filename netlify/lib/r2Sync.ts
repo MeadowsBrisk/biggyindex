@@ -1,16 +1,16 @@
 /**
- * R2 sync helper for Netlify Functions.
+ * R2 access helper for Netlify Functions.
  *
- * Provides fire-and-forget R2 writes so Netlify Functions (which use
- * @netlify/blobs directly) can also keep R2 in sync during migration.
+ * Provides read/write/delete operations for Netlify Functions that
+ * need to access data in R2 directly.
  *
  * Usage:
- *   import { syncToR2 } from '../lib/r2Sync';
- *   await store.setJSON(key, data);
- *   await syncToR2('site-index-shared', key, data);
+ *   import { readFromR2, writeToR2 } from '../lib/r2Sync';
+ *   const data = await readFromR2('site-index-shared', 'category-overrides.json');
+ *   await writeToR2('site-index-shared', 'category-overrides.json', data);
  */
 
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 let _client: S3Client | null = null;
 
@@ -45,23 +45,37 @@ function fullKey(storeName: string, key: string): string {
 }
 
 /**
- * Write JSON to R2. Non-blocking — logs warning on failure, never throws.
+ * Read JSON from R2. Returns null for missing keys.
  */
-export async function syncToR2(storeName: string, key: string, data: unknown): Promise<void> {
+export async function readFromR2<T = any>(storeName: string, key: string): Promise<T | null> {
   try {
-    await getClient().send(new PutObjectCommand({
+    const res = await getClient().send(new GetObjectCommand({
       Bucket: BUCKET,
       Key: fullKey(storeName, key),
-      Body: JSON.stringify(data),
-      ContentType: 'application/json',
     }));
+    const body = await res.Body?.transformToString();
+    if (!body) return null;
+    return JSON.parse(body) as T;
   } catch (e: any) {
-    console.warn(`[r2Sync] Write failed (non-blocking): ${storeName}/${key} — ${(e?.message || '').slice(0, 120)}`);
+    if (e?.name === 'NoSuchKey' || e?.$metadata?.httpStatusCode === 404) return null;
+    throw e;
   }
 }
 
 /**
- * Delete a key from R2. Non-blocking — logs warning on failure, never throws.
+ * Write JSON to R2.
+ */
+export async function writeToR2(storeName: string, key: string, data: unknown): Promise<void> {
+  await getClient().send(new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: fullKey(storeName, key),
+    Body: JSON.stringify(data),
+    ContentType: 'application/json',
+  }));
+}
+
+/**
+ * Delete a key from R2.
  */
 export async function deleteFromR2(storeName: string, key: string): Promise<void> {
   try {
@@ -70,6 +84,10 @@ export async function deleteFromR2(storeName: string, key: string): Promise<void
       Key: fullKey(storeName, key),
     }));
   } catch (e: any) {
-    console.warn(`[r2Sync] Delete failed (non-blocking): ${storeName}/${key} — ${(e?.message || '').slice(0, 120)}`);
+    if (e?.name === 'NoSuchKey' || e?.$metadata?.httpStatusCode === 404) return;
+    throw e;
   }
 }
+
+// Legacy aliases for backwards compat (used in category-dash-overrides)
+export const syncToR2 = writeToR2;

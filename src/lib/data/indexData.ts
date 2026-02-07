@@ -1,12 +1,11 @@
-// Blobs-only access: no filesystem fallbacks
-// When DATA_SOURCE=r2, reads from Cloudflare R2 instead.
+// R2-only data access — reads from Cloudflare R2 via S3 SDK.
 
 // Market-aware data access for unified crawler outputs.
 // We support per-market stores: site-index-gb, site-index-de, site-index-fr (override via env).
 // Default market is GB.
 
 import { MARKETS, type Market } from '@/lib/market/market';
-import { useR2, readR2JSON, buildR2Key } from '@/lib/data/r2Client';
+import { readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 /**
  * Per-market blob store names, auto-derived from MARKETS.
@@ -32,60 +31,25 @@ function storeNameForMarket(mkt?: string | Market): string {
   return `site-index-${String(M).toLowerCase()}`;
 }
 
-// Centralized access to index data (items, manifest, category chunks, sellers, seen) via Netlify Blobs only.
+// Centralized access to index data (items, manifest, category chunks, sellers, seen) via R2.
 // All functions return plain JS objects/arrays (never throw) to simplify API routes.
 
-type StoreClient = {
-  get: (key: string) => Promise<string | null>;
-};
-
-const storeCache = new Map<string, StoreClient | null>();
-
-// Simple in-memory cache for small, frequently accessed blobs to reduce network calls on warm functions
+// Simple in-memory cache for small, frequently accessed data to reduce network calls on warm functions
 const memoryCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 60 * 1000; // 1 minute cache for high-frequency metadata
-
-async function getStoreForName(name?: string): Promise<StoreClient | null> {
-  if (!name) return null;
-  if (storeCache.has(name)) return storeCache.get(name) || null;
-  try {
-    const { getStore } = await import('@netlify/blobs');
-    const siteID = (process as any).env.NETLIFY_SITE_ID || (process as any).env.SITE_ID || (process as any).env.BLOBS_SITE_ID;
-    const token = (process as any).env.NETLIFY_BLOBS_TOKEN || (process as any).env.NETLIFY_API_TOKEN || (process as any).env.NETLIFY_AUTH_TOKEN || (process as any).env.BLOBS_TOKEN;
-    let store: StoreClient | null = null;
-    if (siteID && token) {
-      try { store = getStore({ name, siteID, token, consistency: 'strong' }) as unknown as StoreClient; } catch (e) {
-        console.error(`[indexData] getStore with credentials failed for ${name}:`, e);
-      }
-    }
-    if (!store) {
-      try { store = getStore({ name, consistency: 'strong' }) as unknown as StoreClient; } catch (e) {
-        console.error(`[indexData] getStore without credentials failed for ${name}:`, e);
-      }
-    }
-    if (!store) {
-      console.error(`[indexData] Could not get store ${name}. siteID=${!!siteID}, token=${!!token}`);
-    }
-    storeCache.set(name, store);
-    return store;
-  } catch (e) {
-    console.error(`[indexData] getStoreForName error for ${name}:`, e);
-    return null;
-  }
-}
 
 let _loggedDataSource = false;
 
 async function readBlobJSON<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
   const storeName = store || storeNameForMarket(market);
 
-  // One-time log to confirm which data source is active
+  // One-time log to confirm data source
   if (!_loggedDataSource) {
     _loggedDataSource = true;
-    console.log(`[indexData] Data source: ${useR2() ? 'R2' : 'Netlify Blobs'}`);
+    console.log(`[indexData] Data source: R2`);
   }
   
-  // Check memory cache if enabled (works for both R2 and Blobs paths)
+  // Check memory cache if enabled
   if (useCache) {
     const cacheKey = `${storeName}:${key}`;
     const cached = memoryCache.get(cacheKey);
@@ -94,42 +58,13 @@ async function readBlobJSON<T = any>(key: string, { market, store, useCache = fa
     }
   }
 
-  // R2 path: read from Cloudflare R2 via S3 SDK
-  if (useR2()) {
-    try {
-      const r2Key = buildR2Key(storeName, key);
-      const data = await readR2JSON<T>(r2Key);
-      if (data != null && useCache) {
-        const cacheKey = `${storeName}:${key}`;
-        memoryCache.set(cacheKey, { data, timestamp: Date.now() });
-      }
-      return data;
-    } catch (e) {
-      console.error(`[indexData:r2] Error reading ${key} from ${storeName}:`, e);
-      return null;
-    }
-  }
-
-  // Blobs path: read from Netlify Blobs (existing behavior)
-  const storeClient = await getStoreForName(storeName);
-  if (!storeClient) {
-    console.error(`[indexData] No store client for ${storeName}, cannot read ${key}`);
-    return null;
-  }
   try {
-    const value = await storeClient.get(key);
-    if (!value) {
-      console.warn(`[indexData] Key ${key} not found in store ${storeName}`);
-      return null;
-    }
-    const data = JSON.parse(value) as T;
-    
-    // Write to memory cache if enabled
-    if (useCache) {
+    const r2Key = buildR2Key(storeName, key);
+    const data = await readR2JSON<T>(r2Key);
+    if (data != null && useCache) {
       const cacheKey = `${storeName}:${key}`;
       memoryCache.set(cacheKey, { data, timestamp: Date.now() });
     }
-    
     return data;
   } catch (e) {
     console.error(`[indexData] Error reading ${key} from ${storeName}:`, e);

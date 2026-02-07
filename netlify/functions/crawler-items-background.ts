@@ -28,7 +28,7 @@ export const handler: Handler = async (event) => {
     // }
 
     // Safety defaults for Netlify env
-    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
+    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "r2";
 
     if (!process.env.LB_LOGIN_USERNAME || !process.env.LB_LOGIN_PASSWORD) {
       warn("missing LB credentials; items stage requires auth");

@@ -6,7 +6,6 @@
  */
 
 import type { Context } from '@netlify/functions';
-import { getStore } from '@netlify/blobs';
 import { isAuthenticated, unauthorizedResponse } from '../lib/auth';
 import { checkRateLimit } from '../lib/rateLimit';
 import {
@@ -18,7 +17,7 @@ import {
   updateOverrideEntry,
   createEmptyOverridesData,
 } from '../lib/categoryOverrides';
-import { syncToR2 } from '../lib/r2Sync';
+import { readFromR2, writeToR2 } from '../lib/r2Sync';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {
@@ -45,26 +44,21 @@ export default async (request: Request, context: Context) => {
     );
   }
 
-  const store = getStore('site-index-shared');
-
   try {
     // GET: Return all overrides with existence check
     if (request.method === 'GET') {
       let data: OverridesData;
       
       try {
-        const blob = await store.get(OVERRIDES_KEY, { type: 'json' });
-        data = blob as OverridesData || createEmptyOverridesData();
+        data = await readFromR2<OverridesData>('site-index-shared', OVERRIDES_KEY) || createEmptyOverridesData();
       } catch {
         data = createEmptyOverridesData();
       }
 
       // Check which items still exist in the index (use GB market as default)
-      const marketStore = getStore('site-index-gb');
       let currentItems: any[] = [];
       try {
-        const itemsBlob = await marketStore.get('indexed_items.json', { type: 'json' });
-        currentItems = (itemsBlob as any) || [];
+        currentItems = await readFromR2<any[]>('site-index-gb', 'indexed_items.json') || [];
       } catch {}
 
       // Build set of current item IDs for fast lookup
@@ -112,8 +106,7 @@ export default async (request: Request, context: Context) => {
       // Load current overrides
       let data: OverridesData;
       try {
-        const blob = await store.get(OVERRIDES_KEY, { type: 'json' });
-        data = blob as OverridesData || createEmptyOverridesData();
+        data = await readFromR2<OverridesData>('site-index-shared', OVERRIDES_KEY) || createEmptyOverridesData();
       } catch {
         data = createEmptyOverridesData();
       }
@@ -140,11 +133,8 @@ export default async (request: Request, context: Context) => {
       // Update timestamp
       data.updatedAt = new Date().toISOString();
 
-      // Save to blob
-      await store.setJSON(OVERRIDES_KEY, data);
-
-      // Sync to R2 (non-blocking, won't throw)
-      await syncToR2('site-index-shared', OVERRIDES_KEY, data);
+      // Save to R2
+      await writeToR2('site-index-shared', OVERRIDES_KEY, data);
 
       return new Response(
         JSON.stringify({ success: true, override }),

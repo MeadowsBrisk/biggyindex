@@ -6,10 +6,9 @@
  */
 
 import type { Context } from '@netlify/functions';
-import { getStore } from '@netlify/blobs';
 import { isAuthenticated, unauthorizedResponse } from '../lib/auth';
 import { OVERRIDES_KEY, type OverridesData, createEmptyOverridesData } from '../lib/categoryOverrides';
-import { syncToR2 } from '../lib/r2Sync';
+import { readFromR2, writeToR2 } from '../lib/r2Sync';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {
@@ -58,13 +57,10 @@ export default async (request: Request, context: Context) => {
       );
     }
 
-    const store = getStore('site-index-shared');
-
     // Load current overrides
     let data: OverridesData;
     try {
-      const blob = await store.get(OVERRIDES_KEY, { type: 'json' });
-      data = blob as OverridesData || createEmptyOverridesData();
+      data = await readFromR2<OverridesData>('site-index-shared', OVERRIDES_KEY) || createEmptyOverridesData();
     } catch {
       data = createEmptyOverridesData();
     }
@@ -83,12 +79,9 @@ export default async (request: Request, context: Context) => {
       );
     }
 
-    // Update timestamp and save
+    // Update timestamp and save to R2
     data.updatedAt = new Date().toISOString();
-    await store.setJSON(OVERRIDES_KEY, data);
-
-    // Sync to R2 (non-blocking, won't throw)
-    await syncToR2('site-index-shared', OVERRIDES_KEY, data);
+    await writeToR2('site-index-shared', OVERRIDES_KEY, data);
 
     return new Response(
       JSON.stringify({ success: true, id }),

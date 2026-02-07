@@ -23,7 +23,7 @@ export const handler: Handler = async (event) => {
     //   return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: true }) } as any;
     // }
 
-    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
+    if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "r2";
 
     const env = loadEnv();
     const markets = listMarkets(env.markets);

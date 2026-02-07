@@ -20,7 +20,7 @@ export const handler: Handler = async (event) => {
         log("start");
 
         // Ensure persistence defaults for Netlify runtime
-        if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "blobs";
+        if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "r2";
 
         const env = loadEnv();
         const sharedBlob = getBlobClient(env.stores.shared);

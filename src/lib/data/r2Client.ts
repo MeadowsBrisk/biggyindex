@@ -1,8 +1,8 @@
 /**
- * Shared R2 read client for the Next.js frontend.
+ * R2 read client for the Next.js frontend.
  *
- * Used when DATA_SOURCE=r2 to read index data, item details, and seller
- * details from Cloudflare R2 instead of Netlify Blobs.
+ * All index data, item details, and seller details are read from
+ * Cloudflare R2 via the S3 SDK.
  *
  * Key layout matches the crawler's store.ts R2 layout:
  *   markets/{code}/...  ← market-specific data
@@ -53,14 +53,6 @@ export async function readR2JSON<T = any>(key: string): Promise<T | null> {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Whether the frontend should read from R2 instead of Netlify Blobs.
- * Controlled by DATA_SOURCE env var: 'r2' or 'blobs' (default).
- */
-export function useR2(): boolean {
-  return process.env.DATA_SOURCE === 'r2';
-}
 
 /**
  * Build the R2 key for a given Netlify Blob store name + key.

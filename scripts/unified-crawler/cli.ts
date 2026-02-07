@@ -38,9 +38,9 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('persist', {
     type: 'string',
-    choices: ['auto', 'blobs', 'fs', 'r2', 'both'],
-    default: 'auto',
-    describe: 'Persistence mode: auto|blobs|fs|r2|both (both = blobs primary + R2 shadow write)'
+    choices: ['r2', 'fs'],
+    default: 'r2',
+    describe: 'Persistence mode: r2 (default) | fs (local dev)'
   })
   .option('limit', {
     type: 'number',
