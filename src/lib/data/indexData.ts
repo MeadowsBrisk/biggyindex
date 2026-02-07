@@ -1,10 +1,12 @@
 // Blobs-only access: no filesystem fallbacks
+// When DATA_SOURCE=r2, reads from Cloudflare R2 instead.
 
-// Market-aware Blobs access for unified crawler outputs.
+// Market-aware data access for unified crawler outputs.
 // We support per-market stores: site-index-gb, site-index-de, site-index-fr (override via env).
 // Default market is GB.
 
 import { MARKETS, type Market } from '@/lib/market/market';
+import { useR2, readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 /**
  * Per-market blob store names, auto-derived from MARKETS.
@@ -75,7 +77,7 @@ async function getStoreForName(name?: string): Promise<StoreClient | null> {
 async function readBlobJSON<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
   const storeName = store || storeNameForMarket(market);
   
-  // Check memory cache if enabled
+  // Check memory cache if enabled (works for both R2 and Blobs paths)
   if (useCache) {
     const cacheKey = `${storeName}:${key}`;
     const cached = memoryCache.get(cacheKey);
@@ -84,6 +86,23 @@ async function readBlobJSON<T = any>(key: string, { market, store, useCache = fa
     }
   }
 
+  // R2 path: read from Cloudflare R2 via S3 SDK
+  if (useR2()) {
+    try {
+      const r2Key = buildR2Key(storeName, key);
+      const data = await readR2JSON<T>(r2Key);
+      if (data != null && useCache) {
+        const cacheKey = `${storeName}:${key}`;
+        memoryCache.set(cacheKey, { data, timestamp: Date.now() });
+      }
+      return data;
+    } catch (e) {
+      console.error(`[indexData:r2] Error reading ${key} from ${storeName}:`, e);
+      return null;
+    }
+  }
+
+  // Blobs path: read from Netlify Blobs (existing behavior)
   const storeClient = await getStoreForName(storeName);
   if (!storeClient) {
     console.error(`[indexData] No store client for ${storeName}, cannot read ${key}`);

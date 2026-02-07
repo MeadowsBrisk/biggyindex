@@ -38,9 +38,9 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('persist', {
     type: 'string',
-    choices: ['auto', 'blobs', 'fs'],
+    choices: ['auto', 'blobs', 'fs', 'r2', 'both'],
     default: 'auto',
-    describe: 'Persistence mode (blobs recommended for parity with Netlify)'
+    describe: 'Persistence mode: auto|blobs|fs|r2|both (both = blobs primary + R2 shadow write)'
   })
   .option('limit', {
     type: 'number',

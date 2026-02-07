@@ -2,6 +2,7 @@
 
 import { getStore } from '@netlify/blobs';
 import { MARKETS, type Market, getLocaleForMarket } from '@/lib/market/market';
+import { useR2, readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 function normalizeMarket(mkt: any): Market {
   const s = String(mkt || 'GB').toUpperCase();
@@ -40,6 +41,13 @@ function marketStoreName(mkt: Market) {
  */
 export async function fetchItemDetail(refNum: string | number, market: string = 'GB'): Promise<any | null> {
   if (!refNum) return null;
+
+  // R2 path: read directly from R2 via S3 SDK
+  if (useR2()) {
+    return fetchItemDetailR2(refNum, market);
+  }
+
+  // Blobs path: existing behavior
   const storeName = process.env.SHARED_STORE_NAME || 'site-index-shared';
   const itemKey = `items/${encodeURIComponent(String(refNum))}.json`;
   let detailObj: any = null;
@@ -218,6 +226,124 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
     return detailObj;
   } catch (e) {
     console.error('fetchItemDetail error:', e);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// R2 path — mirrors fetchItemDetail but reads from R2 via S3 SDK
+// ---------------------------------------------------------------------------
+
+async function fetchItemDetailR2(refNum: string | number, market: string): Promise<any | null> {
+  try {
+    const mkt = normalizeMarket(market);
+    const sharedStoreName = process.env.SHARED_STORE_NAME || 'site-index-shared';
+    const mktStoreName = marketStoreName(mkt);
+
+    // 1. Load shared blob (all locale-independent data)
+    const itemKey = `items/${encodeURIComponent(String(refNum))}.json`;
+    let detailObj = await readR2JSON<any>(buildR2Key(sharedStoreName, itemKey));
+    if (!detailObj) return null;
+
+    // Expand minified keys
+    if (detailObj.i && !detailObj.imageUrl) detailObj.imageUrl = detailObj.i;
+    if (Array.isArray(detailObj.is) && detailObj.is.length && !detailObj.imageUrls) detailObj.imageUrls = detailObj.is;
+    if (detailObj.sn && !detailObj.sellerName) detailObj.sellerName = detailObj.sn;
+    if (detailObj.sid != null && !detailObj.sellerId) detailObj.sellerId = detailObj.sid;
+    if (detailObj.c && !detailObj.category) detailObj.category = detailObj.c;
+    if (Array.isArray(detailObj.sc) && !detailObj.subcategories) detailObj.subcategories = detailObj.sc;
+    if (detailObj.uMin != null && !detailObj.priceMin) detailObj.priceMin = detailObj.uMin;
+    if (detailObj.uMax != null && !detailObj.priceMax) detailObj.priceMax = detailObj.uMax;
+    if (detailObj.fsa && !detailObj.firstSeenAt) detailObj.firstSeenAt = detailObj.fsa;
+    if (detailObj.lua && !detailObj.lastUpdatedAt) detailObj.lastUpdatedAt = detailObj.lua;
+    if (detailObj.sf && !detailObj.shipsFrom) detailObj.shipsFrom = detailObj.sf;
+    if (Array.isArray(detailObj.v) && detailObj.v.length && !detailObj.variants) {
+      detailObj.variants = detailObj.v.map((v: any) => ({
+        id: v.vid ?? v.id,
+        description: v.d ?? v.description,
+        baseAmount: typeof v.usd === 'number' ? v.usd : v.baseAmount,
+        priceUSD: typeof v.usd === 'number' ? v.usd : v.priceUSD,
+        ...v,
+      }));
+    }
+    if (!detailObj.name && detailObj.n) detailObj.name = detailObj.n;
+    detailObj.refNum = detailObj.refNum ?? detailObj.ref ?? refNum;
+    detailObj.id = detailObj.id ?? refNum;
+
+    // 2. Load per-market shipping blob
+    const shipKey = `market-shipping/${encodeURIComponent(String(refNum))}.json`;
+    let ship = await readR2JSON<any>(buildR2Key(mktStoreName, shipKey));
+
+    // Try fallback key if item has a different internal ID
+    if (!ship) {
+      const possibleId = detailObj.id || detailObj.ref || detailObj.refNum;
+      if (possibleId && String(possibleId) !== String(refNum)) {
+        const altKey = `market-shipping/${encodeURIComponent(String(possibleId))}.json`;
+        ship = await readR2JSON<any>(buildR2Key(mktStoreName, altKey));
+      }
+    }
+
+    if (ship) {
+      detailObj._foundInMarketIndex = true;
+      if (Array.isArray(ship.options)) {
+        const translatedOpts = ship.translations?.shippingOptions;
+        const shippingOptions = (Array.isArray(translatedOpts) && translatedOpts.length > 0)
+          ? translatedOpts : ship.options;
+        detailObj.shipping = { ...(detailObj.shipping || {}), options: shippingOptions };
+        detailObj.shippingOptionsEn = ship.options;
+      }
+      if (ship.translations?.description) {
+        detailObj.descriptionTranslated = ship.translations.description;
+      }
+      if (ship.n) { detailObj.n = ship.n; detailObj.name = ship.n; }
+      if (ship.c) { detailObj.c = ship.c; detailObj.category = ship.c; }
+      if (Array.isArray(ship.sc)) { detailObj.sc = ship.sc; detailObj.subcategories = ship.sc; }
+    }
+
+    // 3. Apply translations from the translation aggregate (non-GB markets)
+    if (mkt !== 'GB') {
+      try {
+        const targetLocale = getLocaleForMarket(mkt);
+        const aggKey = 'aggregates/translations.json';
+        const agg = await readR2JSON<any>(buildR2Key(sharedStoreName, aggKey));
+        if (agg) {
+          const entry = agg[String(refNum)];
+          const localeTranslation = entry?.locales?.[targetLocale];
+          if (localeTranslation) {
+            if (localeTranslation.n) {
+              detailObj.nEn = detailObj.nEn || detailObj.n;
+              detailObj.n = localeTranslation.n;
+              detailObj.name = localeTranslation.n;
+            }
+            if (localeTranslation.d) {
+              detailObj.dEn = detailObj.dEn || detailObj.d;
+              detailObj.d = localeTranslation.d;
+            }
+            if (Array.isArray(localeTranslation.v) && Array.isArray(detailObj.variants)) {
+              const translatedMap = new Map<string, string>();
+              for (const tv of localeTranslation.v) {
+                if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
+              }
+              for (const variant of detailObj.variants) {
+                const vid = String(variant.vid ?? variant.id);
+                const translated = translatedMap.get(vid);
+                if (translated) {
+                  variant.dEn = variant.dEn || variant.d || variant.description;
+                  variant.d = translated;
+                  variant.description = translated;
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[itemDetails:r2] Failed to load translation aggregate:', e);
+      }
+    }
+
+    return detailObj;
+  } catch (e) {
+    console.error('[itemDetails:r2] fetchItemDetail error:', e);
     return null;
   }
 }

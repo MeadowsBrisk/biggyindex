@@ -1,0 +1,79 @@
+/**
+ * Shared R2 read client for the Next.js frontend.
+ *
+ * Used when DATA_SOURCE=r2 to read index data, item details, and seller
+ * details from Cloudflare R2 instead of Netlify Blobs.
+ *
+ * Key layout matches the crawler's store.ts R2 layout:
+ *   markets/{code}/...  ← market-specific data
+ *   shared/...          ← shared item/seller blobs
+ */
+
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+
+const DATA_BUCKET = process.env.R2_DATA_BUCKET || 'biggyindex-data';
+
+let _client: S3Client | null = null;
+
+function getR2Client(): S3Client {
+  if (_client) return _client;
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  if (!accountId || !accessKeyId || !secretAccessKey) {
+    throw new Error('[r2Client] Missing R2 credentials (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)');
+  }
+  _client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials: { accessKeyId, secretAccessKey },
+  });
+  return _client;
+}
+
+/**
+ * Read JSON from R2. Returns null only for "key not found".
+ * Real errors propagate (no silent null like Netlify Blobs).
+ */
+export async function readR2JSON<T = any>(key: string): Promise<T | null> {
+  try {
+    const response = await getR2Client().send(new GetObjectCommand({
+      Bucket: DATA_BUCKET,
+      Key: key,
+    }));
+    const body = await response.Body?.transformToString();
+    if (!body) return null;
+    return JSON.parse(body) as T;
+  } catch (e: any) {
+    if (e?.name === 'NoSuchKey' || e?.$metadata?.httpStatusCode === 404) return null;
+    throw e; // Real errors propagate
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Whether the frontend should read from R2 instead of Netlify Blobs.
+ * Controlled by DATA_SOURCE env var: 'r2' or 'blobs' (default).
+ */
+export function useR2(): boolean {
+  return process.env.DATA_SOURCE === 'r2';
+}
+
+/**
+ * Build the R2 key for a given Netlify Blob store name + key.
+ * Mirrors the same mapping as the crawler's store.ts scopeToR2Prefix.
+ */
+export function buildR2Key(storeName: string, key: string): string {
+  // Market stores: site-index-gb → markets/gb
+  const mktMatch = storeName.match(/^site-index-(gb|de|fr|pt|it|es)$/i);
+  if (mktMatch) return `markets/${mktMatch[1].toLowerCase()}/${key}`;
+
+  // Shared store
+  if (storeName === 'site-index-shared') return `shared/${key}`;
+
+  // Fallback
+  return `${storeName}/${key}`;
+}
