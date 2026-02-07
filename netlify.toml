@@ -112,12 +112,12 @@
     "scripts/unified-crawler/**"
   ]
 
-# Daily image optimization - uploads new images to Cloudflare R2
-# Runs once daily at 5:30 AM UTC - after translate-background at 5:10 has completed
-# Uses R2 free tier (10GB storage, 10M reads/month) with budget tracking
-# Incremental by default; add ?force=1 to reprocess all images
+# Daily image cleanup/catch-up - handles stale R2 cleanup and items that
+# exceeded fast-enrich's 20-item cap. Most new images are processed inline
+# by fast-enrich during the index stage.
+# Runs once daily at 5:30 AM UTC - after translate-background at 5:10
 [functions."crawler-images-background"]
-  schedule = "35 0,8-23/3 * * *"
+  schedule = "30 5 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"

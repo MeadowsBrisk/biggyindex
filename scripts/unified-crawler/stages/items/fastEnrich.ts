@@ -121,6 +121,7 @@ export async function fastEnrich(
   let failed = 0;
   let skippedDeadline = 0;
   let imagesProcessed = 0;
+  const imageMetaUpdates: Array<{ id: string; lua: string; hashes: string[] }> = [];
 
   for (let idx = 0; idx < toProcess.length; idx++) {
     const item = toProcess[idx];
@@ -183,11 +184,19 @@ export async function fastEnrich(
         try {
           const imageUrls = collectImageUrls(item.indexEntry);
           if (imageUrls.length > 0) {
-            const processed = await processItemImages(imageUrls);
-            imagesProcessed += processed;
+            const imgResult = await processItemImages(imageUrls);
+            imagesProcessed += imgResult.processed;
+            // Track hashes for image-meta aggregate update
+            if (imgResult.hashes.length > 0) {
+              imageMetaUpdates.push({
+                id: item.id,
+                lua: item.indexEntry?.lua || new Date().toISOString(),
+                hashes: imgResult.hashes,
+              });
+            }
           }
         } catch (imgErr: any) {
-          // Non-fatal — images will be picked up by the 3x daily images stage
+          // Non-fatal — images will be picked up by the daily images stage
           log.index.debug('fast-enrich images failed', {
             id: item.id,
             error: imgErr?.message || String(imgErr),
@@ -212,6 +221,25 @@ export async function fastEnrich(
         reason: item.reason,
         error: err?.message || String(err),
         ms,
+      });
+    }
+  }
+
+  // Flush image-meta aggregate if we processed any images
+  if (imageMetaUpdates.length > 0) {
+    try {
+      const { getBlobClient } = await import('../../shared/persistence/blobs');
+      const { loadImageMeta, saveImageMeta, updateItemImageMeta } = await import('../images/imageMeta');
+      const sharedBlob = getBlobClient(opts.stores.shared);
+      let meta = await loadImageMeta(sharedBlob);
+      for (const upd of imageMetaUpdates) {
+        meta = updateItemImageMeta(meta, upd.id, upd.lua, upd.hashes);
+      }
+      await saveImageMeta(sharedBlob, meta);
+      log.index.info('fast-enrich image-meta updated', { items: imageMetaUpdates.length });
+    } catch (metaErr: any) {
+      log.index.warn('fast-enrich image-meta save failed', {
+        error: metaErr?.message || String(metaErr),
       });
     }
   }
@@ -255,26 +283,28 @@ function collectImageUrls(indexEntry: any): string[] {
 
 /**
  * Process images for a single item via R2 (Sharp → AVIF).
- * Returns number of images actually processed (not cached).
+ * Returns count of newly processed images + all hashes (for image-meta tracking).
  */
-async function processItemImages(urls: string[]): Promise<number> {
+async function processItemImages(urls: string[]): Promise<{ processed: number; hashes: string[] }> {
   // Lazy-load the optimizer to avoid Sharp import cost when not needed
   const { createR2Client, processImage } = await import('../images/optimizer');
   const r2Client = createR2Client();
 
   let processed = 0;
+  const hashes: string[] = [];
   for (const url of urls) {
     try {
       const result = await processImage(r2Client, url, { force: false });
       if (result.error) {
         log.index.debug('image processing failed', { url: url.slice(0, 80), error: result.error });
-      } else if (!result.cached) {
-        processed++;
+      } else {
+        hashes.push(result.hash);
+        if (!result.cached) processed++;
       }
     } catch (err: any) {
       log.index.debug('image processing error', { url: url.slice(0, 80), error: err?.message || String(err) });
     }
   }
 
-  return processed;
+  return { processed, hashes };
 }
