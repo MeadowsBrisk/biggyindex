@@ -11,14 +11,14 @@ import {
   categoryAtom,
   ppgExpandedAtom,
 } from "@/store/atoms";
-import { getWeightsForCategory, getWeightLabel, type WeightBreakpoint, type WeightPricingFile } from "@/types/pricing";
+import { getWeightsForCategory, getWeightLabel, WEIGHT_BREAKPOINTS, type WeightBreakpoint, type WeightPricingFile } from "@/types/pricing";
 import cn from "@/lib/core/cn";
 import { useRouter } from "next/router";
 import { getMarketFromPath } from "@/lib/market/market";
 import { useTranslations } from "next-intl";
 
 /**
- * PpgSortButton - Just the £/g toggle button (header placement)
+ * PpgSortButton - Just the currency/g toggle button (header placement)
  */
 export function PpgSortButton() {
   const t = useTranslations("Sort");
@@ -71,7 +71,7 @@ export function PpgSortButton() {
       )}
       title={isActive ? t("budget.activeTitle", { weight: selectedWeight }) : t("budget.toggleTitle")}
     >
-      <span className="font-semibold">£/g</span>
+      <span className="font-semibold">{t("budget.buttonLabel")}</span>
       {isActive && (
         <span className="bg-white/20 px-1.5 py-0.5 rounded text-[11px]">{getWeightLabel(selectedWeight, category)}</span>
       )}
@@ -142,6 +142,60 @@ export function PpgWeightPills() {
       return null;
     }
   }, [market]);
+
+  // ── URL param sync ──────────────────────────────────────────────────
+  const ppgHydrated = React.useRef(false);
+
+  // Hydrate PPG from URL on mount (e.g. shared link ?ppg=7)
+  useEffect(() => {
+    if (!router.isReady || ppgHydrated.current) return;
+    ppgHydrated.current = true;
+
+    const urlPpg = typeof router.query.ppg === 'string' ? router.query.ppg : null;
+    if (!urlPpg) return;
+
+    const parsed = parseFloat(urlPpg);
+    if (Number.isNaN(parsed)) return;
+    // Validate it's a real weight breakpoint
+    const validWeight = (WEIGHT_BREAKPOINTS as readonly number[]).includes(parsed) ? parsed as WeightBreakpoint : null;
+    if (!validWeight || validWeight === selectedWeight) return;
+
+    // Trigger the same flow as clicking a pill (fetch data then set atoms)
+    (async () => {
+      const data = await fetchPpgData(validWeight);
+      if (data) {
+        // Save current sort state before switching
+        if (selectedWeight === null) {
+          setPrePpgSortState({ key: sortKey, dir: sortDir });
+        }
+        setSelectedWeight(validWeight);
+        setSortKey('price');
+        setSortDir('asc');
+        setPpgData(validWeight, data);
+        setIsExpanded(true);
+      }
+    })();
+  // Only run on mount / router ready — intentionally exclude reactive deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady]);
+
+  // Sync selectedWeight → URL (shallow, no scroll)
+  useEffect(() => {
+    if (!router.isReady || !ppgHydrated.current) return;
+
+    const currentPpg = typeof router.query.ppg === 'string' ? router.query.ppg : null;
+    const targetPpg = selectedWeight !== null ? String(selectedWeight) : null;
+
+    if (targetPpg !== currentPpg) {
+      const newQuery: any = { ...router.query };
+      if (targetPpg) {
+        newQuery.ppg = targetPpg;
+      } else {
+        delete newQuery.ppg;
+      }
+      router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true, scroll: false });
+    }
+  }, [selectedWeight, router]);
 
   const handleSelectWeight = useCallback(async (weight: WeightBreakpoint) => {
     if (weight === selectedWeight) {

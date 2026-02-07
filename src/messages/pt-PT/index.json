@@ -156,6 +156,7 @@
     },
     "budget": {
       "label": "Ordenar por €/g:",
+      "buttonLabel": "€/g",
       "clear": "Limpar",
       "pillTitle": "Ordenar por preço por grama para variantes de {weight}g",
       "toggleTitle": "Ordenar por preço por grama",

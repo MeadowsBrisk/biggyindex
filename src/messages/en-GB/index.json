@@ -155,6 +155,7 @@
     },
     "budget": {
       "label": "Sort by £/g:",
+      "buttonLabel": "£/g",
       "clear": "Clear",
       "pillTitle": "Sort by price per gram for {weight}g variants",
       "toggleTitle": "Sort by price per gram",
