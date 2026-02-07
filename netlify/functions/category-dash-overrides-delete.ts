@@ -9,6 +9,7 @@ import type { Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
 import { isAuthenticated, unauthorizedResponse } from '../lib/auth';
 import { OVERRIDES_KEY, type OverridesData, createEmptyOverridesData } from '../lib/categoryOverrides';
+import { syncToR2 } from '../lib/r2Sync';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {
@@ -85,6 +86,9 @@ export default async (request: Request, context: Context) => {
     // Update timestamp and save
     data.updatedAt = new Date().toISOString();
     await store.setJSON(OVERRIDES_KEY, data);
+
+    // Sync to R2 (non-blocking, won't throw)
+    await syncToR2('site-index-shared', OVERRIDES_KEY, data);
 
     return new Response(
       JSON.stringify({ success: true, id }),

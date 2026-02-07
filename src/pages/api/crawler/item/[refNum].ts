@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
 import { MARKETS, type Market } from '@/lib/market/market';
+import { useR2, readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 export const config = { runtime: 'nodejs' };
 
@@ -46,10 +47,76 @@ async function getStoreSafe(name: string): Promise<Store> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// R2 path — reads item core + market shipping from R2
+// ---------------------------------------------------------------------------
+
+async function handleR2(req: NextApiRequest, res: NextApiResponse, refNum: string): Promise<boolean> {
+  if (!useR2()) return false;
+
+  const storeName = process.env.SHARED_STORE_NAME || 'site-index-shared';
+  const key = `items/${encodeURIComponent(String(refNum))}.json`;
+  const r2Key = buildR2Key(storeName, key);
+
+  const detailObj = await readR2JSON<any>(r2Key);
+  if (!detailObj) return false;
+
+  // Merge market shipping
+  const mkt = normalizeMarket((req.query as any).mkt);
+  const marketName = marketStoreName(mkt);
+
+  const candidateShipKeys: string[] = [];
+  candidateShipKeys.push(`market-shipping/${encodeURIComponent(String(refNum))}.json`);
+  const possibleId = detailObj.id || detailObj.ref || detailObj.refNum;
+  if (possibleId && possibleId !== refNum) {
+    candidateShipKeys.push(`market-shipping/${encodeURIComponent(String(possibleId))}.json`);
+  }
+
+  for (const shipKey of candidateShipKeys) {
+    try {
+      const ship = await readR2JSON<any>(buildR2Key(marketName, shipKey));
+      if (ship && Array.isArray(ship.options)) {
+        const shippingOptions = (ship.translations?.shippingOptions && Array.isArray(ship.translations.shippingOptions))
+          ? ship.translations.shippingOptions
+          : ship.options;
+        detailObj.shipping = { ...(detailObj.shipping || {}), options: shippingOptions };
+        detailObj.shippingOptionsEn = ship.options;
+        if (ship.translations?.description) {
+          detailObj.descriptionTranslated = ship.translations.description;
+        }
+        detailObj._shipSeo = {
+          n: ship.n, sn: ship.sn, sid: ship.sid,
+          i: ship.i, is: ship.is, c: ship.c, sc: ship.sc,
+        };
+        break;
+      }
+    } catch {}
+  }
+
+  const body = JSON.stringify(detailObj);
+  const etag = 'W/"' + crypto.createHash('sha1').update(body).digest('hex').slice(0, 32) + '"';
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+  res.setHeader('ETag', etag);
+  res.setHeader('X-Crawler-Storage', 'r2');
+  if ((req.headers['if-none-match'] as any) === etag) { res.status(304).end(); return true; }
+  res.status(200).send(body);
+  return true;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const refNum = (req.query as any).refNum;
   try { res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive'); } catch { }
   if (!refNum || Array.isArray(refNum)) { res.status(400).json({ error: 'invalid refNum' }); return; }
+
+  // R2 path
+  try {
+    if (await handleR2(req, res, refNum)) return;
+  } catch (e: any) {
+    console.warn('[detail-api] R2 read error, falling back to blobs:', e?.message);
+  }
+
+  // Blobs fallback path
   const storeName = process.env.SHARED_STORE_NAME || 'site-index-shared';
   const candidateKeys = [`items/${encodeURIComponent(String(refNum))}.json`];
   let authMode: 'explicit' | 'implicit' | 'none' = 'none';

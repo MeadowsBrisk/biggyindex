@@ -74,8 +74,16 @@ async function getStoreForName(name?: string): Promise<StoreClient | null> {
   }
 }
 
+let _loggedDataSource = false;
+
 async function readBlobJSON<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
   const storeName = store || storeNameForMarket(market);
+
+  // One-time log to confirm which data source is active
+  if (!_loggedDataSource) {
+    _loggedDataSource = true;
+    console.log(`[indexData] Data source: ${useR2() ? 'R2' : 'Netlify Blobs'}`);
+  }
   
   // Check memory cache if enabled (works for both R2 and Blobs paths)
   if (useCache) {

@@ -18,6 +18,7 @@ import {
   updateOverrideEntry,
   createEmptyOverridesData,
 } from '../lib/categoryOverrides';
+import { syncToR2 } from '../lib/r2Sync';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {
@@ -141,6 +142,9 @@ export default async (request: Request, context: Context) => {
 
       // Save to blob
       await store.setJSON(OVERRIDES_KEY, data);
+
+      // Sync to R2 (non-blocking, won't throw)
+      await syncToR2('site-index-shared', OVERRIDES_KEY, data);
 
       return new Response(
         JSON.stringify({ success: true, override }),

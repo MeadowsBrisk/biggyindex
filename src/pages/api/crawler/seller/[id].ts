@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { useR2, readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 export const config = { runtime: 'nodejs' };
 
@@ -14,7 +15,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   pushKey(`sellers/${id}.json`);
   pushKey(`sellers/${encodeURIComponent(id)}.json`);
   pushKey(legacyPrefix + encodeURIComponent(id) + '.json');
-  let storage: 'blob' | 'fs' | 'miss' = 'miss';
+  let storage: 'r2' | 'blob' | 'fs' | 'miss' = 'miss';
+
+  // R2 path
+  if (useR2()) {
+    try {
+      for (const key of candidateKeys) {
+        const data = await readR2JSON(buildR2Key(storeName, key));
+        if (data) {
+          storage = 'r2';
+          try { res.setHeader('X-Crawler-Storage', storage); } catch {}
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+          res.status(200).json(data);
+          return;
+        }
+      }
+    } catch (e: any) {
+      console.warn('[seller-api] R2 read error, falling back to blobs:', e?.message);
+    }
+  }
+
+  // Blobs path
   try {
     const mod: any = await import('@netlify/blobs').catch(()=>null);
     if (mod && mod.getStore) {
