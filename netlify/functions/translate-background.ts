@@ -9,13 +9,12 @@ import { runTranslate } from "../../scripts/unified-crawler/stages/translate/run
 import { checkBudget, MONTHLY_CHAR_BUDGET } from "../../scripts/unified-crawler/stages/translate/budget";
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
 
-const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
+import { since } from "../../scripts/unified-crawler/shared/timing";
+import { createFnLogger } from "../../scripts/unified-crawler/shared/fnLogger";
 
 export const handler: Handler = async (event) => {
     const started = Date.now();
-    const log = (m: string) => console.log(`[translate-background] ${m}`);
-    const warn = (m: string) => console.warn(`[translate-background] ${m}`);
-    const errlog = (m: string) => console.error(`[translate-background] ${m}`);
+    const { log, warn, error: errlog } = createFnLogger('translate-background');
 
     try {
         log("start");

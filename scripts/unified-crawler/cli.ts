@@ -128,6 +128,11 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     describe: 'Clear all images from R2 before processing (use when changing sizes)'
   })
+  .option('skip-enrich', {
+    type: 'boolean',
+    default: false,
+    describe: 'Skip fast-enrich after indexing (index stage only)'
+  })
   .help()
   .strict()
   .parseSync();
@@ -146,7 +151,7 @@ async function main() {
 
   const stage = argv.stage as 'index' | 'items' | 'sellers' | 'pruning' | 'translate' | 'images' | 'all' | 'cat-tests';
   const started = Date.now();
-  const since = (t: number) => Math.round((Date.now() - t) / 1000);
+  const { since } = await import('./shared/timing');
 
   log.cli.info(`start`, { stage, markets: markets.join(','), persist: process.env.CRAWLER_PERSIST || 'auto' });
 
@@ -171,6 +176,110 @@ async function main() {
       const tRevalidate = Date.now();
       await tryRevalidateMarkets(markets);
       log.index.info(`revalidation complete`, { secs: since(tRevalidate) });
+
+      // -----------------------------------------------------------------------
+      // Fast-enrich: detect new/changed items and enrich inline
+      // -----------------------------------------------------------------------
+      if (!argv['skip-enrich'] && total > 0) {
+        const tEnrich = Date.now();
+        try {
+          const indexDiffMod = await import('./shared/logic/indexDiff');
+          const { computeIndexDiff, mergeMarketDiffs } = indexDiffMod;
+          const sharedBlob = getBlobClient(env.stores.shared);
+          const SNAPSHOT_KEY = 'aggregates/index-snapshot.json';
+
+          // Load previous snapshots
+          let allSnapshots: Record<string, Record<string, { lua: string; sig: string }>> = {};
+          try {
+            const stored = await sharedBlob.getJSON<typeof allSnapshots>(SNAPSHOT_KEY);
+            if (stored && typeof stored === 'object') allSnapshots = stored;
+          } catch {}
+
+          // Compute per-market diffs
+          const diffs: Array<ReturnType<typeof computeIndexDiff>> = [];
+          const newSnapshots: Record<string, Record<string, { lua: string; sig: string }>> = {};
+
+          for (const m of markets) {
+            try {
+              const storeName = marketStore(m, env.stores);
+              const mktBlob = getBlobClient(storeName);
+              const currentIndex = await mktBlob.getJSON<any[]>(Keys.market.index(m));
+              if (!Array.isArray(currentIndex) || currentIndex.length === 0) continue;
+
+              const prevSnap = allSnapshots[m] || {};
+              const diff = computeIndexDiff(currentIndex, prevSnap, m);
+              diffs.push(diff);
+              newSnapshots[m] = diff.snapshot;
+
+              if (diff.newItems.length > 0 || diff.changedItems.length > 0) {
+                log.index.info(`diff`, { market: m, new: diff.newItems.length, changed: diff.changedItems.length, removed: diff.removedIds.length });
+              }
+            } catch (e: any) {
+              log.index.warn(`diff error`, { market: m, reason: e?.message || String(e) });
+              if (allSnapshots[m]) newSnapshots[m] = allSnapshots[m];
+            }
+          }
+
+          // Merge diffs across markets
+          const merged = mergeMarketDiffs(diffs);
+          const toEnrich = [...merged.newItems, ...merged.changedItems];
+          log.index.info(`diff merged`, { new: merged.newItems.length, changed: merged.changedItems.length, toEnrich: toEnrich.length });
+
+          // Fast-enrich new/changed items
+          if (toEnrich.length > 0) {
+            const { fastEnrich } = await import('./stages/items/fastEnrich');
+            const { writeItemAggregates } = await import('./stages/items/aggregates');
+
+            // CLI has no hard deadline — use a generous 30 min default
+            const deadlineMs = Date.now() + (30 * 60 * 1000);
+            // Respect --limit for fast-enrich too
+            const maxItems = typeof argv.limit === 'number' && argv.limit > 0 ? argv.limit : undefined;
+
+            const enrichRes = await fastEnrich(toEnrich, {
+              markets,
+              stores: env.stores as any,
+              deadlineMs,
+              processImages: true,
+              maxItems,
+            });
+
+            log.index.info(`fast-enrich done`, {
+              enriched: enrichRes.enriched,
+              failed: enrichRes.failed,
+              skipped: enrichRes.skippedDeadline,
+              images: enrichRes.imagesProcessed,
+              secs: since(tEnrich),
+            });
+
+            // Write aggregate updates
+            if (enrichRes.enriched > 0) {
+              try {
+                await writeItemAggregates(
+                  enrichRes.aggregateUpdates,
+                  env.stores as any,
+                  (msg) => log.index.info(msg),
+                );
+              } catch (e: any) {
+                log.index.warn(`aggregates write failed`, { reason: e?.message || String(e) });
+              }
+            }
+          }
+
+          // Save updated snapshots (always — tracks removals too)
+          try {
+            await sharedBlob.putJSON(SNAPSHOT_KEY, newSnapshots);
+            log.index.info(`snapshot saved`, { markets: Object.keys(newSnapshots).length });
+          } catch (e: any) {
+            log.index.warn(`snapshot save failed`, { reason: e?.message || String(e) });
+          }
+
+        } catch (e: any) {
+          // Fast-enrich failures never break the CLI index stage
+          log.index.warn(`fast-enrich phase error`, { reason: e?.message || String(e) });
+        }
+      } else if (argv['skip-enrich']) {
+        log.index.info(`fast-enrich skipped (--skip-enrich)`);
+      }
     }
 
     if (stage === 'cat-tests') {
@@ -191,62 +300,21 @@ async function main() {
       const forceAll = !!argv.force || /^(1|true|yes|on)$/i.test(String(process.env.CRAWLER_FORCE || ''));
       const explicitLimit = (typeof argv.limit === 'number' && argv.limit > 0) ? argv.limit : undefined;
 
-      // Determine staleness threshold for full refresh (default: 80 days from env)
-      const fullRefreshDays = Number.parseInt(process.env.CRAWLER_FULL_REFRESH_DAYS || '80', 10);
-      const fullRefreshMs = fullRefreshDays * 24 * 60 * 60 * 1000;
-      const cutoffTime = Date.now() - fullRefreshMs;
-
-      // Plan modes: full for new/stale/changed, reviews-only for the rest (every run) unless --force
-      let planned: Array<{ id: string; markets: MarketCode[]; mode: 'full' | 'reviews-only'; lua?: string }> = [];
-      if (forceAll) {
-        // --force flag: everything gets full mode
-        planned = work.uniqueIds.map(id => ({ id, markets: Array.from(work.presenceMap.get(id) || []) as MarketCode[], mode: 'full', lua: work.idLua.get(id) || undefined }));
-      } else {
-        // Use shipping-meta aggregate to check lastRefresh (one file load instead of 943!)
-        const sharedBlob = getBlobClient(env.stores.shared);
-        const shippingMeta = await sharedBlob.getJSON<any>(Keys.shared.aggregates.shippingMeta()).catch(() => ({}));
-
-        // Determine mode for each item
-        let indexChangedCount = 0;
-        let noFullCrawlCount = 0;
-        for (const id of work.uniqueIds) {
-          const marketsFor = Array.from(work.presenceMap.get(id) || []) as MarketCode[];
-          const indexLua = work.idLua.get(id);
-          const metaEntry = shippingMeta[id];
-
-          let mode: 'full' | 'reviews-only' = 'reviews-only';
-
-          // Full mode if: new item, never had full crawl, or stale (older than CRAWLER_FULL_REFRESH_DAYS)
-          if (!metaEntry || !metaEntry.lastRefresh) {
-            mode = 'full'; // New item (never crawled)
-          } else if (!metaEntry.lastFullCrawl) {
-            // CRITICAL: Item was crawled (has lastRefresh) but never had a full crawl
-            // This happens when a prior run got reviews but failed to get description
-            // Without this check, such items get stuck in reviews-only forever
-            mode = 'full';
-            noFullCrawlCount++;
-          } else {
-            const lastFullCrawlTime = new Date(metaEntry.lastFullCrawl).getTime();
-            if (lastFullCrawlTime < cutoffTime) {
-              mode = 'full'; // Stale (lastFullCrawl older than CRAWLER_FULL_REFRESH_DAYS)
-            } else if (indexLua) {
-              // Compare index lua to stored lastIndexedLua (legacy pattern: item.lastUpdatedAt vs rec.lastIndexedUpdatedAt)
-              const lastIndexedLua = metaEntry.lastIndexedLua;
-              if (!lastIndexedLua || new Date(indexLua) > new Date(lastIndexedLua)) {
-                mode = 'full'; // Index changed since last full crawl
-                indexChangedCount++;
-              }
-            }
-          }
-
-          planned.push({ id, markets: marketsFor, mode, lua: indexLua });
-        }
-        if (indexChangedCount > 0) {
-          log.items.info(`index changes detected`, { count: indexChangedCount });
-        }
-        if (noFullCrawlCount > 0) {
-          log.items.info(`items missing lastFullCrawl (will get full crawl)`, { count: noFullCrawlCount });
-        }
+      // Plan modes via shared logic (full for new/stale/changed, reviews-only otherwise)
+      const { planItemModes } = await import('./stages/items/planModes');
+      const { planned: rawPlanned, indexChangedCount, noFullCrawlCount } = await planItemModes({
+        uniqueIds: work.uniqueIds,
+        presenceMap: work.presenceMap,
+        idLua: work.idLua,
+        sharedStoreName: env.stores.shared,
+        forceAll,
+      });
+      let planned = rawPlanned;
+      if (indexChangedCount > 0) {
+        log.items.info(`index changes detected`, { count: indexChangedCount });
+      }
+      if (noFullCrawlCount > 0) {
+        log.items.info(`items missing lastFullCrawl (will get full crawl)`, { count: noFullCrawlCount });
       }
 
       // Apply --ids filter if specified
@@ -332,68 +400,12 @@ async function main() {
 
       // Merge-write aggregates (shares + shipping summaries) to live Blobs
       try {
-        // Shared shares aggregate
-        const sharedBlob = getBlobClient(env.stores.shared);
-        const sharesKey = Keys.shared.aggregates.shares();
-        const existingShares = ((await sharedBlob.getJSON<any>(sharesKey)) || {}) as Record<string, string>;
-        let sharesChanged = false;
-        for (const [id, link] of Object.entries(shareUpdates)) {
-          if (typeof link !== 'string' || !link) continue;
-          if (existingShares[id] !== link) {
-            existingShares[id] = link;
-            sharesChanged = true;
-          }
-        }
-        if (sharesChanged) {
-          await sharedBlob.putJSON(sharesKey, existingShares);
-          log.items.info(`aggregates: wrote shares`, { updates: Object.keys(shareUpdates).length, total: Object.keys(existingShares).length });
-        } else {
-          log.items.info(`aggregates: shares unchanged`, { candidates: Object.keys(shareUpdates).length });
-        }
-
-        // Per-market shipping summary aggregates
-        for (const [mkt, updates] of Object.entries(shipUpdatesByMarket)) {
-          const storeName = marketStore(mkt as any, env.stores as any);
-          const marketBlob = getBlobClient(storeName);
-          const key = Keys.market.aggregates.shipSummary();
-          const existing = ((await marketBlob.getJSON<any>(key)) || {}) as Record<string, { min: number; max: number; free: number }>;
-          let changed = false;
-          for (const [id, summary] of Object.entries(updates)) {
-            const prev = existing[id];
-            const same = prev && prev.min === (summary as any).min && prev.max === (summary as any).max && prev.free === (summary as any).free;
-            if (!same) {
-              existing[id] = summary as any;
-              changed = true;
-            }
-          }
-          if (changed) {
-            await marketBlob.putJSON(key, existing);
-            log.items.info(`aggregates: wrote shipSummary`, { market: mkt, updates: Object.keys(updates).length, total: Object.keys(existing).length });
-          } else {
-            log.items.info(`aggregates: shipSummary unchanged`, { market: mkt, candidates: Object.keys(updates).length });
-          }
-        }
-
-        // Shipping metadata aggregate (staleness tracking)
-        if (Object.keys(shippingMetaUpdates).length > 0) {
-          const metaKey = Keys.shared.aggregates.shippingMeta();
-          const existingMeta = ((await sharedBlob.getJSON<any>(metaKey)) || {}) as Record<string, { lastRefresh: string; markets?: Record<string, string>; lastIndexedLua?: string }>;
-          let metaChanged = false;
-          for (const [id, update] of Object.entries(shippingMetaUpdates)) {
-            const prev = existingMeta[id];
-            const same = prev && prev.lastRefresh === update.lastRefresh && prev.lastIndexedLua === update.lastIndexedLua && JSON.stringify(prev.markets || {}) === JSON.stringify(update.markets || {});
-            if (!same) {
-              existingMeta[id] = update;
-              metaChanged = true;
-            }
-          }
-          if (metaChanged) {
-            await sharedBlob.putJSON(metaKey, existingMeta);
-            log.items.info(`aggregates: wrote shippingMeta`, { updates: Object.keys(shippingMetaUpdates).length, total: Object.keys(existingMeta).length });
-          } else {
-            log.items.info(`aggregates: shippingMeta unchanged`, { candidates: Object.keys(shippingMetaUpdates).length });
-          }
-        }
+        const { writeItemAggregates } = await import('./stages/items/aggregates');
+        await writeItemAggregates(
+          { shareUpdates, shipUpdatesByMarket, shippingMetaUpdates },
+          env.stores as any,
+          (msg) => log.items.info(msg),
+        );
       } catch (e: any) {
         log.items.warn(`aggregates write failed`, { reason: e?.message || String(e) });
       }

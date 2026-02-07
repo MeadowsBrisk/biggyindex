@@ -54,7 +54,9 @@ export async function login(opts: LoginOptions): Promise<LoginResult> {
           throw new Error("missing JWT_USER cookie");
         }
         // Persist cookies for reuse
-        try { await saveCookieJar(jar); } catch {}
+        try { await saveCookieJar(jar); } catch (e: any) {
+          console.warn(`[auth] cookie save failed: ${e?.message || e}`);
+        }
         return { client, jar, cookies: setCookies };
       } catch (e: any) {
         lastErr = e;

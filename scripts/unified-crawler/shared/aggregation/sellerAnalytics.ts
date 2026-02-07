@@ -20,10 +20,14 @@ export type Lifetime = {
   negativeCount: number;
   perfectScoreCount: number;
   avgRating: number | null;
+  /** Raw sum of all ratings — prevents back-calculation drift from rounded avgRating */
+  sumRatings?: number;
   oldestReviewSeen: string | null;
   newestReviewSeen: string | null;
   tenureMonths: number;
   avgDaysToArrive: number | null;
+  /** Raw sum of all daysToArrive — prevents back-calculation drift */
+  sumDaysToArrive?: number;
   reviewsWithShippingData: number;
 };
 
@@ -131,10 +135,12 @@ export function mergeAnalytics(existing: any, newStats: any, sellerMeta: SellerM
         negativeCount: newStats.negativeCount,
         perfectScoreCount: newStats.perfectScoreCount,
         avgRating: newStats.reviewCount > 0 ? Math.round((newStats.sumRatings / newStats.reviewCount) * 10) / 10 : null,
+        sumRatings: newStats.sumRatings,
         oldestReviewSeen: newStats.oldestReviewDate,
         newestReviewSeen: newStats.newestReviewDate,
         tenureMonths: calculateTenureMonths(newStats.oldestReviewDate),
         avgDaysToArrive: newStats.reviewsWithShippingData > 0 ? Math.round((newStats.sumDaysToArrive / newStats.reviewsWithShippingData) * 10) / 10 : null,
+        sumDaysToArrive: newStats.sumDaysToArrive,
         reviewsWithShippingData: newStats.reviewsWithShippingData,
       },
     };
@@ -146,8 +152,9 @@ export function mergeAnalytics(existing: any, newStats: any, sellerMeta: SellerM
   const mergedPerfectScoreCount = (existing.lifetime.perfectScoreCount || 0) + newStats.perfectScoreCount;
   const mergedReviewsWithShippingData = (existing.lifetime.reviewsWithShippingData || 0) + newStats.reviewsWithShippingData;
 
-  const existingSumRatings = existing.lifetime.avgRating != null ? existing.lifetime.avgRating * existing.lifetime.totalReviews : 0;
-  const existingSumDaysToArrive = existing.lifetime.avgDaysToArrive != null ? existing.lifetime.avgDaysToArrive * existing.lifetime.reviewsWithShippingData : 0;
+  // Use stored sumRatings/sumDaysToArrive when available; fall back to back-calculation for legacy data
+  const existingSumRatings = existing.lifetime.sumRatings ?? (existing.lifetime.avgRating != null ? existing.lifetime.avgRating * existing.lifetime.totalReviews : 0);
+  const existingSumDaysToArrive = existing.lifetime.sumDaysToArrive ?? (existing.lifetime.avgDaysToArrive != null ? existing.lifetime.avgDaysToArrive * existing.lifetime.reviewsWithShippingData : 0);
   const mergedSumRatings = existingSumRatings + newStats.sumRatings;
   const mergedSumDaysToArrive = existingSumDaysToArrive + newStats.sumDaysToArrive;
 
@@ -173,10 +180,12 @@ export function mergeAnalytics(existing: any, newStats: any, sellerMeta: SellerM
       negativeCount: mergedNegativeCount,
       perfectScoreCount: mergedPerfectScoreCount,
       avgRating: mergedTotalReviews > 0 ? Math.round((mergedSumRatings / mergedTotalReviews) * 10) / 10 : null,
+      sumRatings: mergedSumRatings,
       oldestReviewSeen,
       newestReviewSeen,
       tenureMonths: calculateTenureMonths(oldestReviewSeen),
       avgDaysToArrive: mergedReviewsWithShippingData > 0 ? Math.round((mergedSumDaysToArrive / mergedReviewsWithShippingData) * 10) / 10 : null,
+      sumDaysToArrive: mergedSumDaysToArrive,
       reviewsWithShippingData: mergedReviewsWithShippingData,
     },
   };

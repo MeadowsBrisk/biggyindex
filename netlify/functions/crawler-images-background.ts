@@ -19,8 +19,9 @@ import { loadEnv } from "../../scripts/unified-crawler/shared/env/loadEnv";
 import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 
-const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
-const log = (msg: string) => console.log(`[crawler:images] ${msg}`);
+import { since } from "../../scripts/unified-crawler/shared/timing";
+import { createFnLogger } from "../../scripts/unified-crawler/shared/fnLogger";
+const { log } = createFnLogger('crawler:images');
 
 export const handler: Handler = async (event) => {
   const started = Date.now();

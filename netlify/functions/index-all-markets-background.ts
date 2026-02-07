@@ -1,6 +1,6 @@
-// Lightweight background function that ONLY runs indexing for all markets
-// This replaces the 5 separate market indexer schedules with a single unified one
-// Does NOT run items/sellers/pruning stages - those have their own schedules
+// Unified background function: indexes all markets, then fast-enriches any
+// new/changed items (description, reviews, shipping, R2 images) within the
+// same invocation. This reduces new-item latency from hours to minutes.
 
 import type { Handler } from "@netlify/functions";
 import { loadEnv } from "../../scripts/unified-crawler/shared/env/loadEnv";
@@ -8,15 +8,17 @@ import { listMarkets, marketStore } from "../../scripts/unified-crawler/shared/e
 import { indexMarket } from "../../scripts/unified-crawler/indexer/indexMarket";
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
+import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
 import { tryRevalidateAllMarkets } from "../../scripts/unified-crawler/shared/revalidation/revalidate";
+import { computeIndexDiff, mergeMarketDiffs, type IndexSnapshot } from "../../scripts/unified-crawler/shared/logic/indexDiff";
+import type { MarketCode } from "../../scripts/unified-crawler/shared/env/loadEnv";
 
-const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
+import { since } from "../../scripts/unified-crawler/shared/timing";
+import { createFnLogger } from "../../scripts/unified-crawler/shared/fnLogger";
 
 export const handler: Handler = async (event) => {
   const started = Date.now();
-  const log = (m: string) => console.log(`[index-all-markets] ${m}`);
-  const warn = (m: string) => console.warn(`[index-all-markets] ${m}`);
-  const errlog = (m: string) => console.error(`[index-all-markets] ${m}`);
+  const { log, warn, error: errlog } = createFnLogger('index-all-markets');
 
   try {
     log("start");
@@ -63,7 +65,105 @@ export const handler: Handler = async (event) => {
     }
 
     const totalElapsed = since(started);
-    log(`done total=${totalElapsed}s totalItems=${totalIndexed}`);
+    log(`index done total=${totalElapsed}s totalItems=${totalIndexed}`);
+
+    // -----------------------------------------------------------------------
+    // Phase: Index Diff — detect new/changed items across all markets
+    // -----------------------------------------------------------------------
+    let enrichResult: any = null;
+    const skipEnrich = process.env.SKIP_FAST_ENRICH === '1' || process.env.SKIP_FAST_ENRICH === 'true';
+
+    if (!skipEnrich && totalIndexed > 0) {
+      try {
+        const sharedBlob = getBlobClient(env.stores.shared);
+        const SNAPSHOT_KEY = 'aggregates/index-snapshot.json';
+
+        // Load previous snapshot (one per market)
+        let allSnapshots: Record<string, IndexSnapshot> = {};
+        try {
+          const stored = await sharedBlob.getJSON<Record<string, IndexSnapshot>>(SNAPSHOT_KEY);
+          if (stored && typeof stored === 'object') allSnapshots = stored;
+        } catch {}
+
+        // Compute per-market diffs
+        const diffs = [];
+        const newSnapshots: Record<string, IndexSnapshot> = {};
+
+        for (const code of markets) {
+          try {
+            const storeName = marketStore(code as MarketCode, env.stores as any);
+            const mktBlob = getBlobClient(storeName);
+            const currentIndex = await mktBlob.getJSON<any[]>(Keys.market.index(code));
+            if (!Array.isArray(currentIndex) || currentIndex.length === 0) continue;
+
+            const prevSnap = allSnapshots[code] || {};
+            const diff = computeIndexDiff(currentIndex, prevSnap, code as MarketCode);
+            diffs.push(diff);
+            newSnapshots[code] = diff.snapshot;
+
+            if (diff.newItems.length > 0 || diff.changedItems.length > 0) {
+              log(`[diff:${code}] new=${diff.newItems.length} changed=${diff.changedItems.length} removed=${diff.removedIds.length}`);
+            }
+          } catch (e: any) {
+            warn(`[diff:${code}] error: ${e?.message || e}`);
+            // Preserve previous snapshot for this market on error
+            if (allSnapshots[code]) newSnapshots[code] = allSnapshots[code];
+          }
+        }
+
+        // Merge diffs across markets (deduplicates items appearing in multiple markets)
+        const merged = mergeMarketDiffs(diffs);
+        const toEnrich = [...merged.newItems, ...merged.changedItems];
+
+        log(`diff merged: new=${merged.newItems.length} changed=${merged.changedItems.length} toEnrich=${toEnrich.length}`);
+
+        // -----------------------------------------------------------------------
+        // Phase: Fast Enrich — process new/changed items inline
+        // -----------------------------------------------------------------------
+        if (toEnrich.length > 0) {
+          const { fastEnrich } = await import('../../scripts/unified-crawler/stages/items/fastEnrich');
+          const { writeItemAggregates } = await import('../../scripts/unified-crawler/stages/items/aggregates');
+
+          // Deadline: leave 2 minutes buffer for snapshot save + ISR revalidation
+          const deadlineMs = started + (13 * 60 * 1000); // 13 min of 15 min budget
+
+          enrichResult = await fastEnrich(toEnrich, {
+            markets: markets as MarketCode[],
+            stores: env.stores as any,
+            deadlineMs,
+            processImages: true,
+          });
+
+          log(`fast-enrich done: enriched=${enrichResult.enriched} failed=${enrichResult.failed} skipped=${enrichResult.skippedDeadline} images=${enrichResult.imagesProcessed} elapsed=${enrichResult.elapsedMs}ms`);
+
+          // Write aggregate updates (shares, shipping summaries, shipping metadata)
+          if (enrichResult.enriched > 0) {
+            try {
+              await writeItemAggregates(
+                enrichResult.aggregateUpdates,
+                env.stores as any,
+                log,
+              );
+            } catch (e: any) {
+              warn(`aggregates write failed: ${e?.message || e}`);
+            }
+          }
+        }
+
+        // Save updated snapshots (always, even if no enrichment — tracks removals)
+        try {
+          await sharedBlob.putJSON(SNAPSHOT_KEY, newSnapshots);
+        } catch (e: any) {
+          warn(`snapshot save failed: ${e?.message || e}`);
+        }
+
+      } catch (e: any) {
+        // Fast-enrich failures must NEVER break the index function
+        warn(`fast-enrich phase error (non-fatal): ${e?.message || e}`);
+      }
+    } else if (skipEnrich) {
+      log('fast-enrich skipped (SKIP_FAST_ENRICH=1)');
+    }
 
     // Trigger on-demand ISR revalidation for all markets after successful indexing
     log("triggering ISR revalidation for all markets");
@@ -76,8 +176,14 @@ export const handler: Handler = async (event) => {
       body: JSON.stringify({ 
         ok: true, 
         totalItems: totalIndexed,
-        elapsed: totalElapsed,
-        markets: results 
+        elapsed: since(started),
+        markets: results,
+        enriched: enrichResult ? {
+          new: enrichResult.enriched,
+          failed: enrichResult.failed,
+          skipped: enrichResult.skippedDeadline,
+          images: enrichResult.imagesProcessed,
+        } : null
       }),
     } as any;
   } catch (e: any) {

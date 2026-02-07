@@ -8,12 +8,12 @@ import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 import { marketStore } from "../../scripts/unified-crawler/shared/env/markets";
 
-const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
+import { since } from "../../scripts/unified-crawler/shared/timing";
+import { createFnLogger } from "../../scripts/unified-crawler/shared/fnLogger";
 
 export const handler: Handler = async (event) => {
   const started = Date.now();
-  const log = (m: string) => console.log(`[crawler:sellers] ${m}`);
-  const err = (m: string) => console.error(`[crawler:sellers] ${m}`);
+  const { log, error: err } = createFnLogger('crawler:sellers');
 
   try {
     // Guard: allow disabling via env; override with ?force=1

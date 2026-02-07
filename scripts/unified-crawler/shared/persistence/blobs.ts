@@ -65,6 +65,7 @@ export function getBlobClient(storeName: string): BlobClient {
             try {
               return JSON.parse(String(str)) as T;
             } catch {
+              console.warn(`[blobs] corrupt JSON for key=${key} in store=${storeName} (${String(str).slice(0, 100)}...)`);
               return null;
             }
           } catch (e: any) {
@@ -84,6 +85,8 @@ export function getBlobClient(storeName: string): BlobClient {
               await new Promise((r) => setTimeout(r, delay));
               continue;
             }
+            // Non-retriable or exhausted retries — log before returning null
+            console.warn(`[blobs] getJSON failed for key=${key} store=${storeName} after ${attempt} attempts: ${msg.slice(0, 150)}`);
             return null; // non-retriable or exhausted
           }
         }
@@ -126,17 +129,48 @@ export function getBlobClient(storeName: string): BlobClient {
         }
       },
       async list(prefix?: string): Promise<string[]> {
-        const store = await getStore();
-        // @ts-ignore
-        const res = await store.list({ prefix });
-        // @ts-ignore
-        const blobs = Array.isArray(res?.blobs) ? res.blobs : [];
-        return blobs.map((b: any) => b.key).filter(Boolean);
+        const maxAttempts = 3;
+        const baseDelay = 200;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            const store = await getStore();
+            // @ts-ignore
+            const res = await store.list({ prefix });
+            // @ts-ignore
+            const blobs = Array.isArray(res?.blobs) ? res.blobs : [];
+            return blobs.map((b: any) => b.key).filter(Boolean);
+          } catch (e: any) {
+            if (attempt < maxAttempts) {
+              const delay = baseDelay * Math.pow(2, attempt - 1);
+              console.warn(`[blobs] list retry ${attempt}/${maxAttempts} prefix=${prefix || '*'} err=${(e?.message || '').slice(0, 100)}`);
+              await new Promise((r) => setTimeout(r, delay));
+              continue;
+            }
+            console.warn(`[blobs] list failed after ${maxAttempts} attempts prefix=${prefix || '*'}: ${(e?.message || '').slice(0, 150)}`);
+            return [];
+          }
+        }
+        return [];
       },
       async del(key: string): Promise<void> {
-        const store = await getStore();
-        // @ts-ignore
-        await store.delete(key);
+        const maxAttempts = 3;
+        const baseDelay = 200;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            const store = await getStore();
+            // @ts-ignore
+            await store.delete(key);
+            return;
+          } catch (e: any) {
+            if (attempt < maxAttempts) {
+              const delay = baseDelay * Math.pow(2, attempt - 1);
+              console.warn(`[blobs] del retry ${attempt}/${maxAttempts} key=${key} err=${(e?.message || '').slice(0, 100)}`);
+              await new Promise((r) => setTimeout(r, delay));
+              continue;
+            }
+            console.warn(`[blobs] del failed after ${maxAttempts} attempts key=${key}: ${(e?.message || '').slice(0, 150)}`);
+          }
+        }
       },
     };
   }

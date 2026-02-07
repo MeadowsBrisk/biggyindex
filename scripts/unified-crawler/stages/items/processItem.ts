@@ -12,6 +12,7 @@ import { fetchItemShareLink } from "./share";
 import { loadShippingMeta, isShippingStale, updateShippingMeta, saveShippingMeta, type ShippingMetaAggregate } from "./shippingMeta";
 import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
 import { log } from "../../shared/logging/logger";
+import { applySeoFields } from "./seoFields";
 
 export interface ProcessItemResult {
   ok: boolean;
@@ -65,6 +66,7 @@ export async function processSingleItem(
     let descriptionWritten = false;
     let shippingWritten = 0;
     const shipSummaryByMarket: Record<string, { min: number; max: number; free: number }> = {};
+    let pendingShippingMetaUpdate: any = null;
     let shareWritten = false;
 
     // Fetch description and reviews (parallel when full mode)
@@ -344,16 +346,7 @@ export async function processSingleItem(
                 lastShippingRefresh: new Date().toISOString(),
               };
               // BUG-002: Add SEO fields for unavailable item fallback (translated for non-GB)
-              if (ie) {
-                if (ie.n) payload.n = ie.n;           // name (translated for this market)
-                if (ie.sn) payload.sn = ie.sn;        // sellerName  
-                if (ie.sid != null) payload.sid = ie.sid;  // sellerId
-                if (ie.i) payload.i = ie.i;           // primary image
-                if (Array.isArray(ie.is) && ie.is.length) payload.is = ie.is;  // image array
-                if (ie.c) payload.c = ie.c;           // category
-                if (Array.isArray(ie.sc)) payload.sc = ie.sc;  // subcategories
-                // Note: locale-independent fields (v, uMin, uMax, fsa, etc.) live in shared blob
-              }
+              applySeoFields(payload, ie);
               await blob.putJSON(shipKey, payload);
               shippingWritten++;
               marketsRefreshed.push(mkt);
@@ -388,7 +381,7 @@ export async function processSingleItem(
             if (descriptionWritten) {
               (entry as any).lastFullCrawl = new Date().toISOString();
             }
-            shipSummaryByMarket['__shippingMetaUpdate'] = entry as any; // temporary holder
+            pendingShippingMetaUpdate = entry; // stored in separate variable (not in shipSummaryByMarket)
           }
         }
       }
@@ -401,9 +394,8 @@ export async function processSingleItem(
       }
     }
 
-    // Extract shippingMetaUpdate from temporary holder (set in both full and reviews-only modes)
-    let shippingMetaUpdate = shipSummaryByMarket['__shippingMetaUpdate'] as any;
-    delete shipSummaryByMarket['__shippingMetaUpdate'];
+    // Extract shippingMetaUpdate (set in both full and reviews-only modes)
+    let shippingMetaUpdate = pendingShippingMetaUpdate;
 
     // For full mode: ensure lastFullCrawl AND lastIndexedLua are set when description was written
     // This is critical for mode detection on future runs - without it, items get stuck in reviews-only

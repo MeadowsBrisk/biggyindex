@@ -29,7 +29,9 @@ export async function loadSellerReviewCache(): Promise<SellerReviewCacheMap> {
 export async function saveSellerReviewCache(cache: SellerReviewCacheMap): Promise<void> {
   const env = loadEnv();
   const blob = getBlobClient(env.stores.shared);
-  try { await blob.putJSON(Keys.shared.sellerReviewsCache(), cache); } catch {}
+  try { await blob.putJSON(Keys.shared.sellerReviewsCache(), cache); } catch (e: any) {
+    console.warn(`[reviewCache] save failed: ${e?.message || e}`);
+  }
 }
 
 export function shouldSkipSellerReviews(cache: SellerReviewCacheMap, sellerId: string, newestCandidateCreated?: number): boolean {

@@ -6,18 +6,24 @@ import type { NextApiRequest, NextApiResponse } from 'next';
  * Allows the unified crawler to trigger immediate page rebuilds after updating blobs,
  * rather than waiting for the ISR timer (revalidate: 1000 = ~16 minutes).
  * 
- * Security: Protected by REVALIDATE_SECRET_TOKEN environment variable.
+ * Security: Protected by REVALIDATE_SECRET_TOKEN via Authorization header.
  * 
  * Usage:
- *   POST /api/revalidate?secret=YOUR_SECRET&path=/
- *   POST /api/revalidate?secret=YOUR_SECRET&path=/de
+ *   POST /api/revalidate?path=/
+ *   Authorization: Bearer YOUR_SECRET
  * 
  * Called by:
  *   - netlify/functions/crawler-index-*.ts (per-market indexers)
- *   - netlify/functions/crawler-all-markets-background.ts (orchestrator)
+ *   - scripts/unified-crawler (CLI)
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { secret, path = '/' } = req.query;
+  const { path = '/' } = req.query;
+
+  // Read secret from Authorization header (preferred) or query param (legacy fallback)
+  const authHeader = req.headers.authorization;
+  const secret = authHeader?.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : req.query.secret;
 
   // Validate secret token
   const expectedSecret = process.env.REVALIDATE_SECRET_TOKEN;

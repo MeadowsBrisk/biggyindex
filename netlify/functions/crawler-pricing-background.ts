@@ -5,15 +5,14 @@
 import type { Handler } from "@netlify/functions";
 import { loadEnv } from "../../scripts/unified-crawler/shared/env/loadEnv";
 import { listMarkets } from "../../scripts/unified-crawler/shared/env/markets";
-import { processPricingForMarket } from "../../scripts/unified-crawler/stages/pricing/run";
+import { runPricing } from "../../scripts/unified-crawler/stages/pricing/run";
 
-const since = (t0: number) => Math.round((Date.now() - t0) / 1000);
+import { since } from "../../scripts/unified-crawler/shared/timing";
+import { createFnLogger } from "../../scripts/unified-crawler/shared/fnLogger";
 
 export const handler: Handler = async (event) => {
   const started = Date.now();
-  const log = (m: string) => console.log(`[crawler:pricing] ${m}`);
-  const warn = (m: string) => console.warn(`[crawler:pricing] ${m}`);
-  const err = (m: string) => console.error(`[crawler:pricing] ${m}`);
+  const { log, error: err } = createFnLogger('crawler:pricing');
 
   try {
     // Safety defaults for Netlify env
@@ -24,30 +23,14 @@ export const handler: Handler = async (event) => {
 
     log(`start markets=${markets.join(',')}`);
 
-    const results: Record<string, { itemCount: number; weightCounts: Record<number, number> }> = {};
-
-    // Process each market
-    for (const market of markets) {
-      try {
-        log(`processing ${market}`);
-        const result = await processPricingForMarket(market as any);
-        results[market] = result;
-        log(`completed ${market}: ${result.itemCount} items, weights=${JSON.stringify(result.weightCounts)}`);
-      } catch (e) {
-        err(`failed ${market}: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    }
+    await runPricing(markets as any);
 
     const elapsed = since(started);
     log(`done in ${elapsed}s`);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        ok: true,
-        elapsed,
-        results,
-      }),
+      body: JSON.stringify({ ok: true, elapsed }),
     };
   } catch (e) {
     err(`fatal: ${e instanceof Error ? e.message : String(e)}`);

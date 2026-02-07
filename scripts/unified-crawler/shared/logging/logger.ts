@@ -18,7 +18,9 @@ const LEVEL_PRIORITY: Record<LogLevel, number> = {
   error: 3,
 };
 
-const currentLevel: LogLevel = (process.env.LOG_LEVEL as LogLevel) || "info";
+const VALID_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error'];
+const rawLevel = (process.env.LOG_LEVEL || 'info').toLowerCase();
+const currentLevel: LogLevel = VALID_LEVELS.includes(rawLevel as LogLevel) ? rawLevel as LogLevel : 'info';
 
 function shouldLog(level: LogLevel): boolean {
   return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel];
@@ -37,7 +39,11 @@ function formatDuration(ms: number): string {
 function formatKv(data?: Record<string, unknown>): string {
   if (!data || Object.keys(data).length === 0) return "";
   return Object.entries(data)
-    .map(([k, v]) => `${k}=${v}`)
+    .map(([k, v]) => {
+      if (v === null || v === undefined) return `${k}=${v}`;
+      if (typeof v === 'object') return `${k}=${JSON.stringify(v)}`;
+      return `${k}=${v}`;
+    })
     .join(" ");
 }
 
@@ -72,10 +78,11 @@ export const log = {
       console.warn(`${formatTime()} [${tag}] ⚠ ${msg}${kv ? " " + kv : ""}`);
     }
   },
-  error: (tag: string, msg: string, data?: Record<string, unknown>) => {
+  error: (tag: string, msg: string, data?: Record<string, unknown>, error?: Error) => {
     if (shouldLog("error")) {
       const kv = formatKv(data);
       console.error(`${formatTime()} [${tag}] ✗ ${msg}${kv ? " " + kv : ""}`);
+      if (error?.stack) console.error(error.stack);
     }
   },
 };

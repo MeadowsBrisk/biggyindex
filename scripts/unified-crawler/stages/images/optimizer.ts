@@ -75,17 +75,8 @@ export function createR2Client(): S3Client {
 // Hash Function (must match frontend: src/lib/ui/images.ts)
 // ============================================================================
 
-/**
- * FNV-1a hash for stable URL-to-filename mapping
- */
-export function hashUrl(url: string): string {
-  let hash = 2166136261;
-  for (let i = 0; i < url.length; i++) {
-    hash ^= url.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16).padStart(8, '0');
-}
+import { hashUrl } from '../../shared/hash';
+export { hashUrl };
 
 // ============================================================================
 // R2 Helpers
@@ -398,7 +389,7 @@ export async function processImages(
     }
 
     const { allowed: batchAllowed, remainingWrites } =
-      await wouldExceedBudget(sharedBlob, urls.length * 2); // 2 files per image avg
+      await wouldExceedBudget(sharedBlob, urls.length); // budget.ts handles ×2 internally
 
     if (!batchAllowed) {
       const { imagesRemaining } = await getRemainingCapacity(sharedBlob);
@@ -486,7 +477,7 @@ export async function processImages(
 
   // Record budget usage
   if (sharedBlob && stats.processed > 0) {
-    const updatedBudget = await recordUsage(sharedBlob, stats.processed * 2, stats.totalSizeBytes);
+    const updatedBudget = await recordUsage(sharedBlob, stats.processed, stats.totalSizeBytes);
     log.image.info('budget updated', { status: formatBudgetStatus(updatedBudget) });
   }
 

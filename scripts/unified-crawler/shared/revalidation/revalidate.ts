@@ -51,12 +51,15 @@ export async function revalidateMarket(
   }
 
   try {
-    const url = `${baseUrl}/api/revalidate?secret=${encodeURIComponent(secret)}&path=${encodeURIComponent(path)}`;
+    const url = `${baseUrl}/api/revalidate?path=${encodeURIComponent(path)}`;
     console.log(`[revalidate] Requesting revalidation for ${market} (${baseUrl})`);
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${secret}`,
+      },
     });
 
     const data = await response.json();

@@ -387,7 +387,7 @@ export async function runSellerEnrichment(opts: {
         try {
           const extractedImage = extractSellerImageUrl(html);
           if (extractedImage) imageUrl = extractedImage;
-        } catch {}
+        } catch (e: any) { log.sellers.debug(`extractImage failed`, { id: sid, err: e?.message }); }
         try {
           const oj = extractOnlineAndJoined(html);
           online = oj?.online || online;
@@ -397,7 +397,8 @@ export async function runSellerEnrichment(opts: {
             if (!online) online = fb.online;
             if (!joined) joined = fb.joined;
           }
-        } catch {
+        } catch (e: any) {
+          log.sellers.debug(`extractOnlineJoined failed`, { id: sid, err: e?.message });
           const fb = fallbackOnlineJoined(html);
           online = online || fb.online;
           joined = joined || fb.joined;
@@ -408,7 +409,7 @@ export async function runSellerEnrichment(opts: {
             manifestoText = man.manifesto;
             manifestoMeta = man.manifestoMeta || { length: man.manifesto.length, lines: 0 };
           }
-        } catch {}
+        } catch (e: any) { log.sellers.debug(`extractManifesto failed`, { id: sid, err: e?.message }); }
         if (!manifestoText || manifestoText.trim().length === 0) {
           try {
             const tMain = Math.max(config.t3Ms, 360000);
@@ -422,7 +423,7 @@ export async function runSellerEnrichment(opts: {
                 manifestoMeta = man.manifestoMeta || { length: man.manifesto.length, lines: 0 };
               }
             }
-          } catch {}
+          } catch (e: any) { log.sellers.debug(`manifesto retry failed`, { id: sid, err: e?.message }); }
         }
         if (!config.forceShare && shareLink) {
           shareReused = true;
@@ -434,13 +435,13 @@ export async function runSellerEnrichment(opts: {
               shareGenerated = true;
               shareReused = false;
             }
-          } catch {}
+          } catch (e: any) { log.sellers.debug(`shareLink fetch failed`, { id: sid, err: e?.message }); }
         }
         try {
           const summaryRes = await fetchSellerUserSummary({ client: httpClient, sellerId: sid });
           summary = summaryRes?.summary || summary;
           statistics = summaryRes?.statistics || statistics;
-        } catch {}
+        } catch (e: any) { log.sellers.debug(`userSummary fetch failed`, { id: sid, err: e?.message }); }
       }
 
       const { reviews, meta: reviewMeta } = await fetchSellerReviews(sid);

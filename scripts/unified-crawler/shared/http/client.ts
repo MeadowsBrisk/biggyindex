@@ -41,7 +41,7 @@ export async function createCookieHttp(opts: {
   // Expose jar on client for downstream reuse to avoid redundant logins
   try { (client as any).__jar = jar; } catch {}
   // Opportunistically persist jar on process exit in long-lived envs (best-effort)
-  try { process.on?.("beforeExit", () => { void saveCookieJar(jar); }); } catch {}
+  try { process.on?.("beforeExit", () => { void saveCookieJar(jar).catch((e: any) => console.warn(`[client] exit cookie save failed: ${e?.message || e}`)); }); } catch {}
   return { client, jar };
 }
 

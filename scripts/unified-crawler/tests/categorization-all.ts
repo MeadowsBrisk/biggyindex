@@ -3,7 +3,7 @@
 // Merged from legacy test scripts. Ensures parity while rules are ported.
 
 import { categorize } from '../shared/categorization/index';
-import { isTipListing } from '../shared/categorization/util/exclusions';
+import { isTipListing } from '../shared/exclusions/listing';
 
 interface Case { name: string; desc: string; expectPrimary: string; expectSub?: string; }
 

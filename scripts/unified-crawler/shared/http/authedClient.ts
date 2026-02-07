@@ -10,8 +10,8 @@ export async function ensureAuthedClient(): Promise<{ client: AxiosInstance; jar
     try {
       const res = await login({ username: env.auth.username, password: env.auth.password });
       return { client: res.client, jar: res.jar };
-    } catch {
-      // fall through to anonymous client
+    } catch (e: any) {
+      console.warn(`[authedClient] login failed, falling back to anonymous client: ${e?.message || e}`);
     }
   }
   // Anonymous cookie-enabled client (may be insufficient for some endpoints)

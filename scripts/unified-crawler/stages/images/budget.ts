@@ -8,9 +8,9 @@ import { log } from '../../shared/logging/logger';
  * - Class A operations (writes/uploads): 1,000,000 ($4.50/million after)
  * - Class B operations (reads): 10,000,000 ($0.36/million after)
  * 
- * Our usage estimate (2000 items, 3 sizes each):
+ * Our usage estimate (2000 items, 2 sizes each: thumb.avif + full.avif):
  * - Storage: ~300MB (well under 10GB)
- * - Writes: ~6,000 initial + ~500/day = ~21,000/month
+ * - Writes: ~4,000 initial + ~350/day = ~14,500/month
  * - Reads: Tracked separately (depends on traffic)
  */
 
@@ -29,7 +29,7 @@ export interface R2Budget {
   month: string;           // '2025-12' format
   writesUsed: number;      // Class A operations (uploads)
   storageUsedMB: number;   // Approximate storage in MB
-  imagesProcessed: number; // Total images (each = 3 writes for 3 sizes)
+  imagesProcessed: number; // Total images (each = 2 writes: thumb + full)
   lastUpdated: string;
 }
 
@@ -108,14 +108,14 @@ export async function checkBudget(
 
 /**
  * Check if a batch would exceed budget.
- * Each image = 3 writes (one per size: 400, 800, 1200)
+ * Each image = 2 R2 writes (thumb.avif + full.avif)
  */
 export async function wouldExceedBudget(
   sharedBlob: BlobClient,
   imageCount: number
 ): Promise<{ allowed: boolean; remainingWrites: number; writesNeeded: number }> {
   const { remainingWrites } = await checkBudget(sharedBlob);
-  const writesNeeded = imageCount * 3; // 3 sizes per image
+  const writesNeeded = imageCount * 2; // thumb + full per image
   return { 
     allowed: writesNeeded <= remainingWrites, 
     remainingWrites,
@@ -135,8 +135,8 @@ export async function recordUsage(
   const meta = (await sharedBlob.getJSON<R2Meta>(key)) || {};
   const currentMonth = getCurrentMonth();
 
-  // Calculate operations (3 writes per image for 3 sizes)
-  const writesUsed = imagesProcessed * 3;
+  // Calculate operations (2 writes per image: thumb.avif + full.avif)
+  const writesUsed = imagesProcessed * 2;
   const sizeMB = totalSizeBytes / (1024 * 1024);
 
   // Initialize or update budget
@@ -218,7 +218,7 @@ export async function getRemainingCapacity(
   const { remainingWrites } = await checkBudget(sharedBlob);
   return {
     writesRemaining: remainingWrites,
-    imagesRemaining: Math.floor(remainingWrites / 3), // 3 writes per image
+    imagesRemaining: Math.floor(remainingWrites / 2), // 2 writes per image (thumb + full)
   };
 }
 

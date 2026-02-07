@@ -14,5 +14,7 @@ export async function appendRunMeta(store: string, key: string, entry: Omit<RunM
   const now = new Date().toISOString();
   const existing = (await client.getJSON<RunMetaEntry[]>(key)) || [];
   existing.push({ at: now, ...entry } as RunMetaEntry);
-  await client.putJSON(key, existing);
+  // Cap to last 500 entries to prevent unbounded growth
+  const capped = existing.length > 500 ? existing.slice(-500) : existing;
+  await client.putJSON(key, capped);
 }

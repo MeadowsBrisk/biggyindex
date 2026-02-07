@@ -31,7 +31,8 @@ export async function saveCookieJar(jar: CookieJarLike | null | undefined): Prom
     const json = jar.toJSON();
     await client.putJSON(key, json);
     return true;
-  } catch {
+  } catch (e: any) {
+    console.warn(`[cookies] saveCookieJar failed: ${e?.message || e}`);
     return false;
   }
 }

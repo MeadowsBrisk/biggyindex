@@ -1,5 +1,4 @@
 import type { MarketCode } from '../env/loadEnv';
-import { computeIndexSignature } from '../logic/changes';
 
 export interface RawIndexItem {
   id: string;

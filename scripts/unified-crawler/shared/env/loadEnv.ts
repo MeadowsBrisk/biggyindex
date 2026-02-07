@@ -48,9 +48,9 @@ export function loadEnv(): UnifiedEnv {
       GB: process.env.GB_STORE || "site-index-gb",
       DE: process.env.DE_STORE || "site-index-de",
       FR: process.env.FR_STORE || "site-index-fr",
-      IT: (process.env as any).IT_STORE || "site-index-it",
-      PT: (process.env as any).PT_STORE || "site-index-pt",
-      ES: (process.env as any).ES_STORE || "site-index-es",
+      IT: process.env.IT_STORE || "site-index-it",
+      PT: process.env.PT_STORE || "site-index-pt",
+      ES: process.env.ES_STORE || "site-index-es",
     },
     auth: {
       username:

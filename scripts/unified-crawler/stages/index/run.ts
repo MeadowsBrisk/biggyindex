@@ -6,7 +6,6 @@ import { ACCEPT_LANGUAGE, marketStore } from "../../shared/env/markets";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
 import { appendRunMeta } from "../../shared/persistence/runMeta";
-import { diffMarketIndexEntries } from "../../shared/logic/changes";
 import { mergeIndexMetaEntry, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
 import axios from "axios";
 import { buildMarketSellers } from "./buildSellers";
@@ -14,11 +13,6 @@ import { MARKET_TO_FULL_LOCALE } from '../../shared/locale-map';
 import { createCookieHttp, warmCookieJar } from "../../shared/http/client";
 import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
 import { saveCookieJar } from "../../shared/http/cookies";
-import { categorize } from "../../shared/categorization/index";
-import { isTipListing, isCustomListing } from "../../shared/exclusions/listing";
-// Aggregates approach: index consumes precomputed share links and shipping summaries
-// Temporary: reuse legacy categorization pipeline until TS port lands
-// Note: categorize() currently delegates to the legacy pipeline to preserve behavior.
 
 /**
  * runIndexMarket — Unified TS indexer stage (Phase A skeleton)
@@ -183,15 +177,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   let translationsAgg: Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }> = {};
   const categoryOverrides = new Map<string, { primary: string; subcategories: string[] }>();
 
-  // FNV-1a hash function (must match image-optimizer.ts and frontend)
-  function hashUrl(url: string): string {
-    let hash = 2166136261;
-    for (let i = 0; i < url.length; i++) {
-      hash ^= url.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
-    }
-    return (hash >>> 0).toString(16).padStart(8, '0');
-  }
+  // FNV-1a hash function — imported from shared module
+  const { hashUrl } = await import('../../shared/hash');
 
   try {
     const [sRes, imRes, ssRes, oRes, tRes, previousIndex, imgRes] = await Promise.all([sharesP, indexMetaP, shipAggP, overridesP, translationsP, prevIndexP, imageMetaP]);
@@ -244,247 +231,46 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   let appliedImageMeta = 0;
   const metaUpdates: Record<string, IndexMetaEntry> = {};
 
+  // Import normalizeItem from extracted module
+  const { normalizeItem } = await import('./normalizeItem');
+  const normalizeCtx: import('./normalizeItem').NormalizeContext = {
+    code,
+    prevByRef,
+    prevByNum,
+    coldStart,
+    hashUrl,
+    sharesAgg,
+    shipAgg,
+    indexMetaAgg,
+    imageMetaAgg,
+    translationsAgg,
+    categoryOverrides,
+    itemReviewSummaries,
+    needsTranslation,
+    targetLocale,
+  };
+
   const marketIndexItems = (Array.isArray(rawItems) ? rawItems : []).map((it: any) => {
-    // Canonical ID: use refNum everywhere now
-    const ref = it?.refNum ?? it?.refnum ?? it?.ref;
-    const numId = it?.id;
-    const refKey = ref != null ? String(ref) : null;
-    const numKey = numId != null ? String(numId) : null;
-    const canonicalKey = refKey ?? numKey;
-    if (!canonicalKey) return null;
-    const numericValue = typeof numId === 'number' ? numId : (numKey && /^\d+$/.test(numKey) ? Number(numKey) : null);
-    const entryId = (numericValue != null ? numericValue : (numKey ?? canonicalKey));
-    const name = it?.name;
-    const description = it?.description || "";
-    // Exclusions: tip jars, custom orders/listings (legacy-compatible heuristics)
-    try {
-      if (isTipListing(name, description) || isCustomListing(name, description)) {
-        return null; // skip excluded listings
-      }
-    } catch { }
-    const images: string[] = Array.isArray(it?.images) ? it.images : [];
-    const primaryImg = images[0] || undefined;
-    const imgSmall = images.length ? images.slice(0, 3) : undefined;
+    const result = normalizeItem(it, normalizeCtx);
+    if (!result) return null;
 
-    // Normalize varieties into compact variant entries with USD/BTC
-    const varieties: any[] = Array.isArray(it?.varieties) ? it.varieties : [];
-    const v = varieties.map((vv: any) => {
-      const usdStr = vv?.basePrice?.amount ?? vv?.basePrice?.value ?? undefined;
-      const usd = typeof usdStr === "string" ? parseFloat(usdStr) : (typeof usdStr === "number" ? usdStr : undefined);
-      const d = vv?.description;
-      const vid = vv?.id;
-      const out: Record<string, unknown> = {};
-      if (vid != null) out.vid = vid;
-      if (d) out.d = d;
-      if (typeof usd === "number" && Number.isFinite(usd)) out.usd = usd;
-      return out;
-    }).filter((o: any) => Object.keys(o).length > 0);
+    const { entry, canonicalKey, numKey, metaUpdate } = result;
+    if (result.appliedMeta) appliedMeta++;
+    if (result.appliedTranslation) appliedTranslations++;
+    if (result.appliedImageMeta) appliedImageMeta++;
 
-    // Compute USD price bounds
-    const usdVals = v.map((x: any) => x.usd).filter((n: any) => typeof n === "number" && Number.isFinite(n)) as number[];
-    const uMin = usdVals.length ? Math.min(...usdVals) : undefined;
-    const uMax = usdVals.length ? Math.max(...usdVals) : undefined;
-
-    // Seller minimal info
-    const sid = it?.seller?.id ?? it?.sellerId;
-    const sn = it?.seller?.name;
-    const h = it?.hotness;
-    const sf = it?.shipsFrom ?? it?.ships_from;
-
-    const entry: Record<string, any> = { id: entryId };
-    if (canonicalKey) entry.refNum = canonicalKey;
-
-    // IMPORTANT: For change detection, we must use the ENGLISH name/description
-    // Translation is applied AFTER change detection to avoid false "Description changed" triggers
-    // Store English first, we'll apply translations after diffMarketIndexEntries
-    if (name) entry.n = name;
-    if (description) entry.d = description;
-
-    if (primaryImg) {
-      entry.i = primaryImg;
-      // Check if image is optimized in R2 (has io flag)
-      const hash = hashUrl(primaryImg);
-      const meta = canonicalKey ? imageMetaAgg[canonicalKey] : undefined;
-      // Also check by numeric ID in case meta is stored that way (less common now but possible)
-      const metaNum = numKey ? imageMetaAgg[numKey] : undefined;
-
-      const hashes = meta?.hashes || metaNum?.hashes;
-      if (hashes && Array.isArray(hashes) && hashes.includes(hash)) {
-        entry.io = 1;
-        appliedImageMeta++;
-      }
-    }
-    if (imgSmall && imgSmall.length) entry.is = imgSmall;
-    if (v.length) entry.v = v;
-    if (uMin != null) entry.uMin = uMin;
-    if (uMax != null) entry.uMax = uMax;
-    if (sid != null) entry.sid = sid;
-    if (sn) entry.sn = sn;
-    if (h != null) entry.h = h;
-    if (sf) entry.sf = sf;
-
-    // Review stats (minified key: rs)
-    const ir = (canonicalKey && itemReviewSummaries?.[canonicalKey]) ?? (numKey ? itemReviewSummaries?.[numKey] : undefined);
-    if (ir) {
-      const rsObj: Record<string, any> = {};
-      if (typeof ir.averageRating === 'number') rsObj.avg = ir.averageRating;
-      if (typeof ir.averageDaysToArrive === 'number') rsObj.days = ir.averageDaysToArrive;
-      if (typeof ir.numberOfReviews === 'number') rsObj.cnt = ir.numberOfReviews;
-      if (Object.keys(rsObj).length > 0) entry.rs = rsObj;
-    }
-
-    // Categorization: check for manual override first, then use automated pipeline
-    try {
-      // Check for manual override by refNum or numeric id
-      const override = categoryOverrides.get(String(canonicalKey)) ||
-        (numKey ? categoryOverrides.get(String(numKey)) : null);
-
-      if (override) {
-        // Apply manual override
-        entry.c = override.primary;
-        if (override.subcategories.length > 0) {
-          entry.sc = override.subcategories;
-        }
-        // Optional: log for debugging
-        // logger.debug(`[index:${code}] Applied category override for item ${canonicalKey}: ${override.primary}`);
-      } else if (name || description) {
-        // Use automated categorization pipeline
-        const cat = categorize(name || "", description || "");
-        if (cat?.primary) entry.c = cat.primary;
-        if (Array.isArray(cat?.subcategories) && cat.subcategories.length) entry.sc = cat.subcategories;
-      }
-    } catch { }
-
-    // Change detection vs previous index to update lua/lur like legacy indexer (modified: strict semantics)
-    // NOTE: Description comparison only for GB (English market) - non-GB have translated descriptions
-    let prev = prevByRef.get(String(ref || ''));
-    if (!prev && numId != null) prev = prevByNum.get(String(numId));
-    const nowIso = new Date().toISOString();
-    // Timestamps (minified keys). Prefer previously written short keys; fallback to legacy long keys.
-    const metaHit = canonicalKey ? indexMetaAgg[canonicalKey] : undefined;
-    if (metaHit) appliedMeta++;
-    const isEnglishMarket = code === 'GB';
-    const { changed, reasons: changeReasons } = diffMarketIndexEntries(prev, entry, isEnglishMarket);
-    // Timestamp policy (PARITY + REQUIREMENTS):
-    //  firstSeenAt (fsa):
-    //    - Carry prev/aggregate when present
-    //    - If new item (no prev, no aggregate) and NOT cold start, stamp now
-    //    - If cold start (baseline run), DO NOT synthesize fsa (leave undefined for existing legacy items)
-    //  lastUpdatedAt (lua):
-    //    - ONLY set when we detect a change (diff) THIS run
-    //    - Otherwise carry forward existing lua (prev or aggregate) if it exists
-    //    - Never derive lua from fsa; never default lua to now on baseline/cold start
-    //  lastUpdateReason (lur):
-    //    - Set when change detected
-    //    - Carry forward existing lur if we carried an existing lua; else omit
-    // This ensures initial baseline run does not incorrectly stamp lua for every item.
-    // Priority for fsa: aggregate > prev (aggregate is source of truth for historical timestamps)
-    const fsa = metaHit?.fsa || prev?.fsa || prev?.firstSeenAt;
-    if (fsa) entry.fsa = fsa;
-    else if (!prev && !metaHit?.fsa && !coldStart) entry.fsa = nowIso;
-    // Last updated + reason: if we detected a change this run, stamp now + reasons; otherwise carry forward
-    // Priority for lua: aggregate > prev (aggregate is source of truth)
-    // NOTE: metaHit.lua === '' means explicitly cleared (no lua) - don't fall back to prev
-    let carriedLua: string | undefined = undefined;
-    const metaLuaExplicitlyCleared = metaHit && 'lua' in metaHit && metaHit.lua === '';
-    if (metaHit?.lua) carriedLua = metaHit.lua;
-    else if (!metaLuaExplicitlyCleared && prev?.lua) carriedLua = prev.lua;
-    else if (!metaLuaExplicitlyCleared && prev?.lastUpdatedAt) carriedLua = prev.lastUpdatedAt;
-    const carriedLur = metaHit?.lur ?? prev?.lur ?? prev?.lastUpdateReason ?? null;
-    if (changed && changeReasons.length > 0) {
-      // Real change detected: stamp lua + lur
-      entry.lua = nowIso;
-      entry.lur = changeReasons.join(', ');
-    } else if (carriedLua) {
-      // Only carry forward lua if it existed previously; do NOT synthesize
-      entry.lua = carriedLua;
-      if (carriedLur != null) entry.lur = carriedLur;
-    }
-
-    // Translation handling for non-GB markets (AFTER change detection to avoid false triggers)
-    // - n/d: Replace with translated content if available
-    // - nEn/dEn: Store original English for future frontend toggle
-    // - v[].d: Replace variant descriptions with translated versions
-    // - v[].dEn: Store original English variant descriptions (for usePerUnitLabel parsing)
-    if (needsTranslation && targetLocale && canonicalKey) {
-      const itemTranslation = translationsAgg[canonicalKey];
-      const localeTranslation = itemTranslation?.locales?.[targetLocale];
-
-      if (localeTranslation?.n) {
-        // Store English originals for future toggle
-        if (entry.n) entry.nEn = entry.n;
-        if (entry.d) entry.dEn = entry.d;
-        // Apply translations
-        entry.n = localeTranslation.n;
-        if (localeTranslation.d) entry.d = localeTranslation.d;
-        appliedTranslations++;
-
-        // Apply variant translations if available
-        if (localeTranslation.v && Array.isArray(localeTranslation.v) && Array.isArray(entry.v)) {
-          // Build a map of vid -> translated description
-          const variantTranslationMap = new Map<string | number, string>();
-          for (const vt of localeTranslation.v) {
-            if (vt.vid !== undefined && vt.d) {
-              variantTranslationMap.set(vt.vid, vt.d);
-            }
-          }
-
-          // Apply translations to each variant, storing English in dEn
-          for (const variant of entry.v) {
-            if (variant.vid !== undefined) {
-              const translatedDesc = variantTranslationMap.get(variant.vid);
-              if (translatedDesc && variant.d) {
-                // Store English original for usePerUnitLabel parsing
-                variant.dEn = variant.d;
-                // Apply translation
-                variant.d = translatedDesc;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Endorsements (minified key): preserve or default 0
-    entry.ec = typeof prev?.ec === 'number'
-      ? prev.ec
-      : (typeof prev?.endorsementCount === 'number' ? prev.endorsementCount : 0);
-    // Share link (compact): carry forward if previously embedded; else use aggregate if present
-    if (prev?.sl) entry.sl = prev.sl;
-    else if (canonicalKey && sharesAgg[canonicalKey]) entry.sl = sharesAgg[canonicalKey];
-    // Shipping summary (minified key): prefer fresh aggregate data, then fall back to previous index
-    // Normalize older shapes: convert free:boolean -> 1/0 and drop cnt
-    function normalizeSh(x: any) {
-      if (!x || typeof x !== 'object') return undefined;
-      const out: any = {};
-      if (typeof x.min === 'number') out.min = x.min;
-      if (typeof x.max === 'number') out.max = x.max;
-      if (typeof x.free === 'number') out.free = x.free ? 1 : 0;
-      else if (typeof x.free === 'boolean') out.free = x.free ? 1 : 0;
-      return Object.keys(out).length ? out : undefined;
-    }
-    // Priority: fresh aggregate > previous sh > previous ship (legacy key)
-    const shFromAgg = canonicalKey && shipAgg[canonicalKey] ? normalizeSh(shipAgg[canonicalKey]) : undefined;
-    const shFromPrev = prev?.sh ? normalizeSh(prev.sh) : (prev?.ship ? normalizeSh(prev.ship) : undefined);
-    entry.sh = shFromAgg ?? shFromPrev;
     // Index into lookup maps for later endorsement join
     try {
-      if (numKey) byNumId.set(numKey, entry as Record<string, any>);
-      if (canonicalKey) byCanonId.set(canonicalKey, entry as Record<string, any>);
+      if (numKey) byNumId.set(numKey, entry);
+      if (canonicalKey) byCanonId.set(canonicalKey, entry);
     } catch { }
-    if (canonicalKey) {
-      const candidate = {
-        fsa: typeof entry.fsa === 'string' ? entry.fsa : null,
-        lua: typeof entry.lua === 'string' ? entry.lua : null,
-        lur: typeof entry.lur === 'string' ? entry.lur : null,
-        lsi: new Date().toISOString(),  // lastSeenInIndex - track when item was last in any index
-      };
-      const { changed, next } = mergeIndexMetaEntry(indexMetaAgg[canonicalKey], candidate);
-      if (changed) {
-        metaUpdates[canonicalKey] = next;
-        indexMetaAgg[canonicalKey] = next;
-      }
+
+    // Accumulate index-meta updates
+    if (metaUpdate) {
+      metaUpdates[metaUpdate.key] = metaUpdate.next;
+      indexMetaAgg[metaUpdate.key] = metaUpdate.next;
     }
+
     return entry;
   }).filter(Boolean) as Array<Record<string, unknown>>;
 

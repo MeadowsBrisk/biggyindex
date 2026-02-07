@@ -1,5 +1,4 @@
 import type { AxiosInstance } from 'axios';
-import axios from 'axios';
 
 export interface FetchSellerPageOptions {
   client: AxiosInstance;
@@ -28,7 +27,7 @@ export async function fetchSellerPage({ client, sellerId, timeout, maxBytes, ear
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(() => {
           aborted = true;
-          try { (res.request as any)?.destroy?.(); } catch {}
+          try { (stream as any)?.destroy?.(); } catch {}
           reject(new Error('timeout'));
         }, Math.max(1000, timeout + 2000));
 
@@ -44,7 +43,7 @@ export async function fetchSellerPage({ client, sellerId, timeout, maxBytes, ear
           if (bytes > maxBytes) {
             aborted = true;
             abortedByClient = true;
-            try { (res.request as any)?.destroy?.(); } catch {}
+            try { (stream as any)?.destroy?.(); } catch {}
             return;
           }
           if (!aborted && earlyAbort && bytes >= earlyAbortMinBytes) {
@@ -53,7 +52,7 @@ export async function fetchSellerPage({ client, sellerId, timeout, maxBytes, ear
             if (/seller-profile|reginald|Bp1|Bp3/i.test(preview)) {
               aborted = true;
               abortedByClient = true;
-              try { (res.request as any)?.destroy?.(); } catch {}
+              try { (stream as any)?.destroy?.(); } catch {}
             }
           }
         });

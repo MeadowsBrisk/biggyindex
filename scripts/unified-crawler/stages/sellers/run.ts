@@ -24,7 +24,8 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
     const env = loadEnv();
     const sharedBlob = getBlobClient(env.stores.shared);
 
-    const sellersLimit = Number(process.env.SELLERS_LIMIT || process.env.SELLER_LIMIT || process.env.SELLERS_SCAN_LIMIT || 0);
+    // Canonical env var: SELLERS_LIMIT (legacy aliases kept for backwards compat)
+    const sellersLimit = Number(process.env.SELLERS_LIMIT || process.env.SELLER_LIMIT || 0);
     const worklist = await buildSellerWorklist(markets, sellersLimit > 0 ? sellersLimit : undefined);
     const selectedSellerIds = worklist.selectedSellerIds;
     if (!selectedSellerIds.length) {

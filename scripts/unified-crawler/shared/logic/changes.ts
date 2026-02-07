@@ -45,7 +45,10 @@ export async function detectItemChanges(
   }
 
   // For staleness, use shipping-meta aggregate (one file instead of 100+ individual loads!)
-  const shippingMeta = await shared.getJSON<any>('aggregates/shipping-meta.json').catch(() => ({}));
+  const shippingMeta = await shared.getJSON<any>('aggregates/shipping-meta.json').catch((e: any) => {
+    console.warn(`[changes] failed to load shipping-meta aggregate: ${e?.message || e} — treating all items as stale`);
+    return {};
+  });
   
   const existingToCheck = input.items
     .map((it) => ({ id: it.id, sig: it.sig }))
@@ -93,7 +96,6 @@ export function computeIndexSignature(entry: Record<string, any>): string {
 export function diffMarketIndexEntries(prev: Record<string, any> | null | undefined, curr: Record<string, any>, isEnglishMarket = true) {
   const reasons: string[] = [];
   if (!prev || typeof prev !== 'object') return { changed: false, reasons };
-  try {
     // Description: only compare for English market (GB)
     // Non-GB markets have translated d, can't reliably compare against English curr.d
     if (isEnglishMarket) {
@@ -180,6 +182,5 @@ export function diffMarketIndexEntries(prev: Record<string, any> | null | undefi
     if ((pm != null && cm != null && pm !== cm) || (px != null && cx != null && px !== cx)) {
       if (!reasons.includes('Price changed')) reasons.push('Price changed');
     }
-  } catch {}
   return { changed: reasons.length > 0, reasons };
 }
