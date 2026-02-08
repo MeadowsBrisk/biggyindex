@@ -263,12 +263,16 @@ export default function ItemDetailOverlay() {
   const rates = useExchangeRates();
   const { currency: ctxCurrency } = useDisplayCurrency();
   const displayCurrency = ctxCurrency || 'GBP';
+  // Force English preference for item content
+  const { forceEnglish } = useForceEnglish();
   // Shipping options (detail) for inclusion toggle
   const shippingOptions = useMemo(() => {
+    // When forceEnglish, prefer the stashed English originals
     const shipping = (detail as any)?.shipping;
-    const opts = Array.isArray(shipping?.options) ? shipping.options : [];
-    return opts.filter((o: any) => typeof o.cost === 'number');
-  }, [detail]);
+    const englishOpts = (detail as any)?.shippingOptionsEn;
+    const rawOpts = forceEnglish && Array.isArray(englishOpts) ? englishOpts : (Array.isArray(shipping?.options) ? shipping.options : []);
+    return rawOpts.filter((o: any) => typeof o.cost === 'number');
+  }, [detail, forceEnglish]);
   const allShippingFree = shippingOptions.length > 0 && shippingOptions.every((o: any) => o.cost === 0);
   const [includeShipping, setIncludeShipping] = useAtom(includeShippingPrefAtom);
   const [selectedShipIdx, setSelectedShipIdx] = useState<number | null>(null);
@@ -363,9 +367,6 @@ export default function ItemDetailOverlay() {
     window.addEventListener('keydown', onKey as any);
     return () => window.removeEventListener('keydown', onKey as any);
   }, [refNum, close, gotoPrev, gotoNext, baseItem, toggleFav, zoomOpen, hasPrev, hasNext]);
-
-  // Force English preference for item content
-  const { forceEnglish } = useForceEnglish();
 
   // Name: use English original (nEn) when forceEnglish is enabled
   // BUG-002: Fall back to detail.n, then _shipSeo.n if baseItem is missing (item delisted)

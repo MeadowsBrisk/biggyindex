@@ -1,11 +1,13 @@
 /**
  * Inline "Show original" toggle for item detail views.
  * Lets users switch between translated and original English content.
+ * Styled as a track-and-thumb switch consistent with sidebar toggles.
  * Only renders on non-GB markets.
  */
 import { useForceEnglish } from '@/providers/IntlProvider';
 import { getMarketFromHost, getMarketFromPath } from '@/lib/market/market';
 import { useTranslations } from 'next-intl';
+import cn from '@/lib/core/cn';
 
 interface ShowOriginalToggleProps {
   /** Override market detection (useful for SSR-rendered pages) */
@@ -25,20 +27,29 @@ export default function ShowOriginalToggle({ market: marketProp, className = '' 
 
   if (market === 'GB') return null;
 
+  const label = forceEnglish ? t('showTranslated') : t('showOriginal');
+
   return (
-    <button
-      type="button"
-      onClick={() => setForceEnglish(!forceEnglish)}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors
-        ${forceEnglish
-          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60'
-          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}
-        ${className}`}
-      aria-pressed={forceEnglish}
-      title={forceEnglish ? t('showTranslated') : t('showOriginal')}
-    >
-      <span className="text-[11px]">🌐</span>
-      {forceEnglish ? t('showTranslated') : t('showOriginal')}
-    </button>
+    <div className={cn('flex items-center gap-2', className)}>
+      <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{label}</span>
+      <button
+        type="button"
+        onClick={() => setForceEnglish(!forceEnglish)}
+        className={cn(
+          'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50',
+          forceEnglish ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-700'
+        )}
+        aria-label={label}
+        aria-pressed={forceEnglish}
+        role="switch"
+      >
+        <span
+          className={cn(
+            'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform',
+            forceEnglish ? 'translate-x-[1.125rem]' : 'translate-x-[0.1875rem]'
+          )}
+        />
+      </button>
+    </div>
   );
 }

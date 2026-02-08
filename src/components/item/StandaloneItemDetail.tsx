@@ -116,11 +116,15 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   const { currency: ctxCurrency } = useDisplayCurrency();
   const displayCurrency = ctxCurrency || 'GBP';
   
+  // Force English preference for item content
+  const { forceEnglish } = useForceEnglish();
+  
   // Shipping options
   const shippingOptions = useMemo(() => {
-    const opts = Array.isArray(detail?.shipping?.options) ? (detail as any).shipping.options : [];
-    return opts.filter((o: any) => typeof o.cost === 'number');
-  }, [detail]);
+    const englishOpts = (detail as any)?.shippingOptionsEn;
+    const rawOpts = forceEnglish && Array.isArray(englishOpts) ? englishOpts : (Array.isArray(detail?.shipping?.options) ? (detail as any).shipping.options : []);
+    return rawOpts.filter((o: any) => typeof o.cost === 'number');
+  }, [detail, forceEnglish]);
   const allShippingFree = shippingOptions.length > 0 && shippingOptions.every((o: any) => o.cost === 0);
   const [includeShipping, setIncludeShipping] = useAtom(includeShippingPrefAtom);
   const [selectedShipIdx, setSelectedShipIdx] = useState<number | null>(null);
@@ -196,9 +200,6 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
       setSelectedShipIdx(cheapestIdx >= 0 ? cheapestIdx : 0);
     }
   }, [detail, shippingOptions, includeShipping, selectedShipIdx]);
-
-  // Force English preference for item content
-  const { forceEnglish } = useForceEnglish();
 
   // BUG-002: Use detail.n or _shipSeo.n as fallback if baseItem is missing (item delisted)
   const name = decodeEntities(

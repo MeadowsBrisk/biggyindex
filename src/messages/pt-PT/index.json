@@ -486,14 +486,18 @@
     "steps": {
       "country": {
         "title": "1. Escolha o seu país",
-        "text": "O LittleBiggy cobre várias regiões. Certifique-se de que seleciona o país correto para ver os artigos que podem ser enviados para si."
+        "text": "O LittleBiggy precisa de saber onde está antes de mostrar as opções de produto. Selecione primeiro o seu país — é guardado um cookie para que só precise de fazer isto uma vez."
       },
-      "basket": {
-        "title": "2. Adicionar ao cesto",
-        "text": "Encontrou algo que gosta? Toque em \"Adicionar ao cesto\" na página do artigo. Pode adicionar artigos de diferentes vendedores."
+      "buy": {
+        "title": "2. Explorar e comprar",
+        "text": "Depois de definir o seu país, cada produto mostra um botão de compra junto a cada variante. Toque nele e vai diretamente para o seu carrinho."
+      },
+      "account": {
+        "title": "3. Criar uma conta",
+        "text": "Pode pagar sem conta, mas registar-se é recomendado. Clique em \"Login\" e depois \"Register\" — não precisa de e-mail, apenas nome de utilizador e palavra-passe."
       },
       "checkout": {
-        "title": "3. Pagar com Bitcoin",
+        "title": "4. Pagar com Bitcoin",
         "text": "O LittleBiggy aceita apenas Bitcoin. No checkout verá um montante e um endereço de carteira para enviar o pagamento."
       }
     },

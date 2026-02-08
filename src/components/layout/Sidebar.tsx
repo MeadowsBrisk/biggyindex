@@ -150,18 +150,12 @@ export default function Sidebar(): React.ReactElement {
         <button
           type="button"
           aria-label={t('openFilters')}
-          className="fixed left-0 top-17 bottom-0 z-30 w-5 focus:outline-none group"
+          className="fixed left-0 top-17 bottom-0 z-30 w-10 focus:outline-none group"
           onClick={() => setOpen(true)}
         >
           <span className="sr-only">{t('openFilters')}</span>
           {/* Visible sliver indicator */}
-          <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-blue-400/0 via-blue-400/30 to-blue-400/0 dark:via-blue-500/25 transition-all group-hover:w-1.5 group-hover:via-blue-500/50 dark:group-hover:via-blue-400/40 group-active:via-blue-600/60" />
-          {/* Small chevron hint at vertical center */}
-          <span className="absolute top-1/2 -translate-y-1/2 left-0.5 text-blue-400/60 dark:text-blue-500/50 transition-opacity group-hover:text-blue-500/80 dark:group-hover:text-blue-400/70">
-            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 1l5 6-5 6" />
-            </svg>
-          </span>
+          <span className="absolute inset-y-0 left-0 w-[3px] rounded-r-full bg-gradient-to-b from-blue-400/0 via-blue-400/25 to-blue-400/0 dark:via-blue-500/20 transition-all group-hover:w-1 group-hover:via-blue-500/45 dark:group-hover:via-blue-400/35 group-active:via-blue-600/50" />
         </button>
       )}
       <motion.button

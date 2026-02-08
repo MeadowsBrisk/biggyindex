@@ -41,6 +41,8 @@ export default function FixedControls() {
     const check = () => {
       setFooterVisible(document.documentElement.dataset.footerVisible === 'true');
     };
+    // Initial check in case attribute is already set
+    check();
     // Use a MutationObserver on the data attribute
     const observer = new MutationObserver(check);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-footer-visible'] });
@@ -76,15 +78,13 @@ export default function FixedControls() {
   );
 
   return (
-    <AnimatePresence>
-      {!footerVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.2 }}
-          className={cn("fixed right-4 z-50 flex items-center gap-3", isSlugPage ? "top-4" : "bottom-4")}
-        >
+    <div
+      className={cn(
+        "fixed right-4 z-50 flex items-center gap-3 transition-opacity duration-200",
+        isSlugPage ? "top-4" : "bottom-4",
+        footerVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+      )}
+    >
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
@@ -146,8 +146,6 @@ export default function FixedControls() {
           </motion.span>
         </AnimatePresence>
       </button>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 }

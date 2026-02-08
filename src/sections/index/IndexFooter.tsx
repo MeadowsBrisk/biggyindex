@@ -45,6 +45,8 @@ export default function IndexFooter({ lastCrawlTime }: IndexFooterProps): ReactE
   useEffect(() => {
     const el = footerRef.current;
     if (!el) return;
+    // Explicitly reset to false before observer starts, to avoid stale "true" from previous page
+    document.documentElement.dataset.footerVisible = "false";
     const observer = new IntersectionObserver(
       ([entry]) => {
         document.documentElement.dataset.footerVisible = entry.isIntersecting ? "true" : "false";

@@ -487,14 +487,18 @@
     "steps": {
       "country": {
         "title": "1. Wähle dein Land",
-        "text": "LittleBiggy bedient mehrere Regionen. Stelle sicher, dass du das richtige Land auswählst, damit du Artikel siehst, die zu dir geliefert werden."
+        "text": "LittleBiggy muss wissen, wo du bist, bevor es Produktoptionen anzeigen kann. Wähle zuerst dein Land — ein Cookie wird gesetzt, damit du das nur einmal machen musst."
       },
-      "basket": {
-        "title": "2. In den Warenkorb legen",
-        "text": "Etwas Passendes gefunden? Tippe auf der Artikelseite auf \"In den Warenkorb\". Du kannst Artikel von verschiedenen Verkäufern hinzufügen."
+      "buy": {
+        "title": "2. Stöbern & kaufen",
+        "text": "Sobald dein Land eingestellt ist, zeigt jedes Produkt einen Kaufen-Button neben jeder Variante. Tippe darauf und es landet direkt im Warenkorb."
+      },
+      "account": {
+        "title": "3. Konto erstellen",
+        "text": "Du kannst ohne Konto bezahlen, aber eine Registrierung wird empfohlen. Klicke einfach auf \"Login\" und dann \"Register\" — keine E-Mail nötig, nur Benutzername und Passwort."
       },
       "checkout": {
-        "title": "3. Mit Bitcoin bezahlen",
+        "title": "4. Mit Bitcoin bezahlen",
         "text": "LittleBiggy akzeptiert nur Bitcoin. Beim Checkout siehst du einen Betrag und eine Wallet-Adresse für die Zahlung."
       }
     },

@@ -485,15 +485,19 @@
     "subtitle": "Quick tips to help you get started on the marketplace.",
     "steps": {
       "country": {
-        "title": "1. Pick your country",
-        "text": "LittleBiggy serves multiple regions. Make sure you select the right country so you see items that ship to you."
+        "title": "1. Choose your country",
+        "text": "LittleBiggy needs to know where you are before it can show product options. Select your country first — it saves a cookie so you only need to do this once."
       },
-      "basket": {
-        "title": "2. Add to basket",
-        "text": "Found something you like? Tap \"Add to Basket\" on the item page. You can add items from different sellers."
+      "buy": {
+        "title": "2. Browse & buy",
+        "text": "Once your country is set, each product shows a buy button next to every variant. Tap one and it goes straight to your cart."
+      },
+      "account": {
+        "title": "3. Create an account",
+        "text": "You can check out without an account, but signing up is recommended. Just click \"Login\" then \"Register\" — no email needed, just a username and password."
       },
       "checkout": {
-        "title": "3. Checkout with Bitcoin",
+        "title": "4. Pay with Bitcoin",
         "text": "LittleBiggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to."
       }
     },
