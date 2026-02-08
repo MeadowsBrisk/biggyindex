@@ -4,7 +4,6 @@ import { introSeenAtom } from "@/store/atoms";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import LeafIcon from "@/components/icons/LeafIcon";
-import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 /**
  * First-visit intro splash.
@@ -20,7 +19,7 @@ import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
  * to tweak relative sizes without breaking responsiveness.       */
 const SCALE        = 10;    // overall size (vmin units — try 20–40)
 const LEAF_RATIO   = 0.45; // leaf width as fraction of bracket font-size
-const LEAF_NUDGE   = 0.25;  // leaf vertical nudge as fraction of bracket size (+ = down)
+const LEAF_NUDGE   = 24;     // leaf vertical nudge in % of its own height (+ = down)
 
 /* ── Timing (seconds) ────────────────────────────────────────── */
 const FADE_IN    = 0.3;   // brackets fade in
@@ -52,9 +51,8 @@ export default function IntroSplash() {
   const [done, setDone] = useState(false);   // trigger exit
   const [visible, setVisible] = useState(true);
 
+//    const shouldShow = true; // for testing
   const shouldShow = !alreadySeen && !seen;
-
-  useBodyScrollLock(shouldShow && visible);
 
   // Timeline
   useEffect(() => {
@@ -111,10 +109,15 @@ export default function IntroSplash() {
               style={{ flexShrink: 0 }}
             />
 
-            {/* Leaf — absolutely positioned so it doesn't affect bracket spacing */}
+            {/* Leaf — absolutely positioned, centred with transform */}
             <motion.div
               className="absolute flex items-center justify-center text-gray-900 dark:text-gray-100"
-              style={{ width: `${LEAF_RATIO}em`, marginTop: `${LEAF_NUDGE}em` }}
+              style={{
+                width: `${LEAF_RATIO}em`,
+                top: '50%',
+                left: '50%',
+                transform: `translate(-50%, calc(-50% + ${LEAF_NUDGE}%))`,
+              }}
               initial={{ opacity: 0 }}
               animate={{ opacity: open ? 1 : 0 }}
               transition={{ opacity: { duration: LEAF_FADE, delay: LEAF_DELAY } }}
