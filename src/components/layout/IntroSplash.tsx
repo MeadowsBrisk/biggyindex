@@ -19,8 +19,11 @@ import LeafIcon from "@/components/icons/LeafIcon";
  * to tweak relative sizes without breaking responsiveness.       */
 const SCALE        = 10;    // overall size (vmin units — try 20–40)
 const LEAF_RATIO   = 0.56; // leaf width as fraction of bracket font-size
-const LEAF_NUDGE   = 0.41; // leaf vertical nudge in em (+ = down)
 const BRACKET_FONT = "system-ui, -apple-system, sans-serif"; // consistent + tight spacing
+
+// Platform-specific nudges (Android Roboto renders braces differently)
+const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
+const LEAF_NUDGE = isAndroid ? 0.30 : 0.41; // vertical offset (em)
 
 /* ── Timing (seconds) ────────────────────────────────────────── */
 const FADE_IN    = 0.3;   // brackets fade in
@@ -46,8 +49,10 @@ export default function IntroSplash() {
     }
   });
 
-  const [seen, setSeen] = useAtom(introSeenAtom);
+  // Detect reduced motion
   const reduce = useReducedMotion();
+
+  const [seen, setSeen] = useAtom(introSeenAtom);
   const [open, setOpen] = useState(false);   // brackets spread?
   const [done, setDone] = useState(false);   // trigger exit
   const [visible, setVisible] = useState(true);
