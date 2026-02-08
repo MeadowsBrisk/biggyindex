@@ -3,12 +3,11 @@ import { useEffect } from 'react';
 
 // Simple reference counter so multiple components can request a lock safely.
 let lockCount = 0;
-let savedScrollbarWidth = 0;
 
 /**
  * Hook to lock body scroll when a modal/overlay is open.
- * Uses overflow:hidden approach which is simpler and avoids forced reflows.
- * Adds padding-right to compensate for scrollbar disappearing.
+ * Uses overflow:hidden + scrollbar-gutter:stable (in globals.css)
+ * so no JS-based scrollbar compensation is needed.
  */
 export function useBodyScrollLock(active: boolean): void {
   useEffect(() => {
@@ -17,16 +16,7 @@ export function useBodyScrollLock(active: boolean): void {
     lockCount += 1;
 
     if (lockCount === 1) {
-      const docEl = document.documentElement;
-      // Calculate scrollbar width before hiding it
-      savedScrollbarWidth = window.innerWidth - docEl.clientWidth;
-
-      // Apply lock - no position:fixed means no scroll jumping
-      docEl.style.overflow = 'hidden';
-      // Compensate for scrollbar width to prevent layout shift
-      if (savedScrollbarWidth > 0) {
-        docEl.style.paddingRight = `${savedScrollbarWidth}px`;
-      }
+      document.documentElement.style.overflow = 'hidden';
     }
 
     return () => {
@@ -34,10 +24,7 @@ export function useBodyScrollLock(active: boolean): void {
 
       if (lockCount <= 0) {
         lockCount = 0;
-        const docEl = document.documentElement;
-        docEl.style.overflow = '';
-        docEl.style.paddingRight = '';
-        savedScrollbarWidth = 0;
+        document.documentElement.style.overflow = '';
       }
     };
   }, [active]);

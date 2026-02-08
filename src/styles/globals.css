@@ -50,6 +50,7 @@ html[data-theme=light] {
 
 html {
 	color-scheme: light;
+	scrollbar-gutter: stable;
 }
 
 body {
