@@ -503,6 +503,9 @@ export const announcementBannerDismissalsAtom = atomWithStorage<Record<string, s
 // First visit banner dismissal state
 export const firstVisitBannerDismissedAtom = atomWithStorage<boolean>("firstVisitBannerDismissed", false);
 
+// Intro splash animation — shown once per device for brand-new visitors
+export const introSeenAtom = atomWithStorage<boolean>("introSeen", false);
+
 // First-visit LittleBiggy guide: tracks whether the user has seen the onboarding guide
 // When false, clicking "View on LittleBiggy" shows a guide modal first
 export const lbGuideSeenAtom = atomWithStorage<boolean>("lbGuideSeen", false);

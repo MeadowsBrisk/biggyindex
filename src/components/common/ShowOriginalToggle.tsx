@@ -1,12 +1,11 @@
 /**
- * Inline "Show original" toggle for item detail views.
- * Lets users switch between translated and original English content.
- * Styled as a track-and-thumb switch consistent with sidebar toggles.
+ * Inline language toggle for item/seller detail views.
+ * Shows "EN" when forcing English, locale code when showing translated.
+ * Compact track-and-thumb switch consistent with sidebar toggles.
  * Only renders on non-GB markets.
  */
 import { useForceEnglish } from '@/providers/IntlProvider';
 import { getMarketFromHost, getMarketFromPath } from '@/lib/market/market';
-import { useTranslations } from 'next-intl';
 import cn from '@/lib/core/cn';
 
 interface ShowOriginalToggleProps {
@@ -15,9 +14,12 @@ interface ShowOriginalToggleProps {
   className?: string;
 }
 
+const MARKET_LABEL: Record<string, string> = {
+  DE: 'DE', FR: 'FR', PT: 'PT', IT: 'IT', ES: 'ES',
+};
+
 export default function ShowOriginalToggle({ market: marketProp, className = '' }: ShowOriginalToggleProps) {
   const { forceEnglish, setForceEnglish } = useForceEnglish();
-  const t = useTranslations('Options');
 
   // Detect market
   const market = marketProp
@@ -27,29 +29,28 @@ export default function ShowOriginalToggle({ market: marketProp, className = '' 
 
   if (market === 'GB') return null;
 
-  const label = forceEnglish ? t('showTranslated') : t('showOriginal');
+  const localeLabel = MARKET_LABEL[market] || market;
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{label}</span>
-      <button
-        type="button"
-        onClick={() => setForceEnglish(!forceEnglish)}
-        className={cn(
-          'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50',
-          forceEnglish ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-700'
-        )}
-        aria-label={label}
-        aria-pressed={forceEnglish}
-        role="switch"
-      >
-        <span
-          className={cn(
-            'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform',
-            forceEnglish ? 'translate-x-[1.125rem]' : 'translate-x-[0.1875rem]'
-          )}
-        />
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => setForceEnglish(!forceEnglish)}
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase transition-colors',
+        forceEnglish
+          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+          : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
+        className
+      )}
+      aria-label={forceEnglish ? `Showing English — switch to ${localeLabel}` : `Showing ${localeLabel} — switch to English`}
+      aria-pressed={forceEnglish}
+      role="switch"
+    >
+      <span className={cn(
+        'inline-block w-1.5 h-1.5 rounded-full',
+        forceEnglish ? 'bg-blue-500' : 'bg-gray-400 dark:bg-gray-500'
+      )} />
+      {forceEnglish ? 'EN' : localeLabel}
+    </button>
   );
 }

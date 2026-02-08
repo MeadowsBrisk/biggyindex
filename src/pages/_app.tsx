@@ -5,6 +5,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import FixedControls from "@/components/layout/FixedControls";
 import LBGuideModal from "@/components/guides/LBGuideModal";
+import IntroSplash from "@/components/layout/IntroSplash";
 import ThemeSync from "@/components/hydrators/ThemeSync";
 import VotesHydrator from "@/components/hydrators/VotesHydrator";
 import FXHydrator from "@/components/hydrators/FXHydrator";
@@ -55,6 +56,7 @@ export default function App({ Component, pageProps }: AppProps) {
         </main>
         <FixedControls />
         <LBGuideModal />
+        <IntroSplash />
       </IntlProvider>
     </>
   );

@@ -46,6 +46,14 @@ export default function LBGuideModal() {
 
   useEffect(() => { setMounted(true); }, []);
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [isOpen]);
+
   const handleContinue = useCallback(() => {
     if (dontShow) setSeen(true);
     setIsOpen(false);
