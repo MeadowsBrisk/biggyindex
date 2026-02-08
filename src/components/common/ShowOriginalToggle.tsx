@@ -7,6 +7,7 @@
 import { useForceEnglish } from '@/providers/IntlProvider';
 import { getMarketFromHost, getMarketFromPath } from '@/lib/market/market';
 import cn from '@/lib/core/cn';
+import { useState, useEffect } from 'react';
 
 interface ShowOriginalToggleProps {
   /** Override market detection (useful for SSR-rendered pages) */
@@ -21,13 +22,22 @@ const MARKET_LABEL: Record<string, string> = {
 export default function ShowOriginalToggle({ market: marketProp, className = '' }: ShowOriginalToggleProps) {
   const { forceEnglish, setForceEnglish } = useForceEnglish();
 
-  // Detect market
-  const market = marketProp
-    || (typeof window !== 'undefined'
-      ? getMarketFromHost(window.location.hostname) || getMarketFromPath(window.location.pathname)
-      : 'GB');
+  // Defer window-based market detection to avoid hydration mismatch (React #418)
+  const [detectedMarket, setDetectedMarket] = useState<string | null>(marketProp || null);
+  useEffect(() => {
+    if (!marketProp) {
+      setDetectedMarket(
+        getMarketFromHost(window.location.hostname)
+        || getMarketFromPath(window.location.pathname)
+        || 'GB'
+      );
+    }
+  }, [marketProp]);
 
-  if (market === 'GB') return null;
+  const market = detectedMarket;
+
+  // Don't render until market is known (prevents hydration mismatch) or if GB
+  if (!market || market === 'GB') return null;
 
   const localeLabel = MARKET_LABEL[market] || market;
 
@@ -43,7 +53,7 @@ export default function ShowOriginalToggle({ market: marketProp, className = '' 
         className
       )}
       aria-label={forceEnglish ? `Showing English — switch to ${localeLabel}` : `Showing ${localeLabel} — switch to English`}
-      aria-pressed={forceEnglish}
+      aria-checked={forceEnglish}
       role="switch"
     >
       <span className={cn(

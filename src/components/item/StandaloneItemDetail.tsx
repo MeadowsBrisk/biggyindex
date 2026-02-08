@@ -389,6 +389,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
                             src={proxyImage(src)}
                             alt={name}
                             loading={idx === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={idx === 0 ? 'high' : undefined}
                             decoding="async"
                             draggable={false}
                             className="object-cover w-full h-full select-none cursor-zoom-in transition-transform duration-900 ease-out group-hover:scale-[1.04]"

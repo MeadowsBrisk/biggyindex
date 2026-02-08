@@ -4,6 +4,7 @@ import { introSeenAtom } from "@/store/atoms";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import LeafIcon from "@/components/icons/LeafIcon";
+import { useRouter } from "next/router";
 
 /**
  * First-visit intro splash.
@@ -35,6 +36,17 @@ const EXIT       = 0.5;  // everything fades out
 const TOTAL = FADE_IN + SPREAD + HOLD;
 
 export default function IntroSplash() {
+  const router = useRouter();
+
+  // Only show on index (/) and /home pages — not on slug/SEO pages
+  const isIndexOrHome = router.pathname === '/' || router.pathname === '/home'
+    || router.pathname === '/de' || router.pathname === '/fr'
+    || router.pathname === '/pt' || router.pathname === '/it'
+    || router.pathname === '/es'
+    || router.pathname === '/de/home' || router.pathname === '/fr/home'
+    || router.pathname === '/pt/home' || router.pathname === '/it/home'
+    || router.pathname === '/es/home';
+
   // Read localStorage synchronously on first render so returning users
   // never see even a single frame of the splash.
   const [alreadySeen] = useState(() => {
@@ -56,7 +68,7 @@ export default function IntroSplash() {
   const [visible, setVisible] = useState(true);
 
 //    const shouldShow = true; // for testing
-  const shouldShow = !alreadySeen && !seen;
+  const shouldShow = isIndexOrHome && !alreadySeen && !seen;
 
   // Timeline
   useEffect(() => {
