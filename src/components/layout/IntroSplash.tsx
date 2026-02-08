@@ -18,8 +18,9 @@ import LeafIcon from "@/components/icons/LeafIcon";
  * Ratios control bracket vs leaf proportions — change those
  * to tweak relative sizes without breaking responsiveness.       */
 const SCALE        = 10;    // overall size (vmin units — try 20–40)
-const LEAF_RATIO   = 0.45; // leaf width as fraction of bracket font-size
-const LEAF_NUDGE   = 24;     // leaf vertical nudge in % of its own height (+ = down)
+const LEAF_RATIO   = 0.56; // leaf width as fraction of bracket font-size
+const LEAF_NUDGE   = 0.41; // leaf vertical nudge in em (+ = down)
+const BRACKET_FONT = "system-ui, -apple-system, sans-serif"; // consistent + tight spacing
 
 /* ── Timing (seconds) ────────────────────────────────────────── */
 const FADE_IN    = 0.3;   // brackets fade in
@@ -51,8 +52,8 @@ export default function IntroSplash() {
   const [done, setDone] = useState(false);   // trigger exit
   const [visible, setVisible] = useState(true);
 
-//    const shouldShow = true; // for testing
-  const shouldShow = !alreadySeen && !seen;
+   const shouldShow = true; // for testing
+//   const shouldShow = !alreadySeen && !seen;
 
   // Timeline
   useEffect(() => {
@@ -88,12 +89,13 @@ export default function IntroSplash() {
           exit={{ opacity: 0 }}
           transition={{ duration: EXIT, ease: 'easeInOut' }}
         >
+          {/* Flex row: { spacer } with leaf absolutely centred */}
           <div className="relative flex items-center justify-center"
                style={{ fontSize: `${SCALE}vmin` }}>
             {/* Left { */}
             <motion.span
               className="text-gray-900 dark:text-gray-100 select-none"
-              style={{ fontSize: '1em', lineHeight: 1 }}
+              style={{ fontSize: '1.1em', lineHeight: 1, fontFamily: BRACKET_FONT }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ opacity: { duration: 0.25 } }}
@@ -101,23 +103,18 @@ export default function IntroSplash() {
               {'{'}
             </motion.span>
 
-            {/* Invisible spacer that expands to push brackets apart */}
+            {/* Spacer: drives bracket spread from 0 → leaf width */}
             <motion.div
+              style={{ flexShrink: 0 }}
               initial={{ width: 0 }}
               animate={{ width: open ? `${LEAF_RATIO}em` : 0 }}
               transition={{ width: { duration: SPREAD, ease: [0.25, 0.6, 0.3, 1] } }}
-              style={{ flexShrink: 0 }}
             />
 
-            {/* Leaf — absolutely positioned, centred with transform */}
+            {/* Leaf: centred with inset-0 m-auto, nudge applied via marginTop */}
             <motion.div
-              className="absolute flex items-center justify-center text-gray-900 dark:text-gray-100"
-              style={{
-                width: `${LEAF_RATIO}em`,
-                top: '50%',
-                left: '50%',
-                transform: `translate(-50%, calc(-50% + ${LEAF_NUDGE}%))`,
-              }}
+              className="absolute inset-0 m-auto flex items-center justify-center text-gray-900 dark:text-gray-100"
+              style={{ width: `${LEAF_RATIO}em`, height: `${LEAF_RATIO}em`, marginTop: `${LEAF_NUDGE}em` }}
               initial={{ opacity: 0 }}
               animate={{ opacity: open ? 1 : 0 }}
               transition={{ opacity: { duration: LEAF_FADE, delay: LEAF_DELAY } }}
@@ -128,7 +125,7 @@ export default function IntroSplash() {
             {/* Right } */}
             <motion.span
               className="text-gray-900 dark:text-gray-100 select-none"
-              style={{ fontSize: '1em', lineHeight: 1 }}
+              style={{ fontSize: '1.1em', lineHeight: 1, fontFamily: BRACKET_FONT }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ opacity: { duration: 0.25 } }}
