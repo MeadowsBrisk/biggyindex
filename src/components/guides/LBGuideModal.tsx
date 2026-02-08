@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { useCallback, useEffect, useState } from "react";
 import { EMBASSY_LINKS } from "@/lib/market/embassyLinks";
 import { useLocale } from "@/providers/IntlProvider";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 const STEPS = ["country", "buy", "account", "checkout"] as const;
 
@@ -47,12 +48,7 @@ export default function LBGuideModal() {
   useEffect(() => { setMounted(true); }, []);
 
   // Lock body scroll while modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   const handleContinue = useCallback(() => {
     if (dontShow) setSeen(true);

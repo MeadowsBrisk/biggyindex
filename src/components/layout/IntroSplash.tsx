@@ -55,8 +55,8 @@ export default function IntroSplash() {
   const [done, setDone] = useState(false);   // trigger exit
   const [visible, setVisible] = useState(true);
 
-   const shouldShow = true; // for testing
-//   const shouldShow = !alreadySeen && !seen;
+//    const shouldShow = true; // for testing
+  const shouldShow = !alreadySeen && !seen;
 
   // Timeline
   useEffect(() => {
