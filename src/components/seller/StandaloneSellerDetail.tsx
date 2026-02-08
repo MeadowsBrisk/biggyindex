@@ -16,6 +16,8 @@ import formatDescription from '@/lib/ui/formatDescription';
 import { useTranslations } from 'next-intl';
 import SimpleItemCard from '@/components/item/SimpleItemCard';
 import BrowseIndexButton from '@/components/actions/BrowseIndexButton';
+import ShowOriginalToggle from '@/components/common/ShowOriginalToggle';
+import { useForceEnglish } from '@/providers/IntlProvider';
 
 type OpenPreviewSignal = { ts: number; index: number; guard: unknown } | null;
 type ReviewGallerySignal = { images: string[]; index: number; ts: number; guard: unknown } | null;
@@ -42,7 +44,8 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
   useEffect(() => { setAvatarLoadFailed(false); }, [sellerId]);
 
   const name = decodeEntities(detail?.sellerName || 'Seller');
-  const manifesto = detail?.manifesto || '';
+  const { forceEnglish } = useForceEnglish();
+  const manifesto = forceEnglish ? (detail?.originalManifesto || detail?.manifesto || '') : (detail?.manifesto || '');
   const manifestoNode = useMemo(() => formatDescription(manifesto || null), [manifesto]);
   const online = detail?.sellerOnline || null;
   const joined = detail?.sellerJoined || null;
@@ -198,7 +201,10 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
                 </div>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="font-semibold text-2xl text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h1>
+                <div className="flex items-start justify-between gap-2">
+                  <h1 className="font-semibold text-2xl text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h1>
+                  <ShowOriginalToggle className="shrink-0 mt-1" />
+                </div>
                 <div className="mt-1 text-sm text-gray-600 dark:text-gray-300 flex items-center gap-3 flex-wrap">
                   {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {tAn('online')} {online}</span>}
                   {joined && <span>{tSP('joined', { date: joined })}</span>}

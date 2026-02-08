@@ -30,8 +30,9 @@ import { useExchangeRates, convertToGBP } from '@/hooks/useExchangeRates';
 import { roundDisplayGBP } from '@/lib/pricing/priceDisplay';
 import { formatUSD } from '@/lib/pricing/priceDisplay';
 import { perUnitSuffix } from '@/hooks/usePerUnitLabel';
-import { useDisplayCurrency } from '@/providers/IntlProvider';
+import { useDisplayCurrency, useForceEnglish } from '@/providers/IntlProvider';
 import formatDescription from '@/lib/ui/formatDescription';
+import ShowOriginalToggle from '@/components/common/ShowOriginalToggle';
 import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/countries';
 import { proxyImage } from '@/lib/ui/images';
 import cn from '@/lib/core/cn';
@@ -196,15 +197,25 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
     }
   }, [detail, shippingOptions, includeShipping, selectedShipIdx]);
 
+  // Force English preference for item content
+  const { forceEnglish } = useForceEnglish();
+
   // BUG-002: Use detail.n or _shipSeo.n as fallback if baseItem is missing (item delisted)
-  const name = decodeEntities((baseItem as any)?.n || (detail as any)?.n || shipSeo?.n || (detail as any)?.name || 'Item');
+  const name = decodeEntities(
+    forceEnglish && ((baseItem as any)?.nEn || (detail as any)?.nEn)
+      ? ((baseItem as any)?.nEn || (detail as any)?.nEn)
+      : ((baseItem as any)?.n || (detail as any)?.n || shipSeo?.n || (detail as any)?.name || 'Item')
+  );
   // Full description: prefer translated for non-GB, then English
   const description = useMemo(() => {
+    if (forceEnglish) {
+      return (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.dEn || (baseItem as any)?.d || '';
+    }
     if (market && market !== 'GB' && (detail as any)?.descriptionTranslated) {
       return (detail as any).descriptionTranslated;
     }
     return (detail as any)?.descriptionFull || (detail as any)?.description || (baseItem as any)?.d || '';
-  }, [detail, baseItem, market]);
+  }, [forceEnglish, detail, baseItem, market]);
   const reviews = (detail as any)?.reviews || [];
   const baseVariants = (baseItem as any)?.v || [];
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray(baseVariants) && baseVariants.length > 0;
@@ -732,6 +743,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
                     <span className="opacity-80">{tOv('itemUnavailableDesc')}</span>
                   </div>
                 )}
+                <ShowOriginalToggle market={market} className="mt-2" />
              </div>
 
              {/* Description */}

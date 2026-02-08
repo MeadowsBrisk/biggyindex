@@ -1,6 +1,6 @@
 "use client";
 import { useAtom, useAtomValue } from "jotai";
-import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, excludedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, favouritesAtom, shipFromPinnedAtom, includedSellersAtom } from "@/store/atoms";
+import { manifestAtom, categoryAtom, selectedSubcategoriesAtom, excludedSubcategoriesAtom, favouritesOnlyAtom, categoryLiveCountsAtom, shipFromOptionsAtom, selectedShipFromAtom, excludedShipFromAtom, freeShippingOnlyAtom, subcategoryLiveCountsAtom, shipFromPinnedAtom, includedSellersAtom, activeFavouritesCountAtom } from "@/store/atoms";
 import cn from "@/lib/core/cn";
 import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -17,7 +17,7 @@ export default function CategoryFilter() {
   const [manifest] = useAtom(manifestAtom as any) as [any, any];
   const [category, setCategory] = useAtom(categoryAtom as any) as [string, (v: any) => void];
   const [favouritesOnly, setFavouritesOnly] = useAtom(favouritesOnlyAtom as any) as [boolean, (v: any) => void];
-  const favourites = useAtomValue(favouritesAtom as any) || [] as any[];
+  const activeFavCount = useAtomValue(activeFavouritesCountAtom);
   const [selectedSubs, setSelectedSubs] = useAtom(selectedSubcategoriesAtom as any) as [string[], (v: any) => void];
   const [excludedSubs, setExcludedSubs] = useAtom(excludedSubcategoriesAtom as any) as [string[], (v: any) => void];
   const liveCounts = useAtomValue(categoryLiveCountsAtom as any) as any;
@@ -156,7 +156,7 @@ export default function CategoryFilter() {
       {/* Favourites toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{(() => {
-          const n = Array.isArray(favourites) ? favourites.length : 0;
+          const n = activeFavCount;
           return n > 0 ? `${tSidebar('favouritesOnly')} (${n})` : tSidebar('favouritesOnly');
         })()}</span>
         <button

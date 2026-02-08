@@ -51,7 +51,9 @@
     "clearDataHint": "Elimina favoritos, filtros y todas las preferencias guardadas",
     "clearDataConfirm": "Esto borrará todos tus datos guardados, incluyendo favoritos, filtros y preferencias. ¿Continuar?",
     "skipGuides": "Ocultar guías de ayuda",
-    "skipGuidesDesc": "Oculta los consejos de bienvenida antes de visitar LittleBiggy. Desactiva para verlos de nuevo."
+    "skipGuidesDesc": "Oculta los consejos de bienvenida antes de visitar LittleBiggy. Desactiva para verlos de nuevo.",
+    "showOriginal": "Ver original",
+    "showTranslated": "Ver traducción"
   },
   "Categories": {
     "flower": "Flor",
@@ -136,7 +138,7 @@
   "Sort": {
     "sortBySr": "Ordenar por",
     "labels": {
-      "hotness": "Popularidad/Bigg (Por defecto)",
+      "hotness": "Popularidad (Por defecto)",
       "endorsements": "Recomendaciones",
       "lastUpdated": "Actualizado recientemente",
       "firstSeen": "Primero visto (Más nuevo)",

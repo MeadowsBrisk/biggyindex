@@ -10,6 +10,7 @@ import { formatUSD } from '@/lib/pricing/priceDisplay';
 import VariantPriceList from '@/components/item/VariantPriceList';
 import { REVIEWS_DISPLAY_LIMIT } from '@/components/reviews/ReviewsList';
 import { variantRangeText, displayedAmount } from '@/lib/pricing/variantPricingDisplay';
+import ShowOriginalToggle from '@/components/common/ShowOriginalToggle';
 
 type Props = {
   baseItem: any;
@@ -455,7 +456,10 @@ export default function MobileTabs({
         {/* DESCRIPTION SECTION */}
         <div ref={descRef} data-section-id="description" className="scroll-mt-[70px]">
           <div className="mt-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white/80 dark:bg-gray-900/30 p-3">
-            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 uppercase tracking-wide text-[11px]">{tOv('description')}</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 uppercase tracking-wide text-[11px]">{tOv('description')}</h3>
+              <ShowOriginalToggle />
+            </div>
             {loading && (
               <div className="animate-pulse space-y-2">
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />

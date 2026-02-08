@@ -19,6 +19,8 @@ import formatDescription from '@/lib/ui/formatDescription';
 import { translateOnlineStatus } from '@/lib/ui/relativeTimeCompact';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocaleForMarket } from '@/lib/market/market';
+import ShowOriginalToggle from '@/components/common/ShowOriginalToggle';
+import { useForceEnglish } from '@/providers/IntlProvider';
 
 type OpenPreviewSignal = { ts: number; index: number; guard: unknown } | null;
 type ReviewGallerySignal = { images: string[]; index: number; ts: number; guard: unknown } | null;
@@ -98,7 +100,9 @@ export default function SellerOverlay() {
 
   const name = decodeEntities(detail?.sellerName || 'Seller');
   const locale = useLocale();
+  const { forceEnglish } = useForceEnglish();
   const manifesto = useMemo(() => {
+    if (forceEnglish) return detail?.manifesto || '';
     // Map short locale (de) to full locale key (de-DE) if possible, or try direct lookups
     // The R2 keys are fully qualified (de-DE).
     // We can try to guess the full locale from the short one or check common ones.
@@ -109,7 +113,7 @@ export default function SellerOverlay() {
       return detail.translations.locales[lookupKey].manifesto;
     }
     return detail?.manifesto || '';
-  }, [detail, locale]);
+  }, [detail, locale, forceEnglish]);
 
   const manifestoNode = useMemo(() => formatDescription(manifesto || null), [manifesto]);
   const joined = detail?.sellerJoined || null;
@@ -251,8 +255,11 @@ export default function SellerOverlay() {
                         </button>
                       </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h2 className="font-semibold text-base md:text-lg text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h2>
+                    <div className="min-w-0 flex-1 relative">
+                      <div className="flex items-start justify-between gap-2">
+                        <h2 className="font-semibold text-base md:text-lg text-gray-900 dark:text-gray-100 truncate" title={name}>{name}</h2>
+                        <ShowOriginalToggle className="shrink-0" />
+                      </div>
                       <div className="mt-1 text-xs text-gray-600 dark:text-gray-300 flex items-center gap-3 flex-wrap">
                         {online && <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {translateOnlineStatus(online, tRel)}</span>}
                         {joined && <span>{tSP('joined', { date: joined })}</span>}

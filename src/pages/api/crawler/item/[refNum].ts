@@ -65,6 +65,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (ship.translations?.description) {
             detailObj.descriptionTranslated = ship.translations.description;
           }
+          // Apply variant translations from shipping blob to .v entries
+          if (ship.translations?.v && Array.isArray(ship.translations.v) && Array.isArray(detailObj.v)) {
+            const translatedMap = new Map<string, string>();
+            for (const tv of ship.translations.v) {
+              if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
+            }
+            for (const vItem of detailObj.v) {
+              const vid = String(vItem.vid ?? vItem.id);
+              const translated = translatedMap.get(vid);
+              if (translated) {
+                vItem.dEn = vItem.dEn || vItem.d;
+                vItem.d = translated;
+              }
+            }
+          }
           detailObj._shipSeo = {
             n: ship.n, sn: ship.sn, sid: ship.sid,
             i: ship.i, is: ship.is, c: ship.c, sc: ship.sc,

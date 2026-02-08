@@ -51,7 +51,9 @@
     "clearDataHint": "Removes favourites, filters, and all saved preferences",
     "clearDataConfirm": "This will clear all your saved data including favourites, filters, and preferences. Continue?",
     "skipGuides": "Skip help guides",
-    "skipGuidesDesc": "Hide the onboarding tips shown before visiting LittleBiggy. Turn off to see them again."
+    "skipGuidesDesc": "Hide the onboarding tips shown before visiting LittleBiggy. Turn off to see them again.",
+    "showOriginal": "Show original",
+    "showTranslated": "Show translated"
   },
   "Categories": {
     "flower": "Flower",
@@ -136,7 +138,7 @@
   "Sort": {
     "sortBySr": "Sort by",
     "labels": {
-      "hotness": "Hotness/Bigg (Default)",
+      "hotness": "Hotness (Default)",
       "endorsements": "Endorsements",
       "lastUpdated": "Recently Updated",
       "firstSeen": "First Seen (Newest)",

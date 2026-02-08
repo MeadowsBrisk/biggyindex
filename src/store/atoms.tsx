@@ -388,6 +388,15 @@ export const toggleFavouriteAtom = atom<null, [any], void>(null, (get: any, set:
   const next = exists ? curr.filter((id) => id !== itemId) : [...curr, itemId];
   set(favouritesAtom, next);
 });
+// Count of favourites that actually exist in the current item index (excludes stale/removed items)
+export const activeFavouritesCountAtom = atom<number>((get) => {
+  const favs = get(favouritesAtom) as string[];
+  if (!favs || favs.length === 0) return 0;
+  const items = get(itemsAtom) as Item[];
+  if (!items || items.length === 0) return 0;
+  const idSet = new Set(items.map(it => it?.id).filter(Boolean));
+  return favs.filter(id => idSet.has(id)).length;
+});
 
 // Derived filtered items - TRUE SINGLE-PASS filtering for performance
 export const filteredItemsAtom = atom<Item[]>((get: any) => {

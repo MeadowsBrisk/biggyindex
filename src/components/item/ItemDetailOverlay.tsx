@@ -48,6 +48,7 @@ import { countryLabelFromSource, normalizeShipFromCode } from '@/lib/market/coun
 import { getMarketFromPath } from '@/lib/market/market';
 import { proxyImage } from '@/lib/ui/images';
 import cn from '@/lib/core/cn';
+import ShowOriginalToggle from '@/components/common/ShowOriginalToggle';
 import ShareMenu from '@/components/actions/ShareMenu';
 import EndorseButton from '@/components/actions/EndorseButton';
 import MobileTabs from '@/components/item/item-detail/MobileTabs';
@@ -942,6 +943,7 @@ export default function ItemDetailOverlay() {
                           <span className="opacity-80">{tOv('itemUnavailableDesc')}</span>
                         </div>
                       )}
+                      <ShowOriginalToggle className="mt-2" />
                     </div>
 
                     <div>

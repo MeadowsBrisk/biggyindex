@@ -51,7 +51,9 @@
     "clearDataHint": "Entfernt Favoriten, Filter und alle gespeicherten Einstellungen",
     "clearDataConfirm": "Dies löscht alle gespeicherten Daten einschließlich Favoriten, Filter und Einstellungen. Fortfahren?",
     "skipGuides": "Hilfe überspringen",
-    "skipGuidesDesc": "Onboarding-Tipps vor dem Besuch von LittleBiggy ausblenden. Ausschalten, um sie wieder anzuzeigen."
+    "skipGuidesDesc": "Onboarding-Tipps vor dem Besuch von LittleBiggy ausblenden. Ausschalten, um sie wieder anzuzeigen.",
+    "showOriginal": "Original anzeigen",
+    "showTranslated": "Übersetzung anzeigen"
   },
   "Categories": {
     "flower": "Blüten",
@@ -137,7 +139,7 @@
   "Sort": {
     "sortBySr": "Sortieren nach",
     "labels": {
-      "hotness": "Beliebtheit/Bigg (Standard)",
+      "hotness": "Beliebtheit (Standard)",
       "endorsements": "Empfehlungen",
       "lastUpdated": "Kürzlich aktualisiert",
       "firstSeen": "Zuerst gesehen (Neueste)",

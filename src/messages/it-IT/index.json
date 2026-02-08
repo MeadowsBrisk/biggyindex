@@ -51,7 +51,9 @@
     "clearDataHint": "Rimuove preferiti, filtri e tutte le preferenze salvate",
     "clearDataConfirm": "Questo cancellerà tutti i dati salvati inclusi preferiti, filtri e preferenze. Continuare?",
     "skipGuides": "Nascondi guide",
-    "skipGuidesDesc": "Nasconde i suggerimenti di benvenuto prima di visitare LittleBiggy. Disattiva per rivederli."
+    "skipGuidesDesc": "Nasconde i suggerimenti di benvenuto prima di visitare LittleBiggy. Disattiva per rivederli.",
+    "showOriginal": "Mostra originale",
+    "showTranslated": "Mostra traduzione"
   },
   "Categories": {
     "flower": "Fiori",
@@ -137,7 +139,7 @@
   "Sort": {
     "sortBySr": "Ordina per",
     "labels": {
-      "hotness": "Popolarità/Bigg (Predefinito)",
+      "hotness": "Popolarità (Predefinito)",
       "endorsements": "Raccomandazioni",
       "lastUpdated": "Aggiornati di recente",
       "firstSeen": "Primo visto (Più recente)",

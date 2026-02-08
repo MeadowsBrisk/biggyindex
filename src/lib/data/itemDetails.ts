@@ -1,6 +1,6 @@
 // used for item slug pages and item detail fetching
 
-import { MARKETS, type Market, getLocaleForMarket } from '@/lib/market/market';
+import { MARKETS, type Market } from '@/lib/market/market';
 import { readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 function normalizeMarket(mkt: any): Market {
@@ -106,44 +106,31 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
       if (Array.isArray(ship.sc)) { detailObj.sc = ship.sc; detailObj.subcategories = ship.sc; }
     }
 
-    // 3. Apply translations from the translation aggregate (non-GB markets)
-    if (mkt !== 'GB') {
-      try {
-        const targetLocale = getLocaleForMarket(mkt);
-        const aggKey = 'aggregates/translations.json';
-        const agg = await readR2JSON<any>(buildR2Key(sharedStoreName, aggKey));
-        if (agg) {
-          const entry = agg[String(refNum)];
-          const localeTranslation = entry?.locales?.[targetLocale];
-          if (localeTranslation) {
-            if (localeTranslation.n) {
-              detailObj.nEn = detailObj.nEn || detailObj.n;
-              detailObj.n = localeTranslation.n;
-              detailObj.name = localeTranslation.n;
-            }
-            if (localeTranslation.d) {
-              detailObj.dEn = detailObj.dEn || detailObj.d;
-              detailObj.d = localeTranslation.d;
-            }
-            if (Array.isArray(localeTranslation.v) && Array.isArray(detailObj.variants)) {
-              const translatedMap = new Map<string, string>();
-              for (const tv of localeTranslation.v) {
-                if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
-              }
-              for (const variant of detailObj.variants) {
-                const vid = String(variant.vid ?? variant.id);
-                const translated = translatedMap.get(vid);
-                if (translated) {
-                  variant.dEn = variant.dEn || variant.d || variant.description;
-                  variant.d = translated;
-                  variant.description = translated;
-                }
-              }
-            }
+    // 3. Apply variant translations from shipping blob (non-GB markets)
+    if (mkt !== 'GB' && ship?.translations?.v && Array.isArray(ship.translations.v) && Array.isArray(detailObj.variants)) {
+      const translatedMap = new Map<string, string>();
+      for (const tv of ship.translations.v) {
+        if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
+      }
+      for (const variant of detailObj.variants) {
+        const vid = String(variant.vid ?? variant.id);
+        const translated = translatedMap.get(vid);
+        if (translated) {
+          variant.dEn = variant.dEn || variant.d || variant.description;
+          variant.d = translated;
+          variant.description = translated;
+        }
+      }
+      // Also update minified v[] so components reading .v get translated text
+      if (Array.isArray(detailObj.v)) {
+        for (const vItem of detailObj.v) {
+          const vid = String(vItem.vid ?? vItem.id);
+          const translated = translatedMap.get(vid);
+          if (translated) {
+            vItem.dEn = vItem.dEn || vItem.d;
+            vItem.d = translated;
           }
         }
-      } catch (e) {
-        console.warn('[itemDetails] Failed to load translation aggregate:', e);
       }
     }
 

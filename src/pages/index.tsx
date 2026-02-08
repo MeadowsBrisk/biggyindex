@@ -698,7 +698,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
                 <PpgWeightPills />
               </div>
             )}
-            <div className="relative min-h-40">
+            <div className="relative min-h-[80vh]">
               {loadingUi && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />

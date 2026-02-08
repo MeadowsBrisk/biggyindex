@@ -565,6 +565,28 @@ async function runTranslateItems(opts: TranslateOptions = {}): Promise<Translate
                   variantTranslations.push({ vid: sortedVariants[vi].vid!, d: translatedText.trim() });
                 }
               }
+
+              // Update shipping blob with new variant translations
+              if (variantTranslations.length > 0) {
+                const market = LOCALE_TO_MARKET[locales[localeIdx]];
+                if (market) {
+                  try {
+                    const mktStoreName = marketStore(market, env.stores as any);
+                    const mktBlob = getBlobClient(mktStoreName);
+                    const shipKey = Keys.market.shipping(item.refNum);
+                    const existingShip = await mktBlob.getJSON<any>(shipKey);
+                    if (existingShip?.translations) {
+                      existingShip.translations.v = variantTranslations;
+                      existingShip.translations.updatedAt = new Date().toISOString();
+                      await mktBlob.putJSON(shipKey, existingShip);
+                    }
+                  } catch (shipErr: any) {
+                    log.translate.warn('failed to update shipping blob variants', {
+                      refNum: item.refNum, error: shipErr?.message || String(shipErr),
+                    });
+                  }
+                }
+              }
             } else {
               // First result is name+desc, rest are variants
               const nameDescText = allResults[0]?.translations?.[localeIdx]?.text || '';
@@ -625,11 +647,20 @@ async function runTranslateItems(opts: TranslateOptions = {}): Promise<Translate
                     }
                   }
 
+                  // Map remaining results to variants (before writing shipping blob)
+                  for (let vi = 0; vi < sortedVariants.length && vi + 1 < allResults.length; vi++) {
+                    const translatedText = allResults[vi + 1]?.translations?.[localeIdx]?.text || '';
+                    if (sortedVariants[vi].vid !== undefined && translatedText) {
+                      variantTranslations.push({ vid: sortedVariants[vi].vid!, d: translatedText.trim() });
+                    }
+                  }
+
                   // Add/update translations field (include sourceLabelsHash for change detection)
                   existingShip.translations = {
                     description: fullDescription,
                     ...(translatedShippingOptions ? { shippingOptions: translatedShippingOptions } :
                       existingTranslatedOptions ? { shippingOptions: existingTranslatedOptions } : {}),
+                    ...(variantTranslations.length > 0 ? { v: variantTranslations } : {}),
                     sourceHash: item.hash,
                     ...(currentLabelsHash ? { sourceLabelsHash: currentLabelsHash } : {}),
                     updatedAt: new Date().toISOString(),
@@ -642,14 +673,6 @@ async function runTranslateItems(opts: TranslateOptions = {}): Promise<Translate
                     market,
                     error: shipErr?.message || String(shipErr),
                   });
-                }
-              }
-
-              // Map remaining results to variants
-              for (let vi = 0; vi < sortedVariants.length && vi + 1 < allResults.length; vi++) {
-                const translatedText = allResults[vi + 1]?.translations?.[localeIdx]?.text || '';
-                if (sortedVariants[vi].vid !== undefined && translatedText) {
-                  variantTranslations.push({ vid: sortedVariants[vi].vid!, d: translatedText.trim() });
                 }
               }
             }
