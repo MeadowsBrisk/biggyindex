@@ -3,8 +3,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 /**
  * On-Demand ISR Revalidation API
  * 
- * Allows the unified crawler to trigger immediate page rebuilds after updating blobs,
- * rather than waiting for the ISR timer (revalidate: 1000 = ~16 minutes).
+ * Allows the unified crawler to trigger immediate page rebuilds after updating R2 data,
+ * rather than waiting for the ISR safety-net timer (revalidate: 2400 = 40 minutes).
  * 
  * Security: Protected by REVALIDATE_SECRET_TOKEN via Authorization header.
  * 

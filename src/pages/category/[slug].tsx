@@ -90,7 +90,7 @@ export const getStaticProps: GetStaticProps<CategoryPageProps> = async (context)
         snapshotMeta: meta,
         messages,
       },
-      revalidate: hasData ? 1200 : 60, // 20 min normal, 1 min if empty
+      revalidate: hasData ? 2400 : 60, // 40 min safety net (on-demand revalidation handles freshness)
     };
   } catch (e) {
     console.error('[Category ISR] Failed to fetch data:', e);

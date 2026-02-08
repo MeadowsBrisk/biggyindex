@@ -258,7 +258,7 @@
     "shipping": "Shipping",
     "totalIncl": "Total (incl. shipping)",
     "grandTotal": "Grand total",
-    "virtualNote": "This is just a virtual basket for calculating costs. Follow the links to Biggy above.",
+    "virtualNote": "This is just a virtual basket for calculating costs. Follow the links to LittleBiggy above.",
     "viewDetails": "View details",
     "change": "Change",
     "variant": "Variant {num}",

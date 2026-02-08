@@ -1,99 +1,123 @@
-# LittleBiggy Items Index — Indexer, Crawler, and UI
+# BiggyIndex — Item Index & UI
 
-[Biggy Index](https://biggyindex.com)
+[biggyindex.com](https://biggyindex.com)
 
-An independent, lightweight index of public listings on LittleBiggy, with search, categorization, and an improved UI. The index does not sell anything. It surfaces public data and links back to the original seller pages.
+An independent, lightweight index of public listings on LittleBiggy, with search, categorization, multi-market support, and an improved UI. The index does not sell anything — it surfaces public data and links back to the original seller pages.
 
+## What's in this repository
 
-## What’s in this repository
-- Indexer (Node/serverless): Fetches public listings, normalizes fields, categorizes items, and writes static JSON artifacts under `public/`.
-- Crawler (Node/serverless): Authenticated fetch that enriches items with details like reviews, shipping options, referral/share links, and full descriptions.
-- Front‑end (Next.js): A fast, minimal UI (Tailwind v4 + Jotai) that loads the generated JSON and provides filtering, sorting, favourites, and endorsements.
+- **Unified Crawler** (`scripts/unified-crawler/`): Multi-stage pipeline that fetches, enriches, translates, and optimizes item data across 6 markets (GB, DE, FR, PT, IT, ES). Persists all data to Cloudflare R2.
+- **Front-end** (Next.js 16, Pages Router): Fast, localised UI (Tailwind v4 + Jotai + next-intl) with filtering, sorting, favourites, endorsements, and per-market translations.
+- **Netlify Functions**: Scheduled background functions that run the crawler pipeline on a cadence.
 
-## How it works (high level)
-1) Indexer → `scripts/indexer/index-items.js`
-	- Fetches items, applies a keyword/heuristic classification pipeline (e.g., Flower, Hash, Edibles, Vapes, etc.).
-	- Outputs:
-	  - `public/indexed_items.json` (full dataset)
-	  - `public/data/manifest.json` (counts + file map)
-	  - `public/data/items-<category>.json` (per‑category shards)
-	  - `public/sellers.json` (aggregate seller stats)
-    - Supports filesystem or Netlify blobs.
+## How it works
 
-2) Crawler (enrichment) → `scripts/item-crawler/*`
-	- Adds per‑item details when available: shipping options and summary range, description, and a reviews snapshot.
-    - Calls review API a few times per day to keep reviews fresh. Only does a full scan when an item is new or detected as updated by the indexer.
-	- Writes:
-	  - `public/item-crawler/items/<refNum>.json` (one file per item)
-	  - `public/item-crawler/index-supplement.js` (aggregated share + shipping range map, fed back into the indexer so the main index can show shipping min/max)
-	- When running in Netlify Functions, persistence can use Netlify Blobs; locally it falls back to filesystem.
+### 1. Unified Crawler → `scripts/unified-crawler/`
+Multi-stage pipeline orchestrated via CLI (`yarn uc --stage=<stage>`):
 
-3) UI → `src/pages/*`
-	- Loads `manifest.json` first, then the appropriate item JSON (full or per‑category) on demand.
-	- Clicking an item opens a detail overlay that lazily fetches the crawler’s per‑item JSON when present.
-	- Endorsement (vote) counts are stored in Netlify Blobs with a simple API and optimistic UI updates.
+| Stage | Schedule | Purpose |
+|-------|----------|---------|
+| **Index** | Every 30 min | Scrape marketplace per market, fast-enrich up to 20 new items inline |
+| **Items** | Every 4h | Full enrichment — descriptions, reviews, shipping, images |
+| **Sellers** | Every 4h (offset) | Seller profiles, reputation, review aggregation |
+| **Translate** | Daily | Translate names/descriptions for non-GB markets via Azure |
+| **Images** | Daily | Catch-up image optimization + stale R2 cleanup |
+| **Pricing** | Daily | Price-per-gram aggregates for weight-based sorting |
+
+All data stored in Cloudflare R2 (`biggyindex-data` bucket). Images stored in separate R2 bucket (`biggyindex-images`).
+
+### 2. Front-end → `src/pages/`
+- API routes read from R2, return JSON with `?mkt=XX` param for market selection
+- All items loaded at once in `getStaticProps`; category switching is purely client-side filtering
+- On-demand ISR: crawler triggers `/api/revalidate` after each run for immediate page rebuilds
+- Fallback `revalidate: 2400` (40 min) safety net in case on-demand revalidation fails
+- Item detail overlays lazy-fetch per-item data from R2
+- Endorsement counts stored in Neon (Postgres) with optimistic UI
+
+### 3. Multi-Market Routing
+- **Production**: Subdomain-based (`de.biggyindex.com`, `fr.biggyindex.com`, etc.)
+- **Local dev**: Path-based (`/de`, `/fr`)
+- 6 locales: `en-GB`, `de-DE`, `fr-FR`, `pt-PT`, `it-IT`, `es-ES`
 
 ## Tech stack
-- Next.js 15 (Pages Router), React 19, Tailwind CSS v4
-- Jotai for state, Framer Motion animations
-- Netlify Functions; Neon (Postgres) for endorsements; Netlify Blobs for certain crawler artifacts
-- Axios + cookie jar support in the crawler
+- Next.js 16 (Pages Router), React 19 (with React Compiler), TypeScript
+- Tailwind CSS v4, Jotai state management, Framer Motion animations
+- next-intl for i18n, @aws-sdk/client-s3 for R2 access
+- Netlify Functions (background, scheduled), Neon Postgres for endorsements
+- Biome for linting/formatting, Sharp for image optimization
 
 ## Quick start
-Prerequisites: Node.js 18+, Yarn
 
-Install dependencies:
+Prerequisites: Node.js 20+, Yarn
+
 ```bash
+# Install dependencies
 yarn
-```
 
-Generate data (run the indexer):
-```bash
-yarn index
-```
-
-Run the app (dev):
-```bash
+# Run the app (dev)
 yarn dev
 ```
-Then open http://localhost:3000
+Then open http://localhost:3000. Data is served from R2 — no local indexing required for frontend dev.
 
-Build for production:
 ```bash
+# Production build
 yarn build
-```
-This runs the indexer and then builds the Next.js site.
 
-Optional: run the crawler (requires LittleBiggy credentials)
+# Run the crawler (requires credentials)
+yarn uc --stage=index --markets=GB --limit=10
+```
+
+## Key commands
+
 ```bash
-node scripts/item-crawler/crawl-items.js --limit=50
+yarn dev              # Next.js dev server (port 3000)
+yarn build            # Production build
+yarn lint             # Biome check
+yarn format           # Biome format --write
+
+# Unified Crawler stages
+yarn uc:index         # Index all markets
+yarn uc:items         # Enrich items
+yarn uc:sellers       # Seller analytics
+yarn uc:translate     # Translate for non-GB markets
+yarn uc:images        # Image optimization
+yarn uc:pricing       # Price-per-gram
+yarn uc:all           # Full pipeline (index → items → sellers)
 ```
-Environment variables (set in your shell, `.env`, or Netlify):
-- `LB_LOGIN_USERNAME`, `LB_LOGIN_PASSWORD` — for the crawler
-- `CRAWLER_*` — see `item-crawler-plan.md` for options
 
-## Data files produced
-- `public/indexed_items.json` — entire processed list (may include uncategorized)
-- `public/data/manifest.json` — counts, category files, price bounds
-- `public/data/items-<category>.json` — category‑specific subsets
-- `public/sellers.json` — seller stats
-- `public/item-crawler/items/<refNum>.json` — enriched per‑item details (when crawled)
-- `public/item-crawler/index-supplement.js` — links + shipping info (when crawled)
+## Data storage
 
-## Endorse (vote) feature
-A lightweight up‑vote stored in Neon (Postgres) via Netlify’s database integration so counts persist without rebuilding (falls back to in‑memory in local/dev if no DB configured).
+All data lives in Cloudflare R2 (S3-compatible):
 
-API (simplified):
-- `GET /api/endorse?ids=id1,id2` → `{ votes: { id: count }, windowBucket }`
+| Bucket | Content |
+|--------|---------|
+| `data` | Item/seller JSON, aggregates, per-market indexes |
+| `images` | Optimized AVIF thumbnails, full-size, animated WebP |
+
+Key structure:
+```
+shared/items/{id}.json              # Canonical item data
+shared/sellers/{id}.json            # Seller profiles
+shared/aggregates/*.json            # Translations, image-meta, shares
+markets/{code}/indexed_items.json   # Per-market item index
+markets/{code}/data/manifest.json   # Category counts
+markets/{code}/market-shipping/{id}.json  # Shipping + translations
+```
+
+## Endorsements
+
+Lightweight up-vote stored in Neon (Postgres):
+- `GET /api/endorse?ids=id1,id2` → vote counts
 - `POST /api/endorse` with `{ itemId, cid }` → one vote per rolling window
+- Pseudonymous client ID, optimistic UI
 
-Client behavior:
-- Generates a pseudonymous `voteCid` in localStorage
-- Optimistic UI update; persists endorsed items by bucket in `endorsedBuckets`
+## Environment variables
 
-Environment variables:
-- `NETLIFY_DATABASE_URL` — Neon Postgres connection string (production)
-- `VOTE_WINDOW_HOURS` (default 24)
-- `VOTE_HASH_SALT` (set a secure random string in production)
-- `VOTE_IP_MAX` (reserved for future rate limiting)
-
+| Variable | Purpose |
+|----------|---------|
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2 access |
+| `LB_USERNAME`, `LB_PASSWORD` | Crawler authentication |
+| `AZURE_TRANSLATOR_KEY`, `AZURE_TRANSLATOR_REGION` | Translation API |
+| `NETLIFY_DATABASE_URL` | Neon Postgres (endorsements) |
+| `NEXT_PUBLIC_R2_IMAGE_URL` | Public R2 image URL |
+| `VOTE_HASH_SALT` | Endorsement security salt |

@@ -238,7 +238,7 @@ export async function buildHomeProps(market: string = 'GB') {
       sellersLeaderboard: sellersLeaderboardRaw ?? null,
       sellersIndex: sellers ?? null,
     },
-    revalidate: 900,
+    revalidate: 2400, // 40 min safety net (on-demand revalidation handles freshness)
   };
 }
 

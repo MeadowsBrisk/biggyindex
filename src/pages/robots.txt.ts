@@ -16,9 +16,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     '',
     // Reduce crawl noise from accidental or templated query strings like ?q=...
     'Disallow: /*?*q=',
-    // BUG-011: Block SPA modal/filter URL params that Google reports as
-    // "Alternative page with proper canonical tag" — these are client-side
-    // overlay states, not distinct pages
+
     'Disallow: /*?*ref=',
     'Disallow: /*?*cat=',
     'Disallow: /*?*sub=',

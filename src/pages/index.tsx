@@ -89,8 +89,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
         snapshotMeta: meta,
         messages, // SSR messages for next-intl
       },
-      // If data is empty, retry in 10 seconds instead of 16 minutes
-      revalidate: hasData ? 1000 : 10,
+      // On-demand revalidation (/api/revalidate) runs after each indexer cycle (~30 min).
+      // This timer is a safety net only — if on-demand fails, catch up within one cycle.
+      // 40 min avoids overlap with the 30-min indexer cadence.
+      // Empty data retries in 10 seconds.
+      revalidate: hasData ? 2400 : 10,
     };
   } catch (e) {
     console.error('[ISR] Failed to fetch data:', e);
