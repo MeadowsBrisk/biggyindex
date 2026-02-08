@@ -12,6 +12,12 @@
       },
       "tooltip": { "inParent": "{name} listings in {parent}" }
     },
+    "embassy": {
+      "badge": "Need a hand?",
+      "title": "Get help in your language",
+      "subtitle": "Our embassy is a community post where you can ask questions and get help in your own language.",
+      "cta": "Visit the embassy"
+    },
     "quickStart": {
       "badge": "How it works",
       "title": "Buying on Littlebiggy, a step-by-step guide",
@@ -156,6 +162,11 @@
       },
       "languages": {
         "label": "Also available in"
+      },
+      "embassy": {
+        "label": "Need help?",
+        "text": "New to LittleBiggy? Our embassy is a community post where you can ask questions and get help in your language.",
+        "cta": "Visit the embassy"
       }
     },
     "faq": {
@@ -172,7 +183,7 @@
         { "q": "Where does the data come from?", "a": "The index fetches public LittleBiggy data, normalising categories, pricing summaries, shipping info, reviews and images." },
         { "q": "How often is it refreshed?", "a": "There are 3 components that refresh at different intervals. The main indexer runs every 15 minutes. The item and seller crawlers run every 4 hours, at separate times to be mindful of LittleBiggy's server." },
         { "q": "What does First Seen or Updated on items mean?", "a": "First seen/created means that it's the first time the item was indexed by the crawler. This can include items which were on LB before the indexer existed. Updated means that the item was edited by the seller, or that the crawler detected a change (e.g. price, variants, description)." },
-        { "q": "What are endorsements?", "a": "Community votes stored via Netlify Blobs highlight popular items without tracking you." }
+        { "q": "What are endorsements?", "a": "Community votes that highlight popular items without tracking you." }
       ],
       "crypto": [
         { "q": "What payments does LittleBiggy accept?", "a": "Only Bitcoin - no cards, bank transfers or other cryptocurrencies." },

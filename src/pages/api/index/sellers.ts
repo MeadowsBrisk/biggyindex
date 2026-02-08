@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const meta: any = await getSnapshotMeta(mkt);
   const sellers: any[] = await getSellers(mkt);
   
-  // Safety check: if sellers array is empty, don't cache it (likely a blob read failure)
+  // Safety check: if sellers array is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !sellers || sellers.length === 0;
   if (isEmpty) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');

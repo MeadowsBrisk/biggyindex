@@ -10,11 +10,13 @@ import { useTranslations } from 'next-intl';
 import {
   optionsModalOpenAtom,
   highResImagesAtom,
+  lbGuideSeenAtom,
 } from '@/store/atoms';
 
 export default function OptionsModal(): React.ReactElement {
   const [open, setOpen] = useAtom(optionsModalOpenAtom);
   const [highResImages, setHighResImages] = useAtom(highResImagesAtom);
+  const [guideSeen, setGuideSeen] = useAtom(lbGuideSeenAtom);
   // Use the IntlProvider's forceEnglish context (directly affects translations)
   const { forceEnglish, setForceEnglish } = useForceEnglish();
   const { locale } = useLocale();
@@ -141,6 +143,36 @@ export default function OptionsModal(): React.ReactElement {
                 </div>
               </label>
             )}
+            
+            {/* Skip help guides toggle */}
+            <label className="flex items-center justify-between gap-3 cursor-pointer group">
+              <div className="flex-1">
+                <div className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {t('skipGuides')}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {t('skipGuidesDesc')}
+                </div>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={guideSeen}
+                  onChange={(e) => setGuideSeen(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className={cn(
+                  "w-11 h-6 rounded-full transition-colors",
+                  "bg-gray-200 dark:bg-gray-700",
+                  "peer-checked:bg-blue-500 dark:peer-checked:bg-blue-600",
+                  "peer-focus:ring-2 peer-focus:ring-blue-500/40"
+                )} />
+                <div className={cn(
+                  "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
+                  "peer-checked:translate-x-5"
+                )} />
+              </div>
+            </label>
             
             {/* Divider */}
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">

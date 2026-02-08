@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const meta: any = await getSnapshotMeta(mkt);
   const manifest: any = await getManifest(mkt);
   
-  // Safety check: if manifest is empty, don't cache it (likely a blob read failure)
+  // Safety check: if manifest is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !manifest || Object.keys(manifest.categories || {}).length === 0;
   if (isEmpty) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');

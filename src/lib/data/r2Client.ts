@@ -6,7 +6,7 @@
  *
  * Key layout matches the crawler's store.ts R2 layout:
  *   markets/{code}/...  ← market-specific data
- *   shared/...          ← shared item/seller blobs
+ *   shared/...          ← shared item/seller data
  */
 
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
@@ -33,7 +33,7 @@ function getR2Client(): S3Client {
 
 /**
  * Read JSON from R2. Returns null only for "key not found".
- * Real errors propagate (no silent null like Netlify Blobs).
+ * Real errors propagate (no silent null).
  */
 export async function readR2JSON<T = any>(key: string): Promise<T | null> {
   try {
@@ -55,7 +55,7 @@ export async function readR2JSON<T = any>(key: string): Promise<T | null> {
 // ---------------------------------------------------------------------------
 
 /**
- * Build the R2 key for a given Netlify Blob store name + key.
+ * Build the R2 key for a given store prefix + key.
  * Mirrors the same mapping as the crawler's store.ts scopeToR2Prefix.
  */
 export function buildR2Key(storeName: string, key: string): string {

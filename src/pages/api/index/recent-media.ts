@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const sellerImagesMap: any = await getSellerImages();
   const updatedAt: string = meta?.updatedAt || new Date().toISOString();
   
-  // Safety check: if media is empty, don't cache it (likely a blob read failure)
+  // Safety check: if media is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !mediaRaw || mediaRaw.length === 0;
   if (isEmpty) {
     console.warn(`[recent-media] Empty response for market=${mkt}`);

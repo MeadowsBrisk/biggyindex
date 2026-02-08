@@ -1,4 +1,4 @@
-// SSR helpers to load item/seller details from market-specific Netlify Blobs
+// SSR helpers to load item/seller details from market-specific R2 storage
 // Uses the same indexData infrastructure as the frontend for consistency
 
 import type { Market } from '@/lib/market/market';

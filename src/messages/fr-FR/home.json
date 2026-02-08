@@ -52,6 +52,11 @@
       },
       "languages": {
         "label": "Également disponible en"
+      },
+      "embassy": {
+        "label": "Besoin d'aide ?",
+        "text": "Nouveau sur LittleBiggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
+        "cta": "Visiter l'ambassade"
       }
     },
     "leaderboard": {
@@ -205,6 +210,12 @@
       },
       "tooltip": { "inParent": "{name} dans {parent}" }
     },
+    "embassy": {
+      "badge": "Besoin d'aide ?",
+      "title": "De l'aide dans ta langue",
+      "subtitle": "L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
+      "cta": "Visiter l'ambassade"
+    },
     "reviews": {
       "header": {
         "label": "Pouls de la communauté",
@@ -257,7 +268,7 @@
         { "q": "D'où viennent les données ?", "a": "Données publiques LittleBiggy, avec normalisation des catégories, prix, informations d'expédition, avis et images." },
           { "q": "Fréquence des mises à jour ?", "a": "L'indexeur principal toutes les 15 min. Les crawlers articles/vendeurs toutes les 4 heures, à des moments différents." },
           { "q": "Que signifient « Première apparition » et « Mis à jour » ?", "a": "Première apparition/créé = première indexation détectée par le crawler (y compris des articles présents avant l'indexeur). Mis à jour = le vendeur a modifié l'annonce ou une évolution a été détectée (prix, variantes, description)." },
-        { "q": "Qu'est-ce que les endorsements ?", "a": "Des votes de la communauté via Netlify Blobs mettent en avant les articles populaires, sans vous tracer." }
+        { "q": "Qu'est-ce que les endorsements ?", "a": "Des votes de la communauté qui mettent en avant les articles populaires, sans vous tracer." }
       ],
       "crypto": [
         { "q": "Quels paiements LittleBiggy accepte-t-il ?", "a": "Uniquement Bitcoin – pas de cartes, virements ni autres cryptos." },

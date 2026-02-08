@@ -12,6 +12,12 @@
       },
       "tooltip": { "inParent": "{name} anuncios en {parent}" }
     },
+    "embassy": {
+      "badge": "¿Necesitas ayuda?",
+      "title": "Ayuda en tu idioma",
+      "subtitle": "La embajada es un post de la comunidad donde puedes hacer preguntas y recibir ayuda en español.",
+      "cta": "Visitar la embajada"
+    },
     "quickStart": {
       "badge": "Cómo funciona",
       "title": "Comprar en Littlebiggy, guía paso a paso",
@@ -156,6 +162,11 @@
       },
       "languages": {
         "label": "También disponible en"
+      },
+      "embassy": {
+        "label": "¿Necesitas ayuda?",
+        "text": "¿Nuevo en LittleBiggy? La embajada es un post de la comunidad donde puedes hacer preguntas y recibir ayuda en español.",
+        "cta": "Visitar la embajada"
       }
     },
     "faq": {
@@ -172,7 +183,7 @@
         { "q": "¿De dónde vienen los datos?", "a": "El índice obtiene datos públicos de LittleBiggy, normalizando categorías, resúmenes de precios, información de envío, reseñas e imágenes." },
         { "q": "¿Con qué frecuencia se actualiza?", "a": "Hay 3 componentes que se actualizan en diferentes intervalos. El indexador principal se ejecuta cada 15 minutos. Los rastreadores de artículos y vendedores se ejecutan cada 4 horas, en momentos separados para ser respetuosos con el servidor de LittleBiggy." },
         { "q": "¿Qué significan 'Visto por primera vez' o 'Actualizado' en los artículos?", "a": "Visto por primera vez/creado significa que es la primera vez que el artículo fue indexado por el rastreador. Esto puede incluir artículos que estaban en LB antes de que existiera el indexador. Actualizado significa que el artículo fue editado por el vendedor, o que el rastreador detectó un cambio (ej. precio, variantes, descripción)." },
-        { "q": "¿Qué son las recomendaciones?", "a": "Votos de la comunidad almacenados mediante Netlify Blobs que destacan artículos populares sin rastrearte." }
+        { "q": "¿Qué son las recomendaciones?", "a": "Votos de la comunidad que destacan artículos populares sin rastrearte." }
       ],
       "crypto": [
         { "q": "¿Qué pagos acepta LittleBiggy?", "a": "Solo Bitcoin — sin tarjetas, transferencias bancarias ni otras criptomonedas." },

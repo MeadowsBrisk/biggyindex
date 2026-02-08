@@ -52,16 +52,16 @@ export const getServerSideProps: GetServerSideProps<ItemRefPageProps> = async (c
     if (!detail) return { notFound: true };
 
     // SEO: Determine item availability in this market.
-    // Shipping blob exists = item was once indexed for this market.
+    // Shipping data exists = item was once indexed for this market.
     // _markets includes current market = item is currently in the live index.
-    const hasShippingBlob = !!detail._foundInMarketIndex;
+    const hasShippingData = !!detail._foundInMarketIndex;
     const inMarketsList = Array.isArray(detail._markets) && detail._markets.includes(market);
-    if (!hasShippingBlob && !inMarketsList) {
+    if (!hasShippingData && !inMarketsList) {
       // Never available in this market → 404
       return { notFound: true };
     }
     // Was available but no longer in live index → serve page with unavailable banner
-    const unavailable = hasShippingBlob && !inMarketsList;
+    const unavailable = hasShippingData && !inMarketsList;
 
     // Load messages for server-side translation (core only - no home messages needed)
     let messages: Record<string, any> = {};
@@ -118,7 +118,7 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
   const canonical = buildItemUrl(effectiveRef, serverLocale);
 
   // BUG-015: Only emit hreflang for markets where the item actually exists.
-  // _markets comes from the shared blob (set during items crawler from presenceById).
+  // _markets comes from shared R2 data (set during items crawler from presenceById).
   // Convert market codes (GB, DE, FR...) → hreflang locale codes (en, de, fr...).
   const itemMarkets: string[] = Array.isArray(detail?._markets) ? detail._markets : [];
   const marketToHreflang = (m: string) => m === 'GB' ? 'en' : m.toLowerCase();

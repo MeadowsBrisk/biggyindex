@@ -49,7 +49,9 @@
     "forceEnglishDesc": "Artikelbeschreibungen auf Englisch statt in der lokalen Sprache anzeigen",
     "clearData": "Alle Daten löschen",
     "clearDataHint": "Entfernt Favoriten, Filter und alle gespeicherten Einstellungen",
-    "clearDataConfirm": "Dies löscht alle gespeicherten Daten einschließlich Favoriten, Filter und Einstellungen. Fortfahren?"
+    "clearDataConfirm": "Dies löscht alle gespeicherten Daten einschließlich Favoriten, Filter und Einstellungen. Fortfahren?",
+    "skipGuides": "Hilfe überspringen",
+    "skipGuidesDesc": "Onboarding-Tipps vor dem Besuch von LittleBiggy ausblenden. Ausschalten, um sie wieder anzuzeigen."
   },
   "Categories": {
     "flower": "Blüten",
@@ -436,11 +438,70 @@
       "alsoAvailable": "Auch verfügbar in"
     }
   },
+  "IndexFooter": {
+    "community": {
+      "label": "Community",
+      "text": "Tritt der Diskussion bei, teile Entdeckungen und vernetze dich mit anderen Käufern.",
+      "reddit": "r/LittleBiggy",
+      "wallTitle": "LittleBiggy Wall",
+      "wall": "Community-Pinnwand"
+    },
+    "embassy": {
+      "label": "Brauchst du Hilfe?",
+      "text": "Neu bei LittleBiggy? Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.",
+      "cta": "Zur Botschaft"
+    },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "q1": "Was ist Biggy Index?",
+      "a1": "Biggy Index ist ein unabhängiges Suchwerkzeug für LittleBiggy. Es ermöglicht dir, Artikel über Verkäufer hinweg zu suchen, zu filtern und zu vergleichen — mit echten Bewertungen, Preisdaten und Verkäuferstatistiken.",
+      "q2": "Ist Biggy Index mit LittleBiggy verbunden?",
+      "a2": "Nein. Biggy Index ist ein unabhängiges Projekt. Wir verwenden Empfehlungslinks — wenn du zu LittleBiggy weitergeleitet wirst, unterstützt du die Seite ohne Mehrkosten.",
+      "q3": "Wie oft werden die Daten aktualisiert?",
+      "a3": "Der Index wird etwa alle 30 Minuten aktualisiert. Preise, Verfügbarkeit und Bewertungen werden möglichst aktuell gehalten.",
+      "q4": "Welche Länder werden unterstützt?",
+      "a4": "Biggy Index deckt derzeit sechs Märkte ab: Vereinigtes Königreich, Deutschland, Frankreich, Portugal, Italien und Spanien. Jeder Markt zeigt Artikel mit lokaler Währung an.",
+      "q5": "Wie funktioniert der Preisvergleich?",
+      "a5": "Alle Preise werden in einer einheitlichen Währung gespeichert und in Echtzeit in deine lokale Währung umgerechnet. Du kannst nach Preisspanne filtern und nach Preis sortieren."
+    },
+    "languages": {
+      "label": "Auch verfügbar in"
+    },
+    "meta": {
+      "copyright": "© {year} Biggy Index",
+      "lastCrawled": "Daten aktualisiert {date}",
+      "disclaimer": "Nicht mit LittleBiggy verbunden. Empfehlungslinks werden verwendet."
+    }
+  },
   "FirstVisitBanner": {
     "title": "Willkommen beim Biggy Index",
     "description": "Little Biggy durchsuchen mit Kategorien, Filtern, Bewertungen und Verkäuferstatistiken. Neu im Marktplatz?",
     "button": "Mehr erfahren",
     "close": "Schließen"
+  },
+  "LBGuide": {
+    "title": "Bevor du zu LittleBiggy gehst...",
+    "subtitle": "Schnelle Tipps für den Einstieg auf dem Marktplatz.",
+    "steps": {
+      "country": {
+        "title": "1. Wähle dein Land",
+        "text": "LittleBiggy bedient mehrere Regionen. Stelle sicher, dass du das richtige Land auswählst, damit du Artikel siehst, die zu dir geliefert werden."
+      },
+      "basket": {
+        "title": "2. In den Warenkorb legen",
+        "text": "Etwas Passendes gefunden? Tippe auf der Artikelseite auf \"In den Warenkorb\". Du kannst Artikel von verschiedenen Verkäufern hinzufügen."
+      },
+      "checkout": {
+        "title": "3. Mit Bitcoin bezahlen",
+        "text": "LittleBiggy akzeptiert nur Bitcoin. Beim Checkout siehst du einen Betrag und eine Wallet-Adresse für die Zahlung."
+      }
+    },
+    "continueBtn": "Verstanden — weiter zu LittleBiggy",
+    "dontShowAgain": "Nicht mehr anzeigen",
+    "guideLink": {
+      "title": "Zur Botschaft",
+      "text": "Brauchst du Hilfe? Stell deine Fragen und bekomme Antworten auf Deutsch."
+    }
   },
   "SellerPage": {
     "joined": "beigetreten {date}",

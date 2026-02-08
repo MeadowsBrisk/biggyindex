@@ -13,6 +13,7 @@ export default function FixedControls() {
   const router = useRouter();
   const isSlugPage = router.pathname === '/item/[ref]' || router.pathname === '/seller/[id]';
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
   const rafRef = useRef<number | null>(null);
 
   const handleToggle = () => {
@@ -32,6 +33,22 @@ export default function FixedControls() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  // Watch for footer visibility (set by IndexFooter via data attribute on <html>)
+  useEffect(() => {
+    const check = () => {
+      setFooterVisible(document.documentElement.dataset.footerVisible === 'true');
+    };
+    // Use a MutationObserver on the data attribute
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-footer-visible'] });
+    // Also poll on scroll since the attribute is set by IntersectionObserver
+    window.addEventListener('scroll', check, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', check);
     };
   }, []);
 
@@ -59,7 +76,15 @@ export default function FixedControls() {
   );
 
   return (
-    <div className={cn("fixed right-4 z-50 flex items-center gap-3", isSlugPage ? "top-4" : "bottom-4")}>
+    <AnimatePresence>
+      {!footerVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.2 }}
+          className={cn("fixed right-4 z-50 flex items-center gap-3", isSlugPage ? "top-4" : "bottom-4")}
+        >
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
@@ -121,6 +146,8 @@ export default function FixedControls() {
           </motion.span>
         </AnimatePresence>
       </button>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Items now use minified keys directly - no normalization needed
   const items = rawItems;
   
-  // Safety check: if items array is empty, don't cache it (likely a blob read failure)
+  // Safety check: if items array is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !items || items.length === 0;
   if (isEmpty) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');

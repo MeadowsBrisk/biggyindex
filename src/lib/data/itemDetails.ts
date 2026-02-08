@@ -24,7 +24,7 @@ function marketStoreName(mkt: Market) {
 }
 
 /**
- * Fetch full item detail by merging shared blob + per-market shipping blob.
+ * Fetch full item detail by merging shared data + per-market shipping data.
  *
  * Data layout:
  *  1. shared/items/{id}.json  → description, reviews, shareLink,
@@ -36,7 +36,7 @@ function marketStoreName(mkt: Market) {
  *  2. markets/{mkt}/market-shipping/{id}.json → shipping options +
  *     translated SEO fields (n, sn, sid, i, is, c, sc for BUG-002 fallback).
  *     The translated `n` (name) takes priority for non-GB markets.
- *     Blob existence = item is available in this market.
+ *     R2 key existence = item is available in this market.
  */
 export async function fetchItemDetail(refNum: string | number, market: string = 'GB'): Promise<any | null> {
   if (!refNum) return null;
@@ -46,7 +46,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
     const sharedStoreName = process.env.SHARED_STORE_NAME || 'site-index-shared';
     const mktStoreName = marketStoreName(mkt);
 
-    // 1. Load shared blob (all locale-independent data)
+    // 1. Load shared data (all locale-independent data)
     const itemKey = `items/${encodeURIComponent(String(refNum))}.json`;
     let detailObj = await readR2JSON<any>(buildR2Key(sharedStoreName, itemKey));
     if (!detailObj) return null;
@@ -76,7 +76,7 @@ export async function fetchItemDetail(refNum: string | number, market: string = 
     detailObj.refNum = detailObj.refNum ?? detailObj.ref ?? refNum;
     detailObj.id = detailObj.id ?? refNum;
 
-    // 2. Load per-market shipping blob
+    // 2. Load per-market shipping data
     const shipKey = `market-shipping/${encodeURIComponent(String(refNum))}.json`;
     let ship = await readR2JSON<any>(buildR2Key(mktStoreName, shipKey));
 

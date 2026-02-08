@@ -51,7 +51,9 @@
     "loadAllItemsDesc": "Permet la recherche Ctrl+F mais peut ralentir le chargement initial",
     "clearData": "Effacer toutes les données",
     "clearDataHint": "Supprime les favoris, filtres et toutes les préférences enregistrées",
-    "clearDataConfirm": "Cela effacera toutes vos données enregistrées, y compris les favoris, filtres et préférences. Continuer ?"
+    "clearDataConfirm": "Cela effacera toutes vos données enregistrées, y compris les favoris, filtres et préférences. Continuer ?",
+    "skipGuides": "Masquer les guides",
+    "skipGuidesDesc": "Masquer les conseils d'accueil avant de visiter LittleBiggy. Désactivez pour les revoir."
   },
   "Categories": {
     "flower": "Fleurs",
@@ -438,11 +440,70 @@
       "alsoAvailable": "Également disponible en"
     }
   },
+  "IndexFooter": {
+    "community": {
+      "label": "Communauté",
+      "text": "Rejoignez la conversation, partagez vos trouvailles et connectez-vous avec d'autres acheteurs.",
+      "reddit": "r/LittleBiggy",
+      "wallTitle": "LittleBiggy Wall",
+      "wall": "Mur communautaire"
+    },
+    "embassy": {
+      "label": "Besoin d'aide ?",
+      "text": "Nouveau sur LittleBiggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
+      "cta": "Visiter l'ambassade"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "q1": "Qu'est-ce que Biggy Index ?",
+      "a1": "Biggy Index est un outil de navigation indépendant pour LittleBiggy. Il vous permet de rechercher, filtrer et comparer les articles entre vendeurs avec de vrais avis, des données de prix et des statistiques vendeurs.",
+      "q2": "Biggy Index est-il affilié à LittleBiggy ?",
+      "a2": "Non. Biggy Index est un projet indépendant. Nous utilisons des liens de parrainage — quand vous cliquez vers LittleBiggy, vous soutenez le site sans frais supplémentaires.",
+      "q3": "À quelle fréquence les données sont-elles mises à jour ?",
+      "a3": "L'index est actualisé environ toutes les 30 minutes. Les prix, la disponibilité et les avis sont maintenus aussi à jour que possible.",
+      "q4": "Quels pays sont pris en charge ?",
+      "a4": "Biggy Index couvre actuellement six marchés : Royaume-Uni, Allemagne, France, Portugal, Italie et Espagne. Chaque marché affiche les articles disponibles dans cette région avec les prix en devise locale.",
+      "q5": "Comment fonctionne la comparaison de prix ?",
+      "a5": "Tous les prix sont stockés dans une devise commune et convertis en temps réel dans votre devise locale. Vous pouvez filtrer par fourchette de prix et trier par prix pour trouver les meilleures offres."
+    },
+    "languages": {
+      "label": "Également disponible en"
+    },
+    "meta": {
+      "copyright": "© {year} Biggy Index",
+      "lastCrawled": "Données mises à jour {date}",
+      "disclaimer": "Non affilié à LittleBiggy. Liens de parrainage utilisés."
+    }
+  },
   "FirstVisitBanner": {
     "title": "Bienvenue sur le Biggy Index",
     "description": "Parcourez Little Biggy avec des catégories, filtres, avis et stats vendeurs. Nouveau sur la plateforme ?",
     "button": "En savoir plus",
     "close": "Fermer"
+  },
+  "LBGuide": {
+    "title": "Avant d'aller sur LittleBiggy...",
+    "subtitle": "Quelques conseils pour bien démarrer sur la marketplace.",
+    "steps": {
+      "country": {
+        "title": "1. Choisissez votre pays",
+        "text": "LittleBiggy couvre plusieurs régions. Assurez-vous de sélectionner le bon pays pour voir les articles livrés chez vous."
+      },
+      "basket": {
+        "title": "2. Ajouter au panier",
+        "text": "Vous avez trouvé quelque chose ? Appuyez sur \"Ajouter au panier\" sur la page de l'article. Vous pouvez ajouter des articles de différents vendeurs."
+      },
+      "checkout": {
+        "title": "3. Payer en Bitcoin",
+        "text": "LittleBiggy n'accepte que le Bitcoin. Au moment du paiement, vous verrez un montant et une adresse de portefeuille."
+      }
+    },
+    "continueBtn": "Compris — aller sur LittleBiggy",
+    "dontShowAgain": "Ne plus afficher",
+    "guideLink": {
+      "title": "Visiter l'ambassade",
+      "text": "Besoin d'aide ? Pose tes questions et obtiens des réponses en français."
+    }
   },
   "SellerPage": {
     "joined": "rejoint {date}",

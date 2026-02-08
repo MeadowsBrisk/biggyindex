@@ -49,7 +49,9 @@
     "forceEnglishDesc": "Show item descriptions in English instead of the local language",
     "clearData": "Clear all data",
     "clearDataHint": "Removes favourites, filters, and all saved preferences",
-    "clearDataConfirm": "This will clear all your saved data including favourites, filters, and preferences. Continue?"
+    "clearDataConfirm": "This will clear all your saved data including favourites, filters, and preferences. Continue?",
+    "skipGuides": "Skip help guides",
+    "skipGuidesDesc": "Hide the onboarding tips shown before visiting LittleBiggy. Turn off to see them again."
   },
   "Categories": {
     "flower": "Flower",
@@ -435,11 +437,70 @@
       "alsoAvailable": "Also available in"
     }
   },
+  "IndexFooter": {
+    "community": {
+      "label": "Community",
+      "text": "Join the conversation, share finds, and connect with other buyers.",
+      "reddit": "r/LittleBiggy",
+      "wallTitle": "LittleBiggy Wall",
+      "wall": "Community Wall"
+    },
+    "embassy": {
+      "label": "Need help?",
+      "text": "New to LittleBiggy? Our embassy is a community post where you can ask questions and get help in your language.",
+      "cta": "Visit the embassy"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "What is Biggy Index?",
+      "a1": "Biggy Index is an independent browsing tool for LittleBiggy. It lets you search, filter, and compare items across sellers with real reviews, pricing data, and seller statistics — all in one place.",
+      "q2": "Is Biggy Index affiliated with LittleBiggy?",
+      "a2": "No. Biggy Index is an independent project. We use referral links so when you click through to LittleBiggy, you support the site at no extra cost to you.",
+      "q3": "How often is the data updated?",
+      "a3": "The index is refreshed approximately every 30 minutes. Prices, stock availability, and reviews are kept as current as possible.",
+      "q4": "Which countries are supported?",
+      "a4": "Biggy Index currently covers six markets: United Kingdom, Germany, France, Portugal, Italy, and Spain. Each market shows items available in that region with local currency pricing.",
+      "q5": "How does the price comparison work?",
+      "a5": "All prices are stored in a common currency and converted to your local currency in real time. You can filter by price range and sort by price to find the best deals across sellers."
+    },
+    "languages": {
+      "label": "Also available in"
+    },
+    "meta": {
+      "copyright": "© {year} Biggy Index",
+      "lastCrawled": "Data updated {date}",
+      "disclaimer": "Not affiliated with LittleBiggy. Referral links used."
+    }
+  },
   "FirstVisitBanner": {
     "title": "Welcome to the Biggy Index",
     "description": "Browse Little Biggy with categories, filters, reviews & seller stats. New to the marketplace?",
     "button": "Learn more",
     "close": "Close"
+  },
+  "LBGuide": {
+    "title": "Before you go to LittleBiggy...",
+    "subtitle": "Quick tips to help you get started on the marketplace.",
+    "steps": {
+      "country": {
+        "title": "1. Pick your country",
+        "text": "LittleBiggy serves multiple regions. Make sure you select the right country so you see items that ship to you."
+      },
+      "basket": {
+        "title": "2. Add to basket",
+        "text": "Found something you like? Tap \"Add to Basket\" on the item page. You can add items from different sellers."
+      },
+      "checkout": {
+        "title": "3. Checkout with Bitcoin",
+        "text": "LittleBiggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to."
+      }
+    },
+    "continueBtn": "Got it — take me to LittleBiggy",
+    "dontShowAgain": "Don't show this again",
+    "guideLink": {
+      "title": "Visit the embassy",
+      "text": "Need help? Ask questions and get answers in your language."
+    }
   },
   "SellerPage": {
     "joined": "joined {date}",

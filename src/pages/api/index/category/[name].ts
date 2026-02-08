@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Items now use minified keys directly - no normalization needed
   const items = rawItems;
   
-  // Safety check: if category items is empty, don't cache it (could be a blob read failure)
+  // Safety check: if category items is empty, don't cache it (could be an R2 read failure)
   // Note: empty category is valid, so only warn but still apply no-cache for safety
   const isEmpty = !items || items.length === 0;
   if (isEmpty) {

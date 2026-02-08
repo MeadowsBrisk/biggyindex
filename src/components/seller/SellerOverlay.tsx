@@ -100,7 +100,7 @@ export default function SellerOverlay() {
   const locale = useLocale();
   const manifesto = useMemo(() => {
     // Map short locale (de) to full locale key (de-DE) if possible, or try direct lookups
-    // The blob keys are fully qualified (de-DE).
+    // The R2 keys are fully qualified (de-DE).
     // We can try to guess the full locale from the short one or check common ones.
     const fullLocaleMap: Record<string, string> = { 'de': 'de-DE', 'fr': 'fr-FR', 'it': 'it-IT', 'pt': 'pt-PT', 'en': 'en-GB' };
     const lookupKey = fullLocaleMap[locale] || locale;

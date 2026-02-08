@@ -47,6 +47,7 @@ import LocaleSelector from '@/components/layout/LocaleSelector';
 import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
 import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket, HREFLANG_LOCALES } from '@/lib/market/market';
+import IndexFooter from '@/sections/index/IndexFooter';
 
 export const getStaticProps: GetStaticProps = async (context) => {
   // ISR: Pre-fetch all items and manifest at build time / revalidation
@@ -129,6 +130,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const tSidebar = useTranslations('Sidebar');
   const tCats = useTranslations('Categories');
   const tMeta = useTranslations('Meta');
+  const tFooter = useTranslations('IndexFooter');
   // Determine market: prefer host-based (subdomains) then path-based for localhost/dev
   const market = React.useMemo(() => {
     const path = typeof router?.asPath === 'string' ? router.asPath : (typeof router?.pathname === 'string' ? router.pathname : '/');
@@ -458,7 +460,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
             const items = Array.isArray(data.items) ? data.items : [];
             if (!cancelled && items.length) setAllItems(items);
           } else {
-            // No filesystem fallback in blobs-only mode
+            // No filesystem fallback in R2-only mode
           }
         } catch { }
       })();
@@ -598,6 +600,20 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     };
   }, [origin, activeCategory, subs, tCats]);
 
+  // FAQ structured data for SEO (FAQPage schema)
+  const faqJsonLd = React.useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [1, 2, 3, 4, 5].map((n) => ({
+      '@type': 'Question',
+      name: tFooter(`faq.q${n}`),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: tFooter(`faq.a${n}`),
+      },
+    })),
+  }), [tFooter]);
+
   return (
     <>
       {!suppressDefaultHead && (
@@ -631,6 +647,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
           {activeCategory && (
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
           )}
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
         </Head>
       )}
       {/*<AnnouncementBanner />*/}
@@ -691,8 +708,10 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
             </div>
           </div>
         </div>
-        {/*  Renable soon */}
-        <InfoButton content={null as any} />
+        {/* Tip jar — desktop only (sidebar has its own on mobile) */}
+        <div className="hidden md:block">
+          <InfoButton content={null as any} />
+        </div>
         <ItemDetailOverlay />
         <SellerOverlay />
         <SellerAnalyticsModal />
@@ -700,6 +719,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         <OptionsModal />
         <FirstVisitBanner />
       </main>
+      <IndexFooter lastCrawlTime={snapshotMeta?.updatedAt} />
     </>
   );
 }

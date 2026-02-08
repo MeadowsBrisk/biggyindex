@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const sellerImagesMap: any = await getSellerImages();
   const updatedAt: string = meta?.updatedAt || new Date().toISOString();
   
-  // Safety check: if reviews is empty, don't cache it (likely a blob read failure)
+  // Safety check: if reviews is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !reviewsRaw || reviewsRaw.length === 0;
   if (isEmpty) {
     console.warn(`[recent-reviews] Empty response for market=${mkt}`);

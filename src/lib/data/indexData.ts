@@ -1,14 +1,14 @@
 // R2-only data access — reads from Cloudflare R2 via S3 SDK.
 
 // Market-aware data access for unified crawler outputs.
-// We support per-market stores: site-index-gb, site-index-de, site-index-fr (override via env).
+// We support per-market R2 prefixes: site-index-gb, site-index-de, site-index-fr (override via env).
 // Default market is GB.
 
 import { MARKETS, type Market } from '@/lib/market/market';
 import { readR2JSON, buildR2Key } from '@/lib/data/r2Client';
 
 /**
- * Per-market blob store names, auto-derived from MARKETS.
+ * Per-market R2 store prefixes, auto-derived from MARKETS.
  * Override via env: MARKET_STORE_GB, MARKET_STORE_DE, etc.
  */
 const DEFAULT_STORES: Record<Market, string> = Object.fromEntries(
@@ -40,7 +40,7 @@ const CACHE_TTL = 60 * 1000; // 1 minute cache for high-frequency metadata
 
 let _loggedDataSource = false;
 
-async function readBlobJSON<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
+async function readR2Data<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
   const storeName = store || storeNameForMarket(market);
 
   // One-time log to confirm data source
@@ -73,28 +73,28 @@ async function readBlobJSON<T = any>(key: string, { market, store, useCache = fa
 }
 
 async function readAggregateJSON<T = any>(primaryKey: string, fallbackKey?: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
-  const primary = await readBlobJSON<T>(primaryKey, { market, store, useCache });
+  const primary = await readR2Data<T>(primaryKey, { market, store, useCache });
   if (primary != null) return primary;
   if (!fallbackKey) return null;
-  return readBlobJSON<T>(fallbackKey, { market, store, useCache });
+  return readR2Data<T>(fallbackKey, { market, store, useCache });
 }
 
 export async function getManifest(market?: Market): Promise<{ categories: Record<string, any>; totalItems: number; [k: string]: any }>
 {
-  return (await readBlobJSON('data/manifest.json', { market, useCache: true })) || { categories: {}, totalItems: 0 };
+  return (await readR2Data('data/manifest.json', { market, useCache: true })) || { categories: {}, totalItems: 0 };
 }
 
 export async function getAllItems(market?: Market): Promise<any[]>
 {
-  const blob = await readBlobJSON<any[]>('indexed_items.json', { market });
-  if (blob) return blob;
+  const result = await readR2Data<any[]>('indexed_items.json', { market });
+  if (result) return result;
   return [];
 }
 
 export async function getSellers(market?: Market): Promise<any[]>
 {
-  const blob = await readBlobJSON<any[]>('sellers.json', { market });
-  if (blob) return blob;
+  const result = await readR2Data<any[]>('sellers.json', { market });
+  if (result) return result;
   return [];
 }
 
@@ -102,14 +102,14 @@ export async function getCategoryItems(categoryName: string, market?: Market): P
 {
   if (!categoryName) return [];
   const key = `data/items-${categoryName.toLowerCase()}.json`;
-  const blob = await readBlobJSON<any[]>(key, { market });
-  if (blob) return blob;
+  const result = await readR2Data<any[]>(key, { market });
+  if (result) return result;
   return [];
 }
 
 export async function getSeenMap(market?: Market): Promise<Record<string, any>>
 {
-  return (await readBlobJSON<Record<string, any>>('seen.json', { market })) || {};
+  return (await readR2Data<Record<string, any>>('seen.json', { market })) || {};
 }
 
 export async function getItemIdSet(): Promise<Set<string | number>>
@@ -120,69 +120,69 @@ export async function getItemIdSet(): Promise<Set<string | number>>
 
 export async function getSnapshotMeta(market?: Market): Promise<any | null>
 {
-  const blob = await readBlobJSON<any>('snapshot_meta.json', { market, useCache: true });
-  if (blob) return blob;
+  const result = await readR2Data<any>('snapshot_meta.json', { market, useCache: true });
+  if (result) return result;
   return null;
 }
 
 export async function getRecentReviews(market?: Market): Promise<any[]>
 {
-  const blob = await readAggregateJSON<any[]>('aggregates/recent-reviews.json', 'analytics/recent-reviews.json', { market });
-  if (blob) return blob;
+  const result = await readAggregateJSON<any[]>('aggregates/recent-reviews.json', 'analytics/recent-reviews.json', { market });
+  if (result) return result;
   return [];
 }
 
 export async function getRecentMedia(market?: Market): Promise<any[]>
 {
-  const blob = await readAggregateJSON<any[]>('aggregates/recent-media.json', 'analytics/recent-media.json', { market });
-  if (blob) return blob;
+  const result = await readAggregateJSON<any[]>('aggregates/recent-media.json', 'analytics/recent-media.json', { market });
+  if (result) return result;
   return [];
 }
 
 export async function getSellersLeaderboard(market?: Market): Promise<any | null>
 {
-  const blob = await readAggregateJSON<any>('aggregates/sellers-leaderboard.json', 'analytics/sellers-leaderboard.json', { market });
-  if (blob) return blob;
+  const result = await readAggregateJSON<any>('aggregates/sellers-leaderboard.json', 'analytics/sellers-leaderboard.json', { market });
+  if (result) return result;
   return null;
 }
 
 export async function getSellerImages(): Promise<Record<string, any>>
 {
-  const blob = await readAggregateJSON<Record<string, any>>('seller-images.json', 'analytics/seller-images.json', { store: SHARED_STORE });
-  if (blob) return blob;
+  const result = await readAggregateJSON<Record<string, any>>('seller-images.json', 'analytics/seller-images.json', { store: SHARED_STORE });
+  if (result) return result;
   return {};
 }
 
 export async function getSellerAnalytics(market?: Market): Promise<{ sellers: any[]; totalSellers: number; dataVersion: number; [k: string]: any }>
 {
-  const blob = await readAggregateJSON<{ sellers: any[]; totalSellers: number; dataVersion: number }>('aggregates/seller-analytics.json', 'analytics/seller-analytics.json', { market });
-  if (blob) return blob;
+  const result = await readAggregateJSON<{ sellers: any[]; totalSellers: number; dataVersion: number }>('aggregates/seller-analytics.json', 'analytics/seller-analytics.json', { market });
+  if (result) return result;
   return { sellers: [], totalSellers: 0, dataVersion: 1 };
 }
 
 export async function getRecentItemsCompact(market?: Market): Promise<{ added: any[]; updated: any[] }>
 {
-  const blob = await readBlobJSON<{ added: any[]; updated: any[] }>('data/recent-items.json', { market });
-  if (blob) return blob;
+  const result = await readR2Data<{ added: any[]; updated: any[] }>('data/recent-items.json', { market });
+  if (result) return result;
   return { added: [], updated: [] };
 }
 
 export async function getItemImageLookup(market?: Market): Promise<{ byRef: Record<string, any>; byId: Record<string, any> }>
 {
-  const blob = await readBlobJSON<{ byRef: Record<string, any>; byId: Record<string, any> }>('data/item-image-lookup.json', { market });
-  if (blob) return blob;
+  const result = await readR2Data<{ byRef: Record<string, any>; byId: Record<string, any> }>('data/item-image-lookup.json', { market });
+  if (result) return result;
   return { byRef: {}, byId: {} };
 }
 
 // Pricing aggregates for price-per-gram sorting
 export async function getPricingSummary(market?: Market): Promise<any | null>
 {
-  const blob = await readBlobJSON<any>('aggregates/pricing/summary.json', { market, useCache: true });
-  return blob || null;
+  const result = await readR2Data<any>('aggregates/pricing/summary.json', { market, useCache: true });
+  return result || null;
 }
 
 export async function getPricingByWeight(weight: number, market?: Market): Promise<any | null>
 {
-  const blob = await readBlobJSON<any>(`aggregates/pricing/${weight}g.json`, { market, useCache: true });
-  return blob || null;
+  const result = await readR2Data<any>(`aggregates/pricing/${weight}g.json`, { market, useCache: true });
+  return result || null;
 }

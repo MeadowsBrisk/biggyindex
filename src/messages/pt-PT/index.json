@@ -49,7 +49,9 @@
     "forceEnglishDesc": "Mostrar descrições de artigos em inglês em vez do idioma local",
     "clearData": "Limpar todos os dados",
     "clearDataHint": "Remove favoritos, filtros e todas as preferências guardadas",
-    "clearDataConfirm": "Isto irá limpar todos os seus dados guardados, incluindo favoritos, filtros e preferências. Continuar?"
+    "clearDataConfirm": "Isto irá limpar todos os seus dados guardados, incluindo favoritos, filtros e preferências. Continuar?",
+    "skipGuides": "Ocultar guias de ajuda",
+    "skipGuidesDesc": "Ocultar as dicas de integração antes de visitar o LittleBiggy. Desative para vê-las novamente."
   },
   "Categories": {
     "flower": "Flores",
@@ -435,11 +437,70 @@
       "alsoAvailable": "Também disponível em"
     }
   },
+  "IndexFooter": {
+    "community": {
+      "label": "Comunidade",
+      "text": "Junte-se à conversa, partilhe descobertas e conecte-se com outros compradores.",
+      "reddit": "r/LittleBiggy",
+      "wallTitle": "LittleBiggy Wall",
+      "wall": "Mural da comunidade"
+    },
+    "embassy": {
+      "label": "Precisas de ajuda?",
+      "text": "Novo no LittleBiggy? A embaixada é um post da comunidade onde podes fazer perguntas e receber ajuda em português.",
+      "cta": "Visitar a embaixada"
+    },
+    "faq": {
+      "title": "Perguntas frequentes",
+      "q1": "O que é o Biggy Index?",
+      "a1": "O Biggy Index é uma ferramenta de navegação independente para o LittleBiggy. Permite pesquisar, filtrar e comparar artigos entre vendedores com avaliações reais, dados de preços e estatísticas de vendedores.",
+      "q2": "O Biggy Index é afiliado ao LittleBiggy?",
+      "a2": "Não. O Biggy Index é um projeto independente. Utilizamos links de referência — quando clica para ir ao LittleBiggy, apoia o site sem custos adicionais.",
+      "q3": "Com que frequência são atualizados os dados?",
+      "a3": "O índice é atualizado aproximadamente a cada 30 minutos. Preços, disponibilidade e avaliações são mantidos o mais atualizados possível.",
+      "q4": "Que países são suportados?",
+      "a4": "O Biggy Index cobre atualmente seis mercados: Reino Unido, Alemanha, França, Portugal, Itália e Espanha. Cada mercado mostra artigos disponíveis nessa região com preços em moeda local.",
+      "q5": "Como funciona a comparação de preços?",
+      "a5": "Todos os preços são armazenados numa moeda comum e convertidos em tempo real para a sua moeda local. Pode filtrar por faixa de preço e ordenar por preço para encontrar as melhores ofertas."
+    },
+    "languages": {
+      "label": "Também disponível em"
+    },
+    "meta": {
+      "copyright": "© {year} Biggy Index",
+      "lastCrawled": "Dados atualizados {date}",
+      "disclaimer": "Não afiliado ao LittleBiggy. Links de referência utilizados."
+    }
+  },
   "FirstVisitBanner": {
     "title": "Bem-vindo ao Biggy Index",
     "description": "Navegue no Little Biggy com categorias, filtros, avaliações e estatísticas de vendedores. Novo no marketplace?",
     "button": "Saber mais",
     "close": "Fechar"
+  },
+  "LBGuide": {
+    "title": "Antes de ir para o LittleBiggy...",
+    "subtitle": "Dicas rápidas para começar no marketplace.",
+    "steps": {
+      "country": {
+        "title": "1. Escolha o seu país",
+        "text": "O LittleBiggy cobre várias regiões. Certifique-se de que seleciona o país correto para ver os artigos que podem ser enviados para si."
+      },
+      "basket": {
+        "title": "2. Adicionar ao cesto",
+        "text": "Encontrou algo que gosta? Toque em \"Adicionar ao cesto\" na página do artigo. Pode adicionar artigos de diferentes vendedores."
+      },
+      "checkout": {
+        "title": "3. Pagar com Bitcoin",
+        "text": "O LittleBiggy aceita apenas Bitcoin. No checkout verá um montante e um endereço de carteira para enviar o pagamento."
+      }
+    },
+    "continueBtn": "Entendido — ir para o LittleBiggy",
+    "dontShowAgain": "Não mostrar novamente",
+    "guideLink": {
+      "title": "Visitar a embaixada",
+      "text": "Precisas de ajuda? Faz as tuas perguntas e obtém respostas em português."
+    }
   },
   "SellerPage": {
     "joined": "entrou em {date}",

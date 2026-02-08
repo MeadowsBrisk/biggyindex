@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { RedditIcon } from '@/components/common/icons';
 import { LOCALE_LINKS } from '@/lib/market/localeLinks';
+import { EMBASSY_LINKS, getEmbassyUrl } from '@/lib/market/embassyLinks';
+import { useLocale } from '@/providers/IntlProvider';
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactElement, type MouseEvent as ReactMouseEvent } from "react";
 import { useFormatter, useTranslations } from 'next-intl';
@@ -19,6 +21,9 @@ export default function FooterSection({ lastCrawlTime, buildTime }: FooterSectio
   const rafRef = useRef<number | null>(null);
   const format = useFormatter();
   const tHome = useTranslations('Home');
+  const { locale } = useLocale();
+  const embassyUrl = getEmbassyUrl(locale);
+  const isEnglish = locale === 'en-GB';
 
   const formattedLastCrawl = (() => {
     if (!lastCrawlTime) return null;
@@ -162,6 +167,30 @@ export default function FooterSection({ lastCrawlTime, buildTime }: FooterSectio
                   </Link>
                 </div>
               </div>
+
+              {/* Embassy help-post card (non-English only) */}
+              {!isEnglish && embassyUrl && (
+                <div className="space-y-3 rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-8 backdrop-blur transition-colors duration-300 dark:border-emerald-600/20 dark:bg-emerald-600/5">
+                  <span className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-400/80 dark:text-emerald-700/80">
+                    {tHome('footer.embassy.label')}
+                  </span>
+                  <p className="text-sm leading-relaxed text-white/80 dark:text-slate-500 max-w-sm">
+                    {tHome('footer.embassy.text')}
+                  </p>
+                  <Link
+                    href={embassyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400 transition hover:border-emerald-500/30 hover:bg-emerald-500/15 hover:text-emerald-300 dark:border-emerald-600/20 dark:bg-emerald-600/10 dark:text-emerald-700 dark:hover:border-emerald-600/30 dark:hover:bg-emerald-600/15 dark:hover:text-emerald-800"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {tHome('footer.embassy.cta')}
+                    <span aria-hidden>↗</span>
+                  </Link>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -176,7 +205,7 @@ export default function FooterSection({ lastCrawlTime, buildTime }: FooterSectio
               {LOCALE_LINKS.map(({ code, href, label, Flag }) => (
                 <a
                   key={code}
-                  href={href}
+                  href={`${href.replace(/\/$/, '')}/home`}
                   className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white dark:border-slate-300/20 dark:bg-slate-900/5 dark:text-slate-500 dark:hover:border-slate-300/30 dark:hover:bg-slate-900/10 dark:hover:text-slate-700"
                   hrefLang={code}
                 >

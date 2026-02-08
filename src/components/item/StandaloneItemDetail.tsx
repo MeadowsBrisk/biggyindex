@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react'
 import Link from 'next/link';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useUpdateReason } from '@/hooks/useUpdateReason';
+import { useLBGuideGate } from '@/hooks/useLBGuideGate';
 import {
   includeShippingPrefAtom,
   favouritesSetAtom,
@@ -92,7 +93,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
     const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : [];
-    // BUG-002: Fallback to shipping blob SEO images for unavailable items
+    // BUG-002: Fallback to shipping data SEO images for unavailable items
     const shipSeoImgs = Array.isArray((detail as any)?._shipSeo?.is) ? (detail as any)._shipSeo.is : [];
     const primary = (baseItem as any)?.i || (detail as any)?.imageUrl || (detail as any)?._shipSeo?.i;
     let list = dImgs.length ? dImgs : (bImgs.length ? bImgs : shipSeoImgs);
@@ -144,14 +145,14 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   const showToast = useSetAtom(showToastAtom);
   const basketItems = useAtomValue(basketAtom) || [];
 
-  // BUG-002: Extract SEO fallback from shipping blob early for use in seller resolution
+  // BUG-002: Extract SEO fallback from shipping data early for use in seller resolution
   const shipSeo = (detail as any)?._shipSeo;
 
   const resolvedSellerName = useMemo(() => {
     if (typeof (detail as any)?.sellerName === 'string' && (detail as any).sellerName) return decodeEntities((detail as any).sellerName);
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
     if (typeof (baseItem as any)?.sn === 'string' && (baseItem as any).sn) return decodeEntities((baseItem as any).sn);
-    // BUG-002: Fallback to shipping blob SEO
+    // BUG-002: Fallback to shipping data SEO
     if (typeof shipSeo?.sn === 'string' && shipSeo.sn) return decodeEntities(shipSeo.sn);
     return '';
   }, [detail, baseItem, shipSeo]);
@@ -207,12 +208,12 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   const reviews = (detail as any)?.reviews || [];
   const baseVariants = (baseItem as any)?.v || [];
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray(baseVariants) && baseVariants.length > 0;
-  // BUG-002: Show unavailable banner if item exists in shared blob but NOT in current index
+  // BUG-002: Show unavailable banner if item exists in shared data but NOT in current index
   // Two signals: (1) overlay: !baseItem = not in Jotai index; (2) slug page: explicit `unavailable` prop
   const showUnavailableBanner = Boolean(
     (unavailable || !baseItem) &&
     detail &&
-    ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared blob or shipping blob
+    ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared data or shipping data
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null);
   const reviewMeta = (detail as any)?.reviewsMeta;
@@ -224,8 +225,9 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   const lastUpdateReason = (baseItem as any)?.lur || null;
   const compactUpdateReason = useUpdateReason(lastUpdateReason);
   const createdAt = (baseItem as any)?.fsa || (detail as any)?.createdAt || null;
-  // BUG-002: Fall back to detail.sl from shared blob for referral link when item is delisted
+  // BUG-002: Fall back to detail.sl from shared data for referral link when item is delisted
   const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
+  const lbGuideClick = useLBGuideGate(sl);
   
   const shareRef = refNum as any;
   const shareUrl = typeof window !== 'undefined'
@@ -803,6 +805,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
                    href={sl}
                    target="_blank"
                    rel="noopener noreferrer"
+                   onClick={lbGuideClick}
                    className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                  >
                    <span>{tOv('seeItemOnLB')}</span>
@@ -864,6 +867,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
                    href={sl}
                    target="_blank"
                    rel="noopener noreferrer"
+                   onClick={lbGuideClick}
                    className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                  >
                    <span>{tOv('seeItemOnLB')}</span>
@@ -882,6 +886,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
             href={sl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={lbGuideClick}
             className="group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
           >
             <span>{tOv('seeItemOnLB')}</span>

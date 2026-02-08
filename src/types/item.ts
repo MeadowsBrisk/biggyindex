@@ -1,5 +1,5 @@
 /**
- * Item schema using minified keys from unified crawler blob storage.
+ * Item schema using minified keys from unified crawler R2 storage.
  *
  * These short keys reduce JSON size by ~40% vs full property names.
  * All components should use these keys directly.
@@ -112,7 +112,7 @@ export interface Item {
   /** Image Optimized in R2 (1 = yes, otherwise assume origin/unprocessed) */
   io?: number;
 
-  // Computed fields (added by atoms, not in blob)
+  // Computed fields (added by atoms, not in R2)
   /** First seen timestamp (ms) - computed for sorting */
   fsaMs?: number;
   /** Last updated timestamp (ms) - computed for sorting */

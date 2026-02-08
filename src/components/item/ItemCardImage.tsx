@@ -7,6 +7,7 @@ import ImageZoomPreview from '@/components/item/ImageZoomPreview';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { categoryAtom, highResImagesAtom } from '@/store/atoms';
+import { useLBGuideGate } from '@/hooks/useLBGuideGate';
 
 // Hoisted regex for GIF detection (avoids re-creation on each render)
 const GIF_REGEX = /\.gif($|[?#])/i;
@@ -52,6 +53,10 @@ function ItemCardImageInner({
   const tCats = useTranslations('Categories');
   const category = useAtomValue(categoryAtom);
   const highResImages = useAtomValue(highResImagesAtom);
+
+  // LB guide gate — intercept first-time clicks on "Little Biggy" button
+  const lbUrl = shareLink || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
+  const lbGuideClick = useLBGuideGate(lbUrl);
 
   // GIF detection
   const isGif = typeof imageUrl === 'string' && GIF_REGEX.test(imageUrl);
@@ -133,9 +138,10 @@ function ItemCardImageInner({
           </div>
           <div className="absolute right-2 bottom-2 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-auto">
             <a
-              href={shareLink || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : undefined)}
+              href={lbUrl || undefined}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={lbGuideClick}
               aria-label={`View ${nameDecoded} on Little Biggy`}
               className="group/button inline-flex items-center gap-1.5 text-[10px] font-medium bg-white/60 dark:bg-gray-800/55 hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 text-gray-800 dark:text-gray-200 rounded-full px-3 py-1 shadow-sm backdrop-blur-md transition-colors duration-250 focus:outline-none focus-visible:ring-2 ring-offset-1 ring-offset-white dark:ring-offset-gray-900 ring-gray-300/60 dark:ring-gray-600/70"
             >

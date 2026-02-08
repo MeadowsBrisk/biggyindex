@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useAtom, useAtomValue } from 'jotai';
 import { useSetAtom } from 'jotai';
 import { useUpdateReason } from '@/hooks/useUpdateReason';
+import { useLBGuideGate } from '@/hooks/useLBGuideGate';
 import {
   expandedRefNumAtom,
   itemsAtom,
@@ -229,7 +230,7 @@ export default function ItemDetailOverlay() {
   const images = useMemo(() => {
     const dImgs = Array.isArray(detail?.imageUrls) ? detail.imageUrls : [];
     const bImgs = Array.isArray((baseItem as any)?.is) ? (baseItem as any).is : [];
-    // BUG-002: Fallback to shipping blob SEO images for unavailable items
+    // BUG-002: Fallback to shipping data SEO images for unavailable items
     const shipSeoImgs = Array.isArray((detail as any)?._shipSeo?.is) ? (detail as any)._shipSeo.is : [];
     const primary = (baseItem as any)?.i || (detail as any)?.imageUrl || (detail as any)?._shipSeo?.i;
     let list = dImgs.length ? dImgs : (bImgs.length ? bImgs : shipSeoImgs);
@@ -291,7 +292,7 @@ export default function ItemDetailOverlay() {
   const showToast = useSetAtom(showToastAtom);
   // basketItems removed - now handled by isolated InBasketIndicator component
 
-  // BUG-002: Extract SEO fallback from shipping blob for unavailable items
+  // BUG-002: Extract SEO fallback from shipping data for unavailable items
   const shipSeo = (detail as any)?._shipSeo;
 
   const resolvedSellerName = useMemo(() => {
@@ -299,7 +300,7 @@ export default function ItemDetailOverlay() {
     if ((detail as any)?.seller && typeof (detail as any).seller.name === 'string' && (detail as any).seller.name) return decodeEntities((detail as any).seller.name);
     if (typeof (baseItem as any)?.sn === 'string' && (baseItem as any).sn) return decodeEntities((baseItem as any).sn);
     if (typeof (baseItem as any)?.sellerName === 'string' && (baseItem as any).sellerName) return decodeEntities((baseItem as any).sellerName);
-    // BUG-002: Fallback to shipping blob SEO
+    // BUG-002: Fallback to shipping data SEO
     if (typeof shipSeo?.sn === 'string' && shipSeo.sn) return decodeEntities(shipSeo.sn);
     return '';
   }, [detail, baseItem, shipSeo]);
@@ -394,13 +395,13 @@ export default function ItemDetailOverlay() {
   const globalLoading = useAtomValue(isLoadingAtom);
   const hasVariants = Array.isArray((detail as any)?.variants) ? (detail as any).variants.length > 0 : Array.isArray((baseItem as any)?.v) && (baseItem as any).v.length > 0;
   const hasImages = images.length > 0;
-  // BUG-002: Show unavailable banner if item exists in shared blob but NOT in current index
-  // This happens when an item is delisted - we have detail from blob but no baseItem from index
-  // Also check _shipSeo.n from shipping blob as fallback
+  // BUG-002: Show unavailable banner if item exists in shared data but NOT in current index
+  // This happens when an item is delisted - we have detail from R2 but no baseItem from index
+  // Also check _shipSeo.n from shipping data as fallback
   const showUnavailableBanner = Boolean(
     !loading && !globalLoading && !error && detail &&
     !baseItem &&  // Not in indexed_items.json (delisted)
-    ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared blob or shipping blob
+    ((detail as any).n || (detail as any).name || shipSeo?.n)  // But we have a name from shared data or shipping data
   );
   const [reviewGallery, setReviewGallery] = useState<any>(null); // review image zoom state
   const reviewMeta = (detail as any)?.reviewsMeta;
@@ -419,9 +420,9 @@ export default function ItemDetailOverlay() {
     if (minShip == null && maxShip == null) return null;
     return { minShip, maxShip };
   })();
-  // BUG-002: Fall back to detail.sl from shared blob for referral link when item is delisted
+  // BUG-002: Fall back to detail.sl from shared data for referral link when item is delisted
   const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
-  // const sl = baseItem?.url || detail?.url || null;
+  const lbGuideClick = useLBGuideGate(sl);
   // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum as any;
   const shareUrl = typeof window !== 'undefined'
@@ -1003,6 +1004,7 @@ export default function ItemDetailOverlay() {
                       href={sl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={lbGuideClick}
                       className="pointer-events-auto group/button inline-flex items-center gap-2 text-sm font-semibold tracking-wide bg-emerald-500/90 hover:bg-emerald-500 text-white rounded-full px-5 py-2.5 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all backdrop-blur-md focus:outline-none focus-visible:ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-emerald-300"
                     >
                       <span>{tOv('seeItemOnLB')}</span>
@@ -1096,6 +1098,7 @@ export default function ItemDetailOverlay() {
                     href={sl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={lbGuideClick}
                     className="shrink-0 group/button h-10 inline-flex items-center gap-2 text-[13px] font-semibold tracking-wide bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-4 shadow-lg shadow-emerald-600/20 dark:shadow-emerald-900/40 transition-all focus:outline-none focus-visible:ring-2 ring-offset-2 ring-emerald-500 ring-offset-white dark:ring-offset-[#0f1725]"
                   >
                     <span>{tOv('seeItemOnLB')}</span>

@@ -8,6 +8,7 @@ import SellerLeaderboardSection from '@/sections/home/SellerLeaderboardSection';
 import QuickStartSection from '@/sections/home/QuickStartSection';
 import RecentMediaSection from '@/sections/home/RecentMediaSection';
 import FaqSection from '@/sections/home/FaqSection';
+import EmbassySection from '@/sections/home/EmbassySection';
 import FooterSection from '@/sections/home/FooterSection';
 import { getManifest, getRecentMedia, getRecentReviews, getSnapshotMeta, getSellers, getSellersLeaderboard, getSellerImages, getRecentItemsCompact, getItemImageLookup } from '@/lib/data/indexData';
 import { RECENT_REVIEWS_LIMIT } from '@/lib/core/constants';
@@ -325,6 +326,7 @@ const HomeLanding: NextPage<HomeLandingProps> = ({ stats, buildTime, recentItems
           <RecentReviewsSection reviews={recentReviews} />
           <RecentMediaSection mediaEntries={recentMedia} />
           <SellerLeaderboardSection leaderboard={sellersLeaderboard} sellersIndex={sellersIndex} />
+          <EmbassySection />
           <FaqSection />
           <FooterSection lastCrawlTime={stats?.lastUpdated || null} buildTime={buildTime} />
         </main>

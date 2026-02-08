@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!idRaw || Array.isArray(idRaw)) { res.status(400).json({ error: 'invalid id' }); return; }
   const id = String(idRaw);
   const storeName = process.env.SHARED_STORE_NAME || 'site-index-shared';
-  const legacyPrefix = (process.env.SELLER_CRAWLER_BLOBS_PREFIX || 'seller-crawler/').replace(/\/+$/, '/') + 'sellers/';
+  const legacyPrefix = (process.env.SELLER_CRAWLER_BLOBS_PREFIX || 'seller-crawler/').replace(/\/+$/, '/') + 'sellers/'; // env var name is legacy but still in use
   const candidateKeys: string[] = [];
   const pushKey = (key: string) => { if (!candidateKeys.includes(key)) { candidateKeys.push(key); } };
   pushKey(`sellers/${id}.json`);

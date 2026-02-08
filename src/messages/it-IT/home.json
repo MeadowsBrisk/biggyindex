@@ -109,6 +109,12 @@
       },
       "tooltip": { "inParent": "{name} in {parent}" }
     },
+    "embassy": {
+      "badge": "Hai bisogno di una mano?",
+      "title": "Aiuto nella tua lingua",
+      "subtitle": "L'ambasciata è un post della community dove puoi fare domande e ricevere aiuto in italiano.",
+      "cta": "Visita l'ambasciata"
+    },
     "reviews": {
       "header": {
         "label": "Termometro della community",
@@ -170,6 +176,11 @@
       },
       "languages": {
         "label": "Disponibile anche in"
+      },
+      "embassy": {
+        "label": "Hai bisogno di aiuto?",
+        "text": "Nuovo su LittleBiggy? L'ambasciata è un post della community dove puoi fare domande e ricevere aiuto in italiano.",
+        "cta": "Visita l'ambasciata"
       }
     },
     "recentItems": {
@@ -255,7 +266,7 @@
         { "q": "Da dove arrivano i dati?", "a": "Dati pubblici di LittleBiggy, con normalizzazione di categorie, riepiloghi di prezzo, spedizioni, recensioni e immagini." },
           { "q": "Con quale frequenza si aggiorna?", "a": "Indexer principale ogni 15 minuti. Crawler articoli/venditori ogni 4 ore, in orari separati." },
           { "q": "Cosa significano «Prima indicizzazione» e «Aggiornato»?", "a": "Prima indicizzazione/creato = prima volta che l'articolo è stato indicizzato dal crawler (può includere articoli già presenti su LB). Aggiornato = il venditore ha modificato qualcosa o il crawler ha rilevato un cambiamento (es. prezzo, varianti, descrizione)." },
-        { "q": "Cosa sono gli endorsements?", "a": "Voti della community salvati su Netlify Blobs evidenziano gli articoli popolari senza tracciarti." }
+        { "q": "Cosa sono gli endorsements?", "a": "Voti della community che evidenziano gli articoli popolari senza tracciarti." }
       ],
       "crypto": [
         { "q": "Quali pagamenti accetta LittleBiggy?", "a": "Solo Bitcoin: niente carte, bonifici o altre criptovalute." },

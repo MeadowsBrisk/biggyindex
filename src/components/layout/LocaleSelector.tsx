@@ -86,13 +86,27 @@ export default function LocaleSelector() {
     const ref = typeof router.query?.ref === 'string' ? router.query.ref : null;
     const query = ref ? { ref } : undefined;
 
+    // Extract the current page path (strip locale prefix) so we stay on the same page after switching.
+    // e.g. /de/home → /home, /fr → /, / → /
+    const currentPath = router.asPath || '/';
+    const localePrefixes = ['/de', '/fr', '/it', '/pt', '/es'];
+    let pagePath = currentPath;
+    for (const prefix of localePrefixes) {
+      if (currentPath === prefix) { pagePath = '/'; break; }
+      if (currentPath.startsWith(prefix + '/')) { pagePath = currentPath.slice(prefix.length); break; }
+    }
+    // Strip query string from pagePath (we re-add ref separately)
+    const qIdx = pagePath.indexOf('?');
+    if (qIdx >= 0) pagePath = pagePath.slice(0, qIdx);
+
     // If host-based environment, switch origins (e.g., de.biggyindex.com -> pt.biggyindex.com)
     try {
       const host = typeof window !== 'undefined' ? (window.location?.hostname || '') : '';
       if (isHostBasedEnv(host)) {
         const targetLocale = getLocaleForMarket(marketCode as any);
         const origin = hostForLocale(targetLocale);
-        const url = origin + (ref ? `/?ref=${encodeURIComponent(ref)}` : '/');
+        const suffix = ref ? `${pagePath}?ref=${encodeURIComponent(ref)}` : pagePath;
+        const url = origin + suffix;
         // Use full navigation across origin
         if (typeof window !== 'undefined') {
           window.location.assign(url);
@@ -105,7 +119,8 @@ export default function LocaleSelector() {
     } catch {}
 
     // Path-based navigation (localhost/dev)
-    router.push({ pathname: market.path, query }, undefined, { shallow: true, scroll: false }).catch(() => {});
+    const targetPath = market.path === '/' ? pagePath : (pagePath === '/' ? market.path : market.path + pagePath);
+    router.push({ pathname: targetPath, query }, undefined, { shallow: true, scroll: false }).catch(() => {});
     setIsOpen(false);
   };
 

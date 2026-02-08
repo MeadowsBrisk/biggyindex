@@ -494,6 +494,14 @@ export const announcementBannerDismissalsAtom = atomWithStorage<Record<string, s
 // First visit banner dismissal state
 export const firstVisitBannerDismissedAtom = atomWithStorage<boolean>("firstVisitBannerDismissed", false);
 
+// First-visit LittleBiggy guide: tracks whether the user has seen the onboarding guide
+// When false, clicking "View on LittleBiggy" shows a guide modal first
+export const lbGuideSeenAtom = atomWithStorage<boolean>("lbGuideSeen", false);
+// Controls visibility of the guide modal
+export const lbGuideModalOpenAtom = atom<boolean>(false);
+// Stores the pending LB URL to navigate to after dismissing the guide
+export const lbGuidePendingUrlAtom = atom<string | null>(null);
+
 // Options modal settings (persisted)
 export const highResImagesAtom = atomWithStorage<boolean>("highResImages", false);
 export const forceEnglishAtom = atomWithStorage<boolean>("forceEnglish", false);
@@ -758,7 +766,7 @@ export const resetFiltersAtom = atom<null, [], void>(null, (get: any, set: any) 
 export const thumbnailAspectAtom = atomWithStorage<'landscape' | 'standard' | 'portrait'>("thumbAspect", "landscape");
 
 // Accordion expanded/collapsed state
-export const priceAccordionOpenAtom = atomWithStorage<boolean>("accordionPriceOpen", true);
+export const priceAccordionOpenAtom = atomWithStorage<boolean>("accordionPriceOpen", false);
 export const sellersAccordionOpenAtom = atomWithStorage<boolean>("accordionSellersOpen", true);
 
 // ============================================================================

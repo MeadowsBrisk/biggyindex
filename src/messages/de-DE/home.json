@@ -12,6 +12,12 @@
       },
       "tooltip": { "inParent": "{name} in {parent}" }
     },
+    "embassy": {
+      "badge": "Brauchst du Hilfe?",
+      "title": "Hilfe in deiner Sprache",
+      "subtitle": "Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.",
+      "cta": "Zur Botschaft"
+    },
   "quickStart": {
       "badge": "So funktioniert’s",
       "title": "Einkaufen auf Littlebiggy – Schritt für Schritt",
@@ -170,6 +176,11 @@
       },
       "languages": {
         "label": "Auch verfügbar in"
+      },
+      "embassy": {
+        "label": "Brauchst du Hilfe?",
+        "text": "Neu bei LittleBiggy? Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.",
+        "cta": "Zur Botschaft"
       }
     },
     "recentItems": {
@@ -255,7 +266,7 @@
         { "q": "Woher stammen die Daten?", "a": "Öffentliche LittleBiggy-Daten werden abgerufen und Kategorien, Preise, Versandinfos, Bewertungen und Bilder normalisiert." },
           { "q": "Wie oft wird aktualisiert?", "a": "Der Hauptindexer läuft alle 15 Minuten. Item- und Verkäufer-Crawler alle 4 Stunden, zeitversetzt." },
           { "q": "Was bedeuten ‚Erstmalig erfasst‘ und ‚Aktualisiert‘?", "a": "Erstmalig erfasst bedeutet, dass der Artikel zum ersten Mal vom Crawler indexiert wurde – darunter können Artikel fallen, die es vorher schon auf LB gab. Aktualisiert heißt, der Verkäufer hat etwas geändert oder der Crawler hat eine Änderung erkannt (z. B. Preis, Varianten, Beschreibung)." },
-        { "q": "Was sind Endorsements?", "a": "Community-Stimmen in Netlify Blobs heben beliebte Artikel hervor – ohne Tracking." }
+        { "q": "Was sind Endorsements?", "a": "Community-Stimmen, die beliebte Artikel hervorheben – ohne Tracking." }
       ],
       "crypto": [
         { "q": "Welche Zahlungen akzeptiert LittleBiggy?", "a": "Nur Bitcoin – keine Karten, Überweisungen oder andere Kryptowährungen." },

@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;
   const analytics: any = await getSellerAnalytics(mkt);
   
-  // Safety check: if analytics is empty, don't cache it (likely a blob read failure)
+  // Safety check: if analytics is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !analytics?.sellers || analytics.sellers.length === 0;
   if (isEmpty) {
     console.warn(`[seller-analytics] Empty response for market=${mkt}`);
