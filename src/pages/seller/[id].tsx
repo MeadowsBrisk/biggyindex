@@ -12,7 +12,7 @@ import { fetchSellerDetail } from '@/lib/data/sellerDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildSellerUrl } from '@/lib/market/routing';
 import { hostForLocale } from '@/lib/market/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES } from '@/lib/market/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES, type Market } from '@/lib/market/market';
 
 interface SellerSEO {
   id: number;
@@ -29,7 +29,7 @@ interface SellerIdPageProps {
   messages: Record<string, any>;
   locale: string;
   /** Market codes where this seller has items */
-  sellerMarkets: string[];
+  sellerMarkets: Market[];
 }
 
 function parseSellerId(idParam: string | string[] | undefined): number | null {
@@ -75,7 +75,7 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
     }
 
     // Determine which markets this seller operates in
-    let sellerMarkets: string[] = [];
+    let sellerMarkets: Market[] = [];
     try {
       const { getSellers } = await import('@/lib/data/indexData');
       const { MARKETS } = await import('@/lib/market/market');
@@ -91,7 +91,7 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
           } catch { return null; }
         })
       );
-      sellerMarkets = results.filter((m): m is string => m !== null);
+      sellerMarkets = results.filter((m): m is Market => m !== null);
     } catch (e) {
       console.error('Error determining seller markets:', e);
     }
