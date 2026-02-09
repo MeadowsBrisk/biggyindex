@@ -3,12 +3,16 @@ import Head from 'next/head';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import StandaloneItemDetail from '@/components/item/StandaloneItemDetail';
+import SlugPageFooter from '@/components/common/SlugPageFooter';
+import SlugPageHeader from '@/components/common/SlugPageHeader';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
 import { useSetAtom } from 'jotai';
 import { expandedRefNumAtom } from '@/store/atoms';
 import { fetchItemDetail } from '@/lib/data/itemDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, hostForLocale } from '@/lib/market/routing';
 import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES } from '@/lib/market/market';
+import { translateCategoryAndSubs } from '@/lib/taxonomy/taxonomyLabels';
 
 interface ItemSEO {
   ref: string;
@@ -97,6 +101,8 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
   const router = useRouter();
   const setExpanded = useSetAtom(expandedRefNumAtom);
   const tReviews = useTranslations('Reviews');
+  const tCrumbs = useTranslations('Breadcrumbs');
+  const tCats = useTranslations('Categories');
   const ref = typeof router.query.ref === 'string' ? router.query.ref : null;
 
   useEffect(() => {
@@ -182,15 +188,29 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Home', item: hostForLocale(serverLocale) + '/' },
-                { '@type': 'ListItem', position: 2, name: 'Items', item: hostForLocale(serverLocale) + '/home' },
-                { '@type': 'ListItem', position: 3, name: seo?.name || 'Items', item: canonical },
+                { '@type': 'ListItem', position: 1, name: 'Biggy Index', item: hostForLocale(serverLocale) + '/' },
+                ...(detail?.c ? [{ '@type': 'ListItem', position: 2, name: detail.c, item: hostForLocale(serverLocale) + '/category/' + encodeURIComponent(String(detail.c).toLowerCase()) }] : []),
+                { '@type': 'ListItem', position: detail?.c ? 3 : 2, name: seo?.name || 'Item', item: canonical },
               ],
             }),
           }}
         />
       </Head>
-      <StandaloneItemDetail baseItem={detail} detail={detail} unavailable={unavailable} market={market} />
+      <div className="bg-white dark:bg-slate-950 flex flex-col min-h-[100dvh]">
+        <SlugPageHeader />
+        <Breadcrumbs
+          crumbs={[
+            { label: tCrumbs('home'), href: '/' },
+            ...(detail?.c ? [{ label: (() => { const labels = translateCategoryAndSubs({ tCats, category: detail.c, subcategories: [] }); return labels[0] || detail.c; })(), href: `/category/${encodeURIComponent(String(detail.c).toLowerCase())}` }] : []),
+            { label: seo?.name || tCrumbs('items') },
+          ]}
+        />
+        <StandaloneItemDetail baseItem={detail} detail={detail} unavailable={unavailable} market={market} />
+      </div>
+      <SlugPageFooter
+        pathSuffix={`/item/${effectiveRef}`}
+        availableMarkets={itemMarkets.length > 0 ? itemMarkets : undefined}
+      />
     </>
   );
 };

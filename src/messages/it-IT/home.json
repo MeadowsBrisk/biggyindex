@@ -2,11 +2,11 @@
   "Home": {
     "quickStart": {
       "badge": "Come funziona",
-      "title": "Acquistare su Littlebiggy – guida passo‑passo",
+      "title": "Acquistare su Little Biggy – guida passo‑passo",
       "subtitle": "Vuoi comprare cannabis online in Italia? Segui i passaggi qui sotto per iniziare.",
       "stepLabel": "Passo {num}",
       "optional": "Opzionale",
-      "labels": { "faq": "FAQ", "browseItems": "Sfoglia gli articoli", "browseItemsCaps": "Browse Items" },
+      "labels": { "faq": "FAQ", "browseItems": "Sfoglia gli articoli", "browseItemsCaps": "Sfoglia gli articoli" },
       "terms": {
         "exchange": {
           "term": "Exchange",
@@ -26,7 +26,7 @@
           "title": "Procurati un po’ di Bitcoin",
           "emoji": "🪙",
           "summary": "Prendi un po’ di Bitcoin per il checkout.",
-          "p1": "LittleBiggy accetta solo Bitcoin. Prepara un modo per acquistarlo così sei pronto a ordinare.",
+          "p1": "Little Biggy accetta solo Bitcoin. Prepara un modo per acquistarlo così sei pronto a ordinare.",
           "easiestTitle": "Il modo più semplice",
           "easiestDesc": "App come Revolut o Monzo permettono di comprare Bitcoin direttamente nell’app bancaria in pochi tocchi.",
           "otherTitle": "Altre opzioni",
@@ -38,8 +38,8 @@
         "2": {
           "title": "Trova i tuoi articoli",
           "emoji": "🛍️",
-          "summary": "Sfoglia il catalogo Littlebiggy come fosse eBay.",
-          "p1": "Trova gli articoli direttamente su Littlebiggy o tramite l’indice. La selezione è ampia: vale la pena esplorare.",
+          "summary": "Sfoglia il catalogo Little Biggy come fosse eBay.",
+          "p1": "Trova gli articoli direttamente su Little Biggy o tramite l’indice. La selezione è ampia: vale la pena esplorare.",
           "bullets": [
             "Clicca su <strong>Sfoglia gli articoli</strong> qui sotto per iniziare.",
             "Controlla descrizioni e recensioni per individuare venditori affidabili. In dubbio? Cerca su Google o su <reddit>Reddit</reddit>.",
@@ -55,7 +55,7 @@
           "title": "Checkout e invio del Bitcoin",
           "emoji": "✅",
           "summary": "Copia i dettagli e invia il pagamento da telefono o PC.",
-          "pIntro": "Al checkout, Littlebiggy mostra una pagina ordine privata con tutto il necessario per pagare in sicurezza – sia su un dispositivo sia passando da mobile a desktop.",
+          "pIntro": "Al checkout, Little Biggy mostra una pagina ordine privata con tutto il necessario per pagare in sicurezza – sia su un dispositivo sia passando da mobile a desktop.",
           "copyTitle": "Copia i due dettagli del checkout",
           "copyBullets": [
             "Importo BTC esatto: es. 0.00123456. Copialo esattamente per non pagare meno.",
@@ -71,7 +71,7 @@
           "privacyTitle": "Vuoi più privacy?",
           "privacy1": "Puoi spostare prima le monete nel tuo",
           "privacy2": "—",
-          "privacy3": ", o app simili, poi inoltrare l’importo esatto a Littlebiggy. Quel passaggio extra evita che l’exchange veda dove spendi."
+          "privacy3": ", o app simili, poi inoltrare l’importo esatto a Little Biggy. Quel passaggio extra evita che l’exchange veda dove spendi."
         },
         "4": {
           "title": "I fondi sono al sicuro (Escrow)",
@@ -86,7 +86,7 @@
             "Conferma — di solito le conferme di rete arrivano in pochi minuti e la pagina ordine si aggiorna."
           ],
           "cardTitle": "Tranquillità",
-          "cardDesc": "Con l’escrow il venditore non tocca i fondi finché l’articolo non è spedito e ricevuto. Mantiene Littlebiggy onesto."
+          "cardDesc": "Con l’escrow il venditore non tocca i fondi finché l’articolo non è spedito e ricevuto. Mantiene Little Biggy onesto."
         },
         "5": {
           "title": "Aspetta il postino",
@@ -100,7 +100,7 @@
     "hero": {
       "badge": "Trova ciò che cerchi",
       "title": "Un indice per il marketplace <accent>420</accent>",
-      "subtitle": "Sfoglia LittleBiggy più velocemente con ricerca intelligente, categorie ordinate e statistiche rapide pensate per acquirenti in Italia.",
+      "subtitle": "Sfoglia Little Biggy più velocemente con ricerca intelligente, categorie ordinate e statistiche rapide pensate per acquirenti in Italia.",
       "cta": { "browse": "Sfoglia gli articoli", "how": "Come funziona" },
       "stats": {
         "catalogueSize": "Dimensione del catalogo",
@@ -119,7 +119,7 @@
       "header": {
         "label": "Termometro della community",
         "title": "Recensioni recenti",
-        "subtitle": "Direttamente dagli acquirenti di LittleBiggy — scorri le ultime valutazioni, i tempi di consegna e le note degli acquirenti dal feed combinato."
+        "subtitle": "Direttamente dagli acquirenti di Little Biggy — scorri le ultime valutazioni, i tempi di consegna e le note degli acquirenti dal feed combinato."
       },
       "panel": {
         "title": "Feedback più recente",
@@ -139,9 +139,9 @@
         "days": "arrivato in {days} giorni"
       },
       "placeholder": {
-        "sellerName": "Acquirente LittleBiggy",
+        "sellerName": "Acquirente Little Biggy",
         "itemTitle": "Nuove recensioni in arrivo",
-        "text": "Stiamo aggiornando il feed combinato delle recensioni. A breve qui compariranno veri highlight dai clienti LittleBiggy.\n\nResta sintonizzato!"
+        "text": "Stiamo aggiornando il feed combinato delle recensioni. A breve qui compariranno veri highlight dai clienti Little Biggy.\n\nResta sintonizzato!"
       }
     },
   "media": {
@@ -155,19 +155,19 @@
           "oneDay": "Arrivato in 1 giorno",
           "days": "Arrivato in {days} giorni"
         },
-        "captured": "Acquisito {date}"
+        "captured": "Scattato {date}"
       }
     },
     "footer": {
       "badge": "Il Biggy Index",
       "title": "Trova ciò che cerchi.",
-      "description": "Esplora migliaia di annunci dei venditori su LittleBiggy, un marketplace guidato dal principio del non nuocere.",
+      "description": "Esplora migliaia di annunci dei venditori su Little Biggy, un marketplace guidato dal principio del non nuocere.",
       "ctaBrowse": "Sfoglia gli articoli",
       "community": {
         "label": "Community",
         "text": "Partecipa alla conversazione. Condividi esperienze, fai domande o controlla la reputazione dei venditori.",
         "reddit": "Reddit",
-        "wallTitle": "Wall di LittleBiggy"
+        "wallTitle": "Wall di Little Biggy"
       },
       "meta": {
         "copyright": "© {year} Biggy Index.",
@@ -179,14 +179,14 @@
       },
       "embassy": {
         "label": "Hai bisogno di aiuto?",
-        "text": "Nuovo su LittleBiggy? L'ambasciata è un post della community dove puoi fare domande e ricevere aiuto in italiano.",
+        "text": "Nuovo su Little Biggy? L'ambasciata è un post della community dove puoi fare domande e ricevere aiuto in italiano.",
         "cta": "Visita l'ambasciata"
       }
     },
     "recentItems": {
       "label": "Attività recente",
       "title": "Articoli recentemente indicizzati",
-      "subtitle": "Vedi gli articoli più nuovi o aggiornati su LittleBiggy.",
+      "subtitle": "Vedi gli articoli più nuovi o aggiornati su Little Biggy.",
       "tabs": {
         "added": "Aggiunti di recente",
         "updated": "Aggiornati di recente"
@@ -247,35 +247,35 @@
     },
     "why": {
         "label": "Perché aiuta",
-        "title": "Una migliore navigazione di LittleBiggy per acquirenti in Italia",
-        "subtitle": "Vuoi comprare erba online in Italia? Biggy Index porta i dati reali del marketplace in un'interfaccia più chiara per confrontare prodotti, prezzi e tempi di consegna prima di aprire LittleBiggy.",
+        "title": "Una migliore navigazione di Little Biggy per acquirenti in Italia",
+        "subtitle": "Vuoi comprare erba online in Italia? Biggy Index porta i dati reali del marketplace in un'interfaccia più chiara per confrontare prodotti, prezzi e tempi di consegna prima di aprire Little Biggy.",
       "highlights": [
-          { "title": "Trova erba in Italia rapidamente", "description": "Cerca gli annunci pubblici di LittleBiggy con filtri pensati per l'Italia. Evita rincari o truffe tipiche del clearnet." },
-        { "title": "Dati freschi dall'indexer", "description": "L'indexer analizza gli articoli di LittleBiggy con prezzi, dettagli e recensioni per un catalogo aggiornato." },
-        { "title": "LittleBiggy potenziato", "description": "Ordina gli articoli, vedi quando sono aggiornati, salva i preferiti, tutto in un'interfaccia leggera e veloce." }
+          { "title": "Trova erba in Italia rapidamente", "description": "Cerca gli annunci pubblici di Little Biggy con filtri pensati per l'Italia. Evita rincari o truffe tipiche del clearnet." },
+        { "title": "Dati freschi dall'indexer", "description": "L'indexer analizza gli articoli di Little Biggy con prezzi, dettagli e recensioni per un catalogo aggiornato." },
+        { "title": "Little Biggy potenziato", "description": "Ordina gli articoli, vedi quando sono aggiornati, salva i preferiti, tutto in un'interfaccia leggera e veloce." }
       ]
     },
     "faq": {
       "label": "Domande frequenti",
       "title": "FAQ per chi usa Biggy per la prima volta",
-      "subtitle": "Due pannelli rapidi: uno su come funziona Biggy Index, l’altro su pagamenti LittleBiggy e basi del Bitcoin.",
-      "tabs": { "about": "Informazioni su Biggy Index", "crypto": "LittleBiggy & Bitcoin" },
+      "subtitle": "Due pannelli rapidi: uno su come funziona Biggy Index, l’altro su pagamenti Little Biggy e basi del Bitcoin.",
+      "tabs": { "about": "Informazioni su Biggy Index", "crypto": "Little Biggy & Bitcoin" },
       "about": [
-        { "q": "Cos'è Biggy Index?", "a": "Biggy Index semplifica la navigazione del marketplace LittleBiggy con categorizzazione, opzioni di ordinamento aggiuntive e strumenti per acquirenti in Italia." },
-        { "q": "Vendete o spedite articoli?", "a": "No. Biggy Index è in sola lettura e ti rimanda su LittleBiggy per completare l'ordine." },
-        { "q": "Da dove arrivano i dati?", "a": "Dati pubblici di LittleBiggy, con normalizzazione di categorie, riepiloghi di prezzo, spedizioni, recensioni e immagini." },
+        { "q": "Cos'è Biggy Index?", "a": "Biggy Index semplifica la navigazione del marketplace Little Biggy con categorizzazione, opzioni di ordinamento aggiuntive e strumenti per acquirenti in Italia." },
+        { "q": "Vendete o spedite articoli?", "a": "No. Biggy Index è in sola lettura e ti rimanda su Little Biggy per completare l'ordine." },
+        { "q": "Da dove arrivano i dati?", "a": "Dati pubblici di Little Biggy, con normalizzazione di categorie, riepiloghi di prezzo, spedizioni, recensioni e immagini." },
           { "q": "Con quale frequenza si aggiorna?", "a": "Indexer principale ogni 15 minuti. Crawler articoli/venditori ogni 4 ore, in orari separati." },
           { "q": "Cosa significano «Prima indicizzazione» e «Aggiornato»?", "a": "Prima indicizzazione/creato = prima volta che l'articolo è stato indicizzato dal crawler (può includere articoli già presenti su LB). Aggiornato = il venditore ha modificato qualcosa o il crawler ha rilevato un cambiamento (es. prezzo, varianti, descrizione)." },
         { "q": "Cosa sono gli endorsements?", "a": "Voti della community che evidenziano gli articoli popolari senza tracciarti." }
       ],
       "crypto": [
-        { "q": "Quali pagamenti accetta LittleBiggy?", "a": "Solo Bitcoin: niente carte, bonifici o altre criptovalute." },
+        { "q": "Quali pagamenti accetta Little Biggy?", "a": "Solo Bitcoin: niente carte, bonifici o altre criptovalute." },
   { "q": "Come compro Bitcoin in Italia?", "a": "Molti usano Revolut, Monzo, Kraken o Coinbase. Ricarica in EUR, acquista l'importo di BTC indicato al checkout e considera le commissioni." },
         { "q": "Serve prima un wallet?", "a": "Si può pagare dall'exchange, ma molti spostano BTC in un wallet privato (Cake, Trust) per più controllo/privacy." },
         { "q": "Come mi protegge l'escrow Transaxe?", "a": "Il pagamento va a un indirizzo escrow. Il venditore ha ~80 ore per segnare la spedizione, altrimenti rimborso automatico; dispute dopo 9 giorni." },
         { "q": "Consigli per evitare errori?", "a": "Copia-incolla importo e indirizzo BTC, considera le commissioni, conserva gli screenshot fino all'arrivo del pacco." },
-        { "q": "Perché non i negozi clearnet?", "a": "La concorrenza su LittleBiggy mantiene alta la qualità e prezzi onesti; i reseller nel clearnet spesso rincarano molto." },
-          { "q": "E la legalità in Italia?", "a": "Le leggi si applicano. Sei responsabile del rispetto delle norme e di verificare i dettagli su LittleBiggy." }
+        { "q": "Perché non i negozi clearnet?", "a": "La concorrenza su Little Biggy mantiene alta la qualità e prezzi onesti; i reseller nel clearnet spesso rincarano molto." },
+          { "q": "E la legalità in Italia?", "a": "Le leggi si applicano. Sei responsabile del rispetto delle norme e di verificare i dettagli su Little Biggy." }
       ]
     }
   }

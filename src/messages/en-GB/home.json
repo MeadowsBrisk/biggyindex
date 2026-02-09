@@ -3,7 +3,7 @@
     "hero": {
       "badge": "Find what you're looking for",
       "title": "An index for the <accent>420</accent> marketplace",
-      "subtitle": "Browse LittleBiggy faster with smarter search, tidy categories, and quick stats tailored for UK buyers.",
+      "subtitle": "Browse Little Biggy faster with smarter search, clean categories, and at-a-glance stats — built for UK buyers.",
       "cta": { "browse": "Browse items", "how": "How it works" },
       "stats": {
         "catalogueSize": "Catalogue size",
@@ -20,8 +20,8 @@
     },
     "quickStart": {
       "badge": "How it works",
-      "title": "Buying on Littlebiggy, a step-by-step guide",
-      "subtitle": "Looking to buy cannabis online in the UK? Follow the steps below to get started.",
+      "title": "Buying on Little Biggy: a step-by-step guide",
+      "subtitle": "Want to buy cannabis online in the UK? Here's how to get started.",
       "stepLabel": "Step {num}",
       "optional": "Optional",
       "labels": { "faq": "FAQ", "browseItems": "Browse items", "browseItemsCaps": "Browse Items" },
@@ -43,8 +43,8 @@
         "1": {
           "title": "Get Some Bitcoin",
           "emoji": "🪙",
-          "summary": "Pick up a little Bitcoin so you can check out.",
-          "p1": "LittleBiggy only accepts Bitcoin. You'll need to set up a way to buy some if you haven't already, so that you're ready to start ordering items.",
+          "summary": "Grab some Bitcoin so you're ready to check out.",
+          "p1": "Little Biggy only accepts Bitcoin. You'll need to set up a way to buy some if you haven't already, so that you're ready to start ordering items.",
           "easiestTitle": "Easiest way",
           "easiestDesc": "Apps you may already use, such as Revolut or Monzo, let you purchase Bitcoin inside the banking app in a few taps.",
           "otherTitle": "Other popular options",
@@ -56,8 +56,8 @@
         "2": {
           "title": "Find Your Items",
           "emoji": "🛍️",
-          "summary": "Browse the littlebiggy catalogue like it were ebay",
-          "p1": "Find the items you want to buy, through littlebiggy itself, or through the index. There's a large selection, so be sure to give it a browse.",
+          "summary": "Browse the Little Biggy catalogue like you would on eBay",
+          "p1": "Find items you want to buy — on Little Biggy itself or via the index. There's a huge selection, so have a good browse.",
           "bullets": [
             "Click the <strong>Browse Items</strong> button below to start browsing.",
             "Check product descriptions and reviews to spot trusted sellers. If unsure, Google the seller's name or look on <reddit>Reddit</reddit>.",
@@ -73,7 +73,7 @@
           "title": "Checkout & Send Your Bitcoin",
           "emoji": "✅",
           "summary": "Copy the details, then send the payment from your phone or laptop.",
-          "pIntro": "When you check out, Littlebiggy shows a private order page with everything you need to pay safely—whether you are copying the details on one device or moving between phone and desktop.",
+          "pIntro": "At checkout, Little Biggy shows a private order page with everything you need to pay safely — whether you're on one device or switching between phone and desktop.",
           "copyTitle": "Copy the two checkout details",
           "copyBullets": [
             "The exact BTC amount: it looks like 0.00123456. Copy it exactly so you do not underpay.",
@@ -89,7 +89,7 @@
           "privacyTitle": "Want extra privacy?",
           "privacy1": "You can move the coins to your own",
           "privacy2": "first—",
-          "privacy3": ", and similar apps—then forward the exact amount to Littlebiggy. That extra hop keeps exchanges from seeing where you spend your Bitcoin."
+          "privacy3": ", and similar apps—then forward the exact amount to Little Biggy. That extra hop keeps exchanges from seeing where you spend your Bitcoin."
         },
         "4": {
           "title": "Your Funds Are Safe (Escrow)",
@@ -97,20 +97,20 @@
           "summary": "Transaxe holds the money until your order arrives.",
           "p1_before": "You are not paying the seller directly. Instead, your Bitcoin lands with Transaxe, a trusted third party that provides",
           "p1_after": "protection.",
-          "p2": "Transaxe only releases the money once the dispute window closes. If anything feels off or if there's an issue, contact the seller, otherwise raise a dispute from your order page.",
+          "p2": "Transaxe only releases the funds once the dispute window closes. If something feels off, contact the seller first — otherwise raise a dispute from your order page.",
           "ol": [
             "Choose the option to send or withdraw Bitcoin.",
             "Paste the Bitcoin address into the recipient field and the exact BTC amount into the amount field.",
             "Confirm the transfer—network confirmations usually land within a few minutes and your order page will update automatically."
           ],
           "cardTitle": "Peace of mind",
-          "cardDesc": "Escrow means the seller never touches your funds until the item is shipped and received. It is the safeguard that keeps Littlebiggy honest."
+          "cardDesc": "Escrow means the seller never touches your funds until the item is shipped and received. It is the safeguard that keeps Little Biggy honest."
         },
         "5": {
           "title": "Wait for the Postie",
           "emoji": "📮",
           "summary": "Relax while it makes its way to you.",
-          "p1": "Sellers usually mark orders as shipped within one business day, but check their manifestos for their posting times. After that it is a waiting game just like any other delivery.",
+          "p1": "Sellers usually mark orders as shipped within one business day — check their manifesto for posting times. After that it's a waiting game just like any other delivery.",
           "p2": "If the parcel takes longer than expected, contact the seller first—they may provide a tracking code. As a last resort, you can open a dispute from your order page while Escrow is still holding the funds."
         }
       }
@@ -119,11 +119,11 @@
       "header": {
         "label": "Community pulse",
         "title": "Recent reviews",
-        "subtitle": "Straight from LittleBiggy shoppers — scroll the latest ratings, delivery speeds, and buyer notes pulled from the combined feed."
+        "subtitle": "Straight from Little Biggy shoppers — the latest ratings, delivery times, and buyer notes from the combined feed."
       },
       "panel": {
         "title": "Latest buyer feedback",
-        "count": "{count, plural, one {# review loaded} other {# reviews loaded from the recent feed}}",
+        "count": "{count, plural, one {# review loaded} other {# reviews loaded}}",
         "badge": "Refreshed every 4 hours"
       },
       "labels": {
@@ -139,21 +139,21 @@
         "days": "took {days} days"
       },
       "placeholder": {
-        "sellerName": "LittleBiggy Buyer",
+        "sellerName": "Little Biggy Buyer",
         "itemTitle": "Fresh reviews incoming",
-        "text": "We're refreshing the combined reviews feed. Real highlights from LittleBiggy shoppers will appear here soon.\n\nStay tuned!"
+        "text": "We're refreshing the combined reviews feed. Real highlights from Little Biggy shoppers will appear here soon.\n\nStay tuned!"
       }
     },
     "footer": {
       "badge": "The Biggy Index",
       "title": "Find what you're looking for.",
-      "description": "Explore thousands of listings from sellers on LittleBiggy, the marketplace for items under the principle of do no harm.",
+      "description": "Explore thousands of listings from Little Biggy sellers — a marketplace built on the principle of do no harm.",
       "ctaBrowse": "Browse items",
       "community": {
         "label": "Community",
         "text": "Join the conversation. Share experiences, ask questions, or check seller reputations.",
         "reddit": "Reddit",
-        "wallTitle": "LittleBiggy Wall"
+        "wallTitle": "Little Biggy Wall"
       },
       "meta": {
         "copyright": "© {year} Biggy Index.",
@@ -165,34 +165,34 @@
       },
       "embassy": {
         "label": "Need help?",
-        "text": "New to LittleBiggy? Our embassy is a community post where you can ask questions and get help in your language.",
+        "text": "New to Little Biggy? Our embassy is a community post where you can ask questions and get help in your language.",
         "cta": "Visit the embassy"
       }
     },
     "faq": {
       "label": "Frequently asked",
-      "title": "FAQs for first-time Biggy explorers",
-      "subtitle": "Two quick panels: one about how Biggy Index works, another covering LittleBiggy payments and crypto basics.",
+      "title": "FAQs for first-time visitors",
+      "subtitle": "Two quick panels: one about how Biggy Index works, another covering Little Biggy payments and crypto basics.",
       "tabs": {
         "about": "About Biggy Index",
-        "crypto": "LittleBiggy & Bitcoin"
+        "crypto": "Little Biggy & Bitcoin"
       },
       "about": [
-        { "q": "What is the Biggy Index?", "a": "The Biggy Index provides an easier way to browse the LittleBiggy marketplace, with item categorisation, additional sorting options, and other handy tools tailored for UK shoppers." },
-        { "q": "Do you sell or ship items?", "a": "No. Biggy Index is read-only and sends you back to LittleBiggy to complete your order." },
-        { "q": "Where does the data come from?", "a": "The index fetches public LittleBiggy data, normalising categories, pricing summaries, shipping info, reviews and images." },
-        { "q": "How often is it refreshed?", "a": "There are 3 components that refresh at different intervals. The main indexer runs every 15 minutes. The item and seller crawlers run every 4 hours, at separate times to be mindful of LittleBiggy's server." },
+        { "q": "What is the Biggy Index?", "a": "The Biggy Index provides an easier way to browse the Little Biggy marketplace, with item categorisation, additional sorting options, and other handy tools tailored for UK shoppers." },
+        { "q": "Do you sell or ship items?", "a": "No. Biggy Index is read-only and sends you back to Little Biggy to complete your order." },
+        { "q": "Where does the data come from?", "a": "The index fetches public Little Biggy data, normalising categories, pricing summaries, shipping info, reviews and images." },
+        { "q": "How often is it refreshed?", "a": "There are 3 components that refresh at different intervals. The main indexer runs every 15 minutes. The item and seller crawlers run every 4 hours, at separate times to be mindful of Little Biggy's server." },
         { "q": "What does First Seen or Updated on items mean?", "a": "First seen/created means that it's the first time the item was indexed by the crawler. This can include items which were on LB before the indexer existed. Updated means that the item was edited by the seller, or that the crawler detected a change (e.g. price, variants, description)." },
         { "q": "What are endorsements?", "a": "Community votes that highlight popular items without tracking you." }
       ],
       "crypto": [
-        { "q": "What payments does LittleBiggy accept?", "a": "Only Bitcoin - no cards, bank transfers or other cryptocurrencies." },
+        { "q": "What payments does Little Biggy accept?", "a": "Only Bitcoin - no cards, bank transfers or other cryptocurrencies." },
         { "q": "How do I buy Bitcoin in the UK?", "a": "Most buyers use Revolut, Monzo, Kraken, or Coinbase. Top up in pounds, purchase the amount of BTC shown at checkout, and allow a few pounds for network or exchanging fees." },
-        { "q": "Do I need my own wallet first?", "a": "You can pay straight from the exchange, but many move BTC into Cake Wallet, Trust Wallet, or similar for extra control or privacy before sending. By law, exchanges need to ask you who you're sending the coins to - so some people prefer buying on exchanges and storing their coins in a private wallet for making purchases." },
+        { "q": "Do I need my own wallet first?", "a": "You can pay straight from the exchange, but many people move BTC into a private wallet like Cake Wallet or Trust Wallet for extra privacy. UK exchanges are required to ask where you're sending coins — so some buyers prefer routing via a personal wallet." },
         { "q": "How does Transaxe escrow protect me?", "a": "Your payment goes to a Transaxe escrow address. Sellers have about 80 hours to mark orders as shipped or the funds auto-refund. Disputes open after nine days if needed." },
         { "q": "Any tips to avoid mistakes?", "a": "Copy-paste the BTC amount and address, add a buffer for fees, and keep screenshots until your parcel arrives. The blockchain cannot undo typos." },
-        { "q": "Why not just use clearnet shops?", "a": "Competition on LittleBiggy keeps quality high and prices honest, whereas clearnet resellers often mark up heavily or ship questionable stock." },
-        { "q": "What about UK legality?", "a": "Cannabis laws still apply. You are responsible for staying within local regulations and verifying every detail on LittleBiggy." }
+        { "q": "Why not just use clearnet shops?", "a": "Competition on Little Biggy keeps quality high and prices fair. Clearnet resellers often charge heavy markups or ship questionable stock." },
+        { "q": "What about UK legality?", "a": "Cannabis laws still apply. You are responsible for staying within local regulations and verifying every detail on Little Biggy." }
       ]
     },
     "media": {
@@ -212,7 +212,7 @@
     "recentItems": {
       "label": "Fresh activity",
       "title": "Recently indexed items",
-      "subtitle": "See the latest or most recently updated items on LittleBiggy.",
+      "subtitle": "See the latest or most recently updated items on Little Biggy.",
       "tabs": {
         "added": "Recently added",
         "updated": "Recently updated"
@@ -232,7 +232,7 @@
     "leaderboard": {
       "header": {
         "label": "Seller leaderboard",
-        "title": "Two week sentiment signals",
+        "title": "Two-week sentiment snapshot",
         "updated": "Updated {date}",
         "pinLabel": "leaderboard"
       },
@@ -243,12 +243,12 @@
       },
       "top": {
         "title": "Top performers",
-        "subtitle": "Highest-confidence sellers after Bayesian smoothing",
+        "subtitle": "Top-rated sellers based on review confidence",
         "empty": "No high-signal sellers in the last two weeks."
       },
       "bottom": {
         "title": "Sellers to be cautious about",
-        "subtitle": "Lower confidence or higher negatives — exercise caution",
+        "subtitle": "Lower confidence or more negative reviews — proceed with caution",
         "empty": "No caution signals detected in the last two weeks."
       },
       "newSellers": {
@@ -273,20 +273,20 @@
     },
     "why": {
       "label": "Why it helps",
-      "title": "Better LittleBiggy browsing for UK buyers",
-      "subtitle": "Planning to buy weed online in the UK? The Biggy Index pulls real marketplace data into a cleaner interface so you can compare products, prices, and delivery speed before opening LittleBiggy.",
+      "title": "Better Little Biggy browsing for UK buyers",
+      "subtitle": "Planning to buy weed online in the UK? Biggy Index pulls real marketplace data into a cleaner interface so you can compare products, prices, and delivery times before visiting Little Biggy.",
       "highlights": [
         {
           "title": "Find UK cannabis fast",
-          "description": "Search LittleBiggy's public listings with filters built for the UK. Avoid heavy markups or scams associated with clearnet sources."
+          "description": "Search Little Biggy's public listings with filters built for the UK. Avoid heavy markups or scams associated with clearnet sources."
         },
         {
           "title": "Fresh data from the indexer",
-          "description": "The indexer scans LittleBiggy's items and their prices, details, and reviews to show an up-to-date catalogue."
+          "description": "The indexer scans Little Biggy's items and their prices, details, and reviews to show an up-to-date catalogue."
         },
         {
-          "title": "LittleBiggy Enhanced",
-          "description": "Sort items, see when they're updated, bookmark them via favourites, all in a lightweight, fast UI."
+          "title": "Little Biggy Enhanced",
+          "description": "Sort items, see when they've been updated, and bookmark favourites — all in a lightweight, fast interface."
         }
       ]
     }

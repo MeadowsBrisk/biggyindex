@@ -16,6 +16,7 @@ import { relativeCompact } from '@/lib/ui/relativeTimeCompact';
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { proxyImage } from '@/lib/ui/images';
 import AnimatedLogoHeader from '@/components/layout/AnimatedLogoHeader';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
 import LocaleSelector from '@/components/layout/LocaleSelector';
 import ToastHost from '@/components/common/ToastHost';
 import { useLocale, useDisplayCurrency } from '@/providers/IntlProvider';
@@ -119,6 +120,7 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
   const tMeta = useTranslations('Meta');
   const tCats = useTranslations('Categories');
   const tCatPage = useTranslations('CategoryPage');
+  const tCrumbs = useTranslations('Breadcrumbs');
   const tItem = useTranslations('Item');
   const tRel = useTranslations('Rel');
   const rates = useExchangeRates();
@@ -265,13 +267,12 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         <ToastHost />
 
         {/* Breadcrumb */}
-        <nav className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-          <Link href="/" className="hover:text-emerald-600 dark:hover:text-emerald-400">
-            Biggy Index
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900 dark:text-white">{categoryName}</span>
-        </nav>
+        <Breadcrumbs
+          crumbs={[
+            { label: tCrumbs('home'), href: '/' },
+            { label: categoryName },
+          ]}
+        />
 
         {/* Category Header - Two column layout */}
         <header className="mb-10 grid gap-8 lg:grid-cols-2 lg:items-start">
@@ -531,7 +532,7 @@ function FeaturedItemCard({
 
   return (
     <Link
-      href={`/?ref=${encodeURIComponent(refNum)}`}
+      href={`/item/${encodeURIComponent(refNum)}`}
       className="group block h-full overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-emerald-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-emerald-400"
     >
       <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-900">

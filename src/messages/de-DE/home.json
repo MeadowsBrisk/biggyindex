@@ -1,9 +1,9 @@
 {
   "Home": {
     "hero": {
-      "badge": "Finden Sie, was Sie suchen",
+      "badge": "Finde, was du suchst",
       "title": "Ein Index für den <accent>420</accent>‑Marktplatz",
-      "subtitle": "Durchstöbern Sie LittleBiggy schneller – mit smarter Suche, aufgeräumten Kategorien und schnellen Statistiken, zugeschnitten auf Käufer in Deutschland.",
+      "subtitle": "Durchstöbere Little Biggy schneller – mit smarter Suche, aufgeräumten Kategorien und schnellen Statistiken, zugeschnitten auf Käufer in Deutschland.",
       "cta": { "browse": "Artikel durchsuchen", "how": "So funktioniert’s" },
       "stats": {
         "catalogueSize": "Kataloggröße",
@@ -20,11 +20,11 @@
     },
   "quickStart": {
       "badge": "So funktioniert’s",
-      "title": "Einkaufen auf Littlebiggy – Schritt für Schritt",
-      "subtitle": "Möchten Sie in Deutschland Cannabis online kaufen? Folgen Sie den Schritten unten, um zu starten.",
+      "title": "Einkaufen auf Little Biggy – Schritt für Schritt",
+      "subtitle": "Möchtest du in Deutschland Cannabis online kaufen? Folge den Schritten unten, um zu starten.",
       "stepLabel": "Schritt {num}",
       "optional": "Optional",
-      "labels": { "faq": "FAQ", "browseItems": "Artikel durchsuchen", "browseItemsCaps": "Browse Items" },
+      "labels": { "faq": "FAQ", "browseItems": "Artikel durchsuchen", "browseItemsCaps": "Artikel Durchsuchen" },
       "terms": {
         "exchange": {
           "term": "Exchange",
@@ -32,7 +32,7 @@
         },
         "privateWallet": {
           "term": "Private Wallet",
-          "def": "Eine App, die Sie kontrollieren und in der Sie Bitcoin ohne Bank oder Börse verwahren."
+          "def": "Eine App, die du kontrollierst und in der du Bitcoin ohne Bank oder Börse verwahrst."
         },
         "escrow": {
           "term": "Escrow",
@@ -43,37 +43,37 @@
         "1": {
           "title": "Bitcoin besorgen",
           "emoji": "🪙",
-          "summary": "Besorgen Sie etwas Bitcoin, um bezahlen zu können.",
-          "p1": "LittleBiggy akzeptiert nur Bitcoin. Richten Sie einen Weg ein, BTC zu kaufen, damit Sie bereit sind zu bestellen.",
+          "summary": "Besorg dir etwas Bitcoin, um bezahlen zu können.",
+          "p1": "Little Biggy akzeptiert nur Bitcoin. Richte einen Weg ein, BTC zu kaufen, damit du bereit bist zu bestellen.",
           "easiestTitle": "Am einfachsten",
           "easiestDesc": "Apps wie Revolut oder Monzo erlauben den Bitcoin‑Kauf direkt in der Banking‑App mit wenigen Taps.",
           "otherTitle": "Weitere Möglichkeiten",
           "otherDescBefore": "Ein Krypto‑",
           "otherDescAfter": "wie Coinbase oder Kraken funktioniert genauso gut. Es ist wie ein Online‑Wechselbüro.",
           "proTipTitle": "Tipp",
-          "proTipDesc": "Kaufen Sie ein paar Euro mehr und runden Sie auf. Der Puffer deckt Netzwerkgebühren oder Kursschwankungen."
+          "proTipDesc": "Kauf ein paar Euro mehr und runde auf. Der Puffer deckt Netzwerkgebühren oder Kursschwankungen."
         },
         "2": {
           "title": "Artikel finden",
           "emoji": "🛍️",
-          "summary": "Durchstöbern Sie den Littlebiggy‑Katalog wie bei eBay.",
-          "p1": "Finden Sie gewünschte Artikel direkt auf Littlebiggy oder über den Index. Die Auswahl ist groß – stöbern lohnt sich.",
+          "summary": "Durchstöbere den Little Biggy‑Katalog wie bei eBay.",
+          "p1": "Finde gewünschte Artikel direkt auf Little Biggy oder über den Index. Die Auswahl ist groß – stöbern lohnt sich.",
           "bullets": [
-            "Klicken Sie unten auf <strong>Artikel durchsuchen</strong>, um zu starten.",
-            "Prüfen Sie Beschreibungen und Bewertungen, um verlässliche Verkäufer zu finden. Im Zweifel bei Google oder auf <reddit>Reddit</reddit> nachsehen.",
-            "Wenn bereit, legen Sie Artikel in den Warenkorb und geben Lieferdetails ein – wie in jedem Shop."
+            "Klicke unten auf <strong>Artikel durchsuchen</strong>, um zu starten.",
+            "Prüfe Beschreibungen und Bewertungen, um verlässliche Verkäufer zu finden. Im Zweifel bei Google oder auf <reddit>Reddit</reddit> nachsehen.",
+            "Wenn bereit, leg Artikel in den Warenkorb und gib Lieferdetails ein – wie in jedem Shop."
           ],
-          "bullets0": "Klicken Sie unten auf <strong>Artikel durchsuchen</strong>, um zu starten.",
-          "bullets1": "Prüfen Sie Beschreibungen und Bewertungen, um verlässliche Verkäufer zu finden. Im Zweifel bei Google oder auf <reddit>Reddit</reddit> nachsehen.",
-          "bullets2": "Wenn bereit, legen Sie Artikel in den Warenkorb und geben Lieferdetails ein – wie in jedem Shop.",
+          "bullets0": "Klicke unten auf <strong>Artikel durchsuchen</strong>, um zu starten.",
+          "bullets1": "Prüfe Beschreibungen und Bewertungen, um verlässliche Verkäufer zu finden. Im Zweifel bei Google oder auf <reddit>Reddit</reddit> nachsehen.",
+          "bullets2": "Wenn bereit, leg Artikel in den Warenkorb und gib Lieferdetails ein – wie in jedem Shop.",
           "proTipTitle": "Tipp",
-          "proTipDesc": "Nutzen Sie Filter und Bewertungen zur Vorauswahl; prüfen Sie im Manifest die Postzeiten."
+          "proTipDesc": "Nutz Filter und Bewertungen zur Vorauswahl; prüfe im Manifest die Postzeiten."
         },
         "3": {
           "title": "Zur Kasse & Bitcoin senden",
           "emoji": "✅",
           "summary": "Daten kopieren und die Zahlung vom Handy oder Laptop senden.",
-          "pIntro": "Beim Checkout zeigt Littlebiggy eine private Bestellseite mit allen Details – egal ob Sie auf einem Gerät bleiben oder zwischen Handy und Desktop wechseln.",
+          "pIntro": "Beim Checkout zeigt Little Biggy eine private Bestellseite mit allen Details – egal ob du auf einem Gerät bleibst oder zwischen Handy und Desktop wechselst.",
           "copyTitle": "Zwei Checkout‑Details kopieren",
           "copyBullets": [
             "Genauer BTC‑Betrag: z. B. 0.00123456. Exakt kopieren, um nicht zu wenig zu zahlen.",
@@ -81,30 +81,30 @@
           ],
           "sendTitle": "Zahlung senden",
           "sendSteps": [
-            "Öffnen Sie die App/Börse, über die Sie BTC gekauft haben (Revolut, Coinbase, Monzo, Kraken, …).",
-            "Wählen Sie Senden/Abheben von Bitcoin.",
+            "Öffne die App/Börse, über die du BTC gekauft hast (Revolut, Coinbase, Monzo, Kraken, …).",
+            "Wähle Senden/Abheben von Bitcoin.",
             "Adresse in das Empfängerfeld und den genauen BTC‑Betrag in das Betragsfeld einfügen.",
             "Übertragung bestätigen – Bestätigung erfolgt meist in Minuten, die Bestellseite aktualisiert sich automatisch."
           ],
           "privacyTitle": "Mehr Privatsphäre gewünscht?",
-          "privacy1": "Sie können die Coins zuerst in Ihre eigene",
+          "privacy1": "Du kannst die Coins zuerst in deine eigene",
           "privacy2": "verschieben –",
-          "privacy3": ", oder ähnliche Apps – und dann den exakten Betrag an Littlebiggy weiterleiten. So sieht die Börse nicht, wofür Sie zahlen."
+          "privacy3": ", oder ähnliche Apps – und dann den exakten Betrag an Little Biggy weiterleiten. So sieht die Börse nicht, wofür du zahlst."
         },
         "4": {
           "title": "Gelder sind sicher (Escrow)",
           "emoji": "🔐",
           "summary": "Transaxe hält das Geld, bis die Bestellung ankommt.",
-          "p1_before": "Sie zahlen nicht direkt an den Verkäufer. Ihr Bitcoin landet bei Transaxe, einem vertrauenswürdigen Drittanbieter mit",
+          "p1_before": "Du zahlst nicht direkt an den Verkäufer. Dein Bitcoin landet bei Transaxe, einem vertrauenswürdigen Drittanbieter mit",
           "p1_after": "‑Schutz.",
           "p2": "Transaxe gibt das Geld erst frei, wenn die Frist abläuft. Bei Problemen zuerst den Verkäufer kontaktieren, sonst einen Disput auf der Bestellseite eröffnen.",
           "ol": [
-            "Wählen Sie die Option, Bitcoin zu senden oder abzuheben.",
-            "Fügen Sie die Bitcoin‑Adresse ins Empfängerfeld und den exakten BTC‑Betrag ins Betragsfeld ein.",
-            "Bestätigen Sie die Überweisung – Netzwerkbestätigungen dauern meist nur Minuten; die Bestellseite aktualisiert sich automatisch."
+            "Wähle die Option, Bitcoin zu senden oder abzuheben.",
+            "Füge die Bitcoin‑Adresse ins Empfängerfeld und den exakten BTC‑Betrag ins Betragsfeld ein.",
+            "Bestätige die Überweisung – Netzwerkbestätigungen dauern meist nur Minuten; die Bestellseite aktualisiert sich automatisch."
           ],
           "cardTitle": "Beruhigt bestellen",
-          "cardDesc": "Durch Escrow berührt der Verkäufer Ihr Geld erst, wenn die Ware versandt und erhalten wurde. Es hält Littlebiggy ehrlich."
+          "cardDesc": "Durch Escrow berührt der Verkäufer dein Geld erst, wenn die Ware versandt und erhalten wurde. Es hält Little Biggy ehrlich."
         },
         "5": {
           "title": "Warten auf den Postboten",
@@ -119,7 +119,7 @@
       "header": {
         "label": "Stimmung der Community",
         "title": "Neueste Bewertungen",
-        "subtitle": "Direkt von LittleBiggy‑Käufern – stöbern Sie durch aktuelle Bewertungen, Lieferzeiten und Käufernotizen aus dem kombinierten Feed."
+        "subtitle": "Direkt von Little Biggy‑Käufern – stöbere durch aktuelle Bewertungen, Lieferzeiten und Käufernotizen aus dem kombinierten Feed."
       },
       "panel": {
         "title": "Aktuelles Käuferfeedback",
@@ -139,9 +139,9 @@
         "days": "dauerte {days} Tage"
       },
       "placeholder": {
-        "sellerName": "LittleBiggy‑Käufer",
+        "sellerName": "Little Biggy‑Käufer",
         "itemTitle": "Frische Bewertungen kommen",
-        "text": "Wir aktualisieren gerade den kombinierten Bewertungs‑Feed. Echte Highlights von LittleBiggy‑Käufern erscheinen hier in Kürze.\n\nBleiben Sie dran!"
+        "text": "Wir aktualisieren gerade den kombinierten Bewertungs‑Feed. Echte Highlights von Little Biggy‑Käufern erscheinen hier in Kürze.\n\nBleib dran!"
       }
     },
   "media": {
@@ -160,14 +160,14 @@
     },
     "footer": {
       "badge": "Der Biggy Index",
-      "title": "Finden Sie, was Sie suchen.",
-      "description": "Durchstöbern Sie tausende Angebote von Verkäufern auf LittleBiggy – einem Marktplatz nach dem Prinzip 'Do no harm'.",
+      "title": "Finde, was du suchst.",
+      "description": "Durchstöbere tausende Angebote von Verkäufern auf Little Biggy – einem Marktplatz nach dem Prinzip 'Do no harm'.",
       "ctaBrowse": "Artikel durchsuchen",
       "community": {
         "label": "Community",
-        "text": "Diskutieren Sie mit. Erfahrungen teilen, Fragen stellen oder Verkäufer-Reputationen prüfen.",
+        "text": "Diskutiere mit. Erfahrungen teilen, Fragen stellen oder Verkäufer-Reputationen prüfen.",
         "reddit": "Reddit",
-        "wallTitle": "LittleBiggy Wall"
+        "wallTitle": "Little Biggy Wall"
       },
       "meta": {
         "copyright": "© {year} Biggy Index.",
@@ -179,14 +179,14 @@
       },
       "embassy": {
         "label": "Brauchst du Hilfe?",
-        "text": "Neu bei LittleBiggy? Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.",
+        "text": "Neu bei Little Biggy? Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.",
         "cta": "Zur Botschaft"
       }
     },
     "recentItems": {
       "label": "Frische Aktivität",
       "title": "Kürzlich indexierte Artikel",
-      "subtitle": "Neu hinzugefügt oder zuletzt aktualisiert – direkt von LittleBiggy.",
+      "subtitle": "Neu hinzugefügt oder zuletzt aktualisiert – direkt von Little Biggy.",
       "tabs": {
         "added": "Kürzlich hinzugefügt",
         "updated": "Kürzlich aktualisiert"
@@ -247,35 +247,35 @@
     },
     "why": {
         "label": "Warum es hilft",
-        "title": "Besseres LittleBiggy-Browsen für Käufer in Deutschland",
-        "subtitle": "Planen Sie, in Deutschland online Gras zu kaufen? Der Biggy Index zieht echte Marktdaten in eine übersichtlichere Oberfläche, damit Sie Produkte, Preise und Lieferzeiten vergleichen können, bevor Sie LittleBiggy öffnen.",
+        "title": "Besseres Little Biggy-Browsen für Käufer in Deutschland",
+        "subtitle": "Planst du, in Deutschland online Gras zu kaufen? Der Biggy Index zieht echte Marktdaten in eine übersichtlichere Oberfläche, damit du Produkte, Preise und Lieferzeiten vergleichen kannst, bevor du Little Biggy öffnest.",
       "highlights": [
-          { "title": "Schnell Gras in Deutschland finden", "description": "Durchsuchen Sie öffentliche LittleBiggy-Angebote mit Filtern für Deutschland. Vermeiden Sie starke Aufschläge oder Betrug durch Clearnet-Quellen." },
-        { "title": "Frische Daten vom Indexer", "description": "Der Indexer scannt LittleBiggy-Artikel samt Preisen, Details und Bewertungen für einen aktuellen Katalog." },
-        { "title": "LittleBiggy erweitert", "description": "Artikel sortieren, Aktualisierungen sehen, Favoriten speichern – in einer leichten, schnellen UI." }
+          { "title": "Schnell Gras in Deutschland finden", "description": "Durchsuche öffentliche Little Biggy-Angebote mit Filtern für Deutschland. Vermeide starke Aufschläge oder Betrug durch Clearnet-Quellen." },
+        { "title": "Frische Daten vom Indexer", "description": "Der Indexer scannt Little Biggy-Artikel samt Preisen, Details und Bewertungen für einen aktuellen Katalog." },
+        { "title": "Little Biggy erweitert", "description": "Artikel sortieren, Aktualisierungen sehen, Favoriten speichern – in einer leichten, schnellen UI." }
       ]
     },
     "faq": {
       "label": "Häufig gefragt",
       "title": "FAQs für Erstnutzer des Biggy Index",
-      "subtitle": "Zwei kurze Bereiche: einer zur Funktionsweise des Biggy Index, ein weiterer zu LittleBiggy‑Zahlungen und Bitcoin‑Grundlagen.",
-      "tabs": { "about": "Über Biggy Index", "crypto": "LittleBiggy & Bitcoin" },
+      "subtitle": "Zwei kurze Bereiche: einer zur Funktionsweise des Biggy Index, ein weiterer zu Little Biggy‑Zahlungen und Bitcoin‑Grundlagen.",
+      "tabs": { "about": "Über Biggy Index", "crypto": "Little Biggy & Bitcoin" },
       "about": [
-        { "q": "Was ist der Biggy Index?", "a": "Der Biggy Index erleichtert das Durchstöbern des LittleBiggy-Marktplatzes mit Kategorisierung, zusätzlichen Sortieroptionen und Tools speziell für Käufer in Deutschland." },
-        { "q": "Verkauft oder versendet ihr?", "a": "Nein. Biggy Index ist nur lesend und leitet zum Abschluss der Bestellung zu LittleBiggy weiter." },
-        { "q": "Woher stammen die Daten?", "a": "Öffentliche LittleBiggy-Daten werden abgerufen und Kategorien, Preise, Versandinfos, Bewertungen und Bilder normalisiert." },
+        { "q": "Was ist der Biggy Index?", "a": "Der Biggy Index erleichtert das Durchstöbern des Little Biggy-Marktplatzes mit Kategorisierung, zusätzlichen Sortieroptionen und Tools speziell für Käufer in Deutschland." },
+        { "q": "Verkauft oder versendet ihr?", "a": "Nein. Biggy Index ist nur lesend und leitet zum Abschluss der Bestellung zu Little Biggy weiter." },
+        { "q": "Woher stammen die Daten?", "a": "Öffentliche Little Biggy-Daten werden abgerufen und Kategorien, Preise, Versandinfos, Bewertungen und Bilder normalisiert." },
           { "q": "Wie oft wird aktualisiert?", "a": "Der Hauptindexer läuft alle 15 Minuten. Item- und Verkäufer-Crawler alle 4 Stunden, zeitversetzt." },
           { "q": "Was bedeuten ‚Erstmalig erfasst‘ und ‚Aktualisiert‘?", "a": "Erstmalig erfasst bedeutet, dass der Artikel zum ersten Mal vom Crawler indexiert wurde – darunter können Artikel fallen, die es vorher schon auf LB gab. Aktualisiert heißt, der Verkäufer hat etwas geändert oder der Crawler hat eine Änderung erkannt (z. B. Preis, Varianten, Beschreibung)." },
         { "q": "Was sind Endorsements?", "a": "Community-Stimmen, die beliebte Artikel hervorheben – ohne Tracking." }
       ],
       "crypto": [
-        { "q": "Welche Zahlungen akzeptiert LittleBiggy?", "a": "Nur Bitcoin – keine Karten, Überweisungen oder andere Kryptowährungen." },
+        { "q": "Welche Zahlungen akzeptiert Little Biggy?", "a": "Nur Bitcoin – keine Karten, Überweisungen oder andere Kryptowährungen." },
   { "q": "Wie kaufe ich Bitcoin in Deutschland?", "a": "Viele nutzen Revolut, Monzo, Kraken oder Coinbase. Euro aufladen, den am Checkout angegebenen BTC-Betrag kaufen und Gebühren einplanen." },
         { "q": "Brauche ich erst eine eigene Wallet?", "a": "Zahlung direkt von der Börse ist möglich, viele nutzen aber eine private Wallet (z. B. Cake, Trust) für mehr Kontrolle/Privatsphäre." },
         { "q": "Wie schützt das Transaxe-Escrow?", "a": "Zahlung geht an eine Escrow-Adresse. Verkäufer haben ca. 80 Stunden zum Markieren des Versands, sonst Rückerstattung; Disputes nach 9 Tagen." },
         { "q": "Tipps gegen Fehler?", "a": "BTC-Betrag und Adresse kopieren/einfügen, Puffer für Gebühren einplanen, Screenshots bis zur Zustellung aufheben." },
-        { "q": "Warum keine Clearnet-Shops?", "a": "Konkurrenz auf LittleBiggy hält Qualität hoch und Preise fair; Clearnet-Reseller schlagen oft stark auf." },
-        { "q": "Und die Legalität?", "a": "Gesetze gelten weiterhin. Nutzer bleiben verantwortlich und sollten Details bei LittleBiggy prüfen." }
+        { "q": "Warum keine Clearnet-Shops?", "a": "Konkurrenz auf Little Biggy hält Qualität hoch und Preise fair; Clearnet-Reseller schlagen oft stark auf." },
+        { "q": "Und die Legalität?", "a": "Gesetze gelten weiterhin. Nutzer bleiben verantwortlich und sollten Details bei Little Biggy prüfen." }
       ]
     }
   }

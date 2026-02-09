@@ -2,11 +2,11 @@
   "Home": {
     "quickStart": {
       "badge": "Como funciona",
-      "title": "Comprar no Littlebiggy – guia passo a passo",
+      "title": "Comprar no Little Biggy – guia passo a passo",
       "subtitle": "Quer comprar canábis online em Portugal? Siga os passos abaixo para começar.",
       "stepLabel": "Passo {num}",
       "optional": "Opcional",
-      "labels": { "faq": "FAQ", "browseItems": "Explorar itens", "browseItemsCaps": "Browse Items" },
+      "labels": { "faq": "FAQ", "browseItems": "Explorar itens", "browseItemsCaps": "Explorar itens" },
       "terms": {
         "exchange": {
           "term": "Exchange",
@@ -26,7 +26,7 @@
           "title": "Obtenha algum Bitcoin",
           "emoji": "🪙",
           "summary": "Tenha um pouco de Bitcoin para pagar.",
-          "p1": "O LittleBiggy aceita apenas Bitcoin. Prepare uma forma de comprar para ficar pronto a encomendar.",
+          "p1": "O Little Biggy aceita apenas Bitcoin. Prepare uma forma de comprar para ficar pronto a encomendar.",
           "easiestTitle": "Mais simples",
           "easiestDesc": "Apps como a Revolut ou Monzo permitem comprar Bitcoin na app bancária em poucos toques.",
           "otherTitle": "Outras opções",
@@ -38,8 +38,8 @@
         "2": {
           "title": "Encontre os seus itens",
           "emoji": "🛍️",
-          "summary": "Percorra o catálogo do Littlebiggy como no eBay.",
-          "p1": "Encontre itens diretamente no Littlebiggy ou através do índice. A oferta é grande – vale a pena explorar.",
+          "summary": "Percorra o catálogo do Little Biggy como no eBay.",
+          "p1": "Encontre itens diretamente no Little Biggy ou através do índice. A oferta é grande – vale a pena explorar.",
           "bullets": [
             "Clique em <strong>Explorar itens</strong> abaixo para começar.",
             "Verifique descrições e avaliações para identificar vendedores de confiança. Na dúvida, procure no Google ou no <reddit>Reddit</reddit>.",
@@ -55,7 +55,7 @@
           "title": "Checkout e enviar o seu Bitcoin",
           "emoji": "✅",
           "summary": "Copie os detalhes e envie o pagamento do telemóvel ou computador.",
-          "pIntro": "No checkout, o Littlebiggy mostra uma página de encomenda privada com tudo para pagar em segurança — num dispositivo ou alternando entre telemóvel e desktop.",
+          "pIntro": "No checkout, o Little Biggy mostra uma página de encomenda privada com tudo para pagar em segurança — num dispositivo ou alternando entre telemóvel e desktop.",
           "copyTitle": "Copiar dois detalhes do checkout",
           "copyBullets": [
             "Montante exato em BTC (ex. 0.00123456). Copie exatamente para não pagar a menos.",
@@ -71,7 +71,7 @@
           "privacyTitle": "Quer mais privacidade?",
           "privacy1": "Pode mover as moedas primeiro para a sua",
           "privacy2": "—",
-          "privacy3": ", ou apps semelhantes, e depois enviar o valor exato para o Littlebiggy. Assim o exchange não vê onde gasta."
+          "privacy3": ", ou apps semelhantes, e depois enviar o valor exato para o Little Biggy. Assim o exchange não vê onde gasta."
         },
         "4": {
           "title": "Os fundos estão seguros (Escrow)",
@@ -86,7 +86,7 @@
             "Confirme — as confirmações de rede costumam chegar em minutos e a página da encomenda atualiza."
           ],
           "cardTitle": "Tranquilidade",
-          "cardDesc": "Com escrow, o vendedor não toca no dinheiro antes do envio e receção. Mantém a honestidade no Littlebiggy."
+          "cardDesc": "Com escrow, o vendedor não toca no dinheiro antes do envio e receção. Mantém a honestidade no Little Biggy."
         },
         "5": {
           "title": "Espere pelo carteiro",
@@ -100,7 +100,7 @@
     "hero": {
       "badge": "Encontre o que procura",
       "title": "Um índice para o marketplace <accent>420</accent>",
-      "subtitle": "Explore o LittleBiggy mais rápido com pesquisa inteligente, categorias organizadas e estatísticas rápidas pensadas para compradores em Portugal.",
+      "subtitle": "Explore o Little Biggy mais rápido com pesquisa inteligente, categorias organizadas e estatísticas rápidas pensadas para compradores em Portugal.",
       "cta": { "browse": "Explorar itens", "how": "Como funciona" },
       "stats": {
         "catalogueSize": "Tamanho do catálogo",
@@ -119,7 +119,7 @@
       "header": {
         "label": "Pulso da comunidade",
         "title": "Avaliações recentes",
-        "subtitle": "Diretamente dos compradores do LittleBiggy — veja as últimas classificações, tempos de entrega e notas dos compradores do feed combinado."
+        "subtitle": "Diretamente dos compradores do Little Biggy — veja as últimas classificações, tempos de entrega e notas dos compradores do feed combinado."
       },
       "panel": {
         "title": "Feedback mais recente",
@@ -139,9 +139,9 @@
         "days": "chegou em {days} dias"
       },
       "placeholder": {
-        "sellerName": "Comprador LittleBiggy",
+        "sellerName": "Comprador Little Biggy",
         "itemTitle": "Novas avaliações a caminho",
-        "text": "Estamos a atualizar o feed combinado de avaliações. Em breve aqui surgirão destaques reais de compradores do LittleBiggy.\n\nFique atento!"
+        "text": "Estamos a atualizar o feed combinado de avaliações. Em breve aqui surgirão destaques reais de compradores do Little Biggy.\n\nFique atento!"
       }
     },
   "media": {
@@ -161,13 +161,13 @@
     "footer": {
       "badge": "Biggy Index",
       "title": "Encontre o que procura.",
-      "description": "Explore milhares de anúncios de vendedores no LittleBiggy, um marketplace baseado no princípio de não causar dano.",
+      "description": "Explore milhares de anúncios de vendedores no Little Biggy, um marketplace baseado no princípio de não causar dano.",
       "ctaBrowse": "Explorar itens",
       "community": {
         "label": "Comunidade",
         "text": "Entre na conversa. Partilhe experiências, faça perguntas ou verifique a reputação dos vendedores.",
         "reddit": "Reddit",
-        "wallTitle": "Wall LittleBiggy"
+        "wallTitle": "Wall Little Biggy"
       },
       "meta": {
         "copyright": "© {year} Biggy Index.",
@@ -179,14 +179,14 @@
       },
       "embassy": {
         "label": "Precisas de ajuda?",
-        "text": "Novo no LittleBiggy? A embaixada é um post da comunidade onde podes fazer perguntas e receber ajuda em português.",
+        "text": "Novo no Little Biggy? A embaixada é um post da comunidade onde podes fazer perguntas e receber ajuda em português.",
         "cta": "Visitar a embaixada"
       }
     },
     "recentItems": {
       "label": "Atividade recente",
       "title": "Itens recentemente indexados",
-      "subtitle": "Veja os itens mais recentes ou atualizados no LittleBiggy.",
+      "subtitle": "Veja os itens mais recentes ou atualizados no Little Biggy.",
       "tabs": {
         "added": "Adicionados recentemente",
         "updated": "Atualizados recentemente"
@@ -247,35 +247,35 @@
     },
     "why": {
         "label": "Porque ajuda",
-        "title": "Uma melhor navegação no LittleBiggy para compradores em Portugal",
-        "subtitle": "Vai comprar erva online em Portugal? O Biggy Index reúne dados reais do marketplace numa interface mais clara para comparar produtos, preços e prazos de entrega antes de abrir o LittleBiggy.",
+        "title": "Uma melhor navegação no Little Biggy para compradores em Portugal",
+        "subtitle": "Vai comprar erva online em Portugal? O Biggy Index reúne dados reais do marketplace numa interface mais clara para comparar produtos, preços e prazos de entrega antes de abrir o Little Biggy.",
       "highlights": [
-          { "title": "Encontre erva em Portugal rapidamente", "description": "Pesquise os anúncios públicos do LittleBiggy com filtros pensados para Portugal. Evite grandes margens ou golpes do clearnet." },
-        { "title": "Dados frescos do indexador", "description": "O indexador analisa os itens do LittleBiggy com preços, detalhes e avaliações para um catálogo atualizado." },
-        { "title": "LittleBiggy melhorado", "description": "Ordene itens, veja quando foram atualizados, guarde favoritos – tudo numa interface leve e rápida." }
+          { "title": "Encontre erva em Portugal rapidamente", "description": "Pesquise os anúncios públicos do Little Biggy com filtros pensados para Portugal. Evite grandes margens ou golpes do clearnet." },
+        { "title": "Dados frescos do indexador", "description": "O indexador analisa os itens do Little Biggy com preços, detalhes e avaliações para um catálogo atualizado." },
+        { "title": "Little Biggy melhorado", "description": "Ordene itens, veja quando foram atualizados, guarde favoritos – tudo numa interface leve e rápida." }
       ]
     },
     "faq": {
       "label": "Perguntas frequentes",
       "title": "FAQ para novos exploradores do Biggy",
-      "subtitle": "Dois painéis rápidos: um sobre como o Biggy Index funciona, outro sobre pagamentos no LittleBiggy e noções básicas de Bitcoin.",
-      "tabs": { "about": "Sobre o Biggy Index", "crypto": "LittleBiggy & Bitcoin" },
+      "subtitle": "Dois painéis rápidos: um sobre como o Biggy Index funciona, outro sobre pagamentos no Little Biggy e noções básicas de Bitcoin.",
+      "tabs": { "about": "Sobre o Biggy Index", "crypto": "Little Biggy & Bitcoin" },
       "about": [
-        { "q": "O que é o Biggy Index?", "a": "O Biggy Index facilita a navegação no marketplace LittleBiggy com categorização, mais opções de ordenação e ferramentas para compradores em Portugal." },
-        { "q": "Vocês vendem ou enviam itens?", "a": "Não. O Biggy Index é apenas de leitura e redireciona para o LittleBiggy para concluir a encomenda." },
-        { "q": "De onde vêm os dados?", "a": "Dados públicos do LittleBiggy, com normalização de categorias, preços, envio, avaliações e imagens." },
+        { "q": "O que é o Biggy Index?", "a": "O Biggy Index facilita a navegação no marketplace Little Biggy com categorização, mais opções de ordenação e ferramentas para compradores em Portugal." },
+        { "q": "Vocês vendem ou enviam itens?", "a": "Não. O Biggy Index é apenas de leitura e redireciona para o Little Biggy para concluir a encomenda." },
+        { "q": "De onde vêm os dados?", "a": "Dados públicos do Little Biggy, com normalização de categorias, preços, envio, avaliações e imagens." },
           { "q": "Com que frequência é atualizado?", "a": "O indexador principal corre a cada 15 minutos. Os crawlers de itens e vendedores a cada 4 horas, em horários distintos." },
           { "q": "O que significam «Primeira indexação» e «Atualizado»?", "a": "Primeira indexação/criado = primeira vez que o item foi indexado pelo crawler (pode incluir itens já presentes no LB). Atualizado = o vendedor alterou algo ou o crawler detetou uma mudança (p. ex., preço, variantes, descrição)." },
         { "q": "O que são endorsements?", "a": "Votos da comunidade que destacam itens populares sem o rastrear." }
       ],
       "crypto": [
-        { "q": "Que pagamentos o LittleBiggy aceita?", "a": "Apenas Bitcoin – sem cartões, transferências ou outras criptos." },
+        { "q": "Que pagamentos o Little Biggy aceita?", "a": "Apenas Bitcoin – sem cartões, transferências ou outras criptos." },
   { "q": "Como compro Bitcoin em Portugal?", "a": "Muitos usam Revolut, Monzo, Kraken ou Coinbase. Carregue EUR, compre o montante de BTC indicado no checkout e considere as taxas." },
         { "q": "Preciso de uma wallet primeiro?", "a": "Pode pagar diretamente do exchange, mas muitos usam uma wallet privada (Cake, Trust) para mais controlo/privacidade." },
         { "q": "Como me protege o escrow Transaxe?", "a": "O pagamento vai para um endereço de escrow. O vendedor tem ~80 horas para marcar como enviado, senão reembolsa; disputas após 9 dias." },
         { "q": "Dicas para evitar erros?", "a": "Copie/cole montante e endereço BTC, preveja taxas e guarde capturas até chegar a encomenda." },
-        { "q": "Porque não lojas clearnet?", "a": "A concorrência no LittleBiggy mantém a qualidade e preços honestos; no clearnet há muitas margens e dúvidas." },
-          { "q": "E a legalidade em Portugal?", "a": "As leis aplicam-se. É responsável por cumprir as regras e verificar detalhes no LittleBiggy." }
+        { "q": "Porque não lojas clearnet?", "a": "A concorrência no Little Biggy mantém a qualidade e preços honestos; no clearnet há muitas margens e dúvidas." },
+          { "q": "E a legalidade em Portugal?", "a": "As leis aplicam-se. É responsável por cumprir as regras e verificar detalhes no Little Biggy." }
       ]
     }
   }

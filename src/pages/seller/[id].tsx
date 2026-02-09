@@ -3,6 +3,9 @@ import Head from 'next/head';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import StandaloneSellerDetail from '@/components/seller/StandaloneSellerDetail';
+import SlugPageFooter from '@/components/common/SlugPageFooter';
+import SlugPageHeader from '@/components/common/SlugPageHeader';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
 import { useSetAtom } from 'jotai';
 import { expandedSellerIdAtom } from '@/store/atoms';
 import { fetchSellerDetail } from '@/lib/data/sellerDetails';
@@ -25,6 +28,8 @@ interface SellerIdPageProps {
   items: any[];
   messages: Record<string, any>;
   locale: string;
+  /** Market codes where this seller has items */
+  sellerMarkets: string[];
 }
 
 function parseSellerId(idParam: string | string[] | undefined): number | null {
@@ -69,6 +74,28 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
       console.error('Error fetching seller items:', e);
     }
 
+    // Determine which markets this seller operates in
+    let sellerMarkets: string[] = [];
+    try {
+      const { getSellers } = await import('@/lib/data/indexData');
+      const { MARKETS } = await import('@/lib/market/market');
+      const results = await Promise.all(
+        MARKETS.map(async (mkt) => {
+          try {
+            const sellers = await getSellers(mkt);
+            const found = sellers.some((s: any) => {
+              const id = s.id ?? s.sellerId;
+              return id != null && Number(id) === sellerId;
+            });
+            return found ? mkt : null;
+          } catch { return null; }
+        })
+      );
+      sellerMarkets = results.filter((m): m is string => m !== null);
+    } catch (e) {
+      console.error('Error determining seller markets:', e);
+    }
+
     // SEO: If this is a non-GB market and the seller has no items here, return 404
     // This prevents Google from indexing English content on localized subdomains
     if (market !== 'GB' && items.length === 0) {
@@ -102,18 +129,19 @@ export const getServerSideProps: GetServerSideProps<SellerIdPageProps> = async (
       sellerImageUrl: detail.sellerImageUrl || detail.imageUrl || null,
       shareLink: detail.share || detail.sellerUrl || null,
     };
-    return { props: { seo, detail, items, messages, locale: shortLocale } };
+    return { props: { seo, detail, items, messages, locale: shortLocale, sellerMarkets } };
   } catch {
     return { notFound: true };
   }
 };
 
-const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale: serverLocale }) => {
+const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale: serverLocale, sellerMarkets }) => {
   const router = useRouter();
   const setSellerId = useSetAtom(expandedSellerIdAtom);
 
   const sellerId = parseSellerId(router.query.id);
   const tSP = useTranslations('SellerPage');
+  const tCrumbs = useTranslations('Breadcrumbs');
 
   useEffect(() => {
     // Clear any expanded state since we are on a standalone page
@@ -175,15 +203,29 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Home', item: hostForLocale(serverLocale) + '/' },
-                { '@type': 'ListItem', position: 2, name: 'Sellers', item: hostForLocale(serverLocale) + '/home' },
-                { '@type': 'ListItem', position: 3, name: seo?.sellerName || 'Sellers', item: canonical },
+                { '@type': 'ListItem', position: 1, name: 'Biggy Index', item: hostForLocale(serverLocale) + '/' },
+                { '@type': 'ListItem', position: 2, name: 'Sellers', item: hostForLocale(serverLocale) + '/sellers' },
+                { '@type': 'ListItem', position: 3, name: seo?.sellerName || 'Seller', item: canonical },
               ],
             }),
           }}
         />
       </Head>
-      <StandaloneSellerDetail detail={detail} sellerId={effectiveId} items={items} />
+      <div className="bg-white dark:bg-slate-950 flex flex-col min-h-[100dvh]">
+        <SlugPageHeader />
+        <Breadcrumbs
+          crumbs={[
+            { label: tCrumbs('home'), href: '/' },
+            { label: tCrumbs('sellers'), href: '/sellers' },
+            { label: seo?.sellerName || tCrumbs('sellers') },
+          ]}
+        />
+        <StandaloneSellerDetail detail={detail} sellerId={effectiveId} items={items} />
+      </div>
+      <SlugPageFooter
+        pathSuffix={`/seller/${effectiveId}`}
+        availableMarkets={sellerMarkets.length > 0 ? sellerMarkets : undefined}
+      />
     </>
   );
 };

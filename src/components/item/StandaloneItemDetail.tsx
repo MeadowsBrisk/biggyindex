@@ -45,7 +45,7 @@ import { variantRangeText } from '@/lib/pricing/variantPricingDisplay';
 import { useTranslations, useFormatter } from 'next-intl';
 import { translateCategoryAndSubs } from '@/lib/taxonomy/taxonomyLabels';
 import FavButton from '@/components/actions/FavButton';
-import BrowseIndexButton from '@/components/actions/BrowseIndexButton';
+import ShareMenu from '@/components/actions/ShareMenu';
 
 interface StandaloneItemDetailProps {
   baseItem: any;
@@ -59,6 +59,7 @@ interface StandaloneItemDetailProps {
 export default function StandaloneItemDetail({ baseItem, detail, unavailable, market }: StandaloneItemDetailProps) {
   const tItem = useTranslations('Item');
   const tOv = useTranslations('Overlay');
+  const tUI = useTranslations('UI');
   const tCats = useTranslations('Categories');
   const tCountries = useTranslations('Countries');
   const tRel = useTranslations('Rel');
@@ -337,18 +338,11 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   if (!baseItem) return null;
 
   return (
-    <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
-      {/* Header / Nav */}
-      <div className="shrink-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 py-3">
-        <div className="w-full max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8">
-          <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
-        </div>
-      </div>
-
-      <div className="flex-1 min-h-0 w-full max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8 overflow-hidden relative">
-        <div className="h-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_400px] gap-8">
+    <>
+      <div className="w-full max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[460px_1fr_400px] gap-8">
           {/* Column 1: Gallery */}
-          <div className="min-w-0 min-h-0 flex flex-col gap-4 overflow-y-auto pr-2 custom-scroll">
+          <div className="min-w-0 flex flex-col gap-4 overflow-y-auto pr-2 custom-scroll md:max-h-[calc(100dvh-10rem)]">
              {images.length > 0 ? (
                 <>
                 <div
@@ -689,11 +683,27 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
           </div>
 
           {/* Column 2: Details & Reviews (Desktop) */}
-          <div className="hidden md:block min-w-0 min-h-0 relative overflow-y-auto pr-2 custom-scroll">
-             <div className="space-y-6">
+          <div className="hidden md:flex md:flex-col min-w-0 relative overflow-y-auto pr-2 custom-scroll md:max-h-[calc(100dvh-10rem)]">
+             <div className="space-y-6 flex-1">
              {/* Header */}
              <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <h2 className="font-semibold text-2xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="font-semibold text-2xl text-gray-900 dark:text-gray-100 leading-snug" title={name}>{name}</h2>
+                  <div className="relative shrink-0 hidden 2xl:block">
+                    <button
+                      ref={shareBtnRef}
+                      type="button"
+                      onClick={() => setShareOpen(v => !v)}
+                      title={tUI('share')}
+                      className="inline-flex items-center justify-center h-8 px-3 rounded-full border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 shadow-sm"
+                    >
+                      {tUI('share')}
+                    </button>
+                    {shareOpen && (
+                      <ShareMenu url={shareUrl} title={name || 'Item'} onClose={() => setShareOpen(false)} />
+                    )}
+                  </div>
+                </div>
                 <div className="mt-2 flex items-center flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-300">
                   {hasSellerInfo && (
                     <>
@@ -811,10 +821,9 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
               })()}
              </div>
              </div>
-             <div className="pb-10" />
              {/* Little Biggy Button - Desktop (md-xl) */}
              {sl && (
-               <div className="pointer-events-none 2xl:hidden absolute right-3 bottom-3 md:right-3 md:bottom-3 xl:right-10">
+               <div className="pointer-events-none 2xl:hidden mt-auto sticky bottom-3 flex justify-end pr-3 xl:pr-10 pt-6">
                  <a
                    href={sl}
                    target="_blank"
@@ -828,7 +837,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
                </div>
              )}
           </div>          {/* Column 3: Reviews (Ultrawide) */}
-          <div className="hidden 2xl:block min-w-0 min-h-0 overflow-y-auto pr-2 custom-scroll">
+          <div className="hidden 2xl:block min-w-0 overflow-y-auto pr-2 custom-scroll md:max-h-[calc(100dvh-10rem)]">
              {(() => {
                 const stats = (baseItem as any)?.rs ?? (baseItem as any)?.reviewStats;
                 const avgRating = typeof (stats?.avg ?? stats?.averageRating) === 'number' ? (stats?.avg ?? stats?.averageRating) : (reviews.length ? (reviews.map((r: any) => typeof r.rating === 'number' ? r.rating : 0).reduce((a: number,b: number)=>a+b,0) / reviews.filter((r: any)=> typeof r.rating === 'number').length) : null);
@@ -876,7 +885,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
              <div className="pb-10" />
              {/* Little Biggy Button - Ultrawide (2xl+) */}
              {sl && (
-               <div className="pointer-events-none absolute right-3 bottom-3 md:right-3 md:bottom-3 xl:right-10">
+               <div className="pointer-events-none sticky bottom-3 flex justify-end pr-3 xl:pr-1">
                  <a
                    href={sl}
                    target="_blank"
@@ -922,6 +931,6 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
         shareOpen={shareOpen}
         shareUrl={shareUrl}
       />
-    </div>
+    </>
   );
 }

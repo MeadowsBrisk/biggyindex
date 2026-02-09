@@ -82,11 +82,11 @@ export default function FixedControls() {
       className={cn(
         "fixed right-4 z-50 flex items-center gap-3 transition-opacity duration-200",
         isSlugPage ? "top-4" : "bottom-4",
-        footerVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+        !isSlugPage && footerVisible ? "opacity-0 pointer-events-none" : "opacity-100"
       )}
     >
       <AnimatePresence>
-        {showBackToTop && (
+        {showBackToTop && !isSlugPage && (
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -15,7 +15,6 @@ import { panelClassForReviewScore } from '@/theme/reviewScoreColors';
 import formatDescription from '@/lib/ui/formatDescription';
 import { useTranslations } from 'next-intl';
 import SimpleItemCard from '@/components/item/SimpleItemCard';
-import BrowseIndexButton from '@/components/actions/BrowseIndexButton';
 import ShowOriginalToggle from '@/components/common/ShowOriginalToggle';
 import { useForceEnglish } from '@/providers/IntlProvider';
 
@@ -156,22 +155,16 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
   }, [name, manifesto, rawSellerImage, ratingStats, detail]);
 
   return (
-    <div className="h-[100dvh] bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* Header / Nav */}
-      <div className="shrink-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 py-3">
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <BrowseIndexButton label={tOv('browseIndex') || 'Browse Index'} />
-        </div>
-      </div>
 
-      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-        <div className="h-full grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
+      <div className="w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
           {/* Left column: image + meta + manifesto + items */}
-          <div className="min-w-0 min-h-0 flex flex-col overflow-y-auto pr-2 custom-scroll">
+          <div className="min-w-0 flex flex-col overflow-y-auto pr-2 custom-scroll md:max-h-[calc(100dvh-10rem)]">
             <div className="flex items-start gap-4">
               <div className="shrink-0">
                 <div
@@ -271,7 +264,7 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
           </div>
 
           {/* Right column: reviews */}
-          <div className="min-w-0 min-h-0 flex flex-col relative h-full overflow-hidden">
+          <div className="min-w-0 flex flex-col relative md:max-h-[calc(100dvh-10rem)] overflow-hidden">
             <div className="shrink-0 z-10 bg-white/85 dark:bg-[#0f1725]/85 backdrop-blur border-b border-gray-200/70 dark:border-gray-700/60 py-2 mb-4">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{tSP('reviewsSnapshot')}</h3>
               <div className="text-xs text-gray-500 dark:text-gray-400 flex items-baseline justify-between gap-3">
@@ -391,6 +384,6 @@ export default function StandaloneSellerDetail({ detail, sellerId, items = [] }:
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

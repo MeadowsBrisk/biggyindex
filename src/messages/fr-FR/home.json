@@ -3,7 +3,7 @@
     "recentItems": {
       "label": "Activité récente",
       "title": "Articles récemment indexés",
-      "subtitle": "Découvrez les plus récents ou récemment mis à jour sur LittleBiggy.",
+      "subtitle": "Découvre les plus récents ou récemment mis à jour sur Little Biggy.",
       "tabs": {
         "added": "Ajoutés récemment",
         "updated": "Mis à jour récemment"
@@ -36,14 +36,14 @@
     },
     "footer": {
       "badge": "Le Biggy Index",
-      "title": "Trouvez ce que vous cherchez.",
-      "description": "Explorez des milliers d'annonces de vendeurs sur LittleBiggy, un marché guidé par le principe de ne pas nuire.",
+      "title": "Trouve ce que tu cherches.",
+      "description": "Explore des milliers d'annonces de vendeurs sur Little Biggy, un marché guidé par le principe de ne pas nuire.",
       "ctaBrowse": "Parcourir les articles",
       "community": {
         "label": "Communauté",
-        "text": "Rejoignez la discussion. Partagez vos expériences, posez des questions ou vérifiez la réputation des vendeurs.",
+        "text": "Rejoins la discussion. Partage tes expériences, pose des questions ou vérifie la réputation des vendeurs.",
         "reddit": "Reddit",
-        "wallTitle": "Mur LittleBiggy"
+        "wallTitle": "Mur Little Biggy"
       },
       "meta": {
         "copyright": "© {year} Biggy Index.",
@@ -55,7 +55,7 @@
       },
       "embassy": {
         "label": "Besoin d'aide ?",
-        "text": "Nouveau sur LittleBiggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
+        "text": "Nouveau sur Little Biggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
         "cta": "Visiter l'ambassade"
       }
     },
@@ -103,11 +103,11 @@
     },
     "quickStart": {
       "badge": "Comment ça marche",
-      "title": "Acheter sur Littlebiggy – guide pas à pas",
-      "subtitle": "Vous souhaitez acheter du cannabis en ligne en France ? Suivez les étapes ci‑dessous pour commencer.",
+      "title": "Acheter sur Little Biggy – guide pas à pas",
+      "subtitle": "Tu souhaites acheter du cannabis en ligne en France ? Suis les étapes ci‑dessous pour commencer.",
       "stepLabel": "Étape {num}",
       "optional": "Optionnel",
-      "labels": { "faq": "FAQ", "browseItems": "Parcourir les articles", "browseItemsCaps": "Browse Items" },
+      "labels": { "faq": "FAQ", "browseItems": "Parcourir les articles", "browseItemsCaps": "Parcourir les articles" },
       "terms": {
         "exchange": {
           "term": "Exchange",
@@ -115,7 +115,7 @@
         },
         "privateWallet": {
           "term": "Portefeuille privé",
-          "def": "Application que vous contrôlez pour stocker vos Bitcoins sans passer par une banque ou un exchange."
+          "def": "Application que tu contrôles pour stocker tes Bitcoins sans passer par une banque ou un exchange."
         },
         "escrow": {
           "term": "Escrow",
@@ -126,82 +126,82 @@
         "1": {
           "title": "Obtenir du Bitcoin",
           "emoji": "🪙",
-          "summary": "Prenez un peu de Bitcoin pour pouvoir payer.",
-          "p1": "LittleBiggy n’accepte que le Bitcoin. Mettez en place un moyen d’en acheter pour être prêt à commander.",
+          "summary": "Prends un peu de Bitcoin pour pouvoir payer.",
+          "p1": "Little Biggy n’accepte que le Bitcoin. Mets en place un moyen d’en acheter pour être prêt à commander.",
           "easiestTitle": "Le plus simple",
           "easiestDesc": "Des applis comme Revolut ou Monzo permettent d’acheter du Bitcoin directement depuis l’app bancaire en quelques taps.",
           "otherTitle": "Autres options",
           "otherDescBefore": "Un",
           "otherDescAfter": "comme Coinbase ou Kraken fonctionne tout aussi bien. C’est un peu comme un bureau de change en ligne.",
           "proTipTitle": "Astuce",
-          "proTipDesc": "Achetez quelques euros de plus et arrondissez. Ce tampon couvre les frais réseau ou la volatilité."
+          "proTipDesc": "Achète quelques euros de plus et arrondis. Ce tampon couvre les frais réseau ou la volatilité."
         },
         "2": {
-          "title": "Trouvez vos articles",
+          "title": "Trouve tes articles",
           "emoji": "🛍️",
-          "summary": "Parcourez le catalogue Littlebiggy comme sur eBay.",
-          "p1": "Trouvez vos articles directement sur Littlebiggy ou via l’index. Le choix est vaste, prenez le temps de parcourir.",
+          "summary": "Parcours le catalogue Little Biggy comme sur eBay.",
+          "p1": "Trouve tes articles directement sur Little Biggy ou via l’index. Le choix est vaste, prends le temps de parcourir.",
           "bullets": [
-            "Cliquez sur <strong>Parcourir les articles</strong> ci‑dessous pour commencer.",
-            "Vérifiez les descriptions et avis pour repérer les vendeurs fiables. En cas de doute, cherchez le vendeur sur Google ou sur <reddit>Reddit</reddit>.",
-            "Quand vous êtes prêt, ajoutez au panier et renseignez vos coordonnées comme sur n’importe quel site."
+            "Clique sur <strong>Parcourir les articles</strong> ci‑dessous pour commencer.",
+"Vérifie les descriptions et avis pour repérer les vendeurs fiables. En cas de doute, cherche le vendeur sur Google ou sur <reddit>Reddit</reddit>.",
+            "Quand tu es prêt, ajoute au panier et renseigne tes coordonnées comme sur n'importe quel site."
           ],
-          "bullets0": "Cliquez sur <strong>Parcourir les articles</strong> ci‑dessous pour commencer.",
-          "bullets1": "Vérifiez les descriptions et avis pour repérer les vendeurs fiables. En cas de doute, cherchez le vendeur sur Google ou sur <reddit>Reddit</reddit>.",
-          "bullets2": "Quand vous êtes prêt, ajoutez au panier et renseignez vos coordonnées comme sur n’importe quel site.",
+          "bullets0": "Clique sur <strong>Parcourir les articles</strong> ci‑dessous pour commencer.",
+          "bullets1": "Vérifie les descriptions et avis pour repérer les vendeurs fiables. En cas de doute, cherche le vendeur sur Google ou sur <reddit>Reddit</reddit>.",
+          "bullets2": "Quand tu es prêt, ajoute au panier et renseigne tes coordonnées comme sur n'importe quel site.",
           "proTipTitle": "Astuce",
-          "proTipDesc": "Utilisez les filtres et avis pour faire une shortlist ; consultez le manifeste pour les horaires d’expédition."
+          "proTipDesc": "Utilise les filtres et avis pour faire une shortlist ; consulte le manifeste pour les horaires d’expédition."
         },
         "3": {
-          "title": "Régler et envoyer votre Bitcoin",
+          "title": "Régler et envoyer ton Bitcoin",
           "emoji": "✅",
-          "summary": "Copiez les détails puis envoyez le paiement depuis votre téléphone ou ordinateur.",
-          "pIntro": "Au paiement, Littlebiggy affiche une page de commande privée avec tout ce qu’il faut pour payer en sécurité – sur un appareil ou en basculant entre mobile et bureau.",
+          "summary": "Copie les détails puis envoie le paiement depuis ton téléphone ou ordinateur.",
+          "pIntro": "Au paiement, Little Biggy affiche une page de commande privée avec tout ce qu’il faut pour payer en sécurité – sur un appareil ou en basculant entre mobile et bureau.",
           "copyTitle": "Copier deux éléments du paiement",
           "copyBullets": [
-            "Le montant exact en BTC (ex. 0.00123456). Copiez‑le tel quel pour éviter un sous‑paiement.",
-            "L’adresse Bitcoin (ex. bc1q…). Pensez‑la comme un numéro de compte pour cette commande."
+            "Le montant exact en BTC (ex. 0.00123456). Copie‑le tel quel pour éviter un sous‑paiement.",
+            "L'adresse Bitcoin (ex. bc1q…). Pense‑la comme un numéro de compte pour cette commande."
           ],
           "sendTitle": "Envoyer le paiement",
           "sendSteps": [
-            "Ouvrez l’app/exchange utilisé pour acheter le BTC (Revolut, Coinbase, Monzo, Kraken, …).",
-            "Choisissez l’option d’envoi/retrait de Bitcoin.",
-            "Collez l’adresse dans le champ destinataire et le montant exact de BTC dans le champ montant.",
-            "Confirmez – les confirmations réseau prennent souvent quelques minutes et votre page se mettra à jour."
+            "Ouvre l'app/exchange utilisé pour acheter le BTC (Revolut, Coinbase, Monzo, Kraken, …).",
+            "Choisis l'option d'envoi/retrait de Bitcoin.",
+            "Colle l'adresse dans le champ destinataire et le montant exact de BTC dans le champ montant.",
+            "Confirme – les confirmations réseau prennent souvent quelques minutes et ta page se mettra à jour."
           ],
           "privacyTitle": "Besoin de plus de confidentialité ?",
-          "privacy1": "Vous pouvez d’abord déplacer les pièces vers votre",
+          "privacy1": "Tu peux d'abord déplacer les pièces vers ton",
           "privacy2": "—",
-          "privacy3": ", ou des applis similaires, puis transférer le montant exact à Littlebiggy. Cette étape évite à l’exchange de voir où vous dépensez."
+          "privacy3": ", ou des applis similaires, puis transférer le montant exact à Little Biggy. Cette étape évite à l’exchange de voir où tu dépenses."
         },
         "4": {
-          "title": "Vos fonds sont protégés (Escrow)",
+          "title": "Tes fonds sont protégés (Escrow)",
           "emoji": "🔐",
           "summary": "Transaxe conserve l’argent jusqu’à l’arrivée de la commande.",
-          "p1_before": "Vous ne payez pas directement le vendeur. Vos Bitcoins sont chez Transaxe, un tiers de confiance qui offre une protection",
+          "p1_before": "Tu ne paies pas directement le vendeur. Tes Bitcoins sont chez Transaxe, un tiers de confiance qui offre une protection",
           "p1_after": ".",
-          "p2": "Transaxe ne libère l’argent qu’après la fenêtre de litige. En cas de souci, contactez d’abord le vendeur, sinon ouvrez un litige depuis votre page de commande.",
+          "p2": "Transaxe ne libère l'argent qu'après la fenêtre de litige. En cas de souci, contacte d'abord le vendeur, sinon ouvre un litige depuis ta page de commande.",
           "ol": [
-            "Choisissez l’option pour envoyer ou retirer des Bitcoins.",
-            "Collez l’adresse Bitcoin dans le champ destinataire et le montant exact de BTC dans le champ montant.",
-            "Confirmez — les confirmations réseau arrivent en général en quelques minutes et la page de commande se mettra à jour."
+            "Choisis l'option pour envoyer ou retirer des Bitcoins.",
+            "Colle l'adresse Bitcoin dans le champ destinataire et le montant exact de BTC dans le champ montant.",
+            "Confirme — les confirmations réseau arrivent en général en quelques minutes et la page de commande se mettra à jour."
           ],
           "cardTitle": "Sérénité",
-          "cardDesc": "Avec l’escrow, le vendeur ne touche pas aux fonds avant l’expédition et la réception. C’est la garantie qui garde Littlebiggy honnête."
+          "cardDesc": "Avec l’escrow, le vendeur ne touche pas aux fonds avant l’expédition et la réception. C’est la garantie qui garde Little Biggy honnête."
         },
         "5": {
-          "title": "Attendez le facteur",
+          "title": "Attends le facteur",
           "emoji": "📮",
-          "summary": "Détendez‑vous, le colis arrive chez vous.",
+          "summary": "Détends‑toi, le colis arrive chez toi.",
           "p1": "Les vendeurs marquent en général l’expédition sous un jour ouvré (voir leurs manifestes). Ensuite, c’est comme toute livraison : un peu d’attente.",
-          "p2": "Si ça tarde, contactez d’abord le vendeur (il peut donner un suivi). En dernier recours, ouvrez un litige tant que l’escrow retient les fonds."
+          "p2": "Si ça tarde, contacte d'abord le vendeur (il peut donner un suivi). En dernier recours, ouvre un litige tant que l'escrow retient les fonds."
         }
       }
     },
     "hero": {
-      "badge": "Trouvez ce que vous cherchez",
+      "badge": "Trouve ce que tu cherches",
       "title": "Un index pour le marché <accent>420</accent>",
-      "subtitle": "Parcourez LittleBiggy plus vite avec une recherche plus futée, des catégories propres et des statistiques rapides adaptées aux acheteurs en France.",
+      "subtitle": "Parcours Little Biggy plus vite avec une recherche plus futée, des catégories propres et des statistiques rapides adaptées aux acheteurs en France.",
       "cta": { "browse": "Parcourir les articles", "how": "Comment ça marche" },
       "stats": {
         "catalogueSize": "Taille du catalogue",
@@ -220,7 +220,7 @@
       "header": {
         "label": "Pouls de la communauté",
         "title": "Avis récents",
-        "subtitle": "Directement des acheteurs LittleBiggy — parcourez les dernières notes, vitesses de livraison et commentaires issus du flux combiné."
+        "subtitle": "Directement des acheteurs Little Biggy — parcours les dernières notes, vitesses de livraison et commentaires issus du flux combiné."
       },
       "panel": {
         "title": "Derniers retours d’acheteurs",
@@ -240,44 +240,44 @@
         "days": "livré en {days} jours"
       },
       "placeholder": {
-        "sellerName": "Acheteur LittleBiggy",
+        "sellerName": "Acheteur Little Biggy",
         "itemTitle": "Nouveaux avis à venir",
-        "text": "Nous mettons à jour le flux combiné des avis. De vrais retours d’acheteurs LittleBiggy apparaîtront ici bientôt.\n\nRestez à l’écoute !"
+        "text": "Nous mettons à jour le flux combiné des avis. De vrais retours d'acheteurs Little Biggy apparaîtront ici bientôt.\n\nReste à l'écoute !"
       }
     },
     
     
     "why": {
         "label": "Pourquoi c'est utile",
-        "title": "Une meilleure navigation LittleBiggy pour les acheteurs en France",
-        "subtitle": "Vous comptez acheter du cannabis en ligne en France ? Biggy Index rassemble des données réelles du marché dans une interface plus claire pour comparer produits, prix et délais avant d'ouvrir LittleBiggy.",
+        "title": "Une meilleure navigation Little Biggy pour les acheteurs en France",
+        "subtitle": "Tu comptes acheter du cannabis en ligne en France ? Biggy Index rassemble des données réelles du marché dans une interface plus claire pour comparer produits, prix et délais avant d'ouvrir Little Biggy.",
       "highlights": [
-          { "title": "Trouvez vite du cannabis en France", "description": "Parcourez les annonces publiques de LittleBiggy avec des filtres adaptés à la France. Évitez les fortes marges ou les arnaques du clearnet." },
-        { "title": "Données fraîches de l'indexeur", "description": "L'indexeur scanne les articles LittleBiggy avec prix, détails et avis pour un catalogue à jour." },
-        { "title": "LittleBiggy amélioré", "description": "Triez les articles, voyez les mises à jour, enregistrez vos favoris, le tout dans une interface légère et rapide." }
+          { "title": "Trouve vite du cannabis en France", "description": "Parcours les annonces publiques de Little Biggy avec des filtres adaptés à la France. Évite les fortes marges ou les arnaques du clearnet." },
+        { "title": "Données fraîches de l'indexeur", "description": "L'indexeur scanne les articles Little Biggy avec prix, détails et avis pour un catalogue à jour." },
+        { "title": "Little Biggy amélioré", "description": "Trie les articles, vois les mises à jour, enregistre tes favoris, le tout dans une interface légère et rapide." }
       ]
     },
     "faq": {
       "label": "Questions fréquentes",
       "title": "FAQ pour les nouveaux explorateurs Biggy",
-      "subtitle": "Deux volets rapides : l’un sur le fonctionnement de Biggy Index, l’autre sur les paiements LittleBiggy et les bases du Bitcoin.",
-      "tabs": { "about": "À propos de Biggy Index", "crypto": "LittleBiggy & Bitcoin" },
+      "subtitle": "Deux volets rapides : l’un sur le fonctionnement de Biggy Index, l’autre sur les paiements Little Biggy et les bases du Bitcoin.",
+      "tabs": { "about": "À propos de Biggy Index", "crypto": "Little Biggy & Bitcoin" },
       "about": [
-        { "q": "Qu'est-ce que Biggy Index ?", "a": "Biggy Index facilite la navigation sur le marché LittleBiggy grâce à la catégorisation, des tris supplémentaires et des outils pensés pour les acheteurs en France." },
-        { "q": "Vendez-vous ou expédiez-vous ?", "a": "Non. Biggy Index est en lecture seule et vous renvoie sur LittleBiggy pour finaliser la commande." },
-        { "q": "D'où viennent les données ?", "a": "Données publiques LittleBiggy, avec normalisation des catégories, prix, informations d'expédition, avis et images." },
+        { "q": "Qu'est-ce que Biggy Index ?", "a": "Biggy Index facilite la navigation sur le marché Little Biggy grâce à la catégorisation, des tris supplémentaires et des outils pensés pour les acheteurs en France." },
+        { "q": "Tu vends ou tu expédies ?", "a": "Non. Biggy Index est en lecture seule et te renvoie sur Little Biggy pour finaliser la commande." },
+        { "q": "D'où viennent les données ?", "a": "Données publiques Little Biggy, avec normalisation des catégories, prix, informations d'expédition, avis et images." },
           { "q": "Fréquence des mises à jour ?", "a": "L'indexeur principal toutes les 15 min. Les crawlers articles/vendeurs toutes les 4 heures, à des moments différents." },
           { "q": "Que signifient « Première apparition » et « Mis à jour » ?", "a": "Première apparition/créé = première indexation détectée par le crawler (y compris des articles présents avant l'indexeur). Mis à jour = le vendeur a modifié l'annonce ou une évolution a été détectée (prix, variantes, description)." },
-        { "q": "Qu'est-ce que les endorsements ?", "a": "Des votes de la communauté qui mettent en avant les articles populaires, sans vous tracer." }
+        { "q": "Qu'est-ce que les endorsements ?", "a": "Des votes de la communauté qui mettent en avant les articles populaires, sans te tracer." }
       ],
       "crypto": [
-        { "q": "Quels paiements LittleBiggy accepte-t-il ?", "a": "Uniquement Bitcoin – pas de cartes, virements ni autres cryptos." },
-  { "q": "Comment acheter du Bitcoin en France ?", "a": "Beaucoup utilisent Revolut, Monzo, Kraken ou Coinbase. Alimentez en EUR, achetez le montant de BTC indiqué au checkout et prévoyez des frais." },
+        { "q": "Quels paiements Little Biggy accepte-t-il ?", "a": "Uniquement Bitcoin – pas de cartes, virements ni autres cryptos." },
+  { "q": "Comment acheter du Bitcoin en France ?", "a": "Beaucoup utilisent Revolut, Monzo, Kraken ou Coinbase. Alimente en EUR, achète le montant de BTC indiqué au checkout et prévois des frais." },
         { "q": "Faut-il un wallet d'abord ?", "a": "Paiement direct depuis l'exchange possible, mais beaucoup utilisent un wallet privé (Cake, Trust) pour plus de contrôle/privacité." },
-        { "q": "Comment l'escrow Transaxe me protège ?", "a": "Votre paiement va à une adresse escrow. Environ 80 h pour marquer expédié sinon remboursement; litiges après 9 jours." },
-        { "q": "Des conseils pour éviter les erreurs ?", "a": "Copiez-collez le montant et l'adresse BTC, prévoyez des frais, gardez des captures jusqu'à réception." },
-        { "q": "Pourquoi pas les boutiques clearnet ?", "a": "La concurrence sur LittleBiggy maintient la qualité et des prix honnêtes; le clearnet applique souvent de fortes marges." },
-          { "q": "Et la légalité en France ?", "a": "Les lois s'appliquent. Vous êtes responsable de respecter la réglementation et de vérifier les détails sur LittleBiggy." }
+        { "q": "Comment l'escrow Transaxe me protège ?", "a": "Ton paiement va à une adresse escrow. Environ 80 h pour marquer expédié sinon remboursement; litiges après 9 jours." },
+        { "q": "Des conseils pour éviter les erreurs ?", "a": "Copie-colle le montant et l'adresse BTC, prévois des frais, garde des captures jusqu'à réception." },
+        { "q": "Pourquoi pas les boutiques clearnet ?", "a": "La concurrence sur Little Biggy maintient la qualité et des prix honnêtes; le clearnet applique souvent de fortes marges." },
+          { "q": "Et la légalité en France ?", "a": "Les lois s'appliquent. Tu es responsable de respecter la réglementation et de vérifier les détails sur Little Biggy." }
       ]
     }
   }

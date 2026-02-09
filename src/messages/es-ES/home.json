@@ -3,7 +3,7 @@
     "hero": {
       "badge": "Encuentra lo que buscas",
       "title": "Un índice para el mercado <accent>420</accent>",
-      "subtitle": "Explora LittleBiggy más rápido con búsqueda inteligente, categorías ordenadas y estadísticas rápidas adaptadas para compradores en España.",
+      "subtitle": "Explora Little Biggy más rápido con búsqueda inteligente, categorías ordenadas y estadísticas rápidas adaptadas para compradores en España.",
       "cta": { "browse": "Explorar artículos", "how": "Cómo funciona" },
       "stats": {
         "catalogueSize": "Tamaño del catálogo",
@@ -20,7 +20,7 @@
     },
     "quickStart": {
       "badge": "Cómo funciona",
-      "title": "Comprar en Littlebiggy, guía paso a paso",
+      "title": "Comprar en Little Biggy, guía paso a paso",
       "subtitle": "¿Quieres comprar cannabis online en España? Sigue los pasos a continuación para empezar.",
       "stepLabel": "Paso {num}",
       "optional": "Opcional",
@@ -44,7 +44,7 @@
           "title": "Consigue algo de Bitcoin",
           "emoji": "🪙",
           "summary": "Compra un poco de Bitcoin para poder pagar.",
-          "p1": "LittleBiggy solo acepta Bitcoin. Necesitarás configurar una forma de comprarlo si aún no lo has hecho, para estar listo para hacer pedidos.",
+          "p1": "Little Biggy solo acepta Bitcoin. Necesitarás configurar una forma de comprarlo si aún no lo has hecho, para estar listo para hacer pedidos.",
           "easiestTitle": "La forma más fácil",
           "easiestDesc": "Aplicaciones que quizás ya uses, como Revolut o Monzo, te permiten comprar Bitcoin dentro de la app bancaria en unos pocos toques.",
           "otherTitle": "Otras opciones populares",
@@ -56,8 +56,8 @@
         "2": {
           "title": "Encuentra tus artículos",
           "emoji": "🛍️",
-          "summary": "Explora el catálogo de littlebiggy como si fuera eBay",
-          "p1": "Encuentra los artículos que quieras comprar, a través de littlebiggy o del índice. Hay una gran selección, así que asegúrate de explorarlo bien.",
+          "summary": "Explora el catálogo de Little Biggy como si fuera eBay",
+          "p1": "Encuentra los artículos que quieras comprar, a través de Little Biggy o del índice. Hay una gran selección, así que asegúrate de explorarlo bien.",
           "bullets": [
             "Haz clic en el botón <strong>Explorar artículos</strong> a continuación para empezar a navegar.",
             "Revisa las descripciones de productos y reseñas para identificar vendedores de confianza. Si no estás seguro, busca el nombre del vendedor en Google o consulta en <reddit>Reddit</reddit>.",
@@ -73,7 +73,7 @@
           "title": "Pagar y enviar tu Bitcoin",
           "emoji": "✅",
           "summary": "Copia los datos y luego envía el pago desde tu móvil o portátil.",
-          "pIntro": "Al pagar, Littlebiggy muestra una página de pedido privada con todo lo necesario para pagar de forma segura, ya sea que copies los datos en un dispositivo o cambies entre el móvil y el ordenador.",
+          "pIntro": "Al pagar, Little Biggy muestra una página de pedido privada con todo lo necesario para pagar de forma segura, ya sea que copies los datos en un dispositivo o cambies entre el móvil y el ordenador.",
           "copyTitle": "Copia los dos datos del checkout",
           "copyBullets": [
             "La cantidad exacta de BTC: se ve como 0.00123456. Cópialo exactamente para no pagar de menos.",
@@ -89,7 +89,7 @@
           "privacyTitle": "¿Quieres más privacidad?",
           "privacy1": "Puedes mover las monedas a tu propio",
           "privacy2": "primero —",
-          "privacy3": " y aplicaciones similares — luego reenvía la cantidad exacta a Littlebiggy. Ese paso extra evita que los exchanges vean dónde gastas tus Bitcoin."
+          "privacy3": " y aplicaciones similares — luego reenvía la cantidad exacta a Little Biggy. Ese paso extra evita que los exchanges vean dónde gastas tus Bitcoin."
         },
         "4": {
           "title": "Tus fondos están seguros (Escrow)",
@@ -104,7 +104,7 @@
             "Confirma la transferencia — las confirmaciones de red suelen llegar en unos minutos y tu página de pedido se actualizará automáticamente."
           ],
           "cardTitle": "Tranquilidad",
-          "cardDesc": "El escrow significa que el vendedor nunca toca tus fondos hasta que el artículo sea enviado y recibido. Es la protección que mantiene honesto a Littlebiggy."
+          "cardDesc": "El escrow significa que el vendedor nunca toca tus fondos hasta que el artículo sea enviado y recibido. Es la protección que mantiene honesto a Little Biggy."
         },
         "5": {
           "title": "Espera al cartero",
@@ -119,7 +119,7 @@
       "header": {
         "label": "Pulso de la comunidad",
         "title": "Reseñas recientes",
-        "subtitle": "Directamente de los compradores de LittleBiggy — desplázate por las últimas valoraciones, tiempos de entrega y notas de compradores del feed combinado."
+        "subtitle": "Directamente de los compradores de Little Biggy — desplázate por las últimas valoraciones, tiempos de entrega y notas de compradores del feed combinado."
       },
       "panel": {
         "title": "Últimos comentarios de compradores",
@@ -139,21 +139,21 @@
         "days": "tardó {days} días"
       },
       "placeholder": {
-        "sellerName": "Comprador de LittleBiggy",
+        "sellerName": "Comprador de Little Biggy",
         "itemTitle": "Nuevas reseñas en camino",
-        "text": "Estamos actualizando el feed combinado de reseñas. Los destacados reales de compradores de LittleBiggy aparecerán aquí pronto.\n\n¡Mantente atento!"
+        "text": "Estamos actualizando el feed combinado de reseñas. Los destacados reales de compradores de Little Biggy aparecerán aquí pronto.\n\n¡Mantente atento!"
       }
     },
     "footer": {
       "badge": "El Biggy Index",
       "title": "Encuentra lo que buscas.",
-      "description": "Explora miles de anuncios de vendedores en LittleBiggy, el mercado de artículos bajo el principio de no hacer daño.",
+      "description": "Explora miles de anuncios de vendedores en Little Biggy, el mercado de artículos bajo el principio de no hacer daño.",
       "ctaBrowse": "Explorar artículos",
       "community": {
         "label": "Comunidad",
         "text": "Únete a la conversación. Comparte experiencias, haz preguntas o consulta la reputación de vendedores.",
         "reddit": "Reddit",
-        "wallTitle": "Muro de LittleBiggy"
+        "wallTitle": "Muro de Little Biggy"
       },
       "meta": {
         "copyright": "© {year} Biggy Index.",
@@ -165,34 +165,34 @@
       },
       "embassy": {
         "label": "¿Necesitas ayuda?",
-        "text": "¿Nuevo en LittleBiggy? La embajada es un post de la comunidad donde puedes hacer preguntas y recibir ayuda en español.",
+        "text": "¿Nuevo en Little Biggy? La embajada es un post de la comunidad donde puedes hacer preguntas y recibir ayuda en español.",
         "cta": "Visitar la embajada"
       }
     },
     "faq": {
       "label": "Preguntas frecuentes",
       "title": "FAQ para nuevos exploradores de Biggy",
-      "subtitle": "Dos paneles rápidos: uno sobre cómo funciona Biggy Index y otro sobre pagos en LittleBiggy y conceptos básicos de cripto.",
+      "subtitle": "Dos paneles rápidos: uno sobre cómo funciona Biggy Index y otro sobre pagos en Little Biggy y conceptos básicos de cripto.",
       "tabs": {
         "about": "Sobre Biggy Index",
-        "crypto": "LittleBiggy y Bitcoin"
+        "crypto": "Little Biggy y Bitcoin"
       },
       "about": [
-        { "q": "¿Qué es el Biggy Index?", "a": "El Biggy Index ofrece una forma más fácil de explorar el mercado de LittleBiggy, con categorización de artículos, opciones de ordenación adicionales y otras herramientas útiles adaptadas para compradores en España." },
-        { "q": "¿Vendéis o enviáis artículos?", "a": "No. Biggy Index es de solo lectura y te redirige a LittleBiggy para completar tu pedido." },
-        { "q": "¿De dónde vienen los datos?", "a": "El índice obtiene datos públicos de LittleBiggy, normalizando categorías, resúmenes de precios, información de envío, reseñas e imágenes." },
-        { "q": "¿Con qué frecuencia se actualiza?", "a": "Hay 3 componentes que se actualizan en diferentes intervalos. El indexador principal se ejecuta cada 15 minutos. Los rastreadores de artículos y vendedores se ejecutan cada 4 horas, en momentos separados para ser respetuosos con el servidor de LittleBiggy." },
+        { "q": "¿Qué es el Biggy Index?", "a": "El Biggy Index ofrece una forma más fácil de explorar el mercado de Little Biggy, con categorización de artículos, opciones de ordenación adicionales y otras herramientas útiles adaptadas para compradores en España." },
+        { "q": "¿Vendéis o enviáis artículos?", "a": "No. Biggy Index es de solo lectura y te redirige a Little Biggy para completar tu pedido." },
+        { "q": "¿De dónde vienen los datos?", "a": "El índice obtiene datos públicos de Little Biggy, normalizando categorías, resúmenes de precios, información de envío, reseñas e imágenes." },
+        { "q": "¿Con qué frecuencia se actualiza?", "a": "Hay 3 componentes que se actualizan en diferentes intervalos. El indexador principal se ejecuta cada 15 minutos. Los rastreadores de artículos y vendedores se ejecutan cada 4 horas, en momentos separados para ser respetuosos con el servidor de Little Biggy." },
         { "q": "¿Qué significan 'Visto por primera vez' o 'Actualizado' en los artículos?", "a": "Visto por primera vez/creado significa que es la primera vez que el artículo fue indexado por el rastreador. Esto puede incluir artículos que estaban en LB antes de que existiera el indexador. Actualizado significa que el artículo fue editado por el vendedor, o que el rastreador detectó un cambio (ej. precio, variantes, descripción)." },
         { "q": "¿Qué son las recomendaciones?", "a": "Votos de la comunidad que destacan artículos populares sin rastrearte." }
       ],
       "crypto": [
-        { "q": "¿Qué pagos acepta LittleBiggy?", "a": "Solo Bitcoin — sin tarjetas, transferencias bancarias ni otras criptomonedas." },
+        { "q": "¿Qué pagos acepta Little Biggy?", "a": "Solo Bitcoin — sin tarjetas, transferencias bancarias ni otras criptomonedas." },
         { "q": "¿Cómo compro Bitcoin en España?", "a": "La mayoría de compradores usan Revolut, Monzo, Kraken o Coinbase. Recarga en euros, compra la cantidad de BTC que se muestra en el checkout y reserva unos euros para comisiones de red o de cambio." },
         { "q": "¿Necesito mi propio monedero primero?", "a": "Puedes pagar directamente desde el exchange, pero muchos mueven BTC a Cake Wallet, Trust Wallet o similares para tener más control o privacidad antes de enviar. Por ley, los exchanges necesitan preguntarte a quién envías las monedas, por lo que algunas personas prefieren comprar en exchanges y guardar sus monedas en un monedero privado para hacer compras." },
         { "q": "¿Cómo me protege el escrow de Transaxe?", "a": "Tu pago va a una dirección de escrow de Transaxe. Los vendedores tienen unas 80 horas para marcar los pedidos como enviados o los fondos se devuelven automáticamente. Las disputas se abren después de nueve días si es necesario." },
         { "q": "¿Algún consejo para evitar errores?", "a": "Copia y pega la cantidad de BTC y la dirección, añade un margen para comisiones, y guarda capturas de pantalla hasta que llegue tu paquete. La blockchain no puede deshacer errores de escritura." },
-        { "q": "¿Por qué no usar tiendas de clearnet?", "a": "La competencia en LittleBiggy mantiene la calidad alta y los precios honestos, mientras que los revendedores de clearnet a menudo aumentan mucho los precios o envían productos cuestionables." },
-        { "q": "¿Qué pasa con la legalidad en España?", "a": "Las leyes sobre cannabis siguen vigentes. Eres responsable de cumplir con las regulaciones locales y verificar cada detalle en LittleBiggy." }
+        { "q": "¿Por qué no usar tiendas de clearnet?", "a": "La competencia en Little Biggy mantiene la calidad alta y los precios honestos, mientras que los revendedores de clearnet a menudo aumentan mucho los precios o envían productos cuestionables." },
+        { "q": "¿Qué pasa con la legalidad en España?", "a": "Las leyes sobre cannabis siguen vigentes. Eres responsable de cumplir con las regulaciones locales y verificar cada detalle en Little Biggy." }
       ]
     },
     "media": {
@@ -212,7 +212,7 @@
     "recentItems": {
       "label": "Actividad reciente",
       "title": "Artículos indexados recientemente",
-      "subtitle": "Mira los artículos más recientes o actualizados de LittleBiggy.",
+      "subtitle": "Mira los artículos más recientes o actualizados de Little Biggy.",
       "tabs": {
         "added": "Añadidos recientemente",
         "updated": "Actualizados recientemente"
@@ -273,19 +273,19 @@
     },
     "why": {
       "label": "Por qué ayuda",
-      "title": "Mejor exploración de LittleBiggy para compradores en España",
-      "subtitle": "¿Planeas comprar cannabis online en España? El Biggy Index recopila datos reales del mercado en una interfaz más limpia para que puedas comparar productos, precios y tiempos de entrega antes de entrar a LittleBiggy.",
+      "title": "Mejor exploración de Little Biggy para compradores en España",
+      "subtitle": "¿Planeas comprar cannabis online en España? El Biggy Index recopila datos reales del mercado en una interfaz más limpia para que puedas comparar productos, precios y tiempos de entrega antes de entrar a Little Biggy.",
       "highlights": [
         {
           "title": "Encuentra cannabis en España rápido",
-          "description": "Busca en los anuncios públicos de LittleBiggy con filtros diseñados para España. Evita los sobreprecios o estafas asociados con fuentes de clearnet."
+          "description": "Busca en los anuncios públicos de Little Biggy con filtros diseñados para España. Evita los sobreprecios o estafas asociados con fuentes de clearnet."
         },
         {
           "title": "Datos frescos del indexador",
-          "description": "El indexador escanea los artículos, precios, detalles y reseñas de LittleBiggy para mostrar un catálogo actualizado."
+          "description": "El indexador escanea los artículos, precios, detalles y reseñas de Little Biggy para mostrar un catálogo actualizado."
         },
         {
-          "title": "LittleBiggy Mejorado",
+          "title": "Little Biggy Mejorado",
           "description": "Ordena artículos, mira cuándo se actualizan, márcalos como favoritos, todo en una interfaz ligera y rápida."
         }
       ]

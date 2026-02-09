@@ -47,13 +47,11 @@
     "highResImagesDesc": "Utiliser des images en pleine résolution dans les cartes d'articles (plus de données)",
     "forceEnglish": "Forcer l'anglais",
     "forceEnglishDesc": "Afficher les descriptions d'articles en anglais au lieu de la langue locale",
-    "loadAllItems": "Charger tous les articles en une fois",
-    "loadAllItemsDesc": "Permet la recherche Ctrl+F mais peut ralentir le chargement initial",
     "clearData": "Effacer toutes les données",
     "clearDataHint": "Supprime les favoris, filtres et toutes les préférences enregistrées",
-    "clearDataConfirm": "Cela effacera toutes vos données enregistrées, y compris les favoris, filtres et préférences. Continuer ?",
+    "clearDataConfirm": "Cela effacera toutes tes données enregistrées, y compris les favoris, filtres et préférences. Continuer ?",
     "skipGuides": "Masquer les guides",
-    "skipGuidesDesc": "Masquer les conseils d'accueil avant de visiter LittleBiggy. Désactivez pour les revoir.",
+    "skipGuidesDesc": "Masquer les conseils d'accueil avant de visiter Little Biggy. Désactivez pour les revoir.",
     "showOriginal": "Voir l'original",
     "showTranslated": "Voir la traduction"
   },
@@ -222,7 +220,7 @@
     "reviews": "Avis",
     "categoryLabel": "Catégorie :",
     "itemUnavailableTitle": "Article indisponible",
-    "itemUnavailableDesc": "Cette annonce n’est plus disponible sur LittleBiggy. Les données affichées sont archivées et peuvent être incomplètes.",
+    "itemUnavailableDesc": "Cette annonce n’est plus disponible sur Little Biggy. Les données affichées sont archivées et peuvent être incomplètes.",
     "variantPrices": "Prix des variantes",
     "simulateBasket": "Simuler panier",
     "selectionOn": "Sélection activée",
@@ -259,13 +257,13 @@
     "button": "Panier",
     "open": "Panier virtuel",
     "close": "Fermer le panier",
-    "header": "Votre \"Panier\"",
+    "header": "Ton \"Panier\"",
     "clear": "Vider",
     "items": "Articles",
     "shipping": "Livraison",
     "totalIncl": "Total (incl. livraison)",
     "grandTotal": "Total général",
-    "virtualNote": "Ceci est un panier virtuel pour estimer les coûts. Suivez les liens vers Biggy ci-dessus.",
+    "virtualNote": "Ceci est un panier virtuel pour estimer les coûts. Suis les liens vers Little Biggy ci-dessus.",
     "viewDetails": "Voir les détails",
     "change": "Changer",
     "variant": "Variante {num}",
@@ -335,7 +333,7 @@
     "daysAgo": "il y a {count} jours"
   },
   "Analytics": {
-    "title": "Vendeurs sur LittleBiggy",
+    "title": "Vendeurs sur Little Biggy",
     "updated": "Mise à jour",
     "sellersTracked": "{count} vendeurs suivis",
     "close": "Fermer",
@@ -350,19 +348,19 @@
       "rating": "Note",
       "avgShipping": "Arrivée moy."
     },
-    "footerHint": "Cliquez sur un vendeur pour voir son profil complet",
+    "footerHint": "Clique sur un vendeur pour voir son profil complet",
     "unknownSeller": "Inconnu"
   },
   "LatestReviews": {
     "title": "Derniers avis",
     "withImagesCount": "{count} avis avec images",
-    "recentCount": "{count} avis récents de LittleBiggy",
+    "recentCount": "{count} avis récents de Little Biggy",
     "close": "Fermer",
     "toggleOn": "Affiche les avis avec images",
     "toggleOff": "Afficher seulement avec images",
     "emptyWithImages": "Aucun avis avec images trouvé",
     "empty": "Aucun avis disponible pour l'instant",
-    "footerRefresh": "Avis de LittleBiggy rafraîchis toutes les 4 heures",
+    "footerRefresh": "Avis de Little Biggy rafraîchis toutes les 4 heures",
     "itemImageAlt": "Image d'article",
     "reviewMediaAlt": "Média d'avis"
   },
@@ -398,15 +396,15 @@
   },
   "Meta": {
     "indexTitle": "Parcourir {count} articles | Avis & Comparer | Biggy Index",
-    "indexDescription": "Filtrez par catégorie, prix, note vendeur et livraison. Comparez les variantes, lisez les avis et trouvez les meilleures offres sur LittleBiggy.",
-    "homeTitle": "Avis & Guide LittleBiggy France | Biggy Index",
-    "homeDescription": "Une meilleure façon de parcourir LittleBiggy : annonces catégorisées, classements vendeurs, avis récents et filtres puissants.",
+    "indexDescription": "Filtre par catégorie, prix, note vendeur et livraison. Compare les variantes, lis les avis et trouve les meilleures offres sur Little Biggy.",
+    "homeTitle": "Biggy Index | Cannabis sur Little Biggy France",
+    "homeDescription": "Une meilleure façon de parcourir Little Biggy : annonces catégorisées, classements vendeurs, avis récents et filtres puissants.",
     "latestReviewsTitle": "Derniers avis | Biggy Index",
-    "latestReviewsDescription": "Consultez les avis récents des acheteurs LittleBiggy : notes, délais d'arrivée, médias et liens vers les articles.",
+    "latestReviewsDescription": "Consultez les avis récents des acheteurs Little Biggy : notes, délais d'arrivée, médias et liens vers les articles.",
     "sellersTitle": "Vendeurs | Biggy Index",
-    "sellersDescription": "Analysez les vendeurs LittleBiggy : total d'avis, taux positifs, négatifs, 10/10, note moyenne et délais d'expédition.",
-    "categoryTitle": "{category} sur LittleBiggy France | {count} Articles | Avis & Comparer | Biggy Index",
-    "categoryDescription": "Parcourez {count} annonces {category} sur LittleBiggy. Comparez les prix, lisez les avis et payez en Bitcoin. Mis à jour quotidiennement."
+    "sellersDescription": "Analysez les vendeurs Little Biggy : total d'avis, taux positifs, négatifs, 10/10, note moyenne et délais d'expédition.",
+    "categoryTitle": "{category} | {count}+ articles sur Little Biggy France | Biggy Index",
+    "categoryDescription": "Parcours {count} annonces {category} sur Little Biggy. Compare les prix, lis les avis et paie en Bitcoin. Mis à jour quotidiennement."
   },
   "CategoryPage": {
     "itemsAvailable": "{count} articles disponibles",
@@ -423,20 +421,20 @@
     "viewAll": "Voir tout",
     "noItems": "Aucun article disponible",
     "intro": {
-      "default": "Découvrez {count} annonces {category} de vendeurs LittleBiggy de confiance. Comparez les prix, lisez les avis vérifiés des acheteurs et trouvez les meilleures offres. Tous les articles sont indexés quotidiennement avec des évaluations transparentes.",
-      "flower": "Parcourez des fleurs de cannabis premium de vendeurs LittleBiggy vérifiés. Des variétés exotiques comme Zkittlez et Gelato aux classiques favoris, comparez les prix et lisez les vrais avis des acheteurs.",
-      "hash": "Explorez une sélection de haschisch incluant marocain, bubble hash, temple balls et dry sift premium. Comparez les grades de qualité et les prix de vendeurs de confiance.",
-      "vapes": "Achetez des vapes jetables, cartouches et accessoires des vendeurs les mieux notés de LittleBiggy. Trouvez des carts live resin, des stylos distillat et plus avec des prix transparents.",
-      "edibles": "Découvrez des comestibles au cannabis incluant gummies, chocolats, capsules et pâtisseries. Comparez les dosages, prix et lisez les avis vérifiés.",
-      "concentrates": "Parcourez des concentrés premium incluant wax, shatter, rosin et live resin. Comparez la puissance, les prix et les évaluations des vendeurs.",
-      "psychedelics": "Explorez la sélection de psychédéliques LittleBiggy incluant LSD, champignons et produits DMT. Lisez les expériences vérifiées des acheteurs et comparez les prix.",
-      "tincture": "Achetez des teintures de cannabis et produits sublinguaux pour un dosage précis. Comparez les concentrations, prix et lisez les avis clients.",
-      "other": "Découvrez des produits uniques et accessoires de vendeurs LittleBiggy. Parcourez graines, kits de culture et articles spéciaux avec des prix transparents.",
+      "default": "Découvre {count} annonces {category} de vendeurs Little Biggy de confiance. Compare les prix, lis les avis vérifiés des acheteurs et trouve les meilleures offres. Tous les articles sont indexés quotidiennement avec des évaluations transparentes.",
+      "flower": "Parcours des fleurs de cannabis premium de vendeurs Little Biggy vérifiés. Des variétés exotiques comme Zkittlez et Gelato aux classiques favoris, compare les prix et lis les vrais avis des acheteurs.",
+      "hash": "Explore une sélection de haschisch incluant marocain, bubble hash, temple balls et dry sift premium. Compare les grades de qualité et les prix de vendeurs de confiance.",
+      "vapes": "Ach\u00e8te des vapes jetables, cartouches et accessoires des vendeurs les mieux notés de Little Biggy. Trouve des carts live resin, des stylos distillat et plus avec des prix transparents.",
+      "edibles": "Découvre des comestibles au cannabis incluant gummies, chocolats, capsules et pâtisseries. Compare les dosages, prix et lis les avis vérifiés.",
+      "concentrates": "Parcours des concentrés premium incluant wax, shatter, rosin et live resin. Compare la puissance, les prix et les évaluations des vendeurs.",
+      "psychedelics": "Explore la sélection de psychédéliques Little Biggy incluant LSD, champignons et produits DMT. Lis les expériences vérifiées des acheteurs et compare les prix.",
+      "tincture": "Ach\u00e8te des teintures de cannabis et produits sublinguaux pour un dosage précis. Compare les concentrations, prix et lis les avis clients.",
+      "other": "Découvre des produits uniques et accessoires de vendeurs Little Biggy. Parcours graines, kits de culture et articles spéciaux avec des prix transparents.",
       "subcategoriesInclude": "Comprend",
       "more": "autres"
     },
     "footer": {
-      "description": "Parcourez LittleBiggy avec des catégories, filtres, avis & stats vendeurs.",
+      "description": "Parcours Little Biggy avec des catégories, filtres, avis & stats vendeurs.",
       "browseAll": "Parcourir tous les articles",
       "aboutUs": "À propos de Biggy Index",
       "alsoAvailable": "Également disponible en"
@@ -445,28 +443,28 @@
   "IndexFooter": {
     "community": {
       "label": "Communauté",
-      "text": "Rejoignez la conversation, partagez vos trouvailles et connectez-vous avec d'autres acheteurs.",
+      "text": "Rejoins la conversation, partage tes trouvailles et connecte-toi avec d'autres acheteurs.",
       "reddit": "r/LittleBiggy",
-      "wallTitle": "LittleBiggy Wall",
+      "wallTitle": "Little Biggy Wall",
       "wall": "Mur communautaire"
     },
     "embassy": {
       "label": "Besoin d'aide ?",
-      "text": "Nouveau sur LittleBiggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
+      "text": "Nouveau sur Little Biggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
       "cta": "Visiter l'ambassade"
     },
     "faq": {
       "title": "Questions fréquentes",
       "q1": "Qu'est-ce que Biggy Index ?",
-      "a1": "Biggy Index est un outil de navigation indépendant pour LittleBiggy. Il vous permet de rechercher, filtrer et comparer les articles entre vendeurs avec de vrais avis, des données de prix et des statistiques vendeurs.",
-      "q2": "Biggy Index est-il affilié à LittleBiggy ?",
-      "a2": "Non. Biggy Index est un projet indépendant. Nous utilisons des liens de parrainage — quand vous cliquez vers LittleBiggy, vous soutenez le site sans frais supplémentaires.",
+      "a1": "Biggy Index est un outil de navigation indépendant pour Little Biggy. Il te permet de rechercher, filtrer et comparer les articles entre vendeurs avec de vrais avis, des données de prix et des statistiques vendeurs.",
+      "q2": "Biggy Index est-il affilié à Little Biggy ?",
+      "a2": "Non. Biggy Index est un projet indépendant. Nous utilisons des liens de parrainage — quand tu cliques vers Little Biggy, tu soutiens le site sans frais supplémentaires.",
       "q3": "À quelle fréquence les données sont-elles mises à jour ?",
       "a3": "L'index est actualisé environ toutes les 30 minutes. Les prix, la disponibilité et les avis sont maintenus aussi à jour que possible.",
       "q4": "Quels pays sont pris en charge ?",
       "a4": "Biggy Index couvre actuellement six marchés : Royaume-Uni, Allemagne, France, Portugal, Italie et Espagne. Chaque marché affiche les articles disponibles dans cette région avec les prix en devise locale.",
       "q5": "Comment fonctionne la comparaison de prix ?",
-      "a5": "Tous les prix sont stockés dans une devise commune et convertis en temps réel dans votre devise locale. Vous pouvez filtrer par fourchette de prix et trier par prix pour trouver les meilleures offres."
+      "a5": "Tous les prix sont stockés dans une devise commune et convertis en temps réel dans ta devise locale. Tu peux filtrer par fourchette de prix et trier par prix pour trouver les meilleures offres."
     },
     "languages": {
       "label": "Également disponible en"
@@ -474,37 +472,37 @@
     "meta": {
       "copyright": "© {year} Biggy Index",
       "lastCrawled": "Données mises à jour {date}",
-      "disclaimer": "Non affilié à LittleBiggy. Liens de parrainage utilisés."
+      "disclaimer": "Non affilié à Little Biggy. Liens de parrainage utilisés."
     }
   },
   "FirstVisitBanner": {
     "title": "Bienvenue sur le Biggy Index",
-    "description": "Parcourez Little Biggy avec des catégories, filtres, avis et stats vendeurs. Nouveau sur la plateforme ?",
+    "description": "Parcours Little Biggy avec des catégories, filtres, avis et stats vendeurs. Nouveau sur la plateforme ?",
     "button": "En savoir plus",
     "close": "Fermer"
   },
   "LBGuide": {
-    "title": "Avant d'aller sur LittleBiggy...",
+    "title": "Avant d'aller sur Little Biggy...",
     "subtitle": "Quelques conseils pour bien démarrer sur la marketplace.",
     "steps": {
       "country": {
-        "title": "1. Choisissez votre pays",
-        "text": "LittleBiggy a besoin de savoir où vous êtes avant d'afficher les options de produits. Sélectionnez d'abord votre pays — un cookie est enregistré pour ne le faire qu'une seule fois."
+        "title": "1. Choisis ton pays",
+        "text": "Little Biggy a besoin de savoir où tu es avant d'afficher les options de produits. Sélectionne d'abord ton pays — un cookie est enregistré pour ne le faire qu'une seule fois."
       },
       "buy": {
         "title": "2. Parcourir et acheter",
-        "text": "Une fois votre pays défini, chaque produit affiche un bouton d'achat à côté de chaque variante. Appuyez dessus et il va directement dans votre panier."
+        "text": "Une fois ton pays défini, chaque produit affiche un bouton d'achat à côté de chaque variante. Appuie dessus et il va directement dans ton panier."
       },
       "account": {
         "title": "3. Créer un compte",
-        "text": "Vous pouvez payer sans compte, mais l'inscription est recommandée. Cliquez sur \"Login\" puis \"Register\" — pas besoin d'e-mail, juste un nom d'utilisateur et un mot de passe."
+        "text": "Tu peux payer sans compte, mais l'inscription est recommandée. Clique sur \"Login\" puis \"Register\" — pas besoin d'e-mail, juste un nom d'utilisateur et un mot de passe."
       },
       "checkout": {
         "title": "4. Payer en Bitcoin",
-        "text": "LittleBiggy n'accepte que le Bitcoin. Au moment du paiement, vous verrez un montant et une adresse de portefeuille."
+        "text": "Little Biggy n'accepte que le Bitcoin. Au moment du paiement, tu verras un montant et une adresse de portefeuille."
       }
     },
-    "continueBtn": "Compris — aller sur LittleBiggy",
+    "continueBtn": "Compris — aller sur Little Biggy",
     "dontShowAgain": "Ne plus afficher",
     "guideLink": {
       "title": "Visiter l'ambassade",
@@ -546,12 +544,18 @@
     "star": "étoile",
     "x": "×"
   },
+  "Breadcrumbs": {
+    "home": "Accueil",
+    "items": "Articles",
+    "sellers": "Vendeurs",
+    "categories": "Catégories"
+  },
   "NotFound": {
     "itemTitle": "Article indisponible",
-    "itemDesc": "Cet article n'est peut-être pas disponible dans votre région, ou il a été vendu, délisté ou supprimé.",
+    "itemDesc": "Cet article n'est peut-être pas disponible dans ta région, ou il a été vendu, délisté ou supprimé.",
     "sellerTitle": "Vendeur indisponible",
-    "sellerDesc": "Ce vendeur n'est peut-être pas disponible dans votre région, ou la boutique a fermé ou changé de nom.",
+    "sellerDesc": "Ce vendeur n'est peut-être pas disponible dans ta région, ou la boutique a fermé ou changé de nom.",
     "pageTitle": "Page non trouvée",
-    "pageDesc": "La page que vous recherchez n'existe pas ou a été déplacée."
+    "pageDesc": "La page que tu recherches n'existe pas ou a été déplacée."
   }
 }
