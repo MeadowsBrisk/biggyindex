@@ -7,8 +7,10 @@ export const config = { runtime: 'nodejs' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;
-  const meta: any = await getSnapshotMeta(mkt);
-  const sellers: any[] = await getSellers(mkt);
+  const [meta, sellers] = await Promise.all([
+    getSnapshotMeta(mkt) as Promise<any>,
+    getSellers(mkt),
+  ]);
   
   // Safety check: if sellers array is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !sellers || sellers.length === 0;

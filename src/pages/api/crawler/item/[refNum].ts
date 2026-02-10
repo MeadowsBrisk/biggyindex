@@ -53,46 +53,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       candidateShipKeys.push(`market-shipping/${encodeURIComponent(String(possibleId))}.json`);
     }
 
-    for (const shipKey of candidateShipKeys) {
-      try {
-        const ship = await readR2JSON<any>(buildR2Key(marketName, shipKey));
-        if (ship && Array.isArray(ship.options)) {
-          const shippingOptions = (ship.translations?.shippingOptions && Array.isArray(ship.translations.shippingOptions))
-            ? ship.translations.shippingOptions
-            : ship.options;
-          detailObj.shipping = { ...(detailObj.shipping || {}), options: shippingOptions };
-          detailObj.shippingOptionsEn = ship.options;
-          if (ship.translations?.description) {
-            detailObj.descriptionTranslated = ship.translations.description;
-          }
-          // Apply variant translations from shipping blob to .v entries
-          if (ship.translations?.v && Array.isArray(ship.translations.v) && Array.isArray(detailObj.v)) {
-            const translatedMap = new Map<string, string>();
-            for (const tv of ship.translations.v) {
-              if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
-            }
-            for (const vItem of detailObj.v) {
-              const vid = String(vItem.vid ?? vItem.id);
-              const translated = translatedMap.get(vid);
-              if (translated) {
-                vItem.dEn = vItem.dEn || vItem.d;
-                vItem.d = translated;
-              }
-            }
-          }
-          detailObj._shipSeo = {
-            n: ship.n, sn: ship.sn, sid: ship.sid,
-            i: ship.i, is: ship.is, c: ship.c, sc: ship.sc,
-          };
-          break;
+    // Fetch all candidate shipping keys in parallel — avoids sequential 404 round-trips
+    const shipResults = await Promise.all(
+      candidateShipKeys.map(shipKey =>
+        readR2JSON<any>(buildR2Key(marketName, shipKey)).catch(() => null)
+      )
+    );
+    const ship = shipResults.find(s => s && Array.isArray(s.options));
+    if (ship) {
+      const shippingOptions = (ship.translations?.shippingOptions && Array.isArray(ship.translations.shippingOptions))
+        ? ship.translations.shippingOptions
+        : ship.options;
+      detailObj.shipping = { ...(detailObj.shipping || {}), options: shippingOptions };
+      detailObj.shippingOptionsEn = ship.options;
+      if (ship.translations?.description) {
+        detailObj.descriptionTranslated = ship.translations.description;
+      }
+      // Apply variant translations from shipping blob to .v entries
+      if (ship.translations?.v && Array.isArray(ship.translations.v) && Array.isArray(detailObj.v)) {
+        const translatedMap = new Map<string, string>();
+        for (const tv of ship.translations.v) {
+          if (tv.vid && tv.d) translatedMap.set(String(tv.vid), tv.d);
         }
-      } catch {}
+        for (const vItem of detailObj.v) {
+          const vid = String(vItem.vid ?? vItem.id);
+          const translated = translatedMap.get(vid);
+          if (translated) {
+            vItem.dEn = vItem.dEn || vItem.d;
+            vItem.d = translated;
+          }
+        }
+      }
+      detailObj._shipSeo = {
+        n: ship.n, sn: ship.sn, sid: ship.sid,
+        i: ship.i, is: ship.is, c: ship.c, sc: ship.sc,
+      };
     }
 
     const body = JSON.stringify(detailObj);
     const etag = 'W/"' + crypto.createHash('sha1').update(body).digest('hex').slice(0, 32) + '"';
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=43200, stale-while-revalidate=86400');
     res.setHeader('ETag', etag);
     res.setHeader('X-Crawler-Storage', 'r2');
     if ((req.headers['if-none-match'] as any) === etag) { res.status(304).end(); return; }

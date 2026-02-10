@@ -41,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
     if (!ref) return '';
     const escapedRef = escape(ref);
     const path = `/item/${escapedRef}`;
-    const lastmod = it?.lastUpdatedAt || it?.firstSeenAt || null;
+    const lastmod = it?.lua || it?.fsa || null;
 
     // Only emit hreflang for markets where this item exists
     const itemMarkets = presence.get(ref) || new Set([market]);

@@ -17,15 +17,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   pushKey(legacyPrefix + encodeURIComponent(id) + '.json');
 
   try {
-    for (const key of candidateKeys) {
-      const data = await readR2JSON(buildR2Key(storeName, key));
-      if (data) {
-        res.setHeader('X-Crawler-Storage', 'r2');
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
-        res.status(200).json(data);
-        return;
-      }
+    // Fetch all candidate keys in parallel — avoids sequential 404 round-trips
+    const results = await Promise.all(
+      candidateKeys.map(key =>
+        readR2JSON(buildR2Key(storeName, key)).catch(() => null)
+      )
+    );
+    const data = results.find(r => r != null);
+    if (data) {
+      res.setHeader('X-Crawler-Storage', 'r2');
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=43200, stale-while-revalidate=86400');
+      res.status(200).json(data);
+      return;
     }
   } catch (e: any) {
     console.error('[seller-api] R2 read error:', e?.message);

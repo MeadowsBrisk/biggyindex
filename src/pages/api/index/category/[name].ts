@@ -8,8 +8,10 @@ export const config = { runtime: 'nodejs' };
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const name = (req.query as any).name || '';
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;
-  const meta: any = await getSnapshotMeta(mkt);
-  const rawItems: any[] = await getCategoryItems(String(name), mkt);
+  const [meta, rawItems] = await Promise.all([
+    getSnapshotMeta(mkt) as Promise<any>,
+    getCategoryItems(String(name), mkt),
+  ]);
   // Items now use minified keys directly - no normalization needed
   const items = rawItems;
   

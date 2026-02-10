@@ -30,19 +30,23 @@ export async function conditionalJSON(
 ) {
   // Prevent indexing of JSON API endpoints while allowing crawl for rendering
   try { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); } catch {}
-  const DEFAULT_MAX_AGE = Number((process as any).env?.INDEX_CACHE_MAX_AGE || 600); // 20 minutes default
-  const DEFAULT_STALE = Number((process as any).env?.INDEX_CACHE_STALE || Math.round(DEFAULT_MAX_AGE / 4));
+  // Browser: short max-age so ETags/304s fire quickly.
+  // CDN (Netlify/Cloudflare): long s-maxage (12h) with generous stale-while-revalidate (24h).
+  // After crawler runs, revalidation purges CDN cache → next request fetches fresh.
+  const BROWSER_MAX_AGE = Number((process as any).env?.INDEX_CACHE_MAX_AGE || 60);      // 1 min browser cache
+  const CDN_MAX_AGE     = Number((process as any).env?.INDEX_CDN_CACHE_MAX_AGE || 43200); // 12h CDN cache
+  const STALE_REVALIDATE = Number((process as any).env?.INDEX_CACHE_STALE || 86400);      // 24h stale-while-revalidate
   const {
     prefix,
     version,
     updatedAt,
     cacheControl, // optional override
-    maxAgeSeconds, // optional numeric override (takes precedence over default if provided)
+    maxAgeSeconds, // optional numeric override for browser max-age
     getBody,
     weak = true,
   } = opts || ({} as any);
-  const finalMaxAge = Number.isFinite(maxAgeSeconds as any) ? (maxAgeSeconds as number) : DEFAULT_MAX_AGE;
-  const finalCacheControl = cacheControl || `public, max-age=${finalMaxAge}, must-revalidate, stale-while-revalidate=${DEFAULT_STALE}`;
+  const finalBrowserMaxAge = Number.isFinite(maxAgeSeconds as any) ? (maxAgeSeconds as number) : BROWSER_MAX_AGE;
+  const finalCacheControl = cacheControl || `public, max-age=${finalBrowserMaxAge}, s-maxage=${CDN_MAX_AGE}, stale-while-revalidate=${STALE_REVALIDATE}`;
   if (!prefix || !version || !updatedAt) {
     res.status(500).json({ error: 'conditional_misconfigured' });
     return;

@@ -10,6 +10,8 @@
  */
 
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
+import { Agent as HttpsAgent } from 'node:https';
 
 const DATA_BUCKET = process.env.R2_DATA_BUCKET || 'biggyindex-data';
 
@@ -27,6 +29,12 @@ function getR2Client(): S3Client {
     region: 'auto',
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
     credentials: { accessKeyId, secretAccessKey },
+    maxAttempts: 2, // Fail fast — 1 retry instead of default 3
+    requestHandler: new NodeHttpHandler({
+      httpsAgent: new HttpsAgent({ keepAlive: true, maxSockets: 25 }),
+      connectionTimeout: 3000,
+      socketTimeout: 10000,
+    }),
   });
   return _client;
 }

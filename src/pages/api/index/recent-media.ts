@@ -7,11 +7,13 @@ export const config = { runtime: 'nodejs' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;
-  const meta: any = await getSnapshotMeta(mkt);
-  const mediaRaw: any[] = await getRecentMedia(mkt);
-  const itemImageLookup: any = await getItemImageLookup(mkt);
-  const recentItemsCompact: any = await getRecentItemsCompact(mkt);
-  const sellerImagesMap: any = await getSellerImages();
+  const [meta, mediaRaw, itemImageLookup, recentItemsCompact, sellerImagesMap] = await Promise.all([
+    getSnapshotMeta(mkt) as Promise<any>,
+    getRecentMedia(mkt),
+    getItemImageLookup(mkt),
+    getRecentItemsCompact(mkt),
+    getSellerImages(),
+  ]);
   const updatedAt: string = meta?.updatedAt || new Date().toISOString();
   
   // Safety check: if media is empty, don't cache it (likely an R2 read failure)

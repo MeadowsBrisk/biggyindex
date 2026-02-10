@@ -42,8 +42,6 @@ export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
       if (id == null) return '';
       const escapedId = escape(String(id));
       const path = `/seller/${escapedId}`;
-      const lastmod = s?.lastUpdatedAt || null;
-
       // Only emit hreflang for markets where this seller exists
       const sellerMarkets = presence.get(String(id)) || new Set([market]);
       const alts = Array.from(sellerMarkets).map(m => {
@@ -53,7 +51,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res, req }) => {
       const xDefault = sellerMarkets.has('GB') ? 'en' : locale;
       alts.push(`<xhtml:link rel="alternate" hreflang="x-default" href="${hostForLocale(xDefault)}${path}"/>`);
 
-      return `<url><loc>${origin}${path}</loc>${lastmod ? `<lastmod>${escape(lastmod)}</lastmod>` : ''}<changefreq>weekly</changefreq><priority>0.6</priority>${alts.join('')}</url>`;
+      return `<url><loc>${origin}${path}</loc><changefreq>weekly</changefreq><priority>0.6</priority>${alts.join('')}</url>`;
     })
     .filter(Boolean)
     .join('');

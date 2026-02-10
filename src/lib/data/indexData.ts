@@ -36,7 +36,7 @@ function storeNameForMarket(mkt?: string | Market): string {
 
 // Simple in-memory cache for small, frequently accessed data to reduce network calls on warm functions
 const memoryCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 60 * 1000; // 1 minute cache for high-frequency metadata
+const CACHE_TTL = 5 * 60 * 1000; // 5 minute cache — data changes at most every 30 min (crawler schedule)
 
 let _loggedDataSource = false;
 
@@ -86,14 +86,14 @@ export async function getManifest(market?: Market): Promise<{ categories: Record
 
 export async function getAllItems(market?: Market): Promise<any[]>
 {
-  const result = await readR2Data<any[]>('indexed_items.json', { market });
+  const result = await readR2Data<any[]>('indexed_items.json', { market, useCache: true });
   if (result) return result;
   return [];
 }
 
 export async function getSellers(market?: Market): Promise<any[]>
 {
-  const result = await readR2Data<any[]>('sellers.json', { market });
+  const result = await readR2Data<any[]>('sellers.json', { market, useCache: true });
   if (result) return result;
   return [];
 }
@@ -102,7 +102,7 @@ export async function getCategoryItems(categoryName: string, market?: Market): P
 {
   if (!categoryName) return [];
   const key = `data/items-${categoryName.toLowerCase()}.json`;
-  const result = await readR2Data<any[]>(key, { market });
+  const result = await readR2Data<any[]>(key, { market, useCache: true });
   if (result) return result;
   return [];
 }

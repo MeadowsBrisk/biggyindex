@@ -7,8 +7,10 @@ export const config = { runtime: 'nodejs' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const mkt = String((req.query as any).mkt || 'GB').toUpperCase() as Market;
-  const meta: any = await getSnapshotMeta(mkt);
-  const manifest: any = await getManifest(mkt);
+  const [meta, manifest] = await Promise.all([
+    getSnapshotMeta(mkt) as Promise<any>,
+    getManifest(mkt) as Promise<any>,
+  ]);
   
   // Safety check: if manifest is empty, don't cache it (likely an R2 read failure)
   const isEmpty = !manifest || Object.keys(manifest.categories || {}).length === 0;
