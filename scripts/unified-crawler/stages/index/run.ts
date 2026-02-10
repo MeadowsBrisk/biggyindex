@@ -309,6 +309,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   }
 
   const indexKey = Keys.market.index(code);
+  const indexPackKey = Keys.market.indexPack(code);
   const writeTasks: Promise<any>[] = [];
   if (marketIndexItems.length > 0) {
     const metaNote = appliedMeta ? ` indexMetaHits=${appliedMeta}` : '';
@@ -318,6 +319,20 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       blob.putJSON(indexKey, marketIndexItems)
         .then(() => logger.info(`[index:${code}] Wrote ${indexKey} (${marketIndexItems.length} items).${metaNote}${transNote}${imgNote}`))
         .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${indexKey}: ${e?.message || e}`))
+    );
+    // Pre-build MessagePack binary alongside JSON — served directly by /api/items-pack
+    // without on-the-fly encoding, saving CPU on every request
+    writeTasks.push(
+      (async () => {
+        try {
+          const { encode } = await import('@msgpack/msgpack');
+          const packed = Buffer.from(encode(marketIndexItems));
+          await blob.putRaw(indexPackKey, packed, 'application/msgpack');
+          logger.info(`[index:${code}] Wrote ${indexPackKey} (${packed.length} bytes, ${marketIndexItems.length} items).`);
+        } catch (e: any) {
+          logger.warn(`[index:${code}] Failed writing ${indexPackKey}: ${e?.message || e}`);
+        }
+      })()
     );
   } else {
     logger.warn(`[index:${code}] No items to write for ${indexKey}; leaving previous data intact.`);
@@ -447,7 +462,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     await appendRunMeta(storeName, runMetaKey, {
       scope: String(code),
       counts: { items: itemsCount },
-      notes: { artifacts: ["snapshot_meta.json", "data/manifest.json", "indexed_items.json", "sellers.json"], durationMs: durMs, source: snapshotMeta.source, version: snapshotMeta.version },
+      notes: { artifacts: ["snapshot_meta.json", "data/manifest.json", "indexed_items.json", "indexed_items.msgpack", "sellers.json"], durationMs: durMs, source: snapshotMeta.source, version: snapshotMeta.version },
     });
     logger.info(`[index:${code}] Appended run-meta (${durMs}ms) to ${runMetaKey}.`);
   } catch (e: any) {
@@ -462,6 +477,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       "snapshot_meta.json",
       "data/manifest.json",
       "indexed_items.json",
+      "indexed_items.msgpack",
       "sellers.json",
     ],
     snapshotMeta,

@@ -31,6 +31,9 @@ export interface DataStore {
   /** Write JSON value. Throws on errors. */
   putJSON(key: string, data: unknown): Promise<void>;
 
+  /** Write raw binary data. Throws on errors. */
+  putRaw(key: string, data: Buffer | Uint8Array, contentType?: string): Promise<void>;
+
   /** Delete a key. No-op if key doesn't exist. Throws on real errors. */
   delete(key: string): Promise<void>;
 
@@ -97,6 +100,15 @@ export function createR2Store(bucket: string, prefix?: string): DataStore {
         Key: fullKey(key),
         Body: body,
         ContentType: 'application/json',
+      }));
+    },
+
+    async putRaw(key: string, data: Buffer | Uint8Array, contentType = 'application/octet-stream'): Promise<void> {
+      await r2.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: fullKey(key),
+        Body: data,
+        ContentType: contentType,
       }));
     },
 
@@ -185,6 +197,12 @@ export function createFSStore(rootDir: string): DataStore {
       const file = path.join(rootDir, key);
       ensureDir(path.dirname(file));
       fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+    },
+
+    async putRaw(key: string, data: Buffer | Uint8Array): Promise<void> {
+      const file = path.join(rootDir, key);
+      ensureDir(path.dirname(file));
+      fs.writeFileSync(file, data);
     },
 
     async delete(key: string): Promise<void> {

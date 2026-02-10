@@ -58,6 +58,25 @@ export async function readR2JSON<T = any>(key: string): Promise<T | null> {
   }
 }
 
+/**
+ * Read raw binary from R2. Returns null for "key not found".
+ * Real errors propagate.
+ */
+export async function readR2Raw(key: string): Promise<Buffer | null> {
+  try {
+    const response = await getR2Client().send(new GetObjectCommand({
+      Bucket: DATA_BUCKET,
+      Key: key,
+    }));
+    const bytes = await response.Body?.transformToByteArray();
+    if (!bytes) return null;
+    return Buffer.from(bytes);
+  } catch (e: any) {
+    if (e?.name === 'NoSuchKey' || e?.$metadata?.httpStatusCode === 404) return null;
+    throw e;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Write
 // ---------------------------------------------------------------------------

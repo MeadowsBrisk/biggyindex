@@ -31,6 +31,7 @@ export const Keys = {
   },
   market: {
     index: (code: string) => `indexed_items.json`, // top-level in market store
+    indexPack: (code: string) => `indexed_items.msgpack`, // MessagePack binary (pre-built for /api/items-pack)
     manifest: (code: string) => `data/manifest.json`,
     data: {
       itemImageLookup: () => `data/item-image-lookup.json`,
