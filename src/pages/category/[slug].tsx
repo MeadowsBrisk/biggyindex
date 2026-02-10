@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import type { GetStaticPaths, GetStaticProps } from 'next';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale as useNextIntlLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
@@ -117,6 +117,7 @@ export const getStaticProps: GetStaticProps<CategoryPageProps> = async (context)
 
 export default function CategoryPage({ slug, items, manifest, snapshotMeta }: CategoryPageProps) {
   const { locale } = useLocale();
+  const seoLocale = useNextIntlLocale();
   const tMeta = useTranslations('Meta');
   const tCats = useTranslations('Categories');
   const tCatPage = useTranslations('CategoryPage');
@@ -181,7 +182,7 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
   // SEO metadata
   const pageTitle = tMeta('categoryTitle', { category: categoryName, count: itemCount });
   const pageDescription = tMeta('categoryDescription', { category: categoryName, count: itemCount });
-  const canonicalUrl = `${hostForLocale(locale)}/category/${slug}`;
+  const canonicalUrl = `${hostForLocale(seoLocale)}/category/${slug}`;
 
   // JSON-LD structured data
   const breadcrumbJsonLd = {
@@ -192,7 +193,7 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         '@type': 'ListItem',
         position: 1,
         name: 'Biggy Index',
-        item: hostForLocale(locale),
+        item: hostForLocale(seoLocale),
       },
       {
         '@type': 'ListItem',
@@ -217,7 +218,7 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         '@type': 'ListItem',
         position: idx + 1,
         name: item.n || 'Item',
-        url: `${hostForLocale(locale)}/?ref=${encodeURIComponent(item.refNum || item.ref || item.id)}`,
+        url: `${hostForLocale(seoLocale)}/item/${encodeURIComponent(item.refNum || item.ref || item.id)}`,
       })),
     },
   };
@@ -241,8 +242,8 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Biggy Index" />
-        <meta property="og:locale" content={localeToOgFormat(locale || 'en-GB')} />
-        {getOgLocaleAlternates(locale || 'en-GB').map((ogLoc) => (
+        <meta property="og:locale" content={localeToOgFormat(seoLocale || 'en-GB')} />
+        {getOgLocaleAlternates(seoLocale || 'en-GB').map((ogLoc) => (
           <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
         ))}
 

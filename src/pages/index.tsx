@@ -44,7 +44,7 @@ import ToastHost from '@/components/common/ToastHost';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
 import { hostForLocale } from '@/lib/market/routing';
 import LocaleSelector from '@/components/layout/LocaleSelector';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale as useNextIntlLocale } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
 import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket, HREFLANG_LOCALES } from '@/lib/market/market';
 import IndexFooter from '@/sections/index/IndexFooter';
@@ -534,7 +534,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const itemCount = (initialManifest as any)?.totalItems || (manifest as any)?.totalItems || 0;
 
   // JSON-LD structured data for SEO
-  const origin = hostForLocale(locale);
+  // Use next-intl locale (SSR-safe) for canonical/hreflang — Jotai locale defaults to en-GB on server
+  const seoLocale = useNextIntlLocale();
+  const origin = hostForLocale(seoLocale);
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -620,22 +622,22 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         <Head>
           <title>{tMeta('indexTitle', { count: itemCount })}</title>
           <meta name="description" content={tMeta('indexDescription')} />
-          <link rel="canonical" href={hostForLocale(locale)} />
+          <link rel="canonical" href={hostForLocale(seoLocale)} />
           <meta property="og:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta property="og:description" content={tMeta('indexDescription')} />
-          <meta property="og:url" content={hostForLocale(locale)} />
+          <meta property="og:url" content={hostForLocale(seoLocale)} />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="Biggy Index" />
-          <meta property="og:image" content={`${hostForLocale(locale)}/og-image.png`} />
+          <meta property="og:image" content={`${hostForLocale(seoLocale)}/og-image.png`} />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta property="og:image:alt" content="Biggy Index - Browse LittleBiggy with filters" />
-          <meta property="og:locale" content={localeToOgFormat(locale || 'en-GB')} />
-          {getOgLocaleAlternates(locale || 'en-GB').map(ogLoc => (
+          <meta property="og:locale" content={localeToOgFormat(seoLocale || 'en-GB')} />
+          {getOgLocaleAlternates(seoLocale || 'en-GB').map(ogLoc => (
             <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
           ))}
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content={`${hostForLocale(locale)}/og-image.png`} />
+          <meta name="twitter:image" content={`${hostForLocale(seoLocale)}/og-image.png`} />
           <meta name="twitter:title" content={tMeta('indexTitle', { count: itemCount })} />
           <meta name="twitter:description" content={tMeta('indexDescription')} />
           {HREFLANG_LOCALES.map(l => (
