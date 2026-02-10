@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { EMBASSY_LINKS } from "@/lib/market/embassyLinks";
 import { useLocale } from "@/providers/IntlProvider";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { trackOutboundClick } from "@/lib/tracking/outbound";
 
 const STEPS = ["country", "buy", "account", "checkout"] as const;
 
@@ -54,6 +55,12 @@ export default function LBGuideModal() {
     if (dontShow) setSeen(true);
     setIsOpen(false);
     if (pendingUrl) {
+      // Track the outbound click that was intercepted by the guide
+      trackOutboundClick({
+        id: extractIdFromUrl(pendingUrl),
+        type: 'item',
+        url: pendingUrl,
+      });
       window.open(pendingUrl, "_blank", "noopener,noreferrer");
       setPendingUrl(null);
     }
@@ -202,4 +209,15 @@ export default function LBGuideModal() {
     </AnimatePresence>,
     document.body
   );
+}
+
+/** Extract item refNum from a LittleBiggy URL */
+function extractIdFromUrl(url: string): string {
+  try {
+    const m = url.match(/\/item\/([^/]+)/);
+    if (m) return m[1];
+    const s = url.match(/\/seller\/([^/]+)/);
+    if (s) return s[1];
+  } catch {}
+  return 'unknown';
 }

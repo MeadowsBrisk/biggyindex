@@ -2,12 +2,15 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { lbGuideSeenAtom, lbGuideModalOpenAtom, lbGuidePendingUrlAtom } from "@/store/atoms";
 import { useCallback } from "react";
 import { trackOutboundClick } from "@/lib/tracking/outbound";
+import { getMarketFromPath } from "@/lib/market/market";
 
 /**
  * Returns an onClick handler for "View on LittleBiggy" links.
  * On first click (guide not yet seen), intercepts navigation and opens the guide modal.
  * After the guide has been seen, fires outbound click tracking (non-blocking) and
  * lets normal <a> behaviour proceed.
+ *
+ * Market is auto-detected from the current URL path if not provided.
  */
 export function useLBGuideGate(url: string | null, meta?: { id?: string; type?: 'item' | 'seller'; market?: string; category?: string }) {
   const seen = useAtomValue(lbGuideSeenAtom);
@@ -26,12 +29,15 @@ export function useLBGuideGate(url: string | null, meta?: { id?: string; type?: 
         return;
       }
 
+      // Auto-detect market from path if not provided
+      const market = meta?.market || (typeof window !== 'undefined' ? getMarketFromPath(window.location.pathname) : 'GB');
+
       // Guide already seen: track outbound click (non-blocking), let <a> navigate
       trackOutboundClick({
         id: meta?.id || extractIdFromUrl(url),
         type: meta?.type || 'item',
         url,
-        market: meta?.market,
+        market,
         category: meta?.category,
       });
     },

@@ -240,7 +240,7 @@ export default function StandaloneItemDetail({ baseItem, detail, unavailable, ma
   const createdAt = (baseItem as any)?.fsa || (detail as any)?.createdAt || null;
   // BUG-002: Fall back to detail.sl from shared data for referral link when item is delisted
   const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (baseItem as any)?.url || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
-  const lbGuideClick = useLBGuideGate(sl);
+  const lbGuideClick = useLBGuideGate(sl, { id: String(refNum || ''), market, category: category || undefined });
   
   const shareRef = refNum as any;
   const shareUrl = typeof window !== 'undefined'

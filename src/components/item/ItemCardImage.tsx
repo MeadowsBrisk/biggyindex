@@ -56,7 +56,7 @@ function ItemCardImageInner({
 
   // LB guide gate — intercept first-time clicks on "Little Biggy" button
   const lbUrl = shareLink || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
-  const lbGuideClick = useLBGuideGate(lbUrl);
+  const lbGuideClick = useLBGuideGate(lbUrl, { id: String(refNum || itemId), category: itemCategory || undefined });
 
   // GIF detection
   const isGif = typeof imageUrl === 'string' && GIF_REGEX.test(imageUrl);
