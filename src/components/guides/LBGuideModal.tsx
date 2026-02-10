@@ -211,13 +211,15 @@ export default function LBGuideModal() {
   );
 }
 
-/** Extract item refNum from a LittleBiggy URL */
+/** Extract item refNum, seller id, or short link code from a LittleBiggy URL */
 function extractIdFromUrl(url: string): string {
   try {
     const m = url.match(/\/item\/([^/]+)/);
     if (m) return m[1];
     const s = url.match(/\/seller\/([^/]+)/);
     if (s) return s[1];
+    const l = url.match(/\/link\/([^/?#]+)/);
+    if (l) return `link:${l[1]}`;
   } catch {}
   return 'unknown';
 }
