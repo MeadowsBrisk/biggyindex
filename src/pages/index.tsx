@@ -57,29 +57,25 @@ export const getStaticProps: GetStaticProps = async (context) => {
   const locale = context.locale || 'en-GB';
 
   try {
-    const { getAllItems, getManifest, getSnapshotMeta, getSellers } = await import('@/lib/data/indexData');
+    const { getManifest, getSnapshotMeta, getSellers } = await import('@/lib/data/indexData');
 
     // Load messages at build time for SSR (per next-intl best practices)
     // This eliminates client-side async loading flash
     const messagesModule = await import(`../messages/${locale}/index.json`);
     const messages = messagesModule.default;
 
-    // Fetch items, manifest, meta and sellers in parallel
-    // Sellers included in ISR to eliminate client-side /api/index/sellers call (~30KB addition)
-    const [rawItems, manifest, meta, sellers] = await Promise.all([
-      getAllItems(market as any),
+    // Fetch manifest, meta and sellers in parallel
+    // Items are NO LONGER included — they're fetched client-side via MessagePack binary
+    // endpoint (/api/items-pack) which is ~70-80% smaller than JSON in __NEXT_DATA__
+    const [manifest, meta, sellers] = await Promise.all([
       getManifest(market as any),
       getSnapshotMeta(market as any),
       getSellers(market as any).catch(() => []),
     ]);
 
-    // Keep items minified - normalization happens client-side in setItemsAtom/setAllItemsAtom
-    // This reduces page data size by ~40-50%
-    const items = rawItems;
-
     // CRITICAL: If we got empty data, use very short revalidate to retry quickly
     // This prevents caching bad ISR responses for a long time
-    const hasData = items.length > 0 && Object.keys(manifest?.categories || {}).length > 0;
+    const hasData = Object.keys(manifest?.categories || {}).length > 0;
 
     // NOTE: Reviews and media are now lazy-loaded by the LatestReviewsModal component
     // when it opens, rather than being included in __NEXT_DATA__. This saves ~200-400KB.
@@ -97,7 +93,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
     return {
       props: {
-        initialItems: items,
         initialManifest: manifest,
         initialSellers: slimSellers,
         snapshotMeta: meta,
@@ -120,7 +115,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
     } catch {}
     return {
       props: {
-        initialItems: [],
         initialManifest: { categories: {}, totalItems: 0 },
         initialSellers: [],
         snapshotMeta: null,
@@ -133,13 +127,12 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 type HomeProps = {
   suppressDefaultHead?: boolean;
-  initialItems?: any[];
   initialManifest?: any;
   initialSellers?: any[];
   snapshotMeta?: any;
 };
 
-export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, initialSellers, snapshotMeta }: HomeProps): React.ReactElement {
+export default function Home({ suppressDefaultHead = false, initialManifest, initialSellers, snapshotMeta }: HomeProps): React.ReactElement {
   const router = useRouter();
   const tList = useTranslations('List');
   const tSidebar = useTranslations('Sidebar');
@@ -349,39 +342,16 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
 
   const loadingUi = isLoading || manifestLoading || pendingUrlCategory !== null || (sortKey === 'endorsements' && !endorsementsReady && !maxWaitElapsed && !votesInitialFetchTriggered);
 
-  // ISR Hydration: Use server-rendered data on initial load, fall back to API only if needed
+  // ISR Hydration: Use server-rendered manifest/sellers, fetch items via MessagePack binary
   useEffect(() => {
     if (isrHydrated.current) return;
-    if (!initialManifest && !initialItems) return;
+    if (!initialManifest) return;
 
     isrHydrated.current = true;
 
     // Hydrate manifest from ISR props
     if (initialManifest && Object.keys((initialManifest as any).categories || {}).length > 0) {
       setManifest(initialManifest);
-    }
-
-    // Check if URL has a category filter - parse directly from window.location for reliability
-    // router.query may not be ready yet during initial hydration
-    let hasUrlCategory = false;
-    if (typeof window !== 'undefined') {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const urlCat = params.get('cat');
-        hasUrlCategory = !!(urlCat && urlCat.toLowerCase() !== 'all');
-      } catch { }
-    }
-
-    // Hydrate items from ISR props
-    if (initialItems && initialItems.length > 0) {
-      // Always cache all items for filtering
-      setAllItems(initialItems);
-
-      // Only set displayed items if no URL category filter (otherwise loadItems will filter)
-      if (!hasUrlCategory && category === 'All') {
-        setItems(initialItems);
-        setIsLoading(false);
-      }
     }
 
     // Pre-populate seller index from ISR data so SellerPill/SellerOverlay
@@ -392,8 +362,41 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       }).catch(() => {});
     }
 
+    // Fetch items via MessagePack binary (much smaller than JSON in __NEXT_DATA__)
+    const version = snapshotMeta?.version;
+    setIsLoading(true);
+    import('@/lib/data/itemsPack').then(({ fetchItemsPack }) => {
+      fetchItemsPack(market, version).then((items) => {
+        if (items && items.length > 0) {
+          setAllItems(items);
+
+          // Check if URL has a category filter
+          let hasUrlCategory = false;
+          if (typeof window !== 'undefined') {
+            try {
+              const params = new URLSearchParams(window.location.search);
+              const urlCat = params.get('cat');
+              hasUrlCategory = !!(urlCat && urlCat.toLowerCase() !== 'all');
+            } catch { }
+          }
+
+          // Only set displayed items if no URL category filter
+          if (!hasUrlCategory && category === 'All') {
+            setItems(items);
+            setIsLoading(false);
+          }
+        } else {
+          setIsLoading(false);
+        }
+      }).catch(() => {
+        setIsLoading(false);
+      });
+    }).catch(() => {
+      setIsLoading(false);
+    });
+
     // NOTE: Reviews/media are now lazy-loaded by LatestReviewsModal when opened
-  }, [initialManifest, initialItems, initialSellers, setManifest, setItems, setAllItems, setIsLoading, category, market]);
+  }, [initialManifest, initialSellers, setManifest, setItems, setAllItems, setIsLoading, category, market, snapshotMeta]);
 
   useEffect(() => {
     // Fetch manifest from API only if ISR data missing
@@ -442,16 +445,13 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
         return;
       }
 
-      // Fallback: fetch from API only when allItems not available
+      // Fallback: fetch via MessagePack when allItems not yet available
       setIsLoading(true);
       let items: any[] = [];
 
       try {
-        const r = await fetch(`/api/index/items?mkt=${market}`);
-        if (r.ok) {
-          const data = await r.json();
-          items = Array.isArray(data.items) ? data.items : [];
-        }
+        const { fetchItemsPack } = await import('@/lib/data/itemsPack');
+        items = await fetchItemsPack(market, snapshotMeta?.version);
       } catch { }
 
       // Only set items if we got a valid response - never clear existing items with empty data
@@ -466,30 +466,24 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       }
     };
     loadItems();
-  }, [manifest, category, setItems, setIsLoading, setAllItems, allItems, market, pendingUrlCategory]);
+  }, [manifest, category, setItems, setIsLoading, setAllItems, allItems, market, pendingUrlCategory, snapshotMeta]);
 
   // Background full-dataset fetch (once) to stabilize category counts when user starts in a specific category other than All.
   useEffect(() => {
     if (!manifest) return;
     if (allItems.length > 0) return; // already loaded
-    // If user is not on 'All', fetch full items silently in background
+    // If user is not on 'All', fetch full items silently in background via MessagePack
     if (category !== 'All') {
       let cancelled = false;
-      (async () => {
-        try {
-          const r = await fetch(`/api/index/items?mkt=${market}`);
-          if (r.ok) {
-            const data = await r.json();
-            const items = Array.isArray(data.items) ? data.items : [];
-            if (!cancelled && items.length) setAllItems(items);
-          } else {
-            // No filesystem fallback in R2-only mode
-          }
-        } catch { }
-      })();
+      const version = snapshotMeta?.version;
+      import('@/lib/data/itemsPack').then(({ fetchItemsPack }) => {
+        fetchItemsPack(market, version).then((items) => {
+          if (!cancelled && items.length) setAllItems(items);
+        }).catch(() => {});
+      }).catch(() => {});
       return () => { cancelled = true; };
     }
-  }, [manifest, category, allItems.length, setAllItems, market]);
+  }, [manifest, category, allItems.length, setAllItems, market, snapshotMeta]);
 
   const activeCategory = category && category !== 'All' ? category : null;
   const subs = Array.isArray(selectedSubs) ? selectedSubs : [];

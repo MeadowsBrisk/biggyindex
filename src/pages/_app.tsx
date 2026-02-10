@@ -34,18 +34,12 @@ export default function App({ Component, pageProps }: AppProps) {
   const ssrMessages = pageProps.messages || null;
   
   return (
-    <>
+    <div className={`${lato.variable} ${nunito.variable}`}>
       <Head>
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
         <meta charSet="utf-8" />
         <meta name="google-site-verification" content="h5z6Ra99x78ektZLUE6YlghVddCXyhdjxf3fMaHSLiw" />
       </Head>
-      <style jsx global>{`
-        :root {
-          --font-heading: ${lato.style.fontFamily};
-          --font-body: ${nunito.style.fontFamily};
-        }
-      `}</style>
 
       <ThemeSync />
       <VotesHydrator />
@@ -60,6 +54,6 @@ export default function App({ Component, pageProps }: AppProps) {
           <IntroSplash />
         </IntlProvider>
       </ErrorBoundary>
-    </>
+    </div>
   );
 }
