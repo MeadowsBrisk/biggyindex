@@ -2,6 +2,7 @@
 export interface BlobClient {
   getJSON<T>(key: string): Promise<T | null>;
   putJSON<T>(key: string, value: T): Promise<void>;
+  putRaw(key: string, data: Buffer | Uint8Array, contentType?: string): Promise<void>;
   list(prefix?: string): Promise<string[]>;
   del(key: string): Promise<void>;
 }
@@ -35,6 +36,7 @@ export function getBlobClient(storeName: string): BlobClient {
     return {
       async getJSON<T>(key: string): Promise<T | null> { return getStore().getJSON<T>(key); },
       async putJSON<T>(key: string, value: T): Promise<void> { return getStore().putJSON(key, value); },
+      async putRaw(key: string, data: Buffer | Uint8Array, contentType?: string): Promise<void> { return getStore().putRaw(key, data, contentType); },
       async list(prefix?: string): Promise<string[]> { return getStore().list(prefix); },
       async del(key: string): Promise<void> { return getStore().delete(key); },
     };
@@ -69,6 +71,11 @@ export function getBlobClient(storeName: string): BlobClient {
         // eslint-disable-next-line no-console
         console.info(`[blobs:fs] wrote ${file}`);
       }
+    },
+    async putRaw(key: string, data: Buffer | Uint8Array): Promise<void> {
+      const file = path.join(root, key);
+      ensureDir(path.dirname(file));
+      fs.writeFileSync(file, data);
     },
     async list(prefix?: string): Promise<string[]> {
       const results: string[] = [];
