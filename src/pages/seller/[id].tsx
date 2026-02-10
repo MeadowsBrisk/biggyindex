@@ -203,7 +203,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Biggy Index', item: hostForLocale(serverLocale) + '/' },
+                { '@type': 'ListItem', position: 1, name: 'Home', item: hostForLocale(serverLocale) + '/home' },
                 { '@type': 'ListItem', position: 2, name: 'Sellers', item: hostForLocale(serverLocale) + '/sellers' },
                 { '@type': 'ListItem', position: 3, name: seo?.sellerName || 'Seller', item: canonical },
               ],
@@ -215,7 +215,7 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
         <SlugPageHeader />
         <Breadcrumbs
           crumbs={[
-            { label: tCrumbs('home'), href: '/' },
+            { label: tCrumbs('home'), href: '/home' },
             { label: tCrumbs('sellers'), href: '/sellers' },
             { label: seo?.sellerName || tCrumbs('sellers') },
           ]}

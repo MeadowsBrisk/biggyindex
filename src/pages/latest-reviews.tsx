@@ -58,7 +58,7 @@ export default function LatestReviewsPage({ locale: serverLocale }: LatestReview
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: origin + '/' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: origin + '/home' },
       { '@type': 'ListItem', position: 2, name: 'Latest Reviews', item: canonical },
     ],
   };

@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import type { GetStaticPaths, GetStaticProps } from 'next';
-import { useTranslations, useLocale as useNextIntlLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
@@ -117,7 +118,8 @@ export const getStaticProps: GetStaticProps<CategoryPageProps> = async (context)
 
 export default function CategoryPage({ slug, items, manifest, snapshotMeta }: CategoryPageProps) {
   const { locale } = useLocale();
-  const seoLocale = useNextIntlLocale();
+  const router = useRouter();
+  const seoLocale = router.locale || 'en-GB';
   const tMeta = useTranslations('Meta');
   const tCats = useTranslations('Categories');
   const tCatPage = useTranslations('CategoryPage');
@@ -192,12 +194,18 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
       {
         '@type': 'ListItem',
         position: 1,
-        name: 'Biggy Index',
-        item: hostForLocale(seoLocale),
+        name: 'Home',
+        item: hostForLocale(seoLocale) + '/home',
       },
       {
         '@type': 'ListItem',
         position: 2,
+        name: 'Items',
+        item: hostForLocale(seoLocale),
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
         name: categoryName,
         item: canonicalUrl,
       },
@@ -242,6 +250,9 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Biggy Index" />
+        <meta property="og:image" content={`${hostForLocale(seoLocale)}/og-image.png`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:locale" content={localeToOgFormat(seoLocale || 'en-GB')} />
         {getOgLocaleAlternates(seoLocale || 'en-GB').map((ogLoc) => (
           <meta key={ogLoc} property="og:locale:alternate" content={ogLoc} />
@@ -270,7 +281,8 @@ export default function CategoryPage({ slug, items, manifest, snapshotMeta }: Ca
         {/* Breadcrumb */}
         <Breadcrumbs
           crumbs={[
-            { label: tCrumbs('home'), href: '/' },
+            { label: tCrumbs('home'), href: '/home' },
+            { label: tCrumbs('items'), href: '/' },
             { label: categoryName },
           ]}
         />

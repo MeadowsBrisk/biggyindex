@@ -132,9 +132,10 @@ export function isHostBasedEnv(hostname?: string | null): boolean {
 // All supported markets for iteration
 export const MARKETS: Market[] = ['GB', 'DE', 'FR', 'PT', 'IT', 'ES'];
 
-// Short locale codes for hreflang tags (GB → 'en', others → lowercase market code)
+// BCP-47 locale codes for hreflang tags — lowercase language-region (en-gb, de-de, etc.)
+// Google requires region subtag for country-targeted content
 export const HREFLANG_LOCALES: string[] = MARKETS.map(m =>
-  m === 'GB' ? 'en' : m.toLowerCase()
+  getLocaleForMarket(m).toLowerCase()
 );
 
 // Convert locale string to Open Graph format (en-GB -> en_GB)

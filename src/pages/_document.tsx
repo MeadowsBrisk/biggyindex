@@ -8,11 +8,11 @@ class MyDocument extends Document {
 
   render() {
     // Dynamic lang: Next.js sets __NEXT_DATA__.locale from i18n config
+    // Use full BCP-47 tag (en-GB, de-DE) for regional specificity
     const locale = this.props.__NEXT_DATA__?.locale || 'en-GB';
-    const lang = locale.split('-')[0]; // e.g., 'en-GB' → 'en'
 
     return (
-      <Html lang={lang}>
+      <Html lang={locale}>
         <Head>
           {/* Removed viewport meta per Next.js recommendation; moved to _app.tsx */}
           <meta name="HandheldFriendly" content="true" />

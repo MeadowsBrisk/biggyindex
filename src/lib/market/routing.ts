@@ -12,10 +12,11 @@ export const LOCALE_HOST: Record<string, string> = Object.fromEntries(
   MARKETS.flatMap(m => {
     const locale = getLocaleForMarket(m);
     const short = locale.split('-')[0];
+    const lower = locale.toLowerCase();
     const host = m === 'GB'
       ? 'https://biggyindex.com'
       : `https://${m.toLowerCase()}.biggyindex.com`;
-    return [[locale, host], [short, host]];
+    return [[locale, host], [short, host], [lower, host]];
   })
 );
 

@@ -11,7 +11,7 @@ import { expandedRefNumAtom } from '@/store/atoms';
 import { fetchItemDetail } from '@/lib/data/itemDetails';
 import { useTranslations, useLocale } from 'next-intl';
 import { buildItemUrl, hostForLocale } from '@/lib/market/routing';
-import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES } from '@/lib/market/market';
+import { getMarketFromHost, getMarketFromPath, getLocaleForMarket, isHostBasedEnv, localeToOgFormat, HREFLANG_LOCALES, type Market } from '@/lib/market/market';
 import { translateCategoryAndSubs } from '@/lib/taxonomy/taxonomyLabels';
 
 interface ItemSEO {
@@ -125,15 +125,15 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
 
   // BUG-015: Only emit hreflang for markets where the item actually exists.
   // _markets comes from shared R2 data (set during items crawler from presenceById).
-  // Convert market codes (GB, DE, FR...) → hreflang locale codes (en, de, fr...).
+  // Convert market codes (GB, DE, FR...) → hreflang locale codes (en-gb, de-de, fr-fr...).
   const itemMarkets: string[] = Array.isArray(detail?._markets) ? detail._markets : [];
-  const marketToHreflang = (m: string) => m === 'GB' ? 'en' : m.toLowerCase();
+  const marketToHreflang = (m: string) => getLocaleForMarket(m as any).toLowerCase();
   const confirmedLocales = new Set(itemMarkets.map(marketToHreflang));
   // Always include current market (we served a 200, so it exists here)
-  confirmedLocales.add(serverLocale);
+  confirmedLocales.add(getLocaleForMarket(market as Market).toLowerCase());
   const hreflangLocales = HREFLANG_LOCALES.filter(l => confirmedLocales.has(l));
-  // x-default: prefer 'en' if item is in GB, otherwise use current locale
-  const xDefaultLocale = confirmedLocales.has('en') ? 'en' : serverLocale;
+  // x-default: prefer en-gb if item is in GB, otherwise use current locale
+  const xDefaultLocale = confirmedLocales.has('en-gb') ? 'en-gb' : getLocaleForMarket(market as Market).toLowerCase();
 
   return (
     <>
@@ -188,9 +188,10 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Biggy Index', item: hostForLocale(serverLocale) + '/' },
-                ...(detail?.c ? [{ '@type': 'ListItem', position: 2, name: detail.c, item: hostForLocale(serverLocale) + '/category/' + encodeURIComponent(String(detail.c).toLowerCase()) }] : []),
-                { '@type': 'ListItem', position: detail?.c ? 3 : 2, name: seo?.name || 'Item', item: canonical },
+                { '@type': 'ListItem', position: 1, name: 'Home', item: hostForLocale(serverLocale) + '/home' },
+                { '@type': 'ListItem', position: 2, name: 'Items', item: hostForLocale(serverLocale) + '/' },
+                ...(detail?.c ? [{ '@type': 'ListItem', position: 3, name: detail.c, item: hostForLocale(serverLocale) + '/category/' + encodeURIComponent(String(detail.c).toLowerCase()) }] : []),
+                { '@type': 'ListItem', position: detail?.c ? 4 : 3, name: seo?.name || 'Item', item: canonical },
               ],
             }),
           }}
@@ -200,7 +201,8 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
         <SlugPageHeader />
         <Breadcrumbs
           crumbs={[
-            { label: tCrumbs('home'), href: '/' },
+            { label: tCrumbs('home'), href: '/home' },
+            { label: tCrumbs('items'), href: '/' },
             ...(detail?.c ? [{ label: (() => { const labels = translateCategoryAndSubs({ tCats, category: detail.c, subcategories: [] }); return labels[0] || detail.c; })(), href: `/category/${encodeURIComponent(String(detail.c).toLowerCase())}` }] : []),
             { label: seo?.name || tCrumbs('items') },
           ]}

@@ -44,7 +44,7 @@ import ToastHost from '@/components/common/ToastHost';
 import { useDisplayCurrency, useLocale } from '@/providers/IntlProvider';
 import { hostForLocale } from '@/lib/market/routing';
 import LocaleSelector from '@/components/layout/LocaleSelector';
-import { useTranslations, useLocale as useNextIntlLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { catKeyForManifest, subKeyForManifest, translateSubLabel, safeTranslate } from '@/lib/taxonomy/taxonomyLabels';
 import { getMarketFromPath, localeToOgFormat, getOgLocaleAlternates, localeToMarket, HREFLANG_LOCALES } from '@/lib/market/market';
 import IndexFooter from '@/sections/index/IndexFooter';
@@ -534,8 +534,8 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
   const itemCount = (initialManifest as any)?.totalItems || (manifest as any)?.totalItems || 0;
 
   // JSON-LD structured data for SEO
-  // Use next-intl locale (SSR-safe) for canonical/hreflang — Jotai locale defaults to en-GB on server
-  const seoLocale = useNextIntlLocale();
+  // Use router.locale directly — always correct in ISR/SSR (Jotai atom can retain stale values across ISR renders)
+  const seoLocale = router.locale || 'en-GB';
   const origin = hostForLocale(seoLocale);
   const websiteJsonLd = {
     '@context': 'https://schema.org',
@@ -543,7 +543,7 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
     name: 'Biggy Index',
     url: origin,
     description: tMeta('indexDescription'),
-    inLanguage: locale || 'en-GB',
+    inLanguage: seoLocale,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${origin}?q={search_term_string}`,
