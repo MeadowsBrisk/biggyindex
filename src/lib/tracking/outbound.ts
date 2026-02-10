@@ -7,14 +7,18 @@
  * Optional GA4 is commented out (future-proof).
  */
 
-interface OutboundClickEvent {
+import { getMarketFromPath } from '@/lib/market/market';
+
+export interface OutboundClickEvent {
   /** Item refNum or seller ID */
   id: string;
   /** 'item' or 'seller' */
   type: 'item' | 'seller';
   /** Destination URL (Little Biggy) */
   url: string;
-  /** Market code (GB, DE, FR, etc.) */
+  /** Item or seller name */
+  name?: string;
+  /** Market code (GB, DE, FR, etc.) — auto-detected if omitted */
   market?: string;
   /** Category if known */
   category?: string;
@@ -23,11 +27,16 @@ interface OutboundClickEvent {
 /**
  * Track an outbound click to Little Biggy.
  * Non-blocking — uses sendBeacon so it doesn't delay navigation.
+ * Market is auto-detected from the current URL if not provided.
  */
 export function trackOutboundClick(event: OutboundClickEvent) {
   try {
+    // Auto-detect market from current path if not provided
+    const market = event.market || (typeof window !== 'undefined' ? getMarketFromPath(window.location.pathname) : 'GB');
+
     const payload = {
       ...event,
+      market,
       ts: Date.now(),
       page: typeof window !== 'undefined' ? window.location.pathname : '',
     };
@@ -39,17 +48,6 @@ export function trackOutboundClick(event: OutboundClickEvent) {
         new Blob([JSON.stringify(payload)], { type: 'application/json' })
       );
     }
-
-    // 2. GA4 event (if loaded in the future)
-    // if (typeof window !== 'undefined' && (window as any).gtag) {
-    //   (window as any).gtag('event', 'outbound_click', {
-    //     event_category: 'referral',
-    //     event_label: event.id,
-    //     transport_type: 'beacon',
-    //     outbound_url: event.url,
-    //     item_type: event.type,
-    //   });
-    // }
   } catch {
     // Never block navigation
   }

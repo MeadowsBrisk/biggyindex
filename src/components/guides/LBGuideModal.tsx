@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { lbGuideSeenAtom, lbGuideModalOpenAtom, lbGuidePendingUrlAtom } from "@/store/atoms";
+import { lbGuideSeenAtom, lbGuideModalOpenAtom, lbGuidePendingUrlAtom, lbGuidePendingMetaAtom } from "@/store/atoms";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -38,6 +38,7 @@ export default function LBGuideModal() {
   const [isOpen, setIsOpen] = useAtom(lbGuideModalOpenAtom);
   const [seen, setSeen] = useAtom(lbGuideSeenAtom);
   const [pendingUrl, setPendingUrl] = useAtom(lbGuidePendingUrlAtom);
+  const [pendingMeta, setPendingMeta] = useAtom(lbGuidePendingMetaAtom);
   const [dontShow, setDontShow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { locale } = useLocale();
@@ -56,20 +57,25 @@ export default function LBGuideModal() {
     setIsOpen(false);
     if (pendingUrl) {
       // Track the outbound click that was intercepted by the guide
+      // Market is auto-detected by trackOutboundClick
       trackOutboundClick({
-        id: extractIdFromUrl(pendingUrl),
+        id: pendingMeta?.id || extractIdFromUrl(pendingUrl),
         type: 'item',
         url: pendingUrl,
+        name: pendingMeta?.name,
+        category: pendingMeta?.category,
       });
       window.open(pendingUrl, "_blank", "noopener,noreferrer");
       setPendingUrl(null);
+      setPendingMeta(null);
     }
-  }, [dontShow, pendingUrl, setSeen, setIsOpen, setPendingUrl]);
+  }, [dontShow, pendingUrl, pendingMeta, setSeen, setIsOpen, setPendingUrl, setPendingMeta]);
 
   const handleBackdropClick = useCallback(() => {
     setIsOpen(false);
     setPendingUrl(null);
-  }, [setIsOpen, setPendingUrl]);
+    setPendingMeta(null);
+  }, [setIsOpen, setPendingUrl, setPendingMeta]);
 
   // Escape key
   useEffect(() => {

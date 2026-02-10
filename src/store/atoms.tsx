@@ -513,6 +513,8 @@ export const lbGuideSeenAtom = atomWithStorage<boolean>("lbGuideSeen", false);
 export const lbGuideModalOpenAtom = atom<boolean>(false);
 // Stores the pending LB URL to navigate to after dismissing the guide
 export const lbGuidePendingUrlAtom = atom<string | null>(null);
+// Stores click meta for the pending URL so the guide modal can pass it to tracking
+export const lbGuidePendingMetaAtom = atom<{ id?: string; name?: string; category?: string } | null>(null);
 
 // Options modal settings (persisted)
 export const highResImagesAtom = atomWithStorage<boolean>("highResImages", false);

@@ -43,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const click = {
       id: String(body.id),
       type: body.type || 'item',
+      name: body.name || '',
       url: body.url || '',
       market: body.market || '',
       category: body.category || '',
