@@ -156,7 +156,15 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
   ].filter(Boolean).join(' • ');
   const effectiveId = String(seo?.id ?? sellerId ?? '');
   const canonical = buildSellerUrl(effectiveId, serverLocale);
-  const altLocales = HREFLANG_LOCALES;
+  // Only emit hreflang for markets where this seller actually exists (matches item page pattern)
+  const marketToHreflang = (m: string) => getLocaleForMarket(m as any).toLowerCase();
+  const confirmedLocales = new Set((sellerMarkets || []).map(marketToHreflang));
+  // Always include current market (we served a 200, so it exists here)
+  const currentLocaleCode = (router.locale || 'en-GB').toLowerCase();
+  confirmedLocales.add(currentLocaleCode);
+  const hreflangLocales = HREFLANG_LOCALES.filter(l => confirmedLocales.has(l));
+  // x-default: prefer en-gb if seller is in GB, otherwise use current locale
+  const xDefaultLocale = confirmedLocales.has('en-gb') ? 'en-gb' : currentLocaleCode;
 
   return (
     <>
@@ -164,10 +172,10 @@ const SellerIdPage: NextPage<SellerIdPageProps> = ({ seo, detail, items, locale:
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
         <link rel="canonical" href={canonical} />
-        {altLocales.map(l => (
+        {hreflangLocales.map(l => (
           <link key={l} rel="alternate" href={buildSellerUrl(effectiveId, l)} hrefLang={l} />
         ))}
-        <link rel="alternate" href={buildSellerUrl(effectiveId, 'en')} hrefLang="x-default" />
+        <link rel="alternate" href={buildSellerUrl(effectiveId, xDefaultLocale)} hrefLang="x-default" />
         <meta property="og:url" content={canonical} />
         <meta property="og:title" content={title} />
         {description && <meta property="og:description" content={description} />}

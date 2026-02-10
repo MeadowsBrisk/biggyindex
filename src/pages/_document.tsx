@@ -17,6 +17,12 @@ class MyDocument extends Document {
           {/* Removed viewport meta per Next.js recommendation; moved to _app.tsx */}
           <meta name="HandheldFriendly" content="true" />
           <meta name="MobileOptimized" content="320" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+          <link rel="icon" type="image/x-icon" sizes="32x32" href="/favicon.ico" />
+          <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+          <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)" />
+          <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+          <link rel="manifest" href="/manifest.json"></link>
           {/* Preconnect to R2 image CDN for faster LCP */}
           <link rel="preconnect" href="https://img.biggyindex.com" />
           <link rel="dns-prefetch" href="https://img.biggyindex.com" />

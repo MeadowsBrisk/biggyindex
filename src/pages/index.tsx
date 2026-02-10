@@ -57,19 +57,20 @@ export const getStaticProps: GetStaticProps = async (context) => {
   const locale = context.locale || 'en-GB';
 
   try {
-    const { getAllItems, getManifest, getSnapshotMeta } = await import('@/lib/data/indexData');
+    const { getAllItems, getManifest, getSnapshotMeta, getSellers } = await import('@/lib/data/indexData');
 
     // Load messages at build time for SSR (per next-intl best practices)
     // This eliminates client-side async loading flash
     const messagesModule = await import(`../messages/${locale}/index.json`);
     const messages = messagesModule.default;
 
-    // Only fetch items and manifest for initial page load
-    // Reviews/media are lazy-loaded by modals when opened (reduces __NEXT_DATA__ by ~200-400KB)
-    const [rawItems, manifest, meta] = await Promise.all([
+    // Fetch items, manifest, meta and sellers in parallel
+    // Sellers included in ISR to eliminate client-side /api/index/sellers call (~30KB addition)
+    const [rawItems, manifest, meta, sellers] = await Promise.all([
       getAllItems(market as any),
       getManifest(market as any),
       getSnapshotMeta(market as any),
+      getSellers(market as any).catch(() => []),
     ]);
 
     // Keep items minified - normalization happens client-side in setItemsAtom/setAllItemsAtom
@@ -83,10 +84,22 @@ export const getStaticProps: GetStaticProps = async (context) => {
     // NOTE: Reviews and media are now lazy-loaded by the LatestReviewsModal component
     // when it opens, rather than being included in __NEXT_DATA__. This saves ~200-400KB.
 
+    // Strip sellers to essential fields for ISR hydration (~90% size reduction)
+    // SellerPill needs: id, name, online
+    // SellerOverlay needs: id, name, online, sellerImageUrl, imageUrl, itemsCount
+    const slimSellers = sellers.map((s: any) => ({
+      id: s.id ?? s.sellerId,
+      name: s.name || s.sellerName || s.seller_name,
+      online: s.online || null,
+      imageUrl: s.sellerImageUrl || s.imageUrl || null,
+      itemsCount: s.itemsCount ?? null,
+    }));
+
     return {
       props: {
         initialItems: items,
         initialManifest: manifest,
+        initialSellers: slimSellers,
         snapshotMeta: meta,
         messages, // SSR messages for next-intl
       },
@@ -109,6 +122,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       props: {
         initialItems: [],
         initialManifest: { categories: {}, totalItems: 0 },
+        initialSellers: [],
         snapshotMeta: null,
         messages,
       },
@@ -121,10 +135,11 @@ type HomeProps = {
   suppressDefaultHead?: boolean;
   initialItems?: any[];
   initialManifest?: any;
+  initialSellers?: any[];
   snapshotMeta?: any;
 };
 
-export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, snapshotMeta }: HomeProps): React.ReactElement {
+export default function Home({ suppressDefaultHead = false, initialItems = [], initialManifest, initialSellers, snapshotMeta }: HomeProps): React.ReactElement {
   const router = useRouter();
   const tList = useTranslations('List');
   const tSidebar = useTranslations('Sidebar');
@@ -369,8 +384,16 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
       }
     }
 
+    // Pre-populate seller index from ISR data so SellerPill/SellerOverlay
+    // can resolve seller names/IDs immediately without an API fetch
+    if (initialSellers && initialSellers.length > 0) {
+      import('@/lib/data/sellersIndex').then(({ hydrateSellerIndex }) => {
+        hydrateSellerIndex(market, initialSellers);
+      }).catch(() => {});
+    }
+
     // NOTE: Reviews/media are now lazy-loaded by LatestReviewsModal when opened
-  }, [initialManifest, initialItems, setManifest, setItems, setAllItems, setIsLoading, category]);
+  }, [initialManifest, initialItems, initialSellers, setManifest, setItems, setAllItems, setIsLoading, category, market]);
 
   useEffect(() => {
     // Fetch manifest from API only if ISR data missing
@@ -702,8 +725,9 @@ export default function Home({ suppressDefaultHead = false, initialItems = [], i
             )}
             <div className="relative min-h-[80vh]">
               {loadingUi && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center" role="status" aria-label="Loading items">
                   <div className="h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+                  <span className="sr-only">Loading items...</span>
                 </div>
               )}
               {!loadingUi && <ItemList />}

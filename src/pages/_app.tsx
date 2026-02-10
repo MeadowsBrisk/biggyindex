@@ -4,6 +4,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import FixedControls from "@/components/layout/FixedControls";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import LBGuideModal from "@/components/guides/LBGuideModal";
 import IntroSplash from "@/components/layout/IntroSplash";
 import ThemeSync from "@/components/hydrators/ThemeSync";
@@ -37,7 +38,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
         <meta charSet="utf-8" />
-        <meta name="theme-color" content="#ffffff" />
         <meta name="google-site-verification" content="h5z6Ra99x78ektZLUE6YlghVddCXyhdjxf3fMaHSLiw" />
       </Head>
       <style jsx global>{`
@@ -50,14 +50,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeSync />
       <VotesHydrator />
       <FXHydrator />
-      <IntlProvider ssrMessages={ssrMessages}>
-        <main>
-          <Component {...pageProps} />
-        </main>
-        <FixedControls />
-        <LBGuideModal />
-        <IntroSplash />
-      </IntlProvider>
+      <ErrorBoundary>
+        <IntlProvider ssrMessages={ssrMessages}>
+          <main>
+            <Component {...pageProps} />
+          </main>
+          <FixedControls />
+          <LBGuideModal />
+          <IntroSplash />
+        </IntlProvider>
+      </ErrorBoundary>
     </>
   );
 }

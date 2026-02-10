@@ -188,10 +188,11 @@ export default function Sidebar(): React.ReactElement {
               aria-hidden="true"
             />
             <motion.aside
-              initial={{ x: -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+              style={{ willChange: 'transform' }}
               className="fixed inset-y-0 left-0 z-50 w-80 max-w-[90%] overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 pb-[30px] xl:pb-4 space-y-4 shadow-lg"
               onClick={(e) => e.stopPropagation()}
            >

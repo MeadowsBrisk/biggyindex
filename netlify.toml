@@ -182,6 +182,16 @@
   status = 301
   force = true
 
+# Security headers (all pages)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
 # Cache Control for static assets (Cloudflare CDN)
 [[headers]]
   for = "/assets/*"

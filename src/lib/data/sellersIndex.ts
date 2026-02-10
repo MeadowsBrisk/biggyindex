@@ -76,6 +76,24 @@ export async function loadSellersIndex() {
   return loadPromises[mkt]!;
 }
 
+/**
+ * Pre-populate seller caches from ISR-hydrated data.
+ * Called once during hydration so SellerPill/SellerOverlay
+ * can read cached sellers immediately without an API fetch.
+ */
+export function hydrateSellerIndex(market: Market, list: any[]) {
+  if (!list || !Array.isArray(list) || list.length === 0) return;
+  // Don't overwrite if already populated (e.g. API fetch beat hydration)
+  if (sellersByName[market] && sellersById[market]) return;
+  const built = buildIndexes(list);
+  sellersByName[market] = built.byName;
+  sellersById[market] = built.byId;
+  // Resolve any pending load promise immediately
+  if (!loadPromises[market]) {
+    loadPromises[market] = Promise.resolve({ byName: built.byName, byId: built.byId });
+  }
+}
+
 export function getCachedSellerByName(name: string) {
   const mkt = currentMarket();
   const map = sellersByName[mkt];

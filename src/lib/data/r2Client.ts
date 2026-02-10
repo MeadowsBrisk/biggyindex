@@ -9,7 +9,7 @@
  *   shared/...          ← shared item/seller data
  */
 
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
 import { Agent as HttpsAgent } from 'node:https';
 
@@ -56,6 +56,22 @@ export async function readR2JSON<T = any>(key: string): Promise<T | null> {
     if (e?.name === 'NoSuchKey' || e?.$metadata?.httpStatusCode === 404) return null;
     throw e; // Real errors propagate
   }
+}
+
+// ---------------------------------------------------------------------------
+// Write
+// ---------------------------------------------------------------------------
+
+/**
+ * Write JSON to R2. Overwrites existing key.
+ */
+export async function writeR2JSON(key: string, data: any): Promise<void> {
+  await getR2Client().send(new PutObjectCommand({
+    Bucket: DATA_BUCKET,
+    Key: key,
+    Body: JSON.stringify(data),
+    ContentType: 'application/json',
+  }));
 }
 
 // ---------------------------------------------------------------------------

@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState, useRef 
 import { useRouter } from 'next/router';
 import { atom } from 'jotai';
 import { atomWithStorage, useHydrateAtoms } from 'jotai/utils';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai/react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import enGBCoreMessages from "../messages/en-GB/index.json";
 import { IntlProvider as NextIntlProvider } from "next-intl";
 import { getMarketFromPath, getLocaleForMarket, getMarketFromHost, isHostBasedEnv } from '@/lib/market/market';

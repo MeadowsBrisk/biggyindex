@@ -38,17 +38,9 @@ function storeNameForMarket(mkt?: string | Market): string {
 const memoryCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minute cache — data changes at most every 30 min (crawler schedule)
 
-let _loggedDataSource = false;
-
 async function readR2Data<T = any>(key: string, { market, store, useCache = false }: { market?: Market; store?: string; useCache?: boolean } = {}): Promise<T | null> {
   const storeName = store || storeNameForMarket(market);
 
-  // One-time log to confirm data source
-  if (!_loggedDataSource) {
-    _loggedDataSource = true;
-    console.log(`[indexData] Data source: R2`);
-  }
-  
   // Check memory cache if enabled
   if (useCache) {
     const cacheKey = `${storeName}:${key}`;

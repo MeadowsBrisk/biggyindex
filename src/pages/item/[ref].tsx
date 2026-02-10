@@ -156,6 +156,8 @@ const ItemRefPage: NextPage<ItemRefPageProps> = ({ seo, detail, locale: serverLo
         ))}
         <link rel="alternate" href={buildItemUrl(effectiveRef, xDefaultLocale)} hrefLang="x-default" />
         {seo?.imageUrl && <meta property="og:image" content={seo.imageUrl} />}
+        {seo?.imageUrl && <meta property="og:image:width" content="600" />}
+        {seo?.imageUrl && <meta property="og:image:height" content="600" />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
