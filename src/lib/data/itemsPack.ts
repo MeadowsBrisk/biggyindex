@@ -7,6 +7,13 @@ let cachedVersion: string | null = null;
 let cachedMarket: string | null = null;
 let cachedAt: number = 0;
 
+// Deduplication: if a fetch is already in-flight for the same market+version,
+// reuse the same promise instead of firing another network request.
+// This prevents the 3-5 duplicate /api/items-pack calls per page load caused
+// by multiple useEffects mounting simultaneously.
+let inflightPromise: Promise<any[]> | null = null;
+let inflightKey: string | null = null;
+
 // Max age for in-memory cache: 20 minutes.
 // If a user keeps the tab open longer, the next render will refetch from the API.
 // This prevents long-lived tabs from showing stale data indefinitely.
@@ -18,11 +25,15 @@ const IN_MEMORY_MAX_AGE_MS = 20 * 60 * 1000;
  * Uses version param for cache-busting so the browser disk cache
  * serves repeat visits instantly (until ISR revalidates with a new version).
  *
+ * Deduplicates concurrent calls — multiple useEffects calling this simultaneously
+ * share a single network request instead of each firing their own.
+ *
  * Falls back to JSON API if MessagePack fetch fails.
  */
 export async function fetchItemsPack(market: Market, version?: string): Promise<any[]> {
   const v = version || 'latest';
   const now = Date.now();
+  const cacheKey = `${market}:${v}`;
 
   // Return in-memory cache if same market + version AND not stale
   if (
@@ -33,6 +44,31 @@ export async function fetchItemsPack(market: Market, version?: string): Promise<
   ) {
     return cachedItems;
   }
+
+  // Deduplicate: if an identical request is already in-flight, piggyback on it
+  if (inflightPromise && inflightKey === cacheKey) {
+    return inflightPromise;
+  }
+
+  // Create the actual fetch promise and store it for deduplication
+  const fetchPromise = _doFetch(market, v);
+  inflightPromise = fetchPromise;
+  inflightKey = cacheKey;
+
+  try {
+    const items = await fetchPromise;
+    return items;
+  } finally {
+    // Clear in-flight state once resolved (success or failure)
+    if (inflightKey === cacheKey) {
+      inflightPromise = null;
+      inflightKey = null;
+    }
+  }
+}
+
+/** Internal: actual fetch + decode logic (called once per unique request) */
+async function _doFetch(market: Market, v: string): Promise<any[]> {
 
   try {
     const url = `/api/items-pack?mkt=${market}&v=${v}`;
