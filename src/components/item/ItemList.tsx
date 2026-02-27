@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { sortedItemsAtom, favouritesOnlyAtom, categoryAtom } from '@/store/atoms';
+import { sortedItemsAtom, favouritesOnlyAtom, categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, favouritesSetAtom } from '@/store/atoms';
+import { endorsedSetAtom, voteHasVotedAtom } from '@/store/votesAtoms';
 import ItemCard from './ItemCard';
 import { useScreenSize } from '@/hooks/useScreenSize';
 
@@ -12,6 +13,22 @@ export default function ItemList(): React.ReactElement {
   const favouritesOnly = useAtomValue<boolean>(favouritesOnlyAtom as any);
   const { isTablet, isSmallDesktop, isMediumDesktop, isUltrawide, isSuperwide } = useScreenSize();
   const category = useAtomValue<string>(categoryAtom as any);
+  const selectedSubs = useAtomValue(selectedSubcategoriesAtom);
+  const thumbAspect = useAtomValue(thumbnailAspectAtom);
+  const favSet = useAtomValue(favouritesSetAtom);
+  const endorsedSet = useAtomValue(endorsedSetAtom);
+  const hasVotedToday = useAtomValue(voteHasVotedAtom) as boolean;
+
+  const aspectClass = React.useMemo(() => {
+    if (thumbAspect === 'portrait') return 'aspect-[2/3]';
+    if (thumbAspect === 'standard') return 'aspect-[1/1]';
+    return 'aspect-[16/10]';
+  }, [thumbAspect]);
+
+  const filterSig = React.useMemo(
+    () => `${category}|${Array.isArray(selectedSubs) ? selectedSubs.join(',') : ''}`,
+    [category, selectedSubs]
+  );
 
   let cols = 1;
   if (isSuperwide) cols = 6;
@@ -87,6 +104,11 @@ export default function ItemList(): React.ReactElement {
             colIndex={colIndex}
             cols={cols}
             priority={idx < cols}
+            showFavAccent={favSet.has(item.id) && !favouritesOnly}
+            endorsedLocal={endorsedSet.has(String(item.id))}
+            hasVotedToday={hasVotedToday}
+            aspectClass={aspectClass}
+            filterSig={filterSig}
           />
         );
       })}

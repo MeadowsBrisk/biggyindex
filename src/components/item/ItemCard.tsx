@@ -1,8 +1,7 @@
 import cn from "@/lib/core/cn";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from "jotai";
-import { categoryAtom, selectedSubcategoriesAtom, thumbnailAspectAtom, expandedRefNumAtom, favouritesSetAtom, favouritesOnlyAtom, ppgDataAtom, selectedWeightAtom, type PpgItemInfo } from "@/store/atoms";
-import { voteHasVotedAtom, endorsedSetAtom } from "@/store/votesAtoms";
+import { expandedRefNumAtom, ppgDataAtom, selectedWeightAtom, type PpgItemInfo } from "@/store/atoms";
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { formatUSDRange, formatUSD, currencySymbol, type DisplayCurrency, type ExchangeRates } from '@/lib/pricing/priceDisplay';
 import { useDisplayCurrency, useLocale, useForceEnglish } from '@/providers/IntlProvider';
@@ -76,6 +75,12 @@ export interface ItemCardProps {
   colIndex?: number;
   cols?: number;
   priority?: boolean;
+  /** Pre-computed in ItemList so React.memo can prevent unnecessary re-renders */
+  showFavAccent?: boolean;
+  endorsedLocal?: boolean;
+  hasVotedToday?: boolean;
+  aspectClass?: string;
+  filterSig?: string;
 }
 
 // Add cutoff date (items created after this show a Created label if no update exists)
@@ -83,7 +88,7 @@ const CREATION_LABEL_CUTOFF = new Date('2025-09-02T12:00:59Z');
 
 // We display only GBP in UI; no currency symbol helper needed for other codes
 
-function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex = 0, cols = 1, priority = false }: ItemCardProps) {
+function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex = 0, cols = 1, priority = false, showFavAccent = false, endorsedLocal = false, hasVotedToday = false, aspectClass = 'aspect-[16/10]', filterSig = '' }: ItemCardProps) {
   const tItem = useTranslations('Item');
   const tCountries = useTranslations('Countries');
   const tUnits = useTranslations('Units');
@@ -114,14 +119,6 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const displayName = (forceEnglish && nameEn) ? nameEn : name;
   const displayDesc = (forceEnglish && descriptionEn) ? descriptionEn : description;
 
-  // atoms & derived flags - use shared Set atom for O(1) lookup instead of per-item selectAtom
-  const favSet = useAtomValue(favouritesSetAtom);
-  const isFav = favSet.has(item.id);
-  const favouritesOnly = useAtomValue(favouritesOnlyAtom);
-  const showFavAccent = isFav && !favouritesOnly;
-  const category = useAtomValue(categoryAtom);
-  const selectedSubs = useAtomValue(selectedSubcategoriesAtom);
-  const thumbAspect = useAtomValue(thumbnailAspectAtom); // added
   const [expanded, setExpanded] = React.useState(false);
   const setExpandedRef = useSetAtom(expandedRefNumAtom);
 
@@ -137,15 +134,14 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   const [suppressPanelAnim, setSuppressPanelAnim] = React.useState(false);
   const filterSigRef = React.useRef("");
   React.useEffect(() => {
-    const sig = `${category}|${Array.isArray(selectedSubs) ? selectedSubs.join(",") : ""}`;
-    if (filterSigRef.current && filterSigRef.current !== sig) {
+    if (filterSigRef.current && filterSigRef.current !== filterSig) {
       setSuppressPanelAnim(true);
       setExpanded(false);
       const id = setTimeout(() => setSuppressPanelAnim(false), 400);
       return () => clearTimeout(id);
     }
-    filterSigRef.current = sig;
-  }, [category, selectedSubs]);
+    filterSigRef.current = filterSig;
+  }, [filterSig]);
 
   const rates = useExchangeRates();
   const { currency: displayCurrency } = useDisplayCurrency();
@@ -230,11 +226,6 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
     }
     return null;
   }, [ppgInfo, fallbackPpgInfo, rates, displayCurrency, selectedWeight]);
-
-  // Use shared Set atom for O(1) lookup instead of per-item selectAtom
-  const endorsedSet = useAtomValue(endorsedSetAtom);
-  const endorsedLocal = endorsedSet.has(itemKey);
-  const hasVotedToday = useAtomValue(voteHasVotedAtom);
 
   // Shared IntersectionObserver for first-time entrance (reduces Firefox repaint glitches)
   // Uses a single shared observer across all ItemCards instead of 2000+ individual observers
@@ -335,13 +326,6 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
   React.useEffect(() => {
     if (!showVariants && expanded) setExpanded(false);
   }, [showVariants, expanded]);
-
-  // Compute aspect class from global setting
-  const aspectClass = useMemo(() => {
-    if (thumbAspect === 'portrait') return 'aspect-[2/3]';
-    if (thumbAspect === 'standard') return 'aspect-[1/1]';
-    return 'aspect-[16/10]'; // landscape
-  }, [thumbAspect]);
 
   // (no fallback price – only show when computedRangeText ready)
   // Use presence of minShip (only set after crawl) to decide if overlay should be available
@@ -454,7 +438,7 @@ function ItemCardInner({ item, initialAppear = false, staggerDelay = 0, colIndex
             )}
             <ItemCardFooterActions
               itemKey={itemKey}
-              hasVotedToday={hasVotedToday as boolean}
+              hasVotedToday={hasVotedToday}
               endorsedLocal={endorsedLocal}
               reviewStats={reviewStats}
               timestamp={{
