@@ -6,8 +6,8 @@
  */
 
 import type { Context } from '@netlify/functions';
-import { getStore } from '@netlify/blobs';
 import { isAuthenticated, unauthorizedResponse } from '../lib/auth';
+import { readFromR2 } from '../lib/r2Sync';
 
 // Middleware: require authentication
 function requireAuth(request: Request): Response | null {
@@ -55,17 +55,15 @@ export default async (request: Request, context: Context) => {
       );
     }
 
-    // Load market index
+    // Load market index from R2
     const storeName = `site-index-${market.toLowerCase()}`;
-    const store = getStore(storeName);
     
     let items: any[] = [];
     try {
-      const blob = await store.get('indexed_items.json', { type: 'json' });
-      items = (blob as any) || [];
-      console.log(`[items-search] Loaded ${items.length} items from ${storeName}/indexed_items.json`);
+      items = await readFromR2<any[]>(storeName, 'indexed_items.json') || [];
+      console.log(`[items-search] Loaded ${items.length} items from R2 ${storeName}/indexed_items.json`);
     } catch (e) {
-      console.error(`[items-search] Failed to load items from ${storeName}:`, e);
+      console.error(`[items-search] Failed to load items from R2 ${storeName}:`, e);
       items = [];
     }
 
