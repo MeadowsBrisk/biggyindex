@@ -122,10 +122,11 @@ export const TAXONOMY: Taxonomy = {
     }
   },
   Other: { 
-    keywords: ["mad honey","modafinil","blister","erectile","box","antibiotic","respiratory","Doxycycline"], 
+    keywords: ["mad honey","modafinil","blister","erectile","box","antibiotic","respiratory","Doxycycline","citalopram","sertraline","fluoxetine","paroxetine","escitalopram","tirzepatide","mounjaro","zepbound","semaglutide","ozempic","wegovy"], 
     children: { 
       Bongs: [],
-      Genetics: ["seedbank"] // Rule-driven like Bongs; "seed"/"seeds" removed to avoid false positives
+      Genetics: ["seedbank"], // Rule-driven like Bongs; "seed"/"seeds" removed to avoid false positives
+      Pharmaceutical: ["citalopram","sertraline","fluoxetine","paroxetine","escitalopram","tirzepatide","mounjaro","zepbound","semaglutide","ozempic","wegovy","prescription grade"]
     } 
   },
 };

@@ -75,6 +75,20 @@ export function vapeOverridesRule(ctx: CatContext) {
     ctx.add('Vapes', 4);
     if (scores.Concentrates) ctx.demote('Concentrates', 3);
   }
+  // Name-based vape dominance: when "vape(s)" is in the listing NAME alongside
+  // concentrate terms (e.g. "Live Rosin Vapes"), the product is a vape made with
+  // concentrate material — classify as Vapes, not Concentrates.
+  {
+    const nameLow = (name || '').toLowerCase();
+    if (/\bvapes?\b/.test(nameLow)) {
+      const concTermsPresent = /(rosin|shatter|wax|live resin|distillate|concentrate|extract|badder|batter|sauce|diamonds)/.test(text);
+      const vapeCountInText = (text.match(/\bvapes?\b/gi) || []).length;
+      if (concTermsPresent || vapeCountInText >= 3) {
+        ctx.add('Vapes', 8);
+        if (scores.Concentrates) ctx.demote('Concentrates', 6);
+      }
+    }
+  }
 }
 
 export default vapeOverridesRule;

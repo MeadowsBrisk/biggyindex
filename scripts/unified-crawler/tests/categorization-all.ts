@@ -116,6 +116,21 @@ const psychedelicProducts: Case[] = [
   { name: "THC Gummies 500mg", desc: "Delicious cannabis infused gummy bears, 500mg THC total, 10 pieces per pack", expectPrimary: 'Edibles' },
 ];
 
+// Pharmaceutical / prescription drugs → Other
+const pharmaceuticalProducts: Case[] = [
+  { name: "Citalopram - 10 & 20 mg - 14/28 day BlisterPack", desc: "Citalopram - 10 & 20 mg - 14/28 tablet Blister Pack. Dr. Reedy's - Prescription Grade Citalopram. Each Blister Pack is Sealed and has 14 tablets. You get 14 sealed tablets. Happy pills - prescription tablets for depression,", expectPrimary: 'Other', expectSub: 'Pharmaceutical' },
+  { name: "14 Safe Happy Pills, Prescription Grade [Citalopram]", desc: "[FREE UK POSTAGE LISTING] One(1) Happy pills 14 tablet Blister Pack [Citalopram]. You get 14 sealed Citalopram tablets of your selected strength (10 or 20 mg). Ideally try 10mg first. Dr. Reedy's - Prescription Grade Citalopram.", expectPrimary: 'Other', expectSub: 'Pharmaceutical' },
+  { name: "14 Happy pills - Sertraline", desc: "[FREE UK POSTAGE LISTING] One(1) Happy pills 14 tablet Blister Pack [Sertraline]. You get 14 sealed Sertraline tablets (50mg). NOTE: These are dated BEST BEFORE 10/26 although in my experience these last over a year without degradation", expectPrimary: 'Other', expectSub: 'Pharmaceutical' },
+  { name: "Mounjaro (tirzepatide) weightloss pens", desc: "Tirzepatide (brand names Mounjaro and Zepbound) is a \"dual agonist\" medication, meaning it mimics two different hormones in your body: GLP-1 and GIP. Because it targets multiple pathways, its health benefits extend far beyond just weight loss", expectPrimary: 'Other', expectSub: 'Pharmaceutical' },
+  { name: "Sildenafil - Prescription Grade - Erection Blue Pills", desc: "Sildenafil Bubble Pack 4x50mg Blue Pills - (Viagra) Brand new Sealed Bubble Pack (x4) Prescription Grade Hard-On Pills (Blue Pill, Viagra) Brand new, unused prescription paid for tablets, posted onto you as they arrived here", expectPrimary: 'Other', expectSub: 'Pharmaceutical' },
+  { name: "Prescription Grade Hard-On Pills (Blue Pill, Viagra)", desc: "[FREE SHIPPING UK VERSION] Sildenafil Bubble Pack 4x50mg Blue Pills - (Viagra) Brand new Sealed Bubble Pack (x4) Prescription Grade Hard-On Pills (Blue Pill, Viagra) Brand new, unused prescription paid for tablets", expectPrimary: 'Other', expectSub: 'Pharmaceutical' },
+];
+
+// Vape products with concentrate terms in name (should stay Vapes)
+const vapeConcentrateNameProducts: Case[] = [
+  { name: "M11 Labs: Live Rosin Vapes", desc: "VAPES M11 Labs Live Rosin Vapes exclusive! Cannabis vapes are traditionally made with Delta-9 distillate, whereas these vapes are made with live rosin, also known as fresh frozen rosin. Live rosin is a solventless cannabis", expectPrimary: 'Vapes' },
+];
+
 const allCases: Case[] = [
   ...flowerRefine,
   ...prerollRefinement,
@@ -127,6 +142,8 @@ const allCases: Case[] = [
   ...ediblesMisc,
   ...tinctureProducts,
   ...psychedelicProducts,
+  ...pharmaceuticalProducts,
+  ...vapeConcentrateNameProducts,
 ];
 
 function run() {
