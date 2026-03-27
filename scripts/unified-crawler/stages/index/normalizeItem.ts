@@ -36,6 +36,12 @@ export interface NormalizeResult {
   appliedMeta: boolean;
   appliedTranslation: boolean;
   appliedImageMeta: boolean;
+  /** Non-empty when change detection fired — used by circuit breaker in run.ts */
+  changeReasons: string[];
+  /** The lua value that would have been carried forward (pre-change) */
+  carriedLua?: string;
+  /** The lur value that would have been carried forward (pre-change) */
+  carriedLur?: string | null;
 }
 
 function normalizeSh(x: any) {
@@ -245,5 +251,8 @@ export function normalizeItem(it: any, ctx: NormalizeContext): NormalizeResult |
     appliedMeta: _appliedMeta,
     appliedTranslation: _appliedTranslation,
     appliedImageMeta: _appliedImageMeta,
+    changeReasons,
+    carriedLua,
+    carriedLur,
   };
 }

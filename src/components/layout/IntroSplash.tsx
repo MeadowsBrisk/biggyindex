@@ -47,33 +47,31 @@ export default function IntroSplash() {
     || router.pathname === '/pt/home' || router.pathname === '/it/home'
     || router.pathname === '/es/home';
 
-  // Read localStorage synchronously on first render so returning users
-  // never see even a single frame of the splash.
-  const [alreadySeen] = useState(() => {
-    if (typeof window === 'undefined') return true; // SSR — skip
-    try {
-      const raw = localStorage.getItem('introSeen');
-      return raw === 'true' || raw === '"true"';
-    } catch {
-      return false;
-    }
-  });
-
   // Detect reduced motion
   const reduce = useReducedMotion();
 
   const [seen, setSeen] = useAtom(introSeenAtom);
   const [open, setOpen] = useState(false);   // brackets spread?
   const [done, setDone] = useState(false);   // trigger exit
-  const [visible, setVisible] = useState(true);
 
-//    const shouldShow = true; // for testing
-  const shouldShow = isIndexOrHome && !alreadySeen && !seen;
+  // Start hidden on both server and client to avoid hydration mismatch.
+  // After mount, check localStorage to decide whether to show.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // Already seen via localStorage — skip without ever rendering
+    try {
+      const raw = localStorage.getItem('introSeen');
+      if (raw === 'true' || raw === '"true"') return;
+    } catch { /* empty */ }
+    setMounted(true);
+  }, []);
+
+  const shouldShow = isIndexOrHome && mounted && !seen;
 
   // Timeline
   useEffect(() => {
     if (!shouldShow) return;
-    if (reduce) { setSeen(true); setVisible(false); return; }
+    if (reduce) { setSeen(true); setMounted(false); return; }
 
     const timers: ReturnType<typeof setTimeout>[] = [];
 
@@ -85,14 +83,14 @@ export default function IntroSplash() {
 
     // After exit animation finishes → unmount
     timers.push(setTimeout(() => {
-      setVisible(false);
+      setMounted(false);
       setSeen(true);
     }, (TOTAL + EXIT) * 1000));
 
     return () => timers.forEach(clearTimeout);
   }, [shouldShow, reduce, setSeen]);
 
-  if (!shouldShow || !visible) return null;
+  if (!shouldShow) return null;
 
   return (
     <AnimatePresence>

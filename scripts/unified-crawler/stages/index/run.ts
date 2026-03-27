@@ -125,6 +125,40 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     logger.warn(`[index:${code}] fetch failed: ${e?.message || e}`);
   }
 
+  // ── Upstream health gate ──
+  // Guard 1: If we fetched 0 items but the previous snapshot had items, upstream
+  // is likely down. Abort early to prevent data corruption.
+  // Guard 2: If item count dropped by >50%, that's a strong signal the upstream
+  // is degraded. Abort to prevent mass false-positive change detection.
+  {
+    const priorMeta = await blob.getJSON<any>(Keys.market.snapshotMeta()).catch(() => null);
+    const priorCount = Number(priorMeta?.itemsCount) || 0;
+
+    if (itemsCount === 0 && priorCount > 0) {
+      logger.error(`[index:${code}] ⛔ UPSTREAM DOWN: fetched 0 items but prior snapshot had ${priorCount}. Aborting index run to prevent data corruption.`);
+      try {
+        await appendRunMeta(storeName, Keys.runMeta.market(code), {
+          scope: String(code),
+          counts: { items: 0 },
+          error: { message: `Upstream returned 0 items (prior: ${priorCount}). Aborted to prevent lua corruption.` },
+        });
+      } catch { }
+      return { ok: false, market: code, counts: { items: 0, sellers: 0 }, artifacts: [] };
+    }
+
+    if (priorCount > 50 && itemsCount > 0 && itemsCount < priorCount * 0.5) {
+      logger.error(`[index:${code}] ⛔ UPSTREAM DEGRADED: fetched ${itemsCount} items but prior snapshot had ${priorCount} (${((itemsCount / priorCount) * 100).toFixed(0)}%). Aborting to prevent mass false-positive changes.`);
+      try {
+        await appendRunMeta(storeName, Keys.runMeta.market(code), {
+          scope: String(code),
+          counts: { items: itemsCount },
+          error: { message: `Upstream returned ${itemsCount} items but prior had ${priorCount} (>50% drop). Aborted.` },
+        });
+      } catch { }
+      return { ok: false, market: code, counts: { items: 0, sellers: 0 }, artifacts: [] };
+    }
+  }
+
   // Build snapshot meta but do not overwrite previous non-empty meta if this run produced zero items (resilience on upstream outage)
   const snapshotMetaKey = Keys.market.snapshotMeta();
   let priorSnapshotMeta: any = null;
@@ -221,6 +255,16 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   } catch { }
   const coldStart = prevByRef.size === 0 && prevByNum.size === 0;
 
+  // ── Cold-start guard ──
+  // If we couldn't load the previous index but index-meta shows we've seen
+  // items before, something is wrong (R2 read failure, key mismatch, etc.).
+  // On cold start, change detection finds no `prev` so it never fires, meaning
+  // lua would silently fall back to index-meta only (or be lost entirely for
+  // items without a meta entry). Log a prominent warning so it's visible.
+  if (coldStart && Object.keys(indexMetaAgg).length > 50) {
+    logger.error(`[index:${code}] ⚠️ COLD START with ${Object.keys(indexMetaAgg).length} entries in index-meta — previous index failed to load. lua will be sourced from index-meta only; items not in meta will lose their timestamps.`);
+  }
+
   // Write a lightweight market index with minified fields and normalized variants (USD/BTC) and aggregate enrichments
   // Build maps to support joining endorsement counts by either numeric id or canonical id
   const byNumId = new Map<string, Record<string, any>>();
@@ -250,14 +294,23 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     targetLocale,
   };
 
+  // Track per-item change info for circuit breaker analysis
+  interface ChangeTrack { entry: Record<string, any>; reasons: string[]; carriedLua?: string; carriedLur?: string | null; }
+  const changedItems: ChangeTrack[] = [];
+
   const marketIndexItems = (Array.isArray(rawItems) ? rawItems : []).map((it: any) => {
     const result = normalizeItem(it, normalizeCtx);
     if (!result) return null;
 
-    const { entry, canonicalKey, numKey, metaUpdate } = result;
+    const { entry, canonicalKey, numKey, metaUpdate, changeReasons, carriedLua, carriedLur } = result;
     if (result.appliedMeta) appliedMeta++;
     if (result.appliedTranslation) appliedTranslations++;
     if (result.appliedImageMeta) appliedImageMeta++;
+
+    // Track items flagged as changed for circuit breaker
+    if (changeReasons.length > 0) {
+      changedItems.push({ entry, reasons: changeReasons, carriedLua, carriedLur });
+    }
 
     // Index into lookup maps for later endorsement join
     try {
@@ -273,6 +326,70 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
 
     return entry;
   }).filter(Boolean) as Array<Record<string, unknown>>;
+
+  // ── Circuit breaker: detect mass false-positive changes ──
+  // If a single change reason covers >50% of all items, it's almost certainly
+  // a false positive (e.g., CDN URL change, upstream outage artefact).
+  // Revert those items' lua to their carried (pre-change) values.
+  const MASS_CHANGE_THRESHOLD = 0.5; // 50%
+  if (marketIndexItems.length > 0 && changedItems.length > 0) {
+    // Count occurrences of each individual change reason
+    const reasonCounts = new Map<string, number>();
+    for (const ci of changedItems) {
+      for (const r of ci.reasons) {
+        reasonCounts.set(r, (reasonCounts.get(r) || 0) + 1);
+      }
+    }
+
+    const totalItems = marketIndexItems.length;
+    const trippedReasons: string[] = [];
+    for (const [reason, count] of reasonCounts) {
+      const ratio = count / totalItems;
+      if (ratio > MASS_CHANGE_THRESHOLD) {
+        trippedReasons.push(reason);
+        logger.error(`[index:${code}] ⚠️ CIRCUIT BREAKER: "${reason}" affected ${count}/${totalItems} items (${(ratio * 100).toFixed(1)}%) — reverting lua for affected items`);
+      }
+    }
+
+    if (trippedReasons.length > 0) {
+      // Revert lua on items whose ONLY change reasons are all tripped
+      let reverted = 0;
+      for (const ci of changedItems) {
+        const allTripped = ci.reasons.every(r => trippedReasons.includes(r));
+        if (allTripped) {
+          // Restore carried lua (the value before the false-positive change)
+          if (ci.carriedLua) {
+            ci.entry.lua = ci.carriedLua;
+            ci.entry.lur = ci.carriedLur ?? undefined;
+            if (!ci.entry.lur) delete ci.entry.lur;
+          } else {
+            delete ci.entry.lua;
+            delete ci.entry.lur;
+          }
+          reverted++;
+        }
+        // Items with a MIX of tripped and non-tripped reasons keep their new lua
+        // (they had a genuine change alongside the false positive)
+      }
+
+      // Revert metaUpdates whose lur is entirely composed of tripped reasons
+      const trippedSet = new Set(trippedReasons);
+      for (const [key, metaEntry] of Object.entries(metaUpdates)) {
+        if (!metaEntry.lur) continue;
+        // lur can be comma-joined: "Images changed, Price changed"
+        const entryReasons = metaEntry.lur.split(', ').map(r => r.trim());
+        const allTripped = entryReasons.every(r => trippedSet.has(r));
+        if (allTripped) {
+          delete metaUpdates[key];
+          // Also undo the indexMetaAgg mutation from the map phase
+          // by re-reading the original (the metaUpdate was merged into indexMetaAgg in the map)
+          // Safe: next run will re-merge from the fresh R2 read anyway
+        }
+      }
+
+      logger.warn(`[index:${code}] Circuit breaker reverted lua on ${reverted}/${changedItems.length} items (reasons: ${trippedReasons.join(', ')})`);
+    }
+  }
 
   // Note: Description is sourced directly from the public API payload only.
 
@@ -438,6 +555,39 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     try {
       const fresh = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
       if (fresh && typeof fresh === 'object') latestMeta = fresh as Record<string, IndexMetaEntry>;
+
+      // ── Daily rotating backup of index-meta ──
+      // Keep one backup per calendar day (UTC), retain the latest 6.
+      // Key format: aggregates/index-meta.backup.YYYY-MM-DD.json
+      // This is the single most important aggregate — it holds fsa/lua/lur
+      // for every item and is the source of truth the indexer relies on.
+      try {
+        const todayUTC = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const dailyBackupKey = `aggregates/index-meta.backup.${todayUTC}.json`;
+        await sharedBlob.putJSON(dailyBackupKey, latestMeta);
+        logger.info(`[index:${code}] Wrote daily index-meta backup: ${dailyBackupKey}`);
+
+        // Trim old backups beyond the retention window (keep 6)
+        const MAX_DAILY_BACKUPS = 6;
+        try {
+          const allKeys = await sharedBlob.list('aggregates/index-meta.backup.');
+          // Filter to only dated backup keys (YYYY-MM-DD pattern)
+          const dated = allKeys
+            .filter(k => /^aggregates\/index-meta\.backup\.\d{4}-\d{2}-\d{2}\.json$/.test(k))
+            .sort(); // lexicographic = chronological for ISO dates
+          if (dated.length > MAX_DAILY_BACKUPS) {
+            const toDelete = dated.slice(0, dated.length - MAX_DAILY_BACKUPS);
+            for (const old of toDelete) {
+              await sharedBlob.del(old);
+              logger.info(`[index:${code}] Pruned old index-meta backup: ${old}`);
+            }
+          }
+        } catch (trimErr: any) {
+          logger.warn(`[index:${code}] index-meta backup trim failed (non-fatal): ${trimErr?.message || trimErr}`);
+        }
+      } catch (backupErr: any) {
+        logger.warn(`[index:${code}] index-meta daily backup failed (non-fatal): ${backupErr?.message || backupErr}`);
+      }
     } catch { }
     for (const key of metaUpdateKeys) {
       const { next } = mergeIndexMetaEntry(latestMeta[key], metaUpdates[key]);

@@ -105,8 +105,19 @@ export function diffMarketIndexEntries(prev: Record<string, any> | null | undefi
     }
 
     // Images: primary or thumbnail count
-    const prevPrimary = prev?.i ?? null;
-    const curPrimary = curr?.i ?? null;
+    // Normalize URLs before comparison — strip CDN domain so a CDN rotation
+    // (same path, different host) does not trigger false-positive "Images changed"
+    const normUrl = (u: unknown): string | null => {
+      if (typeof u !== 'string' || !u) return null;
+      try {
+        const url = new URL(u);
+        return url.pathname + url.search; // drop scheme + host
+      } catch {
+        return u; // not a full URL — compare as-is
+      }
+    };
+    const prevPrimary = normUrl(prev?.i);
+    const curPrimary = normUrl(curr?.i);
     const prevThumbCount = Array.isArray(prev?.is) ? prev.is.length : 0;
     const curThumbCount = Array.isArray(curr?.is) ? curr.is.length : 0;
     if (prevPrimary !== curPrimary || prevThumbCount !== curThumbCount) reasons.push('Images changed');
