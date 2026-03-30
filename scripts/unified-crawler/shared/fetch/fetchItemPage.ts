@@ -13,7 +13,7 @@ export interface FetchItemPageOptions {
 }
 
 // Host fallback list
-const HOSTS = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+const HOSTS = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
 
 // Legacy item URL patterns (old crawler) + newer unified path. We will try them in order.
 function buildCandidateUrls(host: string, refNum: string | number, shipsTo?: string): string[] {

@@ -58,7 +58,7 @@ export async function fetchSellerShareLink({ client, jar, html, sellerId, retry 
     if (jar) {
       try {
         const cookieList: any[] = await new Promise((resolve) => {
-          jar.getCookies('https://littlebiggy.net/item/share', (err: any, cookies: any[]) => resolve(err ? [] : cookies));
+          jar.getCookies('https://littlebiggy.org/item/share', (err: any, cookies: any[]) => resolve(err ? [] : cookies));
         });
         if (cookieList && cookieList.length) {
           headers.Cookie = cookieList.map((c: any) => `${c.key}=${c.value}`).join('; ');
@@ -66,7 +66,7 @@ export async function fetchSellerShareLink({ client, jar, html, sellerId, retry 
       } catch {}
     }
 
-    const hosts = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+    const hosts = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
     for (const host of hosts) {
       const url = actionUrl ? (actionUrl.startsWith('http') ? actionUrl : host + actionUrl) : `${host}/item/share`;
       try {
@@ -99,7 +99,7 @@ export async function fetchSellerShareLink({ client, jar, html, sellerId, retry 
 
     if (!link && retry) {
       try {
-        const fallbackUrl = actionUrl && !actionUrl.startsWith('http') ? `https://littlebiggy.net${actionUrl}` : 'https://littlebiggy.net/item/share';
+        const fallbackUrl = actionUrl && !actionUrl.startsWith('http') ? `https://littlebiggy.org${actionUrl}` : 'https://littlebiggy.org/item/share';
         const res = await client.post(fallbackUrl, body, {
           headers,
           maxRedirects: 0,
@@ -111,7 +111,7 @@ export async function fetchSellerShareLink({ client, jar, html, sellerId, retry 
         const data = res.data;
         if (data && typeof data === 'object') link = (data as any).link || link;
         if (!link && locationHeader && /\/link\//.test(locationHeader)) {
-          link = locationHeader.startsWith('http') ? locationHeader : `https://littlebiggy.net${locationHeader}`;
+          link = locationHeader.startsWith('http') ? locationHeader : `https://littlebiggy.org${locationHeader}`;
         }
         if (!link && typeof data === 'string') {
           const m = data.match(/https?:\/\/[^\s"']+\/link\/[A-Za-z0-9]+/);
@@ -125,7 +125,7 @@ export async function fetchSellerShareLink({ client, jar, html, sellerId, retry 
   }
 
   if (!link && sellerId != null) {
-    const hosts = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+    const hosts = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
     for (const host of hosts) {
       try {
         const res = await client.get(`${host}/core/api/createShareLink/p/${encodeURIComponent(String(sellerId))}`, { responseType: 'json', timeout });

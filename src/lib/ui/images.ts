@@ -103,7 +103,7 @@ export function proxyImage(url: string, width?: number): string {
 
   // Priority 1: Use R2 for ITEM and SELLER images (pre-optimized, free, fastest)
   // Items (/images/i/) and avatars (/images/u/) are crawled and stored in R2
-  // Check for these path segments. "littlebiggy.net" domain check is implicit as we filter local paths above.
+  // Check for these path segments. "littlebiggy.org" domain check is implicit as we filter local paths above.
   const isR2Candidate = url.includes('/images/i/') || url.includes('/images/u/');
   if (USE_R2 && isR2Candidate) {
     return r2ImageUrl(url, width);

@@ -49,7 +49,7 @@ export async function buildSellerWorklist(markets: MarketCode[], limit?: number)
         sellerMeta.set(sellerId, {
           sellerId,
           sellerName: sellerName || undefined,
-          sellerUrl: `https://littlebiggy.net/seller/${encodeURIComponent(sellerId)}`,
+          sellerUrl: `https://littlebiggy.org/seller/${encodeURIComponent(sellerId)}`,
         });
       } else if (sellerName && !sellerMeta.get(sellerId)!.sellerName) {
         sellerMeta.get(sellerId)!.sellerName = sellerName;

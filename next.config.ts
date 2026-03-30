@@ -43,7 +43,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "i2.littlebiggy.net",
+        hostname: "i2.littlebiggy.org",
       },
       {
         protocol: "http",

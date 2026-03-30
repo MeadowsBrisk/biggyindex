@@ -16,7 +16,7 @@ export async function setLocationFilter({ client, shipsTo, tokens = {} }: SetLoc
     addField('__fp', tokens.__fp);
     parts.push(`--${boundary}--\r\n`);
     const body = parts.join('');
-    const url = 'https://littlebiggy.net/setLocationFilter';
+    const url = 'https://littlebiggy.org/setLocationFilter';
     const res = await client.post(url, body, {
       headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` },
       timeout: 15000,

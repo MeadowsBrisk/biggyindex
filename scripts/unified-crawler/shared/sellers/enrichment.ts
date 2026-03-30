@@ -262,7 +262,7 @@ export async function runSellerEnrichment(opts: {
         const code = e?.code || e?.name || e?.message || "ERR";
         log.sellers.warn(`sellerPage fail`, { id, status: code, ms: tMain, attempt: label });
       }
-      const hosts = ["https://littlebiggy.net", "https://www.littlebiggy.net"];
+      const hosts = ["https://littlebiggy.org", "https://www.littlebiggy.org"];
       try {
         const results = await withTimeout(Promise.all(hosts.map((h) => {
           const url = `${h}/viewSubject/p/${encodeURIComponent(id)}`;

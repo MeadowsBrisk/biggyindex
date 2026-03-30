@@ -9,7 +9,7 @@ export interface FetchSellerReviewsOptions {
 }
 
 async function fetchUserReviewsPage({ client, sellerId, offset = 0, pageSize = 100 }: { client: AxiosInstance; sellerId: string | number; offset?: number; pageSize?: number; }) {
-  const hosts = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+  const hosts = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
   let lastErr: any = null;
   for (const host of hosts) {
     const url = `${host}/core/api/reviews/user/${encodeURIComponent(String(sellerId))}/received?first=${offset}&n=${pageSize}&requireMedia=false`;

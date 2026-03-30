@@ -6,9 +6,9 @@
  * To add a new market, append an entry here — all consumers auto-update.
  */
 export const EMBASSY_LINKS: Record<string, string> = {
-  fr: "https://littlebiggy.net/link/AEQaVl",
-  it: "https://littlebiggy.net/link/lFwOUG",
-  pt: "https://littlebiggy.net/link/03kf61",
+  fr: "https://littlebiggy.org/link/AEQaVl",
+  it: "https://littlebiggy.org/link/lFwOUG",
+  pt: "https://littlebiggy.org/link/03kf61",
 };
 
 /** Returns the embassy URL for the given locale string (e.g. "fr-FR" → fr key). */

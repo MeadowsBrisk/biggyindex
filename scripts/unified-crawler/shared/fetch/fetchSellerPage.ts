@@ -9,7 +9,7 @@ export interface FetchSellerPageOptions {
   earlyAbortMinBytes?: number;
 }
 
-const HOSTS = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+const HOSTS = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
 
 export async function fetchSellerPage({ client, sellerId, timeout, maxBytes, earlyAbort = false, earlyAbortMinBytes = 8192 }: FetchSellerPageOptions): Promise<{ html: string; url: string; bytes: number; ms: number }> {
   let lastErr: any = null;

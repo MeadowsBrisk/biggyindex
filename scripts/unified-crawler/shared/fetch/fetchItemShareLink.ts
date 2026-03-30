@@ -38,7 +38,7 @@ export async function fetchItemShareLink({ client, jar, refNum, html, timeout = 
   if (jar) {
     try {
       const cookies: any[] = await new Promise((resolve) => {
-        jar.getCookies('https://littlebiggy.net/item/share', (err: any, cookies: any[]) => resolve(err ? [] : cookies));
+        jar.getCookies('https://littlebiggy.org/item/share', (err: any, cookies: any[]) => resolve(err ? [] : cookies));
       });
       if (cookies && cookies.length > 0) {
         headers['Cookie'] = cookies.map((c: any) => `${c.key}=${c.value}`).join('; ');
@@ -46,7 +46,7 @@ export async function fetchItemShareLink({ client, jar, refNum, html, timeout = 
     } catch {}
   }
 
-  const hosts = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+  const hosts = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
   let lastErr: any = null;
   let link: string | null = null;
 

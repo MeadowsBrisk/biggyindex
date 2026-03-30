@@ -423,7 +423,7 @@ export default function ItemDetailOverlay() {
     return { minShip, maxShip };
   })();
   // BUG-002: Fall back to detail.sl from shared data for referral link when item is delisted
-  const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (detail as any)?.url || (refNum ? `https://littlebiggy.net/item/${refNum}/view/p` : null);
+  const sl = (baseItem as any)?.sl || (detail as any)?.sl || (detail as any)?.share?.shortLink || (detail as any)?.url || (refNum ? `https://littlebiggy.org/item/${refNum}/view/p` : null);
   const lbGuideClick = useLBGuideGate(sl, { id: String(refNum || ''), name: (baseItem as any)?.n || '', category: category || undefined });
   // Build shareable public link with canonical /item/[ref] (keep in-app deep-link via /?ref for internal state)
   const shareRef = refNum as any;

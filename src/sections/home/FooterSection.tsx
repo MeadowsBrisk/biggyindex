@@ -155,7 +155,7 @@ export default function FooterSection({ lastCrawlTime, buildTime }: FooterSectio
                     <span className="text-sm font-medium">{tHome('footer.community.reddit')}</span>
                   </Link>
                   <Link
-                    href="https://littlebiggy.net/wall"
+                    href="https://littlebiggy.org/wall"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-lg font-semibold transition hover:border-white/20 hover:bg-white/10 dark:border-slate-300/20 dark:bg-slate-900/5 dark:hover:border-slate-300/30 dark:hover:bg-slate-900/10"

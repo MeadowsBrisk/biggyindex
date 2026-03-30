@@ -57,7 +57,7 @@ export function buildMarketSellers({
     const sn = base.sn || '';
     const online = onlineMap.get(k) ?? null;
     const stats = (sid != null && (srs as any)[String(sid)]) ? (srs as any)[String(sid)] : null;
-    const url = (sid != null) ? `https://littlebiggy.net/viewSubject/p/${String(sid)}` : null;
+    const url = (sid != null) ? `https://littlebiggy.org/viewSubject/p/${String(sid)}` : null;
     out.push({
       id: sid ?? null,
       name: sn,

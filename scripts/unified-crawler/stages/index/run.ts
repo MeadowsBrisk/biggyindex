@@ -48,8 +48,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
 
   const hostOverride = process.env.LB_ENDPOINT?.replace(/\/$/, "");
   // Prefer apex by default; only try www as a fallback when NOT overriding host.
-  const primaryUrl = `${hostOverride || "https://littlebiggy.net"}/core/api/items-wall/?shipsTo=${code}`;
-  const fallbackUrl = hostOverride ? null : `https://www.littlebiggy.net/core/api/items-wall/?shipsTo=${code}`;
+  const primaryUrl = `${hostOverride || "https://littlebiggy.org"}/core/api/items-wall/?shipsTo=${code}`;
+  const fallbackUrl = hostOverride ? null : `https://www.littlebiggy.org/core/api/items-wall/?shipsTo=${code}`;
 
   let itemsCount = 0;
   let rawItems: any[] = [];
@@ -66,8 +66,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
         "User-Agent": ua,
         Accept: "application/json, text/plain, */*",
         "Accept-Language": ACCEPT_LANGUAGE[code],
-        Referer: "https://littlebiggy.net/",
-        Origin: "https://littlebiggy.net",
+        Referer: "https://littlebiggy.org/",
+        Origin: "https://littlebiggy.org",
         "X-Requested-With": "XMLHttpRequest",
       },
     });

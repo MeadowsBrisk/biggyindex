@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios';
 export interface FetchItemReviewsOptions { client: AxiosInstance; refNum: string | number; offset?: number; pageSize?: number; logSnippet?: boolean; }
 
 export async function fetchReviewsPage({ client, refNum, offset = 0, pageSize = 100, logSnippet = false }: FetchItemReviewsOptions) {
-  const hosts = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+  const hosts = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
   let lastErr: any = null;
   for (const host of hosts) {
     const url = `${host}/core/api/reviews/item/${encodeURIComponent(String(refNum))}?first=${offset}&n=${pageSize}&requireMedia=false`;

@@ -22,15 +22,15 @@ export async function seedLocationFilterCookie(client: any, market: MarketCode):
     if (!lfVal) return;
     const jar = client?.__jar || client?.defaults?.jar;
     if (!jar) return;
-    const cookieStr = `lf=${lfVal}; Domain=.littlebiggy.net; Path=/`;
+    const cookieStr = `lf=${lfVal}; Domain=.littlebiggy.org; Path=/`;
     const setSync = typeof jar.setCookieSync === 'function';
     const setAsync = typeof jar.setCookie === 'function';
     if (setSync) {
-      try { jar.setCookieSync(cookieStr, "https://littlebiggy.net"); } catch {}
-      try { jar.setCookieSync(cookieStr, "https://www.littlebiggy.net"); } catch {}
+      try { jar.setCookieSync(cookieStr, "https://littlebiggy.org"); } catch {}
+      try { jar.setCookieSync(cookieStr, "https://www.littlebiggy.org"); } catch {}
     } else if (setAsync) {
-      await new Promise<void>((resolve) => jar.setCookie(cookieStr, "https://littlebiggy.net", () => resolve()));
-      await new Promise<void>((resolve) => jar.setCookie(cookieStr, "https://www.littlebiggy.net", () => resolve()));
+      await new Promise<void>((resolve) => jar.setCookie(cookieStr, "https://littlebiggy.org", () => resolve()));
+      await new Promise<void>((resolve) => jar.setCookie(cookieStr, "https://www.littlebiggy.org", () => resolve()));
     }
   } catch {}
 }

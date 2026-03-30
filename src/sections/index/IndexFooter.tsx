@@ -84,7 +84,7 @@ export default function IndexFooter({ lastCrawlTime }: IndexFooterProps): ReactE
                 <span>{t("community.reddit")}</span>
               </Link>
               <Link
-                href="https://littlebiggy.net/wall"
+                href="https://littlebiggy.org/wall"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-500"

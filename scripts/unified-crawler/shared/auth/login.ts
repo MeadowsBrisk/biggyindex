@@ -21,7 +21,7 @@ export async function login(opts: LoginOptions): Promise<LoginResult> {
   const timeoutMs = opts.timeoutMs ?? 45000;
   const maxAttempts = Math.max(1, opts.maxAttempts ?? 3);
   if (!username || !password) throw new Error("login: missing credentials");
-  const hosts = ["https://littlebiggy.net", "https://www.littlebiggy.net"];
+  const hosts = ["https://littlebiggy.org", "https://www.littlebiggy.org"];
   let lastErr: any = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

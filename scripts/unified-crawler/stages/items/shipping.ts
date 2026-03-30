@@ -31,9 +31,9 @@ async function createMarketClient(market: MarketCode): Promise<AxiosInstance> {
   // Pre-seed the location filter cookie for this market
   const lfVal = getLocationFilterCookie(market);
   if (lfVal) {
-    const cookieStr = `lf=${lfVal}; Domain=.littlebiggy.net; Path=/`;
-    try { jar.setCookieSync(cookieStr, "https://littlebiggy.net"); } catch {}
-    try { jar.setCookieSync(cookieStr, "https://www.littlebiggy.net"); } catch {}
+    const cookieStr = `lf=${lfVal}; Domain=.littlebiggy.org; Path=/`;
+    try { jar.setCookieSync(cookieStr, "https://littlebiggy.org"); } catch {}
+    try { jar.setCookieSync(cookieStr, "https://www.littlebiggy.org"); } catch {}
   }
   
   const client = axios.default.create({

@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios';
 export interface FetchSellerUserSummaryOptions { client: AxiosInstance; sellerId: string | number; }
 
 export async function fetchSellerUserSummary({ client, sellerId }: FetchSellerUserSummaryOptions) {
-  const hosts = ['https://littlebiggy.net', 'https://www.littlebiggy.net'];
+  const hosts = ['https://littlebiggy.org', 'https://www.littlebiggy.org'];
   let lastErr: any = null;
   for (const host of hosts) {
     const url = `${host}/core/api/getUserSummary/p/${encodeURIComponent(String(sellerId))}`;

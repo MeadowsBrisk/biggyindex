@@ -468,7 +468,7 @@ function BasketLine({ it, usdRate, rates, setQty, removeItem, setRefNum, itemsAl
   const lineGbp = unitGbp * qty;
 
   const detailHref = it.refNum ? `/?ref=${encodeURIComponent(String(it.refNum))}` : '#';
-  const biggyHref = it.sl || (it as any).biggyLink || (it.refNum ? `https://littlebiggy.net/item/${it.refNum}/view/p` : null);
+  const biggyHref = it.sl || (it as any).biggyLink || (it.refNum ? `https://littlebiggy.org/item/${it.refNum}/view/p` : null);
   const ref = it.refNum || it.id;
   const { detail } = useItemDetailLazy(String(ref ?? ''), false);
   const base = itemsAll.find((b) => (
