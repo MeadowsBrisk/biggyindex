@@ -76,10 +76,11 @@
   # Previous schedule for quick revert:
   # Run every 30 minutes (was every 20 min - reduced to save function requests)
   # At :00 and :30 past each hour = 48 requests/day (was 72/day)
-  # schedule = "0,30 * * * *"
+  schedule = "0,30 * * * *"
+
   # Temporary reduced cadence to lower R2 usage.
   # Runs every 2 hours at the top of the hour = 12 requests/day.
-  schedule = "0 */2 * * *"
+  #schedule = "0 */2 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
