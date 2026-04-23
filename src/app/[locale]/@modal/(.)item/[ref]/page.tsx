@@ -9,16 +9,20 @@
  */
 
 import { Suspense } from "react";
-import { cacheLife } from "next/cache";
 import { OverlayBridge } from "./OverlayBridge";
+
+// Intercepting routes are inherently request-scoped (they depend on
+// client navigation state and render into a parallel slot alongside
+// the root layout, which contains client-only Jotai/nuqs providers).
+// Opt out of prerendering so Next.js 16's blocking-route check doesn't
+// flag the layout's uncached client data as a static-render problem.
+export const dynamic = "force-dynamic";
 
 interface ModalItemPageProps {
   params: Promise<{ ref: string }>;
 }
 
 async function ModalContent({ params }: ModalItemPageProps) {
-  "use cache";
-  cacheLife("item-detail");
   const { ref } = await params;
   return <OverlayBridge refNum={ref} />;
 }

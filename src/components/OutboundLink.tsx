@@ -37,10 +37,17 @@ export function OutboundLink({
   onClick,
   ...rest
 }: OutboundLinkProps) {
+  // Defensive rewrite: any stray littlebiggy.net links in legacy R2 data
+  // should resolve to littlebiggy.org (the canonical domain). R2 aggregates
+  // are patched too, but this keeps the frontend safe in case anything slips through.
+  const normalizedHref = href.includes("littlebiggy.net")
+    ? href.replace(/littlebiggy\.net/g, "littlebiggy.org")
+    : href;
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     trackOutboundClick({
       id,
-      url: href,
+      url: normalizedHref,
       sid,
       sn,
       c,
@@ -51,7 +58,7 @@ export function OutboundLink({
 
   return (
     <a
-      href={href}
+      href={normalizedHref}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}

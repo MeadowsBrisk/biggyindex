@@ -33,6 +33,10 @@ const FLAGS: Record<string, FlagDef> = {
   ca: { colors: ["#ff0000", "#fff", "#ff0000"], dir: "v", w: [1, 2, 1] },
   th: { colors: ["#ed1c24", "#fff", "#241d4f", "#fff", "#ed1c24"] },
   ma: { colors: ["#c1272d"] }, // star overlay
+  gr: {
+    // 9 alternating blue/white horizontal stripes (canton drawn as overlay)
+    colors: ["#0d5eaf", "#fff", "#0d5eaf", "#fff", "#0d5eaf", "#fff", "#0d5eaf", "#fff", "#0d5eaf"],
+  },
 };
 
 /** Special overlays for emblems / complex geometry */
@@ -90,6 +94,19 @@ const OVERLAYS: Record<string, () => React.JSX.Element> = {
       fillRule="evenodd"
     />
   ),
+  gr: () => {
+    // Canton: top-left, 5 stripes tall × 5/9 wide, with white cross
+    const cantonSize = (S * 5) / 9;
+    const crossW = S / 9;
+    const crossCenter = cantonSize / 2;
+    return (
+      <>
+        <rect x={0} y={0} width={cantonSize} height={cantonSize} fill="#0d5eaf" />
+        <rect x={crossCenter - crossW / 2} y={0} width={crossW} height={cantonSize} fill="#fff" />
+        <rect x={0} y={crossCenter - crossW / 2} width={cantonSize} height={crossW} fill="#fff" />
+      </>
+    );
+  },
 };
 
 function renderStripes(def: FlagDef) {

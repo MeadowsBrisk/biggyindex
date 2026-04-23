@@ -1,0 +1,64 @@
+{
+  "site": {
+    "title": "BiggyIndex",
+    "tagline": "Περιηγητής Αγοράς Κάνναβης",
+    "description": "Περιηγηθείτε και συγκρίνετε προϊόντα κάνναβης από διάφορες αγορές. Τιμές, ποικιλίες, κριτικές και περισσότερα."
+  },
+  "nav": {
+    "browse": "Περιήγηση",
+    "reviews": "Κριτικές",
+    "sellers": "Πωλητές",
+    "settings": "Ρυθμίσεις"
+  },
+  "home": {
+    "heroTitle": "Ο Δείκτης Κάνναβης",
+    "heroSubtitle": "Περιηγηθείτε σε {itemCount} προϊόντα από {sellerCount} πωλητές",
+    "whatsNew": "Νέα",
+    "recentlyAdded": "Πρόσφατα Προστέθηκαν",
+    "recentlyUpdated": "Πρόσφατα Ενημερώθηκαν",
+    "popular": "Δημοφιλή",
+    "topSellers": "Κορυφαίοι Πωλητές",
+    "communityReviews": "Κριτικές Κοινότητας",
+    "viewAll": "Προβολή όλων"
+  },
+  "browse": {
+    "allCategories": "Όλες οι Κατηγορίες",
+    "noResults": "Δεν βρέθηκαν προϊόντα με αυτά τα φίλτρα",
+    "clearFilters": "Εκκαθάριση φίλτρων",
+    "itemCount": "{count, plural, =0 {Κανένα προϊόν} one {1 προϊόν} other {# προϊόντα}}",
+    "sortBy": "Ταξινόμηση κατά",
+    "search": "Αναζήτηση προϊόντων..."
+  },
+  "sort": {
+    "newest": "Νεότερα",
+    "priceAsc": "Τιμή: Χαμηλή → Υψηλή",
+    "priceDesc": "Τιμή: Υψηλή → Χαμηλή",
+    "rating": "Κορυφαία Βαθμολογία",
+    "hot": "Δημοφιλέστερα"
+  },
+  "item": {
+    "from": "από",
+    "perGram": "/γρ",
+    "variants": "{count, plural, one {1 παραλλαγή} other {# παραλλαγές}}",
+    "reviews": "{count, plural, one {1 κριτική} other {# κριτικές}}",
+    "noReviews": "Δεν υπάρχουν κριτικές ακόμη",
+    "shipping": "Αποστολή",
+    "freeShipping": "Δωρεάν αποστολή",
+    "viewOnSeller": "Προβολή στο {seller}",
+    "addToBasket": "Προσθήκη στο καλάθι",
+    "firstSeen": "Πρώτη εμφάνιση",
+    "lastUpdated": "Τελευταία ενημέρωση"
+  },
+  "seller": {
+    "products": "{count, plural, one {1 προϊόν} other {# προϊόντα}}",
+    "rating": "Βαθμολογία",
+    "visitStore": "Επίσκεψη καταστήματος"
+  },
+  "common": {
+    "loading": "Φόρτωση...",
+    "error": "Κάτι πήγε στραβά",
+    "retry": "Δοκιμάστε ξανά",
+    "close": "Κλείσιμο",
+    "back": "Πίσω"
+  }
+}

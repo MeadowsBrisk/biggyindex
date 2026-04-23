@@ -116,6 +116,10 @@ export const photoReviewModalAtom = atom<PhotoReviewModalPayload | null>(null);
 
 export const highResImagesAtom = atomWithStorage<boolean>("highResImages", false);
 
+/** Force display of English originals (item name, description, shipping, variants)
+ *  instead of the translated text. Only relevant on non-GB markets. */
+export const forceEnglishAtom = atomWithStorage<boolean>("forceEnglish", false);
+
 /** Pause animated GIFs — show static first frame instead */
 export const pauseGifsAtom = atomWithStorage<boolean>("pauseGifs", false);
 

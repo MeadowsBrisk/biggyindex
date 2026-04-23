@@ -8,6 +8,7 @@ import {
   useState,
   lazy,
   Suspense,
+  Fragment,
 } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -19,7 +20,8 @@ import { SuggestLink } from "@/components/SuggestLink";
 import {
   X,
   Star,
-  Clock,
+  Calendar,
+  RefreshCw,
   ChevronLeft,
   ChevronRight,
   Truck,
@@ -38,9 +40,11 @@ import {
   addToBasketAtom,
   marketAtom,
   focusReviewIdAtom,
+  forceEnglishAtom,
 } from "@/store/atoms";
+import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { cx } from "@/lib/cn";
-import { parseVariant } from "@/lib/variants";
+import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
 import { fmtPrice, formatPriceChange, formatDateTime } from "@/lib/format";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
@@ -471,6 +475,7 @@ export function ItemDetailOverlay() {
 
   // ── Merged detail blob — complete item data + extras ──
   const market = useAtomValue(marketAtom);
+  const forceEnglish = useAtomValue(forceEnglishAtom);
   const [mergedDetail, setMergedDetail] = useState<MergedDetailBlob | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const detailAbortRef = useRef<AbortController | null>(null);
@@ -562,7 +567,10 @@ export function ItemDetailOverlay() {
   }, [refNum]);
 
   // ── Extras from merged detail ──
-  const shipOptions = mergedDetail?.shOpts ?? [];
+  const shipOptions =
+    (forceEnglish && mergedDetail?.shOptsEn?.length
+      ? mergedDetail.shOptsEn
+      : mergedDetail?.shOpts) ?? [];
   const priceHistory = mergedDetail?.ph ?? [];
 
   // Derive last price from price history (replaces lp field)
@@ -580,6 +588,10 @@ export function ItemDetailOverlay() {
   );
 
   // ── Variant rows for table ──
+  // PPU (price-per-unit) is computed via shared `pricePerUnit` from
+  // @/lib/variants — the same helper ItemCard and atoms use. It works for
+  // any parsed unit (g, ml, mg, pc, joint, cart, pod, …) and returns null
+  // when not meaningful (qty<=1 on discrete count units, etc.).
   const variantRows = useMemo(() => {
     if (!displayItem?.v || displayItem.v.length === 0) return null;
     // For weight-based categories a bare-number variant label ("7", "14 mixed") implies grams.
@@ -591,30 +603,51 @@ export function ItemDetailOverlay() {
       .map((v, i) => {
         const parsed = parseVariant(v);
         let grams = parsed?.grams ?? null;
+        let effectiveParsed: { unit: string; qty: number } | null = parsed;
+        // Weight-category fallback: bare-number labels ("7", "14 mixed") are grams.
         if (grams == null && isWeightCat) {
           const label = v.dEn || v.d || "";
           const m = BARE_NUM_RE.exec(label);
           if (m) {
             const n = parseFloat(m[1]);
-            if (Number.isFinite(n) && n > 0 && n <= 2000) grams = n;
+            if (Number.isFinite(n) && n > 0 && n <= 2000) {
+              grams = n;
+              effectiveParsed = { unit: "g", qty: n };
+            }
           }
         }
+        const ppu = pricePerUnit(v.usd, effectiveParsed);
+        const unit = effectiveParsed?.unit ?? null;
         return {
           key: v.vid != null ? String(v.vid) : String(i),
           label: v.dEn || v.d || "—",
           price: v.usd,
           grams,
-          ppg: grams != null && grams > 0 ? v.usd / grams : null,
+          ppu,
+          qty: effectiveParsed?.qty ?? null,
+          unit,
+          unitLabel: unit ? UNIT_DISPLAY_LABEL[unit] ?? unit : null,
         };
       });
   }, [displayItem?.v, displayItem?.c]);
 
   const bestValueKey = useMemo(() => {
     if (!variantRows || variantRows.length <= 1) return null;
-    let best: { key: string; ppg: number } | null = null;
+    // Only compare rows with the same unit — it's meaningless to call a
+    // 10-pack "best value" against a 5g variant. Within each unit group,
+    // pick the cheapest PPU.
+    const byUnit = new Map<string, { key: string; ppu: number }[]>();
     for (const row of variantRows) {
-      if (row.ppg != null && (!best || row.ppg < best.ppg)) {
-        best = { key: row.key, ppg: row.ppg };
+      if (row.ppu == null || row.unit == null) continue;
+      const arr = byUnit.get(row.unit) ?? [];
+      arr.push({ key: row.key, ppu: row.ppu });
+      byUnit.set(row.unit, arr);
+    }
+    let best: { key: string; ppu: number } | null = null;
+    for (const arr of byUnit.values()) {
+      if (arr.length <= 1) continue;
+      for (const r of arr) {
+        if (!best || r.ppu < best.ppu) best = r;
       }
     }
     return best?.key ?? null;
@@ -623,7 +656,11 @@ export function ItemDetailOverlay() {
   // Don't render if no refNum
   if (!refNum && !closing) return null;
 
-  const name = displayItem ? decodeEntities(displayItem.n) : "";
+  const name = displayItem
+    ? decodeEntities(
+        (forceEnglish && displayItem.nEn ? displayItem.nEn : displayItem.n) || "",
+      )
+    : "";
 
   return (
     <>
@@ -856,20 +893,30 @@ export function ItemDetailOverlay() {
                     </div>
 
                     {/* Variants + shipping card */}
-                    {variantRows && variantRows.length > 0 && (
+                    {variantRows && variantRows.length > 0 && (() => {
+                      // Dominant unit across rows for the header label.
+                      // If units are mixed we still show a generic "/unit".
+                      const hasAnyPpu = variantRows.some((r) => r.ppu != null);
+                      const units = new Set(
+                        variantRows
+                          .map((r) => r.unitLabel)
+                          .filter((u): u is string => u != null),
+                      );
+                      const headerUnit = units.size === 1 ? [...units][0] : "unit";
+                      return (
                       <div className="ido-card ido-card--variants">
                         <div className="ido-table__caption">
                           <span>Variants</span>
                           <span className="ido-table__count">{variantRows.length}</span>
                         </div>
                         <table className="ido-table">
-                          {variantRows.some((r) => r.ppg != null) ? (
+                          {hasAnyPpu ? (
                             <thead>
                               <tr>
                                 <th>Size</th>
                                 <th>Price</th>
                                 <th>
-                                  <abbr title="Price per gram">/g</abbr>
+                                  <abbr title={`Price per ${headerUnit}`}>/{headerUnit}</abbr>
                                 </th>
                                 <th className="sr-only">Add</th>
                               </tr>
@@ -887,10 +934,13 @@ export function ItemDetailOverlay() {
                             {variantRows.map((row) => {
                               const isBest = bestValueKey === row.key;
                               const totalPrice = row.price + selectedShipCost;
-                              const totalPpg =
-                                row.ppg != null && row.grams
-                                  ? totalPrice / row.grams
-                                  : row.ppg;
+                              // Recompute PPU with shipping surcharge folded in
+                              // for display consistency when user picks a paid
+                              // shipping option.
+                              const totalPpu =
+                                row.ppu != null && row.qty != null && row.qty > 0
+                                  ? totalPrice / row.qty
+                                  : row.ppu;
                               return (
                                 <tr key={row.key}>
                                   <td>
@@ -906,10 +956,10 @@ export function ItemDetailOverlay() {
                                   <td className={`ido-table__price${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}>
                                     {fmtPrice(totalPrice, cSym, cRate)}
                                   </td>
-                                  {variantRows.some((r) => r.ppg != null) && (
+                                  {hasAnyPpu && (
                                     <td className={`ido-table__ppu${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}>
-                                      {totalPpg != null
-                                        ? fmtPrice(totalPpg, cSym, cRate)
+                                      {totalPpu != null
+                                        ? fmtPrice(totalPpu, cSym, cRate)
                                         : "—"}
                                     </td>
                                   )}
@@ -962,47 +1012,59 @@ export function ItemDetailOverlay() {
                           setSelectedShipCost={setSelectedShipCost}
                         />
                       </div>
-                    )}
+                      );
+                    })()}
 
-                    {/* Review stats + timestamps (meta strip) */}
+                    {/* Review stats + timestamps (meta strip)
+                        Layout: 2x2 grid on mobile/tablet, 4-in-a-row on wide
+                        screens. Each cell is a uniform "stat" with a subtle
+                        icon, a small label, and a bold primary value so the
+                        grouping reads cleanly regardless of column count. */}
                     <div className="ido-meta-strip">
                       {displayItem.rs?.avg != null && (
-                        <span className="ido-meta-strip__item">
-                          <Star size={14} className="text-amber-500" />
-                          <span className="ido-meta-strip__value">{displayItem.rs.avg.toFixed(1)}/10</span>
-                          {displayItem.rs.cnt != null && (
-                            <span className="ido-meta-strip__hint">({displayItem.rs.cnt})</span>
-                          )}
-                        </span>
+                        <div className="ido-meta-cell">
+                          <Star size={14} className="ido-meta-cell__icon text-amber-500" />
+                          <div className="ido-meta-cell__body">
+                            <span className="ido-meta-cell__label">Rating</span>
+                            <span className="ido-meta-cell__value">
+                              {displayItem.rs.avg.toFixed(1)}
+                              <span className="ido-meta-cell__unit">/10</span>
+                              {displayItem.rs.cnt != null && (
+                                <span className="ido-meta-cell__sub"> ({displayItem.rs.cnt})</span>
+                              )}
+                            </span>
+                          </div>
+                        </div>
                       )}
                       {displayItem.rs?.days != null && (
-                        <span className="ido-meta-strip__item">
-                          <Clock size={14} />
-                          <span className="ido-meta-strip__value">{displayItem.rs.days.toFixed(1)}d</span>
-                          <span className="ido-meta-strip__hint">avg delivery</span>
-                        </span>
-                      )}
-                      {(!variantRows || variantRows.length === 0) && shipOptions.length > 0 && (
-                        <span className="ido-meta-strip__item">
-                          <Truck size={14} />
-                          <span className="ido-meta-strip__value">
-                            {shipOptions.some(o => o.cost === 0)
-                              ? "Free shipping"
-                              : `${fmtPrice(Math.min(...shipOptions.map(o => o.cost)), cSym, cRate)} – ${fmtPrice(Math.max(...shipOptions.map(o => o.cost)), cSym, cRate)}`}
-                          </span>
-                        </span>
+                        <div className="ido-meta-cell">
+                          <Truck size={14} className="ido-meta-cell__icon" />
+                          <div className="ido-meta-cell__body">
+                            <span className="ido-meta-cell__label">Avg delivery</span>
+                            <span className="ido-meta-cell__value">
+                              {displayItem.rs.days.toFixed(1)}
+                              <span className="ido-meta-cell__unit">d</span>
+                            </span>
+                          </div>
+                        </div>
                       )}
                       {displayItem.fsa && (
-                        <span className="ido-meta-strip__item ido-meta-strip__item--muted">
-                          <span className="ido-meta-strip__hint">Listed</span>
-                          <span>{timeAgo(displayItem.fsa)}</span>
-                        </span>
+                        <div className="ido-meta-cell">
+                          <Calendar size={14} className="ido-meta-cell__icon" />
+                          <div className="ido-meta-cell__body">
+                            <span className="ido-meta-cell__label">Listed</span>
+                            <span className="ido-meta-cell__value">{timeAgo(displayItem.fsa)}</span>
+                          </div>
+                        </div>
                       )}
                       {displayItem.lua && (
-                        <span className="ido-meta-strip__item ido-meta-strip__item--muted">
-                          <span className="ido-meta-strip__hint">Updated</span>
-                          <span>{timeAgo(displayItem.lua)}</span>
-                        </span>
+                        <div className="ido-meta-cell">
+                          <RefreshCw size={14} className="ido-meta-cell__icon" />
+                          <div className="ido-meta-cell__body">
+                            <span className="ido-meta-cell__label">Updated</span>
+                            <span className="ido-meta-cell__value">{timeAgo(displayItem.lua)}</span>
+                          </div>
+                        </div>
                       )}
                     </div>
                     </section>
@@ -1011,60 +1073,83 @@ export function ItemDetailOverlay() {
                     <section data-section-id="description" className="ido-section">
                     {/* Description */}
                     <div className="ido-card">
-                      <div className="ido-card__head">
+                      <div className="ido-card__head flex items-center justify-between gap-2">
                         <h3 className="ido-card__title">Description</h3>
+                        <ShowOriginalToggle />
                       </div>
                       <div className="ido-card__body">
-                        {(mergedDetail?.d || displayItem.d) ? (
-                          <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                            {decodeEntities(mergedDetail?.d || displayItem.d || "")}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-muted italic">No description provided.</p>
-                        )}
+                        {(() => {
+                          const desc = forceEnglish
+                            ? mergedDetail?.dEn || displayItem.dEn || mergedDetail?.d || displayItem.d
+                            : mergedDetail?.d || displayItem.d;
+                          return desc ? (
+                            <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">
+                              {decodeEntities(desc)}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-muted italic">No description provided.</p>
+                          );
+                        })()}
                       </div>
                     </div>
 
-                    {/* Attributes */}
-                    {displayItem.at && Object.keys(displayItem.at).length > 0 && (
-                      <div className="ido-card">
-                        <div className="ido-card__head">
-                          <h3 className="ido-card__title">Attributes</h3>
-                        </div>
-                        <div className="ido-card__body">
-                          <div className="flex flex-wrap gap-1.5">
-                            {Object.entries(displayItem.at).flatMap(([key, vals]) => {
-                              const label = AT_LABELS[key] ?? key;
-                              const values: (string | number | boolean)[] = Array.isArray(vals)
-                                ? vals
-                                : vals == null
-                                  ? []
-                                  : [vals as string | number | boolean];
-                              // Boolean-true attrs (e.g. cbd, vegan, imported, fullMelt,
-                              // terped) render as a single label-only chip.
-                              if (values.length === 1 && typeof values[0] === "boolean") {
-                                if (!values[0]) return [];
-                                return [
-                                  <span key={key} className="ido-attr-chip ido-attr-chip--flag">
-                                    <span className="ido-attr-chip__val">{label}</span>
-                                  </span>,
-                                ];
-                              }
-                              return values
-                                .filter((v) => v !== false && v != null && v !== "")
-                                .map((val) => (
-                                  <span key={`${key}-${val}`} className="ido-attr-chip">
-                                    <span className="ido-attr-chip__key">{label}</span>
-                                    <span className="ido-attr-chip__val">
-                                      {formatAttrValue(key, val)}
-                                    </span>
-                                  </span>
-                                ));
-                            })}
+                    {/* Attributes — spec-sheet layout: one row per attribute
+                        key (Effect, Grow, Origin, …) with a compact label
+                        column and a wrapping row of value chips. Much more
+                        readable than a wall of key+value chips. */}
+                    {displayItem.at && Object.keys(displayItem.at).length > 0 && (() => {
+                      type AttrRow = { key: string; label: string; chips: React.ReactNode[] };
+                      const rows: AttrRow[] = [];
+                      const flags: React.ReactNode[] = [];
+                      for (const [key, vals] of Object.entries(displayItem.at)) {
+                        const label = AT_LABELS[key] ?? key;
+                        const values: (string | number | boolean)[] = Array.isArray(vals)
+                          ? vals
+                          : vals == null
+                            ? []
+                            : [vals as string | number | boolean];
+                        // Boolean-true attrs (CBD, Vegan, etc) collapse to a single flag chip
+                        if (values.length === 1 && typeof values[0] === "boolean") {
+                          if (values[0]) {
+                            flags.push(
+                              <span key={key} className="ido-attr-flag">{label}</span>,
+                            );
+                          }
+                          continue;
+                        }
+                        const chips = values
+                          .filter((v) => v !== false && v != null && v !== "")
+                          .map((val) => (
+                            <span key={`${key}-${val}`} className="ido-attr-val">
+                              {formatAttrValue(key, val)}
+                            </span>
+                          ));
+                        if (chips.length > 0) rows.push({ key, label, chips });
+                      }
+                      if (rows.length === 0 && flags.length === 0) return null;
+                      return (
+                        <div className="ido-card">
+                          <div className="ido-card__head">
+                            <h3 className="ido-card__title">Attributes</h3>
+                          </div>
+                          <div className="ido-card__body">
+                            {rows.length > 0 && (
+                              <dl className="ido-attr-grid">
+                                {rows.map((row) => (
+                                  <Fragment key={row.key}>
+                                    <dt className="ido-attr-grid__label">{row.label}</dt>
+                                    <dd className="ido-attr-grid__values">{row.chips}</dd>
+                                  </Fragment>
+                                ))}
+                              </dl>
+                            )}
+                            {flags.length > 0 && (
+                              <div className="ido-attr-flags">{flags}</div>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     {/* Price History — rendered after Description so the
                         section doesn't steal visual attention from pricing. */}
@@ -1117,22 +1202,30 @@ export function ItemDetailOverlay() {
 
                     </section>
 
-                    {/* ── Reviews section (always renders on non-ultrawide) ── */}
+                    {/* ── Reviews section (always renders on non-ultrawide) ──
+                        Wrapped in an .ido-card so it visually matches the
+                        Description / Attributes / Price History cards and
+                        reads as a distinct container on mobile. */}
                     <section data-section-id="reviews" className="ido-section 2xl:hidden">
-                      <ItemReviewsBlock
-                        reviews={itemReviews}
-                        rs={displayItem.rs}
-                        loading={detailLoading}
-                        shareLink={displayItem.sl}
-                        focusReviewId={focusReviewId}
-                        onFocusHandled={() => setFocusReviewId(null)}
-                        compact
-                      />
+                      <div className="ido-card">
+                        <div className="ido-card__body">
+                          <ItemReviewsBlock
+                            reviews={itemReviews}
+                            rs={displayItem.rs}
+                            loading={detailLoading}
+                            shareLink={displayItem.sl}
+                            focusReviewId={focusReviewId}
+                            onFocusHandled={() => setFocusReviewId(null)}
+                            compact
+                          />
+                        </div>
+                      </div>
                     </section>
 
-                    {/* Suggest link — mobile/tablet only. On desktop (2xl) it lives
-                        at the bottom-left of the reviews column instead. */}
-                    <div className="flex justify-end pt-1 2xl:hidden">
+                    {/* Suggest link — mobile/phone only (<48rem). On tablet+
+                        it lives at the bottom-left of the panel, mirroring
+                        the LittleBiggy button on the bottom-right. */}
+                    <div className="flex justify-end pt-1 md:hidden">
                       <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
                     </div>
                   </div>
@@ -1148,16 +1241,59 @@ export function ItemDetailOverlay() {
                     focusReviewId={focusReviewId}
                     onFocusHandled={() => setFocusReviewId(null)}
                   />
-                  {/* Desktop-only flag/report button pinned bottom-left of the
-                      reviews column, mirroring the LittleBiggy button anchored
-                      bottom-right of the panel. */}
-                  <div className="ido-suggest-bottom">
-                    <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
-                  </div>
                 </div>
               </div>
 
-              {/* Absolute "View on LittleBiggy" button (bottom-right of panel) */}
+              {/* Flag/report button — pinned bottom-left of the panel on
+                  tablet+, mirroring the LittleBiggy button anchored on the
+                  bottom-right. Absolute to .ido-panel so it stays put while
+                  either column scrolls. */}
+              <div className="ido-suggest-bottom">
+                <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
+              </div>
+
+              {/* ── Mobile bottom action bar (<48rem) ──
+                  Fixed to the viewport: Suggest icon + Prev / Next + LB CTA.
+                  Mirrors the old-biggyindex pattern so users always have
+                  navigation and the outbound CTA in reach. Hidden at md+. */}
+              <div className="ido-mobile-actions">
+                <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
+                <div className="ido-mobile-actions__nav">
+                  <button
+                    type="button"
+                    onClick={gotoPrev}
+                    disabled={!hasPrev}
+                    aria-label="Previous item"
+                    className="ido-mobile-actions__nav-btn"
+                  >
+                    <ChevronLeft size={14} aria-hidden="true" />
+                    <span>Prev</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={gotoNext}
+                    disabled={!hasNext}
+                    aria-label="Next item"
+                    className="ido-mobile-actions__nav-btn"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} aria-hidden="true" />
+                  </button>
+                </div>
+                {displayItem.sl && (
+                  <a
+                    href={displayItem.sl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ido-mobile-actions__lb"
+                  >
+                    <span>View on Little Biggy</span>
+                    <span className="ido-lb-btn__arrow" aria-hidden="true">→</span>
+                  </a>
+                )}
+              </div>
+
+              {/* Absolute "View on LittleBiggy" button (bottom-right of panel, md+) */}
               {displayItem.sl && (
                 <a
                   href={displayItem.sl}

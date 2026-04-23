@@ -72,6 +72,14 @@ export const MARKETS: Market[] = [
     locale: "es-ES",
     flag: "🇪🇸",
   },
+  {
+    code: "GR",
+    name: "Greece",
+    currency: "EUR",
+    currencySymbol: "€",
+    locale: "el-GR",
+    flag: "🇬🇷",
+  },
 ];
 
 export const DEFAULT_MARKET = "GB";

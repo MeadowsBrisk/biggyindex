@@ -87,6 +87,9 @@
 @media (max-width: 47.999rem) {
   .ido-panel {
     min-height: 100dvh;
+    /* Reserve space so content isn't hidden behind the fixed
+       "View on LittleBiggy" CTA pinned to the bottom. */
+    padding-bottom: 5rem;
   }
 }
 
@@ -242,43 +245,43 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 2rem 2rem 4.5rem 1.5rem;
-    position: relative;
   }
 }
 
-/* Flag/suggest button pinned bottom-left of the reviews column (desktop).
-   Hidden below 96rem because the ido-right column itself is hidden and the
-   button renders inline under the mobile reviews section instead. */
+/* Flag/suggest button \u2014 pinned bottom-LEFT of the panel on desktop,
+   mirroring the .ido-lb-btn on the bottom-right. Hidden on mobile
+   (<48rem) because the mobile copy of SuggestLink renders inline under
+   the reviews section there. We attach it to the panel (not .ido-right)
+   so it stays at the same visual level as the LittleBiggy button even
+   when the reviews column is scrolled. */
 .ido-suggest-bottom {
   display: none;
 }
 
-@media (width >= 96rem) {
+@media (width >= 48rem) {
   .ido-suggest-bottom {
     display: block;
-    position: sticky;
+    position: absolute;
+    left: 1.25rem;
     bottom: 1rem;
-    margin-top: 0.75rem;
-    /* Align with the column's left padding so it sits flush-left opposite
-       the .ido-lb-btn on the right side of the panel. */
-    margin-left: 0;
-    width: fit-content;
     z-index: 15;
   }
 }
 
 /* ── Scroll-spy tabs (sticky at top of center column) ──
    The nearest scroll ancestor is .ido-center (md+) or .ido-panel (mobile).
-   The negative horizontal margin makes the bar reach the container edges
-   so the sticky background fully covers scrolling content beneath. */
+   Mobile presents a full-width segmented control (matching old-biggyindex
+   3-tab pattern); tablet+ falls back to compact inline pills. The negative
+   horizontal margin makes the bar reach the container edges so the sticky
+   background fully covers scrolling content beneath. */
 .ido-tabs {
   position: sticky;
   top: 0;
   z-index: 20;
   display: flex;
-  gap: 2px;
-  margin: 0 -1.5rem;
-  padding: 0.625rem 1.5rem;
+  gap: 0;
+  margin: 0 -1.5rem 0.25rem;
+  padding: 0.5rem 0.75rem;
   background-color: var(--glass-bg-strong);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
   backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
@@ -291,6 +294,7 @@
     /* Left edge is the .ido-center left padding (1.5rem), right edge is 2rem */
     margin: 0 -2rem 0 -1.5rem;
     padding: 0.75rem 1.5rem;
+    gap: 2px;
   }
 }
 
@@ -304,9 +308,13 @@
 .ido-tab {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  justify-content: center;
+  /* Mobile: equal-width segmented control buttons. On tablet+ the
+     flex-basis is reset so buttons size to their label. */
+  flex: 1 1 0;
+  padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -532,22 +540,19 @@
   border-left-color: color-mix(in srgb, currentColor 20%, transparent);
 }
 
-/* ── Meta strip (rating / delivery / timestamps) ──
-   Presented as a responsive grid so the four facets (rating, delivery,
-   listed, updated) never wrap awkwardly with an orphan trailing value.
-   - Mobile (<30rem): single column, each row full-width.
-   - Default: 2 columns => clean 2x2 grouping.
-   - Wide (>=60rem): 4 columns in one row, honoring available space.
-*/
+/* ── Meta strip (rating / delivery / listed / updated) ──
+   A single rounded card of four uniform stat cells. Cells share identical
+   vertical rhythm (small muted label + bold value) so the group reads as
+   one designed component regardless of whether it wraps to 1 / 2 / 4
+   columns. No per-cell backgrounds, no nested radii \u2014 just a light divider
+   between cells on 2-col and 4-col layouts. */
 .ido-meta-strip {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.25rem 0.5rem;
-  padding: 0.625rem 0.875rem;
+  padding: 0.25rem;
   border: 1px solid var(--border);
-  border-radius: 0.625rem;
-  background: color-mix(in srgb, var(--surface) 40%, transparent);
-  font-size: 0.8125rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
 }
 
 @media (width >= 30rem) {
@@ -559,57 +564,102 @@
 @media (width >= 60rem) {
   .ido-meta-strip {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    column-gap: 0;
   }
 }
 
-.ido-meta-strip__item {
-  display: inline-flex;
+.ido-meta-cell {
+  display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.625rem;
   min-width: 0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  color: var(--foreground);
-  line-height: 1.3;
-  /* Truncate long values instead of pushing the neighbour to a new line */
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  padding: 0.625rem 0.875rem;
+  position: relative;
 }
 
-/* Keep the vertical separator on 2+ column layouts, skip at mobile (single column) */
+/* Dividers between cells. Horizontal separators on single-column mobile,
+   vertical on 2-col and 4-col. Using box-shadow instead of borders so they
+   don't stack/double at corners. */
+.ido-meta-cell + .ido-meta-cell {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--border) 55%, transparent);
+}
+
 @media (width >= 30rem) {
-  .ido-meta-strip__item:nth-child(2n) {
-    border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-    padding-left: 0.75rem;
+  .ido-meta-cell + .ido-meta-cell {
+    box-shadow: none;
+  }
+  /* Vertical divider on even cells (right side of first column) */
+  .ido-meta-cell:nth-child(2n) {
+    box-shadow: inset 1px 0 0 color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  /* Horizontal divider between rows */
+  .ido-meta-cell:nth-child(n + 3) {
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  .ido-meta-cell:nth-child(n + 3):nth-child(2n) {
+    box-shadow:
+      inset 1px 0 0 color-mix(in srgb, var(--border) 55%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--border) 55%, transparent);
   }
 }
 
 @media (width >= 60rem) {
-  .ido-meta-strip__item:nth-child(2n) {
-    border-left: 0;
-    padding-left: 0.5rem;
+  /* 4-col layout: vertical dividers between every cell. Use border-left
+     instead of nth-child gymnastics so we don't inherit the 2-col
+     horizontal-divider rule above (which has higher specificity due to
+     compound :nth-child selectors and was leaking a top border onto cell 4). */
+  .ido-meta-cell + .ido-meta-cell,
+  .ido-meta-cell:nth-child(2n),
+  .ido-meta-cell:nth-child(n + 3),
+  .ido-meta-cell:nth-child(n + 3):nth-child(2n) {
+    box-shadow: inset 1px 0 0 color-mix(in srgb, var(--border) 55%, transparent);
   }
-  .ido-meta-strip__item:not(:first-child) {
-    border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-    padding-left: 0.75rem;
+  .ido-meta-cell:first-child {
+    box-shadow: none;
   }
 }
 
-.ido-meta-strip__item--muted {
+.ido-meta-cell__icon {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.ido-meta-cell__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.ido-meta-cell__label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.125rem;
+}
+
+.ido-meta-cell__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ido-meta-cell__unit {
+  font-weight: 500;
   color: var(--muted);
   font-size: 0.75rem;
+  margin-left: 0.0625rem;
 }
 
-.ido-meta-strip__value {
-  font-weight: 600;
-}
-
-.ido-meta-strip__hint {
-  color: var(--muted);
+.ido-meta-cell__sub {
   font-weight: 400;
-  font-size: 0.6875rem;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 
 /* ── Attribute chips (key + value, two-tone pill) ── */
@@ -680,6 +730,80 @@
   }
 }
 
+/* ── Attributes (spec-sheet layout) ──
+   Two-column dl: short label column ("Effect", "Origin", "Grow"), wide
+   value column with wrapping chips. Far more readable than a wall of
+   key+value pills, especially when an item has 3-6 attribute keys. */
+.ido-attr-grid {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, max-content) 1fr;
+  column-gap: 1rem;
+  row-gap: 0.625rem;
+  align-items: start;
+}
+
+.ido-attr-grid__label {
+  padding-top: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+.ido-attr-grid__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+}
+
+.ido-attr-val {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+/* Boolean flags row (CBD, Vegan, Imported, …) — separated below the dl */
+.ido-attr-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+}
+
+.ido-attr-flag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: color-mix(in srgb, var(--primary) 85%, var(--foreground));
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+@variant dark {
+  .ido-attr-flag {
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    color: color-mix(in srgb, var(--primary) 92%, var(--foreground));
+  }
+}
+
 /* ── "Read more reviews at:" hint — sits as the last child of the reviews
    list/column. Plain text, no background, no sticky. Reviews column has
    padding-bottom to ensure it clears the absolute LB button below. */
@@ -691,23 +815,26 @@
   margin-top: 1rem;
 }
 
-/* ── Absolute "View on LittleBiggy" button — bottom-right of the panel.
-   Scroll columns reserve bottom padding so content doesn't sit under it.
-   Hidden on mobile (<48rem) — mobile users tap the LB button on the
-   ItemCard image instead. */
+/* ── "View on LittleBiggy" CTA.
+   Mobile: fixed full-width pill pinned to the bottom of the viewport
+     so it stays visible while the panel scrolls. Panel bottom padding
+     (.ido-panel on mobile) reserves space so content isn't obscured.
+   Tablet+: absolute bottom-right of the panel, inline pill. */
 .ido-lb-btn {
-  display: none;
-  position: absolute;
-  right: 1.25rem;
-  bottom: 1rem;
-  z-index: 15;
+  display: inline-flex;
+  position: fixed;
+  left: 0.875rem;
+  right: 0.875rem;
+  bottom: 0.875rem;
+  z-index: 210; /* above .ido-backdrop (200) */
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.125rem 0.625rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 9999px;
   background: var(--primary);
   color: var(--primary-foreground);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -724,7 +851,15 @@
 }
 
 @media (width >= 48rem) {
-  .ido-lb-btn { display: inline-flex; }
+  .ido-lb-btn {
+    position: absolute;
+    left: auto;
+    right: 1.25rem;
+    bottom: 1rem;
+    padding: 0.625rem 1.125rem 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    z-index: 15;
+  }
 }
 
 .ido-lb-btn:hover {
@@ -774,8 +909,17 @@
   .ido-right { padding-bottom: 4.5rem; }
 }
 
-/* ── Nav arrows (overlay, outside panel) ── */
+/* ── Nav arrows (overlay, outside panel) ──
+   On mobile (<48rem) we use `display: contents` so the wrapper is a
+   pass-through: the .ido-panel inherits the backdrop's flex layout
+   directly and the nav-zone buttons are hidden individually. Using
+   `display: none` here would also hide the panel (the panel is a child)
+   which would make the entire overlay vanish at mobile widths. */
 .ido-nav-wrapper {
+  display: contents;
+}
+
+.ido-nav-wrapper > :not(.ido-panel) {
   display: none;
 }
 
@@ -789,6 +933,9 @@
     gap: 0.125rem;
     align-items: center;
     margin: 0 auto;
+  }
+  .ido-nav-wrapper > :not(.ido-panel) {
+    display: flex;
   }
 }
 
@@ -847,12 +994,15 @@
 .ido-image-area {
   position: relative;
   width: 100%;
-  padding-top: 3rem;
+  /* Mobile: breathing room around the gallery — top clears the close
+     button (2.25rem wide + 0.875rem inset ≈ 3.125rem). Side gutters
+     prevent the image from going edge-to-edge which looked cramped. */
+  padding: 3rem 0.875rem 0;
 }
 
 @media (width >= 48rem) {
   .ido-image-area {
-    padding-top: 0;
+    padding: 0;
   }
 }
 
@@ -860,13 +1010,14 @@
 .ido-swiper {
   width: 100%;
   aspect-ratio: 4 / 3;
+  border-radius: 0.75rem;
+  overflow: hidden;
 }
 
 @media (width >= 48rem) {
   .ido-swiper {
     aspect-ratio: 1 / 1;
     border-radius: 0.5rem;
-    overflow: hidden;
   }
 }
 

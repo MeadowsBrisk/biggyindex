@@ -1,27 +1,14 @@
-import { readR2JSON } from "@/lib/r2";
-
 export type AnnouncementSeverity = "info" | "warning" | "success";
 
 /**
- * Announcement banner config loaded from R2.
- * Stored at `shared/announcement-banner.json` — edit via `yarn r2 put`.
+ * Announcement banner config — hardcoded in the repo.
  *
- * Example:
- * {
- *   "id": "2026-launch",
- *   "messageByLocale": {
- *     "en-GB": "BiggyIndex v2 is live! {{mbr}}Faster, cleaner, same data.",
- *     "de-DE": "BiggyIndex v2 ist da!"
- *   },
- *   "allowedLocales": ["en-GB", "de-DE"],
- *   "href": "/browse",
- *   "ctaLabel": "Explore",
- *   "severity": "info",
- *   "active": true
- * }
- *
- * Set `active: false` to disable without removing the file.
+ * To show a banner: flip `active: true`, edit messages, redeploy.
  * Use `{{mbr}}` for a mobile-only line break inside messages.
+ *
+ * Why hardcoded: banner is used rarely (a few times a year — launches, holidays).
+ * An R2 fetch on every request — even cached — costs more than it's worth
+ * when the config changes maybe 3 times a year. Redeploy-to-update is fine.
  */
 export interface AnnouncementBannerConfig {
   id: string;
@@ -30,18 +17,23 @@ export interface AnnouncementBannerConfig {
   href?: string;
   ctaLabel?: string;
   severity?: AnnouncementSeverity;
-  /** When false, banner is hidden. Defaults to true when omitted. */
   active?: boolean;
 }
 
-/** Fetch the current banner config from R2. Returns null when missing/inactive. */
-export async function loadAnnouncementBanner(): Promise<AnnouncementBannerConfig | null> {
-  const cfg = await readR2JSON<AnnouncementBannerConfig>(
-    "shared/announcement-banner.json",
-  );
-  if (!cfg || !cfg.id || !cfg.messageByLocale) return null;
-  if (cfg.active === false) return null;
-  return cfg;
+const BANNER: AnnouncementBannerConfig = {
+  id: "placeholder",
+  active: false,
+  severity: "info",
+  messageByLocale: {
+    "en-GB": "",
+  },
+};
+
+/** Return the current banner config, or null when inactive. */
+export function getAnnouncementBanner(): AnnouncementBannerConfig | null {
+  if (!BANNER.active) return null;
+  if (!BANNER.id || !BANNER.messageByLocale) return null;
+  return BANNER;
 }
 
 /** Pick the best-matching message for the given locale. */

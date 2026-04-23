@@ -4,7 +4,7 @@ import { memo, useMemo, useState, useCallback, useRef, useEffect, lazy, Suspense
 import { useSetAtom } from "jotai";
 import { Package, Star, Truck, Heart, Filter, EyeOff } from "lucide-react";
 import type { Item, Seller } from "@/lib/types";
-import { groupByWeight, groupByQuantity, parseVariant, pricePerGram, formatWeight } from "@/lib/variants";
+import { groupByWeight, groupByQuantity, parseVariant, pricePerGram, cheapestPpu, UNIT_DISPLAY_LABEL, formatWeight } from "@/lib/variants";
 import { MARKETS } from "@/lib/constants";
 import { sellerModalIdAtom, toggleBookmarkAtom, bucketGrams, expandedRefNumAtom, selectedSellersAtom, toggleHiddenSellerAtom } from "@/store/atoms";
 import { useAddToast } from "@/components/Toast";
@@ -137,6 +137,30 @@ function CardPill({ item, activeCategory }: { item: Item; activeCategory: string
       {group && <span className={`card-pill__group-dot card-pill__group-dot--${group.toLowerCase()}`} />}
       {label}
     </span>
+  );
+}
+
+/**
+ * Low-confidence badge — only renders when categorization confidence is very low (cf < 0.5).
+ * Shares the card-pill styling so it sits flush next to the category pill. A single
+ * "?" glyph tinted amber; tooltip carries the full explanation on hover.
+ */
+function LowConfidenceBadge({ cf }: { cf?: number | null }) {
+  if (cf == null || cf >= 0.5) return null;
+  const pct = Math.round(cf * 100);
+  return (
+    <Tooltip
+      content={`Uncertain category (${pct}% confidence)`}
+      side="bottom"
+      delay={300}
+    >
+      <span
+        className="card-pill card-pill--image glass text-[10px] font-semibold pointer-events-auto text-amber-500"
+        aria-label={`Low categorization confidence: ${pct}%`}
+      >
+        ?
+      </span>
+    </Tooltip>
   );
 }
 
@@ -387,23 +411,17 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
   const shipSurcharge =
     includeShipping && !shippingIsFree && item.sh?.min != null ? item.sh.min : 0;
 
-  // PPG — show for selected weight, or cheapest overall if no selection
-  const ppg = useMemo(() => {
+  // PPU — show for selected weight chip (price/g), or cheapest PPU overall
+  // across any unit (g, pc, joint, cart, …). Shared `cheapestPpu` handles
+  // unit-grouping so a 10-pack doesn't get compared to a 5g jar.
+  const ppu = useMemo<{ value: number; unit: string } | null>(() => {
     if (activeGroup) {
       const price = (exactPrice ?? activeGroup.price) + shipSurcharge;
-      return pricePerGram(price, activeGroup.grams);
+      const perGram = pricePerGram(price, activeGroup.grams);
+      return perGram != null ? { value: perGram, unit: "g" } : null;
     }
-    // Cheapest PPG across all variants
-    if (!item.v || item.v.length === 0) return null;
-    let best: number | null = null;
-    for (const v of item.v) {
-      const p = parseVariant(v);
-      if (p && p.grams != null && p.grams > 0 && v.usd > 0) {
-        const val = (v.usd + shipSurcharge) / p.grams;
-        if (best === null || val < best) best = val;
-      }
-    }
-    return best;
+    const best = cheapestPpu(item.v, shipSurcharge);
+    return best ? { value: best.ppu, unit: best.unit } : null;
   }, [activeGroup, exactPrice, item.v, shipSurcharge]);
 
   // Timestamps
@@ -545,7 +563,10 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
 
           {/* Category / subcategory pill + bookmark button overlay */}
           <div className="card-controls absolute inset-x-0 top-0 z-10 flex items-start justify-between p-2 pointer-events-none">
-            <CardPill item={item} activeCategory={activeCategory} />
+            <div className="flex items-start gap-1">
+              <CardPill item={item} activeCategory={activeCategory} />
+              <LowConfidenceBadge cf={item.cf} />
+            </div>
             <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this product"} side="left" delay={350}>
               <button
                 type="button"
@@ -905,9 +926,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                     <Truck size={11} className="inline ml-1 -mt-0.5 opacity-70" />
                   )}
                 </span>
-                {ppg != null && (
+                {ppu != null && (
                   <span className="card-price-ppg">
-                    {cSym}{(ppg * cRate).toFixed(2)}/g
+                    {cSym}{(ppu.value * cRate).toFixed(2)}/{UNIT_DISPLAY_LABEL[ppu.unit] ?? ppu.unit}
                   </span>
                 )}
               </div>

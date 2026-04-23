@@ -37,6 +37,11 @@ function stripBrowseFields(items: Item[]): Item[] {
     if (item.d) item.d = truncateDesc(item.d);
     delete item.dEn;
     delete item.nEn;
+    // Normalize legacy .net share links to .org (canonical domain). Belt-and-braces
+    // with the R2 fix-net-to-org script — covers any items that slip through.
+    if (item.sl && item.sl.includes("littlebiggy.net")) {
+      item.sl = item.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
+    }
     // NOTE: Keep `is` — we need raw URLs to compute CDN hashes at runtime.
     // Food-agg can strip these because it has pre-computed hashes (ish/isa).
     // Once the crawler bakes hashes into item data, we can strip `i`/`is` too.
@@ -88,6 +93,11 @@ export async function loadItemByRef(
   const item = await readR2JSON<Item>(R2Keys.itemDetail(ref));
   if (!item) return null;
 
+  // Normalize legacy .net share link to .org.
+  if (item.sl && item.sl.includes("littlebiggy.net")) {
+    item.sl = item.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
+  }
+
   // Merge market shipping if available
   const ship = await readR2JSON<{
     options?: unknown[];
@@ -118,7 +128,12 @@ export async function loadMergedDetail(
   const merged = await readR2JSON<MergedDetailBlob>(
     R2Keys.mergedDetail(market, ref),
   );
-  if (merged) return merged;
+  if (merged) {
+    if (merged.sl && merged.sl.includes("littlebiggy.net")) {
+      merged.sl = merged.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
+    }
+    return merged;
+  }
 
   // Fall back to basic item + shipping merge
   const item = await loadItemByRef(ref, market);

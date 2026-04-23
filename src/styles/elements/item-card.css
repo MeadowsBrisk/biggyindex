@@ -74,6 +74,9 @@
   );
 
   @variant dark {
+    /* Dark theme: --muted-foreground is too bright and produces a glowing
+       outline on hover. Use a muted mix of the border colour instead. */
+    border-color: color-mix(in srgb, var(--muted-foreground) 35%, var(--border));
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     background: linear-gradient(
       180deg,

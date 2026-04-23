@@ -45,7 +45,7 @@ export function Tooltip({ content, children, side = 'bottom', delay = 400 }: Too
   return (
     <span
       ref={triggerRef}
-      className="relative inline-flex"
+      className="relative inline-flex pointer-events-auto"
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}

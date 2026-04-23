@@ -18,6 +18,8 @@ import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { getItemImageUrl } from "@/lib/images";
 import { parseVariant } from "@/lib/variants";
 import { SuggestLink } from "@/components/SuggestLink";
+import { LocalizedText } from "@/components/LocalizedText";
+import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
 
 interface ItemPageProps {
@@ -92,7 +94,11 @@ async function ItemContent({ params }: ItemPageProps) {
     );
   }
 
-  const name = decodeEntities(item.n);
+  const translatedName = decodeEntities(item.n);
+  const englishName = item.nEn ? decodeEntities(item.nEn) : null;
+  const name = translatedName;
+  const translatedDesc = item.d ? decodeEntities(item.d) : null;
+  const englishDesc = item.dEn ? decodeEntities(item.dEn) : null;
   const primaryImage = getItemImageUrl(item.i, "full", true);
   const additionalImages = item.is?.slice(0, 4).map((u) => getItemImageUrl(u, "thumb", true)).filter(Boolean) ?? [];
   const reviews = (item as MergedDetailBlob).reviews ?? [];
@@ -130,7 +136,7 @@ async function ItemContent({ params }: ItemPageProps) {
 
   return (
     <>
-      <ItemPageBar />
+      <ItemPageBar category={item.c} subcategory={item.sc?.[0]} name={name} />
 
       <div className="mx-auto max-w-5xl px-4 py-8">
         {/* ── Main grid ── */}
@@ -188,7 +194,16 @@ async function ItemContent({ params }: ItemPageProps) {
               ))}
             </div>
 
-            <h1 className="text-2xl font-bold text-foreground leading-tight">{name}</h1>
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                {englishName ? (
+                  <LocalizedText translated={translatedName} english={englishName} />
+                ) : (
+                  name
+                )}
+              </h1>
+              {englishName && <ShowOriginalToggle market={market} className="shrink-0" />}
+            </div>
 
             {/* Seller + ships from */}
             {item.sn && (
@@ -261,9 +276,13 @@ async function ItemContent({ params }: ItemPageProps) {
             )}
 
             {/* Description */}
-            {item.d && (
-              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                {decodeEntities(item.d)}
+            {translatedDesc && (
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                <LocalizedText
+                  translated={translatedDesc}
+                  english={englishDesc}
+                  preserveNewlines
+                />
               </p>
             )}
 
@@ -445,20 +464,67 @@ async function ItemContent({ params }: ItemPageProps) {
 
 /* ── Sticky top bar ── */
 
-function ItemPageBar() {
+function ItemPageBar({
+  category,
+  subcategory,
+  name,
+}: {
+  category?: string | null;
+  subcategory?: string | null;
+  name?: string | null;
+} = {}) {
   return (
     <div className="sticky top-0 z-50 border-b border-border bg-(--background)/80 backdrop-blur-md">
-      <div className="mx-auto flex h-12 max-w-5xl items-center justify-between px-4">
+      <div className="mx-auto flex h-12 max-w-5xl items-center gap-3 px-4">
         <Link
           href="/browse"
           prefetch={false}
-          className="group inline-flex items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all"
         >
           <span className="inline-block transition-transform duration-200 group-hover:-translate-x-0.5">
             ←
           </span>
           Browse the Index
         </Link>
+        {(category || name) && (
+          <nav
+            aria-label="Breadcrumb"
+            className="min-w-0 flex items-center gap-1.5 text-xs text-muted"
+          >
+            {category && (
+              <>
+                <span className="text-muted-foreground/50">/</span>
+                <Link
+                  href={`/browse?cat=${encodeURIComponent(category)}`}
+                  prefetch={false}
+                  className="shrink-0 hover:text-foreground transition-colors"
+                >
+                  {category}
+                </Link>
+              </>
+            )}
+            {category && subcategory && (
+              <>
+                <span className="text-muted-foreground/50">/</span>
+                <Link
+                  href={`/browse?cat=${encodeURIComponent(category)}&sub=${encodeURIComponent(subcategory)}`}
+                  prefetch={false}
+                  className="shrink-0 hover:text-foreground transition-colors"
+                >
+                  {subcategory}
+                </Link>
+              </>
+            )}
+            {name && (
+              <>
+                <span className="text-muted-foreground/50">/</span>
+                <span className="truncate text-foreground/80" title={name}>
+                  {name}
+                </span>
+              </>
+            )}
+          </nav>
+        )}
       </div>
     </div>
   );

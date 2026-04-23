@@ -98,6 +98,11 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   box: "box", boxes: "box",
   tub: "tub", tubs: "tub",
   pot: "pot", pots: "pot",
+  // Pharmaceutical packaging — a "strip" is a blister of N tablets. We
+  // don't expand to per-tablet (counts vary 5–15) but we do treat strips
+  // as a discrete count unit so multi-strip variants get a meaningful PPU.
+  strip: "strip", strips: "strip",
+  blister: "strip", blisters: "strip",
   item: "item", items: "item",
 };
 
@@ -637,6 +642,117 @@ export function groupByWeight(variants: ItemVariant[]): WeightGroup[] | null {
 export function pricePerGram(price: number, grams: number): number | null {
   if (grams <= 0 || price <= 0) return null;
   return price / grams;
+}
+
+/* ─────────── Per-unit price (PPU) ─────────── */
+
+/**
+ * Continuous units have meaningful per-unit pricing at any quantity including
+ * fractional (0.5g, 0.25ml). Discrete count units (pc, cart, joint, pod, …)
+ * only have meaningful PPU when qty > 1 — a single preroll has no "per unit"
+ * because PPU would equal the variant price.
+ */
+const CONTINUOUS_UNITS = new Set(["g", "ml", "mg"]);
+
+/**
+ * Short display label for each canonical unit. Used after the slash in
+ * "£7.41/roll", "£10/g", "$1.20/gummy", etc. Keep concise — these render
+ * inline in tight table/card layouts.
+ */
+export const UNIT_DISPLAY_LABEL: Record<string, string> = {
+  g: "g",
+  ml: "ml",
+  mg: "mg",
+  pc: "ea",
+  pk: "pack",
+  cart: "cart",
+  pod: "pod",
+  pen: "pen",
+  tab: "tab",
+  cap: "cap",
+  gummy: "gummy",
+  bar: "bar",
+  chew: "chew",
+  square: "sq",
+  star: "star",
+  joint: "roll",
+  box: "box",
+  bottle: "bottle",
+  jar: "jar",
+  bag: "bag",
+  tub: "tub",
+  pot: "pot",
+  strip: "strip",
+  item: "item",
+};
+
+/**
+ * Per-unit price for any parsed quantity. Mirrors old-biggyindex
+ * `perUnitSuffix`: returns `price / qty` for any unit, or null when PPU
+ * would be meaningless (qty missing, qty <= 0, or qty === 1 on a discrete
+ * count unit).
+ */
+export function pricePerUnit(
+  price: number,
+  parsed: { unit: string; qty: number } | null,
+): number | null {
+  if (!parsed) return null;
+  if (!(parsed.qty > 0)) return null;
+  if (!(price > 0)) return null;
+  // Skip qty==1 for discrete count units — "1 preroll" has no meaningful PPU.
+  if (!CONTINUOUS_UNITS.has(parsed.unit) && parsed.qty <= 1) return null;
+  return price / parsed.qty;
+}
+
+/**
+ * Variant-level PPU. Parses the variant then applies `pricePerUnit`. An
+ * optional shipping surcharge is added to the price before dividing.
+ * Returns `{ ppu, unit, qty }` or null when not computable.
+ */
+export function variantPpu(
+  v: ItemVariant,
+  shipSurcharge = 0,
+): { ppu: number; unit: string; qty: number } | null {
+  const parsed = parseVariant(v);
+  if (!parsed) return null;
+  const ppu = pricePerUnit(v.usd + shipSurcharge, parsed);
+  if (ppu == null) return null;
+  return { ppu, unit: parsed.unit, qty: parsed.qty };
+}
+
+/**
+ * Cheapest PPU across an item's variants. Groups variants by unit so we
+ * never compare "£7/roll" against "£10/g". Returns the lowest PPU in the
+ * largest unit-group (ties broken by lowest value). Used for card-level
+ * "from £X/unit" displays and the ppg sort.
+ */
+export function cheapestPpu(
+  variants: ItemVariant[] | null | undefined,
+  shipSurcharge = 0,
+): { ppu: number; unit: string } | null {
+  if (!variants || variants.length === 0) return null;
+  const byUnit = new Map<string, number[]>();
+  for (const v of variants) {
+    const res = variantPpu(v, shipSurcharge);
+    if (!res) continue;
+    const arr = byUnit.get(res.unit) ?? [];
+    arr.push(res.ppu);
+    byUnit.set(res.unit, arr);
+  }
+  if (byUnit.size === 0) return null;
+  // Prefer the largest group (most variants share that unit), tiebreak by min ppu.
+  let best: { unit: string; ppu: number; size: number } | null = null;
+  for (const [unit, arr] of byUnit) {
+    const minPpu = Math.min(...arr);
+    if (
+      !best
+      || arr.length > best.size
+      || (arr.length === best.size && minPpu < best.ppu)
+    ) {
+      best = { unit, ppu: minPpu, size: arr.length };
+    }
+  }
+  return best ? { ppu: best.ppu, unit: best.unit } : null;
 }
 
 /**

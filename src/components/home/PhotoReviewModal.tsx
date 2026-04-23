@@ -140,81 +140,95 @@ export function PhotoReviewModal() {
               "flex flex-col md:flex-row",
             )}
           >
-            {/* Close button */}
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label="Close review"
-              className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
-            >
-              <X size={16} />
-            </button>
-
-            {/* Left: Image gallery */}
-            <div className="relative flex-1 min-h-60 md:min-h-115 bg-black/90 md:w-1/2">
-              {images.length > 0 ? (
-                <>
-                  {/* Primary image click opens the zoom preview */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setZoomIndex(0);
-                      setZoomSignal(Date.now());
-                    }}
-                    className="absolute inset-0 flex items-center justify-center overflow-hidden"
-                    aria-label="Zoom image"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={images[0]}
-                      alt={review.itemName ?? "Review photo"}
-                      className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-[1.02]"
-                    />
-                  </button>
-
-                  {images.length > 1 && (
-                    <div className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1.5 z-10">
-                      {images.slice(0, 8).map((src, idx) => (
-                        <button
-                          key={src + idx}
-                          type="button"
-                          onClick={() => {
-                            setZoomIndex(idx);
-                            setZoomSignal(Date.now());
-                          }}
-                          className="h-12 w-12 rounded-md overflow-hidden border border-white/20 hover:border-white/60 transition-colors"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={src}
-                            alt=""
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  <Suspense fallback={null}>
-                    <ImageZoomPreview
-                      imageUrls={images}
-                      alt={review.itemName ?? "Review photo"}
-                      openSignal={zoomSignal}
-                      startIndex={zoomIndex}
-                    />
-                  </Suspense>
-                </>
-              ) : (
+            {/* Left: Image gallery.
+                Single image => large clickable hero. Multiple images =>
+                responsive grid so every photo from the review is visible;
+                clicking any tile opens the site-wide zoom gallery starting
+                at that index. */}
+            <div className="relative flex-1 min-h-60 md:min-h-115 bg-black/90 md:w-1/2 overflow-y-auto">
+              {images.length === 0 ? (
                 <div className="flex h-full w-full items-center justify-center text-white/40 text-sm">
                   No images attached
                 </div>
+              ) : images.length === 1 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setZoomIndex(0);
+                    setZoomSignal(Date.now());
+                  }}
+                  className="absolute inset-0 flex items-center justify-center overflow-hidden cursor-zoom-in"
+                  aria-label="Zoom image"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={images[0]}
+                    alt={review.itemName ?? "Review photo"}
+                    className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-[1.02]"
+                  />
+                </button>
+              ) : (
+                <div
+                  className={cx(
+                    "grid gap-1.5 p-1.5",
+                    images.length === 2 && "grid-cols-2",
+                    images.length === 3 && "grid-cols-2",
+                    images.length >= 4 && "grid-cols-2 sm:grid-cols-3",
+                  )}
+                >
+                  {images.map((src, idx) => (
+                    <button
+                      key={src + idx}
+                      type="button"
+                      onClick={() => {
+                        setZoomIndex(idx);
+                        setZoomSignal(Date.now());
+                      }}
+                      aria-label={`Zoom photo ${idx + 1} of ${images.length}`}
+                      className={cx(
+                        "relative aspect-square overflow-hidden rounded-md bg-black/60 group cursor-zoom-in",
+                        // First image spans 2x2 when there are >=3 so the
+                        // grid doesn't look awkwardly sparse.
+                        images.length === 3 && idx === 0 && "row-span-2 aspect-auto",
+                      )}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={src}
+                        alt=""
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {images.length > 0 && (
+                <Suspense fallback={null}>
+                  <ImageZoomPreview
+                    imageUrls={images}
+                    alt={review.itemName ?? "Review photo"}
+                    openSignal={zoomSignal}
+                    startIndex={zoomIndex}
+                  />
+                </Suspense>
               )}
             </div>
 
-            {/* Right: Review content */}
-            <div className="flex flex-col md:w-1/2 md:min-w-[320px] max-h-[50vh] md:max-h-full overflow-y-auto">
-              <div className="p-5 md:p-6 flex-1">
+            {/* Right: Review content. Close button lives inside this column
+                (top-right) so it never overlaps the review image or text. */}
+            <div className="flex flex-col md:w-1/2 md:min-w-[320px] max-h-[50vh] md:max-h-full overflow-y-auto relative">
+              <button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close review"
+                className="sticky top-2 ml-auto mr-2 z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 border border-border text-muted hover:text-foreground hover:bg-surface transition-colors"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="p-5 md:p-6 pt-0 -mt-6 flex-1">
                 {/* Header: stars + when */}
                 <div className="flex items-center justify-between mb-3">
                   <Stars rating={review.rating} />
@@ -270,16 +284,19 @@ export function PhotoReviewModal() {
                 )}
               </div>
 
-              {/* Footer actions */}
+              {/* Footer actions. "Open item" matches the site-wide primary
+                  CTA (.ido-lb-btn): pill shape, primary fill, arrow that
+                  slides on hover. "View on LittleBiggy" is a quiet ghost
+                  button so the primary action owns the spotlight. */}
               <div className="border-t border-border bg-surface/60 p-4 flex flex-col sm:flex-row gap-2">
                 {review.refNum && (
                   <button
                     type="button"
                     onClick={openItem}
-                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+                    className="prm-primary-btn group"
                   >
-                    Open item
-                    <ArrowRight size={14} />
+                    <span>Open item</span>
+                    <ArrowRight size={14} className="prm-primary-btn__arrow" />
                   </button>
                 )}
                 {shareLink && (
@@ -287,10 +304,10 @@ export function PhotoReviewModal() {
                     href={shareLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-surface-2 transition-colors"
+                    className="prm-ghost-btn"
                   >
-                    View on LittleBiggy
-                    <ExternalLink size={14} />
+                    <span>View on LittleBiggy</span>
+                    <ExternalLink size={13} className="opacity-70" />
                   </a>
                 )}
               </div>

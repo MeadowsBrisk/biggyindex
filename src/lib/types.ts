@@ -121,6 +121,8 @@ export interface Item {
   io?: number;
   /** v2 filterable attributes */
   at?: ItemAttributes | null;
+  /** Categorization confidence (0-1, rounded to 2dp) */
+  cf?: number | null;
 }
 
 // ─── Price History ──────────────────────────────────────────────────
