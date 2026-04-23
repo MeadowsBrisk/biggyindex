@@ -1,0 +1,1198 @@
+/* ==========================================================================
+   Item Card Styles — BiggyIndex v2
+   Adapted from food-aggregator patterns, cannabis-specific identity.
+   ========================================================================== */
+
+/* ==========================================================================
+   Item List Grid (responsive breakpoints)
+   ========================================================================== */
+
+.item-list-grid {
+  @apply grid gap-4 lg:gap-[10px];
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+
+  @variant sm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @variant lg {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1440px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1920px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  @media (min-width: 2560px) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Item Card — shell
+   ========================================================================== */
+
+.item-card {
+  @apply contain-paint relative rounded-lg overflow-hidden w-full;
+  border: 1px solid var(--border);
+  padding: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--card) 0%,
+    color-mix(in srgb, var(--card) 98%, var(--primary)) 58%,
+    color-mix(in srgb, var(--card) 96%, var(--primary)) 100%
+  );
+  transition-property: box-shadow, border-color, background-color;
+  transition-duration: 280ms;
+  transition-timing-function: ease-out;
+
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+
+  @variant dark {
+    background: linear-gradient(
+      180deg,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 95%, var(--primary)) 55%,
+      color-mix(in srgb, var(--card) 92%, var(--primary)) 100%
+    );
+  }
+}
+
+.item-card:hover {
+  border-color: var(--muted-foreground);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(
+    180deg,
+    var(--card) 0%,
+    color-mix(in srgb, var(--card) 96%, var(--primary)) 52%,
+    color-mix(in srgb, var(--card) 94%, var(--primary)) 100%
+  );
+
+  @variant dark {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--card) 90%, var(--primary)) 0%,
+      color-mix(in srgb, var(--card) 88%, var(--primary)) 55%,
+      color-mix(in srgb, var(--card) 85%, var(--primary)) 100%
+    );
+  }
+}
+
+.item-card-inner {
+  @apply flex flex-col h-full rounded-[5px];
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: background-color 200ms ease-out;
+}
+
+.item-card:hover .item-card-inner {
+  background: var(--card-hover, var(--surface));
+}
+
+/* Scroll-revealed cards: start hidden, animate in when scrolled into view */
+.item-card[data-scroll-reveal='true'] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition-property: opacity, transform, box-shadow, border-color, background-color;
+  transition-duration: 540ms, 520ms, 280ms, 280ms, 280ms;
+  transition-timing-function:
+    cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1), ease-out, ease-out, ease-out;
+}
+
+.item-card[data-scroll-reveal='true'][data-entered='true'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-card[data-scroll-reveal='true'] {
+    transition-duration: 0ms;
+  }
+}
+
+/* Animation complete — release will-change */
+.item-card[data-animated='true'] {
+  will-change: auto;
+}
+
+/* ==========================================================================
+   Image Section
+   ========================================================================== */
+
+.item-card-image {
+  @apply overflow-hidden relative rounded-[4px];
+  margin: 4px 4px 0;
+  background: var(--surface);
+  isolation: isolate;
+}
+
+.card-image {
+  @apply w-full h-full object-cover transform-gpu;
+  transition: transform 900ms ease-out;
+}
+
+.card-image--primary {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover image — sits on top, fades in after delay (food-agg timings) */
+.card-image--hover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  transition:
+    opacity 500ms ease-out 300ms,
+    transform 900ms ease-out;
+  pointer-events: none;
+}
+
+.item-card:hover .card-image--primary {
+  transform: scale(1.06);
+}
+
+.item-card:hover .card-image--hover {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+/* Card control overlay — children hidden individually so always-show works */
+.card-controls > * {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.item-card:hover .card-controls > *,
+.card-controls > .always-show {
+  opacity: 1;
+}
+
+/* Bookmark button — shares the frosted glass base with .card-lb-btn for consistency. */
+.bookmark-btn {
+  @apply rounded-full p-2 border cursor-pointer;
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  color: var(--muted);
+  transition:
+    transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease,
+    opacity 200ms ease-out;
+}
+[data-theme='dark'] .bookmark-btn {
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+.bookmark-btn:hover {
+  color: #f43f5e;
+  background-color: color-mix(in srgb, #f43f5e 14%, var(--glass-bg-strong));
+  border-color: color-mix(in srgb, #f43f5e 55%, transparent);
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.18);
+  transform: scale(1.08);
+}
+[data-theme='dark'] .bookmark-btn:hover {
+  color: #fb7185;
+  background-color: color-mix(in srgb, #fb7185 18%, var(--glass-bg-strong));
+  border-color: color-mix(in srgb, #fb7185 50%, transparent);
+  box-shadow: 0 2px 10px rgba(251, 113, 133, 0.25);
+}
+
+.bookmark-btn:active {
+  transform: scale(0.94);
+  transition-duration: 100ms;
+}
+
+.bookmark-active-btn {
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.4);
+  background: color-mix(in srgb, #f43f5e 10%, var(--card));
+}
+[data-theme='dark'] .bookmark-active-btn {
+  color: #fb7185;
+  border-color: rgba(251, 113, 133, 0.35);
+  background: color-mix(in srgb, #fb7185 12%, var(--card));
+}
+
+.card-lb-btn {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.625rem 0.3125rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  text-decoration: none;
+  transition:
+    opacity 200ms ease-out,
+    background-color 360ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.item-card:hover .card-lb-btn,
+.card-lb-btn:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .card-lb-btn { opacity: 0.9; }
+}
+
+.card-lb-btn:hover {
+  /* Keep text color stable — just tint bg + border with accent, plus glow */
+  background-color: color-mix(in srgb, var(--accent) 22%, var(--glass-bg-strong));
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow:
+    0 2px 10px color-mix(in srgb, var(--accent) 30%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.card-lb-btn__arrow {
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1;
+  color: currentColor;
+  transform: translateX(0);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-lb-btn:hover .card-lb-btn__arrow {
+  transform: translateX(3px);
+}
+
+@variant dark {
+  .card-lb-btn {
+    border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lb-btn__arrow { transition: none; }
+}
+
+/* Bookmarked card — override shell border + background */
+.bookmark-card-ring {
+  border-color: rgba(244, 63, 94, 0.30) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f43f5e 6%, var(--card)) 0%,
+    color-mix(in srgb, #f43f5e 3%, var(--card)) 60%,
+    var(--card) 100%
+  );
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.08);
+
+  @variant dark {
+    border-color: rgba(251, 113, 133, 0.22) !important;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #fb7185 10%, var(--card)) 0%,
+      color-mix(in srgb, #fb7185 5%, var(--card)) 60%,
+      var(--card) 100%
+    );
+    box-shadow: 0 6px 20px rgba(251, 113, 133, 0.10);
+  }
+}
+
+/* Bookmarked card inner — warm tint */
+.bookmark-card-inner {
+  background: linear-gradient(to bottom, #FFF1F2, var(--card), var(--card));
+  border-color: rgba(244, 63, 94, 0.25);
+
+  @variant dark {
+    background: linear-gradient(to bottom, #2A0F14, var(--card), var(--card));
+    border-color: rgba(251, 113, 133, 0.18);
+  }
+}
+
+/* ==========================================================================
+   Card Content (clickable body area)
+   BiggyIndex-distinct: left accent border on hover
+   ========================================================================== */
+
+.card-content {
+  @apply relative w-full text-left cursor-pointer;
+  padding: 0.5em;
+  padding-left: calc(0.5em + 3px);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  appearance: none;
+  margin-bottom: 8px;
+  font: inherit;
+  color: inherit;
+  transition:
+    background-color 220ms ease-out,
+    box-shadow 220ms ease-out;
+}
+
+/* Left accent bar — gradient from primary, fades in on hover */
+.card-content::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--primary) 60%, transparent),
+    var(--primary),
+    color-mix(in srgb, var(--primary) 60%, transparent)
+  );
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+}
+
+.card-content:focus-visible {
+  @apply outline-none ring-2 ring-offset-2 ring-primary;
+  ring-offset-color: var(--background);
+}
+
+.card-content:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 8%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 6%, transparent) 50%,
+    color-mix(in srgb, var(--primary) 4%, transparent) 100%
+  );
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--primary) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+  @variant dark {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary) 20%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 16%, rgba(30, 64, 175, 0.06)) 50%,
+      color-mix(in srgb, var(--primary) 12%, transparent) 100%
+    );
+    box-shadow:
+      0 6px 18px rgba(12, 48, 96, 0.3),
+      inset 0 1px 0 color-mix(in srgb, var(--primary) 15%, transparent);
+  }
+}
+
+.card-content:hover::before {
+  opacity: 1;
+}
+
+.card-content:active {
+  transition-duration: 60ms;
+}
+
+.card-content__inner {
+  @apply relative;
+}
+
+.card-content__header {
+  @apply flex items-center gap-1;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.card-content__header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(203, 213, 225, 0.4) 0%,
+    rgba(148, 163, 184, 0.6) 50%,
+    rgba(203, 213, 225, 0.4) 100%
+  );
+  opacity: 0.45;
+  transition:
+    opacity 180ms ease-out,
+    background 180ms ease-out;
+}
+
+[data-theme="dark"] .card-content__header::after {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(148, 163, 184, 0.8) 50%,
+    rgba(30, 41, 59, 0.6) 100%
+  );
+}
+
+.card-content:hover .card-content__header::after {
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 30%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 60%, transparent) 50%,
+    color-mix(in srgb, var(--primary) 30%, transparent) 100%
+  );
+
+  @variant dark {
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--primary) 50%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 85%, transparent) 50%,
+      color-mix(in srgb, var(--primary) 50%, transparent) 100%
+    );
+  }
+}
+
+.card-content__title {
+  @apply text-sm font-semibold line-clamp-1;
+  min-width: 0;
+  color: var(--foreground);
+  transition: color 180ms ease-out;
+}
+
+.card-content__title-row {
+  @apply flex items-center gap-1 min-w-0;
+  flex: 1;
+}
+
+/* Item rating badge — next to title, /10 scale, color by rating */
+.card-item-rating {
+  @apply inline-flex items-center gap-0.5 shrink-0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: #d97706;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.08);
+
+  @variant dark {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.12);
+  }
+}
+
+.card-item-rating--low {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+
+  @variant dark {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.14);
+  }
+}
+
+.card-item-rating__count {
+  font-weight: 500;
+  opacity: 0.6;
+  margin-left: 1px;
+}
+
+.card-content:hover .card-content__title {
+  color: var(--foreground);
+}
+
+.card-content__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.card-content__icon svg {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+}
+
+/* Show arrow dimly when card is hovered (but card-content is not) */
+.item-card:hover .card-content__icon {
+  opacity: 0.25;
+}
+
+/* Full opacity when card-content (name/desc) is hovered or focused */
+.card-content:hover .card-content__icon,
+.card-content:focus-visible .card-content__icon {
+  opacity: 1;
+}
+
+/* ── Arrow fly-out / fly-in transition (SiteButton-inspired) ── */
+
+.card-arrow {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-arrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Outgoing arrow: visible at rest, flies up-right + fades on content hover */
+.card-arrow--out {
+  transform: translate(0, 0);
+  opacity: 1;
+  transition: none;
+}
+
+.card-content:hover .card-arrow--out {
+  transform: translate(40%, -40%);
+  opacity: 0;
+  transition:
+    transform 0.2s ease-in,
+    opacity 0.15s ease-in;
+}
+
+/* Incoming arrow: hidden at rest (parked bottom-left), flies to center on hover */
+.card-arrow--in {
+  transform: translate(-40%, 40%);
+  opacity: 0;
+  transition: none;
+}
+
+.card-content:hover .card-arrow--in {
+  transform: translate(0, 0);
+  opacity: 1;
+  transition:
+    transform 0.3s ease-out 0.12s,
+    opacity 0.3s ease-out 0.12s;
+}
+
+.card-content__description {
+  @apply text-sm leading-[1.4];
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  height: calc(1.4em * 3);
+  margin: 0;
+  transition: color 180ms ease-out;
+}
+
+.card-content__description.empty {
+  min-height: calc(1.4em * 3);
+  height: calc(1.4em * 3);
+}
+
+.card-content:hover .card-content__description {
+  color: var(--foreground);
+}
+
+/* ==========================================================================
+   Category / Subcategory Pills (image overlay)
+   ========================================================================== */
+
+.card-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  color: var(--foreground);
+  transition: opacity 200ms ease-out;
+}
+
+.card-pill--image {
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  color: var(--foreground);
+  font-weight: 600;
+}
+[data-theme='dark'] .card-pill--image {
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+/* Strain group dot — Indica (purple), Sativa (amber), Hybrid (green) */
+.card-pill__group-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.card-pill__group-dot--indica {
+  background: #a78bfa;
+}
+
+.card-pill__group-dot--sativa {
+  background: #fbbf24;
+}
+
+.card-pill__group-dot--hybrid {
+  background: #34d399;
+}
+
+/* ==========================================================================
+   Seller Card — compact row with avatar initial, name, badges
+   ========================================================================== */
+
+.seller-card {
+  @apply flex items-center gap-2;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 4px 2px;
+  transition: background-color 150ms ease;
+}
+
+.seller-card__avatar {
+  @apply flex items-center justify-center shrink-0 relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+}
+
+.seller-card__actions {
+  @apply inline-flex items-center gap-2;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.seller-card:hover .seller-card__actions,
+.seller-card__actions:focus-within {
+  opacity: 1;
+}
+
+.seller-card__body {
+  @apply flex flex-col min-w-0;
+}
+
+.seller-card__name-row {
+  @apply flex items-center gap-1 flex-wrap;
+}
+
+.seller-card__name {
+  @apply font-medium truncate;
+  color: var(--foreground);
+  max-width: 140px;
+}
+
+.seller-card__action {
+  @apply inline-flex items-center gap-0.5 shrink-0 cursor-pointer;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition: color 0.15s;
+}
+
+.seller-card__action:hover {
+  color: var(--primary);
+}
+
+.seller-card__action--hide:hover {
+  color: var(--destructive, #ef4444);
+}
+
+.seller-card__meta {
+  @apply flex items-center gap-2;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.seller-card__domain {
+  @apply truncate;
+}
+
+.seller-card__badge {
+  @apply inline-flex items-center gap-0.5 shrink-0;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  background: var(--surface);
+  color: var(--muted-foreground);
+}
+
+.seller-card__badge--rating {
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.1);
+
+  @variant dark {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.15);
+  }
+}
+
+.seller-card__badge--item-rating {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+
+  @variant dark {
+    color: #a78bfa;
+    background: rgba(167, 139, 250, 0.12);
+  }
+}
+
+.seller-card__badge--free {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.1);
+
+  @variant dark {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.12);
+  }
+}
+
+.seller-card__badge--shipping {
+  color: #6b7280;
+  background: rgba(107, 114, 128, 0.1);
+
+  @variant dark {
+    color: #9ca3af;
+    background: rgba(156, 163, 175, 0.15);
+  }
+}
+
+/* ==========================================================================
+   Seller Avatar Tooltip — cursor-following preview
+   ========================================================================== */
+
+.seller-avatar-tooltip__card {
+  @apply relative flex flex-col items-center;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+}
+
+.seller-avatar-tooltip__img-wrap {
+  width: 180px;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.seller-avatar-tooltip__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+}
+
+.seller-avatar-tooltip__initial {
+  @apply flex items-center justify-center w-full h-full;
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+}
+
+.seller-avatar-tooltip__arrow {
+  width: 12px;
+  height: 6px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: var(--surface);
+  margin-top: -1px;
+}
+
+.seller-avatar-tooltip__arrow--top {
+  width: 12px;
+  height: 6px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: var(--surface);
+  margin-bottom: -1px;
+}
+
+/* ==========================================================================
+   Variant Size Buttons — weight + price selectors
+   ========================================================================== */
+
+/* ── PillRow — horizontal scroll strip with drag + gradient (food-agg port) ── */
+
+/* Spacer: reserves strain-row height when no strains exist, keeping weight rows aligned */
+.pill-row-spacer {
+  height: 24px;
+}
+
+.pill-row {
+  @apply flex flex-col gap-1;
+}
+
+.pill-row__track {
+  position: relative;
+}
+
+.pill-row__scroll {
+  @apply flex gap-1.5 overflow-x-auto overflow-y-hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+  user-select: none;
+  padding: 2px 2px 2px 3px;
+}
+
+.pill-row__scroll[data-scrollable='true'] {
+  cursor: grab;
+}
+
+.pill-row__scroll[data-scrollable='true']:active {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.pill-row__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Overflow gradient + arrow hint — visible on hover when scrollable */
+.pill-row__overflow {
+  @apply absolute right-0 top-0 bottom-0 flex items-center justify-end pointer-events-none;
+  padding-right: 6px;
+  padding-left: 52px;
+  background: linear-gradient(
+    to left,
+    var(--card) 0%,
+    color-mix(in srgb, var(--card) 97%, transparent) 42%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 400ms ease;
+
+  @variant dark {
+    background: linear-gradient(
+      to left,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 98%, transparent) 35%,
+      transparent 100%
+    );
+  }
+}
+
+.pill-row__scroll[data-scrollable='false'] ~ .pill-row__overflow {
+  display: none;
+}
+
+.pill-row__scroll[data-at-end='true'] ~ .pill-row__overflow {
+  display: none;
+}
+
+.item-card:hover .pill-row__scroll[data-scrolled='false'] ~ .pill-row__overflow {
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+
+/* Mobile/touch: always show arrow since there's no hover */
+@variant max-md {
+  .pill-row__scroll[data-scrolled='false'] ~ .pill-row__overflow {
+    opacity: 1;
+  }
+}
+
+.pill-row__scroll[data-scrolled='true'] {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.pill-row__scroll[data-at-end='true'] {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.pill-row__overflow-count {
+  @apply inline-flex items-center gap-1 text-[10px] font-semibold leading-none rounded-full px-1.5 py-[2px];
+  color: color-mix(in srgb, var(--foreground) 68%, var(--muted) 32%);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+}
+
+.item-card:hover .pill-row__overflow {
+  background: linear-gradient(
+    to left,
+    var(--card-hover, var(--surface)) 0%,
+    color-mix(in srgb, var(--card-hover, var(--surface)) 98%, transparent) 35%,
+    transparent 100%
+  );
+}
+
+/* ── Strain pills ── */
+
+.card-pill--strain {
+  @apply inline-flex items-center shrink-0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--foreground);
+  cursor: pointer;
+  pointer-events: auto;
+  scroll-snap-align: start;
+  white-space: nowrap;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+
+  @variant dark {
+    color: color-mix(in srgb, var(--foreground) 94%, transparent);
+    background: color-mix(in srgb, var(--surface) 82%, var(--card));
+  }
+}
+
+.card-pill--strain:hover {
+  border-color: var(--primary);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+}
+
+.card-pill--selected {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  color: var(--primary);
+  font-weight: 600;
+
+  @variant dark {
+    background: color-mix(in srgb, var(--primary) 18%, var(--surface));
+  }
+}
+
+.card-pill--strain__price {
+  font-size: 9px;
+  font-weight: 600;
+  opacity: 0.78;
+  margin-left: 3px;
+  color: var(--muted);
+}
+
+.card-pill--selected .card-pill--strain__price {
+  opacity: 1;
+  color: var(--muted);
+}
+
+/* ── Weight buttons ── */
+
+.variant-pill-row {
+  @apply flex gap-1.5 overflow-x-auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.variant-pill-row::-webkit-scrollbar {
+  display: none;
+}
+
+.variant-size-btn {
+  @apply flex flex-col items-center justify-center shrink-0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+  min-width: 48px;
+
+  @variant dark {
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+  }
+}
+
+.variant-size-btn:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+
+  @variant dark {
+    background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+  }
+}
+
+.variant-size-btn--selected {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+
+  @variant dark {
+    background: color-mix(in srgb, var(--primary) 15%, var(--surface));
+  }
+}
+
+.variant-size-btn__size {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--foreground);
+}
+
+.variant-size-btn--selected .variant-size-btn__size {
+  color: var(--primary);
+}
+
+.variant-size-btn--unavailable {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.variant-size-btn__price {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.variant-size-btn__count {
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+}
+
+/* ==========================================================================
+   Card Price Area — large price + PPG inline
+   ========================================================================== */
+
+.card-price-area {
+  @apply flex flex-col gap-0.5;
+  min-height: 1.25rem;
+}
+
+.card-price-row {
+  @apply flex flex-col;
+  overflow: hidden;
+  min-height: 1.5rem;
+}
+
+.card-price-main {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--foreground);
+}
+
+.card-price-main--range {
+  font-size: 1rem;
+}
+
+.card-price-ppg {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--primary);
+  margin-top: 1px;
+}
+
+.card-price-sub {
+  @apply flex items-center gap-1.5;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.card-price-strains {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* ==========================================================================
+   Card Footer Gradient
+   ========================================================================== */
+
+.card-footer-gradient {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--card) 95%, transparent) 0%,
+    color-mix(in srgb, var(--card) 50%, transparent) 60%,
+    transparent 100%
+  );
+
+  @variant dark {
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--card) 95%, transparent) 0%,
+      color-mix(in srgb, var(--card) 50%, transparent) 60%,
+      transparent 100%
+    );
+  }
+}
+
+/* ==========================================================================
+   Staggered Entry Animation — matches grid column breakpoints
+   ========================================================================== */
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .item-card:nth-child(2n + 1) { transition-delay: 0ms; }
+  .item-card:nth-child(2n + 2) { transition-delay: 90ms; }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .item-card:nth-child(3n + 1) { transition-delay: 0ms; }
+  .item-card:nth-child(3n + 2) { transition-delay: 80ms; }
+  .item-card:nth-child(3n + 3) { transition-delay: 160ms; }
+}
+
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .item-card:nth-child(4n + 1) { transition-delay: 0ms; }
+  .item-card:nth-child(4n + 2) { transition-delay: 70ms; }
+  .item-card:nth-child(4n + 3) { transition-delay: 140ms; }
+  .item-card:nth-child(4n + 4) { transition-delay: 210ms; }
+}
+
+@media (min-width: 1920px) and (max-width: 2559px) {
+  .item-card:nth-child(5n + 1) { transition-delay: 0ms; }
+  .item-card:nth-child(5n + 2) { transition-delay: 60ms; }
+  .item-card:nth-child(5n + 3) { transition-delay: 120ms; }
+  .item-card:nth-child(5n + 4) { transition-delay: 180ms; }
+  .item-card:nth-child(5n + 5) { transition-delay: 240ms; }
+}
+
+@media (min-width: 2560px) {
+  .item-card:nth-child(6n + 1) { transition-delay: 0ms; }
+  .item-card:nth-child(6n + 2) { transition-delay: 50ms; }
+  .item-card:nth-child(6n + 3) { transition-delay: 100ms; }
+  .item-card:nth-child(6n + 4) { transition-delay: 150ms; }
+  .item-card:nth-child(6n + 5) { transition-delay: 200ms; }
+  .item-card:nth-child(6n + 6) { transition-delay: 250ms; }
+}

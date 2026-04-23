@@ -1,0 +1,53 @@
+/* ==========================================================================
+   Basket drawer — slide-in from right.
+   ========================================================================== */
+
+.basket-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0, 0, 0, 0.4);
+  animation: basket-fade-in 0.2s ease-out;
+}
+
+.basket-overlay--closing {
+  animation: basket-fade-out 0.2s ease-in forwards;
+}
+
+.basket-drawer {
+  position: fixed;
+  inset-block: 0;
+  right: 0;
+  z-index: 260;
+  width: 100%;
+  max-width: 28rem;
+  background: var(--background);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.15);
+  animation: basket-slide-in 0.25s ease-out;
+  outline: none;
+}
+
+.basket-drawer--closing {
+  animation: basket-slide-out 0.2s ease-in forwards;
+}
+
+@keyframes basket-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes basket-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes basket-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes basket-slide-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}

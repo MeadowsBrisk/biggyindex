@@ -1,0 +1,317 @@
+@import 'tailwindcss';
+
+/* Element styles */
+@import '../styles/elements/item-card.css';
+@import '../styles/elements/item-detail-overlay.css';
+@import '../styles/elements/modal-shell.css';
+@import '../styles/elements/review-card.css';
+@import '../styles/elements/basket.css';
+@import '../styles/elements/sort-bar.css';
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tooltip-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Frosted glass surface (matches the --frosted-bg/--frosted-blur pattern
+   from the old project). Hardcoded rgba so backdrop-filter is never
+   shadowed by Tailwind layer ordering or @theme token rewrites.
+   Any element with .glass gets:
+     - translucent base tint (so the blur has something to multiply)
+     - 20px gaussian blur on everything rendered behind it
+   ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .glass {
+    background-color: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: blur(var(--glass-blur));
+  }
+  .glass--strong {
+    background-color: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: blur(var(--glass-blur));
+  }
+}
+
+/*
+ * Dark variant — matches the element with [data-theme] AND its descendants.
+ * Uses :where() for zero-specificity so it doesn't fight inline styles.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@layer base {
+  :root {
+    /* Core palette — light: warm off-white with subtle green undertone */
+    --background: #f7f9f7;
+    --foreground: #1a1a1a;
+    --surface: #ffffff;
+    --surface-hover: #eef2ee;
+    --border: #d4ddd4;
+    --muted: #5f7060;
+    --muted-foreground: #8a9b8c;
+    --card: #ffffff;
+    --card-hover: #f5f8f5;
+
+    /* Brand — green */
+    --primary: #16a34a;
+    --primary-foreground: #f0fdf4;
+    --accent: #22c55e;
+    --accent-foreground: #ffffff;
+    --secondary: #e4ebe4;
+    --secondary-foreground: #1e2a1e;
+
+    /* BiggyIndex-specific: gradient accent */
+    --accent-gradient: linear-gradient(135deg, #16a34a 0%, #059669 50%, #0d9488 100%);
+
+    /* Misc */
+    --destructive: #ef4444;
+    --input: var(--border);
+    --ring: var(--primary);
+    --popover: var(--card);
+    --popover-foreground: var(--foreground);
+    --radius: 0.5rem;
+
+    /* Card foreground inherits */
+    --card-foreground: var(--foreground);
+
+    /* ── Frosted glass surface (card pills, LB btn, toolbar-style chrome) ── */
+    --glass-bg: rgb(247 249 247 / 0.6);
+    --glass-bg-strong: rgb(247 249 247 / 0.82);
+    --glass-blur: 20px;
+    --glass-border: color-mix(in srgb, var(--foreground) 8%, transparent);
+  }
+
+  [data-theme='dark'] {
+    /* Deep charcoal with green undertone — distinct from food-agg's navy */
+    --background: #0c0f0c;
+    --foreground: #e8ece8;
+    --surface: #161b16;
+    --surface-hover: #1e251e;
+    --border: #2a352a;
+    --muted: #7f917f;
+    --muted-foreground: #a8b8a8;
+    --card: #121712;
+    --card-hover: #171d17;
+
+    /* Brand — neon green glow in dark */
+    --primary: #34d399;
+    --primary-foreground: #052e16;
+    --accent: #6ee7b7;
+    --accent-foreground: #052e16;
+    --secondary: #1e291e;
+    --secondary-foreground: #d4e5d4;
+
+    /* BiggyIndex-specific: gradient accent */
+    --accent-gradient: linear-gradient(135deg, #34d399 0%, #10b981 50%, #14b8a6 100%);
+
+    /* Misc */
+    --destructive: #f87171;
+    --input: var(--border);
+    --ring: var(--primary);
+    --popover: var(--card);
+    --popover-foreground: var(--foreground);
+
+    --card-foreground: var(--foreground);
+
+    /* Frosted glass — dark variant: slightly stronger base tint */
+    --glass-bg: rgb(12 15 12 / 0.55);
+    --glass-bg-strong: rgb(12 15 12 / 0.82);
+    --glass-blur: 20px;
+    --glass-border: color-mix(in srgb, var(--foreground) 12%, transparent);
+
+    color-scheme: dark;
+  }
+
+  [data-theme='light'] {
+    color-scheme: light;
+  }
+}
+
+/* ─── Accent color swatches (easter egg) ─────────────────────── */
+
+@layer base {
+  /* Blue */
+  [data-accent='blue'] {
+    --primary: #2563eb;
+    --accent: #3b82f6;
+    --accent-gradient: linear-gradient(135deg, #2563eb 0%, #0ea5e9 50%, #06b6d4 100%);
+  }
+  [data-theme='dark'][data-accent='blue'] {
+    --primary: #60a5fa;
+    --accent: #93c5fd;
+    --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #22d3ee 100%);
+    --primary-foreground: #0c1a3b;
+  }
+
+  /* Purple */
+  [data-accent='purple'] {
+    --primary: #7c3aed;
+    --accent: #8b5cf6;
+    --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #d946ef 100%);
+  }
+  [data-theme='dark'][data-accent='purple'] {
+    --primary: #a78bfa;
+    --accent: #c4b5fd;
+    --accent-gradient: linear-gradient(135deg, #a78bfa 0%, #c084fc 50%, #e879f9 100%);
+    --primary-foreground: #1e0a3e;
+  }
+
+  /* Amber */
+  [data-accent='amber'] {
+    --primary: #d97706;
+    --accent: #f59e0b;
+    --accent-gradient: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #dc2626 100%);
+  }
+  [data-theme='dark'][data-accent='amber'] {
+    --primary: #fbbf24;
+    --accent: #fcd34d;
+    --accent-gradient: linear-gradient(135deg, #fbbf24 0%, #fb923c 50%, #f87171 100%);
+    --primary-foreground: #2a1700;
+  }
+
+  /* Rose */
+  [data-accent='rose'] {
+    --primary: #e11d48;
+    --accent: #f43f5e;
+    --accent-gradient: linear-gradient(135deg, #e11d48 0%, #db2777 50%, #a855f7 100%);
+  }
+  [data-theme='dark'][data-accent='rose'] {
+    --primary: #fb7185;
+    --accent: #fda4af;
+    --accent-gradient: linear-gradient(135deg, #fb7185 0%, #f472b6 50%, #c084fc 100%);
+    --primary-foreground: #2a0514;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-hover: var(--card-hover);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Hide scrollbars for horizontal scroll strips */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Page navigation fade transition (View Transitions API) */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 0.15s ease-out;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.2s ease-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [type='button']:not(:disabled),
+  [type='submit']:not(:disabled),
+  [type='reset']:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [type='button']:disabled,
+  [type='submit']:disabled,
+  [type='reset']:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/* ─── Review marquee (auto-scrolling review wall) ───────────────── */
+
+.review-marquee-row {
+  --marquee-duration: 60s;
+  --marquee-direction: normal;
+}
+
+.review-marquee-track {
+  width: max-content;
+  animation: review-marquee-scroll var(--marquee-duration) linear infinite;
+  animation-direction: var(--marquee-direction);
+}
+
+/* Pause only the hovered row */
+.review-marquee-row:hover .review-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes review-marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .review-marquee-track {
+    animation-play-state: paused;
+  }
+}

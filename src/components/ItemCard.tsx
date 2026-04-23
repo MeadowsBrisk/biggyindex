@@ -1,0 +1,946 @@
+"use client";
+
+import { memo, useMemo, useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
+import { useSetAtom } from "jotai";
+import { Package, Star, Truck, Heart, Filter, EyeOff } from "lucide-react";
+import type { Item, Seller } from "@/lib/types";
+import { groupByWeight, groupByQuantity, parseVariant, pricePerGram, formatWeight } from "@/lib/variants";
+import { MARKETS } from "@/lib/constants";
+import { sellerModalIdAtom, toggleBookmarkAtom, bucketGrams, expandedRefNumAtom, selectedSellersAtom, toggleHiddenSellerAtom } from "@/store/atoms";
+import { useAddToast } from "@/components/Toast";
+import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { Tooltip } from "@/components/Tooltip";
+import { getSellerImageUrl, getItemImageUrl, isAnimated } from "@/lib/images";
+import { useEntryAnimation } from "@/hooks/useEntryAnimation";
+
+/** Shared config lifted from ItemGrid — avoids per-card atom subscriptions. */
+export interface CardConfig {
+  currentMarket: string;
+  cSym: string;
+  cRate: number;
+  sellersMap: Map<string, Seller>;
+  selectedSellers: string[];
+  globalWeights: number[];
+  includeShipping: boolean;
+  pauseGifs: boolean;
+  thumbAspect: string;
+  activeCategory: string;
+}
+
+const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
+
+interface ItemCardProps {
+  item: Item;
+  priority?: boolean;
+  config: CardConfig;
+  isBookmarked: boolean;
+}
+
+/* ── Expand arrow (diagonal, with fly-out/fly-in transition on hover) ── */
+const arrowPath = <path d="M7 17L17 7M17 7H7M17 7v10" />;
+
+function ExpandArrow() {
+  return (
+    <span className="card-content__icon" aria-hidden="true">
+      {/* Outgoing arrow: slides up-right + fades out */}
+      <span className="card-arrow card-arrow--out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          {arrowPath}
+        </svg>
+      </span>
+      {/* Incoming arrow: slides in from bottom-left + fades in */}
+      <span className="card-arrow card-arrow--in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          {arrowPath}
+        </svg>
+      </span>
+    </span>
+  );
+}
+
+/* ── Decode HTML entities from crawler data ── */
+const ENTITY_MAP: Record<string, string> = {
+  '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&apos;': "'",
+};
+const ENTITY_RE = /&(?:amp|lt|gt|quot|#39|apos);/g;
+function decodeEntities(s: string): string {
+  return s.replace(ENTITY_RE, (m) => ENTITY_MAP[m] ?? m);
+}
+
+/* ── First crawl batch cutoff — items with fsa on or before this date
+   were already on the marketplace when we started crawling (2025-08-31)
+   and don't have meaningful "listed" dates ── */
+const FIRST_CRAWL_TS = new Date("2025-09-01T00:00:00Z").getTime();
+
+/* ── Relative time (lightweight, no deps) ── */
+function timeAgo(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const ts = new Date(iso).getTime();
+  if (Number.isNaN(ts)) return null;
+  if (ts < FIRST_CRAWL_TS) return null; // Pre-dates our crawling — no real listed date
+  const ms = Date.now() - ts;
+  if (ms < 0) return null;
+  const mins = Math.floor(ms / 60_000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
+}
+
+/* ── Format price with currency symbol + rate ── */
+function fmtPrice(
+  min: number | null | undefined,
+  max: number | null | undefined,
+  sym: string,
+  rate: number,
+): string {
+  if (min == null) return "N/A";
+  const lo = `${sym}${(min * rate).toFixed(2)}`;
+  if (max != null && max !== min) return `${lo} – ${sym}${(max * rate).toFixed(2)}`;
+  return lo;
+}
+
+/* ── Check if shipping origin is domestic ── */
+function isDomestic(sf: string | null | undefined, marketCode: string): boolean {
+  if (!sf) return false;
+  const market = MARKETS.find((m) => m.code === marketCode);
+  if (!market) return false;
+  return sf.toLowerCase() === market.name.toLowerCase();
+}
+
+/**
+ * Card pill — shows category · subcategory with an optional strain group dot.
+ * When browsing inside a category, shows just the subcategory (or category if no sub).
+ * Strain group (Indica/Sativa/Hybrid) shown as a small colored dot for Flower, Shake, Hash.
+ */
+function CardPill({ item, activeCategory }: { item: Item; activeCategory: string }) {
+  const inCategory = activeCategory !== "All" && item.c === activeCategory;
+  const firstSub = item.sc?.[0];
+  const cat = item.c ?? "Other";
+
+  // Effect group from attributes (Indica/Sativa/Hybrid) — only show when browsing Flower/Shake
+  const group = (activeCategory === "Flower" || activeCategory === "Shake") ? (item.at?.effect?.[0] ?? null) : null;
+
+  // Build label: "Category · Sub" when browsing All, just "Sub" or "Category" when inside a category
+  let label: string;
+  if (inCategory) {
+    label = firstSub ?? cat;
+  } else {
+    label = firstSub ? `${cat} · ${firstSub}` : cat;
+  }
+
+  return (
+    <span className="card-pill card-pill--image glass text-[10px] font-medium pointer-events-auto">
+      {group && <span className={`card-pill__group-dot card-pill__group-dot--${group.toLowerCase()}`} />}
+      {label}
+    </span>
+  );
+}
+
+/**
+ * Product card — food-agg structure adapted for cannabis marketplace.
+ * Uses item-card CSS classes from styles/elements/item-card.css.
+ */
+function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) {
+  const { ref: entryRef, entered, scrollReveal, animDone } = useEntryAnimation();
+  const href = item.refNum ? `/item/${item.refNum}` : `/item/${item.id}`;
+  const hasVariants = !!item.v && item.v.length > 1;
+  const hasImage = !!item.i;
+  const primaryIsAnimated = isAnimated(item.i);
+  const { currentMarket, cSym, cRate, sellersMap, selectedSellers, globalWeights, includeShipping, pauseGifs, thumbAspect, activeCategory } = config;
+  const setSellerModalId = useSetAtom(sellerModalIdAtom);
+  const setRefNum = useSetAtom(expandedRefNumAtom);
+  const setSelectedSellers = useSetAtom(selectedSellersAtom);
+  const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
+  const seller = item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
+  const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
+
+  // Bookmarks
+  const toggleBookmark = useSetAtom(toggleBookmarkAtom);
+  const addToast = useAddToast();
+  const itemKey = item.refNum ? String(item.refNum) : String(item.id);
+
+  // Zoom preview signal — increment to open (lazy-loaded on first click)
+  const [zoomSignal, setZoomSignal] = useState<number | null>(null);
+  const zoomImages = useMemo(() => {
+    const urls: string[] = [];
+    const primary = getItemImageUrl(item.i, "full", true);
+    if (primary) urls.push(primary);
+    if (item.is) {
+      for (const u of item.is) {
+        if (u !== item.i) {
+          const cdn = getItemImageUrl(u, "full", true);
+          if (cdn && !urls.includes(cdn)) urls.push(cdn);
+        }
+      }
+    }
+    return urls;
+  }, [item.i, item.is]);
+
+  const openZoom = useCallback(() => {
+    if (hasImage) setZoomSignal((s) => (s ?? 0) + 1);
+  }, [hasImage]);
+
+  // Group variants by weight (e.g. 3.5g, 7g, 14g, 28g)
+  const weightGroups = useMemo(
+    () => (hasVariants ? groupByWeight(item.v!) : null),
+    [hasVariants, item.v],
+  );
+
+  // Fallback for non-weight variants (ml, packs, carts, etc.) —
+  // used when weightGroups is null so non-weight items still get row 2 chips.
+  const quantityGroups = useMemo(
+    () => (hasVariants && !weightGroups ? groupByQuantity(item.v!) : null),
+    [hasVariants, item.v, weightGroups],
+  );
+
+  // Auto-select weight: when only 1 weight tier exists, or global filter narrows to 1
+  const autoGrams = useMemo(() => {
+    if (!weightGroups) return null;
+    // Single weight tier with multiple strains — auto-select it
+    if (weightGroups.length === 1) return weightGroups[0].grams;
+    if (globalWeights.length !== 1) return null;
+    const bucket = globalWeights[0];
+    const match = weightGroups.find((wg) => bucketGrams(wg.grams) === bucket);
+    return match ? match.grams : null;
+  }, [globalWeights, weightGroups]);
+
+  const [manualGrams, setManualGrams] = useState<number | null>(null);
+  const selectedGrams = manualGrams ?? autoGrams;
+  const [selectedStrain, setSelectedStrain] = useState<string | null>(null);
+  // Quantity-group selection for non-weight variants (ml, packs, carts, etc.)
+  const [selectedQtyKey, setSelectedQtyKey] = useState<string | null>(null);
+  const activeQtyGroup = useMemo(() => {
+    if (!quantityGroups || !selectedQtyKey) return null;
+    return quantityGroups.find((g) => g.key === selectedQtyKey) ?? null;
+  }, [quantityGroups, selectedQtyKey]);
+
+  // Settings
+  const aspectClass = thumbAspect === "4:3" ? "aspect-[4/3]" : thumbAspect === "3:2" ? "aspect-[3/2]" : "aspect-square";
+
+  // CDN image URLs — hash raw URLs to R2 CDN paths
+  // thumbSrc: always static AVIF (forceStatic=true)
+  // If primary is a GIF and gifs not paused, thumbSrc shows anim.webp instead
+  const thumbSrc = getItemImageUrl(item.i, "thumb", pauseGifs || !primaryIsAnimated);
+  // Second image for hover — ALL items, always static
+  const hoverRawUrl = item.is?.[1] ?? null;
+  const hoverSrc = hoverRawUrl ? getItemImageUrl(hoverRawUrl, "thumb", true) : null;
+
+  const activeGroup = useMemo(() => {
+    if (!weightGroups || selectedGrams == null) return null;
+    return weightGroups.find((g) => g.grams === selectedGrams) ?? null;
+  }, [weightGroups, selectedGrams]);
+
+  const handleWeightClick = useCallback(
+    (e: React.MouseEvent, grams: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setManualGrams((prev) => (prev === grams ? null : grams));
+      setSelectedStrain(null);
+    },
+    [],
+  );
+
+  const handleStrainClick = useCallback(
+    (e: React.MouseEvent, strain: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setSelectedStrain((prev) => {
+        const next = prev === strain ? null : strain;
+        // If selecting a strain, reconcile weight selection
+        if (next && weightGroups) {
+          const strainLower = next.toLowerCase();
+          const matching = weightGroups.filter((g) =>
+            g.strains.some((s) => s.toLowerCase() === strainLower),
+          );
+          if (matching.length === 1) {
+            // Only one weight carries this strain — auto-select it
+            setManualGrams(matching[0].grams);
+          } else if (manualGrams != null) {
+            // Multiple (or zero) matches — clear if current weight is incompatible
+            if (!matching.some((g) => g.grams === manualGrams)) {
+              setManualGrams(null);
+            }
+          }
+        }
+        return next;
+      });
+    },
+    [weightGroups, manualGrams],
+  );
+
+  const handleQtyClick = useCallback(
+    (e: React.MouseEvent, key: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setSelectedQtyKey((prev) => (prev === key ? null : key));
+    },
+    [],
+  );
+
+  // Strains to display: narrow to active weight group when selected.
+  // We don't dedup against the item name — the spacer row guarantees alignment
+  // so it's better to fill that space with the strain chip than leave it blank.
+  const displayStrains = useMemo(() => {
+    if (activeGroup) return activeGroup.strains;
+    if (weightGroups) {
+      const set = new Set<string>();
+      for (const wg of weightGroups) for (const s of wg.strains) set.add(s);
+      return Array.from(set);
+    }
+    if (quantityGroups) {
+      const set = new Set<string>();
+      for (const qg of quantityGroups) for (const s of qg.strains) set.add(s);
+      return Array.from(set);
+    }
+    return [];
+  }, [activeGroup, weightGroups, quantityGroups]);
+
+  // Single-variant parsed payload (used for spacer + strain chip + size label).
+  const singleVariantParsed = useMemo(() => {
+    if (weightGroups || quantityGroups) return null;
+    if (!item.v || item.v.length !== 1 || !item.v[0].d) return null;
+    return parseVariant(item.v[0]);
+  }, [weightGroups, quantityGroups, item.v]);
+
+  // Whether the non-weight (quantity) row should render chips.
+  // Either ≥2 tiers, OR a single tier with ≥2 distinct strains (chocolate-bars case).
+  const showQuantityRow =
+    !!quantityGroups &&
+    (quantityGroups.length > 1 ||
+      (quantityGroups.length === 1 && quantityGroups[0].strains.length >= 2));
+
+  // Strain → price map for displaying prices in strain pills when a weight is selected
+  const strainPriceMap = useMemo(() => {
+    if (!activeGroup || !item.v) return null;
+    const map = new Map<string, number>();
+    for (const v of item.v) {
+      const pv = parseVariant(v);
+      if (pv && pv.grams === activeGroup.grams && pv.strain) {
+        map.set(pv.strain.toLowerCase(), v.usd);
+      }
+    }
+    return map.size > 0 ? map : null;
+  }, [activeGroup, item.v]);
+
+  // When a strain is selected, compute which weight tiers carry that strain
+  // so we can dim weight buttons that don't have it.
+  const strainAvailableGrams = useMemo(() => {
+    if (!selectedStrain || !weightGroups) return null;
+    const strainLower = selectedStrain.toLowerCase();
+    const set = new Set<number>();
+    for (const wg of weightGroups) {
+      if (wg.strains.some((s) => s.toLowerCase() === strainLower)) {
+        set.add(wg.grams);
+      }
+    }
+    return set;
+  }, [selectedStrain, weightGroups]);
+
+  // Clear weight selection if strain makes it unavailable
+  // (done in handleStrainClick instead of useEffect to avoid cascading renders)
+
+  // Display price: show range until a weight or quantity is selected
+  const displayPrice = activeGroup
+    ? activeGroup.price
+    : activeQtyGroup
+      ? activeQtyGroup.price
+      : item.uMin;
+  const displayPriceMax = activeGroup
+    ? activeGroup.priceMax
+    : activeQtyGroup
+      ? activeQtyGroup.priceMax
+      : item.uMax;
+
+  // If strain is also selected, find exact price via parseVariant matching
+  const exactPrice = useMemo(() => {
+    if (!activeGroup || !selectedStrain) return null;
+    const strainLower = selectedStrain.toLowerCase();
+    const match = item.v?.find((v) => {
+      const pv = parseVariant(v);
+      if (!pv) return false;
+      return (
+        pv.grams === activeGroup.grams &&
+        pv.strain?.toLowerCase() === strainLower
+      );
+    });
+    return match?.usd ?? null;
+  }, [activeGroup, selectedStrain, item.v]);
+
+  // Shipping
+  const shippingIsFree = item.sh?.free === 1;
+  const shippingCost = useMemo(() => {
+    if (shippingIsFree || item.sh?.min == null) return null;
+    const minLocal = Math.round(item.sh.min * cRate);
+    const maxLocal = item.sh.max != null ? Math.round(item.sh.max * cRate) : null;
+    if (maxLocal != null && maxLocal !== minLocal) {
+      return `${cSym}${minLocal} – ${cSym}${maxLocal}`;
+    }
+    return `${cSym}${minLocal}`;
+  }, [shippingIsFree, item.sh, cSym, cRate]);
+  const domestic = isDomestic(item.sf, currentMarket);
+
+  // Shipping surcharge for "include shipping" mode (USD, added to prices)
+  const shipSurcharge =
+    includeShipping && !shippingIsFree && item.sh?.min != null ? item.sh.min : 0;
+
+  // PPG — show for selected weight, or cheapest overall if no selection
+  const ppg = useMemo(() => {
+    if (activeGroup) {
+      const price = (exactPrice ?? activeGroup.price) + shipSurcharge;
+      return pricePerGram(price, activeGroup.grams);
+    }
+    // Cheapest PPG across all variants
+    if (!item.v || item.v.length === 0) return null;
+    let best: number | null = null;
+    for (const v of item.v) {
+      const p = parseVariant(v);
+      if (p && p.grams != null && p.grams > 0 && v.usd > 0) {
+        const val = (v.usd + shipSurcharge) / p.grams;
+        if (best === null || val < best) best = val;
+      }
+    }
+    return best;
+  }, [activeGroup, exactPrice, item.v, shipSurcharge]);
+
+  // Timestamps
+  const listed = timeAgo(item.fsa);
+  const updated =
+    item.lua && item.lur && item.lur !== "N" ? timeAgo(item.lua) : null;
+
+  // Is price a range (different min/max)?
+  const priceIsRange = displayPriceMax != null && displayPrice != null && displayPriceMax !== displayPrice;
+
+  // ── Drag-to-scroll for variant strips (food-agg PillRow pattern) ──
+  const strainStripRef = useRef<HTMLDivElement>(null);
+  const weightStripRef = useRef<HTMLDivElement>(null);
+
+  // Double-rAF: batch layout reads (scrollWidth) separately from DOM writes (dataset)
+  // to avoid read→write→read forced reflow across 50+ cards mounting simultaneously.
+  useEffect(() => {
+    let cancelled = false;
+    requestAnimationFrame(() => {
+      if (cancelled) return;
+      const results: [HTMLDivElement, boolean][] = [];
+      for (const el of [strainStripRef.current, weightStripRef.current]) {
+        if (!el) continue;
+        results.push([el, el.scrollWidth > el.clientWidth]);
+      }
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        for (const [el, scrollable] of results) {
+          el.dataset.scrollable = scrollable ? "true" : "false";
+          el.dataset.scrolled = "false";
+          el.dataset.atEnd = !scrollable ? "true" : el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 ? "true" : "false";
+        }
+      });
+    });
+    return () => { cancelled = true; };
+  }, [displayStrains, weightGroups]);
+
+  const handleStripScroll = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
+    const el = ref.current;
+    if (!el) return;
+    el.dataset.scrolled = el.scrollLeft > 2 ? "true" : "false";
+    el.dataset.atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 ? "true" : "false";
+  }, []);
+
+  // Auto-scroll weight strip to show the selected pill
+  useEffect(() => {
+    if (selectedGrams == null) return;
+    const el = weightStripRef.current;
+    if (!el) return;
+    const idx = weightGroups?.findIndex((wg) => wg.grams === selectedGrams) ?? -1;
+    if (idx < 0) return;
+    const btn = el.children[idx] as HTMLElement | undefined;
+    if (!btn) return;
+    const left = btn.offsetLeft - el.offsetLeft - (el.clientWidth / 2) + (btn.offsetWidth / 2);
+    el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [selectedGrams, weightGroups]);
+
+  const handleStripMouseDown = useCallback(
+    (e: React.MouseEvent, ref: React.RefObject<HTMLDivElement | null>) => {
+      const el = ref.current;
+      if (!el || el.scrollWidth <= el.clientWidth) return;
+      const startX = e.pageX;
+      const scrollLeft = el.scrollLeft;
+      let dragging = false;
+      const onMouseMove = (ev: MouseEvent) => {
+        const dx = ev.pageX - startX;
+        if (!dragging && Math.abs(dx) < 4) return;
+        dragging = true;
+        el.scrollLeft = scrollLeft - dx * 1.5;
+      };
+      const onMouseUp = () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    },
+    [],
+  );
+
+  return (
+    <article
+      ref={entryRef}
+      className={`item-card group${isBookmarked ? " bookmark-card-ring" : ""}`}
+      data-entered={entered}
+      data-scroll-reveal={scrollReveal}
+      data-animated={animDone}
+    >
+      <div className={`item-card-inner${isBookmarked ? " bookmark-card-inner" : ""}`}>
+        {/* ── Image ── */}
+        <div className={`item-card-image ${aspectClass}`}>
+          <button
+            type="button"
+            onClick={openZoom}
+            className="block h-full w-full cursor-zoom-in"
+            aria-label={`Preview ${decodeEntities(item.n)}`}
+          >
+            {hasImage ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumbSrc}
+                  alt={decodeEntities(item.n)}
+                  loading={priority ? "eager" : "lazy"}
+                  fetchPriority={priority ? "high" : undefined}
+                  sizes="(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  className="card-image card-image--primary"
+                />
+                {/* Second image hover — always rendered if available */}
+                {hoverSrc && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={hoverSrc}
+                    alt=""
+                    loading="lazy"
+                    sizes="(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="card-image card-image--hover"
+                  />
+                )}
+              </>
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                <Package size={48} />
+              </div>
+            )}
+          </button>
+
+          {/* Zoom preview portal — lazy loaded on first click */}
+          {zoomSignal != null && (
+            <Suspense fallback={null}>
+              <ImageZoomPreview
+                imageUrl={getItemImageUrl(item.i, "full", true)}
+                imageUrls={zoomImages.length > 0 ? zoomImages : undefined}
+                alt={decodeEntities(item.n)}
+                openSignal={zoomSignal}
+              />
+            </Suspense>
+          )}
+
+          {/* Category / subcategory pill + bookmark button overlay */}
+          <div className="card-controls absolute inset-x-0 top-0 z-10 flex items-start justify-between p-2 pointer-events-none">
+            <CardPill item={item} activeCategory={activeCategory} />
+            <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this product"} side="left" delay={350}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToast({
+                    message: isBookmarked ? "Bookmark removed" : "Bookmarked",
+                    variant: "success",
+                    duration: 1800,
+                  });
+                  toggleBookmark(itemKey);
+                }}
+                className={`bookmark-btn pointer-events-auto${isBookmarked ? " bookmark-active-btn always-show" : ""}`}
+                aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this product"}
+              >
+                <Heart size={16} className={isBookmarked ? "fill-current" : ""} />
+              </button>
+            </Tooltip>
+          </div>
+
+          {/* LittleBiggy outbound (bottom-right of image, reveals on hover) */}
+          {item.sl && (
+            <a
+              href={item.sl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`View ${decodeEntities(item.n)} on LittleBiggy`}
+              className="card-lb-btn"
+            >
+              <span>Little Biggy</span>
+              <span className="card-lb-btn__arrow" aria-hidden="true">→</span>
+            </a>
+          )}
+        </div>
+
+        {/* ── Body ── */}
+        <div className="p-[6px] pt-[4px]">
+          <div className="pb-20 lg:pb-15 flex flex-col">
+            {/* Clickable content → opens detail modal */}
+            <a
+              href={href}
+              onClick={(e) => {
+                // Middle-click / ctrl-click → let browser open in new tab
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                e.preventDefault();
+                setRefNum(String(item.refNum ?? item.id));
+              }}
+              className="card-content"
+            >
+              <div className="card-content__inner">
+                <div className="card-content__header">
+                  <span className="card-content__title-row">
+                    <h3 className="card-content__title" title={decodeEntities(item.n)}>
+                      {decodeEntities(item.n)}
+                    </h3>
+                    {item.rs?.avg != null && item.rs.avg > 0 && (
+                      <span className={`card-item-rating${item.rs.avg < 8 ? " card-item-rating--low" : ""}`}>
+                        <Star size={9} className="fill-current" />
+                        {item.rs.avg.toFixed(1)}
+                        {item.rs.cnt != null && item.rs.cnt > 0 && (
+                          <span className="card-item-rating__count">({item.rs.cnt})</span>
+                        )}
+                      </span>
+                    )}
+                  </span>
+                  <ExpandArrow />
+                </div>
+                <p
+                  className={`card-content__description mt-3${item.d ? "" : " empty"}`}
+                >
+                  {item.d ? decodeEntities(item.d) : ""}
+                </p>
+              </div>
+            </a>
+
+            <div className="item-info-wrap px-[8px]">
+              {/* Seller row */}
+              <div className="seller-card mt-2">
+                <SellerAvatarTooltip sellerName={item.sn ?? "?"} imageUrl={sellerAvatarUrl} showInitialTooltip>
+                  <span className="seller-card__avatar" aria-hidden="true">
+                    {seller?.online === "today" && (
+                      <span
+                        className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-[1.5px] ring-[var(--card)]"
+                        title="Online today"
+                      />
+                    )}
+                    {sellerAvatarUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={sellerAvatarUrl}
+                        alt={item.sn ?? ""}
+                        className="w-full h-full rounded-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      (item.sn ?? "?").charAt(0)
+                    )}
+                  </span>
+                </SellerAvatarTooltip>
+                <span className="seller-card__body">
+                  <span className="seller-card__name-row">
+                    <button
+                      type="button"
+                      className="seller-card__name hover:text-primary transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (item.sid != null) setSellerModalId(String(item.sid));
+                      }}
+                    >
+                      {item.sn}
+                    </button>
+                    {seller?.averageRating != null && (
+                      <span className="seller-card__badge seller-card__badge--rating">
+                        <Star size={9} className="fill-current" />{" "}
+                        {seller.averageRating.toFixed(1)}
+                      </span>
+                    )}
+                    {shippingIsFree ? (
+                      <span className="seller-card__badge seller-card__badge--free">
+                        <Truck size={10} /> Free shipping
+                      </span>
+                    ) : shippingCost ? (
+                      <span className="seller-card__badge seller-card__badge--shipping">
+                        <Truck size={10} /> {shippingCost}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="seller-card__meta">
+                    {/* Only show "Ships from" if NOT domestic */}
+                    {item.sf && !domestic && (
+                      <span className="seller-card__domain">
+                        Ships from {item.sf}
+                      </span>
+                    )}
+                    {(seller?.averageDaysToArrive ?? item.rs?.days) != null && (
+                      <span className="seller-card__domain">
+                        ~{Math.round(seller?.averageDaysToArrive ?? item.rs!.days!)}d delivery
+                      </span>
+                    )}
+                    {item.sid != null && (() => {
+                      const sid = String(item.sid);
+                      const isFiltered = selectedSellers.length === 1 && selectedSellers[0] === sid;
+                      return (
+                        <span className="seller-card__actions">
+                          <button
+                            type="button"
+                            className="seller-card__action"
+                            title={isFiltered ? "Show all sellers" : `Only ${item.sn}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSelectedSellers(isFiltered ? [] : [sid]);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                          >
+                            <Filter size={8} /> {isFiltered ? "All" : "Only"}
+                          </button>
+                          <button
+                            type="button"
+                            className="seller-card__action seller-card__action--hide"
+                            title={`Hide ${item.sn}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (isFiltered) setSelectedSellers([]);
+                              toggleHiddenSeller(sid);
+                            }}
+                          >
+                            <EyeOff size={8} /> Hide
+                          </button>
+                        </span>
+                      );
+                    })()}
+                  </span>
+                </span>
+              </div>
+
+              {/* ── Strain spacer: reserves strain-row height when no strains,
+                    so variant chip rows align across neighbouring cards ── */}
+              {displayStrains.length === 0 &&
+                !singleVariantParsed?.strain &&
+                ((weightGroups && weightGroups.length > 1) ||
+                  showQuantityRow ||
+                  (item.v && item.v.length === 1 && !!item.v[0].d)) && (
+                  <div className="pill-row-spacer mt-3" aria-hidden="true" />
+                )}
+
+              {/* ── Strain buttons (row 1) — scrollable strip ── */}
+              {displayStrains.length > 0 && (
+                <div className="pill-row mt-3">
+                  <div className="pill-row__track">
+                    <div
+                      ref={strainStripRef}
+                      className="pill-row__scroll"
+                      onMouseDown={(e) => handleStripMouseDown(e, strainStripRef)}
+                      onScroll={() => handleStripScroll(strainStripRef)}
+                    >
+                      {displayStrains.map((strain) => {
+                        const strainUsd = strainPriceMap?.get(strain.toLowerCase());
+                        return (
+                          <button
+                            type="button"
+                            key={strain}
+                            className={`card-pill card-pill--strain${selectedStrain === strain ? " card-pill--selected" : ""}`}
+                            onClick={(e) => handleStrainClick(e, strain)}
+                          >
+                            {strain}
+                            {strainUsd != null && (
+                              <span className="card-pill--strain__price">
+                                {cSym}{(strainUsd * cRate).toFixed(0)}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="pill-row__overflow" aria-hidden="true">
+                      <span className="pill-row__overflow-count"><span>→</span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Weight buttons (row 2) — scrollable strip, hidden when only 1 weight tier ── */}
+              {weightGroups && weightGroups.length > 1 && (
+                <div className="pill-row mt-2">
+                  <div className="pill-row__track">
+                    <div
+                      ref={weightStripRef}
+                      className="pill-row__scroll"
+                      onMouseDown={(e) => handleStripMouseDown(e, weightStripRef)}
+                      onScroll={() => handleStripScroll(weightStripRef)}
+                    >
+                      {weightGroups.map((wg) => {
+                        const isSelected = activeGroup?.grams === wg.grams;
+                        const isUnavailable = strainAvailableGrams != null && !strainAvailableGrams.has(wg.grams);
+                        return (
+                          <button
+                            type="button"
+                            key={wg.grams}
+                            className={`variant-size-btn${isSelected ? " variant-size-btn--selected" : ""}${isUnavailable ? " variant-size-btn--unavailable" : ""}`}
+                            onClick={(e) => handleWeightClick(e, wg.grams)}
+                          >
+                            <span className="variant-size-btn__size">
+                              {wg.originalLabel || formatWeight(wg.grams)}
+                            </span>
+                            <span className="variant-size-btn__price">
+                              {wg.price !== wg.priceMax
+                                ? `${cSym}${(wg.price * cRate).toFixed(0)} – ${cSym}${(wg.priceMax * cRate).toFixed(0)}`
+                                : `${cSym}${(wg.price * cRate).toFixed(2)}`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="pill-row__overflow" aria-hidden="true">
+                      <span className="pill-row__overflow-count"><span>→</span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Non-weight variants (ml, packs, carts, etc.) — clickable, updates price.
+                  Renders for ≥2 tiers OR a single tier with ≥2 strains
+                  (e.g. "1 bar weed bar", "1 bar shroom bar" → one tier, two strains). */}
+              {!weightGroups && showQuantityRow && (
+                <div className="pill-row mt-2">
+                  <div className="pill-row__track">
+                    <div className="pill-row__scroll">
+                      {quantityGroups.map((qg) => {
+                        const isSelected = selectedQtyKey === qg.key;
+                        return (
+                          <button
+                            type="button"
+                            key={qg.key}
+                            className={`variant-size-btn${isSelected ? " variant-size-btn--selected" : ""}`}
+                            onClick={(e) => handleQtyClick(e, qg.key)}
+                          >
+                            <span className="variant-size-btn__size">
+                              {qg.originalLabel || qg.label}
+                            </span>
+                            <span className="variant-size-btn__price">
+                              {qg.price !== qg.priceMax
+                                ? `${cSym}${(qg.price * cRate).toFixed(0)} – ${cSym}${(qg.priceMax * cRate).toFixed(0)}`
+                                : `${cSym}${(qg.price * cRate).toFixed(2)}`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="pill-row__overflow" aria-hidden="true">
+                      <span className="pill-row__overflow-count"><span>→</span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Single-variant fallback — parse if possible, else show raw text.
+                  If the parser extracted a strain, render it as a chip in the strain row
+                  (covers "5 1g jetty solventless" where the item name lacks the strain). */}
+              {!weightGroups &&
+                !quantityGroups &&
+                item.v &&
+                item.v.length === 1 &&
+                item.v[0].d && (() => {
+                  const pv = singleVariantParsed;
+                  const sizeLabel = pv ? pv.originalLabel || pv.weightLabel : item.v[0].d;
+                  return (
+                    <>
+                      {pv?.strain && (
+                        <div className="pill-row mt-3">
+                          <div className="pill-row__track">
+                            <div className="pill-row__scroll">
+                              <span className="card-pill card-pill--strain">{pv.strain}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="variant-select mt-3">
+                        <div className="variant-pill-row">
+                          <span className="variant-size-btn">
+                            <span className="variant-size-btn__size">
+                              {sizeLabel}
+                            </span>
+                            <span className="variant-size-btn__price">
+                              {cSym}{(item.v[0].usd * cRate).toFixed(2)}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Footer gradient: price + timestamps ── */}
+        <div className="card-footer-gradient absolute inset-x-0 bottom-0 pb-3 pt-2 px-3 z-40">
+          <div className="flex w-full items-end justify-between">
+            {/* Price area */}
+            <div className="card-price-area">
+              <div className="card-price-row">
+                <span className={`${priceIsRange ? "card-price-main card-price-main--range" : "card-price-main"}${shipSurcharge > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}>
+                  {exactPrice != null
+                    ? `${cSym}${((exactPrice + shipSurcharge) * cRate).toFixed(2)}`
+                    : fmtPrice(
+                        displayPrice != null ? displayPrice + shipSurcharge : displayPrice,
+                        displayPriceMax != null ? displayPriceMax + shipSurcharge : displayPriceMax,
+                        cSym,
+                        cRate,
+                      )}
+                  {shipSurcharge > 0 && (
+                    <Truck size={11} className="inline ml-1 -mt-0.5 opacity-70" />
+                  )}
+                </span>
+                {ppg != null && (
+                  <span className="card-price-ppg">
+                    {cSym}{(ppg * cRate).toFixed(2)}/g
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Timestamps */}
+            <div className="flex flex-col items-end gap-1">
+              {updated && (
+                <span
+                  className="text-[10px] leading-none text-muted-foreground cursor-default"
+                  title={item.lua ? (item.lur && item.lur !== "N" ? `${new Date(item.lua).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })} (${item.lur})` : new Date(item.lua).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })) : undefined}
+                >
+                  Updated {updated}
+                </span>
+              )}
+              {listed ? (
+                <span
+                  className="text-[10px] leading-none text-muted-foreground cursor-default"
+                  title={item.fsa ?? undefined}
+                >
+                  Listed {listed}
+                </span>
+              ) : (
+                <span className="text-[10px] leading-none text-muted-foreground cursor-default">
+                  Listed –
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export const ItemCard = memo(ItemCardInner);

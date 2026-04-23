@@ -1,0 +1,1141 @@
+/* ==========================================================================
+   Item Detail Overlay (ido-*) — client-side product detail overlay.
+   Jotai-driven: opens instantly from in-memory item data.
+
+   Item Detail Page (idp-*) — server-rendered /item/[ref] full page.
+   Reuses ido-* for shared components.
+   ========================================================================== */
+
+/* ==========================================================================
+   Item Detail PAGE (idp-*) — full-page /item/[ref]
+   ========================================================================== */
+
+.idp {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.idp-back {
+  display: inline-flex;
+  padding: 1.5rem 0;
+}
+
+.idp-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.idp-left {
+  position: relative;
+}
+
+.idp-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+/* ==========================================================================
+   Item Detail OVERLAY (ido-*) — centered modal overlay
+   ========================================================================== */
+
+/* ── Backdrop ── */
+.ido-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  animation: ido-fade-in 0.15s ease-out;
+}
+
+@media (width >= 48rem) {
+  .ido-backdrop {
+    align-items: center;
+    padding: 2rem;
+  }
+}
+
+@keyframes ido-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Panel ── */
+.ido-panel {
+  position: relative;
+  width: 100%;
+  max-width: 66rem;
+  max-height: 100%;
+  background: var(--background);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: ido-fade-in 0.18s ease-out;
+}
+
+@media (max-width: 47.999rem) {
+  .ido-panel {
+    min-height: 100dvh;
+  }
+}
+
+@media (width >= 48rem) {
+  .ido-panel {
+    border-radius: 1rem;
+    box-shadow:
+      0 25px 60px rgba(0, 0, 0, 0.2),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+    height: min(52rem, calc(100dvh - 4rem));
+    max-height: calc(100dvh - 4rem);
+    overflow: hidden;
+  }
+}
+
+/* Ultrawide: expand panel for 3-column layout */
+@media (width >= 96rem) {
+  .ido-panel {
+    max-width: 1500px;
+  }
+}
+
+
+
+/* ── Close (fade-out) animations ── */
+.ido-backdrop--closing {
+  animation: ido-fade-out 0.15s ease-in forwards;
+}
+
+.ido-panel--closing {
+  animation: ido-fade-out 0.15s ease-in forwards;
+}
+
+@keyframes ido-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+
+
+/* ── Close button ── */
+.ido-close {
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+
+.ido-close:hover {
+  background: var(--surface);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Grid layout: mobile column → desktop 2-col → ultrawide 3-col ── */
+.ido-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (width >= 48rem) {
+  .ido-grid {
+    flex-direction: row;
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+/* ── Left column (gallery) ── */
+.ido-left {
+  position: relative;
+}
+
+@media (width >= 48rem) {
+  .ido-left {
+    flex: 0 0 50%;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem 2rem 2rem;
+    overflow: hidden;
+  }
+}
+
+@media (width >= 96rem) {
+  .ido-left {
+    flex: 0 0 460px;
+    padding: 2rem 1rem 2rem 2rem;
+  }
+}
+
+/* ── Center column (item info) ──
+   On mobile the .ido-panel is the scroll container; on md+ .ido-center
+   itself scrolls. Uses plain block layout so position:sticky on the tabs
+   works flush against the column top. Top padding is moved onto
+   .ido-center__header so the sticky tabs have a border-box edge to stick to. */
+.ido-center {
+  min-width: 0;
+  flex: 1;
+  padding: 0 1.5rem 1.5rem;
+}
+.ido-center__header { padding-top: 1.5rem; }
+
+/* Vertical rhythm for siblings of .ido-center (tabs sit as a block child) */
+.ido-center__header > * + * { margin-top: 0.75rem; }
+.ido-center__body > * + * { margin-top: 1rem; }
+.ido-center__body { margin-top: 0.75rem; }
+
+@media (width >= 48rem) {
+  .ido-center {
+    padding: 0 2rem 4.5rem 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .ido-center__header { padding-top: 2rem; }
+}
+
+@media (width >= 96rem) {
+  .ido-center {
+    padding: 0 1.5rem 1.5rem;
+    border-right: 1px solid var(--border);
+  }
+  .ido-center__header { padding-top: 2rem; }
+}
+
+/* ── Right column (reviews — ultrawide only) ── */
+.ido-right {
+  display: none;
+}
+
+@media (width >= 96rem) {
+  .ido-right {
+    display: block;
+    flex: 0 0 380px;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 2rem 2rem 4.5rem 1.5rem;
+    position: relative;
+  }
+}
+
+/* Flag/suggest button pinned bottom-left of the reviews column (desktop).
+   Hidden below 96rem because the ido-right column itself is hidden and the
+   button renders inline under the mobile reviews section instead. */
+.ido-suggest-bottom {
+  display: none;
+}
+
+@media (width >= 96rem) {
+  .ido-suggest-bottom {
+    display: block;
+    position: sticky;
+    bottom: 1rem;
+    margin-top: 0.75rem;
+    /* Align with the column's left padding so it sits flush-left opposite
+       the .ido-lb-btn on the right side of the panel. */
+    margin-left: 0;
+    width: fit-content;
+    z-index: 15;
+  }
+}
+
+/* ── Scroll-spy tabs (sticky at top of center column) ──
+   The nearest scroll ancestor is .ido-center (md+) or .ido-panel (mobile).
+   The negative horizontal margin makes the bar reach the container edges
+   so the sticky background fully covers scrolling content beneath. */
+.ido-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 2px;
+  margin: 0 -1.5rem;
+  padding: 0.625rem 1.5rem;
+  background-color: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 8px 12px -10px rgba(0, 0, 0, 0.12);
+}
+
+@media (width >= 48rem) {
+  .ido-tabs {
+    /* Left edge is the .ido-center left padding (1.5rem), right edge is 2rem */
+    margin: 0 -2rem 0 -1.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+@media (width >= 96rem) {
+  .ido-tabs {
+    margin: 0 -1.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+.ido-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.ido-tab:hover {
+  color: var(--foreground);
+  background: var(--surface-hover);
+}
+
+.ido-tab--active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  font-weight: 600;
+}
+
+@variant dark {
+  .ido-tab--active {
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+}
+
+/* Hide Reviews tab on ultrawide — reviews live in the right column there */
+@media (width >= 96rem) {
+  .ido-tab--reviews {
+    display: none;
+  }
+}
+
+/* Scroll-margin-top so scrollIntoView lands below the sticky tab bar */
+.ido-section {
+  scroll-margin-top: 3.5rem;
+}
+
+/* Stack subsections inside a section with breathing room */
+.ido-section > * + * {
+  margin-top: 1rem;
+}
+
+/* ── Sub-section card (used for variants, description, attributes, etc.) ── */
+.ido-card {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  overflow: hidden;
+}
+
+.ido-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.ido-card__title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+.ido-card__count {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 0.0625rem 0.375rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+}
+
+.ido-card__body {
+  padding: 0.875rem;
+}
+
+/* Variant table inside a card: drop its own border + radius so the card
+   provides the frame, keep row dividers. */
+.ido-card > .ido-table {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ido-card > .ido-table th {
+  background: transparent;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+/* Header bar above the variants table (sits inside .ido-card above .ido-table) */
+.ido-table__caption {
+  text-align: left;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  background: color-mix(in srgb, var(--surface) 35%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ido-table__caption > span:first-child {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ido-table__count {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 0.0625rem 0.375rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+  margin-left: auto;
+}
+
+/* Divider between variants table and shipping options inside the same card */
+.ido-card > .ido-table + .ido-ship {
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  padding: 0.625rem 0.875rem;
+  margin: 0;
+  background: color-mix(in srgb, var(--surface) 30%, transparent);
+}
+
+/* ── Shipping options selector ── */
+.ido-ship {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.ido-ship__head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ido-ship__icon { color: var(--muted); }
+
+.ido-ship__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.ido-ship__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  max-width: 100%;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.ido-ship__chip:hover {
+  color: var(--foreground);
+  border-color: color-mix(in srgb, var(--foreground) 30%, var(--border));
+}
+
+.ido-ship__chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 16rem;
+}
+.ido-ship__chip-cost {
+  font-weight: 600;
+  color: var(--foreground);
+  padding-left: 0.375rem;
+  border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  margin-left: 0.125rem;
+}
+
+/* Selected: none (default base-price) / paid / free variants */
+.ido-ship__chip--selected.ido-ship__chip--none {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+.ido-ship__chip--selected.ido-ship__chip--paid {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  color: var(--foreground);
+}
+.ido-ship__chip--selected.ido-ship__chip--free {
+  background: color-mix(in srgb, #10b981 14%, transparent);
+  border-color: color-mix(in srgb, #10b981 50%, var(--border));
+  color: var(--foreground);
+}
+.ido-ship__chip--free .ido-ship__chip-cost {
+  color: #059669;
+}
+@variant dark {
+  .ido-ship__chip--free .ido-ship__chip-cost { color: #34d399; }
+}
+.ido-ship__chip--selected .ido-ship__chip-cost {
+  color: inherit;
+  border-left-color: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+/* ── Meta strip (rating / delivery / timestamps) ──
+   Presented as a responsive grid so the four facets (rating, delivery,
+   listed, updated) never wrap awkwardly with an orphan trailing value.
+   - Mobile (<30rem): single column, each row full-width.
+   - Default: 2 columns => clean 2x2 grouping.
+   - Wide (>=60rem): 4 columns in one row, honoring available space.
+*/
+.ido-meta-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  font-size: 0.8125rem;
+}
+
+@media (width >= 30rem) {
+  .ido-meta-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (width >= 60rem) {
+  .ido-meta-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 0;
+  }
+}
+
+.ido-meta-strip__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  color: var(--foreground);
+  line-height: 1.3;
+  /* Truncate long values instead of pushing the neighbour to a new line */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Keep the vertical separator on 2+ column layouts, skip at mobile (single column) */
+@media (width >= 30rem) {
+  .ido-meta-strip__item:nth-child(2n) {
+    border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    padding-left: 0.75rem;
+  }
+}
+
+@media (width >= 60rem) {
+  .ido-meta-strip__item:nth-child(2n) {
+    border-left: 0;
+    padding-left: 0.5rem;
+  }
+  .ido-meta-strip__item:not(:first-child) {
+    border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    padding-left: 0.75rem;
+  }
+}
+
+.ido-meta-strip__item--muted {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.ido-meta-strip__value {
+  font-weight: 600;
+}
+
+.ido-meta-strip__hint {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.6875rem;
+}
+
+/* ── Attribute chips (key + value, two-tone pill) ── */
+.ido-attr-chip {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
+  border-radius: 9999px;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  line-height: 1;
+  background: var(--card);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.ido-attr-chip:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.ido-attr-chip__key {
+  padding: 0.375rem 0.5rem 0.375rem 0.625rem;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: color-mix(in srgb, var(--primary) 70%, var(--foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-size: 0.625rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ido-attr-chip__val {
+  padding: 0.375rem 0.625rem 0.375rem 0.5rem;
+  color: var(--foreground);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  text-transform: capitalize;
+}
+
+@variant dark {
+  .ido-attr-chip {
+    border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  }
+  .ido-attr-chip__key {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    color: color-mix(in srgb, var(--primary) 85%, var(--foreground));
+  }
+}
+
+/* Flag chip: single label for boolean-true attributes (CBD, Vegan, Imported) */
+.ido-attr-chip--flag .ido-attr-chip__val {
+  padding: 0.375rem 0.75rem;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: color-mix(in srgb, var(--primary) 80%, var(--foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.625rem;
+}
+
+@variant dark {
+  .ido-attr-chip--flag .ido-attr-chip__val {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    color: color-mix(in srgb, var(--primary) 90%, var(--foreground));
+  }
+}
+
+/* ── "Read more reviews at:" hint — sits as the last child of the reviews
+   list/column. Plain text, no background, no sticky. Reviews column has
+   padding-bottom to ensure it clears the absolute LB button below. */
+.ido-reviews-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+/* ── Absolute "View on LittleBiggy" button — bottom-right of the panel.
+   Scroll columns reserve bottom padding so content doesn't sit under it.
+   Hidden on mobile (<48rem) — mobile users tap the LB button on the
+   ItemCard image instead. */
+.ido-lb-btn {
+  display: none;
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1rem;
+  z-index: 15;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem 0.625rem 1.25rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--primary) 25%, transparent),
+    0 10px 30px color-mix(in srgb, var(--primary) 28%, transparent);
+  transition:
+    filter 150ms ease,
+    box-shadow 200ms ease,
+    transform 150ms ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+@media (width >= 48rem) {
+  .ido-lb-btn { display: inline-flex; }
+}
+
+.ido-lb-btn:hover {
+  filter: brightness(1.06);
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--primary) 35%, transparent),
+    0 14px 36px color-mix(in srgb, var(--primary) 38%, transparent);
+}
+
+.ido-lb-btn:active {
+  transform: translateY(1px);
+}
+
+/* Dark theme — softer, more diffuse glow (less harsh halo than light) */
+[data-theme='dark'] .ido-lb-btn {
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--primary) 18%, transparent),
+    0 8px 22px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+[data-theme='dark'] .ido-lb-btn:hover {
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--primary) 22%, transparent),
+    0 10px 26px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.ido-lb-btn__arrow {
+  display: inline-block;
+  font-size: 1.125em;
+  line-height: 1;
+  transform: translateX(0);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ido-lb-btn:hover .ido-lb-btn__arrow {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ido-lb-btn__arrow { transition: none; }
+}
+
+/* Reserve bottom space so CTA doesn't float over content gap */
+@media (width >= 48rem) {
+  .ido-center { padding-bottom: 4.5rem; }
+}
+@media (width >= 96rem) {
+  .ido-right { padding-bottom: 4.5rem; }
+}
+
+/* ── Nav arrows (overlay, outside panel) ── */
+.ido-nav-wrapper {
+  display: none;
+}
+
+@media (width >= 48rem) {
+  .ido-nav-wrapper {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    max-width: calc(66rem + 80px + 8px);
+    width: 100%;
+    height: 100%;
+    gap: 0.125rem;
+    align-items: center;
+    margin: 0 auto;
+  }
+}
+
+@media (width >= 64rem) {
+  .ido-nav-wrapper {
+    grid-template-columns: 80px minmax(0, 1fr) 80px;
+    max-width: calc(66rem + 160px + 16px);
+    gap: 0.5rem;
+  }
+}
+
+@media (width >= 96rem) {
+  .ido-nav-wrapper {
+    max-width: calc(1500px + 160px + 16px);
+  }
+}
+
+.ido-nav-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  cursor: pointer;
+}
+
+.ido-nav-zone:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.ido-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.5rem;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: background 0.15s;
+}
+
+@media (width >= 64rem) {
+  .ido-nav-btn {
+    padding: 0.75rem;
+  }
+}
+
+.ido-nav-zone:hover .ido-nav-btn {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* ── Image area ── */
+.ido-image-area {
+  position: relative;
+  width: 100%;
+  padding-top: 3rem;
+}
+
+@media (width >= 48rem) {
+  .ido-image-area {
+    padding-top: 0;
+  }
+}
+
+/* ── Swiper overrides ── */
+.ido-swiper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+@media (width >= 48rem) {
+  .ido-swiper {
+    aspect-ratio: 1 / 1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+}
+
+.ido-swiper .swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: zoom-in;
+  user-select: none;
+  transition: transform 0.5s;
+}
+
+.ido-swiper .swiper-slide img:hover {
+  transform: scale(1.04);
+}
+
+/* ── Thumbnail strip (inside gallery) ── */
+.ido-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.375rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ido-thumb {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.ido-thumb--active {
+  border-color: white;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.ido-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Review list ── */
+.ido-review {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ido-review:last-child {
+  border-bottom: none;
+}
+
+/* ── Variant table ── */
+.ido-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.ido-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 0.375rem 0.625rem;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+}
+
+.ido-table th:nth-child(n + 2) {
+  text-align: right;
+}
+
+.ido-table td {
+  padding: 0.5rem 0.625rem;
+  color: var(--foreground);
+  vertical-align: middle;
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+}
+
+.ido-table td:nth-child(n + 2) {
+  text-align: right;
+}
+
+.ido-table__format {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ido-best-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.1875rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: color-mix(in srgb, #f59e0b 15%, transparent);
+  color: #d97706;
+  white-space: nowrap;
+}
+
+@variant dark {
+  .ido-best-value {
+    background: color-mix(in srgb, #f59e0b 20%, transparent);
+    color: #fbbf24;
+  }
+}
+
+.ido-table__price {
+  font-weight: 600;
+}
+
+.ido-table__ppu {
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.ido-table__action {
+  width: 2rem;
+  text-align: center !important;
+  padding-left: 0.125rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.ido-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+.ido-add-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.ido-add-btn--added {
+  background: var(--emerald-500, #10b981);
+  border-color: var(--emerald-500, #10b981);
+  color: white;
+  animation: ido-add-pop 0.3s ease-out;
+}
+
+@keyframes ido-add-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ── Price change badge (next to current price) ── */
+.ido-price-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ido-price-badge--down {
+  background: color-mix(in srgb, #16a34a 12%, transparent);
+  color: #16a34a;
+}
+
+.ido-price-badge--up {
+  background: color-mix(in srgb, #dc2626 10%, transparent);
+  color: #dc2626;
+}
+
+@variant dark {
+  .ido-price-badge--down {
+    background: color-mix(in srgb, #22c55e 15%, transparent);
+    color: #4ade80;
+  }
+  .ido-price-badge--up {
+    background: color-mix(in srgb, #ef4444 12%, transparent);
+    color: #f87171;
+  }
+}
+
+.ido-price-badge__was {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+/* ── Price History list (rendered inside an .ido-card) ── */
+.ido-price-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.ido-price-history__entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.ido-price-history__date {
+  color: var(--muted);
+  opacity: 0.7;
+  min-width: 9rem;
+  flex-shrink: 0;
+}
+
+.ido-price-history__price {
+  font-weight: 600;
+  color: var(--foreground);
+  min-width: 4rem;
+}
+
+.ido-price-history__range {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.ido-price-history__change {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.ido-price-history__change--down {
+  color: #16a34a;
+  opacity: 1;
+}
+
+.ido-price-history__change--up {
+  color: #dc2626;
+  opacity: 0.85;
+}
+
+.ido-price-history__change--first {
+  font-style: italic;
+}
+
+@variant dark {
+  .ido-price-history__change--down { color: #4ade80; }
+  .ido-price-history__change--up { color: #f87171; }
+}

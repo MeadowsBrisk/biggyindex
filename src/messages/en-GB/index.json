@@ -1,0 +1,64 @@
+{
+  "site": {
+    "title": "BiggyIndex",
+    "tagline": "Cannabis Marketplace Browser",
+    "description": "Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more."
+  },
+  "nav": {
+    "browse": "Browse",
+    "reviews": "Reviews",
+    "sellers": "Sellers",
+    "settings": "Settings"
+  },
+  "home": {
+    "heroTitle": "The Cannabis Index",
+    "heroSubtitle": "Browse {itemCount} products from {sellerCount} sellers",
+    "whatsNew": "What's New",
+    "recentlyAdded": "Recently Added",
+    "recentlyUpdated": "Recently Updated",
+    "popular": "Popular",
+    "topSellers": "Top Sellers",
+    "communityReviews": "Community Reviews",
+    "viewAll": "View all"
+  },
+  "browse": {
+    "allCategories": "All Categories",
+    "noResults": "No products match your filters",
+    "clearFilters": "Clear filters",
+    "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
+    "sortBy": "Sort by",
+    "search": "Search products..."
+  },
+  "sort": {
+    "newest": "Newest",
+    "priceAsc": "Price: Low → High",
+    "priceDesc": "Price: High → Low",
+    "rating": "Top Rated",
+    "hot": "Hottest"
+  },
+  "item": {
+    "from": "from",
+    "perGram": "/g",
+    "variants": "{count, plural, one {1 variant} other {# variants}}",
+    "reviews": "{count, plural, one {1 review} other {# reviews}}",
+    "noReviews": "No reviews yet",
+    "shipping": "Shipping",
+    "freeShipping": "Free shipping",
+    "viewOnSeller": "View on {seller}",
+    "addToBasket": "Add to basket",
+    "firstSeen": "First seen",
+    "lastUpdated": "Last updated"
+  },
+  "seller": {
+    "products": "{count, plural, one {1 product} other {# products}}",
+    "rating": "Rating",
+    "visitStore": "Visit store"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "close": "Close",
+    "back": "Back"
+  }
+}
