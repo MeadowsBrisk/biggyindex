@@ -6,31 +6,23 @@
  * this intercepting route renders instead of the full page.
  * It sets `expandedRefNumAtom` so the overlay opens with animations,
  * then renders nothing itself (the overlay lives in layout.tsx).
+ *
+ * NOTE (matches food-agg): No `"use cache"` / cacheLife here.
+ * Intercepting routes are only hit via client-side navigation (never
+ * by bots), so ISR caching just wastes write units. More importantly,
+ * under Next.js 16 cacheComponents, caching this page forces the
+ * prerenderer into the surrounding layout (which holds client-only
+ * nuqs + Jotai providers reading uncached request state), triggering
+ * the "Uncached data outside Suspense" blocking-route error.
  */
 
-import { Suspense } from "react";
 import { OverlayBridge } from "./OverlayBridge";
-
-// Intercepting routes are inherently request-scoped (they depend on
-// client navigation state and render into a parallel slot alongside
-// the root layout, which contains client-only Jotai/nuqs providers).
-// Opt out of prerendering so Next.js 16's blocking-route check doesn't
-// flag the layout's uncached client data as a static-render problem.
-export const dynamic = "force-dynamic";
 
 interface ModalItemPageProps {
   params: Promise<{ ref: string }>;
 }
 
-async function ModalContent({ params }: ModalItemPageProps) {
+export default async function ModalItemPage({ params }: ModalItemPageProps) {
   const { ref } = await params;
   return <OverlayBridge refNum={ref} />;
-}
-
-export default function ModalItemPage(props: ModalItemPageProps) {
-  return (
-    <Suspense>
-      <ModalContent params={props.params} />
-    </Suspense>
-  );
 }
