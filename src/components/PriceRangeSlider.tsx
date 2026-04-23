@@ -39,7 +39,10 @@ export function PriceRangeSlider() {
   const displayMax = toDisplay(absMax);
 
   return (
-    <div className="mb-4">
+    // px-2 reserves 8px on each side so the thumbs (which use -translate-x-1/2
+    // and hang half-width past the track edges) aren't sheared off by the
+    // parent Section's overflow-hidden clip.
+    <div className="mb-4 px-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
           Price

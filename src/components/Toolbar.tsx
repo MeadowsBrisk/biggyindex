@@ -147,11 +147,11 @@ function ActivePills() {
           key={`${pill.label}-${i}`}
           type="button"
           onClick={pill.clear}
-          className="group flex shrink-0 items-center gap-1 rounded-full bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+          className="group flex shrink-0 items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors cursor-pointer"
           title={`Remove: ${pill.label}`}
         >
           {pill.label}
-          <X size={10} className="opacity-50 group-hover:opacity-100" />
+          <X size={10} className="opacity-60 group-hover:opacity-100" />
         </button>
       ))}
     </div>

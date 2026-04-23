@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { SlidersHorizontal, X, Search, Pin, RotateCcw, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, Search, Pin, RotateCcw, ChevronDown, EyeOff } from "lucide-react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import {
   useState,
@@ -24,6 +24,7 @@ import {
   availableSubcategoriesAtom,
   selectedSellersAtom,
   hiddenSellersAtom,
+  toggleHiddenSellerAtom,
   availableSellersAtom,
   filteredSellersAtom,
   selectedShipFromAtom,
@@ -179,6 +180,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
   const filteredSellers = useAtomValue(filteredSellersAtom);
   const [selectedSellers, setSelectedSellers] = useAtom(selectedSellersAtom);
   const hiddenSellers = useAtomValue(hiddenSellersAtom);
+  const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
   const [attrFilters, setAttrFilters] = useAtom(attrFiltersAtom);
   const shipFromOptions = useAtomValue(availableShipFromAtom);
   const [shipInclude, setShipInclude] = useAtom(selectedShipFromAtom);
@@ -192,19 +194,27 @@ function PanelContent({ onClose }: { onClose: () => void }) {
 
   // Seller search
   const [sellerQuery, setSellerQuery] = useState("");
+  const [showAllSellers, setShowAllSellers] = useState(false);
   const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
-  const sellerSuggestions = useMemo(() => {
-    const q = sellerQuery.toLowerCase().trim();
-    if (q.length < 2) return [];
-    return filteredSellers
-      .filter((s) => !hiddenSet.has(s.id) && !selectedSellers.includes(s.id) && s.name.toLowerCase().includes(q))
-      .slice(0, 8);
-  }, [sellerQuery, filteredSellers, hiddenSet, selectedSellers]);
 
-  // Visible sellers (not hidden, from filtered items) for chip display and quick-pick
+  // Visible sellers (not hidden, from filtered items) — ordered by count desc.
+  // The full source list; filtered/trimmed below.
   const visibleSellers = useMemo(
     () => filteredSellers.filter((s) => !hiddenSet.has(s.id)),
     [filteredSellers, hiddenSet],
+  );
+
+  // Query-filtered list used by the dropdown body.
+  const querySellers = useMemo(() => {
+    const q = sellerQuery.toLowerCase().trim();
+    if (!q) return visibleSellers;
+    return visibleSellers.filter((s) => s.name.toLowerCase().includes(q));
+  }, [sellerQuery, visibleSellers]);
+
+  const SELLER_COLLAPSED_COUNT = 10;
+  const sellerRows = useMemo(
+    () => (showAllSellers || sellerQuery.trim() ? querySellers : querySellers.slice(0, SELLER_COLLAPSED_COUNT)),
+    [querySellers, showAllSellers, sellerQuery],
   );
 
   const handleCategoryClick = useCallback(
@@ -546,26 +556,6 @@ function PanelContent({ onClose }: { onClose: () => void }) {
               />
             </div>
 
-            {/* Search suggestions */}
-            {sellerSuggestions.length > 0 && (
-              <div className="mb-2 max-h-32 overflow-y-auto rounded-md border border-[var(--border)] bg-surface">
-                {sellerSuggestions.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => {
-                      toggleSeller(s.id);
-                      setSellerQuery("");
-                    }}
-                    className="flex w-full items-center gap-2 px-2 py-1.5 text-[11px] text-muted hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
-                  >
-                    <span className="truncate flex-1 text-left">{s.name}</span>
-                    <span className="opacity-50 text-[10px]">{s.count}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* Selected seller chips */}
             {selectedSellers.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
@@ -576,7 +566,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
                       key={id}
                       type="button"
                       onClick={() => toggleSeller(id)}
-                      className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-md bg-primary/15 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/25 transition-colors cursor-pointer"
                       title={`Remove ${seller?.name ?? id}`}
                     >
                       <span className="truncate max-w-24">{seller?.name ?? `#${id}`}</span>
@@ -587,10 +577,70 @@ function PanelContent({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
+            {/* Seller list — click to toggle selection, hover/focus reveals ignore button */}
+            {sellerRows.length > 0 ? (
+              <div className="rounded-md border border-[var(--border)] bg-surface divide-y divide-[var(--border)] overflow-hidden">
+                {sellerRows.map((s) => {
+                  const isSelected = selectedSellers.includes(s.id);
+                  return (
+                    <div
+                      key={s.id}
+                      className={`group flex items-center text-[11px] transition-colors ${
+                        isSelected ? "bg-primary/10 text-primary" : "text-muted hover:bg-surface-hover hover:text-foreground"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleSeller(s.id)}
+                        className="flex flex-1 items-center gap-2 px-2 py-1.5 text-left cursor-pointer min-w-0"
+                        title={isSelected ? `Unselect ${s.name}` : `Select ${s.name}`}
+                      >
+                        <span className="truncate flex-1">{s.name}</span>
+                        <span className="opacity-50 text-[10px] shrink-0">{s.count}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // If currently selected, unselect first so it won't linger as a ghost filter.
+                          if (isSelected) {
+                            setSelectedSellers((prev) => prev.filter((id) => id !== s.id));
+                          }
+                          toggleHiddenSeller(s.id);
+                        }}
+                        title={`Hide ${s.name} — removes all their items from results`}
+                        aria-label={`Hide ${s.name}`}
+                        className="shrink-0 px-2 py-1.5 text-muted/40 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none transition-opacity cursor-pointer"
+                      >
+                        <EyeOff size={12} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-[var(--border)] px-2 py-3 text-center text-[11px] text-muted">
+                {sellerQuery.trim() ? "No sellers match" : "No sellers available"}
+              </div>
+            )}
+
+            {/* Show more/less toggle */}
+            {!sellerQuery.trim() && querySellers.length > SELLER_COLLAPSED_COUNT && (
+              <button
+                type="button"
+                onClick={() => setShowAllSellers((v) => !v)}
+                className="mt-1.5 w-full rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted hover:text-foreground transition-colors cursor-pointer"
+              >
+                {showAllSellers
+                  ? "Show less"
+                  : `Show all ${querySellers.length}`}
+              </button>
+            )}
+
             {/* Hidden seller count hint */}
             {hiddenSellers.length > 0 && (
               <div className="mt-1.5 text-[10px] text-muted italic">
-                {hiddenSellers.length} seller{hiddenSellers.length > 1 ? "s" : ""} hidden via Settings
+                {hiddenSellers.length} seller{hiddenSellers.length > 1 ? "s" : ""} hidden — manage in Settings
               </div>
             )}
           </Section>
