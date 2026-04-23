@@ -4,14 +4,17 @@ import { memo, useMemo, useState, useCallback, useRef, useEffect, lazy, Suspense
 import { useSetAtom } from "jotai";
 import { Package, Star, Truck, Heart, Filter, EyeOff } from "lucide-react";
 import type { Item, Seller } from "@/lib/types";
-import { groupByWeight, groupByQuantity, parseVariant, pricePerGram, cheapestPpu, UNIT_DISPLAY_LABEL, formatWeight } from "@/lib/variants";
+import { groupByWeight, groupByQuantity, parseVariant, pricePerGram, cheapestPpu, variantPpu, UNIT_DISPLAY_LABEL, formatWeight } from "@/lib/variants";
 import { MARKETS } from "@/lib/constants";
 import { sellerModalIdAtom, toggleBookmarkAtom, bucketGrams, expandedRefNumAtom, selectedSellersAtom, toggleHiddenSellerAtom } from "@/store/atoms";
 import { useAddToast } from "@/components/Toast";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { Tooltip } from "@/components/Tooltip";
 import { getSellerImageUrl, getItemImageUrl, isAnimated } from "@/lib/images";
+import { shipFromCode, formatShipFrom } from "@/lib/shipFrom";
+import { CountryFlag } from "@/components/icons/CountryFlag";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
+import { decodeEntities } from "@/lib/format";
 
 /** Shared config lifted from ItemGrid — avoids per-card atom subscriptions. */
 export interface CardConfig {
@@ -56,15 +59,6 @@ function ExpandArrow() {
       </span>
     </span>
   );
-}
-
-/* ── Decode HTML entities from crawler data ── */
-const ENTITY_MAP: Record<string, string> = {
-  '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&apos;': "'",
-};
-const ENTITY_RE = /&(?:amp|lt|gt|quot|#39|apos);/g;
-function decodeEntities(s: string): string {
-  return s.replace(ENTITY_RE, (m) => ENTITY_MAP[m] ?? m);
 }
 
 /* ── First crawl batch cutoff — items with fsa on or before this date
@@ -350,6 +344,38 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
     return map.size > 0 ? map : null;
   }, [activeGroup, item.v]);
 
+  // (grams → price) and (qtyKey → price) for the currently selected strain.
+  // Lets weight / quantity buttons show the exact strain price instead of a
+  // cross-strain range once the user has picked a strain.
+  const strainWeightPrice = useMemo(() => {
+    if (!selectedStrain || !item.v) return null;
+    const strainLower = selectedStrain.toLowerCase();
+    const map = new Map<number, number>();
+    for (const v of item.v) {
+      const pv = parseVariant(v);
+      if (!pv || pv.grams == null) continue;
+      if (pv.strain?.toLowerCase() !== strainLower) continue;
+      const prev = map.get(pv.grams);
+      if (prev == null || v.usd < prev) map.set(pv.grams, v.usd);
+    }
+    return map.size > 0 ? map : null;
+  }, [selectedStrain, item.v]);
+
+  const strainQtyPrice = useMemo(() => {
+    if (!selectedStrain || !item.v) return null;
+    const strainLower = selectedStrain.toLowerCase();
+    const map = new Map<string, number>();
+    for (const v of item.v) {
+      const pv = parseVariant(v);
+      if (!pv) continue;
+      if (pv.strain?.toLowerCase() !== strainLower) continue;
+      const key = `${pv.qty}:${pv.unit}`;
+      const prev = map.get(key);
+      if (prev == null || v.usd < prev) map.set(key, v.usd);
+    }
+    return map.size > 0 ? map : null;
+  }, [selectedStrain, item.v]);
+
   // When a strain is selected, compute which weight tiers carry that strain
   // so we can dim weight buttons that don't have it.
   const strainAvailableGrams = useMemo(() => {
@@ -411,18 +437,54 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
   const shipSurcharge =
     includeShipping && !shippingIsFree && item.sh?.min != null ? item.sh.min : 0;
 
-  // PPU — show for selected weight chip (price/g), or cheapest PPU overall
-  // across any unit (g, pc, joint, cart, …). Shared `cheapestPpu` handles
-  // unit-grouping so a 10-pack doesn't get compared to a 5g jar.
-  const ppu = useMemo<{ value: number; unit: string } | null>(() => {
+  // PPU — show for selected weight chip (price/g), selected quantity chip
+  // (price/unit, e.g. "£29.62/cart"), or cheapest PPU overall across any unit
+  // (g, pc, joint, cart, …). Shared `cheapestPpu` handles unit-grouping so a
+  // 10-pack doesn't get compared to a 5g jar. When no strain/weight/qty is
+  // selected we return a min/max range matching the price range shown above.
+  const ppu = useMemo<{ value: number; valueMax?: number; unit: string } | null>(() => {
     if (activeGroup) {
-      const price = (exactPrice ?? activeGroup.price) + shipSurcharge;
-      const perGram = pricePerGram(price, activeGroup.grams);
-      return perGram != null ? { value: perGram, unit: "g" } : null;
+      const priceMin = (exactPrice ?? activeGroup.price) + shipSurcharge;
+      const perGramMin = pricePerGram(priceMin, activeGroup.grams);
+      if (perGramMin == null) return null;
+      // If the user hasn't pinned a strain yet and the weight tier spans a
+      // range, show /g min-max so the ppu tracks the headline price.
+      if (exactPrice == null && activeGroup.priceMax !== activeGroup.price) {
+        const perGramMax = pricePerGram(activeGroup.priceMax + shipSurcharge, activeGroup.grams);
+        if (perGramMax != null && perGramMax !== perGramMin) {
+          return { value: perGramMin, valueMax: perGramMax, unit: "g" };
+        }
+      }
+      return { value: perGramMin, unit: "g" };
+    }
+    if (activeQtyGroup) {
+      // Discrete units (cart, pack, pc…) need qty>1 for meaningful PPU.
+      if (activeQtyGroup.qty > 1) {
+        const priceMin = activeQtyGroup.price + shipSurcharge;
+        if (!(priceMin > 0)) return null;
+        const ppuMin = priceMin / activeQtyGroup.qty;
+        if (activeQtyGroup.priceMax !== activeQtyGroup.price) {
+          const ppuMax = (activeQtyGroup.priceMax + shipSurcharge) / activeQtyGroup.qty;
+          if (ppuMax !== ppuMin) {
+            return { value: ppuMin, valueMax: ppuMax, unit: activeQtyGroup.unit };
+          }
+        }
+        return { value: ppuMin, unit: activeQtyGroup.unit };
+      }
+      return null;
     }
     const best = cheapestPpu(item.v, shipSurcharge);
-    return best ? { value: best.ppu, unit: best.unit } : null;
-  }, [activeGroup, exactPrice, item.v, shipSurcharge]);
+    if (!best) return null;
+    // Compute max ppu in the same unit-group for range display.
+    let maxPpu = best.ppu;
+    for (const v of item.v ?? []) {
+      const r = variantPpu(v, shipSurcharge);
+      if (r && r.unit === best.unit && r.ppu > maxPpu) maxPpu = r.ppu;
+    }
+    return maxPpu > best.ppu
+      ? { value: best.ppu, valueMax: maxPpu, unit: best.unit }
+      : { value: best.ppu, unit: best.unit };
+  }, [activeGroup, activeQtyGroup, exactPrice, item.v, shipSurcharge]);
 
   // Timestamps
   const listed = timeAgo(item.fsa);
@@ -457,7 +519,7 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
       });
     });
     return () => { cancelled = true; };
-  }, [displayStrains, weightGroups]);
+  }, [displayStrains, weightGroups, quantityGroups, showQuantityRow]);
 
   const handleStripScroll = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
     const el = ref.current;
@@ -698,12 +760,27 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                     ) : null}
                   </span>
                   <span className="seller-card__meta">
-                    {/* Only show "Ships from" if NOT domestic */}
-                    {item.sf && !domestic && (
-                      <span className="seller-card__domain">
-                        Ships from {item.sf}
-                      </span>
-                    )}
+                    {/* "Ships from <flag>" — flag replaces the country word for
+                        compactness; tooltip shows the full country name. */}
+                    {item.sf && !domestic && (() => {
+                      const code = shipFromCode(item.sf);
+                      const full = formatShipFrom(item.sf);
+                      return (
+                        <Tooltip content={full}>
+                          <span
+                            className="seller-card__ship-flag"
+                            aria-label={`Ships from ${full}`}
+                          >
+                            <span>Ships from</span>
+                            {code ? (
+                              <CountryFlag code={code} size={12} />
+                            ) : (
+                              <span>{full}</span>
+                            )}
+                          </span>
+                        </Tooltip>
+                      );
+                    })()}
                     {(seller?.averageDaysToArrive ?? item.rs?.days) != null && (
                       <span className="seller-card__domain">
                         ~{Math.round(seller?.averageDaysToArrive ?? item.rs!.days!)}d delivery
@@ -806,6 +883,10 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                       {weightGroups.map((wg) => {
                         const isSelected = activeGroup?.grams === wg.grams;
                         const isUnavailable = strainAvailableGrams != null && !strainAvailableGrams.has(wg.grams);
+                        // When a strain is picked, show its specific price for
+                        // this weight instead of the cross-strain range.
+                        const strainPrice = strainWeightPrice?.get(wg.grams) ?? null;
+                        const hasRange = wg.price !== wg.priceMax;
                         return (
                           <button
                             type="button"
@@ -814,12 +895,14 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                             onClick={(e) => handleWeightClick(e, wg.grams)}
                           >
                             <span className="variant-size-btn__size">
-                              {wg.originalLabel || formatWeight(wg.grams)}
+                              {wg.originalLabel ? decodeEntities(wg.originalLabel) : formatWeight(wg.grams)}
                             </span>
                             <span className="variant-size-btn__price">
-                              {wg.price !== wg.priceMax
-                                ? `${cSym}${(wg.price * cRate).toFixed(0)} – ${cSym}${(wg.priceMax * cRate).toFixed(0)}`
-                                : `${cSym}${(wg.price * cRate).toFixed(2)}`}
+                              {strainPrice != null
+                                ? `${cSym}${(strainPrice * cRate).toFixed(2)}`
+                                : hasRange
+                                  ? `${cSym}${(wg.price * cRate).toFixed(0)} – ${cSym}${(wg.priceMax * cRate).toFixed(0)}`
+                                  : `${cSym}${(wg.price * cRate).toFixed(2)}`}
                             </span>
                           </button>
                         );
@@ -838,9 +921,16 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
               {!weightGroups && showQuantityRow && (
                 <div className="pill-row mt-2">
                   <div className="pill-row__track">
-                    <div className="pill-row__scroll">
+                    <div
+                      ref={weightStripRef}
+                      className="pill-row__scroll"
+                      onMouseDown={(e) => handleStripMouseDown(e, weightStripRef)}
+                      onScroll={() => handleStripScroll(weightStripRef)}
+                    >
                       {quantityGroups.map((qg) => {
                         const isSelected = selectedQtyKey === qg.key;
+                        const strainPrice = strainQtyPrice?.get(qg.key) ?? null;
+                        const hasRange = qg.price !== qg.priceMax;
                         return (
                           <button
                             type="button"
@@ -849,12 +939,14 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                             onClick={(e) => handleQtyClick(e, qg.key)}
                           >
                             <span className="variant-size-btn__size">
-                              {qg.originalLabel || qg.label}
+                              {decodeEntities(qg.originalLabel || qg.label)}
                             </span>
                             <span className="variant-size-btn__price">
-                              {qg.price !== qg.priceMax
-                                ? `${cSym}${(qg.price * cRate).toFixed(0)} – ${cSym}${(qg.priceMax * cRate).toFixed(0)}`
-                                : `${cSym}${(qg.price * cRate).toFixed(2)}`}
+                              {strainPrice != null
+                                ? `${cSym}${(strainPrice * cRate).toFixed(2)}`
+                                : hasRange
+                                  ? `${cSym}${(qg.price * cRate).toFixed(0)} – ${cSym}${(qg.priceMax * cRate).toFixed(0)}`
+                                  : `${cSym}${(qg.price * cRate).toFixed(2)}`}
                             </span>
                           </button>
                         );
@@ -876,7 +968,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                 item.v.length === 1 &&
                 item.v[0].d && (() => {
                   const pv = singleVariantParsed;
-                  const sizeLabel = pv ? pv.originalLabel || pv.weightLabel : item.v[0].d;
+                  const rawSizeLabel = pv ? pv.originalLabel || pv.weightLabel : item.v[0].d;
+                  const sizeLabel = rawSizeLabel ? decodeEntities(rawSizeLabel) : rawSizeLabel;
                   return (
                     <>
                       {pv?.strain && (
@@ -928,7 +1021,13 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                 </span>
                 {ppu != null && (
                   <span className="card-price-ppg">
-                    {cSym}{(ppu.value * cRate).toFixed(2)}/{UNIT_DISPLAY_LABEL[ppu.unit] ?? ppu.unit}
+                    {ppu.valueMax != null
+                      ? /* PPU is inverted vs total price (bulk = lower /unit).
+                           Render max→min so it visually aligns with the price
+                           range above (cheap-total ↔ highest-ppu on the left). */
+                        `${cSym}${(ppu.valueMax * cRate).toFixed(2)} – ${cSym}${(ppu.value * cRate).toFixed(2)}`
+                      : `${cSym}${(ppu.value * cRate).toFixed(2)}`}
+                    /{UNIT_DISPLAY_LABEL[ppu.unit] ?? ppu.unit}
                   </span>
                 )}
               </div>

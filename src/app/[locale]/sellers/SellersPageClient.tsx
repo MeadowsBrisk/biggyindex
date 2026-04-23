@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useSetAtom } from "jotai";
 import {
-  Shield,
+  ShieldCheck,
   AlertTriangle,
   Star,
   Truck,
@@ -73,122 +73,186 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function formatDate(iso: string, now: number): string {
-  const d = new Date(iso);
-  const diff = now - d.getTime();
-  const days = Math.floor(diff / 86_400_000);
-  if (days === 0) return "Today";
-  if (days === 1) return "Yesterday";
-  if (days < 30) return `${days}d ago`;
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+function compact(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10_000 ? 0 : 1)}k`;
+  return String(n);
 }
 
-/* ---------- Leaderboard card ---------- */
+/* ---------- Leaderboard card (matches home SellerTrustBoard design) ---------- */
+
+type Tone = "emerald" | "amber";
+
+const TONE_RING: Record<Tone, string> = {
+  emerald: "ring-emerald-500/40",
+  amber: "ring-amber-500/40",
+};
+
+const TONE_INITIAL_BG: Record<Tone, string> = {
+  emerald: "bg-emerald-500/10 text-emerald-500",
+  amber: "bg-amber-500/10 text-amber-500",
+};
+
+function LbAvatar({
+  entry,
+  tone,
+  size = 36,
+  ring = false,
+}: {
+  entry: LeaderboardEntry;
+  tone: Tone;
+  size?: number;
+  ring?: boolean;
+}) {
+  const avatarUrl = getSellerImageUrl(entry.imageUrl);
+  const ringCls = ring ? `ring-2 ring-offset-2 ring-offset-[var(--card)] ${TONE_RING[tone]}` : "";
+  return (
+    <SellerAvatarTooltip sellerName={entry.sellerName} imageUrl={avatarUrl}>
+      {avatarUrl ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={avatarUrl}
+          alt={entry.sellerName}
+          className={`rounded-full object-cover shrink-0 ${ringCls}`}
+          style={{ width: size, height: size }}
+          loading="lazy"
+        />
+      ) : (
+        <div
+          className={`rounded-full flex items-center justify-center font-bold shrink-0 ${TONE_INITIAL_BG[tone]} ${ringCls}`}
+          style={{ width: size, height: size, fontSize: Math.max(10, Math.round(size * 0.36)) }}
+        >
+          {getInitials(entry.sellerName)}
+        </div>
+      )}
+    </SellerAvatarTooltip>
+  );
+}
+
+function LbMeterBar({ pct, tone }: { pct: number; tone: Tone }) {
+  const gradient =
+    tone === "emerald"
+      ? "bg-gradient-to-r from-emerald-500/70 to-emerald-400"
+      : "bg-gradient-to-r from-amber-500/70 to-red-400";
+  return (
+    <div className="relative h-[3px] w-full rounded-full bg-[var(--border)]/60 overflow-hidden">
+      <div
+        className={`absolute inset-y-0 left-0 ${gradient} rounded-full`}
+        style={{ width: `${Math.max(3, Math.min(100, pct))}%` }}
+      />
+    </div>
+  );
+}
+
 function LeaderboardCard({
   title,
   subtitle,
   icon,
   entries,
   variant,
-  now,
 }: {
   title: string;
   subtitle: string;
   icon: React.ReactNode;
   entries: LeaderboardEntry[];
   variant: "top" | "bottom";
-  now: number;
 }) {
   const openSeller = useSetAtom(sellerModalIdAtom);
   const isTop = variant === "top";
+  const tone: Tone = isTop ? "emerald" : "amber";
+  const totalReviews = entries.reduce((sum, e) => sum + e.total, 0);
+
+  const accentGrad =
+    tone === "emerald"
+      ? "from-emerald-500/10 via-transparent to-transparent"
+      : "from-amber-500/10 via-transparent to-transparent";
+  const iconBg =
+    tone === "emerald" ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500";
 
   return (
-    <div
-      className={`rounded-xl border bg-[var(--card)] overflow-hidden ${
-        isTop ? "border-primary/20" : "border-amber-500/20"
-      }`}
-    >
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--border)]">
-        {icon}
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-          <p className="text-[10px] text-muted">{subtitle}</p>
-        </div>
-      </div>
-      <div className="divide-y divide-[var(--border)]">
-        {entries.map((e, i) => {
-          const pct =
-            e.total > 0 ? Math.round((e.positive / e.total) * 100) : 0;
-          return (
-            <button
-              key={e.sellerId}
-              type="button"
-              onClick={() => openSeller(e.sellerId)}
-              className="flex items-center gap-3 px-4 py-2.5 w-full text-left hover:bg-[var(--surface-hover)] transition-colors"
-            >
-              <span
-                className={`w-5 text-center text-xs font-bold tabular-nums ${
-                  isTop ? "text-primary" : "text-amber-400"
-                }`}
-              >
-                {i + 1}
-              </span>
+    <div className="relative rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
+      <div
+        className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-b ${accentGrad} pointer-events-none`}
+        aria-hidden
+      />
 
-              {/* Avatar */}
-              {(() => {
-                const lbAvatarUrl = getSellerImageUrl(e.imageUrl);
-                return (
-              <SellerAvatarTooltip sellerName={e.sellerName} imageUrl={lbAvatarUrl}>
-                {lbAvatarUrl ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={lbAvatarUrl}
-                    alt={e.sellerName}
-                    className="w-8 h-8 rounded-full object-cover border border-[var(--border)] shrink-0"
-                  />
-                ) : (
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                      isTop
-                        ? "bg-primary/10 text-primary"
-                        : "bg-amber-500/10 text-amber-400"
+      <header className="relative flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]/70">
+        <div className={`rounded-xl p-2 ${iconBg}`}>{icon}</div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-[15px] font-semibold text-foreground leading-tight">{title}</h3>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Reviews</p>
+          <p className="text-sm font-semibold text-foreground tabular-nums">
+            {compact(totalReviews)}
+          </p>
+        </div>
+      </header>
+
+      <ul className="relative divide-y divide-[var(--border)]/60">
+        {entries.map((e, i) => {
+          const pct = e.total > 0 ? Math.round((e.positive / e.total) * 100) : 0;
+          const featured = i === 0;
+          const pctColor = isTop
+            ? pct >= 90
+              ? "text-emerald-500"
+              : pct >= 75
+                ? "text-emerald-400"
+                : "text-foreground/70"
+            : pct <= 50
+              ? "text-red-400"
+              : "text-amber-500";
+
+          return (
+            <li key={e.sellerId}>
+              <button
+                type="button"
+                onClick={() => openSeller(e.sellerId)}
+                className="group w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--surface-hover)]"
+              >
+                <LbAvatar
+                  entry={e}
+                  tone={tone}
+                  size={featured ? 48 : 36}
+                  ring={featured}
+                />
+
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={`truncate font-medium text-foreground transition-colors group-hover:text-primary ${
+                      featured ? "text-[15px]" : "text-sm"
                     }`}
                   >
-                    {getInitials(e.sellerName)}
+                    {e.sellerName}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tabular-nums">
+                    <span>{compact(e.total)} reviews</span>
+                    {!isTop && e.negative > 0 && (
+                      <>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="text-red-400/80">
+                          {compact(e.negative)} negative
+                        </span>
+                      </>
+                    )}
                   </div>
-                )}
-              </SellerAvatarTooltip>
-                );
-              })()}
+                </div>
 
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {e.sellerName}
-                </p>
-                <p className="text-[10px] text-muted">
-                  {e.total} reviews
-                  {e.lastReviewAt && ` - ${formatDate(e.lastReviewAt, now)}`}
-                </p>
-              </div>
-
-              {/* Score as colored percentage */}
-              <span
-                className={`text-sm font-semibold tabular-nums ${
-                  pct >= 90
-                    ? "text-primary"
-                    : pct >= 70
-                      ? "text-foreground"
-                      : pct >= 50
-                        ? "text-amber-400"
-                        : "text-red-400"
-                }`}
-              >
-                {pct}%
-              </span>
-            </button>
+                <div className="flex flex-col items-end gap-1 shrink-0 w-20">
+                  <span
+                    className={`font-bold tabular-nums ${pctColor} ${
+                      featured ? "text-xl" : "text-base"
+                    }`}
+                  >
+                    {pct}%
+                  </span>
+                  <LbMeterBar pct={pct} tone={tone} />
+                </div>
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -236,8 +300,6 @@ export function SellersPageClient({
   generatedAt,
 }: Props) {
   const openSeller = useSetAtom(sellerModalIdAtom);
-  const [now, setNow] = useState(0);
-  useEffect(() => setNow(Date.now()), []);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("reviews");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -342,19 +404,17 @@ export function SellersPageClient({
         <div className="grid gap-4 md:grid-cols-2">
           <LeaderboardCard
             title="Top Rated"
-            subtitle="Highest positive review %"
-            icon={<Shield size={16} className="text-primary" />}
+            subtitle="Highest positive-review ratio"
+            icon={<ShieldCheck size={18} />}
             entries={leaderboard.top}
             variant="top"
-            now={now}
           />
           <LeaderboardCard
             title="Use Caution"
-            subtitle="Lower scores - check reviews first"
-            icon={<AlertTriangle size={16} className="text-amber-400" />}
+            subtitle="Elevated negative feedback"
+            icon={<AlertTriangle size={18} />}
             entries={leaderboard.bottom}
             variant="bottom"
-            now={now}
           />
         </div>
       </div>

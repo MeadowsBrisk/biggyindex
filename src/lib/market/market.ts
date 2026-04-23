@@ -5,7 +5,7 @@
  * Dev/preview: path-based fallback (/de → DE) or default GB
  */
 
-export type MarketCode = "GB" | "DE" | "FR" | "PT" | "IT" | "ES" | "GR";
+export type MarketCode = "GB" | "DE" | "FR" | "PT" | "IT" | "ES" | "GR" | "CZ";
 
 /** Derive market from hostname (subdomain detection). */
 export function getMarketFromHost(hostname: string | undefined | null): MarketCode {
@@ -26,6 +26,7 @@ export function getMarketFromHost(hostname: string | undefined | null): MarketCo
     if (h.startsWith("it.")) return "IT";
     if (h.startsWith("es.")) return "ES";
     if (h.startsWith("gr.")) return "GR";
+    if (h.startsWith("cz.")) return "CZ";
     return "GB";
   }
 
@@ -36,6 +37,7 @@ export function getMarketFromHost(hostname: string | undefined | null): MarketCo
   if (/\bit[.-]/.test(h)) return "IT";
   if (/\bes[.-]/.test(h)) return "ES";
   if (/\bgr[.-]/.test(h)) return "GR";
+  if (/\bcz[.-]/.test(h)) return "CZ";
 
   return "GB";
 }
@@ -77,6 +79,9 @@ export function localeToMarket(locale: string | undefined): MarketCode {
     case "el-GR":
     case "el":
       return "GR";
+    case "cs-CZ":
+    case "cs":
+      return "CZ";
     default:
       return "GB";
   }
@@ -97,18 +102,22 @@ export function marketToLocale(market: MarketCode): string {
       return "es-ES";
     case "GR":
       return "el-GR";
+    case "CZ":
+      return "cs-CZ";
     default:
       return "en-GB";
   }
 }
 
-export const ALL_MARKETS: MarketCode[] = ["GB", "DE", "FR", "PT", "IT", "ES", "GR"];
+export const ALL_MARKETS: MarketCode[] = ["GB", "DE", "FR", "PT", "IT", "ES", "GR", "CZ"];
 
 /** Market code → native currency symbol. */
 export function marketCurrencySymbol(market: MarketCode | string): string {
   switch (market.toUpperCase()) {
     case "GB":
       return "£";
+    case "CZ":
+      return "Kč";
     case "DE":
     case "FR":
     case "PT":

@@ -45,7 +45,7 @@ import {
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { cx } from "@/lib/cn";
 import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
-import { fmtPrice, formatPriceChange, formatDateTime } from "@/lib/format";
+import { fmtPrice, formatPriceChange, formatDateTime, decodeEntities } from "@/lib/format";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
@@ -67,18 +67,6 @@ interface ItemReview {
 }
 
 /* ── Helpers ── */
-const ENTITY_MAP: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-  "&apos;": "'",
-};
-const ENTITY_RE = /&(?:amp|lt|gt|quot|#39|apos);/g;
-function decodeEntities(s: string): string {
-  return s.replace(ENTITY_RE, (m) => ENTITY_MAP[m] ?? m);
-}
 
 /* Human-friendly labels + value formatters for item attributes (`at` field). */
 const AT_LABELS: Record<string, string> = {
@@ -620,7 +608,7 @@ export function ItemDetailOverlay() {
         const unit = effectiveParsed?.unit ?? null;
         return {
           key: v.vid != null ? String(v.vid) : String(i),
-          label: v.dEn || v.d || "—",
+          label: decodeEntities(v.dEn || v.d || "—"),
           price: v.usd,
           grams,
           ppu,

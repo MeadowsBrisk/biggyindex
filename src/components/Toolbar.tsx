@@ -2,7 +2,7 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowUp, ArrowDown, Heart, Truck, Package, X } from "lucide-react";
-import { useTransition, useMemo } from "react";
+import { useTransition, useMemo, useEffect, useRef, useSyncExternalStore } from "react";
 import type { SortKey } from "@/lib/types";
 import {
   bookmarksAtom,
@@ -31,9 +31,33 @@ import { FilterToggle } from "@/components/FilterPanel";
  * BiggyIndex-distinct: hotness indicator, bookmark toggle.
  */
 export function Toolbar() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Publish the live toolbar height to `--toolbar-h` so the filter sidebar
+  // (which is sticky below the toolbar) can pin flush against it. The toolbar
+  // changes height across breakpoints (mobile gets a 2nd row) so a hardcoded
+  // `top-[44px]` left visible gaps / overlaps when scrolling.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const sync = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--toolbar-h", `${Math.round(h)}px`);
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    window.addEventListener("resize", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+
   return (
     <div
-      className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/85 dark:bg-[var(--background)]/80 backdrop-blur-[28px]"
+      ref={ref}
+      className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/78 dark:bg-[var(--background)]/80 backdrop-blur-[28px]"
       data-tour="toolbar"
     >
       {/* Row 1: action buttons + count + sort */}
@@ -233,10 +257,30 @@ const BASE_SORT_OPTIONS: { key: SortKey; label: string; defaultDir: "asc" | "des
   { key: "name", label: "Name", defaultDir: "asc" },
 ];
 
+/**
+ * Returns `true` only after the first client render (hydration committed).
+ * During SSR and the hydration render, returns `false`, so components can
+ * render SSR defaults identically on both sides and swap in client state
+ * on the next commit. Uses `useSyncExternalStore` — React's canonical
+ * primitive for this — which is a pure hook (no setState-in-effect).
+ */
+const subscribeNoop = () => () => {};
+function useIsClient() {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
+}
+
 function SortPills() {
   const [sortKey, setSortKey] = useAtom(sortKeyAtom);
   const [sortDir, setSortDir] = useAtom(sortDirAtom);
+  const mounted = useIsClient();
   const [, startTransition] = useTransition();
+
+  const effectiveSortKey: SortKey = mounted ? sortKey : "hottest";
+  const effectiveSortDir = mounted ? sortDir : "desc";
 
   const handleSortChange = (key: SortKey) => {
     startTransition(() => {
@@ -250,12 +294,12 @@ function SortPills() {
     });
   };
 
-  const DirIcon = sortDir === "asc" ? ArrowUp : ArrowDown;
+  const DirIcon = effectiveSortDir === "asc" ? ArrowUp : ArrowDown;
 
   return (
     <div className="sort-bar">
       {BASE_SORT_OPTIONS.map((opt) => {
-        const active = sortKey === opt.key;
+        const active = effectiveSortKey === opt.key;
         return (
           <button
             key={opt.key}
@@ -299,7 +343,11 @@ function FreeShippingToggle() {
 function SortSelect() {
   const [sortKey, setSortKey] = useAtom(sortKeyAtom);
   const [sortDir, setSortDir] = useAtom(sortDirAtom);
+  const mounted = useIsClient();
   const [, startTransition] = useTransition();
+
+  const effectiveSortKey: SortKey = mounted ? sortKey : "hottest";
+  const effectiveSortDir = mounted ? sortDir : "desc";
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const key = e.target.value as SortKey;
@@ -314,12 +362,12 @@ function SortSelect() {
     });
   };
 
-  const DirIcon = sortDir === "asc" ? ArrowUp : ArrowDown;
+  const DirIcon = effectiveSortDir === "asc" ? ArrowUp : ArrowDown;
 
   return (
     <div className="flex items-center gap-1.5">
       <select
-        value={sortKey}
+        value={effectiveSortKey}
         onChange={handleChange}
         className="appearance-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-xs font-medium text-foreground outline-none"
       >

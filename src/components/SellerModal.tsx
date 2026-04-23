@@ -16,7 +16,9 @@ import {
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ReviewCard, type Review } from "@/components/ReviewCard";
 import { getSellerImageUrl, getItemImageUrl } from "@/lib/images";
+import { decodeEntities } from "@/lib/format";
 import { useHistoryState } from "@/hooks/useHistoryState";
+import historyManager from "@/lib/historyManager";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -57,13 +59,6 @@ function ratingBucketClass(rating: number): string {
 }
 
 /* ── Helpers ── */
-const ENTITY_MAP: Record<string, string> = {
-  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'",
-};
-const ENTITY_RE = /&(?:amp|lt|gt|quot|#39);/g;
-function decodeEntities(s: string): string {
-  return s.replace(ENTITY_RE, (m) => ENTITY_MAP[m] ?? m);
-}
 
 
 
@@ -347,10 +342,18 @@ export function SellerModal() {
       setCategory("All");
       closeViaHistory();
     } else {
-      closeViaHistory();
+      // Pre-populate atoms so /browse shows the filter without waiting
+      // for URL → atom hydration.
+      setSelectedSellers([sellerId]);
+      setCategory("All");
+      // Silently drop the modal's history marker instead of history.back() —
+      // a pending popstate would race router.push and land us back on
+      // the origin page.
+      historyManager.remove(`seller-modal-${sellerId}`);
+      close();
       router.push(`/browse?sellers=${encodeURIComponent(sellerId)}`);
     }
-  }, [sellerId, pathname, setSelectedSellers, setCategory, closeViaHistory, router]);
+  }, [sellerId, pathname, setSelectedSellers, setCategory, closeViaHistory, close, router]);
 
   if (!sellerId) return null;
 

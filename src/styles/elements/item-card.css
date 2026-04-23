@@ -739,6 +739,23 @@
   @apply truncate;
 }
 
+/* "Ships from <flag>" badge \u2014 compact text + inline country flag, with a
+   tooltip showing the full country name. Replaces "Ships from United Kingdom"
+   which overflowed on narrow cards. */
+.seller-card__ship-flag {
+  @apply inline-flex items-center gap-1 shrink-0;
+  line-height: 1;
+  color: var(--muted-foreground);
+}
+
+/* Subtle glow so white portions of flags (e.g. IE, DE, PL) don't blend into
+   the card background. Applied to the SVG only so text is unaffected. */
+.seller-card__ship-flag svg {
+  filter: drop-shadow(0 0 0.5px color-mix(in srgb, var(--foreground) 35%, transparent))
+    drop-shadow(0 1px 2px color-mix(in srgb, var(--foreground) 12%, transparent));
+  border-radius: 2px;
+}
+
 .seller-card__badge {
   @apply inline-flex items-center gap-0.5 shrink-0;
   padding: 1px 5px;
@@ -888,53 +905,66 @@
   @apply absolute right-0 top-0 bottom-0 flex items-center justify-end pointer-events-none;
   padding-right: 6px;
   padding-left: 52px;
+  /* Always fade to the hover card colour. The overflow is only visible while
+     the card is hovered (opacity:1), at which point .item-card-inner is also
+     var(--card-hover) \u2014 so the gradient blends seamlessly. On hover-off
+     only opacity animates; the gradient colour never changes, avoiding the
+     "flash" that CSS custom properties cause (they aren't animatable without
+     @property registration, so a var swap would snap instantly). */
   background: linear-gradient(
     to left,
-    var(--card) 0%,
-    color-mix(in srgb, var(--card) 97%, transparent) 42%,
+    var(--card-hover, var(--surface)) 0%,
+    color-mix(in srgb, var(--card-hover, var(--surface)) 97%, transparent) 42%,
     transparent 100%
   );
   opacity: 0;
-  transition: opacity 400ms ease;
+  transition: opacity 320ms ease-out;
+  will-change: opacity;
 
   @variant dark {
     background: linear-gradient(
       to left,
-      var(--card) 0%,
-      color-mix(in srgb, var(--card) 98%, transparent) 35%,
+      var(--card-hover, var(--surface)) 0%,
+      color-mix(in srgb, var(--card-hover, var(--surface)) 98%, transparent) 35%,
       transparent 100%
     );
   }
 }
 
 .pill-row__scroll[data-scrollable='false'] ~ .pill-row__overflow {
+  /* Keep this out of the document for non-scrollable strips so the arrow
+     isn't announced to screen readers even as opacity:0. */
   display: none;
 }
 
+/* At-end: fade out smoothly instead of snapping off so the gradient eases
+   away as the user finishes scrolling. No !important \u2014 we want the
+   :hover rule to still be able to keep it visible if the user hovers while
+   at the end (unlikely, but harmless). Opacity is already 0 on base; this
+   rule exists mainly to beat the :hover rule by specificity when the user
+   has scrolled to the end. */
 .pill-row__scroll[data-at-end='true'] ~ .pill-row__overflow {
-  display: none;
+  opacity: 0;
 }
 
-.item-card:hover .pill-row__scroll[data-scrolled='false'] ~ .pill-row__overflow {
+.item-card:hover .pill-row__scroll[data-scrolled='false'][data-at-end='false'] ~ .pill-row__overflow {
   opacity: 1;
-  transition: opacity 180ms ease;
 }
 
 /* Mobile/touch: always show arrow since there's no hover */
 @variant max-md {
-  .pill-row__scroll[data-scrolled='false'] ~ .pill-row__overflow {
+  .pill-row__scroll[data-scrolled='false'][data-at-end='false'] ~ .pill-row__overflow {
     opacity: 1;
   }
 }
 
-.pill-row__scroll[data-scrolled='true'] {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
+/* Remove the edge fade-mask once the user has scrolled or reached the end \u2014
+   mask-image can't interpolate between values, so we swap to an equivalent
+   no-op gradient to avoid a jarring snap. */
+.pill-row__scroll[data-scrolled='true'],
 .pill-row__scroll[data-at-end='true'] {
-  -webkit-mask-image: none;
-  mask-image: none;
+  -webkit-mask-image: linear-gradient(to right, black 100%, transparent 100%);
+  mask-image: linear-gradient(to right, black 100%, transparent 100%);
 }
 
 .pill-row__overflow-count {
@@ -942,15 +972,6 @@
   color: color-mix(in srgb, var(--foreground) 68%, var(--muted) 32%);
   background: color-mix(in srgb, var(--surface) 82%, transparent);
   border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
-}
-
-.item-card:hover .pill-row__overflow {
-  background: linear-gradient(
-    to left,
-    var(--card-hover, var(--surface)) 0%,
-    color-mix(in srgb, var(--card-hover, var(--surface)) 98%, transparent) 35%,
-    transparent 100%
-  );
 }
 
 /* ── Strain pills ── */

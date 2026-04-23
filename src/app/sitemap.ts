@@ -22,6 +22,7 @@ const DOMAINS: Record<MarketCode, string> = {
   IT: "https://it.biggyindex.com",
   ES: "https://es.biggyindex.com",
   GR: "https://gr.biggyindex.com",
+  CZ: "https://cz.biggyindex.com",
 };
 
 const LOCALE_FOR: Record<MarketCode, string> = {
@@ -32,6 +33,7 @@ const LOCALE_FOR: Record<MarketCode, string> = {
   IT: "it",
   ES: "es",
   GR: "el",
+  CZ: "cs",
 };
 
 export async function generateSitemaps() {

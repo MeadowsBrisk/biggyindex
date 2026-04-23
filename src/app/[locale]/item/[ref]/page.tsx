@@ -21,20 +21,13 @@ import { SuggestLink } from "@/components/SuggestLink";
 import { LocalizedText } from "@/components/LocalizedText";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
+import { decodeEntities } from "@/lib/format";
 
 interface ItemPageProps {
   params: Promise<{ locale: string; ref: string }>;
 }
 
 /* ── Helpers ── */
-
-const ENTITY_MAP: Record<string, string> = {
-  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&apos;": "'",
-};
-const ENTITY_RE = /&(?:amp|lt|gt|quot|#39|apos);/g;
-function decodeEntities(s: string): string {
-  return s.replace(ENTITY_RE, (m) => ENTITY_MAP[m] ?? m);
-}
 
 function fmtDate(iso: string | null | undefined): string | null {
   if (!iso) return null;

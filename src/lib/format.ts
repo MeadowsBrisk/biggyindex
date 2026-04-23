@@ -29,3 +29,57 @@ export function formatDateTime(iso: string): string {
     minute: "2-digit",
   });
 }
+
+/**
+ * Decode basic HTML entities (&amp;, &quot;, &#x2026;, &hellip;, numeric
+ * references, etc.) into plain text. Ported from old-biggyindex
+ * `lib/core/format.ts` — handles nested entities (e.g. `&amp;hellip;`) by
+ * iterating up to 3 times, and covers the common named entities the crawler
+ * surfaces in product/variant/review strings.
+ */
+const ENTITY_NAMES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  hellip: "…",
+  ndash: "–",
+  mdash: "—",
+  rsquo: "’",
+  lsquo: "‘",
+  laquo: "«",
+  raquo: "»",
+  bull: "•",
+  middot: "·",
+  deg: "°",
+  euro: "€",
+  pound: "£",
+  copy: "©",
+  reg: "®",
+  trade: "™",
+};
+
+export function decodeEntities(str: string | null | undefined): string {
+  if (!str) return "";
+  let s = String(str);
+  for (let i = 0; i < 3; i++) {
+    const before = s;
+    s = s
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, hex: string) => {
+        const code = Number.parseInt(hex, 16);
+        return Number.isFinite(code) ? String.fromCharCode(code) : _;
+      })
+      .replace(/&#(\d+);/g, (_, num: string) => {
+        const code = Number.parseInt(num, 10);
+        return Number.isFinite(code) ? String.fromCharCode(code) : _;
+      })
+      .replace(/&([a-zA-Z]+);?/g, (m, name: string) => {
+        const v = ENTITY_NAMES[name.toLowerCase()];
+        return v != null ? v : m;
+      });
+    if (s === before) break;
+  }
+  return s;
+}

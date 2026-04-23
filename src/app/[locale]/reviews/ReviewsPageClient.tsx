@@ -125,19 +125,25 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
     >
       {/* Item thumbnail — top right */}
       {hasItemImage && (
-        <button
-          type="button"
-          onClick={() => review.refNum && setRefNum(review.refNum)}
-          className="absolute right-3 top-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm hover:ring-2 hover:ring-primary/30 transition-all"
+        <SellerAvatarTooltip
+          sellerName={review.itemName ?? ""}
+          imageUrl={review.itemImageUrl}
+          tooltipSize={160}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={review.itemImageUrl}
-            alt={review.itemName ?? ""}
-            loading="lazy"
-            className="h-12 w-12 object-cover"
-          />
-        </button>
+          <button
+            type="button"
+            onClick={() => review.refNum && setRefNum(review.refNum)}
+            className="absolute right-3 top-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm hover:ring-2 hover:ring-primary/30 transition-all"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={review.itemImageUrl}
+              alt={review.itemName ?? ""}
+              loading="lazy"
+              className="h-12 w-12 object-cover"
+            />
+          </button>
+        </SellerAvatarTooltip>
       )}
 
       <div className={hasItemImage ? "pr-18" : ""}>

@@ -80,6 +80,14 @@ export const MARKETS: Market[] = [
     locale: "el-GR",
     flag: "🇬🇷",
   },
+  {
+    code: "CZ",
+    name: "Czech Republic",
+    currency: "CZK",
+    currencySymbol: "Kč",
+    locale: "cs-CZ",
+    flag: "🇨🇿",
+  },
 ];
 
 export const DEFAULT_MARKET = "GB";

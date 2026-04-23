@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { Truck } from "lucide-react";
 import { cx } from "@/lib/cn";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { decodeEntities } from "@/lib/format";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -24,19 +25,6 @@ export interface Review {
 }
 
 /* ── Helpers ── */
-
-const ENTITY_MAP: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-  "&apos;": "'",
-};
-const ENTITY_RE = /&(?:amp|lt|gt|quot|#39|apos);/g;
-function decodeEntities(s: string): string {
-  return s.replace(ENTITY_RE, (m) => ENTITY_MAP[m] ?? m);
-}
 
 function relativeTime(unix: number): string {
   const ms = Date.now() - unix * 1000;

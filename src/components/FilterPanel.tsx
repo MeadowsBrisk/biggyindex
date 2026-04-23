@@ -41,6 +41,7 @@ import {
 } from "@/store/atoms";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/constants";
 import { CountryFlag } from "@/components/icons/CountryFlag";
+import { SHIP_FROM_CODES } from "@/lib/shipFrom";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
 
 // ─── Width constant ────────────────────────────────────────────────
@@ -195,14 +196,19 @@ function PanelContent({ onClose }: { onClose: () => void }) {
   // Seller search
   const [sellerQuery, setSellerQuery] = useState("");
   const [showAllSellers, setShowAllSellers] = useState(false);
+  const [sellerSort, setSellerSort] = useState<"alpha" | "count">("alpha");
   const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
 
-  // Visible sellers (not hidden, from filtered items) — ordered by count desc.
-  // The full source list; filtered/trimmed below.
-  const visibleSellers = useMemo(
-    () => filteredSellers.filter((s) => !hiddenSet.has(s.id)),
-    [filteredSellers, hiddenSet],
-  );
+  // Visible sellers (not hidden, from filtered items). Sort locally by
+  // the user-selected mode — default A–Z because it's easier to scan than
+  // a count-ranked list that changes on every filter tweak.
+  const visibleSellers = useMemo(() => {
+    const base = filteredSellers.filter((s) => !hiddenSet.has(s.id));
+    if (sellerSort === "alpha") {
+      return [...base].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return base; // filteredSellersAtom is already sorted by count desc
+  }, [filteredSellers, hiddenSet, sellerSort]);
 
   // Query-filtered list used by the dropdown body.
   const querySellers = useMemo(() => {
@@ -211,7 +217,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
     return visibleSellers.filter((s) => s.name.toLowerCase().includes(q));
   }, [sellerQuery, visibleSellers]);
 
-  const SELLER_COLLAPSED_COUNT = 10;
+  const SELLER_COLLAPSED_COUNT = 6;
   const sellerRows = useMemo(
     () => (showAllSellers || sellerQuery.trim() ? querySellers : querySellers.slice(0, SELLER_COLLAPSED_COUNT)),
     [querySellers, showAllSellers, sellerQuery],
@@ -294,54 +300,69 @@ function PanelContent({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} className="text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Filters</h2>
-        </div>
-        <div className="flex items-center gap-1">
-          {filterCount > 0 && (
-            <button
-              type="button"
-              onClick={() => clearFilters()}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
-              title="Clear all non-pinned filters"
-            >
-              <RotateCcw size={11} />
-              Clear
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
-            aria-label="Close filters"
-          >
-            <X size={16} />
-          </button>
-        </div>
+      {/* Header — close only. Matches the "N active" row height below so the
+          two strips read as a single balanced strip when filters are set. */}
+      <div className="flex h-8 items-center justify-end border-b border-[var(--border)] px-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+          aria-label="Close filters"
+          title="Close filters"
+        >
+          <X size={14} />
+        </button>
       </div>
 
-      {/* Search */}
+      {/* "N active / Clear all" row — only when filters are set. */}
+      {filterCount > 0 && (
+        <div className="flex h-8 items-center justify-between border-b border-[var(--border)] bg-surface/40 px-4">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted">
+            {filterCount} active
+          </span>
+          <button
+            type="button"
+            onClick={() => clearFilters()}
+            className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+            title="Clear all non-pinned filters"
+          >
+            <RotateCcw size={11} />
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* Search — inline × clear button appears only when text is present,
+          keeping it visually distinct from the panel-close X in the header. */}
       <div className="px-4 pt-2 pb-1 lg:pl-0">
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted"
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
           />
           <input
             type="text"
             placeholder="Search items…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-[var(--border)] bg-surface py-1.5 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
+            className={`w-full rounded-lg border border-[var(--border)] bg-surface py-1.5 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors ${search ? "pr-8" : "pr-3"}`}
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              title="Clear search"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+            >
+              <X size={12} />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Scrollable body */}
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 lg:pl-0 py-2 pb-10">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 lg:pl-0 py-3 pb-10">
         {/* Category chips */}
         <div className="mb-4">
           <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
@@ -541,19 +562,29 @@ function PanelContent({ onClose }: { onClose: () => void }) {
             }
           >
 
-            {/* Search input */}
-            <div className="relative mb-2">
-              <Search
-                size={12}
-                className="absolute left-2 top-1/2 -translate-y-1/2 text-muted"
-              />
-              <input
-                type="text"
-                placeholder="Search sellers…"
-                value={sellerQuery}
-                onChange={(e) => setSellerQuery(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-surface py-1.5 pl-7 pr-3 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
-              />
+            {/* Search + sort row */}
+            <div className="mb-2 flex items-center gap-1.5">
+              <div className="relative flex-1">
+                <Search
+                  size={12}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted"
+                />
+                <input
+                  type="text"
+                  placeholder="Search sellers…"
+                  value={sellerQuery}
+                  onChange={(e) => setSellerQuery(e.target.value)}
+                  className="w-full rounded-md border border-[var(--border)] bg-surface py-1.5 pl-7 pr-3 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setSellerSort((v) => (v === "alpha" ? "count" : "alpha"))}
+                title={sellerSort === "alpha" ? "Sorted A–Z — click for most items first" : "Sorted by item count — click for A–Z"}
+                className="shrink-0 rounded-md border border-[var(--border)] bg-surface px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
+              >
+                {sellerSort === "alpha" ? "A–Z" : "№"}
+              </button>
             </div>
 
             {/* Selected seller chips */}
@@ -577,46 +608,66 @@ function PanelContent({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
-            {/* Seller list — click to toggle selection, hover/focus reveals ignore button */}
+            {/* Seller list — 2-column grid. Hairlines via cell borders rather
+                than a gap-px trick so the selected bg extends cleanly to the
+                edge with no visible seam under the absolutely-positioned hide
+                button. The list scrolls in-place when expanded or searching. */}
             {sellerRows.length > 0 ? (
-              <div className="rounded-md border border-[var(--border)] bg-surface divide-y divide-[var(--border)] overflow-hidden">
-                {sellerRows.map((s) => {
-                  const isSelected = selectedSellers.includes(s.id);
-                  return (
-                    <div
-                      key={s.id}
-                      className={`group flex items-center text-[11px] transition-colors ${
-                        isSelected ? "bg-primary/10 text-primary" : "text-muted hover:bg-surface-hover hover:text-foreground"
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleSeller(s.id)}
-                        className="flex flex-1 items-center gap-2 px-2 py-1.5 text-left cursor-pointer min-w-0"
-                        title={isSelected ? `Unselect ${s.name}` : `Select ${s.name}`}
+              <div
+                className={`rounded-md border border-[var(--border)] bg-surface overflow-hidden ${
+                  showAllSellers || sellerQuery.trim()
+                    ? "max-h-[19rem] overflow-y-auto"
+                    : ""
+                }`}
+              >
+                <div className="grid grid-cols-2">
+                  {sellerRows.map((s, i) => {
+                    const isSelected = selectedSellers.includes(s.id);
+                    // Right column gets no right border; bottom row (last two
+                    // cells of an even count, or last cell of odd count) skip the
+                    // bottom border — container radius handles the corners.
+                    const isRightCol = i % 2 === 1;
+                    const rowsCount = Math.ceil(sellerRows.length / 2);
+                    const isLastRow = Math.floor(i / 2) === rowsCount - 1;
+                    return (
+                      <div
+                        key={s.id}
+                        className={`group relative flex items-center text-[11px] transition-colors ${
+                          !isRightCol ? "border-r border-[var(--border)]" : ""
+                        } ${!isLastRow ? "border-b border-[var(--border)]" : ""} ${
+                          isSelected
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted hover:bg-surface-hover hover:text-foreground"
+                        }`}
                       >
-                        <span className="truncate flex-1">{s.name}</span>
-                        <span className="opacity-50 text-[10px] shrink-0">{s.count}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // If currently selected, unselect first so it won't linger as a ghost filter.
-                          if (isSelected) {
-                            setSelectedSellers((prev) => prev.filter((id) => id !== s.id));
-                          }
-                          toggleHiddenSeller(s.id);
-                        }}
-                        title={`Hide ${s.name} — removes all their items from results`}
-                        aria-label={`Hide ${s.name}`}
-                        className="shrink-0 px-2 py-1.5 text-muted/40 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none transition-opacity cursor-pointer"
-                      >
-                        <EyeOff size={12} />
-                      </button>
-                    </div>
-                  );
-                })}
+                        <button
+                          type="button"
+                          onClick={() => toggleSeller(s.id)}
+                          className="flex flex-1 items-center gap-1.5 px-2 py-1.5 text-left cursor-pointer min-w-0"
+                          title={isSelected ? `Unselect ${s.name}` : `Select ${s.name}`}
+                        >
+                          <span className="truncate flex-1">{s.name}</span>
+                          <span className="tabular-nums opacity-50 text-[10px] shrink-0">{s.count}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isSelected) {
+                              setSelectedSellers((prev) => prev.filter((id) => id !== s.id));
+                            }
+                            toggleHiddenSeller(s.id);
+                          }}
+                          title={`Hide ${s.name} — removes all their items from results`}
+                          aria-label={`Hide ${s.name}`}
+                          className="absolute right-0 top-0 bottom-0 flex items-center px-1.5 bg-inherit text-muted/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none transition-opacity cursor-pointer"
+                        >
+                          <EyeOff size={12} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ) : (
               <div className="rounded-md border border-dashed border-[var(--border)] px-2 py-3 text-center text-[11px] text-muted">
@@ -624,7 +675,8 @@ function PanelContent({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
-            {/* Show more/less toggle */}
+            {/* Show more/less toggle — lives OUTSIDE the scroll container so it's
+                always reachable, never hidden below a long list. */}
             {!sellerQuery.trim() && querySellers.length > SELLER_COLLAPSED_COUNT && (
               <button
                 type="button"
@@ -656,32 +708,6 @@ const EFFECT_DOT_COLORS: Record<string, string> = {
   indica: "#a78bfa",
   sativa: "#fbbf24",
   hybrid: "#34d399",
-};
-
-/** Map lowercase ship-from values → ISO alpha-2 codes for CountryFlag */
-const SHIP_FROM_CODES: Record<string, string> = {
-  uk: "gb",
-  "united kingdom": "gb",
-  spain: "es",
-  netherlands: "nl",
-  germany: "de",
-  france: "fr",
-  italy: "it",
-  portugal: "pt",
-  belgium: "be",
-  "czech republic": "cz",
-  czechia: "cz",
-  austria: "at",
-  switzerland: "ch",
-  poland: "pl",
-  denmark: "dk",
-  sweden: "se",
-  ireland: "ie",
-  usa: "us",
-  "united states": "us",
-  canada: "ca",
-  thailand: "th",
-  morocco: "ma",
 };
 
 function AttrFilterGroup({
@@ -803,14 +829,20 @@ export function FilterPanel() {
     <>
       {/* ── Desktop: inline sliding panel ── */}
       <aside
-        className={`hidden md:block shrink-0 self-start sticky top-[44px] overflow-hidden ${
+        className={`hidden md:block shrink-0 self-start sticky overflow-hidden ${
           gateComplete ? "transition-all duration-300 ease-out" : ""
         }`}
-        style={{ width: open ? PANEL_WIDTH : 0 }}
+        style={{
+          width: open ? PANEL_WIDTH : 0,
+          top: "var(--toolbar-h, 44px)",
+        }}
       >
         <div
-          className="h-[calc(100vh-44px)] border-r border-[var(--border)] bg-[var(--background)]"
-          style={{ width: PANEL_WIDTH }}
+          className="border-r border-[var(--border)] bg-[var(--background)]"
+          style={{
+            width: PANEL_WIDTH,
+            height: "calc(100vh - var(--toolbar-h, 44px))",
+          }}
         >
           <PanelContent onClose={() => setOpen(false)} />
         </div>

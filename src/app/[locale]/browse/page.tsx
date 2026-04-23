@@ -41,15 +41,13 @@ export default async function BrowsePage({
       <SiteHeader />
       <Toolbar />
 
-      <main className="mx-auto p-4">
-        <p className="mb-6 text-sm text-muted">
-          Explore cannabis products across marketplaces
-        </p>
-
+      {/* Horizontal gutters only — vertical padding is dropped so the sidebar's
+          right border runs flush into the toolbar. */}
+      <main className="mx-auto px-4">
         <div className="flex gap-0">
           <FilterPanel />
 
-          <div className="flex-1 min-w-0 pl-4">
+          <div className="flex-1 min-w-0 py-4 md:pl-4">
             <ItemGrid seedItems={seedItems} seedSym="£" />
           </div>
         </div>

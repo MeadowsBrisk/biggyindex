@@ -8,6 +8,7 @@ export const locales = [
   "it-IT",
   "es-ES",
   "el-GR",
+  "cs-CZ",
 ] as const;
 
 export type Locale = (typeof locales)[number];
@@ -22,6 +23,7 @@ export const LOCALE_TO_MARKET: Record<Locale, string> = {
   "it-IT": "IT",
   "es-ES": "ES",
   "el-GR": "GR",
+  "cs-CZ": "CZ",
 };
 
 export const routing = defineRouting({
@@ -62,6 +64,11 @@ export const routing = defineRouting({
       domain: "gr.biggyindex.com",
       defaultLocale: "el-GR",
       locales: ["el-GR"],
+    },
+    {
+      domain: "cz.biggyindex.com",
+      defaultLocale: "cs-CZ",
+      locales: ["cs-CZ"],
     },
   ],
   // No /en-GB prefix — each domain has exactly one locale
