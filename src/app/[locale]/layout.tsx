@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { routing, type Locale } from "@/i18n/routing";
 import { JotaiProvider } from "@/components/Providers";
 import { HydrationGate } from "@/components/HydrationGate";
@@ -107,11 +108,26 @@ export default async function LocaleLayout({
             <AnnouncementBannerGate locale={locale} />
             {children}
             {modal}
-            <ItemDetailOverlay />
-            <PhotoReviewModal />
-            <Basket />
-            <SettingsModal />
-            <SellerModal />
+            {/* Client-only modals read request-scoped Jotai atoms. Under
+                Next.js 16 cacheComponents, prerender treats atom reads as
+                uncached data — fatal when we prerender N locales × the
+                intercepting modal route. Wrap each in Suspense so prerender
+                emits a static shell and defers these to the client. */}
+            <Suspense fallback={null}>
+              <ItemDetailOverlay />
+            </Suspense>
+            <Suspense fallback={null}>
+              <PhotoReviewModal />
+            </Suspense>
+            <Suspense fallback={null}>
+              <Basket />
+            </Suspense>
+            <Suspense fallback={null}>
+              <SettingsModal />
+            </Suspense>
+            <Suspense fallback={null}>
+              <SellerModal />
+            </Suspense>
             <ToastHost />
             <AccentSync />
             <PauseGifsSync />
