@@ -1,0 +1,10 @@
+[build]
+  command = "yarn run build"
+  publish = ".next"
+
+[build.environment]
+  # Secrets scanner false positives. These are either NEXT_PUBLIC_* values
+  # (intentionally shipped to the browser) or non-sensitive bucket names —
+  # not credentials. The real secrets (R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY)
+  # remain scanned.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_R2_DATA_URL,NEXT_PUBLIC_R2_IMAGES_URL,NEXT_PUBLIC_SUGGESTIONS_API,R2_DATA_V2_BUCKET,R2_IMAGES_BUCKET"
