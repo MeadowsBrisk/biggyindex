@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { Package } from "lucide-react";
-import { sortedItemsAtom, isLoadingAtom, marketAtom, currencyDisplayAtom, sellersMapAtom, selectedSellersAtom, bookmarksSetAtom, selectedWeightsAtom, includeShippingAtom, pauseGifsAtom, thumbnailAspectAtom, categoryAtom, gateCompleteAtom } from "@/store/atoms";
+import { sortedItemsAtom, isLoadingAtom, marketAtom, currencyDisplayAtom, sellersMapAtom, selectedSellersAtom, bookmarksSetAtom, selectedWeightsAtom, includeShippingAtom, pauseGifsAtom, thumbnailAspectAtom, categoryAtom, gateCompleteAtom, viewModeAtom } from "@/store/atoms";
 import { DEFAULT_MARKET } from "@/lib/constants";
 import { ItemCard } from "./ItemCard";
 import type { CardConfig } from "./ItemCard";
@@ -154,6 +154,7 @@ export function ItemGrid({
   const pauseGifs = useAtomValue(pauseGifsAtom);
   const thumbAspect = useAtomValue(thumbnailAspectAtom);
   const activeCategory = useAtomValue(categoryAtom);
+  const viewMode = useAtomValue(viewModeAtom);
 
   const config = useMemo<CardConfig>(
     () => ({
@@ -177,7 +178,7 @@ export function ItemGrid({
     // flashing hot-sorted seeds before live sorted cards appear.
     if (seedItems?.length && !gateComplete) {
       return (
-        <div className="item-list-grid">
+        <div className="item-list-grid" data-view={viewMode}>
           {seedItems.map((item, i) => (
             <SeedCard
               key={item.id}
@@ -191,7 +192,7 @@ export function ItemGrid({
     }
     // Fallback skeleton (only if no seed data at all)
     return (
-      <div className="item-list-grid">
+      <div className="item-list-grid" data-view={viewMode}>
         {Array.from({ length: 12 }).map((_, i) => (
           <div
             key={`skeleton-${i}`}
@@ -212,7 +213,7 @@ export function ItemGrid({
   }
 
   return (
-    <div className="item-list-grid animate-[fadeIn_350ms_ease-out]">
+    <div className="item-list-grid animate-[fadeIn_350ms_ease-out]" data-view={viewMode}>
       {visibleItems.map((item, index) => (
         <ItemCard
           key={item.id}

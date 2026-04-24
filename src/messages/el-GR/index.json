@@ -1,64 +1,64 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Περιηγητής Αγοράς Κάνναβης",
-    "description": "Περιηγηθείτε και συγκρίνετε προϊόντα κάνναβης από διάφορες αγορές. Τιμές, ποικιλίες, κριτικές και περισσότερα."
+    "tagline": "Cannabis Marketplace Browser",
+    "description": "Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more."
   },
   "nav": {
-    "browse": "Περιήγηση",
-    "reviews": "Κριτικές",
-    "sellers": "Πωλητές",
-    "settings": "Ρυθμίσεις"
+    "browse": "Browse",
+    "reviews": "Reviews",
+    "sellers": "Sellers",
+    "settings": "Settings"
   },
   "home": {
-    "heroTitle": "Ο Δείκτης Κάνναβης",
-    "heroSubtitle": "Περιηγηθείτε σε {itemCount} προϊόντα από {sellerCount} πωλητές",
-    "whatsNew": "Νέα",
-    "recentlyAdded": "Πρόσφατα Προστέθηκαν",
-    "recentlyUpdated": "Πρόσφατα Ενημερώθηκαν",
-    "popular": "Δημοφιλή",
-    "topSellers": "Κορυφαίοι Πωλητές",
-    "communityReviews": "Κριτικές Κοινότητας",
-    "viewAll": "Προβολή όλων"
+    "heroTitle": "The Cannabis Index",
+    "heroSubtitle": "Browse {itemCount} products from {sellerCount} sellers",
+    "whatsNew": "What's New",
+    "recentlyAdded": "Recently Added",
+    "recentlyUpdated": "Recently Updated",
+    "popular": "Popular",
+    "topSellers": "Top Sellers",
+    "communityReviews": "Community Reviews",
+    "viewAll": "View all"
   },
   "browse": {
-    "allCategories": "Όλες οι Κατηγορίες",
-    "noResults": "Δεν βρέθηκαν προϊόντα με αυτά τα φίλτρα",
-    "clearFilters": "Εκκαθάριση φίλτρων",
-    "itemCount": "{count, plural, =0 {Κανένα προϊόν} one {1 προϊόν} other {# προϊόντα}}",
-    "sortBy": "Ταξινόμηση κατά",
-    "search": "Αναζήτηση προϊόντων..."
+    "allCategories": "All Categories",
+    "noResults": "No products match your filters",
+    "clearFilters": "Clear filters",
+    "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
+    "sortBy": "Sort by",
+    "search": "Search products..."
   },
   "sort": {
-    "newest": "Νεότερα",
-    "priceAsc": "Τιμή: Χαμηλή → Υψηλή",
-    "priceDesc": "Τιμή: Υψηλή → Χαμηλή",
-    "rating": "Κορυφαία Βαθμολογία",
-    "hot": "Δημοφιλέστερα"
+    "newest": "Newest",
+    "priceAsc": "Price: Low → High",
+    "priceDesc": "Price: High → Low",
+    "rating": "Top Rated",
+    "hot": "Hottest"
   },
   "item": {
-    "from": "από",
-    "perGram": "/γρ",
-    "variants": "{count, plural, one {1 παραλλαγή} other {# παραλλαγές}}",
-    "reviews": "{count, plural, one {1 κριτική} other {# κριτικές}}",
-    "noReviews": "Δεν υπάρχουν κριτικές ακόμη",
-    "shipping": "Αποστολή",
-    "freeShipping": "Δωρεάν αποστολή",
-    "viewOnSeller": "Προβολή στο {seller}",
-    "addToBasket": "Προσθήκη στο καλάθι",
-    "firstSeen": "Πρώτη εμφάνιση",
-    "lastUpdated": "Τελευταία ενημέρωση"
+    "from": "from",
+    "perGram": "/g",
+    "variants": "{count, plural, one {1 variant} other {# variants}}",
+    "reviews": "{count, plural, one {1 review} other {# reviews}}",
+    "noReviews": "No reviews yet",
+    "shipping": "Shipping",
+    "freeShipping": "Free shipping",
+    "viewOnSeller": "View on {seller}",
+    "addToBasket": "Add to basket",
+    "firstSeen": "First seen",
+    "lastUpdated": "Last updated"
   },
   "seller": {
-    "products": "{count, plural, one {1 προϊόν} other {# προϊόντα}}",
-    "rating": "Βαθμολογία",
-    "visitStore": "Επίσκεψη καταστήματος"
+    "products": "{count, plural, one {1 product} other {# products}}",
+    "rating": "Rating",
+    "visitStore": "Visit store"
   },
   "common": {
-    "loading": "Φόρτωση...",
-    "error": "Κάτι πήγε στραβά",
-    "retry": "Δοκιμάστε ξανά",
-    "close": "Κλείσιμο",
-    "back": "Πίσω"
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "close": "Close",
+    "back": "Back"
   }
 }

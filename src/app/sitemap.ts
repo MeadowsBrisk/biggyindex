@@ -16,6 +16,7 @@ import type { Item, Seller } from "@/lib/types";
 
 const DOMAINS: Record<MarketCode, string> = {
   GB: "https://biggyindex.com",
+  IE: "https://ie.biggyindex.com",
   DE: "https://de.biggyindex.com",
   FR: "https://fr.biggyindex.com",
   PT: "https://pt.biggyindex.com",
@@ -27,6 +28,7 @@ const DOMAINS: Record<MarketCode, string> = {
 
 const LOCALE_FOR: Record<MarketCode, string> = {
   GB: "en",
+  IE: "en-IE",
   DE: "de",
   FR: "fr",
   PT: "pt",

@@ -31,7 +31,7 @@ const STEPS: Step[] = [
           </p>
         </div>
         <div>
-          <p className="font-medium text-foreground mb-1">Other options</p>
+          <p className="font-medium text-foreground mb-1">Other popular options</p>
           <p>
             A crypto exchange such as Coinbase or Kraken works just as well.
             They operate a bit like an online currency bureau.
@@ -41,6 +41,30 @@ const STEPS: Step[] = [
           <span className="font-medium text-primary">Pro tip:</span> Buy a
           few pounds more than you need and round up. That extra buffer covers
           network fees or crypto volatility.
+        </div>
+        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
+          <span className="font-medium text-primary">Want to skip the exchange?</span>{" "}
+          Peer-to-peer platforms such as{" "}
+          <a
+            href="https://bisq.network/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            Bisq
+          </a>{" "}
+          or{" "}
+          <a
+            href="https://robosats.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            RoboSats
+          </a>{" "}
+          let you buy Bitcoin directly from another person — no exchange account,
+          no KYC paperwork. It's more hands-on, but the coins land straight in a
+          wallet you control.
         </div>
       </div>
     ),
@@ -52,21 +76,94 @@ const STEPS: Step[] = [
     detail: (
       <div className="space-y-3">
         <p>
-          Find items you want to buy - on Little Biggy itself or via the index.
+          Find items you want to buy — on Little Biggy itself or via the index.
           There's a huge selection, so have a good browse.
         </p>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Click Browse Items</li>
-          <li>Check descriptions and reviews for trusted sellers</li>
-          <li>Add to cart and enter delivery details</li>
-        </ul>
-        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <span className="font-medium text-primary">Pro tip:</span> Use
-          filters and reviews to shortlist sellers; check their manifest for
-          posting times.
+          <li>
+            Click the <strong>Browse Items</strong> button below to start
+            browsing.
+          </li>
+          <li>
+            Check product descriptions and reviews to spot trusted sellers. If
+            unsure, Google the seller's name or look on{" "}
+            <a
+              href="https://www.reddit.com/r/LittleBiggy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Reddit
+            </a>
+            .
+          </li>
+          <li>
+            When ready, add what you want to your cart and enter your delivery
+            details just like any other online store.
+          At checkout, Little Biggy shows a private order page with everything
+          you need to pay safely — whether you're on one device or switching
+          between phone and desktop.
+        </p>
+        <div>
+          <p className="font-medium text-foreground mb-1">
+            Copy the two checkout details
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>
+              The exact BTC amount: it looks like{" "}
+              <code className="text-xs">0.00123456</code>. Copy it exactly so
+              you do not underpay.
+            </li>
+            <li>
+              The Bitcoin address: a long string such as{" "}
+              <code className="text-xs">bc1q…</code> — think of it as the
+              account number for this order.
+            </li>
+          </ul>
         </div>
-      </div>
-    ),
+        <div>
+          <p className="font-medium text-foreground mb-1">Send the payment</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>
+              Open the app or exchange you used to buy Bitcoin (Revolut,
+              Coinbase, Monzo, Kraken, etc.).
+            </li>
+            <li>Choose the option to send or withdraw Bitcoin.</li>
+            <li>
+              Paste the Bitcoin address into the recipient field and the exact
+              BTC amount into the amount field.
+            </li>
+            <li>
+              Confirm the transfer — network confirmations usually land within
+              a few minutes and your order page will update automatically.
+            </li>
+          </o are not paying the seller directly. Instead, your Bitcoin lands
+          with Transaxe, a trusted third party that provides escrow protection.
+        </p>
+        <p>
+          Transaxe only releases the funds once the dispute window closes. If
+          something feels off, contact the seller first — otherwise raise a
+          dispute from your order page.
+        </p>
+        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
+          <p className="font-medium text-primary mb-1">Peace of mind</p>
+          <p>
+            Escrow means the seller never touches your funds until the item is
+            shipped and received. It is the safeguard that keeps Little Biggy
+            honest.
+          </p>
+        </div   target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Cakeusually mark orders as shipped within one business day — check
+          their manifesto for posting times. After that it's a waiting game just
+          like any other delivery.
+        </p>
+        <p>
+          If the parcel takes longer than expected, contact the seller first —
+          they may provide a tracking code. As a last resort, you can open a
+          dispute from your order page while Escrow is still holding the funds
   },
   {
     emoji: "\u2705",

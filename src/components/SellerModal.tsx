@@ -334,26 +334,22 @@ export function SellerModal() {
 
   const filterBySeller = useCallback(() => {
     if (!sellerId) return;
-    // If already on /browse, just tweak atoms (no navigation, no scroll jump).
-    // Otherwise navigate to /browse with the seller pre-selected via URL param.
     const onBrowse = pathname?.endsWith("/browse");
     if (onBrowse) {
+      // Already on /browse — just tweak atoms, no navigation/scroll jump.
       setSelectedSellers([sellerId]);
       setCategory("All");
       closeViaHistory();
-    } else {
-      // Pre-populate atoms so /browse shows the filter without waiting
-      // for URL → atom hydration.
-      setSelectedSellers([sellerId]);
-      setCategory("All");
-      // Silently drop the modal's history marker instead of history.back() —
-      // a pending popstate would race router.push and land us back on
-      // the origin page.
-      historyManager.remove(`seller-modal-${sellerId}`);
-      close();
-      router.push(`/browse?sellers=${encodeURIComponent(sellerId)}`);
+      return;
     }
-  }, [sellerId, pathname, setSelectedSellers, setCategory, closeViaHistory, close, router]);
+    // Navigate to /browse with the seller in the URL. Intentionally do NOT
+    // touch atoms here — on the source page (e.g. /sellers) UrlSync Phase 2
+    // would immediately race router.push and clobber the destination URL.
+    // /browse's DataLoader reads ?sellers= on mount and hydrates the atom.
+    historyManager.remove(`seller-modal-${sellerId}`);
+    setSellerId(null);
+    router.push(`/browse?sellers=${encodeURIComponent(sellerId)}`);
+  }, [sellerId, pathname, setSelectedSellers, setCategory, closeViaHistory, setSellerId, router]);
 
   if (!sellerId) return null;
 

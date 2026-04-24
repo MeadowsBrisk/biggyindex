@@ -1,0 +1,101 @@
+# BiggyIndex — unified translation source.
+#
+# This file is the single source of truth for all UI strings. The build
+# script (`yarn i18n:build`) reads this YAML and emits one
+# `src/messages/<locale>/index.json` per locale listed in `$locales`.
+#
+# ─── How to edit ──────────────────────────────────────────────────────
+# • A bare string is shorthand for "en-GB only; everyone else falls back":
+#     browse: Browse
+# • A locale map lets you translate per-locale:
+#     browse:
+#       en-GB: Browse
+#       de-DE: Durchsuchen
+#       fr-FR: Parcourir
+# • Any locale not listed under a leaf falls back to `en-GB`.
+#
+# ─── ICU message format ──────────────────────────────────────────────
+# next-intl uses ICU; plural/select forms live in the value. Example:
+#   itemCount: "{count, plural, =0 {No products} one {1 product} other {# products}}"
+# Quote any value that contains `{`, `}`, or starts with a symbol, to avoid
+# YAML parsing surprises.
+#
+# ─── Adding a new locale ─────────────────────────────────────────────
+# 1. Add the locale to `$locales` below.
+# 2. Also wire it in `src/i18n/routing.ts` (domain + LOCALE_TO_MARKET).
+# 3. Run `yarn i18n:build`.
+# It will start out as an English clone (via fallback) — fine for bring-up.
+# Fill in translations incrementally by adding locale keys under leaves.
+
+$locales:
+  - en-GB
+  - en-IE
+  - de-DE
+  - fr-FR
+  - pt-PT
+  - it-IT
+  - es-ES
+  - el-GR
+  - cs-CZ
+
+site:
+  title: BiggyIndex
+  tagline: Cannabis Marketplace Browser
+  description: Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more.
+
+nav:
+  browse: Browse
+  reviews: Reviews
+  sellers: Sellers
+  settings: Settings
+
+home:
+  heroTitle: The Cannabis Index
+  heroSubtitle: "Browse {itemCount} products from {sellerCount} sellers"
+  whatsNew: What's New
+  recentlyAdded: Recently Added
+  recentlyUpdated: Recently Updated
+  popular: Popular
+  topSellers: Top Sellers
+  communityReviews: Community Reviews
+  viewAll: View all
+
+browse:
+  allCategories: All Categories
+  noResults: No products match your filters
+  clearFilters: Clear filters
+  itemCount: "{count, plural, =0 {No products} one {1 product} other {# products}}"
+  sortBy: Sort by
+  search: Search products...
+
+sort:
+  newest: Newest
+  priceAsc: "Price: Low → High"
+  priceDesc: "Price: High → Low"
+  rating: Top Rated
+  hot: Hottest
+
+item:
+  from: from
+  perGram: /g
+  variants: "{count, plural, one {1 variant} other {# variants}}"
+  reviews: "{count, plural, one {1 review} other {# reviews}}"
+  noReviews: No reviews yet
+  shipping: Shipping
+  freeShipping: Free shipping
+  viewOnSeller: "View on {seller}"
+  addToBasket: Add to basket
+  firstSeen: First seen
+  lastUpdated: Last updated
+
+seller:
+  products: "{count, plural, one {1 product} other {# products}}"
+  rating: Rating
+  visitStore: Visit store
+
+common:
+  loading: Loading...
+  error: Something went wrong
+  retry: Try again
+  close: Close
+  back: Back

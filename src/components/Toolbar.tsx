@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { ArrowUp, ArrowDown, Heart, Truck, Package, X } from "lucide-react";
+import { ArrowUp, ArrowDown, Heart, Truck, Package, X, LayoutGrid, List, ChevronDown } from "lucide-react";
 import { useTransition, useMemo, useEffect, useRef, useSyncExternalStore } from "react";
 import type { SortKey } from "@/lib/types";
 import {
@@ -23,6 +23,7 @@ import {
   attrFiltersAtom,
   priceRangeAtom,
   availableSellersAtom,
+  viewModeAtom,
 } from "@/store/atoms";
 import { FilterToggle } from "@/components/FilterPanel";
 
@@ -61,16 +62,17 @@ export function Toolbar() {
       data-tour="toolbar"
     >
       {/* Row 1: action buttons + count + sort */}
-      <div className="flex items-center gap-2 px-4 pt-2 pb-1 sm:pb-2">
-        <div className="flex items-center gap-2 min-w-0 shrink-0">
+      <div className="flex items-center gap-2 px-4 pt-2 pb-1 sm:pb-2 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
           <FilterToggle />
           <BookmarkToggle />
           <ShippingToggle />
           <FreeShippingToggle />
+          <ViewModeToggle />
         </div>
 
         {/* Active filter pills — scrollable between buttons and sort */}
-        <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="min-w-0 flex-1 overflow-hidden basis-full sm:basis-auto">
           <ActivePills />
         </div>
 
@@ -223,7 +225,7 @@ function ShippingToggle() {
       title={active ? "Showing prices with shipping" : "Add shipping to prices"}
     >
       <Truck size={13} />
-      <span className="hidden sm:inline">+Ship</span>
+      <span>+Ship</span>
     </button>
   );
 }
@@ -333,7 +335,26 @@ function FreeShippingToggle() {
       title={active ? "Showing free shipping only" : "Filter to free shipping"}
     >
       <Package size={13} />
-      <span className="hidden sm:inline">Free Ship</span>
+      <span>Free Ship</span>
+    </button>
+  );
+}
+
+// ─── Density toggle (mobile only — comfortable ↔ compact) ─────────
+
+function ViewModeToggle() {
+  const [mode, setMode] = useAtom(viewModeAtom);
+  const isCompact = mode === "compact";
+  return (
+    <button
+      type="button"
+      onClick={() => setMode(isCompact ? "comfortable" : "compact")}
+      className="sm:hidden flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer text-muted hover:text-foreground"
+      title={isCompact ? "Switch to comfortable cards" : "Switch to compact cards"}
+      aria-label={isCompact ? "Switch to comfortable cards" : "Switch to compact cards"}
+    >
+      {isCompact ? <LayoutGrid size={13} /> : <List size={13} />}
+      <span>{isCompact ? "Roomy" : "Compact"}</span>
     </button>
   );
 }
@@ -366,21 +387,25 @@ function SortSelect() {
 
   return (
     <div className="flex items-center gap-1.5">
-      <select
-        value={effectiveSortKey}
-        onChange={handleChange}
-        className="appearance-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-xs font-medium text-foreground outline-none"
-      >
-        {BASE_SORT_OPTIONS.map((opt) => (
-          <option key={opt.key} value={opt.key}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="sort-select">
+        <select
+          value={effectiveSortKey}
+          onChange={handleChange}
+          className="sort-select__field"
+          aria-label="Sort by"
+        >
+          {BASE_SORT_OPTIONS.map((opt) => (
+            <option key={opt.key} value={opt.key}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown size={12} className="sort-select__chevron" aria-hidden="true" />
+      </div>
       <button
         type="button"
         onClick={() => startTransition(() => setSortDir(sortDir === "asc" ? "desc" : "asc"))}
-        className="rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-foreground transition-colors cursor-pointer"
+        className="sort-select__dir"
         aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
       >
         <DirIcon size={14} />

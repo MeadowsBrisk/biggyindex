@@ -2,6 +2,7 @@ import { defineRouting } from "next-intl/routing";
 
 export const locales = [
   "en-GB",
+  "en-IE",
   "de-DE",
   "fr-FR",
   "pt-PT",
@@ -17,6 +18,7 @@ export const defaultLocale: Locale = "en-GB";
 
 export const LOCALE_TO_MARKET: Record<Locale, string> = {
   "en-GB": "GB",
+  "en-IE": "IE",
   "de-DE": "DE",
   "fr-FR": "FR",
   "pt-PT": "PT",
@@ -34,6 +36,11 @@ export const routing = defineRouting({
       domain: "biggyindex.com",
       defaultLocale: "en-GB",
       locales: ["en-GB"],
+    },
+    {
+      domain: "ie.biggyindex.com",
+      defaultLocale: "en-IE",
+      locales: ["en-IE"],
     },
     {
       domain: "de.biggyindex.com",
@@ -73,4 +80,9 @@ export const routing = defineRouting({
   ],
   // No /en-GB prefix — each domain has exactly one locale
   localePrefix: "as-needed",
+  // Domains already pin the locale per host. Disable header/cookie sniffing so
+  // localhost (and any unmatched host) always falls back to defaultLocale
+  // instead of being pushed to en-IE by a stale NEXT_LOCALE cookie or
+  // Accept-Language ambiguity between en-GB / en-IE.
+  localeDetection: false,
 });

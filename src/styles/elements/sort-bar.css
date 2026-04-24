@@ -56,3 +56,80 @@
   opacity: 0.7;
   flex-shrink: 0;
 }
+
+/* ==========================================================================
+   Sort Select (mobile) — glass-styled native select + direction toggle
+   to match the toolbar's frosted aesthetic.
+   ========================================================================== */
+
+.sort-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sort-select__field {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  border-radius: 8px;
+  padding: 6px 26px 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--foreground);
+  outline: none;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sort-select__field:hover {
+  background-color: var(--glass-bg-strong);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+}
+
+.sort-select__field:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.sort-select__chevron {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.sort-select__dir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sort-select__dir:hover {
+  color: var(--foreground);
+  background-color: var(--glass-bg-strong);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+}

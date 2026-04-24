@@ -2,6 +2,7 @@
 
 import { useAtom, useAtomValue } from "jotai";
 import { forceEnglishAtom, marketAtom } from "@/store/atoms";
+import { ENGLISH_MARKETS } from "@/lib/market/market";
 
 const MARKET_LABEL: Record<string, string> = {
   DE: "DE",
@@ -21,14 +22,14 @@ interface ShowOriginalToggleProps {
 
 /**
  * Inline EN/locale toggle for item & seller detail views.
- * Only renders on non-GB markets. Persists via localStorage.
+ * Hidden on English markets (GB, IE). Persists via localStorage.
  */
 export function ShowOriginalToggle({ market: marketProp, className = "" }: ShowOriginalToggleProps) {
   const [forceEnglish, setForceEnglish] = useAtom(forceEnglishAtom);
   const marketFromAtom = useAtomValue(marketAtom);
   const market = marketProp ?? marketFromAtom;
 
-  if (!market || market === "GB") return null;
+  if (!market || (ENGLISH_MARKETS as readonly string[]).includes(market)) return null;
 
   const localeLabel = MARKET_LABEL[market] ?? market;
   const base = "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase transition-colors cursor-pointer";

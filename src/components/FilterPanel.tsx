@@ -862,9 +862,9 @@ export function FilterPanel() {
             />
             <aside
               ref={drawerRef}
-              className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-[var(--background)] shadow-2xl md:hidden transition-transform duration-300 ease-out ${
-                open ? "translate-x-0" : "-translate-x-full"
-              }`}
+              className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-[var(--background)] shadow-2xl md:hidden ${
+                gateComplete ? "transition-transform duration-300 ease-out" : ""
+              } ${open ? "translate-x-0" : "-translate-x-full"}`}
             >
               <PanelContent onClose={closePanel} />
             </aside>

@@ -33,6 +33,14 @@ export const MARKETS: Market[] = [
     flag: "🇬🇧",
   },
   {
+    code: "IE",
+    name: "Ireland",
+    currency: "EUR",
+    currencySymbol: "€",
+    locale: "en-IE",
+    flag: "🇮🇪",
+  },
+  {
     code: "DE",
     name: "Germany",
     currency: "EUR",

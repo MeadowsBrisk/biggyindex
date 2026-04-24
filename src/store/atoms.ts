@@ -127,6 +127,12 @@ export const pauseGifsAtom = atomWithStorage<boolean>("pauseGifs", false);
 export type ThumbnailAspect = "square" | "4:3" | "3:2";
 export const thumbnailAspectAtom = atomWithStorage<ThumbnailAspect>("thumbnailAspect", "square");
 
+/** Item card density: 'comfortable' (default spacing) or 'compact'
+ *  (shorter image, 1-line description, tighter paddings). Respects the
+ *  user's thumbnailAspect choice — compact just scales it down. */
+export type ViewMode = "comfortable" | "compact";
+export const viewModeAtom = atomWithStorage<ViewMode>("viewMode", "comfortable");
+
 /** Accent color swatch — 'green' is default, others are easter-egg options */
 export type AccentColor = "green" | "blue" | "purple" | "amber" | "rose" | "custom";
 export const accentColorAtom = atomWithStorage<AccentColor>("accentColor", "green");
@@ -212,10 +218,13 @@ export const sortDirAtom = atomWithStorage<SortDir>("sortDir", "desc");
 
 // ─── Layout ─────────────────────────────────────────────────────
 
-/** Filter panel open state — persisted so it remembers between sessions */
+/** Filter panel open state — persisted so it remembers between sessions.
+ *  Default `false` so SSR output matches a cold client; otherwise the panel
+ *  flashes open on first paint and animates closed once atomWithStorage
+ *  hydrates the user's stored `false`. Matches food-aggregator. */
 export const filterPanelOpenAtom = atomWithStorage<boolean>(
   "filterPanelOpen",
-  true,
+  false,
 );
 
 /** Persisted open/closed state for filter panel accordion sections */

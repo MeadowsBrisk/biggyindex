@@ -5,7 +5,7 @@
  * Dev/preview: path-based fallback (/de → DE) or default GB
  */
 
-export type MarketCode = "GB" | "DE" | "FR" | "PT" | "IT" | "ES" | "GR" | "CZ";
+export type MarketCode = "GB" | "IE" | "DE" | "FR" | "PT" | "IT" | "ES" | "GR" | "CZ";
 
 /** Derive market from hostname (subdomain detection). */
 export function getMarketFromHost(hostname: string | undefined | null): MarketCode {
@@ -20,6 +20,7 @@ export function getMarketFromHost(hostname: string | undefined | null): MarketCo
 
   // Subdomains
   if (h.endsWith(".biggyindex.com")) {
+    if (h.startsWith("ie.")) return "IE";
     if (h.startsWith("de.")) return "DE";
     if (h.startsWith("fr.")) return "FR";
     if (h.startsWith("pt.")) return "PT";
@@ -31,6 +32,7 @@ export function getMarketFromHost(hostname: string | undefined | null): MarketCo
   }
 
   // Vercel preview / other hosts — best-effort hint
+  if (/\bie[.-]/.test(h)) return "IE";
   if (/\bde[.-]/.test(h)) return "DE";
   if (/\bfr[.-]/.test(h)) return "FR";
   if (/\bpt[.-]/.test(h)) return "PT";
@@ -61,6 +63,8 @@ export function isHostBasedEnv(hostname?: string | null): boolean {
 /** Map BCP 47 locale → market code. */
 export function localeToMarket(locale: string | undefined): MarketCode {
   switch (locale) {
+    case "en-IE":
+      return "IE";
     case "de-DE":
     case "de":
       return "DE";
@@ -90,6 +94,8 @@ export function localeToMarket(locale: string | undefined): MarketCode {
 /** Map market code → BCP 47 locale. */
 export function marketToLocale(market: MarketCode): string {
   switch (market) {
+    case "IE":
+      return "en-IE";
     case "DE":
       return "de-DE";
     case "FR":
@@ -109,7 +115,10 @@ export function marketToLocale(market: MarketCode): string {
   }
 }
 
-export const ALL_MARKETS: MarketCode[] = ["GB", "DE", "FR", "PT", "IT", "ES", "GR", "CZ"];
+export const ALL_MARKETS: MarketCode[] = ["GB", "IE", "DE", "FR", "PT", "IT", "ES", "GR", "CZ"];
+
+/** Markets where the UI is English (skip translation toggle, reuse en-GB copy). */
+export const ENGLISH_MARKETS: MarketCode[] = ["GB", "IE"];
 
 /** Market code → native currency symbol. */
 export function marketCurrencySymbol(market: MarketCode | string): string {
@@ -118,6 +127,7 @@ export function marketCurrencySymbol(market: MarketCode | string): string {
       return "£";
     case "CZ":
       return "Kč";
+    case "IE":
     case "DE":
     case "FR":
     case "PT":
