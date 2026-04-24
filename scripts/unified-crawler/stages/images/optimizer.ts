@@ -9,6 +9,7 @@
  * 
  * Unified folder structure (no gif-map needed!):
  *   {hash}/thumb.avif   - 600px thumbnail (ALL images)
+ *   {hash}/icon.avif    - 96px square crop (ALL images — seller avatars, small UI)
  *   {hash}/full.avif    - Original size (static only)
  *   {hash}/anim.webp    - Animated version (GIFs only)
  * 
@@ -44,7 +45,9 @@ export const getR2Config = () => ({
 
 // Image sizes
 const THUMB_SIZE = 600;  // Cards, thumbnails (2x retina for 300px display)
+const ICON_SIZE = 96;    // Seller avatars, small UI icons (2x retina for 48px)
 const QUALITY_THUMB = 75;
+const QUALITY_ICON = 75;
 const QUALITY_FULL = 90;  // Higher quality for zoom (AVIF still very efficient)
 const QUALITY_ANIM_WEBP = 75;
 
@@ -151,12 +154,20 @@ async function processStaticImage(
   const urls: Record<string, string> = {};
   let totalSize = 0;
 
-  // Check cache (use thumb as proxy)
+  // Check cache — thumb AND icon must both exist (v2 parity).
+  // If either is missing we re-run to keep the bucket consistent across
+  // v1/v2 runs sharing biggyindex-images.
   const thumbKey = `${hash}/thumb.avif`;
-  if (!force && await objectExists(r2Client, thumbKey)) {
+  const iconKey = `${hash}/icon.avif`;
+  if (
+    !force &&
+    (await objectExists(r2Client, thumbKey)) &&
+    (await objectExists(r2Client, iconKey))
+  ) {
     return {
       urls: {
         thumb: `${config.publicUrl}/${thumbKey}`,
+        icon: `${config.publicUrl}/${iconKey}`,
         full: `${config.publicUrl}/${hash}/full.avif`,
       },
       totalSize: 0,
@@ -175,6 +186,20 @@ async function processStaticImage(
   } catch (err) {
     log.image.debug('thumb generation failed', { hash, error: (err as Error).message });
     return null;
+  }
+
+  // Generate icon (96px square crop, for seller avatars / small UI)
+  try {
+    const icon = await sharp(buffer)
+      .resize(ICON_SIZE, ICON_SIZE, { fit: 'cover' })
+      .avif({ quality: QUALITY_ICON, effort: 4 })
+      .toBuffer();
+    const { url, size } = await uploadToR2(r2Client, iconKey, icon, 'image/avif');
+    urls.icon = url;
+    totalSize += size;
+  } catch (err) {
+    log.image.debug('icon generation failed', { hash, error: (err as Error).message });
+    // Non-fatal
   }
 
   // Generate full size (no resize, q80)
@@ -209,11 +234,16 @@ async function processGif(
 ): Promise<{ totalSize: number } | null> {
   let totalSize = 0;
 
-  // Check cache (use thumb as proxy, same as static)
+  // Check cache — thumb AND icon must both exist (v2 parity).
   const thumbKey = `${hash}/thumb.avif`;
+  const iconKey = `${hash}/icon.avif`;
   const animKey = `${hash}/anim.webp`;
 
-  if (!force && await objectExists(r2Client, thumbKey)) {
+  if (
+    !force &&
+    (await objectExists(r2Client, thumbKey)) &&
+    (await objectExists(r2Client, iconKey))
+  ) {
     // Already processed
     return { totalSize: 0 };
   }
@@ -229,6 +259,19 @@ async function processGif(
   } catch (err) {
     log.image.debug('poster generation failed', { hash, error: (err as Error).message });
     return null;
+  }
+
+  // Generate icon (96px square crop, first frame) — for seller avatars
+  try {
+    const icon = await sharp(buffer, { animated: false })
+      .resize(ICON_SIZE, ICON_SIZE, { fit: 'cover' })
+      .avif({ quality: QUALITY_ICON, effort: 4 })
+      .toBuffer();
+    const { size } = await uploadToR2(r2Client, iconKey, icon, 'image/avif');
+    totalSize += size;
+  } catch (err) {
+    log.image.debug('gif icon generation failed', { hash, error: (err as Error).message });
+    // Non-fatal
   }
 
   // Generate animated WebP
