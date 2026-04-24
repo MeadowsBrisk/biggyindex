@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface Step {
   emoji: string;
@@ -31,19 +31,23 @@ const STEPS: Step[] = [
           </p>
         </div>
         <div>
-          <p className="font-medium text-foreground mb-1">Other popular options</p>
+          <p className="font-medium text-foreground mb-1">
+            Other popular options
+          </p>
           <p>
             A crypto exchange such as Coinbase or Kraken works just as well.
             They operate a bit like an online currency bureau.
           </p>
         </div>
         <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <span className="font-medium text-primary">Pro tip:</span> Buy a
-          few pounds more than you need and round up. That extra buffer covers
+          <span className="font-medium text-primary">Pro tip:</span> Buy a few
+          pounds more than you need and round up. That extra buffer covers
           network fees or crypto volatility.
         </div>
         <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <span className="font-medium text-primary">Want to skip the exchange?</span>{" "}
+          <span className="font-medium text-primary">
+            Want to skip the exchange?
+          </span>{" "}
           Peer-to-peer platforms such as{" "}
           <a
             href="https://bisq.network/"
@@ -62,9 +66,9 @@ const STEPS: Step[] = [
           >
             RoboSats
           </a>{" "}
-          let you buy Bitcoin directly from another person — no exchange account,
-          no KYC paperwork. It's more hands-on, but the coins land straight in a
-          wallet you control.
+          let you buy Bitcoin directly from another person — no exchange
+          account, no KYC paperwork. It's more hands-on, but the coins land
+          straight in a wallet you control.
         </div>
       </div>
     ),
@@ -100,8 +104,21 @@ const STEPS: Step[] = [
           <li>
             When ready, add what you want to your cart and enter your delivery
             details just like any other online store.
+          </li>
+        </ul>
+      </div>
+    ),
+  },
+  {
+    emoji: "\u2705",
+    title: "Checkout & Send Your Bitcoin",
+    summary:
+      "Copy the details, then send the payment from your phone or laptop.",
+    detail: (
+      <div className="space-y-3">
+        <p>
           At checkout, Little Biggy shows a private order page with everything
-          you need to pay safely — whether you're on one device or switching
+          you need to pay safely, whether you're on one device or switching
           between phone and desktop.
         </p>
         <div>
@@ -116,7 +133,7 @@ const STEPS: Step[] = [
             </li>
             <li>
               The Bitcoin address: a long string such as{" "}
-              <code className="text-xs">bc1q…</code> — think of it as the
+              <code className="text-xs">bc1q...</code> - think of it as the
               account number for this order.
             </li>
           </ul>
@@ -134,54 +151,11 @@ const STEPS: Step[] = [
               BTC amount into the amount field.
             </li>
             <li>
-              Confirm the transfer — network confirmations usually land within
-              a few minutes and your order page will update automatically.
+              Confirm the transfer. Network confirmations usually land within a
+              few minutes and your order page will update automatically.
             </li>
-          </o are not paying the seller directly. Instead, your Bitcoin lands
-          with Transaxe, a trusted third party that provides escrow protection.
-        </p>
-        <p>
-          Transaxe only releases the funds once the dispute window closes. If
-          something feels off, contact the seller first — otherwise raise a
-          dispute from your order page.
-        </p>
-        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <p className="font-medium text-primary mb-1">Peace of mind</p>
-          <p>
-            Escrow means the seller never touches your funds until the item is
-            shipped and received. It is the safeguard that keeps Little Biggy
-            honest.
-          </p>
-        </div   target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-primary"
-            >
-              Cakeusually mark orders as shipped within one business day — check
-          their manifesto for posting times. After that it's a waiting game just
-          like any other delivery.
-        </p>
-        <p>
-          If the parcel takes longer than expected, contact the seller first —
-          they may provide a tracking code. As a last resort, you can open a
-          dispute from your order page while Escrow is still holding the funds
-  },
-  {
-    emoji: "\u2705",
-    title: "Checkout & Send Your Bitcoin",
-    summary:
-      "Copy the details, then send the payment from your phone or laptop.",
-    detail: (
-      <div className="space-y-3">
-        <p>
-          Once you've added items to your cart and entered your delivery details,
-          you'll be shown an order page with a Bitcoin amount and a wallet
-          address.
-        </p>
-        <p>
-          Copy the BTC amount and the address, open your Bitcoin wallet (Revolut,
-          Monzo, Coinbase, etc.), and send the exact amount to that address.
-          Double-check the address before sending.
-        </p>
+          </ol>
+        </div>
       </div>
     ),
   },
@@ -201,6 +175,14 @@ const STEPS: Step[] = [
           closes. This protects you as a buyer - if something goes wrong, you
           can open a dispute before the window ends.
         </p>
+        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
+          <p className="font-medium text-primary mb-1">Peace of mind</p>
+          <p>
+            Escrow means the seller never touches your funds until the item is
+            shipped and received. It is the safeguard that keeps Little Biggy
+            honest.
+          </p>
+        </div>
       </div>
     ),
   },
@@ -217,7 +199,8 @@ const STEPS: Step[] = [
         </p>
         <p>
           If your order is late, contact the seller through Little Biggy first -
-          most issues get resolved quickly. Only open a dispute as a last resort.
+          most issues get resolved quickly. Only open a dispute as a last
+          resort.
         </p>
       </div>
     ),
@@ -228,7 +211,7 @@ export function QuickStartGuide() {
   const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
-    <section className="py-20 px-4 bg-[var(--surface)]">
+    <section className="py-20 px-4 bg-surface">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -257,13 +240,13 @@ export function QuickStartGuide() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden"
+                className="rounded-2xl border border-border bg-card overflow-hidden"
               >
                 {/* Clickable header */}
                 <button
                   type="button"
                   onClick={() => setExpanded(isExpanded ? null : i)}
-                  className="w-full flex items-center gap-4 p-5 text-left transition-colors hover:bg-[var(--card-hover)]"
+                  className="w-full flex items-center gap-4 p-5 text-left transition-colors hover:bg-card-hover"
                 >
                   {/* Step number + emoji */}
                   <div className="relative shrink-0 w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xl">
@@ -300,7 +283,7 @@ export function QuickStartGuide() {
                       transition={{ duration: 0.25, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="px-5 pb-5 pt-0 text-sm text-muted leading-relaxed border-t border-[var(--border)]">
+                      <div className="px-5 pb-5 pt-0 text-sm text-muted leading-relaxed border-t border-border">
                         <div className="pt-4">{step.detail}</div>
                       </div>
                     </motion.div>

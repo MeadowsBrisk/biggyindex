@@ -1,24 +1,16 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { routing, type Locale } from "@/i18n/routing";
-import { JotaiProvider } from "@/components/Providers";
-import { HydrationGate } from "@/components/HydrationGate";
-import {
-  SettingsModal,
-  AccentSync,
-  PauseGifsSync,
-} from "@/components/SettingsModal";
-import { SellerModal } from "@/components/SellerModal";
-import { ItemDetailOverlay } from "@/components/ItemDetailOverlay";
-import { PhotoReviewModal } from "@/components/home/PhotoReviewModal";
-import { ExchangeRateProvider } from "@/components/ExchangeRateProvider";
-import { Basket } from "@/components/Basket";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import { AnnouncementBannerGate } from "@/components/AnnouncementBannerGate";
+import { ExchangeRateProvider } from "@/components/ExchangeRateProvider";
+import { HydrationGate } from "@/components/HydrationGate";
+import { ModalHost } from "@/components/ModalHost";
+import { JotaiProvider } from "@/components/Providers";
+import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
+import { type Locale, routing } from "@/i18n/routing";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -108,26 +100,7 @@ export default async function LocaleLayout({
             <AnnouncementBannerGate locale={locale} />
             {children}
             {modal}
-            {/* Client-only modals read request-scoped Jotai atoms. Under
-                Next.js 16 cacheComponents, prerender treats atom reads as
-                uncached data — fatal when we prerender N locales × the
-                intercepting modal route. Wrap each in Suspense so prerender
-                emits a static shell and defers these to the client. */}
-            <Suspense fallback={null}>
-              <ItemDetailOverlay />
-            </Suspense>
-            <Suspense fallback={null}>
-              <PhotoReviewModal />
-            </Suspense>
-            <Suspense fallback={null}>
-              <Basket />
-            </Suspense>
-            <Suspense fallback={null}>
-              <SettingsModal />
-            </Suspense>
-            <Suspense fallback={null}>
-              <SellerModal />
-            </Suspense>
+            <ModalHost />
             <ToastHost />
             <AccentSync />
             <PauseGifsSync />
