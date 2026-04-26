@@ -2,7 +2,7 @@
  * Data loading helpers for BiggyIndex v2.
  *
  * Mirrors food-aggregator pattern:
- * - `loadItems()` returns browse-optimised items (descriptions truncated, raw URLs kept for now)
+ * - `loadItems()` returns browse-optimised items (descriptions truncated, hash-first images)
  * - `loadSellers()` returns seller list
  * - `loadItemByRef()` loads a single item's full detail from per-item R2 file
  * - `stripBrowseFields()` trims fields unused by browse components
@@ -27,10 +27,9 @@ function truncateDesc(text: string, max = 260): string {
  * - `dEn`, `nEn` — translation originals not used on browse.
  * - `lur` — last update reason only shown in item detail.
  *
- * NOTE: `is` (additional image URLs) is kept because we need them
- * to compute CDN hashes at runtime for hover images. Food-agg strips
- * these because it has pre-computed hashes (ish). Once the crawler
- * bakes hashes into item data, we can strip `i`/`is` too.
+ * NOTE: public index output now prefers crawler-stamped `ih`/`ish` hashes.
+ * Raw `i`/`is` may still be present for items whose optimized images are not
+ * confirmed yet, so the loader leaves those fallback fields untouched.
  */
 function stripBrowseFields(items: Item[]): Item[] {
   for (const item of items) {
@@ -42,9 +41,7 @@ function stripBrowseFields(items: Item[]): Item[] {
     if (item.sl && item.sl.includes("littlebiggy.net")) {
       item.sl = item.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
     }
-    // NOTE: Keep `is` — we need raw URLs to compute CDN hashes at runtime.
-    // Food-agg can strip these because it has pre-computed hashes (ish/isa).
-    // Once the crawler bakes hashes into item data, we can strip `i`/`is` too.
+    // Keep any remaining raw image fields as fallback for not-yet-optimized items.
     // Keep `lur` — shown on hover title ("Images changed, -3 variants") and used
     // by ItemCard to decide whether to show "Updated X ago". Only a few KB total.
   }

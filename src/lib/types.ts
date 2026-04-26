@@ -85,6 +85,14 @@ export interface Item {
   i?: string | null;
   /** Additional image URLs */
   is?: string[] | null;
+  /** Primary optimized image hash */
+  ih?: string | null;
+  /** Additional optimized image hashes, positionally matching `is` during transition */
+  ish?: Array<string | null> | null;
+  /** Primary image is animated */
+  ia?: 1 | 0 | boolean | null;
+  /** Additional image animated flags, positionally matching `is` during transition */
+  isa?: Array<1 | 0 | boolean | null> | null;
   /** Seller ID */
   sid?: number | null;
   /** Seller name */

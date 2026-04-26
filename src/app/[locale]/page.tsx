@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
 import { localeToMarket } from "@/lib/market/market";
 import { loadHomeFeed } from "@/lib/data";
-import { getItemImageUrl, getSellerImageUrl } from "@/lib/images";
+import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HeroSection } from "@/components/home/HeroSection";
 import { WhatsNewSection } from "@/components/home/WhatsNewSection";
@@ -13,12 +13,13 @@ import { FaqSection } from "@/components/home/FaqSection";
 
 /** Map a pre-shaped item card to the WhatsNewSection's NewItem shape */
 function toNewItem(item: any, dateField: "fsa" | "lua") {
+  const gallery = getItemGalleryImages(item, "thumb", { forceStatic: true });
   return {
     id: item.id,
     refNum: item.refNum,
     name: item.n,
-    image: getItemImageUrl(item.i, "thumb", true) ?? null,
-    images: item.is?.map((u: string) => getItemImageUrl(u, "thumb", true) ?? u) ?? null,
+    image: gallery[0] ?? null,
+    images: gallery.length > 0 ? gallery : null,
     priceMin: item.uMin ?? null,
     priceMax: item.uMax ?? null,
     seller: item.sn ?? null,

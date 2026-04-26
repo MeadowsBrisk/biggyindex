@@ -3,6 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
 import { loadItems, loadSellers } from "@/lib/data";
+import { getItemPrimaryImage } from "@/lib/images";
 import { DataLoader } from "@/components/DataLoader";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -30,6 +31,7 @@ interface RawReview {
   segments?: RawReviewSegment[];
   item?: { refNum: string; name: string; id: number };
   itemId?: string;
+  itemImage?: string;
 }
 
 interface RawMediaReview extends RawReview {
@@ -63,8 +65,9 @@ export default async function ReviewsPage({
   // Build lookup maps for review enrichment
   const itemImageMap = new Map<string, string>();
   for (const item of itemList) {
-    if (item.refNum && item.i) {
-      itemImageMap.set(String(item.refNum), item.i);
+    if (item.refNum) {
+      const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
+      if (imageUrl) itemImageMap.set(String(item.refNum), imageUrl);
     }
   }
   const sellerImageMap = new Map<string, string>();
@@ -89,7 +92,7 @@ export default async function ReviewsPage({
       sellerName: r.sellerName,
       sellerImageUrl: sellerImageMap.get(r.sellerId),
       itemName: r.item?.name ?? undefined,
-      itemImageUrl: refNum ? itemImageMap.get(refNum) : undefined,
+      itemImageUrl: r.itemImage ?? (refNum ? itemImageMap.get(refNum) : undefined),
       refNum,
       rating: r.rating,
       text:

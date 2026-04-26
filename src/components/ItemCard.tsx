@@ -1,20 +1,49 @@
 "use client";
 
-import { memo, useMemo, useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
 import { useSetAtom } from "jotai";
-import { Package, Star, Truck, Heart, Filter, EyeOff } from "lucide-react";
-import type { Item, Seller } from "@/lib/types";
-import { groupByWeight, groupByQuantity, parseVariant, pricePerGram, cheapestPpu, variantPpu, UNIT_DISPLAY_LABEL, formatWeight } from "@/lib/variants";
-import { MARKETS } from "@/lib/constants";
-import { sellerModalIdAtom, toggleBookmarkAtom, bucketGrams, expandedRefNumAtom, selectedSellersAtom, toggleHiddenSellerAtom } from "@/store/atoms";
-import { useAddToast } from "@/components/Toast";
-import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
-import { Tooltip } from "@/components/Tooltip";
-import { getSellerImageUrl, getItemImageUrl, isAnimated } from "@/lib/images";
-import { shipFromCode, formatShipFrom } from "@/lib/shipFrom";
+import { EyeOff, Filter, Heart, Package, Star, Truck } from "lucide-react";
+import {
+  lazy,
+  memo,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
+import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { useAddToast } from "@/components/Toast";
+import { Tooltip } from "@/components/Tooltip";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
+import { getItemBrowseMeta, type ItemIndex } from "@/lib/browse/item-index";
+import { MARKETS } from "@/lib/constants";
 import { decodeEntities } from "@/lib/format";
+import {
+  getItemGalleryImages,
+  getItemPrimaryImage,
+  getSellerImageUrl,
+  isItemPrimaryAnimated,
+} from "@/lib/images";
+import { formatShipFrom, shipFromCode } from "@/lib/shipFrom";
+import type { Item, Seller } from "@/lib/types";
+import {
+  cheapestPpu,
+  formatWeight,
+  parseVariant,
+  pricePerGram,
+  UNIT_DISPLAY_LABEL,
+  variantPpu,
+} from "@/lib/variants";
+import {
+  bucketGrams,
+  expandedRefNumAtom,
+  selectedSellersAtom,
+  sellerModalIdAtom,
+  toggleBookmarkAtom,
+  toggleHiddenSellerAtom,
+} from "@/store/atoms";
 
 /** Shared config lifted from ItemGrid — avoids per-card atom subscriptions. */
 export interface CardConfig {
@@ -28,6 +57,7 @@ export interface CardConfig {
   pauseGifs: boolean;
   thumbAspect: string;
   activeCategory: string;
+  itemIndex: ItemIndex;
 }
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
@@ -47,13 +77,27 @@ function ExpandArrow() {
     <span className="card-content__icon" aria-hidden="true">
       {/* Outgoing arrow: slides up-right + fades out */}
       <span className="card-arrow card-arrow--out">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {arrowPath}
         </svg>
       </span>
       {/* Incoming arrow: slides in from bottom-left + fades in */}
       <span className="card-arrow card-arrow--in">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {arrowPath}
         </svg>
       </span>
@@ -93,12 +137,16 @@ function fmtPrice(
 ): string {
   if (min == null) return "N/A";
   const lo = `${sym}${(min * rate).toFixed(2)}`;
-  if (max != null && max !== min) return `${lo} – ${sym}${(max * rate).toFixed(2)}`;
+  if (max != null && max !== min)
+    return `${lo} – ${sym}${(max * rate).toFixed(2)}`;
   return lo;
 }
 
 /* ── Check if shipping origin is domestic ── */
-function isDomestic(sf: string | null | undefined, marketCode: string): boolean {
+function isDomestic(
+  sf: string | null | undefined,
+  marketCode: string,
+): boolean {
   if (!sf) return false;
   const market = MARKETS.find((m) => m.code === marketCode);
   if (!market) return false;
@@ -110,13 +158,22 @@ function isDomestic(sf: string | null | undefined, marketCode: string): boolean 
  * When browsing inside a category, shows just the subcategory (or category if no sub).
  * Strain group (Indica/Sativa/Hybrid) shown as a small colored dot for Flower, Shake, Hash.
  */
-function CardPill({ item, activeCategory }: { item: Item; activeCategory: string }) {
+function CardPill({
+  item,
+  activeCategory,
+}: {
+  item: Item;
+  activeCategory: string;
+}) {
   const inCategory = activeCategory !== "All" && item.c === activeCategory;
   const firstSub = item.sc?.[0];
   const cat = item.c ?? "Other";
 
   // Effect group from attributes (Indica/Sativa/Hybrid) — only show when browsing Flower/Shake
-  const group = (activeCategory === "Flower" || activeCategory === "Shake") ? (item.at?.effect?.[0] ?? null) : null;
+  const group =
+    activeCategory === "Flower" || activeCategory === "Shake"
+      ? (item.at?.effect?.[0] ?? null)
+      : null;
 
   // Build label: "Category · Sub" when browsing All, just "Sub" or "Category" when inside a category
   let label: string;
@@ -128,7 +185,11 @@ function CardPill({ item, activeCategory }: { item: Item; activeCategory: string
 
   return (
     <span className="card-pill card-pill--image glass text-[10px] font-medium pointer-events-auto">
-      {group && <span className={`card-pill__group-dot card-pill__group-dot--${group.toLowerCase()}`} />}
+      {group && (
+        <span
+          className={`card-pill__group-dot card-pill__group-dot--${group.toLowerCase()}`}
+        />
+      )}
       {label}
     </span>
   );
@@ -162,58 +223,69 @@ function LowConfidenceBadge({ cf }: { cf?: number | null }) {
  * Product card — food-agg structure adapted for cannabis marketplace.
  * Uses item-card CSS classes from styles/elements/item-card.css.
  */
-function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) {
-  const { ref: entryRef, entered, scrollReveal, animDone } = useEntryAnimation();
+function ItemCardInner({
+  item,
+  priority,
+  config,
+  isBookmarked,
+}: ItemCardProps) {
+  const {
+    ref: entryRef,
+    entered,
+    scrollReveal,
+    animDone,
+  } = useEntryAnimation();
   const href = item.refNum ? `/item/${item.refNum}` : `/item/${item.id}`;
   const hasVariants = !!item.v && item.v.length > 1;
-  const hasImage = !!item.i;
-  const primaryIsAnimated = isAnimated(item.i);
-  const { currentMarket, cSym, cRate, sellersMap, selectedSellers, globalWeights, includeShipping, pauseGifs, thumbAspect, activeCategory } = config;
+  const hasImage = !!(item.i || item.ih);
+  const {
+    currentMarket,
+    cSym,
+    cRate,
+    sellersMap,
+    selectedSellers,
+    globalWeights,
+    includeShipping,
+    pauseGifs,
+    thumbAspect,
+    activeCategory,
+    itemIndex,
+  } = config;
   const setSellerModalId = useSetAtom(sellerModalIdAtom);
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const setSelectedSellers = useSetAtom(selectedSellersAtom);
   const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
-  const seller = item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
+  const seller =
+    item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
   const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
+  const primaryIsAnimated = isItemPrimaryAnimated(item);
 
   // Bookmarks
   const toggleBookmark = useSetAtom(toggleBookmarkAtom);
   const addToast = useAddToast();
-  const itemKey = item.refNum ? String(item.refNum) : String(item.id);
+  const itemMeta = useMemo(
+    () => getItemBrowseMeta(itemIndex, item),
+    [itemIndex, item],
+  );
+  const itemKey = itemMeta.bookmarkKey;
 
   // Zoom preview signal — increment to open (lazy-loaded on first click)
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const zoomImages = useMemo(() => {
-    const urls: string[] = [];
-    const primary = getItemImageUrl(item.i, "full", true);
-    if (primary) urls.push(primary);
-    if (item.is) {
-      for (const u of item.is) {
-        if (u !== item.i) {
-          const cdn = getItemImageUrl(u, "full", true);
-          if (cdn && !urls.includes(cdn)) urls.push(cdn);
-        }
-      }
-    }
-    return urls;
-  }, [item.i, item.is]);
+    return getItemGalleryImages(item, "full", { forceStatic: true });
+  }, [item]);
 
   const openZoom = useCallback(() => {
     if (hasImage) setZoomSignal((s) => (s ?? 0) + 1);
   }, [hasImage]);
 
   // Group variants by weight (e.g. 3.5g, 7g, 14g, 28g)
-  const weightGroups = useMemo(
-    () => (hasVariants ? groupByWeight(item.v!) : null),
-    [hasVariants, item.v],
-  );
+  const weightGroups = hasVariants ? itemMeta.weightGroups : null;
 
   // Fallback for non-weight variants (ml, packs, carts, etc.) —
   // used when weightGroups is null so non-weight items still get row 2 chips.
-  const quantityGroups = useMemo(
-    () => (hasVariants && !weightGroups ? groupByQuantity(item.v!) : null),
-    [hasVariants, item.v, weightGroups],
-  );
+  const quantityGroups =
+    hasVariants && !weightGroups ? itemMeta.quantityGroups : null;
 
   // Auto-select weight: when only 1 weight tier exists, or global filter narrows to 1
   const autoGrams = useMemo(() => {
@@ -237,15 +309,24 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
   }, [quantityGroups, selectedQtyKey]);
 
   // Settings
-  const aspectClass = thumbAspect === "4:3" ? "aspect-[4/3]" : thumbAspect === "3:2" ? "aspect-[3/2]" : "aspect-square";
+  const aspectClass =
+    thumbAspect === "4:3"
+      ? "aspect-[4/3]"
+      : thumbAspect === "3:2"
+        ? "aspect-[3/2]"
+        : "aspect-square";
 
   // CDN image URLs — hash raw URLs to R2 CDN paths
   // thumbSrc: always static AVIF (forceStatic=true)
   // If primary is a GIF and gifs not paused, thumbSrc shows anim.webp instead
-  const thumbSrc = getItemImageUrl(item.i, "thumb", pauseGifs || !primaryIsAnimated);
-  // Second image for hover — ALL items, always static
-  const hoverRawUrl = item.is?.[1] ?? null;
-  const hoverSrc = hoverRawUrl ? getItemImageUrl(hoverRawUrl, "thumb", true) : null;
+  const thumbSrc = getItemPrimaryImage(item, "thumb", {
+    forceStatic: pauseGifs || !primaryIsAnimated,
+  });
+  const galleryThumbs = useMemo(
+    () => getItemGalleryImages(item, "thumb", { forceStatic: true }),
+    [item],
+  );
+  const hoverSrc = galleryThumbs[1] ?? null;
 
   const activeGroup = useMemo(() => {
     if (!weightGroups || selectedGrams == null) return null;
@@ -290,14 +371,11 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
     [weightGroups, manualGrams],
   );
 
-  const handleQtyClick = useCallback(
-    (e: React.MouseEvent, key: string) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setSelectedQtyKey((prev) => (prev === key ? null : key));
-    },
-    [],
-  );
+  const handleQtyClick = useCallback((e: React.MouseEvent, key: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedQtyKey((prev) => (prev === key ? null : key));
+  }, []);
 
   // Strains to display: narrow to active weight group when selected.
   // We don't dedup against the item name — the spacer row guarantees alignment
@@ -320,9 +398,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
   // Single-variant parsed payload (used for spacer + strain chip + size label).
   const singleVariantParsed = useMemo(() => {
     if (weightGroups || quantityGroups) return null;
-    if (!item.v || item.v.length !== 1 || !item.v[0].d) return null;
-    return parseVariant(item.v[0]);
-  }, [weightGroups, quantityGroups, item.v]);
+    return itemMeta.singleVariantParsed;
+  }, [weightGroups, quantityGroups, itemMeta]);
 
   // Whether the non-weight (quantity) row should render chips.
   // Either ≥2 tiers, OR a single tier with ≥2 distinct strains (chocolate-bars case).
@@ -425,7 +502,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
   const shippingCost = useMemo(() => {
     if (shippingIsFree || item.sh?.min == null) return null;
     const minLocal = Math.round(item.sh.min * cRate);
-    const maxLocal = item.sh.max != null ? Math.round(item.sh.max * cRate) : null;
+    const maxLocal =
+      item.sh.max != null ? Math.round(item.sh.max * cRate) : null;
     if (maxLocal != null && maxLocal !== minLocal) {
       return `${cSym}${minLocal} – ${cSym}${maxLocal}`;
     }
@@ -435,14 +513,20 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
 
   // Shipping surcharge for "include shipping" mode (USD, added to prices)
   const shipSurcharge =
-    includeShipping && !shippingIsFree && item.sh?.min != null ? item.sh.min : 0;
+    includeShipping && !shippingIsFree && item.sh?.min != null
+      ? item.sh.min
+      : 0;
 
   // PPU — show for selected weight chip (price/g), selected quantity chip
   // (price/unit, e.g. "£29.62/cart"), or cheapest PPU overall across any unit
   // (g, pc, joint, cart, …). Shared `cheapestPpu` handles unit-grouping so a
   // 10-pack doesn't get compared to a 5g jar. When no strain/weight/qty is
   // selected we return a min/max range matching the price range shown above.
-  const ppu = useMemo<{ value: number; valueMax?: number; unit: string } | null>(() => {
+  const ppu = useMemo<{
+    value: number;
+    valueMax?: number;
+    unit: string;
+  } | null>(() => {
     if (activeGroup) {
       const priceMin = (exactPrice ?? activeGroup.price) + shipSurcharge;
       const perGramMin = pricePerGram(priceMin, activeGroup.grams);
@@ -450,7 +534,10 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
       // If the user hasn't pinned a strain yet and the weight tier spans a
       // range, show /g min-max so the ppu tracks the headline price.
       if (exactPrice == null && activeGroup.priceMax !== activeGroup.price) {
-        const perGramMax = pricePerGram(activeGroup.priceMax + shipSurcharge, activeGroup.grams);
+        const perGramMax = pricePerGram(
+          activeGroup.priceMax + shipSurcharge,
+          activeGroup.grams,
+        );
         if (perGramMax != null && perGramMax !== perGramMin) {
           return { value: perGramMin, valueMax: perGramMax, unit: "g" };
         }
@@ -464,9 +551,14 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
         if (!(priceMin > 0)) return null;
         const ppuMin = priceMin / activeQtyGroup.qty;
         if (activeQtyGroup.priceMax !== activeQtyGroup.price) {
-          const ppuMax = (activeQtyGroup.priceMax + shipSurcharge) / activeQtyGroup.qty;
+          const ppuMax =
+            (activeQtyGroup.priceMax + shipSurcharge) / activeQtyGroup.qty;
           if (ppuMax !== ppuMin) {
-            return { value: ppuMin, valueMax: ppuMax, unit: activeQtyGroup.unit };
+            return {
+              value: ppuMin,
+              valueMax: ppuMax,
+              unit: activeQtyGroup.unit,
+            };
           }
         }
         return { value: ppuMin, unit: activeQtyGroup.unit };
@@ -492,7 +584,10 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
     item.lua && item.lur && item.lur !== "N" ? timeAgo(item.lua) : null;
 
   // Is price a range (different min/max)?
-  const priceIsRange = displayPriceMax != null && displayPrice != null && displayPriceMax !== displayPrice;
+  const priceIsRange =
+    displayPriceMax != null &&
+    displayPrice != null &&
+    displayPriceMax !== displayPrice;
 
   // ── Drag-to-scroll for variant strips (food-agg PillRow pattern) ──
   const strainStripRef = useRef<HTMLDivElement>(null);
@@ -514,30 +609,42 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
         for (const [el, scrollable] of results) {
           el.dataset.scrollable = scrollable ? "true" : "false";
           el.dataset.scrolled = "false";
-          el.dataset.atEnd = !scrollable ? "true" : el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 ? "true" : "false";
+          el.dataset.atEnd = !scrollable
+            ? "true"
+            : el.scrollLeft + el.clientWidth >= el.scrollWidth - 2
+              ? "true"
+              : "false";
         }
       });
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [displayStrains, weightGroups, quantityGroups, showQuantityRow]);
 
-  const handleStripScroll = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
-    const el = ref.current;
-    if (!el) return;
-    el.dataset.scrolled = el.scrollLeft > 2 ? "true" : "false";
-    el.dataset.atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 ? "true" : "false";
-  }, []);
+  const handleStripScroll = useCallback(
+    (ref: React.RefObject<HTMLDivElement | null>) => {
+      const el = ref.current;
+      if (!el) return;
+      el.dataset.scrolled = el.scrollLeft > 2 ? "true" : "false";
+      el.dataset.atEnd =
+        el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 ? "true" : "false";
+    },
+    [],
+  );
 
   // Auto-scroll weight strip to show the selected pill
   useEffect(() => {
     if (selectedGrams == null) return;
     const el = weightStripRef.current;
     if (!el) return;
-    const idx = weightGroups?.findIndex((wg) => wg.grams === selectedGrams) ?? -1;
+    const idx =
+      weightGroups?.findIndex((wg) => wg.grams === selectedGrams) ?? -1;
     if (idx < 0) return;
     const btn = el.children[idx] as HTMLElement | undefined;
     if (!btn) return;
-    const left = btn.offsetLeft - el.offsetLeft - (el.clientWidth / 2) + (btn.offsetWidth / 2);
+    const left =
+      btn.offsetLeft - el.offsetLeft - el.clientWidth / 2 + btn.offsetWidth / 2;
     el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
   }, [selectedGrams, weightGroups]);
 
@@ -572,7 +679,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
       data-scroll-reveal={scrollReveal}
       data-animated={animDone}
     >
-      <div className={`item-card-inner${isBookmarked ? " bookmark-card-inner" : ""}`}>
+      <div
+        className={`item-card-inner${isBookmarked ? " bookmark-card-inner" : ""}`}
+      >
         {/* ── Image ── */}
         <div className={`item-card-image ${aspectClass}`}>
           <button
@@ -615,7 +724,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
           {zoomSignal != null && (
             <Suspense fallback={null}>
               <ImageZoomPreview
-                imageUrl={getItemImageUrl(item.i, "full", true)}
+                imageUrl={getItemPrimaryImage(item, "full", {
+                  forceStatic: true,
+                })}
                 imageUrls={zoomImages.length > 0 ? zoomImages : undefined}
                 alt={decodeEntities(item.n)}
                 openSignal={zoomSignal}
@@ -629,7 +740,13 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
               <CardPill item={item} activeCategory={activeCategory} />
               <LowConfidenceBadge cf={item.cf} />
             </div>
-            <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this product"} side="left" delay={350}>
+            <Tooltip
+              content={
+                isBookmarked ? "Remove bookmark" : "Bookmark this product"
+              }
+              side="left"
+              delay={350}
+            >
               <button
                 type="button"
                 onClick={(e) => {
@@ -643,9 +760,14 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                   toggleBookmark(itemKey);
                 }}
                 className={`bookmark-btn pointer-events-auto${isBookmarked ? " bookmark-active-btn always-show" : ""}`}
-                aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this product"}
+                aria-label={
+                  isBookmarked ? "Remove bookmark" : "Bookmark this product"
+                }
               >
-                <Heart size={16} className={isBookmarked ? "fill-current" : ""} />
+                <Heart
+                  size={16}
+                  className={isBookmarked ? "fill-current" : ""}
+                />
               </button>
             </Tooltip>
           </div>
@@ -661,7 +783,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
               className="card-lb-btn"
             >
               <span>Little Biggy</span>
-              <span className="card-lb-btn__arrow" aria-hidden="true">→</span>
+              <span className="card-lb-btn__arrow" aria-hidden="true">
+                →
+              </span>
             </a>
           )}
         </div>
@@ -674,7 +798,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
               href={href}
               onClick={(e) => {
                 // Middle-click / ctrl-click → let browser open in new tab
-                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey)
+                  return;
                 e.preventDefault();
                 setRefNum(String(item.refNum ?? item.id));
               }}
@@ -683,15 +808,22 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
               <div className="card-content__inner">
                 <div className="card-content__header">
                   <span className="card-content__title-row">
-                    <h3 className="card-content__title" title={decodeEntities(item.n)}>
+                    <h3
+                      className="card-content__title"
+                      title={decodeEntities(item.n)}
+                    >
                       {decodeEntities(item.n)}
                     </h3>
                     {item.rs?.avg != null && item.rs.avg > 0 && (
-                      <span className={`card-item-rating${item.rs.avg < 8 ? " card-item-rating--low" : ""}`}>
+                      <span
+                        className={`card-item-rating${item.rs.avg < 8 ? " card-item-rating--low" : ""}`}
+                      >
                         <Star size={9} className="fill-current" />
                         {item.rs.avg.toFixed(1)}
                         {item.rs.cnt != null && item.rs.cnt > 0 && (
-                          <span className="card-item-rating__count">({item.rs.cnt})</span>
+                          <span className="card-item-rating__count">
+                            ({item.rs.cnt})
+                          </span>
                         )}
                       </span>
                     )}
@@ -709,7 +841,11 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
             <div className="item-info-wrap px-[8px]">
               {/* Seller row */}
               <div className="seller-card mt-2">
-                <SellerAvatarTooltip sellerName={item.sn ?? "?"} imageUrl={sellerAvatarUrl} showInitialTooltip>
+                <SellerAvatarTooltip
+                  sellerName={item.sn ?? "?"}
+                  imageUrl={sellerAvatarUrl}
+                  showInitialTooltip
+                >
                   <span className="seller-card__avatar" aria-hidden="true">
                     {seller?.online === "today" && (
                       <span
@@ -738,7 +874,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        if (item.sid != null) setSellerModalId(String(item.sid));
+                        if (item.sid != null)
+                          setSellerModalId(String(item.sid));
                       }}
                     >
                       {item.sn}
@@ -762,64 +899,77 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                   <span className="seller-card__meta">
                     {/* "Ships from <flag>" — flag replaces the country word for
                         compactness; tooltip shows the full country name. */}
-                    {item.sf && !domestic && (() => {
-                      const code = shipFromCode(item.sf);
-                      const full = formatShipFrom(item.sf);
-                      return (
-                        <Tooltip content={full}>
-                          <span
-                            className="seller-card__ship-flag"
-                            aria-label={`Ships from ${full}`}
-                          >
-                            <span>Ships from</span>
-                            {code ? (
-                              <CountryFlag code={code} size={12} />
-                            ) : (
-                              <span>{full}</span>
-                            )}
-                          </span>
-                        </Tooltip>
-                      );
-                    })()}
+                    {item.sf &&
+                      !domestic &&
+                      (() => {
+                        const code = shipFromCode(item.sf);
+                        const full = formatShipFrom(item.sf);
+                        return (
+                          <Tooltip content={full}>
+                            <span
+                              className="seller-card__ship-flag"
+                              aria-label={`Ships from ${full}`}
+                            >
+                              <span>Ships from</span>
+                              {code ? (
+                                <CountryFlag code={code} size={12} />
+                              ) : (
+                                <span>{full}</span>
+                              )}
+                            </span>
+                          </Tooltip>
+                        );
+                      })()}
                     {(seller?.averageDaysToArrive ?? item.rs?.days) != null && (
                       <span className="seller-card__domain">
-                        ~{Math.round(seller?.averageDaysToArrive ?? item.rs!.days!)}d delivery
+                        ~
+                        {Math.round(
+                          seller?.averageDaysToArrive ?? item.rs!.days!,
+                        )}
+                        d delivery
                       </span>
                     )}
-                    {item.sid != null && (() => {
-                      const sid = String(item.sid);
-                      const isFiltered = selectedSellers.length === 1 && selectedSellers[0] === sid;
-                      return (
-                        <span className="seller-card__actions">
-                          <button
-                            type="button"
-                            className="seller-card__action"
-                            title={isFiltered ? "Show all sellers" : `Only ${item.sn}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSelectedSellers(isFiltered ? [] : [sid]);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                          >
-                            <Filter size={8} /> {isFiltered ? "All" : "Only"}
-                          </button>
-                          <button
-                            type="button"
-                            className="seller-card__action seller-card__action--hide"
-                            title={`Hide ${item.sn}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              if (isFiltered) setSelectedSellers([]);
-                              toggleHiddenSeller(sid);
-                            }}
-                          >
-                            <EyeOff size={8} /> Hide
-                          </button>
-                        </span>
-                      );
-                    })()}
+                    {item.sid != null &&
+                      (() => {
+                        const sid = String(item.sid);
+                        const isFiltered =
+                          selectedSellers.length === 1 &&
+                          selectedSellers[0] === sid;
+                        return (
+                          <span className="seller-card__actions">
+                            <button
+                              type="button"
+                              className="seller-card__action"
+                              title={
+                                isFiltered
+                                  ? "Show all sellers"
+                                  : `Only ${item.sn}`
+                              }
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setSelectedSellers(isFiltered ? [] : [sid]);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                            >
+                              <Filter size={8} /> {isFiltered ? "All" : "Only"}
+                            </button>
+                            <button
+                              type="button"
+                              className="seller-card__action seller-card__action--hide"
+                              title={`Hide ${item.sn}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isFiltered) setSelectedSellers([]);
+                                toggleHiddenSeller(sid);
+                              }}
+                            >
+                              <EyeOff size={8} /> Hide
+                            </button>
+                          </span>
+                        );
+                      })()}
                   </span>
                 </span>
               </div>
@@ -841,11 +991,15 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                     <div
                       ref={strainStripRef}
                       className="pill-row__scroll"
-                      onMouseDown={(e) => handleStripMouseDown(e, strainStripRef)}
+                      onMouseDown={(e) =>
+                        handleStripMouseDown(e, strainStripRef)
+                      }
                       onScroll={() => handleStripScroll(strainStripRef)}
                     >
                       {displayStrains.map((strain) => {
-                        const strainUsd = strainPriceMap?.get(strain.toLowerCase());
+                        const strainUsd = strainPriceMap?.get(
+                          strain.toLowerCase(),
+                        );
                         return (
                           <button
                             type="button"
@@ -856,7 +1010,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                             {strain}
                             {strainUsd != null && (
                               <span className="card-pill--strain__price">
-                                {cSym}{(strainUsd * cRate).toFixed(0)}
+                                {cSym}
+                                {(strainUsd * cRate).toFixed(0)}
                               </span>
                             )}
                           </button>
@@ -864,7 +1019,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                       })}
                     </div>
                     <div className="pill-row__overflow" aria-hidden="true">
-                      <span className="pill-row__overflow-count"><span>→</span></span>
+                      <span className="pill-row__overflow-count">
+                        <span>→</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -877,15 +1034,20 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                     <div
                       ref={weightStripRef}
                       className="pill-row__scroll"
-                      onMouseDown={(e) => handleStripMouseDown(e, weightStripRef)}
+                      onMouseDown={(e) =>
+                        handleStripMouseDown(e, weightStripRef)
+                      }
                       onScroll={() => handleStripScroll(weightStripRef)}
                     >
                       {weightGroups.map((wg) => {
                         const isSelected = activeGroup?.grams === wg.grams;
-                        const isUnavailable = strainAvailableGrams != null && !strainAvailableGrams.has(wg.grams);
+                        const isUnavailable =
+                          strainAvailableGrams != null &&
+                          !strainAvailableGrams.has(wg.grams);
                         // When a strain is picked, show its specific price for
                         // this weight instead of the cross-strain range.
-                        const strainPrice = strainWeightPrice?.get(wg.grams) ?? null;
+                        const strainPrice =
+                          strainWeightPrice?.get(wg.grams) ?? null;
                         const hasRange = wg.price !== wg.priceMax;
                         return (
                           <button
@@ -895,7 +1057,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                             onClick={(e) => handleWeightClick(e, wg.grams)}
                           >
                             <span className="variant-size-btn__size">
-                              {wg.originalLabel ? decodeEntities(wg.originalLabel) : formatWeight(wg.grams)}
+                              {wg.originalLabel
+                                ? decodeEntities(wg.originalLabel)
+                                : formatWeight(wg.grams)}
                             </span>
                             <span className="variant-size-btn__price">
                               {strainPrice != null
@@ -909,7 +1073,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                       })}
                     </div>
                     <div className="pill-row__overflow" aria-hidden="true">
-                      <span className="pill-row__overflow-count"><span>→</span></span>
+                      <span className="pill-row__overflow-count">
+                        <span>→</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -924,7 +1090,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                     <div
                       ref={weightStripRef}
                       className="pill-row__scroll"
-                      onMouseDown={(e) => handleStripMouseDown(e, weightStripRef)}
+                      onMouseDown={(e) =>
+                        handleStripMouseDown(e, weightStripRef)
+                      }
                       onScroll={() => handleStripScroll(weightStripRef)}
                     >
                       {quantityGroups.map((qg) => {
@@ -953,7 +1121,9 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                       })}
                     </div>
                     <div className="pill-row__overflow" aria-hidden="true">
-                      <span className="pill-row__overflow-count"><span>→</span></span>
+                      <span className="pill-row__overflow-count">
+                        <span>→</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -966,17 +1136,24 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                 !quantityGroups &&
                 item.v &&
                 item.v.length === 1 &&
-                item.v[0].d && (() => {
+                item.v[0].d &&
+                (() => {
                   const pv = singleVariantParsed;
-                  const rawSizeLabel = pv ? pv.originalLabel || pv.weightLabel : item.v[0].d;
-                  const sizeLabel = rawSizeLabel ? decodeEntities(rawSizeLabel) : rawSizeLabel;
+                  const rawSizeLabel = pv
+                    ? pv.originalLabel || pv.weightLabel
+                    : item.v[0].d;
+                  const sizeLabel = rawSizeLabel
+                    ? decodeEntities(rawSizeLabel)
+                    : rawSizeLabel;
                   return (
                     <>
                       {pv?.strain && (
                         <div className="pill-row mt-3">
                           <div className="pill-row__track">
                             <div className="pill-row__scroll">
-                              <span className="card-pill card-pill--strain">{pv.strain}</span>
+                              <span className="card-pill card-pill--strain">
+                                {pv.strain}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -988,7 +1165,8 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
                               {sizeLabel}
                             </span>
                             <span className="variant-size-btn__price">
-                              {cSym}{(item.v[0].usd * cRate).toFixed(2)}
+                              {cSym}
+                              {(item.v[0].usd * cRate).toFixed(2)}
                             </span>
                           </span>
                         </div>
@@ -1006,17 +1184,26 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
             {/* Price area */}
             <div className="card-price-area">
               <div className="card-price-row">
-                <span className={`${priceIsRange ? "card-price-main card-price-main--range" : "card-price-main"}${shipSurcharge > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}>
+                <span
+                  className={`${priceIsRange ? "card-price-main card-price-main--range" : "card-price-main"}${shipSurcharge > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
+                >
                   {exactPrice != null
                     ? `${cSym}${((exactPrice + shipSurcharge) * cRate).toFixed(2)}`
                     : fmtPrice(
-                        displayPrice != null ? displayPrice + shipSurcharge : displayPrice,
-                        displayPriceMax != null ? displayPriceMax + shipSurcharge : displayPriceMax,
+                        displayPrice != null
+                          ? displayPrice + shipSurcharge
+                          : displayPrice,
+                        displayPriceMax != null
+                          ? displayPriceMax + shipSurcharge
+                          : displayPriceMax,
                         cSym,
                         cRate,
                       )}
                   {shipSurcharge > 0 && (
-                    <Truck size={11} className="inline ml-1 -mt-0.5 opacity-70" />
+                    <Truck
+                      size={11}
+                      className="inline ml-1 -mt-0.5 opacity-70"
+                    />
                   )}
                 </span>
                 {ppu != null && (
@@ -1038,7 +1225,19 @@ function ItemCardInner({ item, priority, config, isBookmarked }: ItemCardProps) 
               {updated && (
                 <span
                   className="text-[10px] leading-none text-muted-foreground cursor-default"
-                  title={item.lua ? (item.lur && item.lur !== "N" ? `${new Date(item.lua).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })} (${item.lur})` : new Date(item.lua).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })) : undefined}
+                  title={
+                    item.lua
+                      ? item.lur && item.lur !== "N"
+                        ? `${new Date(item.lua).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })} (${item.lur})`
+                        : new Date(item.lua).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                      : undefined
+                  }
                 >
                   Updated {updated}
                 </span>

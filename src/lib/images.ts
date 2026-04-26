@@ -1,3 +1,5 @@
+import type { Item } from "@/lib/types";
+
 /**
  * FNV-1a hash for stable URL-to-filename mapping.
  *
@@ -25,6 +27,10 @@ const CDN_PREFIX = CDN_BASE.startsWith("http")
   : `https://${CDN_BASE}`;
 
 type ImageSize = "thumb" | "full" | "icon";
+
+interface ItemImageOptions {
+  forceStatic?: boolean;
+}
 
 /**
  * Returns an optimised R2 CDN URL for an image hash.
@@ -65,6 +71,64 @@ export function getGalleryUrls(
     );
     if (url) urls.push(url);
   }
+  return urls;
+}
+
+function imageFlag(value: 1 | 0 | boolean | null | undefined): boolean | undefined {
+  if (value == null) return undefined;
+  return value === true || value === 1;
+}
+
+function hashForImage(stampedHash: string | null | undefined, rawUrl: string | null | undefined): string | undefined {
+  return stampedHash ?? (rawUrl ? hashUrl(rawUrl) : undefined);
+}
+
+function isAnimatedImage(
+  stampedFlag: 1 | 0 | boolean | null | undefined,
+  rawUrl: string | null | undefined,
+): boolean {
+  return imageFlag(stampedFlag) ?? isAnimatedUrl(rawUrl ?? "");
+}
+
+export function isItemPrimaryAnimated(item: Pick<Item, "i" | "ia">): boolean {
+  return isAnimatedImage(item.ia, item.i);
+}
+
+export function getItemPrimaryImage(
+  item: Pick<Item, "i" | "ih" | "ia">,
+  size: ImageSize = "thumb",
+  options: ItemImageOptions = {},
+): string | undefined {
+  const animated = !options.forceStatic && isAnimatedImage(item.ia, item.i);
+  return getImageUrl(hashForImage(item.ih, item.i), item.i ?? undefined, size, animated);
+}
+
+export function getItemGalleryImages(
+  item: Pick<Item, "i" | "is" | "ih" | "ish" | "ia" | "isa">,
+  size: ImageSize = "full",
+  options: ItemImageOptions = {},
+): string[] {
+  const urls: string[] = [];
+  const seen = new Set<string>();
+  const add = (url: string | undefined) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    urls.push(url);
+  };
+
+  add(getItemPrimaryImage(item, size, options));
+
+  const rawUrls = item.is ?? [];
+  const hashes = item.ish ?? [];
+  const animatedFlags = item.isa ?? [];
+  const count = Math.max(rawUrls.length, hashes.length, animatedFlags.length);
+
+  for (let index = 0; index < count; index++) {
+    const rawUrl = rawUrls[index] ?? null;
+    const animated = !options.forceStatic && isAnimatedImage(animatedFlags[index], rawUrl);
+    add(getImageUrl(hashForImage(hashes[index], rawUrl), rawUrl ?? undefined, size, animated));
+  }
+
   return urls;
 }
 

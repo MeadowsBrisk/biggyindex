@@ -3,11 +3,12 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { Package } from "lucide-react";
-import { sortedItemsAtom, isLoadingAtom, marketAtom, currencyDisplayAtom, sellersMapAtom, selectedSellersAtom, bookmarksSetAtom, selectedWeightsAtom, includeShippingAtom, pauseGifsAtom, thumbnailAspectAtom, categoryAtom, gateCompleteAtom, viewModeAtom } from "@/store/atoms";
+import { sortedItemsAtom, isLoadingAtom, marketAtom, currencyDisplayAtom, sellersMapAtom, selectedSellersAtom, bookmarksSetAtom, selectedWeightsAtom, includeShippingAtom, pauseGifsAtom, thumbnailAspectAtom, categoryAtom, gateCompleteAtom, viewModeAtom, itemIndexAtom } from "@/store/atoms";
 import { DEFAULT_MARKET } from "@/lib/constants";
 import { ItemCard } from "./ItemCard";
 import type { CardConfig } from "./ItemCard";
 import type { SeedItem } from "@/lib/seed";
+import { getItemPrimaryImage } from "@/lib/images";
 
 // ─── Progressive rendering (ported from food-agg) ──────────────────
 
@@ -82,14 +83,16 @@ function SeedCard({
   priority: boolean;
   sym: string;
 }) {
+  const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
+
   return (
     <div className="item-card">
       <div className="item-card-inner">
         <div className="item-card-image aspect-square">
-          {item.i ? (
+          {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={item.i}
+              src={imageUrl}
               alt={item.n}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : undefined}
@@ -155,6 +158,7 @@ export function ItemGrid({
   const thumbAspect = useAtomValue(thumbnailAspectAtom);
   const activeCategory = useAtomValue(categoryAtom);
   const viewMode = useAtomValue(viewModeAtom);
+  const itemIndex = useAtomValue(itemIndexAtom);
 
   const config = useMemo<CardConfig>(
     () => ({
@@ -168,8 +172,9 @@ export function ItemGrid({
       pauseGifs,
       thumbAspect,
       activeCategory,
+      itemIndex,
     }),
-    [currentMarket, cSym, cRate, sellersMap, selectedSellers, globalWeights, includeShipping, pauseGifs, thumbAspect, activeCategory],
+    [currentMarket, cSym, cRate, sellersMap, selectedSellers, globalWeights, includeShipping, pauseGifs, thumbAspect, activeCategory, itemIndex],
   );
 
   if (isLoading) {

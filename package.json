@@ -9,6 +9,7 @@
     "lint": "biome check --write .",
     "lint:check": "biome check .",
     "format": "biome format --write .",
+    "check:filter-engine": "tsx scripts/check-filter-engine.ts",
     "i18n:build": "tsx scripts/build-messages.ts",
     "predev": "yarn i18n:build",
     "prebuild": "yarn i18n:build"

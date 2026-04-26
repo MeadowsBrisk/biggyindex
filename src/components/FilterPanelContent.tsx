@@ -1,0 +1,742 @@
+"use client";
+
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { ChevronDown, EyeOff, Pin, RotateCcw, Search, X } from "lucide-react";
+import type { MouseEvent, ReactNode } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { getCategoryMeta } from "@/components/icons/CategoryIcons";
+import { CountryFlag } from "@/components/icons/CountryFlag";
+import { PriceRangeSlider } from "@/components/PriceRangeSlider";
+import { CATEGORIES, CATEGORY_LABELS } from "@/lib/constants";
+import { SHIP_FROM_CODES } from "@/lib/shipFrom";
+import {
+  activeFiltersCountAtom,
+  attrFiltersAtom,
+  attrOptionCountsAtom,
+  availableSellersAtom,
+  availableShipFromAtom,
+  availableSubcategoriesAtom,
+  availableWeightsAtom,
+  categoryAtom,
+  categoryCountsAtom,
+  clearFiltersAtom,
+  excludedShipFromAtom,
+  filteredSellersAtom,
+  hiddenSellersAtom,
+  pinnedSellersAtom,
+  pinnedShipFromAtom,
+  searchQueryAtom,
+  sectionOpenAtom,
+  selectedSellersAtom,
+  selectedShipFromAtom,
+  selectedWeightsAtom,
+  subcategoryAtom,
+  toggleHiddenSellerAtom,
+} from "@/store/atoms";
+
+function Section({
+  title,
+  children,
+  defaultOpen = true,
+  storageKey,
+  activeCount,
+  trailing,
+}: {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+  storageKey?: string;
+  activeCount?: number;
+  trailing?: ReactNode;
+}) {
+  const sectionKey = storageKey ?? title.toLowerCase().replace(/\s+/g, "-");
+  const [sections, setSections] = useAtom(sectionOpenAtom);
+  const open = sections[sectionKey] ?? defaultOpen;
+
+  const toggle = () => {
+    setSections((prev) => ({ ...prev, [sectionKey]: !open }));
+  };
+
+  return (
+    <div className="border-b border-border last:border-0">
+      <div className="flex w-full items-center justify-between py-2.5 text-xs font-medium uppercase tracking-wider text-muted">
+        <button
+          type="button"
+          onClick={toggle}
+          className="flex flex-1 items-center justify-between cursor-pointer transition-colors hover:text-foreground"
+        >
+          <span className="flex items-center gap-1.5">
+            {title}
+            {!open && activeCount != null && activeCount > 0 && (
+              <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground normal-case tracking-normal">
+                {activeCount}
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            size={14}
+            className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+        {trailing && <span className="ml-1 flex items-center">{trailing}</span>}
+      </div>
+      <div
+        className={`overflow-hidden transition-all duration-200 ${
+          open ? "max-h-500 opacity-100 pb-3" : "max-h-0 opacity-0"
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string; label: string }[]> =
+  {
+    Flower: [
+      { key: "effect", label: "Effect" },
+      { key: "tier", label: "Tier" },
+    ],
+    Shake: [
+      { key: "effect", label: "Effect" },
+      { key: "tier", label: "Tier" },
+    ],
+    Hash: [
+      { key: "micron", label: "Micron" },
+      { key: "filtration", label: "Filtration" },
+      { key: "texture", label: "Texture" },
+      { key: "tier", label: "Tier" },
+    ],
+    Concentrates: [
+      { key: "process", label: "Process" },
+      { key: "form", label: "Form" },
+      { key: "tier", label: "Tier" },
+    ],
+    Vapes: [
+      { key: "extract", label: "Extract" },
+      { key: "form", label: "Form" },
+    ],
+    Edibles: [
+      { key: "dietary", label: "Dietary" },
+      { key: "strength", label: "Strength" },
+    ],
+  };
+
+export function FilterPanelContent({ onClose }: { onClose: () => void }) {
+  const [category, setCategory] = useAtom(categoryAtom);
+  const [subcategory, setSubcategory] = useAtom(subcategoryAtom);
+  const [search, setSearch] = useAtom(searchQueryAtom);
+  const categoryCounts = useAtomValue(categoryCountsAtom);
+  const subcategories = useAtomValue(availableSubcategoriesAtom);
+  const allSellers = useAtomValue(availableSellersAtom);
+  const filteredSellers = useAtomValue(filteredSellersAtom);
+  const [selectedSellers, setSelectedSellers] = useAtom(selectedSellersAtom);
+  const hiddenSellers = useAtomValue(hiddenSellersAtom);
+  const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
+  const [attrFilters, setAttrFilters] = useAtom(attrFiltersAtom);
+  const shipFromOptions = useAtomValue(availableShipFromAtom);
+  const [shipInclude, setShipInclude] = useAtom(selectedShipFromAtom);
+  const [shipExclude, setShipExclude] = useAtom(excludedShipFromAtom);
+  const weightOptions = useAtomValue(availableWeightsAtom);
+  const [selectedWeights, setSelectedWeights] = useAtom(selectedWeightsAtom);
+  const [pinnedSellers, setPinnedSellers] = useAtom(pinnedSellersAtom);
+  const [pinnedShipFrom, setPinnedShipFrom] = useAtom(pinnedShipFromAtom);
+  const clearFilters = useSetAtom(clearFiltersAtom);
+  const filterCount = useAtomValue(activeFiltersCountAtom);
+
+  const [sellerQuery, setSellerQuery] = useState("");
+  const [showAllSellers, setShowAllSellers] = useState(false);
+  const [sellerSort, setSellerSort] = useState<"alpha" | "count">("alpha");
+  const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
+
+  const visibleSellers = useMemo(() => {
+    const base = filteredSellers.filter((seller) => !hiddenSet.has(seller.id));
+    if (sellerSort === "alpha") {
+      return [...base].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return base;
+  }, [filteredSellers, hiddenSet, sellerSort]);
+
+  const querySellers = useMemo(() => {
+    const query = sellerQuery.toLowerCase().trim();
+    if (!query) return visibleSellers;
+    return visibleSellers.filter((seller) =>
+      seller.name.toLowerCase().includes(query),
+    );
+  }, [sellerQuery, visibleSellers]);
+
+  const SELLER_COLLAPSED_COUNT = 6;
+  const sellerRows = useMemo(
+    () =>
+      showAllSellers || sellerQuery.trim()
+        ? querySellers
+        : querySellers.slice(0, SELLER_COLLAPSED_COUNT),
+    [querySellers, showAllSellers, sellerQuery],
+  );
+
+  const handleCategoryClick = useCallback(
+    (cat: string) => {
+      setCategory(cat);
+      setSubcategory([]);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [setCategory, setSubcategory],
+  );
+
+  const toggleSubcategory = useCallback(
+    (name: string) => {
+      setSubcategory((prev) =>
+        prev.includes(name)
+          ? prev.filter((subcategory) => subcategory !== name)
+          : [...prev, name],
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [setSubcategory],
+  );
+
+  const toggleSeller = useCallback(
+    (id: string) => {
+      setSelectedSellers((prev) =>
+        prev.includes(id)
+          ? prev.filter((sellerId) => sellerId !== id)
+          : [...prev, id],
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [setSelectedSellers],
+  );
+
+  const cycleShipFrom = useCallback(
+    (value: string, event: MouseEvent) => {
+      event.preventDefault();
+      const isIncluded = shipInclude.includes(value);
+      const isExcluded = shipExclude.includes(value);
+
+      if (isIncluded) {
+        setShipInclude((prev) => prev.filter((entry) => entry !== value));
+        setShipExclude((prev) => [...prev, value]);
+      } else if (isExcluded) {
+        setShipExclude((prev) => prev.filter((entry) => entry !== value));
+      } else {
+        setShipInclude((prev) => [...prev, value]);
+      }
+    },
+    [shipInclude, shipExclude, setShipInclude, setShipExclude],
+  );
+
+  const toggleWeight = useCallback(
+    (grams: number) => {
+      setSelectedWeights((prev) =>
+        prev.includes(grams)
+          ? prev.filter((weight) => weight !== grams)
+          : [...prev, grams],
+      );
+    },
+    [setSelectedWeights],
+  );
+
+  const toggleAttr = useCallback(
+    (key: string, value: string) => {
+      setAttrFilters((prev) => {
+        const current = prev[key] ?? [];
+        const next = current.includes(value)
+          ? current.filter((entry) => entry !== value)
+          : [...current, value];
+        return { ...prev, [key]: next };
+      });
+    },
+    [setAttrFilters],
+  );
+
+  const attrDefs =
+    category !== "All" ? (ATTR_KEYS_BY_CATEGORY[category] ?? []) : [];
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex h-8 items-center justify-end border-b border-border px-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+          aria-label="Close filters"
+          title="Close filters"
+        >
+          <X size={14} />
+        </button>
+      </div>
+
+      {filterCount > 0 && (
+        <div className="flex h-8 items-center justify-between border-b border-border bg-surface/40 px-4">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted">
+            {filterCount} active
+          </span>
+          <button
+            type="button"
+            onClick={() => clearFilters()}
+            className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+            title="Clear all non-pinned filters"
+          >
+            <RotateCcw size={11} />
+            Clear all
+          </button>
+        </div>
+      )}
+
+      <div className="px-4 pt-2 pb-1 lg:pl-0">
+        <div className="relative">
+          <Search
+            size={14}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
+          />
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className={`w-full rounded-lg border border-border bg-surface py-1.5 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors ${search ? "pr-8" : "pr-3"}`}
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              title="Clear search"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 lg:pl-0 py-3 pb-10">
+        <div className="mb-4">
+          <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
+            Categories
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => handleCategoryClick("All")}
+              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer ${
+                category === "All"
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+              }`}
+            >
+              All <span className="opacity-60">{categoryCounts.All ?? 0}</span>
+            </button>
+            {CATEGORIES.map((cat) => {
+              const count = categoryCounts[cat] ?? 0;
+              const active = category === cat;
+              if (count === 0 && !active) return null;
+              const meta = getCategoryMeta(cat);
+              const Icon = meta.icon;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => handleCategoryClick(cat)}
+                  className={`group inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium cursor-pointer transition-colors ${
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                  }`}
+                >
+                  <Icon
+                    size={12}
+                    className={`shrink-0 transition-opacity duration-200 ${
+                      active
+                        ? "opacity-90"
+                        : "opacity-70 group-hover:opacity-100"
+                    }`}
+                  />
+                  <span>{CATEGORY_LABELS[cat] ?? cat}</span>
+                  <span className="opacity-60">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {subcategories.length > 0 && (
+          <div className="mb-4">
+            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
+              Subcategories
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {subcategories.map((sc) => (
+                <button
+                  key={sc.name}
+                  type="button"
+                  onClick={() => toggleSubcategory(sc.name)}
+                  className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border ${
+                    subcategory.includes(sc.name)
+                      ? "border-primary/40 bg-primary/20 text-primary"
+                      : "border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+                  }`}
+                >
+                  {sc.name} <span className="opacity-60">{sc.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {attrDefs.map((def) => (
+          <AttrFilterGroup
+            key={def.key}
+            attrKey={def.key}
+            label={def.label}
+            selected={attrFilters[def.key] ?? []}
+            onToggle={(value) => toggleAttr(def.key, value)}
+          />
+        ))}
+
+        {shipFromOptions.length > 0 && (
+          <Section
+            title="Ships From"
+            storageKey="ships-from"
+            activeCount={shipInclude.length + shipExclude.length}
+            trailing={
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setPinnedShipFrom((value) => !value);
+                }}
+                title={
+                  pinnedShipFrom
+                    ? "Unpin - will clear with filters"
+                    : "Pin - keeps selection when clearing filters"
+                }
+                className={`p-0.5 rounded transition-colors cursor-pointer ${
+                  pinnedShipFrom
+                    ? "text-primary"
+                    : "text-muted/40 hover:text-muted"
+                }`}
+              >
+                <Pin
+                  size={12}
+                  className={pinnedShipFrom ? "fill-current" : ""}
+                />
+              </button>
+            }
+          >
+            <div className="flex flex-wrap gap-1.5">
+              {shipFromOptions.map((shipFrom) => {
+                const isIncluded = shipInclude.includes(shipFrom.value);
+                const isExcluded = shipExclude.includes(shipFrom.value);
+                return (
+                  <button
+                    key={shipFrom.value}
+                    type="button"
+                    onClick={(event) => cycleShipFrom(shipFrom.value, event)}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
+                      if (shipExclude.includes(shipFrom.value)) {
+                        setShipExclude((prev) =>
+                          prev.filter((value) => value !== shipFrom.value),
+                        );
+                      } else {
+                        setShipInclude((prev) =>
+                          prev.filter((value) => value !== shipFrom.value),
+                        );
+                        setShipExclude((prev) => [...prev, shipFrom.value]);
+                      }
+                    }}
+                    title="Click: include. Right-click: exclude"
+                    className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
+                      isIncluded
+                        ? "bg-primary/20 text-primary"
+                        : isExcluded
+                          ? "bg-red-500/20 text-red-400 line-through"
+                          : "border border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                    }`}
+                  >
+                    {SHIP_FROM_CODES[shipFrom.value] && (
+                      <CountryFlag
+                        code={SHIP_FROM_CODES[shipFrom.value]}
+                        size={12}
+                      />
+                    )}
+                    {shipFrom.label}{" "}
+                    <span className="opacity-60">{shipFrom.count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </Section>
+        )}
+
+        {weightOptions.length > 0 && (
+          <Section title="Weight" activeCount={selectedWeights.length}>
+            <div className="flex flex-wrap gap-1.5">
+              {weightOptions.map((weight) => (
+                <button
+                  key={weight.grams}
+                  type="button"
+                  onClick={() => toggleWeight(weight.grams)}
+                  className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer transition-colors border ${
+                    selectedWeights.includes(weight.grams)
+                      ? "border-primary/40 bg-primary/20 text-primary"
+                      : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                  }`}
+                >
+                  {weight.label}{" "}
+                  <span className="opacity-60">{weight.count}</span>
+                </button>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        <Section title="Price" defaultOpen={false} storageKey="price">
+          <PriceRangeSlider />
+        </Section>
+
+        {visibleSellers.length > 0 && (
+          <Section
+            title="Sellers"
+            activeCount={selectedSellers.length}
+            trailing={
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setPinnedSellers((value) => !value);
+                }}
+                title={
+                  pinnedSellers
+                    ? "Unpin - will clear with filters"
+                    : "Pin - keeps selection when clearing filters"
+                }
+                className={`p-0.5 rounded transition-colors cursor-pointer ${
+                  pinnedSellers
+                    ? "text-primary"
+                    : "text-muted/40 hover:text-muted"
+                }`}
+              >
+                <Pin
+                  size={12}
+                  className={pinnedSellers ? "fill-current" : ""}
+                />
+              </button>
+            }
+          >
+            <div className="mb-2 flex items-center gap-1.5">
+              <div className="relative flex-1">
+                <Search
+                  size={12}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted"
+                />
+                <input
+                  type="text"
+                  placeholder="Search sellers..."
+                  value={sellerQuery}
+                  onChange={(event) => setSellerQuery(event.target.value)}
+                  className="w-full rounded-md border border-border bg-surface py-1.5 pl-7 pr-3 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setSellerSort((value) =>
+                    value === "alpha" ? "count" : "alpha",
+                  )
+                }
+                title={
+                  sellerSort === "alpha"
+                    ? "Sorted A-Z - click for most items first"
+                    : "Sorted by item count - click for A-Z"
+                }
+                className="shrink-0 rounded-md border border-border bg-surface px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
+              >
+                {sellerSort === "alpha" ? "A-Z" : "No."}
+              </button>
+            </div>
+
+            {selectedSellers.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {selectedSellers.map((id) => {
+                  const seller =
+                    visibleSellers.find((entry) => entry.id === id) ??
+                    allSellers.find((entry) => entry.id === id);
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => toggleSeller(id)}
+                      className="inline-flex items-center gap-1 rounded-md bg-primary/15 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+                      title={`Remove ${seller?.name ?? id}`}
+                    >
+                      <span className="truncate max-w-24">
+                        {seller?.name ?? `#${id}`}
+                      </span>
+                      <X size={10} className="shrink-0 opacity-60" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {sellerRows.length > 0 ? (
+              <div
+                className={`rounded-md border border-border bg-surface overflow-hidden ${
+                  showAllSellers || sellerQuery.trim()
+                    ? "max-h-76 overflow-y-auto"
+                    : ""
+                }`}
+              >
+                <div className="grid grid-cols-2">
+                  {sellerRows.map((seller, index) => {
+                    const isSelected = selectedSellers.includes(seller.id);
+                    const isRightCol = index % 2 === 1;
+                    const rowsCount = Math.ceil(sellerRows.length / 2);
+                    const isLastRow = Math.floor(index / 2) === rowsCount - 1;
+                    return (
+                      <div
+                        key={seller.id}
+                        className={`group relative flex items-center text-[11px] transition-colors ${
+                          !isRightCol ? "border-r border-border" : ""
+                        } ${!isLastRow ? "border-b border-border" : ""} ${
+                          isSelected
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted hover:bg-surface-hover hover:text-foreground"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleSeller(seller.id)}
+                          className="flex flex-1 items-center gap-1.5 px-2 py-1.5 text-left cursor-pointer min-w-0"
+                          title={
+                            isSelected
+                              ? `Unselect ${seller.name}`
+                              : `Select ${seller.name}`
+                          }
+                        >
+                          <span className="truncate flex-1">{seller.name}</span>
+                          <span className="tabular-nums opacity-50 text-[10px] shrink-0">
+                            {seller.count}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            if (isSelected) {
+                              setSelectedSellers((prev) =>
+                                prev.filter((id) => id !== seller.id),
+                              );
+                            }
+                            toggleHiddenSeller(seller.id);
+                          }}
+                          title={`Hide ${seller.name} - removes all their items from results`}
+                          aria-label={`Hide ${seller.name}`}
+                          className="absolute right-0 top-0 bottom-0 flex items-center px-1.5 bg-inherit text-muted/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none transition-opacity cursor-pointer"
+                        >
+                          <EyeOff size={12} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-border px-2 py-3 text-center text-[11px] text-muted">
+                {sellerQuery.trim()
+                  ? "No sellers match"
+                  : "No sellers available"}
+              </div>
+            )}
+
+            {!sellerQuery.trim() &&
+              querySellers.length > SELLER_COLLAPSED_COUNT && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllSellers((value) => !value)}
+                  className="mt-1.5 w-full rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted hover:text-foreground transition-colors cursor-pointer"
+                >
+                  {showAllSellers
+                    ? "Show less"
+                    : `Show all ${querySellers.length}`}
+                </button>
+              )}
+
+            {hiddenSellers.length > 0 && (
+              <div className="mt-1.5 text-[10px] text-muted italic">
+                {hiddenSellers.length} seller
+                {hiddenSellers.length > 1 ? "s" : ""} hidden - manage in
+                Settings
+              </div>
+            )}
+          </Section>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const EFFECT_DOT_COLORS: Record<string, string> = {
+  indica: "#a78bfa",
+  sativa: "#fbbf24",
+  hybrid: "#34d399",
+};
+
+function AttrFilterGroup({
+  attrKey,
+  label,
+  selected,
+  onToggle,
+}: {
+  attrKey: string;
+  label: string;
+  selected: string[];
+  onToggle: (val: string) => void;
+}) {
+  const allCounts = useAtomValue(attrOptionCountsAtom);
+  const optionCounts = allCounts[attrKey];
+
+  if (!optionCounts || Object.keys(optionCounts).length === 0) return null;
+
+  const sorted = Object.entries(optionCounts).sort((a, b) => b[1] - a[1]);
+
+  return (
+    <Section
+      title={label}
+      storageKey={`attr-${attrKey}`}
+      activeCount={selected.length}
+    >
+      <div className="flex flex-wrap gap-1.5">
+        {sorted.map(([value, count]) => {
+          const dotColor =
+            attrKey === "effect"
+              ? EFFECT_DOT_COLORS[value.toLowerCase()]
+              : undefined;
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onToggle(value)}
+              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border inline-flex items-center gap-1.5 ${
+                selected.includes(value)
+                  ? "border-primary/40 bg-primary/20 text-primary"
+                  : "border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+              }`}
+            >
+              {dotColor && (
+                <span
+                  className="inline-block w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: dotColor }}
+                  aria-hidden="true"
+                />
+              )}
+              {value} <span className="opacity-60">{count}</span>
+            </button>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}

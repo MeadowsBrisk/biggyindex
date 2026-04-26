@@ -51,7 +51,7 @@ import { useHistoryState } from "@/hooks/useHistoryState";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ReviewCard, ReviewStatsHeader, type Review } from "@/components/ReviewCard";
 import { useAddToast } from "@/components/Toast";
-import { getSellerImageUrl } from "@/lib/images";
+import { getItemGalleryImages, getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
 import type { Item, PriceSnapshot, MergedDetailBlob } from "@/lib/types";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
@@ -503,17 +503,7 @@ export function ItemDetailOverlay() {
   // ── Gallery images ──
   const images = useMemo(() => {
     if (!displayItem) return [];
-    const urls: string[] = [];
-    const seen = new Set<string>();
-    const add = (u: string) => {
-      if (u && !seen.has(u)) {
-        seen.add(u);
-        urls.push(u);
-      }
-    };
-    if (displayItem.i) add(displayItem.i);
-    if (displayItem.is) displayItem.is.forEach(add);
-    return urls;
+    return getItemGalleryImages(displayItem);
   }, [displayItem]);
 
   // ── Swiper state ──
@@ -969,7 +959,7 @@ export function ItemDetailOverlay() {
                                           shippingUsd: selectedShipCost > 0 ? selectedShipCost : shipOptions[0]?.cost ?? null,
                                           includeShip: selectedShipCost > 0,
                                           shOpts: shipOptions.length > 0 ? shipOptions : undefined,
-                                          imageUrl: displayItem.i ?? null,
+                                          imageUrl: getItemPrimaryImage(displayItem, "thumb", { forceStatic: true }) ?? displayItem.i ?? null,
                                           sl: displayItem.sl ?? null,
                                         });
                                         if (addedTimerRef.current) clearTimeout(addedTimerRef.current);

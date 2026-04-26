@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { X, Star, Clock, ExternalLink, Share2 } from "lucide-react";
 import { itemsAtom } from "@/store/atoms";
-import type { Item } from "@/lib/types";
+import { getItemPrimaryImage } from "@/lib/images";
 
 export function ItemDetailModal({ refNum }: { refNum: string }) {
   const router = useRouter();
@@ -49,6 +49,8 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
     );
   }
 
+  const imageUrl = getItemPrimaryImage(item, "full", { forceStatic: true });
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
@@ -72,10 +74,10 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
         </button>
 
         {/* Image */}
-        {item.i && (
+        {imageUrl && (
           <div className="relative aspect-video w-full overflow-hidden rounded-t-2xl bg-surface">
             <Image
-              src={item.i}
+              src={imageUrl}
               alt={item.n}
               fill
               className="object-contain"

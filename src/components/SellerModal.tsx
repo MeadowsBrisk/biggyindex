@@ -15,7 +15,7 @@ import {
 
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ReviewCard, type Review } from "@/components/ReviewCard";
-import { getSellerImageUrl, getItemImageUrl } from "@/lib/images";
+import { getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
 import { decodeEntities } from "@/lib/format";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import historyManager from "@/lib/historyManager";
@@ -217,8 +217,8 @@ export function SellerModal() {
   const itemImageMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const item of items) {
-      if (item.refNum && item.i) {
-        const url = getItemImageUrl(item.i);
+      if (item.refNum && (item.i || item.ih)) {
+        const url = getItemPrimaryImage(item);
         if (url) map.set(String(item.refNum), url);
       }
     }
