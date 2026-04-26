@@ -6,9 +6,15 @@
 
 /* ── Highlight pulse (used when jumping to a specific review) ── */
 @keyframes review-card-highlight-pulse {
-  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 70%, transparent); }
-  60%  { box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 0%, transparent); }
-  100% { box-shadow: 0 0 0 0 transparent; }
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 70%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 .review-card--highlighted {
@@ -44,52 +50,212 @@
 }
 
 /* ── Score Header Text Colors (1-10) — used in stats headers ── */
-.review-score-1  { color: #b91c1c; }
-.review-score-2  { color: #dc2626; }
-.review-score-3  { color: #ea580c; }
-.review-score-4  { color: #d97706; }
-.review-score-5  { color: #ca8a04; }
-.review-score-6  { color: #65a30d; }
-.review-score-7  { color: #16a34a; }
-.review-score-8  { color: #059669; }
-.review-score-9  { color: #0d9488; }
-.review-score-10 { color: #0284c7; }
+.review-score-1 {
+  color: #b91c1c;
+}
+.review-score-2 {
+  color: #dc2626;
+}
+.review-score-3 {
+  color: #ea580c;
+}
+.review-score-4 {
+  color: #d97706;
+}
+.review-score-5 {
+  color: #ca8a04;
+}
+.review-score-6 {
+  color: #65a30d;
+}
+.review-score-7 {
+  color: #16a34a;
+}
+.review-score-8 {
+  color: #059669;
+}
+.review-score-9 {
+  color: #0d9488;
+}
+.review-score-10 {
+  color: #0284c7;
+}
 
-[data-theme="dark"] .review-score-1  { color: #f87171; }
-[data-theme="dark"] .review-score-2  { color: #f87171; }
-[data-theme="dark"] .review-score-3  { color: #fb923c; }
-[data-theme="dark"] .review-score-4  { color: #fbbf24; }
-[data-theme="dark"] .review-score-5  { color: #facc15; }
-[data-theme="dark"] .review-score-6  { color: #a3e635; }
-[data-theme="dark"] .review-score-7  { color: #4ade80; }
-[data-theme="dark"] .review-score-8  { color: #34d399; }
-[data-theme="dark"] .review-score-9  { color: #2dd4bf; }
-[data-theme="dark"] .review-score-10 { color: #38bdf8; }
+[data-theme="dark"] .review-score-1 {
+  color: #f87171;
+}
+[data-theme="dark"] .review-score-2 {
+  color: #f87171;
+}
+[data-theme="dark"] .review-score-3 {
+  color: #fb923c;
+}
+[data-theme="dark"] .review-score-4 {
+  color: #fbbf24;
+}
+[data-theme="dark"] .review-score-5 {
+  color: #facc15;
+}
+[data-theme="dark"] .review-score-6 {
+  color: #a3e635;
+}
+[data-theme="dark"] .review-score-7 {
+  color: #4ade80;
+}
+[data-theme="dark"] .review-score-8 {
+  color: #34d399;
+}
+[data-theme="dark"] .review-score-9 {
+  color: #2dd4bf;
+}
+[data-theme="dark"] .review-score-10 {
+  color: #38bdf8;
+}
 
 /* ── Panel Styles (Background + Border) per score ──
    Light theme: softer pastels, dark theme: muted tints. Subtle outer glow
    added via box-shadow that picks up the score hue. */
-.review-panel-1  { border: 1px solid #fbe5e5; background-color: #fffafa; box-shadow: 0 1px 2px rgb(185 28 28 / 0.06), 0 0 0 1px rgb(185 28 28 / 0.04); }
-.review-panel-2  { border: 1px solid #fbe0e0; background-color: #fff7f7; box-shadow: 0 1px 2px rgb(220 38 38 / 0.06), 0 0 0 1px rgb(220 38 38 / 0.04); }
-.review-panel-3  { border: 1px solid #f7ead3; background-color: #fffbf2; box-shadow: 0 1px 2px rgb(234 88 12 / 0.06), 0 0 0 1px rgb(234 88 12 / 0.04); }
-.review-panel-4  { border: 1px solid #f3ebc1; background-color: #fffdee; box-shadow: 0 1px 2px rgb(217 119 6 / 0.06), 0 0 0 1px rgb(217 119 6 / 0.04); }
-.review-panel-5  { border: 1px solid #e6efcb; background-color: #f9fcee; box-shadow: 0 1px 2px rgb(202 138 4 / 0.06), 0 0 0 1px rgb(202 138 4 / 0.04); }
-.review-panel-6  { border: 1px solid #dcf0d7; background-color: #f3fbef; box-shadow: 0 1px 2px rgb(101 163 13 / 0.06), 0 0 0 1px rgb(101 163 13 / 0.04); }
-.review-panel-7  { border: 1px solid #d6f0e6; background-color: #eefbf5; box-shadow: 0 1px 2px rgb(22 163 74 / 0.06), 0 0 0 1px rgb(22 163 74 / 0.04); }
-.review-panel-8  { border: 1px solid #d3efee; background-color: #ecfafa; box-shadow: 0 1px 2px rgb(5 150 105 / 0.06), 0 0 0 1px rgb(5 150 105 / 0.04); }
-.review-panel-9  { border: 1px solid #d4edf6; background-color: #edf8fd; box-shadow: 0 1px 2px rgb(13 148 136 / 0.06), 0 0 0 1px rgb(13 148 136 / 0.04); }
-.review-panel-10 { border: 1px solid #d4e8f7; background-color: #edf6ff; box-shadow: 0 1px 2px rgb(2 132 199 / 0.06), 0 0 0 1px rgb(2 132 199 / 0.04); }
+.review-panel-1 {
+  border: 1px solid #fbe5e5;
+  background-color: #fffafa;
+  box-shadow:
+    0 1px 2px rgb(185 28 28 / 0.06),
+    0 0 0 1px rgb(185 28 28 / 0.04);
+}
+.review-panel-2 {
+  border: 1px solid #fbe0e0;
+  background-color: #fff7f7;
+  box-shadow:
+    0 1px 2px rgb(220 38 38 / 0.06),
+    0 0 0 1px rgb(220 38 38 / 0.04);
+}
+.review-panel-3 {
+  border: 1px solid #f7ead3;
+  background-color: #fffbf2;
+  box-shadow:
+    0 1px 2px rgb(234 88 12 / 0.06),
+    0 0 0 1px rgb(234 88 12 / 0.04);
+}
+.review-panel-4 {
+  border: 1px solid #f3ebc1;
+  background-color: #fffdee;
+  box-shadow:
+    0 1px 2px rgb(217 119 6 / 0.06),
+    0 0 0 1px rgb(217 119 6 / 0.04);
+}
+.review-panel-5 {
+  border: 1px solid #e6efcb;
+  background-color: #f9fcee;
+  box-shadow:
+    0 1px 2px rgb(202 138 4 / 0.06),
+    0 0 0 1px rgb(202 138 4 / 0.04);
+}
+.review-panel-6 {
+  border: 1px solid #dcf0d7;
+  background-color: #f3fbef;
+  box-shadow:
+    0 1px 2px rgb(101 163 13 / 0.06),
+    0 0 0 1px rgb(101 163 13 / 0.04);
+}
+.review-panel-7 {
+  border: 1px solid #d6f0e6;
+  background-color: #eefbf5;
+  box-shadow:
+    0 1px 2px rgb(22 163 74 / 0.06),
+    0 0 0 1px rgb(22 163 74 / 0.04);
+}
+.review-panel-8 {
+  border: 1px solid #d3efee;
+  background-color: #ecfafa;
+  box-shadow:
+    0 1px 2px rgb(5 150 105 / 0.06),
+    0 0 0 1px rgb(5 150 105 / 0.04);
+}
+.review-panel-9 {
+  border: 1px solid #d4edf6;
+  background-color: #edf8fd;
+  box-shadow:
+    0 1px 2px rgb(13 148 136 / 0.06),
+    0 0 0 1px rgb(13 148 136 / 0.04);
+}
+.review-panel-10 {
+  border: 1px solid #d4e8f7;
+  background-color: #edf6ff;
+  box-shadow:
+    0 1px 2px rgb(2 132 199 / 0.06),
+    0 0 0 1px rgb(2 132 199 / 0.04);
+}
 
-[data-theme="dark"] .review-panel-1  { background-color: color-mix(in srgb, #f87171 10%, var(--card)); border-color: color-mix(in srgb, #f87171 22%, transparent); box-shadow: 0 0 16px -6px rgb(248 113 113 / 0.25), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-2  { background-color: color-mix(in srgb, #f87171 9%, var(--card));  border-color: color-mix(in srgb, #f87171 20%, transparent); box-shadow: 0 0 16px -6px rgb(248 113 113 / 0.22), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-3  { background-color: color-mix(in srgb, #fb923c 9%, var(--card));  border-color: color-mix(in srgb, #fb923c 20%, transparent); box-shadow: 0 0 16px -6px rgb(251 146 60 / 0.22), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-4  { background-color: color-mix(in srgb, #fbbf24 8%, var(--card));  border-color: color-mix(in srgb, #fbbf24 18%, transparent); box-shadow: 0 0 16px -6px rgb(251 191 36 / 0.22), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-5  { background-color: color-mix(in srgb, #facc15 7%, var(--card));  border-color: color-mix(in srgb, #facc15 18%, transparent); box-shadow: 0 0 16px -6px rgb(250 204 21 / 0.20), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-6  { background-color: color-mix(in srgb, #a3e635 8%, var(--card));  border-color: color-mix(in srgb, #a3e635 20%, transparent); box-shadow: 0 0 16px -6px rgb(163 230 53 / 0.22), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-7  { background-color: color-mix(in srgb, #4ade80 9%, var(--card));  border-color: color-mix(in srgb, #4ade80 20%, transparent); box-shadow: 0 0 16px -6px rgb(74 222 128 / 0.22), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-8  { background-color: color-mix(in srgb, #34d399 10%, var(--card)); border-color: color-mix(in srgb, #34d399 22%, transparent); box-shadow: 0 0 16px -6px rgb(52 211 153 / 0.25), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-9  { background-color: color-mix(in srgb, #2dd4bf 10%, var(--card)); border-color: color-mix(in srgb, #2dd4bf 22%, transparent); box-shadow: 0 0 16px -6px rgb(45 212 191 / 0.25), 0 1px 2px rgb(0 0 0 / 0.3); }
-[data-theme="dark"] .review-panel-10 { background-color: color-mix(in srgb, #38bdf8 10%, var(--card)); border-color: color-mix(in srgb, #38bdf8 22%, transparent); box-shadow: 0 0 16px -6px rgb(56 189 248 / 0.28), 0 1px 2px rgb(0 0 0 / 0.3); }
+[data-theme="dark"] .review-panel-1 {
+  background-color: color-mix(in srgb, #f87171 10%, var(--card));
+  border-color: color-mix(in srgb, #f87171 22%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(248 113 113 / 0.25),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-2 {
+  background-color: color-mix(in srgb, #f87171 9%, var(--card));
+  border-color: color-mix(in srgb, #f87171 20%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(248 113 113 / 0.22),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-3 {
+  background-color: color-mix(in srgb, #fb923c 9%, var(--card));
+  border-color: color-mix(in srgb, #fb923c 20%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(251 146 60 / 0.22),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-4 {
+  background-color: color-mix(in srgb, #fbbf24 8%, var(--card));
+  border-color: color-mix(in srgb, #fbbf24 18%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(251 191 36 / 0.22),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-5 {
+  background-color: color-mix(in srgb, #facc15 7%, var(--card));
+  border-color: color-mix(in srgb, #facc15 18%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(250 204 21 / 0.2),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-6 {
+  background-color: color-mix(in srgb, #a3e635 8%, var(--card));
+  border-color: color-mix(in srgb, #a3e635 20%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(163 230 53 / 0.22),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-7 {
+  background-color: color-mix(in srgb, #4ade80 9%, var(--card));
+  border-color: color-mix(in srgb, #4ade80 20%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(74 222 128 / 0.22),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-8 {
+  background-color: color-mix(in srgb, #34d399 10%, var(--card));
+  border-color: color-mix(in srgb, #34d399 22%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(52 211 153 / 0.25),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-9 {
+  background-color: color-mix(in srgb, #2dd4bf 10%, var(--card));
+  border-color: color-mix(in srgb, #2dd4bf 22%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(45 212 191 / 0.25),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
+[data-theme="dark"] .review-panel-10 {
+  background-color: color-mix(in srgb, #38bdf8 10%, var(--card));
+  border-color: color-mix(in srgb, #38bdf8 22%, transparent);
+  box-shadow:
+    0 0 16px -6px rgb(56 189 248 / 0.28),
+    0 1px 2px rgb(0 0 0 / 0.3);
+}
 
 .review-panel-default {
   border: 1px solid var(--border);
@@ -135,7 +301,9 @@
   gap: 0.375rem;
 }
 .rating-pill {
-  transition: opacity 150ms ease, box-shadow 150ms ease;
+  transition:
+    opacity 150ms ease,
+    box-shadow 150ms ease;
 }
 .rating-pill-group:hover .rating-pill:not(:hover):not(.rating-pill--active) {
   opacity: 0.5;
@@ -191,5 +359,7 @@
   transform: translateX(3px);
 }
 @media (prefers-reduced-motion: reduce) {
-  .seller-lb-btn__arrow { transition: none; }
+  .seller-lb-btn__arrow {
+    transition: none;
+  }
 }

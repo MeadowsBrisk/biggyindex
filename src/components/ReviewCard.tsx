@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { Truck } from "lucide-react";
-import { cx } from "@/lib/cn";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
@@ -83,7 +83,13 @@ interface ReviewCardProps {
   highlighted?: boolean;
 }
 
-export function ReviewCard({ review, onItemClick, itemImageUrl, compact, highlighted }: ReviewCardProps) {
+export function ReviewCard({
+  review,
+  onItemClick,
+  itemImageUrl,
+  compact,
+  highlighted,
+}: ReviewCardProps) {
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [zoomIndex, setZoomIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -127,7 +133,12 @@ export function ReviewCard({ review, onItemClick, itemImageUrl, compact, highlig
       >
         {/* Header: score badge + time */}
         <div className="flex items-center gap-2 mb-1.5">
-          <span className={cx("review-score-badge font-bold tabular-nums", compact ? "text-xs" : "text-sm")}>
+          <span
+            className={cx(
+              "review-score-badge font-bold tabular-nums",
+              compact ? "text-xs" : "text-sm",
+            )}
+          >
             {review.rating}
           </span>
           <span className="text-[11px] text-muted ml-auto">
@@ -136,8 +147,8 @@ export function ReviewCard({ review, onItemClick, itemImageUrl, compact, highlig
         </div>
 
         {/* Item link */}
-        {review.item?.name && (
-          onItemClick && itemImageUrl ? (
+        {review.item?.name &&
+          (onItemClick && itemImageUrl ? (
             <SellerAvatarTooltip
               sellerName={decodeEntities(review.item.name)}
               imageUrl={itemImageUrl}
@@ -155,15 +166,16 @@ export function ReviewCard({ review, onItemClick, itemImageUrl, compact, highlig
             <p className="text-[11px] text-muted/60 truncate mb-1">
               {decodeEntities(review.item.name)}
             </p>
-          )
-        )}
+          ))}
 
         {/* Text body */}
         {text && (
-          <div className={cx(
-            "text-foreground/85 leading-relaxed",
-            compact ? "text-xs" : "text-sm",
-          )}>
+          <div
+            className={cx(
+              "text-foreground/85 leading-relaxed",
+              compact ? "text-xs" : "text-sm",
+            )}
+          >
             {renderParagraphs(text)}
           </div>
         )}
@@ -229,13 +241,23 @@ interface ReviewStatsProps {
   recentCount?: number;
 }
 
-export function ReviewStatsHeader({ avg, count, days, recentCount }: ReviewStatsProps) {
+export function ReviewStatsHeader({
+  avg,
+  count,
+  days,
+  recentCount,
+}: ReviewStatsProps) {
   if (avg == null && count == null) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted mb-2">
       {avg != null && (
-        <span className={cx("font-semibold tabular-nums", scoreTextClass(Math.round(avg)))}>
+        <span
+          className={cx(
+            "font-semibold tabular-nums",
+            scoreTextClass(Math.round(avg)),
+          )}
+        >
           {avg.toFixed(1)}/10 avg
         </span>
       )}
@@ -246,9 +268,7 @@ export function ReviewStatsHeader({ avg, count, days, recentCount }: ReviewStats
             : `${count} reviews`}
         </span>
       )}
-      {days != null && (
-        <span>~{Math.round(days)}d avg delivery</span>
-      )}
+      {days != null && <span>~{Math.round(days)}d avg delivery</span>}
     </div>
   );
 }

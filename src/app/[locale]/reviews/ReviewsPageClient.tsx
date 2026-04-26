@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, useMemo, useEffect, lazy, Suspense, useCallback } from "react";
 import { useSetAtom } from "jotai";
-import { Star, Truck, Camera, MessageSquare } from "lucide-react";
-import { expandedRefNumAtom, sellerModalIdAtom } from "@/store/atoms";
+import { Camera, MessageSquare, Star, Truck } from "lucide-react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
+import { expandedRefNumAtom, sellerModalIdAtom } from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -150,7 +157,10 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
         {/* Row 1: Seller avatar + item/seller names + stars + time */}
         <div className="flex items-start gap-2.5 mb-2">
           {/* Seller avatar */}
-          <SellerAvatarTooltip sellerName={review.sellerName} imageUrl={sellerAvatar}>
+          <SellerAvatarTooltip
+            sellerName={review.sellerName}
+            imageUrl={sellerAvatar}
+          >
             <button
               type="button"
               onClick={() => setSellerModal(review.sellerId)}
@@ -211,11 +221,14 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
         {/* Review text */}
         {hasText && (
           <div className="text-[13px] text-foreground/85 leading-relaxed pl-[42px]">
-            {review.text!.split(/\n{2,}/).filter(Boolean).map((para, i) => (
-              <p key={i} className="mb-1.5 last:mb-0">
-                {para.replace(/\n+/g, " ").trim()}
-              </p>
-            ))}
+            {review
+              .text!.split(/\n{2,}/)
+              .filter(Boolean)
+              .map((para, i) => (
+                <p key={i} className="mb-1.5 last:mb-0">
+                  {para.replace(/\n+/g, " ").trim()}
+                </p>
+              ))}
           </div>
         )}
 

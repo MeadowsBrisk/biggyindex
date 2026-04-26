@@ -1,7 +1,7 @@
-import { useEffect, useRef, useCallback } from 'react';
-import historyManager from '@/lib/historyManager';
+import { useCallback, useEffect, useRef } from "react";
+import historyManager from "@/lib/historyManager";
 
-type OverlayType = 'zoom' | 'filter' | 'pricing' | 'modal';
+type OverlayType = "zoom" | "filter" | "pricing" | "modal";
 
 interface UseHistoryStateOptions {
   /** Unique ID for this overlay instance */
@@ -17,7 +17,7 @@ interface UseHistoryStateOptions {
    * - 'back' (default): call history.back() via manager.close()
    * - 'silent': remove from internal stack without browser back
    */
-  closeStrategy?: 'back' | 'silent';
+  closeStrategy?: "back" | "silent";
 }
 
 /**
@@ -30,7 +30,7 @@ export function useHistoryState({
   type,
   isOpen,
   onClose,
-  closeStrategy = 'back',
+  closeStrategy = "back",
 }: UseHistoryStateOptions) {
   const closeRef = useRef(onClose);
   const didPushRef = useRef(false);
@@ -59,7 +59,7 @@ export function useHistoryState({
         if (generationRef.current !== generation) return;
         if (!didPushRef.current) return;
 
-        if (closeStrategy === 'silent') {
+        if (closeStrategy === "silent") {
           historyManager.remove(id);
         } else {
           historyManager.close(id);
@@ -72,7 +72,7 @@ export function useHistoryState({
   /** Programmatically close the overlay (handles history balancing) */
   const closeOverlay = useCallback(() => {
     if (didPushRef.current) {
-      if (closeStrategy === 'silent') {
+      if (closeStrategy === "silent") {
         historyManager.remove(id);
       } else {
         historyManager.close(id);

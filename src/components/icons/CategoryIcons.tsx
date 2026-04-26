@@ -8,17 +8,17 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
-  Sprout,
-  Leaf,
   Box,
-  Droplet,
-  Wind,
   Cigarette,
   Cookie,
+  Droplet,
   FlaskConical,
-  Sparkles,
   FlaskRound,
+  Leaf,
   Package,
+  Sparkles,
+  Sprout,
+  Wind,
 } from "lucide-react";
 
 export type CategoryName =
@@ -114,9 +114,7 @@ export const CATEGORY_META: Record<CategoryName, CategoryMeta> = {
 
 /** Lookup with a safe fallback to "Other". */
 export function getCategoryMeta(name: string): CategoryMeta {
-  return (
-    CATEGORY_META[name as CategoryName] ?? CATEGORY_META.Other
-  );
+  return CATEGORY_META[name as CategoryName] ?? CATEGORY_META.Other;
 }
 
 /** Pretty label ("PreRolls" → "Pre-Rolls"). */

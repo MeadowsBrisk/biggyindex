@@ -4,11 +4,11 @@
  * suggestions worker. See workers/suggestions-api/ for the backend.
  */
 
-import { Suspense } from "react";
-import Link from "next/link";
 import { cacheLife, cacheTag } from "next/cache";
-import { loadItemByRef } from "@/lib/data";
+import Link from "next/link";
+import { Suspense } from "react";
 import { SuggestionForm } from "@/components/SuggestionForm";
+import { loadItemByRef } from "@/lib/data";
 
 interface Props {
   params: Promise<{ locale: string; ref: string }>;
@@ -50,23 +50,30 @@ async function SuggestContent({ params }: Props) {
       </Link>
 
       <div className="space-y-2 mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Suggest a correction</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          Suggest a correction
+        </h1>
         <p className="text-sm text-muted">
-          Help us fix misclassified items. Suggestions go to a moderator before they&apos;re
-          applied — no account needed.
+          Help us fix misclassified items. Suggestions go to a moderator before
+          they&apos;re applied — no account needed.
         </p>
       </div>
 
       <div className="rounded-xl border border-border bg-surface p-4 mb-6">
         <div className="text-xs text-muted">Item</div>
         <div className="font-semibold text-foreground">{item.n}</div>
-        {item.sn && <div className="text-sm text-muted mt-0.5">by {item.sn}</div>}
+        {item.sn && (
+          <div className="text-sm text-muted mt-0.5">by {item.sn}</div>
+        )}
         <div className="mt-2 flex flex-wrap gap-1.5">
           <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             {item.c}
           </span>
           {item.sc?.map((s) => (
-            <span key={s} className="rounded-md bg-background px-2 py-0.5 text-xs text-muted">
+            <span
+              key={s}
+              className="rounded-md bg-background px-2 py-0.5 text-xs text-muted"
+            >
               {s}
             </span>
           ))}

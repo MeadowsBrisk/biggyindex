@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import { useSetAtom } from "jotai";
-import { ShieldCheck, AlertTriangle, Sparkles } from "lucide-react";
-import { sellerModalIdAtom } from "@/store/atoms";
+import { AlertTriangle, ShieldCheck, Sparkles } from "lucide-react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
+import { sellerModalIdAtom } from "@/store/atoms";
 
 interface LeaderboardSeller {
   sellerId: string;
@@ -96,7 +96,9 @@ function SellerAvatar({
   ring?: boolean;
 }) {
   const avatarUrl = getSellerImageUrl(seller.imageUrl);
-  const ringCls = ring ? `ring-2 ring-offset-2 ring-offset-[var(--card)] ${TONE_RING[tone]}` : "";
+  const ringCls = ring
+    ? `ring-2 ring-offset-2 ring-offset-[var(--card)] ${TONE_RING[tone]}`
+    : "";
 
   return (
     <SellerAvatarTooltip sellerName={seller.sellerName} imageUrl={avatarUrl}>
@@ -112,7 +114,11 @@ function SellerAvatar({
       ) : (
         <div
           className={`rounded-full flex items-center justify-center font-bold shrink-0 ${TONE_INITIAL_BG[tone]} ${ringCls}`}
-          style={{ width: size, height: size, fontSize: Math.max(10, Math.round(size * 0.36)) }}
+          style={{
+            width: size,
+            height: size,
+            fontSize: Math.max(10, Math.round(size * 0.36)),
+          }}
         >
           {getInitials(seller.sellerName)}
         </div>
@@ -206,7 +212,9 @@ function SellerRow({
       </div>
 
       <div className="flex flex-col items-end gap-1 shrink-0 w-20">
-        <span className={`font-bold tabular-nums ${pctColor} ${featured ? "text-xl" : "text-base"}`}>
+        <span
+          className={`font-bold tabular-nums ${pctColor} ${featured ? "text-xl" : "text-base"}`}
+        >
           {pct}%
         </span>
         <MeterBar pct={pct} tone={tone} />
@@ -243,7 +251,9 @@ function Panel({
       ? "from-emerald-500/10 via-transparent to-transparent"
       : "from-amber-500/10 via-transparent to-transparent";
   const iconBg =
-    tone === "emerald" ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500";
+    tone === "emerald"
+      ? "bg-emerald-500/15 text-emerald-500"
+      : "bg-amber-500/15 text-amber-500";
 
   return (
     <motion.div
@@ -262,11 +272,15 @@ function Panel({
       <header className="relative flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]/70">
         <div className={`rounded-xl p-2 ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-semibold text-foreground leading-tight">{title}</h3>
+          <h3 className="text-[15px] font-semibold text-foreground leading-tight">
+            {title}
+          </h3>
           <p className="text-xs text-muted-foreground">{subtitle}</p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Reviews</p>
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Reviews
+          </p>
           <p className="text-sm font-semibold text-foreground tabular-nums">
             {compact(totalReviews)}
           </p>
@@ -317,8 +331,8 @@ export function SellerTrustBoard({
               Seller Trust Board
             </h2>
             <p className="text-muted mt-2 max-w-xl">
-              Rankings drawn from community reviews. Hover an avatar for a preview, tap to open the
-              seller&apos;s full profile.
+              Rankings drawn from community reviews. Hover an avatar for a
+              preview, tap to open the seller&apos;s full profile.
             </p>
           </div>
         </motion.div>

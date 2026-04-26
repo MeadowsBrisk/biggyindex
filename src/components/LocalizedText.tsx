@@ -20,12 +20,19 @@ interface Props {
  *
  * Falls back gracefully: if the preferred variant is missing, uses the other.
  */
-export function LocalizedText({ translated, english, className, preserveNewlines }: Props) {
+export function LocalizedText({
+  translated,
+  english,
+  className,
+  preserveNewlines,
+}: Props) {
   const forceEnglish = useAtomValue(forceEnglishAtom);
   const text = forceEnglish ? english || translated : translated || english;
   if (!text) return null;
   return (
-    <span className={`${className ?? ""} ${preserveNewlines ? "whitespace-pre-line" : ""}`.trim()}>
+    <span
+      className={`${className ?? ""} ${preserveNewlines ? "whitespace-pre-line" : ""}`.trim()}
+    >
       {text}
     </span>
   );

@@ -20,8 +20,7 @@ export function hashUrl(url: string): string {
 
 // ─── R2 CDN image helpers ──────────────────────────────────────────
 
-const CDN_BASE =
-  process.env.NEXT_PUBLIC_R2_IMAGES_URL ?? "img.biggyindex.com";
+const CDN_BASE = process.env.NEXT_PUBLIC_R2_IMAGES_URL ?? "img.biggyindex.com";
 const CDN_PREFIX = CDN_BASE.startsWith("http")
   ? CDN_BASE
   : `https://${CDN_BASE}`;
@@ -74,12 +73,17 @@ export function getGalleryUrls(
   return urls;
 }
 
-function imageFlag(value: 1 | 0 | boolean | null | undefined): boolean | undefined {
+function imageFlag(
+  value: 1 | 0 | boolean | null | undefined,
+): boolean | undefined {
   if (value == null) return undefined;
   return value === true || value === 1;
 }
 
-function hashForImage(stampedHash: string | null | undefined, rawUrl: string | null | undefined): string | undefined {
+function hashForImage(
+  stampedHash: string | null | undefined,
+  rawUrl: string | null | undefined,
+): string | undefined {
   return stampedHash ?? (rawUrl ? hashUrl(rawUrl) : undefined);
 }
 
@@ -100,7 +104,12 @@ export function getItemPrimaryImage(
   options: ItemImageOptions = {},
 ): string | undefined {
   const animated = !options.forceStatic && isAnimatedImage(item.ia, item.i);
-  return getImageUrl(hashForImage(item.ih, item.i), item.i ?? undefined, size, animated);
+  return getImageUrl(
+    hashForImage(item.ih, item.i),
+    item.i ?? undefined,
+    size,
+    animated,
+  );
 }
 
 export function getItemGalleryImages(
@@ -125,8 +134,16 @@ export function getItemGalleryImages(
 
   for (let index = 0; index < count; index++) {
     const rawUrl = rawUrls[index] ?? null;
-    const animated = !options.forceStatic && isAnimatedImage(animatedFlags[index], rawUrl);
-    add(getImageUrl(hashForImage(hashes[index], rawUrl), rawUrl ?? undefined, size, animated));
+    const animated =
+      !options.forceStatic && isAnimatedImage(animatedFlags[index], rawUrl);
+    add(
+      getImageUrl(
+        hashForImage(hashes[index], rawUrl),
+        rawUrl ?? undefined,
+        size,
+        animated,
+      ),
+    );
   }
 
   return urls;

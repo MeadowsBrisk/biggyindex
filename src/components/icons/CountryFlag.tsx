@@ -35,7 +35,17 @@ const FLAGS: Record<string, FlagDef> = {
   ma: { colors: ["#c1272d"] }, // star overlay
   gr: {
     // 9 alternating blue/white horizontal stripes (canton drawn as overlay)
-    colors: ["#0d5eaf", "#fff", "#0d5eaf", "#fff", "#0d5eaf", "#fff", "#0d5eaf", "#fff", "#0d5eaf"],
+    colors: [
+      "#0d5eaf",
+      "#fff",
+      "#0d5eaf",
+      "#fff",
+      "#0d5eaf",
+      "#fff",
+      "#0d5eaf",
+      "#fff",
+      "#0d5eaf",
+    ],
   },
 };
 
@@ -78,10 +88,24 @@ const OVERLAYS: Record<string, () => React.JSX.Element> = {
     <>
       {/* Stripes */}
       {[0, 2, 4, 6, 8, 10, 12].map((i) => (
-        <rect key={i} x={0} y={(i * S) / 13} width={S} height={S / 13} fill={i % 2 === 0 ? "#bf0a30" : "#fff"} />
+        <rect
+          key={i}
+          x={0}
+          y={(i * S) / 13}
+          width={S}
+          height={S / 13}
+          fill={i % 2 === 0 ? "#bf0a30" : "#fff"}
+        />
       ))}
       {[1, 3, 5, 7, 9, 11].map((i) => (
-        <rect key={i} x={0} y={(i * S) / 13} width={S} height={S / 13} fill="#fff" />
+        <rect
+          key={i}
+          x={0}
+          y={(i * S) / 13}
+          width={S}
+          height={S / 13}
+          fill="#fff"
+        />
       ))}
       {/* Blue canton */}
       <rect x={0} y={0} width={42} height={54} fill="#002868" />
@@ -101,9 +125,27 @@ const OVERLAYS: Record<string, () => React.JSX.Element> = {
     const crossCenter = cantonSize / 2;
     return (
       <>
-        <rect x={0} y={0} width={cantonSize} height={cantonSize} fill="#0d5eaf" />
-        <rect x={crossCenter - crossW / 2} y={0} width={crossW} height={cantonSize} fill="#fff" />
-        <rect x={0} y={crossCenter - crossW / 2} width={cantonSize} height={crossW} fill="#fff" />
+        <rect
+          x={0}
+          y={0}
+          width={cantonSize}
+          height={cantonSize}
+          fill="#0d5eaf"
+        />
+        <rect
+          x={crossCenter - crossW / 2}
+          y={0}
+          width={crossW}
+          height={cantonSize}
+          fill="#fff"
+        />
+        <rect
+          x={0}
+          y={crossCenter - crossW / 2}
+          width={cantonSize}
+          height={crossW}
+          fill="#fff"
+        />
       </>
     );
   },
@@ -143,7 +185,12 @@ export function CountryFlag({ code, size = 16 }: CountryFlagProps) {
     return (
       <span
         className="inline-flex items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0"
-        style={{ width: size, height: size, fontSize: size * 0.55, lineHeight: 1 }}
+        style={{
+          width: size,
+          height: size,
+          fontSize: size * 0.55,
+          lineHeight: 1,
+        }}
       >
         {code.charAt(0).toUpperCase()}
       </span>

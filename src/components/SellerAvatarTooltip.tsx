@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
   type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
 import { createPortal } from "react-dom";
 
@@ -127,7 +127,8 @@ export function SellerAvatarTooltip({
   const initial = sellerName.charAt(0).toUpperCase();
 
   // Tooltip loads the 600px thumb version instead of the tiny icon
-  const tooltipImgUrl = imageUrl?.replace("/icon.avif", "/thumb.avif") ?? imageUrl;
+  const tooltipImgUrl =
+    imageUrl?.replace("/icon.avif", "/thumb.avif") ?? imageUrl;
 
   return (
     <>

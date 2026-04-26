@@ -1,12 +1,12 @@
 "use client";
 
 import { useAtom, useAtomValue } from "jotai";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  priceRangeAtom,
-  priceBoundsAtom,
   currencyDisplayAtom,
+  priceBoundsAtom,
+  priceRangeAtom,
 } from "@/store/atoms";
 
 /**
@@ -27,8 +27,10 @@ export function PriceRangeSlider() {
   const absMax = bounds.max;
 
   // Current values clamped to bounds
-  const curMin = priceRange.min <= 0 ? absMin : Math.max(priceRange.min, absMin);
-  const curMax = priceRange.max >= Infinity ? absMax : Math.min(priceRange.max, absMax);
+  const curMin =
+    priceRange.min <= 0 ? absMin : Math.max(priceRange.min, absMin);
+  const curMax =
+    priceRange.max >= Infinity ? absMax : Math.min(priceRange.max, absMax);
 
   const isActive = priceRange.min > 0 || priceRange.max < Infinity;
 
@@ -85,7 +87,10 @@ export function PriceRangeSlider() {
             const usd = toUsd(v);
             setPriceRange((prev) => ({
               ...prev,
-              min: usd <= absMin ? 0 : Math.min(usd, prev.max === Infinity ? absMax : prev.max),
+              min:
+                usd <= absMin
+                  ? 0
+                  : Math.min(usd, prev.max === Infinity ? absMax : prev.max),
             }));
           }}
         />
@@ -135,14 +140,14 @@ function DualSlider({
   const valFromPct = (p: number) =>
     Math.round(absMin + (p / 100) * (absMax - absMin));
 
-  const getPointerPct = useCallback(
-    (e: React.PointerEvent | PointerEvent) => {
-      const rect = trackRef.current?.getBoundingClientRect();
-      if (!rect) return 0;
-      return Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-    },
-    [],
-  );
+  const getPointerPct = useCallback((e: React.PointerEvent | PointerEvent) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect) return 0;
+    return Math.max(
+      0,
+      Math.min(100, ((e.clientX - rect.left) / rect.width) * 100),
+    );
+  }, []);
 
   const dragging = useRef<"min" | "max" | null>(null);
 

@@ -9,19 +9,19 @@
  * for a complete item view with a sticky "Browse the Index" top bar.
  */
 
-import { Suspense } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { cacheLife, cacheTag } from "next/cache";
-import { loadMergedDetail } from "@/lib/data";
-import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
-import { getItemGalleryImages, getItemPrimaryImage } from "@/lib/images";
-import { parseVariant } from "@/lib/variants";
-import { SuggestLink } from "@/components/SuggestLink";
+import { Suspense } from "react";
 import { LocalizedText } from "@/components/LocalizedText";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
-import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
+import { SuggestLink } from "@/components/SuggestLink";
+import { loadMergedDetail } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
+import { getItemGalleryImages, getItemPrimaryImage } from "@/lib/images";
+import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
+import { parseVariant } from "@/lib/variants";
 
 interface ItemPageProps {
   params: Promise<{ locale: string; ref: string }>;
@@ -93,28 +93,31 @@ async function ItemContent({ params }: ItemPageProps) {
   const translatedDesc = item.d ? decodeEntities(item.d) : null;
   const englishDesc = item.dEn ? decodeEntities(item.dEn) : null;
   const primaryImage = getItemPrimaryImage(item, "full", { forceStatic: true });
-  const additionalImages = getItemGalleryImages(item, "thumb", { forceStatic: true }).slice(1, 5);
+  const additionalImages = getItemGalleryImages(item, "thumb", {
+    forceStatic: true,
+  }).slice(1, 5);
   const reviews = (item as MergedDetailBlob).reviews ?? [];
   const priceHistory = (item as MergedDetailBlob).ph ?? [];
   const shipOptions = (item as MergedDetailBlob).shOpts ?? [];
   const shareLink = item.sl;
 
   // Compute PPG for variants
-  const variantRows = item.v
-    ?.filter((v) => v.usd > 0)
-    .map((v, i) => {
-      const parsed = parseVariant(v);
-      return {
-        key: v.vid != null ? String(v.vid) : String(i),
-        label: v.d || "—",
-        price: v.usd,
-        grams: parsed?.grams ?? null,
-        ppg:
-          parsed && parsed.grams != null && parsed.grams > 0
-            ? v.usd / parsed.grams
-            : null,
-      };
-    }) ?? [];
+  const variantRows =
+    item.v
+      ?.filter((v) => v.usd > 0)
+      .map((v, i) => {
+        const parsed = parseVariant(v);
+        return {
+          key: v.vid != null ? String(v.vid) : String(i),
+          label: v.d || "—",
+          price: v.usd,
+          grams: parsed?.grams ?? null,
+          ppg:
+            parsed && parsed.grams != null && parsed.grams > 0
+              ? v.usd / parsed.grams
+              : null,
+        };
+      }) ?? [];
 
   const bestPpgKey = (() => {
     if (variantRows.length <= 1) return null;
@@ -190,19 +193,25 @@ async function ItemContent({ params }: ItemPageProps) {
             <div className="flex items-start justify-between gap-2">
               <h1 className="text-2xl font-bold text-foreground leading-tight">
                 {englishName ? (
-                  <LocalizedText translated={translatedName} english={englishName} />
+                  <LocalizedText
+                    translated={translatedName}
+                    english={englishName}
+                  />
                 ) : (
                   name
                 )}
               </h1>
-              {englishName && <ShowOriginalToggle market={market} className="shrink-0" />}
+              {englishName && (
+                <ShowOriginalToggle market={market} className="shrink-0" />
+              )}
             </div>
 
             {/* Seller + ships from */}
             {item.sn && (
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>
-                  by <span className="font-medium text-foreground">{item.sn}</span>
+                  by{" "}
+                  <span className="font-medium text-foreground">{item.sn}</span>
                 </span>
                 {item.sf && (
                   <span className="text-xs text-muted-foreground">
@@ -219,7 +228,8 @@ async function ItemContent({ params }: ItemPageProps) {
               </span>
               {item.uMax != null && item.uMax !== item.uMin && (
                 <span className="text-lg text-muted">
-                  – {cSym}{item.uMax.toFixed(2)}
+                  – {cSym}
+                  {item.uMax.toFixed(2)}
                 </span>
               )}
               {priceHistory.length >= 2 && (
@@ -232,15 +242,15 @@ async function ItemContent({ params }: ItemPageProps) {
               <div className="flex items-center gap-3 text-sm text-muted">
                 {item.rs.avg != null && (
                   <span className="inline-flex items-center gap-1">
-                    <span className={`font-semibold ${ratingColor(item.rs.avg)}`}>
+                    <span
+                      className={`font-semibold ${ratingColor(item.rs.avg)}`}
+                    >
                       {item.rs.avg.toFixed(1)}
                     </span>
                     <span>/10</span>
                   </span>
                 )}
-                {item.rs.cnt != null && (
-                  <span>{item.rs.cnt} reviews</span>
-                )}
+                {item.rs.cnt != null && <span>{item.rs.cnt} reviews</span>}
                 {item.rs.days != null && (
                   <span>~{Math.round(item.rs.days)}d delivery</span>
                 )}
@@ -260,7 +270,8 @@ async function ItemContent({ params }: ItemPageProps) {
                         key={`${key}-${v}`}
                         className="rounded-full bg-surface border border-border px-2 py-0.5 text-xs text-muted"
                       >
-                        <span className="text-muted-foreground">{key}:</span> {v}
+                        <span className="text-muted-foreground">{key}:</span>{" "}
+                        {v}
                       </span>
                     )),
                   )}
@@ -298,17 +309,21 @@ async function ItemContent({ params }: ItemPageProps) {
                       <div className="flex items-center gap-2">
                         <span className="text-foreground">{v.label}</span>
                         {v.key === bestPpgKey && (
-                          <span className="text-[10px] font-medium text-primary uppercase">Best value</span>
+                          <span className="text-[10px] font-medium text-primary uppercase">
+                            Best value
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3">
                         {v.ppg != null && (
                           <span className="text-xs text-muted">
-                            {cSym}{v.ppg.toFixed(2)}/g
+                            {cSym}
+                            {v.ppg.toFixed(2)}/g
                           </span>
                         )}
                         <span className="font-medium text-primary">
-                          {cSym}{v.price.toFixed(2)}
+                          {cSym}
+                          {v.price.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -331,7 +346,9 @@ async function ItemContent({ params }: ItemPageProps) {
                     >
                       <span className="text-foreground">{opt.label}</span>
                       <span className="font-medium text-muted">
-                        {opt.cost === 0 ? "Free" : `${cSym}${opt.cost.toFixed(2)}`}
+                        {opt.cost === 0
+                          ? "Free"
+                          : `${cSym}${opt.cost.toFixed(2)}`}
                       </span>
                     </div>
                   ))}
@@ -349,7 +366,20 @@ async function ItemContent({ params }: ItemPageProps) {
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
                   View on LittleBiggy
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
                 </a>
               )}
               <SuggestLink
@@ -370,7 +400,9 @@ async function ItemContent({ params }: ItemPageProps) {
         {/* ── Price History ── */}
         {priceHistory.length > 1 && (
           <section className="mt-10">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">Price History</h2>
+            <h2 className="mb-3 text-sm font-semibold text-foreground">
+              Price History
+            </h2>
             <div className="overflow-x-auto">
               <div className="flex gap-2 text-xs">
                 {priceHistory.map((snap, i) => (
@@ -379,18 +411,26 @@ async function ItemContent({ params }: ItemPageProps) {
                     className="flex flex-col items-center rounded-lg bg-surface border border-border px-3 py-2 min-w-20"
                   >
                     <span className="text-muted-foreground">
-                      {new Date(snap.d).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      {new Date(snap.d).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </span>
                     <span className="font-semibold text-foreground mt-0.5">
-                      {cSym}{snap.min.toFixed(2)}
+                      {cSym}
+                      {snap.min.toFixed(2)}
                     </span>
                     {snap.max !== snap.min && (
                       <span className="text-muted">
-                        – {cSym}{snap.max.toFixed(2)}
+                        – {cSym}
+                        {snap.max.toFixed(2)}
                       </span>
                     )}
                     {i > 0 && snap.min !== priceHistory[i - 1].min && (
-                      <PriceDir prev={priceHistory[i - 1].min} curr={snap.min} />
+                      <PriceDir
+                        prev={priceHistory[i - 1].min}
+                        curr={snap.min}
+                      />
                     )}
                   </div>
                 ))}
@@ -404,7 +444,9 @@ async function ItemContent({ params }: ItemPageProps) {
           <section className="mt-10">
             <h2 className="mb-3 text-sm font-semibold text-foreground">
               Reviews
-              <span className="ml-1 font-normal text-muted">({reviews.length})</span>
+              <span className="ml-1 font-normal text-muted">
+                ({reviews.length})
+              </span>
             </h2>
             <div className="space-y-3">
               {reviews.slice(0, 20).map((r: any) => (
@@ -413,7 +455,9 @@ async function ItemContent({ params }: ItemPageProps) {
                   className={`rounded-lg border p-3 ${ratingBg(r.rating)}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-sm font-bold ${ratingColor(r.rating)}`}>
+                    <span
+                      className={`text-sm font-bold ${ratingColor(r.rating)}`}
+                    >
                       {r.rating}/10
                     </span>
                     {r.daysToArrive != null && (
@@ -423,11 +467,14 @@ async function ItemContent({ params }: ItemPageProps) {
                     )}
                     {r.created && (
                       <span className="text-xs text-muted-foreground ml-auto">
-                        {new Date(r.created * 1000).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        {new Date(r.created * 1000).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )}
                       </span>
                     )}
                   </div>
@@ -444,7 +491,8 @@ async function ItemContent({ params }: ItemPageProps) {
               ))}
               {reviews.length > 20 && (
                 <p className="text-xs text-muted italic">
-                  +{reviews.length - 20} more reviews — view full list on LittleBiggy
+                  +{reviews.length - 20} more reviews — view full list on
+                  LittleBiggy
                 </p>
               )}
             </div>
@@ -530,7 +578,9 @@ function PriceDir({ prev, curr }: { prev: number; curr: number }) {
   if (pct === 0) return null;
   const down = curr < prev;
   return (
-    <span className={`text-[10px] font-medium mt-0.5 ${down ? "text-emerald-500" : "text-red-400"}`}>
+    <span
+      className={`text-[10px] font-medium mt-0.5 ${down ? "text-emerald-500" : "text-red-400"}`}
+    >
       {down ? "↓" : "↑"} {pct}%
     </span>
   );

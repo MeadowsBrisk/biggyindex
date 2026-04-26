@@ -18,6 +18,7 @@ import {
 } from "@/lib/urlFilters";
 import {
   categoryAtom,
+  deferredSearchQueryAtom,
   expandedRefNumAtom,
   isLoadingAtom,
   priceRangeAtom,
@@ -41,6 +42,7 @@ export function UrlSync() {
   const [sortKey, setSortKey] = useAtom(sortKeyAtom);
   const [sortDir, setSortDir] = useAtom(sortDirAtom);
   const [search, setSearch] = useAtom(searchQueryAtom);
+  const [, setDeferredSearch] = useAtom(deferredSearchQueryAtom);
   const [category, setCategory] = useAtom(categoryAtom);
   const [subcategory, setSubcategory] = useAtom(subcategoryAtom);
   const [sellers, setSellers] = useAtom(selectedSellersAtom);
@@ -59,7 +61,10 @@ export function UrlSync() {
 
     if (parsed.sortKey) setSortKey(parsed.sortKey);
     if (parsed.sortDir) setSortDir(parsed.sortDir);
-    if (parsed.search != null) setSearch(parsed.search);
+    if (parsed.search != null) {
+      setSearch(parsed.search);
+      setDeferredSearch(parsed.search);
+    }
     if (parsed.category != null) setCategory(parsed.category);
     if (parsed.subcategories) setSubcategory(parsed.subcategories);
     if (parsed.sellers) setSellers(parsed.sellers);
@@ -77,6 +82,7 @@ export function UrlSync() {
     setSortKey,
     setSortDir,
     setSearch,
+    setDeferredSearch,
     setCategory,
     setSubcategory,
     setSellers,

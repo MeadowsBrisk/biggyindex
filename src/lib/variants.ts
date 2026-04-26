@@ -76,34 +76,69 @@ export type WeightGroup = QuantityGroup & { grams: number };
 
 /** Map raw count-unit token → canonical tag. */
 const COUNT_LABEL_CANONICAL: Record<string, string> = {
-  pack: "pk", packs: "pk", pk: "pk", pks: "pk",
-  pc: "pc", pcs: "pc", piece: "pc", pieces: "pc",
-  cart: "cart", carts: "cart", cartridge: "cart", cartridges: "cart",
-  pod: "pod", pods: "pod",
-  pen: "pen", pens: "pen",
-  tab: "tab", tabs: "tab", tablet: "tab", tablets: "tab",
-  capsule: "cap", capsules: "cap", cap: "cap", caps: "cap",
-  gummy: "gummy", gummies: "gummy",
-  bottle: "bottle", bottles: "bottle",
-  jar: "jar", jars: "jar",
-  bag: "bag", bags: "bag",
-  bar: "bar", bars: "bar",
-  chew: "chew", chews: "chew",
-  square: "square", squares: "square",
-  star: "star", stars: "star",
-  preroll: "joint", prerolls: "joint",
-  "pre-roll": "joint", "pre-rolls": "joint",
-  joint: "joint", joints: "joint",
-  roll: "joint", rolls: "joint",
-  box: "box", boxes: "box",
-  tub: "tub", tubs: "tub",
-  pot: "pot", pots: "pot",
+  pack: "pk",
+  packs: "pk",
+  pk: "pk",
+  pks: "pk",
+  pc: "pc",
+  pcs: "pc",
+  piece: "pc",
+  pieces: "pc",
+  cart: "cart",
+  carts: "cart",
+  cartridge: "cart",
+  cartridges: "cart",
+  pod: "pod",
+  pods: "pod",
+  pen: "pen",
+  pens: "pen",
+  tab: "tab",
+  tabs: "tab",
+  tablet: "tab",
+  tablets: "tab",
+  capsule: "cap",
+  capsules: "cap",
+  cap: "cap",
+  caps: "cap",
+  gummy: "gummy",
+  gummies: "gummy",
+  bottle: "bottle",
+  bottles: "bottle",
+  jar: "jar",
+  jars: "jar",
+  bag: "bag",
+  bags: "bag",
+  bar: "bar",
+  bars: "bar",
+  chew: "chew",
+  chews: "chew",
+  square: "square",
+  squares: "square",
+  star: "star",
+  stars: "star",
+  preroll: "joint",
+  prerolls: "joint",
+  "pre-roll": "joint",
+  "pre-rolls": "joint",
+  joint: "joint",
+  joints: "joint",
+  roll: "joint",
+  rolls: "joint",
+  box: "box",
+  boxes: "box",
+  tub: "tub",
+  tubs: "tub",
+  pot: "pot",
+  pots: "pot",
   // Pharmaceutical packaging — a "strip" is a blister of N tablets. We
   // don't expand to per-tablet (counts vary 5–15) but we do treat strips
   // as a discrete count unit so multi-strip variants get a meaningful PPU.
-  strip: "strip", strips: "strip",
-  blister: "strip", blisters: "strip",
-  item: "item", items: "item",
+  strip: "strip",
+  strips: "strip",
+  blister: "strip",
+  blisters: "strip",
+  item: "item",
+  items: "item",
 };
 
 const COUNT_UNIT_ALT = Object.keys(COUNT_LABEL_CANONICAL)
@@ -117,13 +152,33 @@ const INNER_WEIGHT_RE =
 
 /** Single-token residuals that are weight-slang noise, not descriptors. */
 const WEIGHT_SLANG_NOISE = new Set([
-  "zip", "zips", "z", "zs",
-  "half", "halfz", "halfzip", "halfoz",
-  "quarter", "q", "qtr",
-  "eighth", "e", "8th",
-  "oz", "ounce", "ounces", "ozs",
-  "g", "gram", "grams", "ml", "mg",
-  "qp", "hp", "lb", "pound",
+  "zip",
+  "zips",
+  "z",
+  "zs",
+  "half",
+  "halfz",
+  "halfzip",
+  "halfoz",
+  "quarter",
+  "q",
+  "qtr",
+  "eighth",
+  "e",
+  "8th",
+  "oz",
+  "ounce",
+  "ounces",
+  "ozs",
+  "g",
+  "gram",
+  "grams",
+  "ml",
+  "mg",
+  "qp",
+  "hp",
+  "lb",
+  "pound",
 ]);
 
 /* ─────────── Patterns ─────────── */
@@ -215,11 +270,14 @@ function cleanResidual(raw: string): string | null {
   s = s.replace(/\$\d+(?:\.\d{1,2})?/g, "");
   s = s.replace(/btc\s*\d+(?:\.\d+)?/gi, "");
   // Strip redundant "=400mg" / "=1g" totals.
-  s = s.replace(/=\s*\d+(?:\.\d+)?\s*(?:g|mg|ml|oz|grams?|milligrams?)\b/gi, "");
+  s = s.replace(
+    /=\s*\d+(?:\.\d+)?\s*(?:g|mg|ml|oz|grams?|milligrams?)\b/gi,
+    "",
+  );
   // Strip redundant inline weight tokens ("q 7g" → "q", "7g jelly breath" → " jelly breath").
   s = s.replace(INNER_WEIGHT_RE, "");
   // Strip stray sale/status emojis.
-  s = s.replace(/[❌✅🚫]/g, "");
+  s = s.replace(/[❌✅🚫]/gu, "");
   // Collapse whitespace.
   s = s.replace(/\s+/g, " ").trim();
   // Strip leading connector words ("7g of shatter" → "shatter"; "3.5g and fire" → "fire").
@@ -240,7 +298,8 @@ function cleanResidual(raw: string): string | null {
   // "q", "q 1", "q2" — tail from quantity shorthand.
   if (/^q\s*\d*$/.test(lower)) return null;
   // "half zip", "half oz", "quarter oz", "eighth" etc.
-  if (/^(half|quarter|eighth)\s*(zip|oz|ounce|ounces)?$/.test(lower)) return null;
+  if (/^(half|quarter|eighth)\s*(zip|oz|ounce|ounces)?$/.test(lower))
+    return null;
 
   return s;
 }
@@ -565,7 +624,9 @@ function formatCountLabel(qty: number, unit: string): string {
  * Returns null when fewer than 2 variants parse, matching `groupByWeight`'s
  * "nothing worth chip-rendering" semantics.
  */
-export function groupByQuantity(variants: ItemVariant[]): QuantityGroup[] | null {
+export function groupByQuantity(
+  variants: ItemVariant[],
+): QuantityGroup[] | null {
   const parsed = variants
     .map(parseVariant)
     .filter((p): p is ParsedVariant => p !== null);
@@ -745,9 +806,9 @@ export function cheapestPpu(
   for (const [unit, arr] of byUnit) {
     const minPpu = Math.min(...arr);
     if (
-      !best
-      || arr.length > best.size
-      || (arr.length === best.size && minPpu < best.ppu)
+      !best ||
+      arr.length > best.size ||
+      (arr.length === best.size && minPpu < best.ppu)
     ) {
       best = { unit, ppu: minPpu, size: arr.length };
     }

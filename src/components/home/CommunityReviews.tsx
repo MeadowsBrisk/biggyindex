@@ -1,21 +1,21 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { useSetAtom } from "jotai";
 import { motion } from "framer-motion";
+import { useSetAtom } from "jotai";
 import {
-  Star,
-  MessageSquare,
   ArrowRight,
-  Truck,
   Camera,
   ImageOff,
-  User,
+  MessageSquare,
   ShoppingBag,
+  Star,
+  Truck,
+  User,
 } from "lucide-react";
-import { expandedRefNumAtom, photoReviewModalAtom } from "@/store/atoms";
+import Link from "next/link";
+import { useMemo, useRef, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { expandedRefNumAtom, photoReviewModalAtom } from "@/store/atoms";
 
 interface ReviewCardData {
   /** LittleBiggy review id (optional on legacy home-feed blobs). */
@@ -45,7 +45,6 @@ interface CommunityReviewsProps {
   reviews: ReviewCardData[];
   reviewStats: ReviewStats;
 }
-
 
 function StarRating({
   rating,
@@ -174,9 +173,7 @@ function PhotoReviewCard({
                 loading="lazy"
               />
             ) : (
-              <div
-                className="w-5 h-5 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0"
-              >
+              <div className="w-5 h-5 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0">
                 <User size={9} className="text-white/50" />
               </div>
             )}
@@ -233,9 +230,7 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
 
       {/* Middle: review text (fades at bottom if clamped; click card to read full via detail overlay) */}
       {review.text && (
-        <p
-          className="text-[12.5px] text-foreground/80 leading-relaxed line-clamp-5 mb-1.5 flex-1 min-h-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
-        >
+        <p className="text-[12.5px] text-foreground/80 leading-relaxed line-clamp-5 mb-1.5 flex-1 min-h-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]">
           {review.text}
         </p>
       )}
@@ -257,9 +252,7 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
                 loading="lazy"
               />
             ) : (
-              <div
-                className="w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center shrink-0"
-              >
+              <div className="w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center shrink-0">
                 <User size={10} className="text-muted-foreground" />
               </div>
             )}
@@ -290,9 +283,7 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
                 loading="lazy"
               />
             ) : (
-              <div
-                className="w-6 h-6 rounded bg-surface border border-border flex items-center justify-center"
-              >
+              <div className="w-6 h-6 rounded bg-surface border border-border flex items-center justify-center">
                 <ShoppingBag size={10} className="text-muted-foreground" />
               </div>
             )}
@@ -339,9 +330,7 @@ function FillerBrick({
           </span>
         </div>
         <p className="text-xl font-bold text-primary leading-tight">{value}</p>
-        {sub && (
-          <p className="text-[10px] text-primary/50 mt-1">{sub}</p>
-        )}
+        {sub && <p className="text-[10px] text-primary/50 mt-1">{sub}</p>}
       </div>
     </div>
   );
@@ -481,11 +470,24 @@ function ReviewWall({
 
 /* ─── Photo masonry heights ─────────────────────────────────────────── */
 const PHOTO_HEIGHTS = [
-  "320px", "260px", "380px", "280px", "340px", "240px",
-  "360px", "290px", "310px", "250px", "370px", "270px",
+  "320px",
+  "260px",
+  "380px",
+  "280px",
+  "340px",
+  "240px",
+  "360px",
+  "290px",
+  "310px",
+  "250px",
+  "370px",
+  "270px",
 ];
 
-export function CommunityReviews({ reviews, reviewStats }: CommunityReviewsProps) {
+export function CommunityReviews({
+  reviews,
+  reviewStats,
+}: CommunityReviewsProps) {
   const { photoReviews, textReviews } = useMemo(() => {
     const photo: ReviewCardData[] = [];
     const text: ReviewCardData[] = [];

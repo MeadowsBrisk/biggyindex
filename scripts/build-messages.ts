@@ -19,7 +19,7 @@
  * Missing per-locale values fall back to `en-GB`. If en-GB is missing for a
  * leaf, the build fails.
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";

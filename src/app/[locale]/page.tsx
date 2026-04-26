@@ -1,15 +1,15 @@
-import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
-import { localeToMarket } from "@/lib/market/market";
+import { Suspense } from "react";
+import { CommunityReviews } from "@/components/home/CommunityReviews";
+import { FaqSection } from "@/components/home/FaqSection";
+import { HeroSection } from "@/components/home/HeroSection";
+import { QuickStartGuide } from "@/components/home/QuickStartGuide";
+import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
+import { WhatsNewSection } from "@/components/home/WhatsNewSection";
+import { SiteFooter } from "@/components/SiteFooter";
 import { loadHomeFeed } from "@/lib/data";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
-import { SiteFooter } from "@/components/SiteFooter";
-import { HeroSection } from "@/components/home/HeroSection";
-import { WhatsNewSection } from "@/components/home/WhatsNewSection";
-import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
-import { CommunityReviews } from "@/components/home/CommunityReviews";
-import { QuickStartGuide } from "@/components/home/QuickStartGuide";
-import { FaqSection } from "@/components/home/FaqSection";
+import { localeToMarket } from "@/lib/market/market";
 
 /** Map a pre-shaped item card to the WhatsNewSection's NewItem shape */
 function toNewItem(item: any, dateField: "fsa" | "lua") {
@@ -75,7 +75,9 @@ export default async function HomePage({
       <Suspense>
         <WhatsNewSection
           newest={feed.whatsNew.newest.map((i) => toNewItem(i, "fsa"))}
-          recentlyUpdated={feed.whatsNew.updated.map((i) => toNewItem(i, "lua"))}
+          recentlyUpdated={feed.whatsNew.updated.map((i) =>
+            toNewItem(i, "lua"),
+          )}
         />
       </Suspense>
 

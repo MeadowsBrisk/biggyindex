@@ -15,9 +15,7 @@ export default function ItemDetailError({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <h2 className="text-xl font-bold text-foreground">
-        Item not available
-      </h2>
+      <h2 className="text-xl font-bold text-foreground">Item not available</h2>
       <p className="max-w-md text-sm text-muted">
         We couldn&apos;t load this item. It may have been removed or there was a
         temporary error.

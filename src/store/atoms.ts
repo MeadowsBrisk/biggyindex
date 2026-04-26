@@ -101,8 +101,15 @@ export const dataLoaderActiveAtom = atom<boolean>(false);
 
 // ─── Theme ──────────────────────────────────────────────────────
 
+const readStorageOnClientInit = { getOnInit: true } as const;
+
 /** Dark mode toggle — persisted via atomWithStorage */
-export const darkModeAtom = atomWithStorage<boolean>("darkMode", false);
+export const darkModeAtom = atomWithStorage<boolean>(
+  "darkMode",
+  false,
+  undefined,
+  readStorageOnClientInit,
+);
 
 // ─── Settings ───────────────────────────────────────────────────
 
@@ -173,6 +180,7 @@ export const customAccentHexAtom = atomWithStorage<string>(
 // ─── Filters ────────────────────────────────────────────────────
 
 export const searchQueryAtom = atom<string>("");
+export const deferredSearchQueryAtom = atom<string>("");
 export const categoryAtom = atom<string>("All");
 export const subcategoryAtom = atom<string[]>([]);
 export const selectedSellersAtom = atom<string[]>([]);
@@ -239,6 +247,7 @@ export const pinnedShipFromAtom = atomWithStorage<boolean>(
 /** Write atom: clear all non-pinned filters */
 export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
   set(searchQueryAtom, "");
+  set(deferredSearchQueryAtom, "");
   set(categoryAtom, "All");
   set(subcategoryAtom, []);
   set(priceRangeAtom, { min: 0, max: Infinity });
@@ -268,7 +277,12 @@ export const sortDirAtom = atomWithStorage<SortDir>("sortDir", "desc");
 export const filterPanelOpenAtom = atomWithStorage<boolean>(
   "filterPanelOpen",
   false,
+  undefined,
+  readStorageOnClientInit,
 );
+
+/** True once persisted panel layout has been applied for the current page. */
+export const filterPanelSettledAtom = atom<boolean>(true);
 
 /** Persisted open/closed state for filter panel accordion sections */
 export const sectionOpenAtom = atomWithStorage<Record<string, boolean>>(
@@ -367,7 +381,7 @@ const browseInputAtom = atom((get) => {
     filters: {
       category: get(categoryAtom),
       subcategories: get(subcategoryAtom),
-      query: get(searchQueryAtom),
+      query: get(deferredSearchQueryAtom),
       selectedSellers: get(selectedSellersAtom),
       hiddenSellers: get(hiddenSellersAtom),
       priceRange: get(priceRangeAtom),

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 // Reference counter so multiple overlays can lock simultaneously.
 let lockCount = 0;
@@ -21,7 +21,7 @@ export function useBodyScrollLock(active: boolean): void {
 
     if (lockCount === 1) {
       savedScrollY = window.scrollY;
-      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.overflow = "hidden";
     }
 
     return () => {
@@ -29,7 +29,7 @@ export function useBodyScrollLock(active: boolean): void {
 
       if (lockCount <= 0) {
         lockCount = 0;
-        document.documentElement.style.overflow = '';
+        document.documentElement.style.overflow = "";
         window.scrollTo(0, savedScrollY);
       }
     };

@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
+import { Clock, ExternalLink, Share2, Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Star, Clock, ExternalLink, Share2 } from "lucide-react";
-import { itemsAtom } from "@/store/atoms";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import { getItemPrimaryImage } from "@/lib/images";
+import { itemsAtom } from "@/store/atoms";
 
 export function ItemDetailModal({ refNum }: { refNum: string }) {
   const router = useRouter();
   const items = useAtomValue(itemsAtom);
 
   const item = useMemo(
-    () => items.find((i) => String(i.refNum) === refNum || String(i.id) === refNum),
+    () =>
+      items.find((i) => String(i.refNum) === refNum || String(i.id) === refNum),
     [items, refNum],
   );
 
@@ -111,7 +112,8 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
             <h2 className="text-xl font-bold text-foreground">{item.n}</h2>
             {item.sn && (
               <p className="mt-1 text-sm text-muted">
-                by <span className="font-medium text-foreground">{item.sn}</span>
+                by{" "}
+                <span className="font-medium text-foreground">{item.sn}</span>
               </p>
             )}
           </div>
@@ -119,7 +121,9 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
           {/* Price */}
           <div className="text-lg font-semibold text-primary">
             {item.uMin != null ? `$${item.uMin.toFixed(2)}` : "N/A"}
-            {item.uMax != null && item.uMax !== item.uMin && ` – $${item.uMax.toFixed(2)}`}
+            {item.uMax != null &&
+              item.uMax !== item.uMin &&
+              ` – $${item.uMax.toFixed(2)}`}
           </div>
 
           {/* Description */}
@@ -142,7 +146,9 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
                     className="flex justify-between rounded-md bg-surface px-3 py-1.5 text-sm"
                   >
                     <span className="text-foreground">{v.d}</span>
-                    <span className="font-medium text-primary">${v.usd.toFixed(2)}</span>
+                    <span className="font-medium text-primary">
+                      ${v.usd.toFixed(2)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -179,7 +185,9 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
                 <Star size={14} className="text-amber-500" />
                 {item.rs.avg.toFixed(1)}/10
                 {item.rs.cnt != null && (
-                  <span className="text-muted-foreground">({item.rs.cnt} reviews)</span>
+                  <span className="text-muted-foreground">
+                    ({item.rs.cnt} reviews)
+                  </span>
                 )}
               </span>
             )}
@@ -191,15 +199,22 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
             )}
             {item.sh && (
               <span>
-                Shipping: {item.sh.free ? "Free available" : `$${item.sh.min ?? 0} – $${item.sh.max ?? 0}`}
+                Shipping:{" "}
+                {item.sh.free
+                  ? "Free available"
+                  : `$${item.sh.min ?? 0} – $${item.sh.max ?? 0}`}
               </span>
             )}
           </div>
 
           {/* Timestamps */}
           <div className="flex gap-4 text-xs text-muted-foreground">
-            {item.fsa && <span>First seen: {new Date(item.fsa).toLocaleDateString()}</span>}
-            {item.lua && <span>Updated: {new Date(item.lua).toLocaleDateString()}</span>}
+            {item.fsa && (
+              <span>First seen: {new Date(item.fsa).toLocaleDateString()}</span>
+            )}
+            {item.lua && (
+              <span>Updated: {new Date(item.lua).toLocaleDateString()}</span>
+            )}
           </div>
 
           {/* Action links */}

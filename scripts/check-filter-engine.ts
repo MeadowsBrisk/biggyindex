@@ -1,8 +1,14 @@
 #!/usr/bin/env tsx
 import assert from "node:assert/strict";
+import type {
+  BrowseFilters,
+  BrowseSnapshotInput,
+} from "../src/lib/browse/filter-engine";
+import {
+  buildBrowseResults,
+  buildBrowseSnapshot,
+} from "../src/lib/browse/filter-engine";
 import { buildItemIndex } from "../src/lib/browse/item-index";
-import { buildBrowseResults, buildBrowseSnapshot } from "../src/lib/browse/filter-engine";
-import type { BrowseFilters, BrowseSnapshotInput } from "../src/lib/browse/filter-engine";
 import type { Item, SortDir, SortKey } from "../src/lib/types";
 
 const items: Item[] = [
@@ -172,9 +178,8 @@ assert.deepEqual(
 
 assert.deepEqual(
   ids(
-    buildBrowseResults(
-      input({ category: "Flower", subcategories: ["Gelato"] }),
-    ).filteredItems,
+    buildBrowseResults(input({ category: "Flower", subcategories: ["Gelato"] }))
+      .filteredItems,
   ),
   ["flower-a"],
 );
@@ -248,12 +253,10 @@ assert.deepEqual(
   ["flower-b"],
 );
 
-assert.deepEqual(ids(buildBrowseResults(input({}, "price", "asc")).sortedItems), [
-  "edible-a",
-  "flower-b",
-  "flower-a",
-  "hash-a",
-]);
+assert.deepEqual(
+  ids(buildBrowseResults(input({}, "price", "asc")).sortedItems),
+  ["edible-a", "flower-b", "flower-a", "hash-a"],
+);
 assert.deepEqual(ids(buildBrowseResults(input({}, "ppg", "asc")).sortedItems), [
   "hash-a",
   "flower-a",
@@ -261,7 +264,9 @@ assert.deepEqual(ids(buildBrowseResults(input({}, "ppg", "asc")).sortedItems), [
   "edible-a",
 ]);
 
-const edgeSnapshot = buildBrowseSnapshot(input({}, "hottest", "desc", edgeItems));
+const edgeSnapshot = buildBrowseSnapshot(
+  input({}, "hottest", "desc", edgeItems),
+);
 assert.deepEqual(edgeSnapshot.categoryCounts, {
   All: 2,
   Flower: 1,

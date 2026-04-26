@@ -1,8 +1,8 @@
 "use client";
 
 import { useAtom, useAtomValue } from "jotai";
-import { forceEnglishAtom, marketAtom } from "@/store/atoms";
 import { ENGLISH_MARKETS } from "@/lib/market/market";
+import { forceEnglishAtom, marketAtom } from "@/store/atoms";
 
 const MARKET_LABEL: Record<string, string> = {
   DE: "DE",
@@ -24,17 +24,24 @@ interface ShowOriginalToggleProps {
  * Inline EN/locale toggle for item & seller detail views.
  * Hidden on English markets (GB, IE). Persists via localStorage.
  */
-export function ShowOriginalToggle({ market: marketProp, className = "" }: ShowOriginalToggleProps) {
+export function ShowOriginalToggle({
+  market: marketProp,
+  className = "",
+}: ShowOriginalToggleProps) {
   const [forceEnglish, setForceEnglish] = useAtom(forceEnglishAtom);
   const marketFromAtom = useAtomValue(marketAtom);
   const market = marketProp ?? marketFromAtom;
 
-  if (!market || (ENGLISH_MARKETS as readonly string[]).includes(market)) return null;
+  if (!market || (ENGLISH_MARKETS as readonly string[]).includes(market))
+    return null;
 
   const localeLabel = MARKET_LABEL[market] ?? market;
-  const base = "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase transition-colors cursor-pointer";
-  const active = "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
-  const inactive = "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400";
+  const base =
+    "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase transition-colors cursor-pointer";
+  const active =
+    "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
+  const inactive =
+    "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400";
 
   return (
     <button

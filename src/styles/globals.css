@@ -1,22 +1,30 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Element styles */
-@import '../styles/elements/item-card.css';
-@import '../styles/elements/item-detail-overlay.css';
-@import '../styles/elements/modal-shell.css';
-@import '../styles/elements/review-card.css';
-@import '../styles/elements/photo-review-modal.css';
-@import '../styles/elements/basket.css';
-@import '../styles/elements/sort-bar.css';
+@import "../styles/elements/item-card.css";
+@import "../styles/elements/item-detail-overlay.css";
+@import "../styles/elements/modal-shell.css";
+@import "../styles/elements/review-card.css";
+@import "../styles/elements/photo-review-modal.css";
+@import "../styles/elements/basket.css";
+@import "../styles/elements/sort-bar.css";
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes tooltip-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -72,7 +80,12 @@ html {
     --secondary-foreground: #1e2a1e;
 
     /* BiggyIndex-specific: gradient accent */
-    --accent-gradient: linear-gradient(135deg, #16a34a 0%, #059669 50%, #0d9488 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #16a34a 0%,
+      #059669 50%,
+      #0d9488 100%
+    );
 
     /* Misc */
     --destructive: #ef4444;
@@ -92,7 +105,7 @@ html {
     --glass-border: color-mix(in srgb, var(--foreground) 8%, transparent);
   }
 
-  [data-theme='dark'] {
+  [data-theme="dark"] {
     /* Deep charcoal with green undertone — distinct from food-agg's navy */
     --background: #0c0f0c;
     --foreground: #e8ece8;
@@ -113,7 +126,12 @@ html {
     --secondary-foreground: #d4e5d4;
 
     /* BiggyIndex-specific: gradient accent */
-    --accent-gradient: linear-gradient(135deg, #34d399 0%, #10b981 50%, #14b8a6 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #34d399 0%,
+      #10b981 50%,
+      #14b8a6 100%
+    );
 
     /* Misc */
     --destructive: #f87171;
@@ -133,7 +151,7 @@ html {
     color-scheme: dark;
   }
 
-  [data-theme='light'] {
+  [data-theme="light"] {
     color-scheme: light;
   }
 }
@@ -142,54 +160,94 @@ html {
 
 @layer base {
   /* Blue */
-  [data-accent='blue'] {
+  [data-accent="blue"] {
     --primary: #2563eb;
     --accent: #3b82f6;
-    --accent-gradient: linear-gradient(135deg, #2563eb 0%, #0ea5e9 50%, #06b6d4 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #2563eb 0%,
+      #0ea5e9 50%,
+      #06b6d4 100%
+    );
   }
-  [data-theme='dark'][data-accent='blue'] {
+  [data-theme="dark"][data-accent="blue"] {
     --primary: #60a5fa;
     --accent: #93c5fd;
-    --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #22d3ee 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #60a5fa 0%,
+      #38bdf8 50%,
+      #22d3ee 100%
+    );
     --primary-foreground: #0c1a3b;
   }
 
   /* Purple */
-  [data-accent='purple'] {
+  [data-accent="purple"] {
     --primary: #7c3aed;
     --accent: #8b5cf6;
-    --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #d946ef 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #7c3aed 0%,
+      #a855f7 50%,
+      #d946ef 100%
+    );
   }
-  [data-theme='dark'][data-accent='purple'] {
+  [data-theme="dark"][data-accent="purple"] {
     --primary: #a78bfa;
     --accent: #c4b5fd;
-    --accent-gradient: linear-gradient(135deg, #a78bfa 0%, #c084fc 50%, #e879f9 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #a78bfa 0%,
+      #c084fc 50%,
+      #e879f9 100%
+    );
     --primary-foreground: #1e0a3e;
   }
 
   /* Amber */
-  [data-accent='amber'] {
+  [data-accent="amber"] {
     --primary: #d97706;
     --accent: #f59e0b;
-    --accent-gradient: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #dc2626 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #d97706 0%,
+      #ea580c 50%,
+      #dc2626 100%
+    );
   }
-  [data-theme='dark'][data-accent='amber'] {
+  [data-theme="dark"][data-accent="amber"] {
     --primary: #fbbf24;
     --accent: #fcd34d;
-    --accent-gradient: linear-gradient(135deg, #fbbf24 0%, #fb923c 50%, #f87171 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #fbbf24 0%,
+      #fb923c 50%,
+      #f87171 100%
+    );
     --primary-foreground: #2a1700;
   }
 
   /* Rose */
-  [data-accent='rose'] {
+  [data-accent="rose"] {
     --primary: #e11d48;
     --accent: #f43f5e;
-    --accent-gradient: linear-gradient(135deg, #e11d48 0%, #db2777 50%, #a855f7 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #e11d48 0%,
+      #db2777 50%,
+      #a855f7 100%
+    );
   }
-  [data-theme='dark'][data-accent='rose'] {
+  [data-theme="dark"][data-accent="rose"] {
     --primary: #fb7185;
     --accent: #fda4af;
-    --accent-gradient: linear-gradient(135deg, #fb7185 0%, #f472b6 50%, #c084fc 100%);
+    --accent-gradient: linear-gradient(
+      135deg,
+      #fb7185 0%,
+      #f472b6 50%,
+      #c084fc 100%
+    );
     --primary-foreground: #2a0514;
   }
 }
@@ -253,13 +311,21 @@ body {
 }
 
 @keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @layer base {
@@ -270,15 +336,15 @@ body {
     @apply bg-background text-foreground;
   }
   button:not(:disabled),
-  [type='button']:not(:disabled),
-  [type='submit']:not(:disabled),
-  [type='reset']:not(:disabled) {
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled) {
     cursor: pointer;
   }
   button:disabled,
-  [type='button']:disabled,
-  [type='submit']:disabled,
-  [type='reset']:disabled {
+  [type="button"]:disabled,
+  [type="submit"]:disabled,
+  [type="reset"]:disabled {
     cursor: not-allowed;
   }
 }

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { cx } from '@/lib/cn';
+import type React from "react";
+import { cx } from "@/lib/cn";
 
 export function ZoomIconButton({
   onClick,
@@ -21,10 +21,10 @@ export function ZoomIconButton({
       aria-label={label}
       title={label}
       className={cx(
-        'inline-flex items-center justify-center font-semibold rounded-full border shadow-sm text-gray-800 dark:text-gray-100 cursor-pointer',
-        'bg-white/90 dark:bg-gray-900/70 border-white/40 dark:border-gray-700 backdrop-blur-sm',
-        'hover:bg-white dark:hover:bg-gray-800 transition-colors',
-        small ? 'w-9 h-9 text-xs' : 'w-11 h-11 text-sm',
+        "inline-flex items-center justify-center font-semibold rounded-full border shadow-sm text-gray-800 dark:text-gray-100 cursor-pointer",
+        "bg-white/90 dark:bg-gray-900/70 border-white/40 dark:border-gray-700 backdrop-blur-sm",
+        "hover:bg-white dark:hover:bg-gray-800 transition-colors",
+        small ? "w-9 h-9 text-xs" : "w-11 h-11 text-sm",
       )}
     >
       {children}
@@ -50,10 +50,19 @@ export function ZoomButton({
   );
 }
 
-export function RotateButton({ dir, onClick }: { dir: 'left' | 'right'; onClick: () => void }) {
-  const left = dir === 'left';
+export function RotateButton({
+  dir,
+  onClick,
+}: {
+  dir: "left" | "right";
+  onClick: () => void;
+}) {
+  const left = dir === "left";
   return (
-    <ZoomIconButton onClick={onClick} label={left ? 'Rotate left' : 'Rotate right'}>
+    <ZoomIconButton
+      onClick={onClick}
+      label={left ? "Rotate left" : "Rotate right"}
+    >
       {left ? (
         <svg
           viewBox="0 0 24 24"
@@ -89,7 +98,7 @@ export function ArrowLeftIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={cx('w-5 h-5', className)}
+      className={cx("w-5 h-5", className)}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}
@@ -103,7 +112,7 @@ export function ArrowRightIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={cx('w-5 h-5', className)}
+      className={cx("w-5 h-5", className)}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}

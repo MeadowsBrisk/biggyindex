@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
+import { type NextRequest, NextResponse } from "next/server";
 
 interface RevalidatePayload {
   secret?: string;
@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
     payload = {};
   }
 
-  const secret =
-    request.headers.get("x-revalidation-secret") ?? payload.secret;
+  const secret = request.headers.get("x-revalidation-secret") ?? payload.secret;
   const expectedSecret = process.env.REVALIDATION_SECRET;
 
   if (!expectedSecret || secret !== expectedSecret) {
@@ -41,18 +40,10 @@ export async function POST(request: NextRequest) {
   );
 
   if (tags.length === 0) {
-    return NextResponse.json(
-      { error: "Missing tag or tags" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Missing tag or tags" }, { status: 400 });
   }
 
-  const validTags = [
-    "items",
-    "item-detail",
-    "sellers",
-    "config",
-  ];
+  const validTags = ["items", "item-detail", "sellers", "config"];
   const invalidTags = tags.filter((tag) => !validTags.includes(tag));
   if (invalidTags.length > 0) {
     return NextResponse.json(

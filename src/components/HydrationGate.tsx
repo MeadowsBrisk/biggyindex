@@ -1,28 +1,27 @@
 "use client";
 
 import { useAtomValue, useSetAtom } from "jotai";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-  isHydratedAtom,
   clientReadyAtom,
+  filterPanelSettledAtom,
   gateCompleteAtom,
+  isHydratedAtom,
 } from "@/store/atoms";
 
 /**
- * Full-page overlay that masks layout shifts during hydration.
+ * Hydration coordinator.
  *
- * Covers the page with a solid background while:
- * 1. atomWithStorage atoms hydrate from localStorage
- * 2. DataLoader populates item data
- * 3. UrlSync applies URL filter params
- *
- * Shows a simple spinner while loading,
- * then fades out once everything is ready.
+ * The app now lets server-rendered seed content paint immediately. This small
+ * coordinator still marks when atomWithStorage, DataLoader, and UrlSync have
+ * settled so components can suppress layout-shifting transitions until then.
  */
 export function HydrationGate() {
   const setClientReady = useSetAtom(clientReadyAtom);
   const setGateComplete = useSetAtom(gateCompleteAtom);
   const isHydrated = useAtomValue(isHydratedAtom);
+  const filterPanelSettled = useAtomValue(filterPanelSettledAtom);
+  const ready = isHydrated && filterPanelSettled;
   const [phase, setPhase] = useState<"loading" | "fading" | "done">("loading");
 
   // Signal that the client has mounted and atomWithStorage atoms have had one
@@ -32,38 +31,43 @@ export function HydrationGate() {
     return () => cancelAnimationFrame(id);
   }, [setClientReady]);
 
-  // Start fade-out only when isHydrated is stably true.
-  // If isHydrated bounces true→false→true, cleanup cancels the pending timer.
-  // Brief settling delay for derived atoms (sorted/filtered) to recompute.
+  // Start the fade only after data, URL filters, and persisted layout have settled.
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!ready) {
+      setGateComplete(false);
+      const id = requestAnimationFrame(() => setPhase("loading"));
+      return () => cancelAnimationFrame(id);
+    }
+
     const timer = setTimeout(() => setPhase("fading"), 60);
     return () => clearTimeout(timer);
-  }, [isHydrated]);
+  }, [ready, setGateComplete]);
 
   useEffect(() => {
-    if (phase === "fading") {
-      const timer = setTimeout(() => {
-        setPhase("done");
-        setGateComplete(true);
-      }, 350);
-      return () => clearTimeout(timer);
+    if (phase !== "fading") return;
+    if (!ready) {
+      return;
     }
-  }, [phase, setGateComplete]);
+    const timer = setTimeout(() => {
+      setPhase("done");
+      setGateComplete(true);
+    }, 240);
+    return () => clearTimeout(timer);
+  }, [phase, ready, setGateComplete]);
 
   if (phase === "done") return null;
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)]"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-background"
       style={{
         opacity: phase === "fading" ? 0 : 1,
-        transition: phase === "fading" ? "opacity 350ms ease-out" : "none",
+        transition: phase === "fading" ? "opacity 240ms ease-out" : "none",
         pointerEvents: phase === "fading" ? "none" : "auto",
       }}
       aria-hidden="true"
     >
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--muted)] border-t-[var(--foreground)]" />
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-foreground" />
     </div>
   );
 }

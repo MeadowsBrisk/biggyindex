@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { observe, unobserve } from '@/lib/sharedObserver';
+import { useEffect, useRef, useState } from "react";
+import { observe, unobserve } from "@/lib/sharedObserver";
 
 /**
  * Triggers a CSS entry animation when the element scrolls into view.
@@ -50,8 +50,8 @@ export function useEntryAnimation() {
   useEffect(() => {
     if (!entered || animDone) return;
     const prefersReduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const timer = setTimeout(() => setAnimDone(true), prefersReduced ? 0 : 600);
     return () => clearTimeout(timer);
   }, [entered, animDone]);

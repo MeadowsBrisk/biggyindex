@@ -1,15 +1,15 @@
-import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
-import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import { Suspense } from "react";
 import { DataLoader } from "@/components/DataLoader";
 import { FilterPanel } from "@/components/FilterPanel";
-import { Toolbar } from "@/components/Toolbar";
-import { ItemGrid } from "@/components/ItemGrid";
-import { buildSeedItems } from "@/lib/seed";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
 import { FooterSentinel } from "@/components/FooterSentinel";
+import { ItemGrid } from "@/components/ItemGrid";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { Toolbar } from "@/components/Toolbar";
 import { loadItems, loadSellers } from "@/lib/data";
+import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import { buildSeedItems } from "@/lib/seed";
 
 export default async function BrowsePage({
   params,
@@ -35,7 +35,11 @@ export default async function BrowsePage({
   return (
     <>
       <Suspense>
-        <DataLoader items={itemList} sellers={sellerList} currencySymbol={cSym} />
+        <DataLoader
+          items={itemList}
+          sellers={sellerList}
+          currencySymbol={cSym}
+        />
       </Suspense>
 
       <SiteHeader />

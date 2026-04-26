@@ -8,8 +8,8 @@
  * - `stripBrowseFields()` trims fields unused by browse components
  */
 
-import { readR2JSON, R2Keys } from "./r2";
-import type { Item, Seller, HomeFeed, MergedDetailBlob } from "./types";
+import { R2Keys, readR2JSON } from "./r2";
+import type { HomeFeed, Item, MergedDetailBlob, Seller } from "./types";
 
 // ─── Browse field stripping ─────────────────────────────────────
 
@@ -103,12 +103,14 @@ export async function loadItemByRef(
 
   if (ship?.translations?.shippingOptions) {
     // biome-ignore lint: merging shipping into item detail
-    (item as unknown as Record<string, unknown>).shippingOptions = ship.translations.shippingOptions;
+    (item as unknown as Record<string, unknown>).shippingOptions =
+      ship.translations.shippingOptions;
   } else if (ship?.options) {
     (item as unknown as Record<string, unknown>).shippingOptions = ship.options;
   }
   if (ship?.translations?.description) {
-    (item as unknown as Record<string, unknown>).descriptionTranslated = ship.translations.description;
+    (item as unknown as Record<string, unknown>).descriptionTranslated =
+      ship.translations.description;
   }
 
   return item;

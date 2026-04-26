@@ -1,22 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { useSetAtom } from "jotai";
 import {
-  ShieldCheck,
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Circle,
+  Package,
+  Search,
+  ShieldCheck,
   Star,
   Truck,
-  Package,
-  ChevronUp,
-  ChevronDown,
-  Search,
-  Circle,
 } from "lucide-react";
-import { sellerModalIdAtom } from "@/store/atoms";
+import { useMemo, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
 import type { Seller } from "@/lib/types";
+import { sellerModalIdAtom } from "@/store/atoms";
 
 interface LeaderboardEntry {
   sellerId: string;
@@ -104,7 +104,9 @@ function LbAvatar({
   ring?: boolean;
 }) {
   const avatarUrl = getSellerImageUrl(entry.imageUrl);
-  const ringCls = ring ? `ring-2 ring-offset-2 ring-offset-[var(--card)] ${TONE_RING[tone]}` : "";
+  const ringCls = ring
+    ? `ring-2 ring-offset-2 ring-offset-[var(--card)] ${TONE_RING[tone]}`
+    : "";
   return (
     <SellerAvatarTooltip sellerName={entry.sellerName} imageUrl={avatarUrl}>
       {avatarUrl ? (
@@ -119,7 +121,11 @@ function LbAvatar({
       ) : (
         <div
           className={`rounded-full flex items-center justify-center font-bold shrink-0 ${TONE_INITIAL_BG[tone]} ${ringCls}`}
-          style={{ width: size, height: size, fontSize: Math.max(10, Math.round(size * 0.36)) }}
+          style={{
+            width: size,
+            height: size,
+            fontSize: Math.max(10, Math.round(size * 0.36)),
+          }}
         >
           {getInitials(entry.sellerName)}
         </div>
@@ -166,7 +172,9 @@ function LeaderboardCard({
       ? "from-emerald-500/10 via-transparent to-transparent"
       : "from-amber-500/10 via-transparent to-transparent";
   const iconBg =
-    tone === "emerald" ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500";
+    tone === "emerald"
+      ? "bg-emerald-500/15 text-emerald-500"
+      : "bg-amber-500/15 text-amber-500";
 
   return (
     <div className="relative rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
@@ -178,11 +186,15 @@ function LeaderboardCard({
       <header className="relative flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]/70">
         <div className={`rounded-xl p-2 ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-semibold text-foreground leading-tight">{title}</h3>
+          <h3 className="text-[15px] font-semibold text-foreground leading-tight">
+            {title}
+          </h3>
           <p className="text-xs text-muted-foreground">{subtitle}</p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Reviews</p>
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Reviews
+          </p>
           <p className="text-sm font-semibold text-foreground tabular-nums">
             {compact(totalReviews)}
           </p>
@@ -191,7 +203,8 @@ function LeaderboardCard({
 
       <ul className="relative divide-y divide-[var(--border)]/60">
         {entries.map((e, i) => {
-          const pct = e.total > 0 ? Math.round((e.positive / e.total) * 100) : 0;
+          const pct =
+            e.total > 0 ? Math.round((e.positive / e.total) * 100) : 0;
           const featured = i === 0;
           const pctColor = isTop
             ? pct >= 90
@@ -333,8 +346,12 @@ export function SellersPageClient({
           break;
         case "reviews":
           cmp =
-            (analyticsMap[String(a.id)]?.totalReviews ?? a.numberOfReviews ?? 0) -
-            (analyticsMap[String(b.id)]?.totalReviews ?? b.numberOfReviews ?? 0);
+            (analyticsMap[String(a.id)]?.totalReviews ??
+              a.numberOfReviews ??
+              0) -
+            (analyticsMap[String(b.id)]?.totalReviews ??
+              b.numberOfReviews ??
+              0);
           break;
         case "reported":
           cmp = (a.numberOfReviews ?? 0) - (b.numberOfReviews ?? 0);
@@ -343,8 +360,7 @@ export function SellersPageClient({
           cmp = (a.averageRating ?? 0) - (b.averageRating ?? 0);
           break;
         case "delivery":
-          cmp =
-            (a.averageDaysToArrive ?? 99) - (b.averageDaysToArrive ?? 99);
+          cmp = (a.averageDaysToArrive ?? 99) - (b.averageDaysToArrive ?? 99);
           break;
         case "items":
           cmp = (a.itemsCount ?? 0) - (b.itemsCount ?? 0);
@@ -422,9 +438,7 @@ export function SellersPageClient({
       {/* All sellers */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            All Sellers
-          </h2>
+          <h2 className="text-lg font-semibold text-foreground">All Sellers</h2>
           <div className="relative">
             <Search
               size={14}
@@ -444,157 +458,223 @@ export function SellersPageClient({
           {/* Table — horizontal scroll only on truly narrow viewports.
               Columns: Seller | Total | Seen | Positive% | Negs | 10/10 | Rating | Delivery | Items */}
           <div className="overflow-x-auto">
-          <div className="min-w-[44rem]">
-          {/* Table header */}
-          <div className="grid grid-cols-[minmax(10rem,1fr)_60px_56px_64px_48px_48px_56px_60px_48px] gap-1.5 px-3 py-2.5 border-b border-[var(--border)] bg-[var(--surface)]">
-            <SortHeader label="Seller" sortKey="name" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} />
-            <SortHeader label="Total" sortKey="reported" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="Seen" sortKey="reviews" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="Positive" sortKey="positive" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="Negs" sortKey="negatives" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="10/10" sortKey="perfect" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="Rating" sortKey="rating" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="Days" sortKey="delivery" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-            <SortHeader label="Items" sortKey="items" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-end" />
-          </div>
+            <div className="min-w-[44rem]">
+              {/* Table header */}
+              <div className="grid grid-cols-[minmax(10rem,1fr)_60px_56px_64px_48px_48px_56px_60px_48px] gap-1.5 px-3 py-2.5 border-b border-[var(--border)] bg-[var(--surface)]">
+                <SortHeader
+                  label="Seller"
+                  sortKey="name"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  label="Total"
+                  sortKey="reported"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="Seen"
+                  sortKey="reviews"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="Positive"
+                  sortKey="positive"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="Negs"
+                  sortKey="negatives"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="10/10"
+                  sortKey="perfect"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="Rating"
+                  sortKey="rating"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="Days"
+                  sortKey="delivery"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+                <SortHeader
+                  label="Items"
+                  sortKey="items"
+                  currentSort={sortKey}
+                  currentDir={sortDir}
+                  onSort={handleSort}
+                  className="justify-end"
+                />
+              </div>
 
-          {/* Rows */}
-          <div className="divide-y divide-[var(--border)]">
-            {filtered.map((seller) => {
-              const isOnline =
-                seller.online === "today" || seller.online === "online";
-              const a = analyticsMap[String(seller.id)];
-              const reviewsShown = a?.totalReviews ?? seller.numberOfReviews ?? 0;
-              const posPct =
-                a && a.totalReviews > 0
-                  ? (a.positiveCount / a.totalReviews) * 100
-                  : null;
-              const posClass =
-                posPct == null
-                  ? "text-muted"
-                  : posPct >= 95
-                    ? "bg-primary/15 text-primary"
-                    : posPct >= 85
-                      ? "bg-blue-500/15 text-blue-400"
-                      : posPct >= 70
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "bg-red-500/15 text-red-400";
-              return (
-                <button
-                  key={seller.id}
-                  type="button"
-                  onClick={() => openSeller(String(seller.id))}
-                  className="grid grid-cols-[minmax(10rem,1fr)_60px_56px_64px_48px_48px_56px_60px_48px] gap-1.5 px-3 py-3 w-full text-left hover:bg-[var(--surface-hover)] transition-colors items-center"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    {(() => {
-                      const avatarUrl = getSellerImageUrl(seller.imageUrl);
-                      return (
-                    <SellerAvatarTooltip sellerName={seller.name} imageUrl={avatarUrl}>
-                      <div className="relative shrink-0">
-                        {avatarUrl ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={avatarUrl}
-                            alt={seller.name}
-                            className="w-8 h-8 rounded-full object-cover border border-[var(--border)]"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary">
-                            {getInitials(seller.name)}
-                          </div>
-                        )}
-                        {isOnline && (
-                          <Circle
-                            size={8}
-                            className="absolute -bottom-0.5 -right-0.5 fill-emerald-500 text-emerald-500"
-                          />
-                        )}
+              {/* Rows */}
+              <div className="divide-y divide-[var(--border)]">
+                {filtered.map((seller) => {
+                  const isOnline =
+                    seller.online === "today" || seller.online === "online";
+                  const a = analyticsMap[String(seller.id)];
+                  const reviewsShown =
+                    a?.totalReviews ?? seller.numberOfReviews ?? 0;
+                  const posPct =
+                    a && a.totalReviews > 0
+                      ? (a.positiveCount / a.totalReviews) * 100
+                      : null;
+                  const posClass =
+                    posPct == null
+                      ? "text-muted"
+                      : posPct >= 95
+                        ? "bg-primary/15 text-primary"
+                        : posPct >= 85
+                          ? "bg-blue-500/15 text-blue-400"
+                          : posPct >= 70
+                            ? "bg-amber-500/15 text-amber-400"
+                            : "bg-red-500/15 text-red-400";
+                  return (
+                    <button
+                      key={seller.id}
+                      type="button"
+                      onClick={() => openSeller(String(seller.id))}
+                      className="grid grid-cols-[minmax(10rem,1fr)_60px_56px_64px_48px_48px_56px_60px_48px] gap-1.5 px-3 py-3 w-full text-left hover:bg-[var(--surface-hover)] transition-colors items-center"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {(() => {
+                          const avatarUrl = getSellerImageUrl(seller.imageUrl);
+                          return (
+                            <SellerAvatarTooltip
+                              sellerName={seller.name}
+                              imageUrl={avatarUrl}
+                            >
+                              <div className="relative shrink-0">
+                                {avatarUrl ? (
+                                  /* eslint-disable-next-line @next/next/no-img-element */
+                                  <img
+                                    src={avatarUrl}
+                                    alt={seller.name}
+                                    className="w-8 h-8 rounded-full object-cover border border-[var(--border)]"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary">
+                                    {getInitials(seller.name)}
+                                  </div>
+                                )}
+                                {isOnline && (
+                                  <Circle
+                                    size={8}
+                                    className="absolute -bottom-0.5 -right-0.5 fill-emerald-500 text-emerald-500"
+                                  />
+                                )}
+                              </div>
+                            </SellerAvatarTooltip>
+                          );
+                        })()}
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {seller.name}
+                        </p>
                       </div>
-                    </SellerAvatarTooltip>
-                      );
-                    })()}
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {seller.name}
-                    </p>
-                  </div>
 
-                  {/* Total — LB-reported lifetime reviews */}
-                  <span
-                    className="text-sm text-foreground font-medium tabular-nums text-right"
-                    title="Total reviews reported by Little Biggy"
-                  >
-                    {(seller.numberOfReviews ?? 0).toLocaleString()}
-                  </span>
+                      {/* Total — LB-reported lifetime reviews */}
+                      <span
+                        className="text-sm text-foreground font-medium tabular-nums text-right"
+                        title="Total reviews reported by Little Biggy"
+                      >
+                        {(seller.numberOfReviews ?? 0).toLocaleString()}
+                      </span>
 
-                  {/* Seen — reviews actually seen by our indexer */}
-                  <span
-                    className="text-sm text-muted tabular-nums text-right"
-                    title="Reviews ingested by the BiggyIndex crawler"
-                  >
-                    {reviewsShown.toLocaleString()}
-                  </span>
+                      {/* Seen — reviews actually seen by our indexer */}
+                      <span
+                        className="text-sm text-muted tabular-nums text-right"
+                        title="Reviews ingested by the BiggyIndex crawler"
+                      >
+                        {reviewsShown.toLocaleString()}
+                      </span>
 
-                  <span
-                    className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold tabular-nums justify-self-end ${posClass}`}
-                  >
-                    {posPct != null ? `${posPct.toFixed(1)}%` : "—"}
-                  </span>
+                      <span
+                        className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold tabular-nums justify-self-end ${posClass}`}
+                      >
+                        {posPct != null ? `${posPct.toFixed(1)}%` : "—"}
+                      </span>
 
-                  <span
-                    className={`text-sm tabular-nums text-right ${
-                      (a?.negativeCount ?? 0) > 0
-                        ? "text-red-400 font-medium"
-                        : "text-muted"
-                    }`}
-                  >
-                    {a?.negativeCount ?? 0}
-                  </span>
+                      <span
+                        className={`text-sm tabular-nums text-right ${
+                          (a?.negativeCount ?? 0) > 0
+                            ? "text-red-400 font-medium"
+                            : "text-muted"
+                        }`}
+                      >
+                        {a?.negativeCount ?? 0}
+                      </span>
 
-                  <span
-                    className={`text-sm tabular-nums text-right ${
-                      (a?.perfectScoreCount ?? 0) > 0
-                        ? "text-primary font-medium"
-                        : "text-muted"
-                    }`}
-                  >
-                    {a?.perfectScoreCount ?? 0}
-                  </span>
+                      <span
+                        className={`text-sm tabular-nums text-right ${
+                          (a?.perfectScoreCount ?? 0) > 0
+                            ? "text-primary font-medium"
+                            : "text-muted"
+                        }`}
+                      >
+                        {a?.perfectScoreCount ?? 0}
+                      </span>
 
-                  <div className="flex items-center gap-1 justify-end">
-                    <Star
-                      size={12}
-                      className={
-                        (seller.averageRating ?? 0) >= 8
-                          ? "fill-amber-400 text-amber-400"
-                          : "fill-none text-muted"
-                      }
-                    />
-                    <span className="text-sm text-foreground tabular-nums">
-                      {seller.averageRating != null
-                        ? seller.averageRating.toFixed(1)
-                        : "-"}
-                    </span>
-                  </div>
+                      <div className="flex items-center gap-1 justify-end">
+                        <Star
+                          size={12}
+                          className={
+                            (seller.averageRating ?? 0) >= 8
+                              ? "fill-amber-400 text-amber-400"
+                              : "fill-none text-muted"
+                          }
+                        />
+                        <span className="text-sm text-foreground tabular-nums">
+                          {seller.averageRating != null
+                            ? seller.averageRating.toFixed(1)
+                            : "-"}
+                        </span>
+                      </div>
 
-                  <div className="flex items-center gap-1 justify-end">
-                    <Truck size={11} className="text-muted" />
-                    <span className="text-sm text-foreground tabular-nums">
-                      {seller.averageDaysToArrive != null
-                        ? `${seller.averageDaysToArrive.toFixed(1)}d`
-                        : "-"}
-                    </span>
-                  </div>
+                      <div className="flex items-center gap-1 justify-end">
+                        <Truck size={11} className="text-muted" />
+                        <span className="text-sm text-foreground tabular-nums">
+                          {seller.averageDaysToArrive != null
+                            ? `${seller.averageDaysToArrive.toFixed(1)}d`
+                            : "-"}
+                        </span>
+                      </div>
 
-                  <span className="text-sm text-foreground tabular-nums text-right">
-                    {seller.itemsCount ?? 0}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          </div>
+                      <span className="text-sm text-foreground tabular-nums text-right">
+                        {seller.itemsCount ?? 0}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 

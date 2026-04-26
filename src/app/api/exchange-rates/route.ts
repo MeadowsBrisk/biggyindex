@@ -25,10 +25,7 @@ export async function GET() {
     const rates = data?.rates;
 
     if (!rates || typeof rates !== "object") {
-      return NextResponse.json(
-        { error: "Invalid rate data" },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: "Invalid rate data" }, { status: 502 });
     }
 
     return NextResponse.json(

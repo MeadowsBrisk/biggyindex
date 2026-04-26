@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readR2JSON, R2Keys } from "@/lib/r2";
+import { R2Keys, readR2JSON } from "@/lib/r2";
 import type { MergedDetailBlob } from "@/lib/types";
 
 /**
@@ -20,15 +20,13 @@ export async function GET(
   );
 
   if (!detail) {
-    return NextResponse.json(
-      { error: "not_found", ref },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "not_found", ref }, { status: 404 });
   }
 
   return NextResponse.json(detail, {
     headers: {
-      "Cache-Control": "public, max-age=60, s-maxage=43200, stale-while-revalidate=86400",
+      "Cache-Control":
+        "public, max-age=60, s-maxage=43200, stale-while-revalidate=86400",
     },
   });
 }

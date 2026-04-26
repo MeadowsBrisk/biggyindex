@@ -1,22 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { cx } from "@/lib/cn";
+import { fmtPrice } from "@/lib/format";
 import {
+  type BasketEntry,
   basketAtom,
   basketCountAtom,
   basketOpenAtom,
   basketShipSelectionAtom,
-  removeFromBasketAtom,
-  setBasketQtyAtom,
   clearBasketAtom,
   currencyDisplayAtom,
   expandedRefNumAtom,
-  type BasketEntry,
+  removeFromBasketAtom,
+  setBasketQtyAtom,
 } from "@/store/atoms";
-import { cx } from "@/lib/cn";
-import { fmtPrice } from "@/lib/format";
 
 interface SellerGroup {
   /** Stable key — lowercased seller name (matches basketShipSelectionAtom key) */
@@ -74,7 +74,12 @@ export function Basket() {
       const key = (it.sellerName || "unknown").toLowerCase();
       let g = map.get(key);
       if (!g) {
-        g = { key, sellerName: it.sellerName || "Unknown", items: [], shOpts: [] };
+        g = {
+          key,
+          sellerName: it.sellerName || "Unknown",
+          items: [],
+          shOpts: [],
+        };
         map.set(key, g);
       }
       g.items.push(it);
@@ -189,8 +194,12 @@ export function Basket() {
               </p>
             ) : (
               groups.map((group) => {
-                const itemsTotal = group.items.reduce((s, e) => s + e.priceUSD * e.qty, 0);
-                const { label: selectedLabel, cost: shipCost } = resolveShipCost(group);
+                const itemsTotal = group.items.reduce(
+                  (s, e) => s + e.priceUSD * e.qty,
+                  0,
+                );
+                const { label: selectedLabel, cost: shipCost } =
+                  resolveShipCost(group);
                 const sellerTotal = itemsTotal + shipCost;
                 const hasOptions = group.shOpts.length > 0;
                 return (
@@ -203,7 +212,8 @@ export function Basket() {
                         {group.sellerName}
                       </span>
                       <span className="text-[11px] text-muted-foreground">
-                        {group.items.length} item{group.items.length !== 1 ? "s" : ""}
+                        {group.items.length} item
+                        {group.items.length !== 1 ? "s" : ""}
                       </span>
                     </div>
                     <div className="px-4 pb-3 pt-2 space-y-2">
@@ -234,7 +244,9 @@ export function Basket() {
                             }
                             className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none cursor-pointer"
                           >
-                            <option value="">No shipping — {fmtPrice(0, cSym, cRate)}</option>
+                            <option value="">
+                              No shipping — {fmtPrice(0, cSym, cRate)}
+                            </option>
                             {group.shOpts.map((o) => (
                               <option key={o.label} value={o.label}>
                                 {o.label} — {fmtPrice(o.cost, cSym, cRate)}
@@ -247,13 +259,17 @@ export function Basket() {
                       <div className="space-y-1 border-t border-[var(--border)] pt-2 text-xs text-muted">
                         <div className="flex justify-between">
                           <span>Items</span>
-                          <span className="font-semibold text-foreground">{fmtPrice(itemsTotal, cSym, cRate)}</span>
+                          <span className="font-semibold text-foreground">
+                            {fmtPrice(itemsTotal, cSym, cRate)}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span>
                             Shipping
                             {selectedLabel && (
-                              <span className="ml-1 text-muted-foreground">({selectedLabel})</span>
+                              <span className="ml-1 text-muted-foreground">
+                                ({selectedLabel})
+                              </span>
                             )}
                           </span>
                           <span className="font-semibold text-foreground">
@@ -303,7 +319,14 @@ interface BasketLineProps {
   onItemClick: () => void;
 }
 
-function BasketLine({ entry, cSym, cRate, setQty, removeItem, onItemClick }: BasketLineProps) {
+function BasketLine({
+  entry,
+  cSym,
+  cRate,
+  setQty,
+  removeItem,
+  onItemClick,
+}: BasketLineProps) {
   const lineTotal = entry.priceUSD * entry.qty;
 
   return (
@@ -350,8 +373,15 @@ function BasketLine({ entry, cSym, cRate, setQty, removeItem, onItemClick }: Bas
             type="button"
             onClick={() =>
               entry.qty <= 1
-                ? removeItem({ refNum: entry.refNum, variantId: entry.variantId })
-                : setQty({ refNum: entry.refNum, variantId: entry.variantId, qty: entry.qty - 1 })
+                ? removeItem({
+                    refNum: entry.refNum,
+                    variantId: entry.variantId,
+                  })
+                : setQty({
+                    refNum: entry.refNum,
+                    variantId: entry.variantId,
+                    qty: entry.qty - 1,
+                  })
             }
             className="inline-flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] text-muted hover:bg-surface cursor-pointer"
           >
@@ -363,7 +393,11 @@ function BasketLine({ entry, cSym, cRate, setQty, removeItem, onItemClick }: Bas
           <button
             type="button"
             onClick={() =>
-              setQty({ refNum: entry.refNum, variantId: entry.variantId, qty: entry.qty + 1 })
+              setQty({
+                refNum: entry.refNum,
+                variantId: entry.variantId,
+                qty: entry.qty + 1,
+              })
             }
             className="inline-flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] text-muted hover:bg-surface cursor-pointer"
           >

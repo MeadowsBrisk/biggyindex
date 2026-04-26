@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getSuggestibleFields, readItemField } from "@/lib/suggestion-fields";
 import type { SuggestibleField } from "@/lib/suggestion-fields";
+import { getSuggestibleFields, readItemField } from "@/lib/suggestion-fields";
 
 const API_BASE = process.env.NEXT_PUBLIC_SUGGESTIONS_API ?? "";
 
@@ -32,7 +32,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [staged, setStaged] = useState<StagedEdit[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(
+    null,
+  );
   const [pending, setPending] = useState<PendingSuggestion[]>([]);
   const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
 
@@ -40,7 +42,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
   const stagedCategory = staged.find((s) => s.field.key === "category");
   const effectiveCategory = stagedCategory
     ? stagedCategory.values[0]
-    : (item.c as string | undefined) ?? null;
+    : ((item.c as string | undefined) ?? null);
 
   // Recompute fields whenever effective category changes
   const fields = useMemo(
@@ -49,14 +51,18 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
   );
 
   const fieldDef = fields.find((f) => f.key === selectedField);
-  const currentValue = fieldDef ? readItemField(item, fieldDef.itemField) : null;
+  const currentValue = fieldDef
+    ? readItemField(item, fieldDef.itemField)
+    : null;
 
   const stagedKeys = new Set(staged.map((s) => s.field.key));
 
   // Load pending suggestions for this item
   useEffect(() => {
     if (!API_BASE) return;
-    fetch(`${API_BASE}/suggestions?refNum=${encodeURIComponent(refNum)}&status=pending`)
+    fetch(
+      `${API_BASE}/suggestions?refNum=${encodeURIComponent(refNum)}&status=pending`,
+    )
       .then((r) => r.json())
       .then((data: { suggestions?: PendingSuggestion[] }) => {
         if (data.suggestions) setPending(data.suggestions);
@@ -103,7 +109,10 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         { field: fieldDef, currentValue, values: effectiveValues },
       ]);
     } else {
-      setStaged((prev) => [...prev, { field: fieldDef, currentValue, values: effectiveValues }]);
+      setStaged((prev) => [
+        ...prev,
+        { field: fieldDef, currentValue, values: effectiveValues },
+      ]);
     }
     setSelectedField(null);
     setSelectedValues([]);
@@ -204,7 +213,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         const data = (await res.json()) as { votes?: number };
         setPending((prev) =>
           prev.map((s) =>
-            s.id === suggestionId ? { ...s, votes: data.votes ?? s.votes + 1 } : s,
+            s.id === suggestionId
+              ? { ...s, votes: data.votes ?? s.votes + 1 }
+              : s,
           ),
         );
       }
@@ -234,7 +245,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
               className="flex items-center justify-between gap-3 text-sm"
             >
               <div className="min-w-0">
-                <span className="font-medium text-foreground">{edit.field.label}:</span>{" "}
+                <span className="font-medium text-foreground">
+                  {edit.field.label}:
+                </span>{" "}
                 {edit.currentValue && (
                   <>
                     <span className="text-muted line-through">
@@ -243,7 +256,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
                     {" → "}
                   </>
                 )}
-                <span className="text-primary font-medium">{edit.values.join(", ")}</span>
+                <span className="text-primary font-medium">
+                  {edit.values.join(", ")}
+                </span>
               </div>
               <button
                 type="button"
@@ -262,7 +277,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
       {availableFields.length > 0 && !result && (
         <div className="space-y-3">
           <h2 className="text-base font-semibold text-foreground">
-            {staged.length > 0 ? "Add another correction" : "What needs fixing?"}
+            {staged.length > 0
+              ? "Add another correction"
+              : "What needs fixing?"}
           </h2>
           <div className="flex flex-col gap-1.5">
             {availableFields.map((f) => (
@@ -278,7 +295,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
               >
                 {f.label}
                 {f.key === "wrongProduct" && (
-                  <span className="text-xs text-muted">This isn&apos;t a valid product</span>
+                  <span className="text-xs text-muted">
+                    This isn&apos;t a valid product
+                  </span>
                 )}
               </button>
             ))}
@@ -291,7 +310,8 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         <div className="space-y-3">
           {currentValue && currentValue.length > 0 && (
             <div className="rounded-md bg-foreground/5 px-3 py-2 text-sm">
-              <span className="font-semibold">Currently:</span> {currentValue.join(", ")}
+              <span className="font-semibold">Currently:</span>{" "}
+              {currentValue.join(", ")}
             </div>
           )}
           {!currentValue && (
@@ -330,7 +350,8 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
       {/* Flag: wrong product */}
       {fieldDef && fieldDef.inputType === "flag" && (
         <div className="text-sm text-muted leading-relaxed">
-          Flag this product for review. It may be miscategorised or not belong on this site.
+          Flag this product for review. It may be miscategorised or not belong
+          on this site.
         </div>
       )}
 
@@ -408,7 +429,11 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
               if (s.current_val) {
                 const cv = JSON.parse(s.current_val);
                 currentDisplay =
-                  cv === null ? null : Array.isArray(cv) ? cv.join(", ") : String(cv);
+                  cv === null
+                    ? null
+                    : Array.isArray(cv)
+                      ? cv.join(", ")
+                      : String(cv);
               }
             } catch {
               currentDisplay = s.current_val;
@@ -425,7 +450,9 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
                   </span>{" "}
                   {currentDisplay && (
                     <>
-                      <span className="text-muted line-through">{currentDisplay}</span>
+                      <span className="text-muted line-through">
+                        {currentDisplay}
+                      </span>
                       {" → "}
                     </>
                   )}

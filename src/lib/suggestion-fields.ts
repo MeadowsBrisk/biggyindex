@@ -24,30 +24,84 @@ export interface SuggestibleField {
 // ─── Static data ───────────────────────────────────────────────────
 
 export const CATEGORIES = [
-  "Flower", "Shake", "Hash", "Edibles", "Vapes",
-  "Concentrates", "Distillate", "PreRolls", "Tincture",
-  "Psychedelics", "Other",
+  "Flower",
+  "Shake",
+  "Hash",
+  "Edibles",
+  "Vapes",
+  "Concentrates",
+  "Distillate",
+  "PreRolls",
+  "Tincture",
+  "Psychedelics",
+  "Other",
 ];
 
 const SUBCATEGORIES_BY_CATEGORY: Record<string, string[]> = {
   Flower: [
-    "Gelato", "Cookies", "Runtz", "OGKush", "Haze", "Diesel",
-    "Zkittlez", "Dawg", "Cheese", "Cake", "Mochi", "Sherbet",
-    "Blueberry", "Landrace", "Fruity", "Mintz", "Exotic",
-    "Imported", "Exotics", "Smalls",
+    "Gelato",
+    "Cookies",
+    "Runtz",
+    "OGKush",
+    "Haze",
+    "Diesel",
+    "Zkittlez",
+    "Dawg",
+    "Cheese",
+    "Cake",
+    "Mochi",
+    "Sherbet",
+    "Blueberry",
+    "Landrace",
+    "Fruity",
+    "Mintz",
+    "Exotic",
+    "Imported",
+    "Exotics",
+    "Smalls",
   ],
   Shake: ["Shake", "Trim", "Popcorn", "Dust", "SugarLeaf"],
   Hash: [
-    "Moroccan", "DrySift", "Static", "Bubble", "Mousse", "Frozen",
-    "Piatella", "TempleBall", "Kief", "Moonrocks", "Blonde", "Black",
-    "TripleFiltered", "120u", "90u", "Charras",
+    "Moroccan",
+    "DrySift",
+    "Static",
+    "Bubble",
+    "Mousse",
+    "Frozen",
+    "Piatella",
+    "TempleBall",
+    "Kief",
+    "Moonrocks",
+    "Blonde",
+    "Black",
+    "TripleFiltered",
+    "120u",
+    "90u",
+    "Charras",
   ],
   Edibles: [
-    "Gummies", "Chocolate", "Capsules", "Candy", "Treats",
-    "ButterOil", "InfusedOil", "Spreads", "Bars",
+    "Gummies",
+    "Chocolate",
+    "Capsules",
+    "Candy",
+    "Treats",
+    "ButterOil",
+    "InfusedOil",
+    "Spreads",
+    "Bars",
   ],
   Vapes: ["Disposable", "Cartridge", "LiveResin", "Battery"],
-  Concentrates: ["Wax", "Shatter", "Rosin", "RSO", "Oil", "Sugar", "Diamonds", "Pots", "Budder"],
+  Concentrates: [
+    "Wax",
+    "Shatter",
+    "Rosin",
+    "RSO",
+    "Oil",
+    "Sugar",
+    "Diamonds",
+    "Pots",
+    "Budder",
+  ],
   Distillate: ["D9", "D8", "Raw", "Terped", "Syringe"],
   PreRolls: ["Infused", "Singles", "Packs"],
   Tincture: ["Spray", "Sublingual"],
@@ -108,7 +162,9 @@ const ATTR_FIELDS_BY_CATEGORY: Record<string, SuggestibleField[]> = {
  * Build the list of suggestible fields for a given category.
  * If no category is provided, returns only category + wrongProduct.
  */
-export function getSuggestibleFields(category?: string | null): SuggestibleField[] {
+export function getSuggestibleFields(
+  category?: string | null,
+): SuggestibleField[] {
   const fields: SuggestibleField[] = [
     {
       key: "category",
@@ -146,7 +202,10 @@ export function getSuggestibleFields(category?: string | null): SuggestibleField
 }
 
 /** Read a nested item field value. Supports 'at.tier' dot notation. */
-export function readItemField(item: Record<string, unknown>, fieldPath: string): string[] | null {
+export function readItemField(
+  item: Record<string, unknown>,
+  fieldPath: string,
+): string[] | null {
   if (fieldPath === "_flag") return null;
   const parts = fieldPath.split(".");
   let current: unknown = item;

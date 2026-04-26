@@ -3,11 +3,18 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SlidersHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   activeFiltersCountAtom,
   filterPanelOpenAtom,
+  filterPanelSettledAtom,
   gateCompleteAtom,
 } from "@/store/atoms";
 
@@ -23,6 +30,8 @@ const FilterPanelContent = dynamic(
 );
 
 const emptySubscribe = () => () => {};
+const useBrowserLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function useDelayedUnmount(isOpen: boolean, delayMs: number) {
   const [shouldRender, setShouldRender] = useState(isOpen);
@@ -38,6 +47,22 @@ function useDelayedUnmount(isOpen: boolean, delayMs: number) {
   }, [delayMs, isOpen]);
 
   return shouldRender;
+}
+
+function useHydratedTransitionReady(isReady: boolean) {
+  const [transitionReady, setTransitionReady] = useState(false);
+
+  useEffect(() => {
+    if (!isReady) {
+      setTransitionReady(false);
+      return;
+    }
+
+    const id = window.requestAnimationFrame(() => setTransitionReady(true));
+    return () => window.cancelAnimationFrame(id);
+  }, [isReady]);
+
+  return transitionReady;
 }
 
 export function FilterToggle() {
@@ -70,11 +95,33 @@ export function FilterToggle() {
 export function FilterPanel() {
   const [open, setOpen] = useAtom(filterPanelOpenAtom);
   const [isMobile, setIsMobile] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
   const gateComplete = useAtomValue(gateCompleteAtom);
-  const shouldRenderContent = useDelayedUnmount(
-    open,
-    gateComplete ? CLOSE_TRANSITION_MS : 0,
+  const setFilterPanelSettled = useSetAtom(filterPanelSettledAtom);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
   );
+  const panelOpen = mounted && open;
+  const transitionReady = useHydratedTransitionReady(mounted && gateComplete);
+  const shouldRenderContent = useDelayedUnmount(
+    panelOpen,
+    transitionReady ? CLOSE_TRANSITION_MS : 0,
+  );
+
+  useBrowserLayoutEffect(() => {
+    setFilterPanelSettled(false);
+    return () => setFilterPanelSettled(true);
+  }, [setFilterPanelSettled]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (panelOpen && !contentReady) return;
+
+    const id = window.requestAnimationFrame(() => setFilterPanelSettled(true));
+    return () => window.cancelAnimationFrame(id);
+  }, [mounted, panelOpen, contentReady, setFilterPanelSettled]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -85,16 +132,16 @@ export function FilterPanel() {
   }, []);
 
   useEffect(() => {
-    if (open && isMobile) {
+    if (panelOpen && isMobile) {
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = "";
       };
     }
-  }, [open, isMobile]);
+  }, [panelOpen, isMobile]);
 
   useEffect(() => {
-    if (!(open && isMobile)) return;
+    if (!(panelOpen && isMobile)) return;
     const main = document.querySelector("main");
     const header = document.querySelector("header");
     const toolbar = document.querySelector('[data-tour="toolbar"]');
@@ -103,34 +150,32 @@ export function FilterPanel() {
     return () => {
       for (const element of targets) element.removeAttribute("inert");
     };
-  }, [open, isMobile]);
-
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  }, [panelOpen, isMobile]);
 
   const closePanel = useCallback(() => {
     setOpen(false);
   }, [setOpen]);
 
+  const markContentReady = useCallback(() => {
+    setContentReady(true);
+  }, []);
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && open) closePanel();
+      if (event.key === "Escape" && panelOpen) closePanel();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [open, closePanel]);
+  }, [panelOpen, closePanel]);
 
   return (
     <>
       <aside
         className={`hidden md:block shrink-0 self-start sticky overflow-hidden ${
-          gateComplete ? "transition-all duration-300 ease-out" : ""
+          transitionReady ? "transition-all duration-300 ease-out" : ""
         }`}
         style={{
-          width: open ? PANEL_WIDTH : 0,
+          width: panelOpen ? PANEL_WIDTH : 0,
           top: "var(--toolbar-h, 44px)",
         }}
       >
@@ -141,8 +186,11 @@ export function FilterPanel() {
             height: "calc(100vh - var(--toolbar-h, 44px))",
           }}
         >
-          {shouldRenderContent && (
-            <FilterPanelContent onClose={() => setOpen(false)} />
+          {(panelOpen || shouldRenderContent) && (
+            <FilterPanelContent
+              onClose={() => setOpen(false)}
+              onReady={markContentReady}
+            />
           )}
         </div>
       </aside>
@@ -153,20 +201,25 @@ export function FilterPanel() {
             <button
               type="button"
               aria-label="Close filters"
-              aria-hidden={!open}
-              tabIndex={open ? 0 : -1}
+              aria-hidden={!panelOpen}
+              tabIndex={panelOpen ? 0 : -1}
               className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden transition-opacity duration-300 ${
-                open ? "opacity-100" : "opacity-0 pointer-events-none"
+                panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
               }`}
               onClick={closePanel}
             />
             <aside
               className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-background shadow-2xl md:hidden ${
-                gateComplete ? "transition-transform duration-300 ease-out" : ""
-              } ${open ? "translate-x-0" : "-translate-x-full"}`}
+                transitionReady
+                  ? "transition-transform duration-300 ease-out"
+                  : ""
+              } ${panelOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
-              {shouldRenderContent && (
-                <FilterPanelContent onClose={closePanel} />
+              {(panelOpen || shouldRenderContent) && (
+                <FilterPanelContent
+                  onClose={closePanel}
+                  onReady={markContentReady}
+                />
               )}
             </aside>
           </>,

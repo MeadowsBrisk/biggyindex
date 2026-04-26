@@ -1,10 +1,14 @@
+import { ArrowRight, Cannabis, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { Cannabis, ArrowRight, ExternalLink } from "lucide-react";
 
 /**
  * SiteFooter — distinct from food-agg: gradient top bar, centered layout, cannabis branding.
  */
-export function SiteFooter({ hideBrowseCta }: { hideBrowseCta?: boolean } = {}) {
+export function SiteFooter({
+  hideBrowseCta,
+}: {
+  hideBrowseCta?: boolean;
+} = {}) {
   const year = new Date().getFullYear();
 
   return (
@@ -77,8 +81,8 @@ export function SiteFooter({ hideBrowseCta }: { hideBrowseCta?: boolean } = {}) 
                 </a>
               </div>
               <p className="text-xs text-muted text-center sm:text-left">
-                Join the conversation. Share experiences, ask questions, or check
-                seller reputations.
+                Join the conversation. Share experiences, ask questions, or
+                check seller reputations.
               </p>
             </div>
 

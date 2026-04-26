@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface TooltipProps {
   content: React.ReactNode;
   children: React.ReactNode;
   /** Placement relative to trigger */
-  side?: 'top' | 'bottom' | 'left' | 'right';
+  side?: "top" | "bottom" | "left" | "right";
   /** Delay before showing (ms) */
   delay?: number;
 }
@@ -16,11 +16,18 @@ interface TooltipProps {
  * Lightweight tooltip — renders via portal at body level to avoid
  * overflow/contain-paint clipping from parent containers.
  */
-export function Tooltip({ content, children, side = 'bottom', delay = 400 }: TooltipProps) {
+export function Tooltip({
+  content,
+  children,
+  side = "bottom",
+  delay = 400,
+}: TooltipProps) {
   const [visible, setVisible] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number; transform: string } | null>(
-    null,
-  );
+  const [coords, setCoords] = useState<{
+    top: number;
+    left: number;
+    transform: string;
+  } | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -62,7 +69,7 @@ export function Tooltip({ content, children, side = 'bottom', delay = 400 }: Too
               top: coords.top,
               left: coords.left,
               transform: coords.transform,
-              animation: 'tooltip-in 120ms ease-out both',
+              animation: "tooltip-in 120ms ease-out both",
             }}
           >
             {content}
@@ -81,15 +88,35 @@ function computePosition(
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
   switch (side) {
-    case 'top':
-      return { top: rect.top - gap, left: cx, transform: 'translate(-50%, -100%)' };
-    case 'bottom':
-      return { top: rect.bottom + gap, left: cx, transform: 'translate(-50%, 0)' };
-    case 'left':
-      return { top: cy, left: rect.left - gap, transform: 'translate(-100%, -50%)' };
-    case 'right':
-      return { top: cy, left: rect.right + gap, transform: 'translate(0, -50%)' };
+    case "top":
+      return {
+        top: rect.top - gap,
+        left: cx,
+        transform: "translate(-50%, -100%)",
+      };
+    case "bottom":
+      return {
+        top: rect.bottom + gap,
+        left: cx,
+        transform: "translate(-50%, 0)",
+      };
+    case "left":
+      return {
+        top: cy,
+        left: rect.left - gap,
+        transform: "translate(-100%, -50%)",
+      };
+    case "right":
+      return {
+        top: cy,
+        left: rect.right + gap,
+        transform: "translate(0, -50%)",
+      };
     default:
-      return { top: rect.bottom + gap, left: cx, transform: 'translate(-50%, 0)' };
+      return {
+        top: rect.bottom + gap,
+        left: cx,
+        transform: "translate(-50%, 0)",
+      };
   }
 }

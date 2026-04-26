@@ -6,7 +6,7 @@
  * Ported from food-aggregator-example.
  */
 
-type OverlayType = 'zoom' | 'filter' | 'pricing' | 'modal';
+type OverlayType = "zoom" | "filter" | "pricing" | "modal";
 
 interface HistoryEntry {
   id: string;
@@ -28,14 +28,14 @@ class HistoryManager {
   }
 
   constructor() {
-    if (typeof window !== 'undefined') this.init();
+    if (typeof window !== "undefined") this.init();
   }
 
   private init() {
     if (this.initialized) return;
     this.initialized = true;
     // Capture phase so we fire before Next.js App Router's popstate handler
-    window.addEventListener('popstate', this.handlePopState, true);
+    window.addEventListener("popstate", this.handlePopState, true);
   }
 
   private handlePopState = (event: PopStateEvent) => {
@@ -71,17 +71,17 @@ class HistoryManager {
       // Use native pushState to bypass Next.js App Router interception
       const nativePush = History.prototype.pushState;
       const baseState =
-        window.history.state && typeof window.history.state === 'object'
+        window.history.state && typeof window.history.state === "object"
           ? (window.history.state as Record<string, unknown>)
           : {};
       nativePush.call(
         window.history,
         { ...baseState, __overlayId: id, __overlayType: type },
-        '',
+        "",
         window.location.href,
       );
     } catch (e) {
-      console.warn('[HistoryManager] pushState failed:', e);
+      console.warn("[HistoryManager] pushState failed:", e);
     }
   }
 
@@ -113,7 +113,7 @@ class HistoryManager {
           window.history.back();
         }
       } catch (e) {
-        console.warn('[HistoryManager] history.back() failed:', e);
+        console.warn("[HistoryManager] history.back() failed:", e);
         this.preventNextPop = false;
         this._pendingBack = false;
       }

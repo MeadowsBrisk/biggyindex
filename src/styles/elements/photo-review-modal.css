@@ -53,7 +53,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .prm-primary-btn__arrow { transition: none; }
+  .prm-primary-btn__arrow {
+    transition: none;
+  }
 }
 
 /* Secondary "View on LittleBiggy" ghost button. */

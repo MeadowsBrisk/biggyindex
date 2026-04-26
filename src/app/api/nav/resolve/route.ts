@@ -43,9 +43,7 @@ export async function POST(request: NextRequest) {
 
     await writeR2JSON(key, event);
 
-    console.log(
-      `[nav] ${event.mkt} | ${event.id} → ${event.sn ?? "unknown"}`,
-    );
+    console.log(`[nav] ${event.mkt} | ${event.id} → ${event.sn ?? "unknown"}`);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[nav] write error:", msg);

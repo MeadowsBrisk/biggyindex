@@ -18,20 +18,20 @@
  *     to this specific review if it exists there) and "View on LittleBiggy".
  */
 
-import { lazy, Suspense, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowRight, ExternalLink, Star, Truck, User, X } from "lucide-react";
+import { lazy, Suspense, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useHistoryState } from "@/hooks/useHistoryState";
+import { cx } from "@/lib/cn";
 import {
   expandedRefNumAtom,
   focusReviewIdAtom,
   itemsAtom,
   photoReviewModalAtom,
 } from "@/store/atoms";
-import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
-import { useHistoryState } from "@/hooks/useHistoryState";
-import { cx } from "@/lib/cn";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -189,7 +189,9 @@ export function PhotoReviewModal() {
                         "relative aspect-square overflow-hidden rounded-md bg-black/60 group cursor-zoom-in",
                         // First image spans 2x2 when there are >=3 so the
                         // grid doesn't look awkwardly sparse.
-                        images.length === 3 && idx === 0 && "row-span-2 aspect-auto",
+                        images.length === 3 &&
+                          idx === 0 &&
+                          "row-span-2 aspect-auto",
                       )}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}

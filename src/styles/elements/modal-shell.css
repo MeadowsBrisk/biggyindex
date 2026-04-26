@@ -59,12 +59,16 @@
    ALL modals use .ido-close (defined in item-detail-overlay.css). It's a single
    shared round-button component — do not duplicate rules here. In modals we
    need a higher z-index so it sits above sticky section headers. */
-.modal-panel .ido-close { z-index: 40; }
+.modal-panel .ido-close {
+  z-index: 40;
+}
 
 /* SellerModal / other modals reuse .ido-lb-btn — ensure it's visible on mobile
    (ItemDetailOverlay hides it below 48rem because ItemCard has its own LB CTA,
    but modals don't have that fallback). */
-.modal-panel .ido-lb-btn { display: inline-flex; }
+.modal-panel .ido-lb-btn {
+  display: inline-flex;
+}
 
 /* ── Animations ── */
 @keyframes modal-fade-in {

@@ -77,19 +77,18 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
-        {/* Critical inline styles — define --background/--foreground for BOTH themes
-            so HydrationGate's bg-[var(--background)] is always opaque.
-            :root provides light defaults; [data-theme="dark"] overrides. */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `:root{--background:#f7f9f7;--foreground:#1a1a1a;--muted:#5f7060;background-color:#f7f9f7;color:#1a1a1a}html[data-theme="dark"]{--background:#0c0f0c;--foreground:#e8ece8;--muted:#7f917f;background-color:#0c0f0c;color:#e8ece8}`,
-          }}
-        />
         {/* Prevent FOUC — apply theme + accent + pauseGifs before first paint.
-            Matches food-agg pattern: defaults to light when no localStorage. */}
+            Keep this before critical styles so the initial canvas is correct. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=localStorage.getItem('darkMode');var dark=d==='true'||d==='"true"';document.documentElement.setAttribute('data-theme',dark?'dark':'light');var a=localStorage.getItem('accentColor');if(a){a=a.replace(/"/g,'');if(a&&a!=='green')document.documentElement.setAttribute('data-accent',a)}var p=localStorage.getItem('pauseGifs');if(p==='true'||p==='"true"')document.documentElement.setAttribute('data-pause-gifs','true')}catch(e){}})()`,
+            __html: `(function(){try{var h=document.documentElement;var d=localStorage.getItem('darkMode');var dark=d==='true'||d==='"true"'||d==='1'||d==='dark';h.setAttribute('data-theme',dark?'dark':'light');h.style.backgroundColor=dark?'#0c0f0c':'#f7f9f7';h.style.color=dark?'#e8ece8':'#1a1a1a';h.style.colorScheme=dark?'dark':'light';var a=localStorage.getItem('accentColor');if(a){a=a.replace(/"/g,'');if(a&&a!=='green')h.setAttribute('data-accent',a)}var p=localStorage.getItem('pauseGifs');if(p==='true'||p==='"true"')h.setAttribute('data-pause-gifs','true')}catch(e){}})()`,
+          }}
+        />
+        {/* Critical inline styles — define --background/--foreground for BOTH themes.
+          :root provides light defaults; [data-theme="dark"] overrides. */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `:root{--background:#f7f9f7;--foreground:#1a1a1a;--muted:#5f7060;background-color:#f7f9f7;color:#1a1a1a}html[data-theme="dark"]{--background:#0c0f0c;--foreground:#e8ece8;--muted:#7f917f;background-color:#0c0f0c;color:#e8ece8;color-scheme:dark}html[data-theme="light"]{color-scheme:light}`,
           }}
         />
       </head>

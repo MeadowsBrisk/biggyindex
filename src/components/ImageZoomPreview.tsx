@@ -1,24 +1,30 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { createPortal } from 'react-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Keyboard, EffectFade } from 'swiper/modules';
-import type { Swiper as SwiperInstance } from 'swiper/types';
-import 'swiper/css';
-import 'swiper/css/effect-fade';
-import { cx } from '@/lib/cn';
-import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import { useHistoryState } from '@/hooks/useHistoryState';
+import { AnimatePresence, motion } from "framer-motion";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
+import { EffectFade, Keyboard } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperInstance } from "swiper/types";
+import "swiper/css";
+import "swiper/css/effect-fade";
 import {
-  RotateButton,
-  ZoomButton,
   ArrowLeftIcon,
   ArrowRightIcon,
-} from '@/components/item/zoom/ZoomButtons';
-import ZoomSlide from '@/components/item/zoom/ZoomSlide';
-import ZoomThumbnails from '@/components/item/zoom/ZoomThumbnails';
+  RotateButton,
+  ZoomButton,
+} from "@/components/item/zoom/ZoomButtons";
+import ZoomSlide from "@/components/item/zoom/ZoomSlide";
+import ZoomThumbnails from "@/components/item/zoom/ZoomThumbnails";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useHistoryState } from "@/hooks/useHistoryState";
+import { cx } from "@/lib/cn";
 
 type ImageZoomPreviewProps = {
   /** Primary image URL */
@@ -36,13 +42,18 @@ type ImageZoomPreviewProps = {
 export default function ImageZoomPreview({
   imageUrl,
   imageUrls,
-  alt = '',
+  alt = "",
   openSignal = null,
   startIndex = 0,
 }: ImageZoomPreviewProps) {
   // Collect images list
   const images = useMemo(
-    () => (Array.isArray(imageUrls) && imageUrls.length ? imageUrls : imageUrl ? [imageUrl] : []),
+    () =>
+      Array.isArray(imageUrls) && imageUrls.length
+        ? imageUrls
+        : imageUrl
+          ? [imageUrl]
+          : [],
     [imageUrl, imageUrls],
   );
   const total = images.length;
@@ -60,10 +71,10 @@ export default function ImageZoomPreview({
   // History management — pressing Back closes zoom instead of navigating away
   const { closeOverlay } = useHistoryState({
     id: `image-zoom-${alt}`,
-    type: 'zoom',
+    type: "zoom",
     isOpen: open,
     onClose: () => setOpen(false),
-    closeStrategy: 'silent',
+    closeStrategy: "silent",
   });
 
   // Close helper
@@ -95,7 +106,10 @@ export default function ImageZoomPreview({
 
   // Rotation state per slide
   const [rotations, setRotations] = useState<Record<number, number>>({});
-  const rotationFor = useCallback((i: number) => (rotations[i] || 0) % 360, [rotations]);
+  const rotationFor = useCallback(
+    (i: number) => (rotations[i] || 0) % 360,
+    [rotations],
+  );
   const rotate = useCallback(
     (delta: number) =>
       setRotations((r) => ({
@@ -124,8 +138,8 @@ export default function ImageZoomPreview({
     if (!open || images.length <= 1) return;
     images.forEach((src) => {
       const i = new Image();
-      i.decoding = 'async';
-      i.loading = 'eager';
+      i.decoding = "async";
+      i.loading = "eager";
       i.src = src;
     });
   }, [open, images]);
@@ -139,7 +153,8 @@ export default function ImageZoomPreview({
       if (now - lastNavRef.current < 180) return;
       lastNavRef.current = now;
       const cur = swiper.activeIndex || 0;
-      const next = dir > 0 ? Math.min(cur + 1, total - 1) : Math.max(cur - 1, 0);
+      const next =
+        dir > 0 ? Math.min(cur + 1, total - 1) : Math.max(cur - 1, 0);
       if (next !== cur) swiper.slideTo(next);
     },
     [swiper, total],
@@ -149,21 +164,21 @@ export default function ImageZoomPreview({
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closePreview();
-      else if (e.key === 'ArrowLeft') navigate(-1);
-      else if (e.key === 'ArrowRight') navigate(1);
-      else if (e.key === '+') controlsRef.current[activeIndex]?.zoomIn?.();
-      else if (e.key === '-') controlsRef.current[activeIndex]?.zoomOut?.();
-      else if (e.key === '0') {
+      if (e.key === "Escape") closePreview();
+      else if (e.key === "ArrowLeft") navigate(-1);
+      else if (e.key === "ArrowRight") navigate(1);
+      else if (e.key === "+") controlsRef.current[activeIndex]?.zoomIn?.();
+      else if (e.key === "-") controlsRef.current[activeIndex]?.zoomOut?.();
+      else if (e.key === "0") {
         const c = controlsRef.current[activeIndex];
         c?.resetTransform?.();
         c?.centerView?.(1);
         setRotations((r) => ({ ...r, [activeIndex]: 0 }));
-      } else if (e.key === 'r') rotate(90);
-      else if (e.key === 'R') rotate(-90);
+      } else if (e.key === "r") rotate(90);
+      else if (e.key === "R") rotate(-90);
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [open, activeIndex, rotate, navigate, closePreview]);
 
   // UI auto-hide (cursor movement resets timer)
@@ -179,16 +194,17 @@ export default function ImageZoomPreview({
     if (!open) return;
     userActive();
     const onMove = () => userActive();
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('keydown', onMove, { passive: true });
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("keydown", onMove, { passive: true });
     return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('keydown', onMove);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("keydown", onMove);
       if (idleTimer.current != null) clearTimeout(idleTimer.current);
     };
   }, [open, userActive]);
 
-  if (!mounted || typeof document === 'undefined' || images.length === 0) return null;
+  if (!mounted || typeof document === "undefined" || images.length === 0)
+    return null;
 
   // Portal body (modal)
   return createPortal(
@@ -209,19 +225,19 @@ export default function ImageZoomPreview({
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label={alt || 'Image preview'}
+            aria-label={alt || "Image preview"}
             className="fixed inset-0 z-[10001] flex flex-col touch-none select-none"
             initial={{ opacity: 0, scale: 0.985 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.985 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
           >
             {/* Top bar */}
             <div
               className={cx(
-                'pointer-events-none absolute top-2 left-0 right-0 flex items-start justify-between px-2 sm:px-4 z-[10040]',
-                'transition-opacity duration-300',
-                showUI ? 'opacity-100' : 'opacity-0',
+                "pointer-events-none absolute top-2 left-0 right-0 flex items-start justify-between px-2 sm:px-4 z-[10040]",
+                "transition-opacity duration-300",
+                showUI ? "opacity-100" : "opacity-0",
               )}
             >
               <div className="flex items-center gap-2 pointer-events-auto">
@@ -238,7 +254,9 @@ export default function ImageZoomPreview({
                     small
                     icon="-"
                     label="Zoom out"
-                    onClick={() => controlsRef.current[activeIndex]?.zoomOut?.()}
+                    onClick={() =>
+                      controlsRef.current[activeIndex]?.zoomOut?.()
+                    }
                   />
                   <ZoomButton
                     small
@@ -292,10 +310,10 @@ export default function ImageZoomPreview({
                   const t = e.target as HTMLElement;
                   if (
                     currentScaleRef.current <= 1.0001 &&
-                    !t.closest('button') &&
-                    !t.closest('[data-zoom-content]') &&
-                    !t.closest('[data-nav]') &&
-                    !t.closest('[data-thumbs]')
+                    !t.closest("button") &&
+                    !t.closest("[data-zoom-content]") &&
+                    !t.closest("[data-nav]") &&
+                    !t.closest("[data-thumbs]")
                   ) {
                     closePreview();
                   }
@@ -305,14 +323,14 @@ export default function ImageZoomPreview({
               {/* Gradients */}
               <div
                 className={cx(
-                  'pointer-events-none fixed inset-x-0 top-0 h-20 bg-gradient-to-b from-black/65 to-transparent transition-opacity duration-500',
-                  showUI ? 'opacity-100' : 'opacity-0',
+                  "pointer-events-none fixed inset-x-0 top-0 h-20 bg-gradient-to-b from-black/65 to-transparent transition-opacity duration-500",
+                  showUI ? "opacity-100" : "opacity-0",
                 )}
               />
               <div
                 className={cx(
-                  'pointer-events-none fixed inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-500',
-                  showUI ? 'opacity-100' : 'opacity-0',
+                  "pointer-events-none fixed inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-500",
+                  showUI ? "opacity-100" : "opacity-0",
                 )}
               />
 
@@ -373,16 +391,16 @@ export default function ImageZoomPreview({
                     disabled={activeIndex <= 0}
                     onClick={() => navigate(-1)}
                     className={cx(
-                      'hidden md:flex group absolute left-0 top-0 h-full w-32 items-center justify-start pl-4 z-[10020]',
-                      activeIndex <= 0 && 'opacity-40 cursor-not-allowed',
+                      "hidden md:flex group absolute left-0 top-0 h-full w-32 items-center justify-start pl-4 z-[10020]",
+                      activeIndex <= 0 && "opacity-40 cursor-not-allowed",
                     )}
                   >
                     <span
                       className={cx(
-                        'rounded-full p-5 backdrop-blur-md border shadow-sm bg-white/85 dark:bg-gray-900/70 text-gray-900 dark:text-gray-100 transition-colors',
+                        "rounded-full p-5 backdrop-blur-md border shadow-sm bg-white/85 dark:bg-gray-900/70 text-gray-900 dark:text-gray-100 transition-colors",
                         activeIndex > 0
-                          ? 'group-hover:ring-2 group-hover:ring-white/60'
-                          : 'bg-white/30 dark:bg-gray-700/30 border-transparent text-gray-400 dark:text-gray-500',
+                          ? "group-hover:ring-2 group-hover:ring-white/60"
+                          : "bg-white/30 dark:bg-gray-700/30 border-transparent text-gray-400 dark:text-gray-500",
                       )}
                     >
                       <ArrowLeftIcon className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
@@ -394,16 +412,17 @@ export default function ImageZoomPreview({
                     disabled={activeIndex >= total - 1}
                     onClick={() => navigate(1)}
                     className={cx(
-                      'hidden md:flex group absolute right-0 top-0 h-full w-32 items-center justify-end pr-4 z-[10020]',
-                      activeIndex >= total - 1 && 'opacity-40 cursor-not-allowed',
+                      "hidden md:flex group absolute right-0 top-0 h-full w-32 items-center justify-end pr-4 z-[10020]",
+                      activeIndex >= total - 1 &&
+                        "opacity-40 cursor-not-allowed",
                     )}
                   >
                     <span
                       className={cx(
-                        'rounded-full p-5 backdrop-blur-md border shadow-sm bg-white/85 dark:bg-gray-900/70 text-gray-900 dark:text-gray-100 transition-colors',
+                        "rounded-full p-5 backdrop-blur-md border shadow-sm bg-white/85 dark:bg-gray-900/70 text-gray-900 dark:text-gray-100 transition-colors",
                         activeIndex < total - 1
-                          ? 'group-hover:ring-2 group-hover:ring-white/60'
-                          : 'bg-white/30 dark:bg-gray-700/30 border-transparent text-gray-400 dark:text-gray-500',
+                          ? "group-hover:ring-2 group-hover:ring-white/60"
+                          : "bg-white/30 dark:bg-gray-700/30 border-transparent text-gray-400 dark:text-gray-500",
                       )}
                     >
                       <ArrowRightIcon className="w-8 h-8 group-hover:translate-x-1 transition-transform" />

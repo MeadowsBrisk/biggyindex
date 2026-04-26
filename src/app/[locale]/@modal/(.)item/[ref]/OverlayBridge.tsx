@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useSetAtom } from "jotai";
+import { useEffect, useRef } from "react";
 import { expandedRefNumAtom } from "@/store/atoms";
 
 /**

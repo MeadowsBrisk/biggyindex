@@ -1,8 +1,8 @@
 "use client";
 
 import { atom, useAtom, useSetAtom } from "jotai";
+import { AlertTriangle, Check, Info, X, XCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Check, AlertTriangle, Info, X, XCircle } from "lucide-react";
 
 export type ToastVariant = "success" | "error" | "warning" | "info";
 
@@ -34,8 +34,7 @@ export function useAddToast() {
       id: genId(),
       message: typeof input === "string" ? input : input.message,
       variant: typeof input === "string" ? "info" : (input.variant ?? "info"),
-      duration:
-        typeof input === "string" ? 3500 : (input.duration ?? 3500),
+      duration: typeof input === "string" ? 3500 : (input.duration ?? 3500),
     };
     setToasts((prev) => [...prev, t]);
     return t.id;
@@ -44,8 +43,7 @@ export function useAddToast() {
 
 export function useDismissToast() {
   const setToasts = useSetAtom(toastsAtom);
-  return (id: string) =>
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+  return (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
 }
 
 function variantClasses(v: ToastVariant) {

@@ -5,10 +5,21 @@
  * Dev/preview: path-based fallback (/de → DE) or default GB
  */
 
-export type MarketCode = "GB" | "IE" | "DE" | "FR" | "PT" | "IT" | "ES" | "GR" | "CZ";
+export type MarketCode =
+  | "GB"
+  | "IE"
+  | "DE"
+  | "FR"
+  | "PT"
+  | "IT"
+  | "ES"
+  | "GR"
+  | "CZ";
 
 /** Derive market from hostname (subdomain detection). */
-export function getMarketFromHost(hostname: string | undefined | null): MarketCode {
+export function getMarketFromHost(
+  hostname: string | undefined | null,
+): MarketCode {
   const h = String(hostname ?? "")
     .toLowerCase()
     .split(":")[0];
@@ -115,7 +126,17 @@ export function marketToLocale(market: MarketCode): string {
   }
 }
 
-export const ALL_MARKETS: MarketCode[] = ["GB", "IE", "DE", "FR", "PT", "IT", "ES", "GR", "CZ"];
+export const ALL_MARKETS: MarketCode[] = [
+  "GB",
+  "IE",
+  "DE",
+  "FR",
+  "PT",
+  "IT",
+  "ES",
+  "GR",
+  "CZ",
+];
 
 /** Markets where the UI is English (skip translation toggle, reuse en-GB copy). */
 export const ENGLISH_MARKETS: MarketCode[] = ["GB", "IE"];

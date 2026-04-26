@@ -1,8 +1,13 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
-import { readR2JSON, R2Keys } from "@/lib/r2";
-import { getMarketFromHost, ALL_MARKETS, type MarketCode, marketToLocale } from "@/lib/market/market";
 import { CATEGORIES } from "@/lib/constants";
+import {
+  ALL_MARKETS,
+  getMarketFromHost,
+  type MarketCode,
+  marketToLocale,
+} from "@/lib/market/market";
+import { R2Keys, readR2JSON } from "@/lib/r2";
 import type { Item, Seller } from "@/lib/types";
 
 /**
@@ -64,7 +69,10 @@ function altLanguages(markets: MarketCode[]): Record<string, string> {
   return alts;
 }
 
-function altLanguagesForPath(path: string, markets: MarketCode[]): Record<string, string> {
+function altLanguagesForPath(
+  path: string,
+  markets: MarketCode[],
+): Record<string, string> {
   const alts: Record<string, string> = {};
   for (const m of markets) {
     alts[LOCALE_FOR[m]] = `${DOMAINS[m]}${path}`;
@@ -77,7 +85,9 @@ function altLanguagesForPath(path: string, markets: MarketCode[]): Record<string
 
 export default async function sitemap({
   id,
-}: { id: string }): Promise<MetadataRoute.Sitemap> {
+}: {
+  id: string;
+}): Promise<MetadataRoute.Sitemap> {
   const market = await getCurrentMarket();
   const baseUrl = DOMAINS[market];
 
@@ -153,8 +163,7 @@ async function itemsSitemap(
   }
 
   // Get current market's items
-  const currentItems =
-    allResults.find((r) => r.market === market)?.items ?? [];
+  const currentItems = allResults.find((r) => r.market === market)?.items ?? [];
 
   return currentItems.map((item) => {
     const ref = String(item.refNum ?? item.id);
@@ -167,10 +176,9 @@ async function itemsSitemap(
       changeFrequency: "daily" as const,
       priority: 0.6,
       alternates: {
-        languages: altLanguagesForPath(
-          `/item/${encodeURIComponent(ref)}`,
-          [...itemMarkets],
-        ),
+        languages: altLanguagesForPath(`/item/${encodeURIComponent(ref)}`, [
+          ...itemMarkets,
+        ]),
       },
     };
   });
@@ -184,7 +192,9 @@ async function sellersSitemap(
 ): Promise<MetadataRoute.Sitemap> {
   const allResults = await Promise.all(
     ALL_MARKETS.map(async (m) => {
-      const sellers = await readR2JSON<Seller[]>(R2Keys.sellers(m.toLowerCase()));
+      const sellers = await readR2JSON<Seller[]>(
+        R2Keys.sellers(m.toLowerCase()),
+      );
       return { market: m, sellers: sellers ?? [] };
     }),
   );

@@ -3,7 +3,7 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ChevronDown, EyeOff, Pin, RotateCcw, Search, X } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
@@ -122,7 +122,13 @@ const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string; label: string }[]> =
     ],
   };
 
-export function FilterPanelContent({ onClose }: { onClose: () => void }) {
+export function FilterPanelContent({
+  onClose,
+  onReady,
+}: {
+  onClose: () => void;
+  onReady?: () => void;
+}) {
   const [category, setCategory] = useAtom(categoryAtom);
   const [subcategory, setSubcategory] = useAtom(subcategoryAtom);
   const [search, setSearch] = useAtom(searchQueryAtom);
@@ -148,6 +154,10 @@ export function FilterPanelContent({ onClose }: { onClose: () => void }) {
   const [showAllSellers, setShowAllSellers] = useState(false);
   const [sellerSort, setSellerSort] = useState<"alpha" | "count">("alpha");
   const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
+
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
 
   const visibleSellers = useMemo(() => {
     const base = filteredSellers.filter((seller) => !hiddenSet.has(seller.id));

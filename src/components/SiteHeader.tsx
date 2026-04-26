@@ -1,23 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  Cannabis,
+  ChevronDown,
+  Menu,
+  Settings,
+  ShoppingCart,
+  X,
+} from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Cannabis, Settings, ChevronDown, ShoppingCart, Menu, X } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { CATEGORIES, CATEGORY_LABELS, MARKETS } from "@/lib/constants";
 import {
-  categoryAtom,
-  marketAtom,
-  settingsModalOpenAtom,
-  mobileMenuOpenAtom,
-  subcategoryAtom,
-  displayCurrencyAtom,
   basketCountAtom,
   basketOpenAtom,
+  categoryAtom,
   type DisplayCurrency,
+  displayCurrencyAtom,
+  marketAtom,
+  mobileMenuOpenAtom,
+  settingsModalOpenAtom,
+  subcategoryAtom,
 } from "@/store/atoms";
 
 const CURRENCY_OPTIONS: { key: DisplayCurrency; label: string }[] = [
@@ -54,7 +61,11 @@ export function SiteHeader() {
         <div className="mx-auto flex h-14 items-center justify-between px-4">
           {/* Logo — bold with subtle green glow */}
           <div className="flex items-center gap-4">
-            <Link href="/" prefetch={false} className="group flex items-center gap-2.5">
+            <Link
+              href="/"
+              prefetch={false}
+              className="group flex items-center gap-2.5"
+            >
               <div className="relative">
                 <Cannabis
                   size={26}
@@ -77,16 +88,10 @@ export function SiteHeader() {
               <HeaderNavLink href="/browse" active={isBrowse}>
                 Browse
               </HeaderNavLink>
-              <HeaderNavLink
-                href="/sellers"
-                active={pathname === "/sellers"}
-              >
+              <HeaderNavLink href="/sellers" active={pathname === "/sellers"}>
                 Sellers
               </HeaderNavLink>
-              <HeaderNavLink
-                href="/reviews"
-                active={pathname === "/reviews"}
-              >
+              <HeaderNavLink href="/reviews" active={pathname === "/reviews"}>
                 Reviews
               </HeaderNavLink>
             </nav>
@@ -245,7 +250,9 @@ function MarketDropdown() {
               >
                 <CountryFlag code={m.code} size={18} />
                 <span className="flex-1 text-left">{m.name}</span>
-                <span className="text-xs opacity-60">{m.currencySymbol} {m.currency}</span>
+                <span className="text-xs opacity-60">
+                  {m.currencySymbol} {m.currency}
+                </span>
               </button>
             ))}
           </div>

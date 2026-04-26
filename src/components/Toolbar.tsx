@@ -1,31 +1,47 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { ArrowUp, ArrowDown, Heart, Truck, Package, X, LayoutGrid, List, ChevronDown } from "lucide-react";
-import { useTransition, useMemo, useEffect, useRef, useSyncExternalStore } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  Heart,
+  LayoutGrid,
+  List,
+  Package,
+  Truck,
+  X,
+} from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
+import { FilterToggle } from "@/components/FilterPanel";
 import type { SortKey } from "@/lib/types";
 import {
+  attrFiltersAtom,
+  availableSellersAtom,
   bookmarksAtom,
   bookmarksOnlyAtom,
-  filteredItemsAtom,
-  itemsAtom,
-  sortKeyAtom,
-  sortDirAtom,
-  includeShippingAtom,
-  freeShippingOnlyAtom,
-  searchQueryAtom,
   categoryAtom,
-  subcategoryAtom,
+  excludedShipFromAtom,
+  filteredItemsAtom,
+  freeShippingOnlyAtom,
+  includeShippingAtom,
+  itemsAtom,
+  priceRangeAtom,
+  searchQueryAtom,
   selectedSellersAtom,
   selectedShipFromAtom,
-  excludedShipFromAtom,
   selectedWeightsAtom,
-  attrFiltersAtom,
-  priceRangeAtom,
-  availableSellersAtom,
+  sortDirAtom,
+  sortKeyAtom,
+  subcategoryAtom,
   viewModeAtom,
 } from "@/store/atoms";
-import { FilterToggle } from "@/components/FilterPanel";
 
 /**
  * Toolbar — sticky at the top of the viewport (header scrolls away above it).
@@ -43,7 +59,10 @@ export function Toolbar() {
     if (!el) return;
     const sync = () => {
       const h = el.getBoundingClientRect().height;
-      document.documentElement.style.setProperty("--toolbar-h", `${Math.round(h)}px`);
+      document.documentElement.style.setProperty(
+        "--toolbar-h",
+        `${Math.round(h)}px`,
+      );
     };
     sync();
     const ro = new ResizeObserver(sync);
@@ -128,41 +147,114 @@ function ActivePills() {
     const p: { label: string; clear: () => void }[] = [];
 
     if (search.trim()) {
-      p.push({ label: `"${search}"`, clear: () => startTransition(() => setSearch("")) });
+      p.push({
+        label: `"${search}"`,
+        clear: () => startTransition(() => setSearch("")),
+      });
     }
     if (category !== "All") {
-      p.push({ label: category, clear: () => startTransition(() => { setCategory("All"); setSubcategory([]); }) });
+      p.push({
+        label: category,
+        clear: () =>
+          startTransition(() => {
+            setCategory("All");
+            setSubcategory([]);
+          }),
+      });
     }
     for (const sc of subcategory) {
-      p.push({ label: sc, clear: () => startTransition(() => setSubcategory((prev) => prev.filter((s) => s !== sc))) });
+      p.push({
+        label: sc,
+        clear: () =>
+          startTransition(() =>
+            setSubcategory((prev) => prev.filter((s) => s !== sc)),
+          ),
+      });
     }
     for (const sid of sellers) {
       const name = sellerMap.get(sid) ?? `#${sid}`;
-      p.push({ label: name, clear: () => startTransition(() => setSellers((prev) => prev.filter((s) => s !== sid))) });
+      p.push({
+        label: name,
+        clear: () =>
+          startTransition(() =>
+            setSellers((prev) => prev.filter((s) => s !== sid)),
+          ),
+      });
     }
     for (const sf of shipInclude) {
-      p.push({ label: `From: ${sf}`, clear: () => startTransition(() => setShipInclude((prev) => prev.filter((v) => v !== sf))) });
+      p.push({
+        label: `From: ${sf}`,
+        clear: () =>
+          startTransition(() =>
+            setShipInclude((prev) => prev.filter((v) => v !== sf)),
+          ),
+      });
     }
     for (const sf of shipExclude) {
-      p.push({ label: `Not: ${sf}`, clear: () => startTransition(() => setShipExclude((prev) => prev.filter((v) => v !== sf))) });
+      p.push({
+        label: `Not: ${sf}`,
+        clear: () =>
+          startTransition(() =>
+            setShipExclude((prev) => prev.filter((v) => v !== sf)),
+          ),
+      });
     }
     // Free shipping pill omitted — already visible as toolbar toggle
     for (const w of weights) {
-      p.push({ label: `${w}g`, clear: () => startTransition(() => setWeights((prev) => prev.filter((g) => g !== w))) });
+      p.push({
+        label: `${w}g`,
+        clear: () =>
+          startTransition(() =>
+            setWeights((prev) => prev.filter((g) => g !== w)),
+          ),
+      });
     }
     if (priceRange.min > 0 || priceRange.max < Infinity) {
-      p.push({ label: "Price range", clear: () => startTransition(() => setPriceRange({ min: 0, max: Infinity })) });
+      p.push({
+        label: "Price range",
+        clear: () =>
+          startTransition(() => setPriceRange({ min: 0, max: Infinity })),
+      });
     }
     for (const [key, vals] of Object.entries(attrs)) {
       for (const val of vals) {
         p.push({
           label: val,
-          clear: () => startTransition(() => setAttrs((prev) => ({ ...prev, [key]: (prev[key] ?? []).filter((v) => v !== val) }))),
+          clear: () =>
+            startTransition(() =>
+              setAttrs((prev) => ({
+                ...prev,
+                [key]: (prev[key] ?? []).filter((v) => v !== val),
+              })),
+            ),
         });
       }
     }
     return p;
-  }, [search, category, subcategory, sellers, sellerMap, shipInclude, shipExclude, freeOnly, weights, priceRange, attrs, startTransition, setSearch, setCategory, setSubcategory, setSellers, setShipInclude, setShipExclude, setFreeOnly, setWeights, setPriceRange, setAttrs]);
+  }, [
+    search,
+    category,
+    subcategory,
+    sellers,
+    sellerMap,
+    shipInclude,
+    shipExclude,
+    freeOnly,
+    weights,
+    priceRange,
+    attrs,
+    startTransition,
+    setSearch,
+    setCategory,
+    setSubcategory,
+    setSellers,
+    setShipInclude,
+    setShipExclude,
+    setFreeOnly,
+    setWeights,
+    setPriceRange,
+    setAttrs,
+  ]);
 
   if (pills.length === 0) return null;
 
@@ -242,15 +334,21 @@ function ResultCount({ mobile }: { mobile?: boolean }) {
       className={`text-[11px] font-medium text-muted tabular-nums ${mobile ? "inline" : "hidden sm:inline"}`}
     >
       {filtered.length}
-      {isFiltered && <span className="text-muted-foreground">/{total.length}</span>}
-      {" "}items
+      {isFiltered && (
+        <span className="text-muted-foreground">/{total.length}</span>
+      )}{" "}
+      items
     </span>
   );
 }
 
 // ─── Sort pills (desktop) ──────────────────────────────────────────
 
-const BASE_SORT_OPTIONS: { key: SortKey; label: string; defaultDir: "asc" | "desc" }[] = [
+const BASE_SORT_OPTIONS: {
+  key: SortKey;
+  label: string;
+  defaultDir: "asc" | "desc";
+}[] = [
   { key: "hottest", label: "Hot", defaultDir: "desc" },
   { key: "newest", label: "Newest", defaultDir: "desc" },
   { key: "updated", label: "Updated", defaultDir: "desc" },
@@ -350,8 +448,12 @@ function ViewModeToggle() {
       type="button"
       onClick={() => setMode(isCompact ? "comfortable" : "compact")}
       className="sm:hidden flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer text-muted hover:text-foreground"
-      title={isCompact ? "Switch to comfortable cards" : "Switch to compact cards"}
-      aria-label={isCompact ? "Switch to comfortable cards" : "Switch to compact cards"}
+      title={
+        isCompact ? "Switch to comfortable cards" : "Switch to compact cards"
+      }
+      aria-label={
+        isCompact ? "Switch to comfortable cards" : "Switch to compact cards"
+      }
     >
       {isCompact ? <LayoutGrid size={13} /> : <List size={13} />}
       <span>{isCompact ? "Roomy" : "Compact"}</span>
@@ -400,11 +502,17 @@ function SortSelect() {
             </option>
           ))}
         </select>
-        <ChevronDown size={12} className="sort-select__chevron" aria-hidden="true" />
+        <ChevronDown
+          size={12}
+          className="sort-select__chevron"
+          aria-hidden="true"
+        />
       </div>
       <button
         type="button"
-        onClick={() => startTransition(() => setSortDir(sortDir === "asc" ? "desc" : "asc"))}
+        onClick={() =>
+          startTransition(() => setSortDir(sortDir === "asc" ? "desc" : "asc"))
+        }
         className="sort-select__dir"
         aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
       >

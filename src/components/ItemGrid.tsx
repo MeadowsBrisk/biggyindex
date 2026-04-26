@@ -1,14 +1,30 @@
 "use client";
 
-import { useMemo, useRef, useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { Package } from "lucide-react";
-import { sortedItemsAtom, isLoadingAtom, marketAtom, currencyDisplayAtom, sellersMapAtom, selectedSellersAtom, bookmarksSetAtom, selectedWeightsAtom, includeShippingAtom, pauseGifsAtom, thumbnailAspectAtom, categoryAtom, gateCompleteAtom, viewModeAtom, itemIndexAtom } from "@/store/atoms";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_MARKET } from "@/lib/constants";
-import { ItemCard } from "./ItemCard";
-import type { CardConfig } from "./ItemCard";
-import type { SeedItem } from "@/lib/seed";
 import { getItemPrimaryImage } from "@/lib/images";
+import type { SeedItem } from "@/lib/seed";
+import {
+  bookmarksSetAtom,
+  categoryAtom,
+  currencyDisplayAtom,
+  gateCompleteAtom,
+  includeShippingAtom,
+  isLoadingAtom,
+  itemIndexAtom,
+  marketAtom,
+  pauseGifsAtom,
+  selectedSellersAtom,
+  selectedWeightsAtom,
+  sellersMapAtom,
+  sortedItemsAtom,
+  thumbnailAspectAtom,
+  viewModeAtom,
+} from "@/store/atoms";
+import type { CardConfig } from "./ItemCard";
+import { ItemCard } from "./ItemCard";
 
 // ─── Progressive rendering (ported from food-agg) ──────────────────
 
@@ -17,7 +33,9 @@ const INITIAL_ROWS = 5;
 const INITIAL_BATCH = COLS * INITIAL_ROWS; // ~20 items visible immediately
 const CHUNK_SIZE = COLS * 3; // ~12 items per scroll-load
 
-function useProgressiveRender<T extends { id: string | number }>(items: T[]): T[] {
+function useProgressiveRender<T extends { id: string | number }>(
+  items: T[],
+): T[] {
   const [renderCount, setRenderCount] = useState(() =>
     Math.min(items.length, INITIAL_BATCH),
   );
@@ -174,7 +192,19 @@ export function ItemGrid({
       activeCategory,
       itemIndex,
     }),
-    [currentMarket, cSym, cRate, sellersMap, selectedSellers, globalWeights, includeShipping, pauseGifs, thumbAspect, activeCategory, itemIndex],
+    [
+      currentMarket,
+      cSym,
+      cRate,
+      sellersMap,
+      selectedSellers,
+      globalWeights,
+      includeShipping,
+      pauseGifs,
+      thumbAspect,
+      activeCategory,
+      itemIndex,
+    ],
   );
 
   if (isLoading) {
@@ -218,14 +248,19 @@ export function ItemGrid({
   }
 
   return (
-    <div className="item-list-grid animate-[fadeIn_350ms_ease-out]" data-view={viewMode}>
+    <div
+      className="item-list-grid animate-[fadeIn_350ms_ease-out]"
+      data-view={viewMode}
+    >
       {visibleItems.map((item, index) => (
         <ItemCard
           key={item.id}
           item={item}
           priority={index < 6}
           config={config}
-          isBookmarked={bookmarksSet.has(item.refNum ? String(item.refNum) : String(item.id))}
+          isBookmarked={bookmarksSet.has(
+            item.refNum ? String(item.refNum) : String(item.id),
+          )}
         />
       ))}
     </div>

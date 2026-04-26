@@ -172,7 +172,13 @@ export interface MergedDetailBlob extends Item {
 }
 
 /** Sort options — base keys only; direction is handled by SortDir */
-export type SortKey = "hottest" | "newest" | "updated" | "price" | "ppg" | "name";
+export type SortKey =
+  | "hottest"
+  | "newest"
+  | "updated"
+  | "price"
+  | "ppg"
+  | "name";
 
 export type SortDir = "asc" | "desc";
 
@@ -259,7 +265,11 @@ export interface HomeFeedItemCard {
   sf?: string | null;
   uMin?: number | null;
   uMax?: number | null;
-  rs?: { avg?: number | null; days?: number | null; cnt?: number | null } | null;
+  rs?: {
+    avg?: number | null;
+    days?: number | null;
+    cnt?: number | null;
+  } | null;
   h?: number | null;
   fsa?: string | null;
   lua?: string | null;

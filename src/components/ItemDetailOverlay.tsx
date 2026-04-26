@@ -1,58 +1,71 @@
 "use client";
 
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
+  Fragment,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  lazy,
-  Suspense,
-  Fragment,
 } from "react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { EffectFade, Keyboard } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Keyboard, EffectFade } from "swiper/modules";
 import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import { SuggestLink } from "@/components/SuggestLink";
 import {
-  X,
-  Star,
+  Award,
   Calendar,
-  RefreshCw,
+  Check,
   ChevronLeft,
   ChevronRight,
-  Truck,
   Package,
-  Award,
   Plus,
-  Check,
+  RefreshCw,
+  Star,
+  Truck,
+  X,
 } from "lucide-react";
 import {
-  expandedRefNumAtom,
-  itemsAtom,
-  sortedItemsAtom,
-  sellerModalIdAtom,
-  sellersMapAtom,
-  currencyDisplayAtom,
-  addToBasketAtom,
-  marketAtom,
-  focusReviewIdAtom,
-  forceEnglishAtom,
-} from "@/store/atoms";
+  type Review,
+  ReviewCard,
+  ReviewStatsHeader,
+} from "@/components/ReviewCard";
+import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
-import { cx } from "@/lib/cn";
-import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
-import { fmtPrice, formatPriceChange, formatDateTime, decodeEntities } from "@/lib/format";
+import { SuggestLink } from "@/components/SuggestLink";
+import { useAddToast } from "@/components/Toast";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
-import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
-import { ReviewCard, ReviewStatsHeader, type Review } from "@/components/ReviewCard";
-import { useAddToast } from "@/components/Toast";
-import { getItemGalleryImages, getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
-import type { Item, PriceSnapshot, MergedDetailBlob } from "@/lib/types";
+import { cx } from "@/lib/cn";
+import {
+  decodeEntities,
+  fmtPrice,
+  formatDateTime,
+  formatPriceChange,
+} from "@/lib/format";
+import {
+  getItemGalleryImages,
+  getItemPrimaryImage,
+  getSellerImageUrl,
+} from "@/lib/images";
+import type { Item, MergedDetailBlob, PriceSnapshot } from "@/lib/types";
+import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
+import {
+  addToBasketAtom,
+  currencyDisplayAtom,
+  expandedRefNumAtom,
+  focusReviewIdAtom,
+  forceEnglishAtom,
+  itemsAtom,
+  marketAtom,
+  sellerModalIdAtom,
+  sellersMapAtom,
+  sortedItemsAtom,
+} from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -131,7 +144,11 @@ function ItemReviewsBlock({
   onFocusHandled,
 }: {
   reviews: ItemReview[];
-  rs?: { avg?: number | null; cnt?: number | null; days?: number | null } | null;
+  rs?: {
+    avg?: number | null;
+    cnt?: number | null;
+    days?: number | null;
+  } | null;
   loading: boolean;
   compact?: boolean;
   shareLink?: string | null;
@@ -147,7 +164,8 @@ function ItemReviewsBlock({
   // section header says "100 reviews" but only shows 5.
   const shown = reviews;
 
-  const focusMatched = focusReviewId != null && reviews.some((r) => r.id === focusReviewId);
+  const focusMatched =
+    focusReviewId != null && reviews.some((r) => r.id === focusReviewId);
   // Clear the focus atom once we've handed off the highlight flag to the
   // matching card (useEffect runs after render so the scroll can happen).
   useEffect(() => {
@@ -158,10 +176,13 @@ function ItemReviewsBlock({
 
   return (
     <>
-      <h3 className={compact
-        ? "mb-1 text-xs font-medium uppercase tracking-wider text-muted"
-        : "text-sm font-semibold text-foreground mb-1"
-      }>
+      <h3
+        className={
+          compact
+            ? "mb-1 text-xs font-medium uppercase tracking-wider text-muted"
+            : "text-sm font-semibold text-foreground mb-1"
+        }
+      >
         Reviews
         {reviews.length > 0 && (
           <span className="ml-1 text-muted font-normal">
@@ -231,7 +252,9 @@ function ItemDetailTabs({
     // Query sections inside root (or document if root isn't the scroller)
     const findSections = (): HTMLElement[] => {
       const scope: ParentNode = root ?? document;
-      return Array.from(scope.querySelectorAll<HTMLElement>("[data-section-id]"));
+      return Array.from(
+        scope.querySelectorAll<HTMLElement>("[data-section-id]"),
+      );
     };
 
     let sections = findSections();
@@ -264,7 +287,10 @@ function ItemDetailTabs({
         // Nothing has crossed yet — pick the highest visible
         let lowest = Infinity;
         visible.forEach((top, id) => {
-          if (top < lowest) { lowest = top; bestId = id as SectionId; }
+          if (top < lowest) {
+            lowest = top;
+            bestId = id as SectionId;
+          }
         });
         if (bestId) setActive(bestId);
         return;
@@ -286,7 +312,9 @@ function ItemDetailTabs({
           }
           // Refresh tops for all visible entries (scroll event isn't fired here)
           visible.forEach((_, id) => {
-            const el = (root ?? document).querySelector<HTMLElement>(`[data-section-id="${id}"]`);
+            const el = (root ?? document).querySelector<HTMLElement>(
+              `[data-section-id="${id}"]`,
+            );
             if (el) visible.set(id, el.getBoundingClientRect().top);
           });
           pick();
@@ -306,12 +334,16 @@ function ItemDetailTabs({
 
   const scrollTo = (id: SectionId) => {
     const root = scrollRef.current ?? document;
-    const target = (root as ParentNode).querySelector<HTMLElement>(`[data-section-id="${id}"]`);
+    const target = (root as ParentNode).querySelector<HTMLElement>(
+      `[data-section-id="${id}"]`,
+    );
     if (!target) return;
     setActive(id);
     manualRef.current = true;
     if (manualTimerRef.current) clearTimeout(manualTimerRef.current);
-    manualTimerRef.current = setTimeout(() => { manualRef.current = false; }, 800);
+    manualTimerRef.current = setTimeout(() => {
+      manualRef.current = false;
+    }, 800);
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -377,9 +409,12 @@ export function ItemDetailOverlay() {
   }, [setRefNum]);
 
   // Clean up timer on unmount
-  useEffect(() => () => {
-    if (closingTimerRef.current) clearTimeout(closingTimerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (closingTimerRef.current) clearTimeout(closingTimerRef.current);
+    },
+    [],
+  );
 
   // History state — pressing Back closes the overlay via onClose → doClose
   const { closeOverlay } = useHistoryState({
@@ -464,7 +499,9 @@ export function ItemDetailOverlay() {
   // ── Merged detail blob — complete item data + extras ──
   const market = useAtomValue(marketAtom);
   const forceEnglish = useAtomValue(forceEnglishAtom);
-  const [mergedDetail, setMergedDetail] = useState<MergedDetailBlob | null>(null);
+  const [mergedDetail, setMergedDetail] = useState<MergedDetailBlob | null>(
+    null,
+  );
   const [detailLoading, setDetailLoading] = useState(false);
   const detailAbortRef = useRef<AbortController | null>(null);
 
@@ -524,13 +561,10 @@ export function ItemDetailOverlay() {
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [startZoomIndex, setStartZoomIndex] = useState(0);
 
-  const openZoom = useCallback(
-    (index: number) => {
-      setStartZoomIndex(index);
-      setZoomSignal(Date.now());
-    },
-    [],
-  );
+  const openZoom = useCallback((index: number) => {
+    setStartZoomIndex(index);
+    setZoomSignal(Date.now());
+  }, []);
 
   // ── Selected shipping cost (local to overlay) ──
   const [selectedShipCost, setSelectedShipCost] = useState(0);
@@ -604,7 +638,7 @@ export function ItemDetailOverlay() {
           ppu,
           qty: effectiveParsed?.qty ?? null,
           unit,
-          unitLabel: unit ? UNIT_DISPLAY_LABEL[unit] ?? unit : null,
+          unitLabel: unit ? (UNIT_DISPLAY_LABEL[unit] ?? unit) : null,
         };
       });
   }, [displayItem?.v, displayItem?.c]);
@@ -636,7 +670,8 @@ export function ItemDetailOverlay() {
 
   const name = displayItem
     ? decodeEntities(
-        (forceEnglish && displayItem.nEn ? displayItem.nEn : displayItem.n) || "",
+        (forceEnglish && displayItem.nEn ? displayItem.nEn : displayItem.n) ||
+          "",
       )
     : "";
 
@@ -686,603 +721,779 @@ export function ItemDetailOverlay() {
 
             {displayItem ? (
               <>
-              <div className="ido-grid">
-                {/* ── Left: Gallery ── */}
-                <div className="ido-left">
-                  <div className="ido-image-area">
-                    {images.length > 0 ? (
-                      <>
-                        <Swiper
-                          modules={[Keyboard, EffectFade]}
-                          effect="fade"
-                          fadeEffect={{ crossFade: true }}
-                          keyboard={{ enabled: true }}
-                          spaceBetween={0}
-                          slidesPerView={1}
-                          onSwiper={setMainSwiper}
-                          onSlideChange={(sw) =>
-                            setActiveSlide(sw.activeIndex ?? 0)
-                          }
-                          className="ido-swiper"
-                        >
-                          {images.map((src, idx) => (
-                            <SwiperSlide key={`${idx}-${src}`}>
-                              <button
-                                type="button"
-                                onClick={() => openZoom(idx)}
-                                className="w-full h-full focus:outline-none"
-                              >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={src}
-                                  alt={name}
-                                  loading={idx === 0 ? "eager" : "lazy"}
-                                  decoding="async"
-                                  draggable={false}
-                                />
-                              </button>
-                            </SwiperSlide>
-                          ))}
-                        </Swiper>
-
-                        {/* Thumbnails (mobile: overlay at bottom, desktop: below swiper) */}
-                        {images.length > 1 && (
-                          <div className="absolute bottom-3 left-3 z-20 md:relative md:bottom-auto md:left-auto md:mt-3 md:flex md:justify-center">
-                            <div className="ido-thumbs">
-                              {images.map((src, idx) => (
+                <div className="ido-grid">
+                  {/* ── Left: Gallery ── */}
+                  <div className="ido-left">
+                    <div className="ido-image-area">
+                      {images.length > 0 ? (
+                        <>
+                          <Swiper
+                            modules={[Keyboard, EffectFade]}
+                            effect="fade"
+                            fadeEffect={{ crossFade: true }}
+                            keyboard={{ enabled: true }}
+                            spaceBetween={0}
+                            slidesPerView={1}
+                            onSwiper={setMainSwiper}
+                            onSlideChange={(sw) =>
+                              setActiveSlide(sw.activeIndex ?? 0)
+                            }
+                            className="ido-swiper"
+                          >
+                            {images.map((src, idx) => (
+                              <SwiperSlide key={`${idx}-${src}`}>
                                 <button
-                                  key={`thumb-${idx}`}
                                   type="button"
-                                  onClick={() =>
-                                    mainSwiper?.slideTo(idx)
-                                  }
-                                  className={cx(
-                                    "ido-thumb",
-                                    activeSlide === idx && "ido-thumb--active",
-                                  )}
+                                  onClick={() => openZoom(idx)}
+                                  className="w-full h-full focus:outline-none"
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
                                   <img
                                     src={src}
-                                    alt={`${name} ${idx + 1}`}
-                                    loading="lazy"
+                                    alt={name}
+                                    loading={idx === 0 ? "eager" : "lazy"}
                                     decoding="async"
                                     draggable={false}
                                   />
                                 </button>
-                              ))}
+                              </SwiperSlide>
+                            ))}
+                          </Swiper>
+
+                          {/* Thumbnails (mobile: overlay at bottom, desktop: below swiper) */}
+                          {images.length > 1 && (
+                            <div className="absolute bottom-3 left-3 z-20 md:relative md:bottom-auto md:left-auto md:mt-3 md:flex md:justify-center">
+                              <div className="ido-thumbs">
+                                {images.map((src, idx) => (
+                                  <button
+                                    key={`thumb-${idx}`}
+                                    type="button"
+                                    onClick={() => mainSwiper?.slideTo(idx)}
+                                    className={cx(
+                                      "ido-thumb",
+                                      activeSlide === idx &&
+                                        "ido-thumb--active",
+                                    )}
+                                  >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={src}
+                                      alt={`${name} ${idx + 1}`}
+                                      loading="lazy"
+                                      decoding="async"
+                                      draggable={false}
+                                    />
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="w-full aspect-square flex items-center justify-center bg-surface rounded-lg">
-                        <Package
-                          size={64}
-                          className="text-muted opacity-30"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* ── Center: Item info ── */}
-                <div className="ido-center" ref={scrollRef}>
-                  {/* Header region (above sticky tabs) */}
-                  <div className="ido-center__header">
-                    {/* Category + subcategories */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {displayItem.c && (
-                        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                          {displayItem.c}
-                        </span>
-                      )}
-                      {displayItem.sc?.map((sc) => (
-                        <span
-                          key={sc}
-                          className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted"
-                        >
-                          {sc}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Name */}
-                    <h2 className="text-xl font-bold text-foreground">
-                      {name}
-                    </h2>
-
-                    {/* Seller */}
-                    {displayItem.sn && (() => {
-                      const sid = displayItem.sid != null ? String(displayItem.sid) : null;
-                      const indexSeller = sid ? sellersMap.get(sid) : undefined;
-                      const sellerImg = getSellerImageUrl(indexSeller?.imageUrl);
-                      const sellerOnline = indexSeller?.online ?? null;
-                      return (
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors cursor-pointer"
-                          onClick={() => { if (sid) setSellerModalId(sid); }}
-                        >
-                          <SellerAvatarTooltip
-                            sellerName={displayItem.sn}
-                            imageUrl={sellerImg}
-                            showInitialTooltip
-                          >
-                            <span className="relative inline-flex items-center justify-center size-6 rounded-full bg-surface text-xs font-medium text-foreground ring-1 ring-border overflow-hidden">
-                              {sellerImg ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={sellerImg} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                displayItem.sn.charAt(0).toUpperCase()
-                              )}
-                              {sellerOnline === "today" && (
-                                <span className="absolute -bottom-px -right-px size-2 rounded-full bg-emerald-500 ring-1 ring-background" />
-                              )}
-                            </span>
-                          </SellerAvatarTooltip>
-                          <span>
-                            by{" "}
-                            <span className="font-medium text-foreground">
-                              {decodeEntities(displayItem.sn)}
-                            </span>
-                          </span>
-                        </button>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Sticky scroll-spy tabs (direct child of scroll container) */}
-                  <ItemDetailTabs scrollRef={scrollRef} refNum={refNum} />
-
-                  {/* Sections wrapper */}
-                  <div className="ido-center__body">
-
-                    {/* ── Prices section ── */}
-                    <section data-section-id="prices" className="ido-section">
-                    {/* Price header */}
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className={`text-lg font-semibold ${selectedShipCost > 0 ? "text-amber-600 dark:text-amber-400" : "text-primary"}`}>
-                        {fmtPrice(
-                          displayItem.uMin != null ? displayItem.uMin + selectedShipCost : displayItem.uMin,
-                          cSym,
-                          cRate,
-                        )}
-                        {displayItem.uMax != null &&
-                          displayItem.uMax !== displayItem.uMin &&
-                          ` – ${fmtPrice(displayItem.uMax + selectedShipCost, cSym, cRate)}`}
-                        {selectedShipCost > 0 && (
-                          <Truck size={13} className="inline ml-1.5 -mt-0.5 opacity-70" />
-                        )}
-                      </span>
-                      {lastPrice != null && displayItem.uMin != null && (() => {
-                        const change = formatPriceChange(lastPrice, displayItem.uMin);
-                        if (!change) return null;
-                        const isDown = change.startsWith("\u2193");
-                        return (
-                          <span className={`ido-price-badge ${isDown ? "ido-price-badge--down" : "ido-price-badge--up"}`}>
-                            {change}
-                            <span className="ido-price-badge__was">
-                              was {fmtPrice(lastPrice, cSym, cRate)}
-                            </span>
-                          </span>
-                        );
-                      })()}
-                    </div>
-
-                    {/* Variants + shipping card */}
-                    {variantRows && variantRows.length > 0 && (() => {
-                      // Dominant unit across rows for the header label.
-                      // If units are mixed we still show a generic "/unit".
-                      const hasAnyPpu = variantRows.some((r) => r.ppu != null);
-                      const units = new Set(
-                        variantRows
-                          .map((r) => r.unitLabel)
-                          .filter((u): u is string => u != null),
-                      );
-                      const headerUnit = units.size === 1 ? [...units][0] : "unit";
-                      return (
-                      <div className="ido-card ido-card--variants">
-                        <div className="ido-table__caption">
-                          <span>Variants</span>
-                          <span className="ido-table__count">{variantRows.length}</span>
-                        </div>
-                        <table className="ido-table">
-                          {hasAnyPpu ? (
-                            <thead>
-                              <tr>
-                                <th>Size</th>
-                                <th>Price</th>
-                                <th>
-                                  <abbr title={`Price per ${headerUnit}`}>/{headerUnit}</abbr>
-                                </th>
-                                <th className="sr-only">Add</th>
-                              </tr>
-                            </thead>
-                          ) : (
-                            <thead className="sr-only">
-                              <tr>
-                                <th>Variant</th>
-                                <th>Price</th>
-                                <th>Add</th>
-                              </tr>
-                            </thead>
                           )}
-                          <tbody>
-                            {variantRows.map((row) => {
-                              const isBest = bestValueKey === row.key;
-                              const totalPrice = row.price + selectedShipCost;
-                              // Recompute PPU with shipping surcharge folded in
-                              // for display consistency when user picks a paid
-                              // shipping option.
-                              const totalPpu =
-                                row.ppu != null && row.qty != null && row.qty > 0
-                                  ? totalPrice / row.qty
-                                  : row.ppu;
-                              return (
-                                <tr key={row.key}>
-                                  <td>
-                                    <span className="ido-table__format">
-                                      {row.label}
-                                      {isBest && (
-                                        <span className="ido-best-value">
-                                          <Award size={9} /> Best value
-                                        </span>
-                                      )}
-                                    </span>
-                                  </td>
-                                  <td className={`ido-table__price${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}>
-                                    {fmtPrice(totalPrice, cSym, cRate)}
-                                  </td>
-                                  {hasAnyPpu && (
-                                    <td className={`ido-table__ppu${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}>
-                                      {totalPpu != null
-                                        ? fmtPrice(totalPpu, cSym, cRate)
-                                        : "—"}
-                                    </td>
-                                  )}
-                                  <td className="ido-table__action">
-                                    <button
-                                      type="button"
-                                      className={`ido-add-btn${addedVariantKey === row.key ? " ido-add-btn--added" : ""}`}
-                                      title="Add to basket"
-                                      onClick={() => {
-                                        const ref = String(displayItem.refNum ?? displayItem.id);
-                                        addToBasket({
-                                          refNum: ref,
-                                          variantId: row.key,
-                                          variantDesc: row.label,
-                                          name: name,
-                                          sellerName: displayItem.sn ?? "",
-                                          qty: 1,
-                                          priceUSD: row.price,
-                                          shippingUsd: selectedShipCost > 0 ? selectedShipCost : shipOptions[0]?.cost ?? null,
-                                          includeShip: selectedShipCost > 0,
-                                          shOpts: shipOptions.length > 0 ? shipOptions : undefined,
-                                          imageUrl: getItemPrimaryImage(displayItem, "thumb", { forceStatic: true }) ?? displayItem.i ?? null,
-                                          sl: displayItem.sl ?? null,
-                                        });
-                                        if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
-                                        setAddedVariantKey(row.key);
-                                        addedTimerRef.current = setTimeout(() => setAddedVariantKey(null), 1200);
-                                        addToast({
-                                          message: `Added ${row.label} to basket`,
-                                          variant: "success",
-                                          duration: 2200,
-                                        });
-                                      }}
-                                    >
-                                      {addedVariantKey === row.key ? <Check size={14} /> : <Plus size={14} />}
-                                    </button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
+                        </>
+                      ) : (
+                        <div className="w-full aspect-square flex items-center justify-center bg-surface rounded-lg">
+                          <Package
+                            size={64}
+                            className="text-muted opacity-30"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-                        {/* Shipping options — selectable */}
-                        <ShippingOptions
-                          sh={displayItem.sh}
-                          shipOptions={shipOptions}
-                          cSym={cSym}
-                          cRate={cRate}
-                          setSelectedShipCost={setSelectedShipCost}
-                        />
+                  {/* ── Center: Item info ── */}
+                  <div className="ido-center" ref={scrollRef}>
+                    {/* Header region (above sticky tabs) */}
+                    <div className="ido-center__header">
+                      {/* Category + subcategories */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {displayItem.c && (
+                          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                            {displayItem.c}
+                          </span>
+                        )}
+                        {displayItem.sc?.map((sc) => (
+                          <span
+                            key={sc}
+                            className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted"
+                          >
+                            {sc}
+                          </span>
+                        ))}
                       </div>
-                      );
-                    })()}
 
-                    {/* Review stats + timestamps (meta strip)
+                      {/* Name */}
+                      <h2 className="text-xl font-bold text-foreground">
+                        {name}
+                      </h2>
+
+                      {/* Seller */}
+                      {displayItem.sn &&
+                        (() => {
+                          const sid =
+                            displayItem.sid != null
+                              ? String(displayItem.sid)
+                              : null;
+                          const indexSeller = sid
+                            ? sellersMap.get(sid)
+                            : undefined;
+                          const sellerImg = getSellerImageUrl(
+                            indexSeller?.imageUrl,
+                          );
+                          const sellerOnline = indexSeller?.online ?? null;
+                          return (
+                            <button
+                              type="button"
+                              className="flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors cursor-pointer"
+                              onClick={() => {
+                                if (sid) setSellerModalId(sid);
+                              }}
+                            >
+                              <SellerAvatarTooltip
+                                sellerName={displayItem.sn}
+                                imageUrl={sellerImg}
+                                showInitialTooltip
+                              >
+                                <span className="relative inline-flex items-center justify-center size-6 rounded-full bg-surface text-xs font-medium text-foreground ring-1 ring-border overflow-hidden">
+                                  {sellerImg ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                      src={sellerImg}
+                                      alt=""
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    displayItem.sn.charAt(0).toUpperCase()
+                                  )}
+                                  {sellerOnline === "today" && (
+                                    <span className="absolute -bottom-px -right-px size-2 rounded-full bg-emerald-500 ring-1 ring-background" />
+                                  )}
+                                </span>
+                              </SellerAvatarTooltip>
+                              <span>
+                                by{" "}
+                                <span className="font-medium text-foreground">
+                                  {decodeEntities(displayItem.sn)}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })()}
+                    </div>
+
+                    {/* Sticky scroll-spy tabs (direct child of scroll container) */}
+                    <ItemDetailTabs scrollRef={scrollRef} refNum={refNum} />
+
+                    {/* Sections wrapper */}
+                    <div className="ido-center__body">
+                      {/* ── Prices section ── */}
+                      <section data-section-id="prices" className="ido-section">
+                        {/* Price header */}
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span
+                            className={`text-lg font-semibold ${selectedShipCost > 0 ? "text-amber-600 dark:text-amber-400" : "text-primary"}`}
+                          >
+                            {fmtPrice(
+                              displayItem.uMin != null
+                                ? displayItem.uMin + selectedShipCost
+                                : displayItem.uMin,
+                              cSym,
+                              cRate,
+                            )}
+                            {displayItem.uMax != null &&
+                              displayItem.uMax !== displayItem.uMin &&
+                              ` – ${fmtPrice(displayItem.uMax + selectedShipCost, cSym, cRate)}`}
+                            {selectedShipCost > 0 && (
+                              <Truck
+                                size={13}
+                                className="inline ml-1.5 -mt-0.5 opacity-70"
+                              />
+                            )}
+                          </span>
+                          {lastPrice != null &&
+                            displayItem.uMin != null &&
+                            (() => {
+                              const change = formatPriceChange(
+                                lastPrice,
+                                displayItem.uMin,
+                              );
+                              if (!change) return null;
+                              const isDown = change.startsWith("\u2193");
+                              return (
+                                <span
+                                  className={`ido-price-badge ${isDown ? "ido-price-badge--down" : "ido-price-badge--up"}`}
+                                >
+                                  {change}
+                                  <span className="ido-price-badge__was">
+                                    was {fmtPrice(lastPrice, cSym, cRate)}
+                                  </span>
+                                </span>
+                              );
+                            })()}
+                        </div>
+
+                        {/* Variants + shipping card */}
+                        {variantRows &&
+                          variantRows.length > 0 &&
+                          (() => {
+                            // Dominant unit across rows for the header label.
+                            // If units are mixed we still show a generic "/unit".
+                            const hasAnyPpu = variantRows.some(
+                              (r) => r.ppu != null,
+                            );
+                            const units = new Set(
+                              variantRows
+                                .map((r) => r.unitLabel)
+                                .filter((u): u is string => u != null),
+                            );
+                            const headerUnit =
+                              units.size === 1 ? [...units][0] : "unit";
+                            return (
+                              <div className="ido-card ido-card--variants">
+                                <div className="ido-table__caption">
+                                  <span>Variants</span>
+                                  <span className="ido-table__count">
+                                    {variantRows.length}
+                                  </span>
+                                </div>
+                                <table className="ido-table">
+                                  {hasAnyPpu ? (
+                                    <thead>
+                                      <tr>
+                                        <th>Size</th>
+                                        <th>Price</th>
+                                        <th>
+                                          <abbr
+                                            title={`Price per ${headerUnit}`}
+                                          >
+                                            /{headerUnit}
+                                          </abbr>
+                                        </th>
+                                        <th className="sr-only">Add</th>
+                                      </tr>
+                                    </thead>
+                                  ) : (
+                                    <thead className="sr-only">
+                                      <tr>
+                                        <th>Variant</th>
+                                        <th>Price</th>
+                                        <th>Add</th>
+                                      </tr>
+                                    </thead>
+                                  )}
+                                  <tbody>
+                                    {variantRows.map((row) => {
+                                      const isBest = bestValueKey === row.key;
+                                      const totalPrice =
+                                        row.price + selectedShipCost;
+                                      // Recompute PPU with shipping surcharge folded in
+                                      // for display consistency when user picks a paid
+                                      // shipping option.
+                                      const totalPpu =
+                                        row.ppu != null &&
+                                        row.qty != null &&
+                                        row.qty > 0
+                                          ? totalPrice / row.qty
+                                          : row.ppu;
+                                      return (
+                                        <tr key={row.key}>
+                                          <td>
+                                            <span className="ido-table__format">
+                                              {row.label}
+                                              {isBest && (
+                                                <span className="ido-best-value">
+                                                  <Award size={9} /> Best value
+                                                </span>
+                                              )}
+                                            </span>
+                                          </td>
+                                          <td
+                                            className={`ido-table__price${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
+                                          >
+                                            {fmtPrice(totalPrice, cSym, cRate)}
+                                          </td>
+                                          {hasAnyPpu && (
+                                            <td
+                                              className={`ido-table__ppu${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
+                                            >
+                                              {totalPpu != null
+                                                ? fmtPrice(
+                                                    totalPpu,
+                                                    cSym,
+                                                    cRate,
+                                                  )
+                                                : "—"}
+                                            </td>
+                                          )}
+                                          <td className="ido-table__action">
+                                            <button
+                                              type="button"
+                                              className={`ido-add-btn${addedVariantKey === row.key ? " ido-add-btn--added" : ""}`}
+                                              title="Add to basket"
+                                              onClick={() => {
+                                                const ref = String(
+                                                  displayItem.refNum ??
+                                                    displayItem.id,
+                                                );
+                                                addToBasket({
+                                                  refNum: ref,
+                                                  variantId: row.key,
+                                                  variantDesc: row.label,
+                                                  name: name,
+                                                  sellerName:
+                                                    displayItem.sn ?? "",
+                                                  qty: 1,
+                                                  priceUSD: row.price,
+                                                  shippingUsd:
+                                                    selectedShipCost > 0
+                                                      ? selectedShipCost
+                                                      : (shipOptions[0]?.cost ??
+                                                        null),
+                                                  includeShip:
+                                                    selectedShipCost > 0,
+                                                  shOpts:
+                                                    shipOptions.length > 0
+                                                      ? shipOptions
+                                                      : undefined,
+                                                  imageUrl:
+                                                    getItemPrimaryImage(
+                                                      displayItem,
+                                                      "thumb",
+                                                      { forceStatic: true },
+                                                    ) ??
+                                                    displayItem.i ??
+                                                    null,
+                                                  sl: displayItem.sl ?? null,
+                                                });
+                                                if (addedTimerRef.current)
+                                                  clearTimeout(
+                                                    addedTimerRef.current,
+                                                  );
+                                                setAddedVariantKey(row.key);
+                                                addedTimerRef.current =
+                                                  setTimeout(
+                                                    () =>
+                                                      setAddedVariantKey(null),
+                                                    1200,
+                                                  );
+                                                addToast({
+                                                  message: `Added ${row.label} to basket`,
+                                                  variant: "success",
+                                                  duration: 2200,
+                                                });
+                                              }}
+                                            >
+                                              {addedVariantKey === row.key ? (
+                                                <Check size={14} />
+                                              ) : (
+                                                <Plus size={14} />
+                                              )}
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+
+                                {/* Shipping options — selectable */}
+                                <ShippingOptions
+                                  sh={displayItem.sh}
+                                  shipOptions={shipOptions}
+                                  cSym={cSym}
+                                  cRate={cRate}
+                                  setSelectedShipCost={setSelectedShipCost}
+                                />
+                              </div>
+                            );
+                          })()}
+
+                        {/* Review stats + timestamps (meta strip)
                         Layout: 2x2 grid on mobile/tablet, 4-in-a-row on wide
                         screens. Each cell is a uniform "stat" with a subtle
                         icon, a small label, and a bold primary value so the
                         grouping reads cleanly regardless of column count. */}
-                    <div className="ido-meta-strip">
-                      {displayItem.rs?.avg != null && (
-                        <div className="ido-meta-cell">
-                          <Star size={14} className="ido-meta-cell__icon text-amber-500" />
-                          <div className="ido-meta-cell__body">
-                            <span className="ido-meta-cell__label">Rating</span>
-                            <span className="ido-meta-cell__value">
-                              {displayItem.rs.avg.toFixed(1)}
-                              <span className="ido-meta-cell__unit">/10</span>
-                              {displayItem.rs.cnt != null && (
-                                <span className="ido-meta-cell__sub"> ({displayItem.rs.cnt})</span>
-                              )}
-                            </span>
-                          </div>
+                        <div className="ido-meta-strip">
+                          {displayItem.rs?.avg != null && (
+                            <div className="ido-meta-cell">
+                              <Star
+                                size={14}
+                                className="ido-meta-cell__icon text-amber-500"
+                              />
+                              <div className="ido-meta-cell__body">
+                                <span className="ido-meta-cell__label">
+                                  Rating
+                                </span>
+                                <span className="ido-meta-cell__value">
+                                  {displayItem.rs.avg.toFixed(1)}
+                                  <span className="ido-meta-cell__unit">
+                                    /10
+                                  </span>
+                                  {displayItem.rs.cnt != null && (
+                                    <span className="ido-meta-cell__sub">
+                                      {" "}
+                                      ({displayItem.rs.cnt})
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {displayItem.rs?.days != null && (
+                            <div className="ido-meta-cell">
+                              <Truck
+                                size={14}
+                                className="ido-meta-cell__icon"
+                              />
+                              <div className="ido-meta-cell__body">
+                                <span className="ido-meta-cell__label">
+                                  Avg delivery
+                                </span>
+                                <span className="ido-meta-cell__value">
+                                  {displayItem.rs.days.toFixed(1)}
+                                  <span className="ido-meta-cell__unit">d</span>
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {displayItem.fsa && (
+                            <div className="ido-meta-cell">
+                              <Calendar
+                                size={14}
+                                className="ido-meta-cell__icon"
+                              />
+                              <div className="ido-meta-cell__body">
+                                <span className="ido-meta-cell__label">
+                                  Listed
+                                </span>
+                                <span className="ido-meta-cell__value">
+                                  {timeAgo(displayItem.fsa)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {displayItem.lua && (
+                            <div className="ido-meta-cell">
+                              <RefreshCw
+                                size={14}
+                                className="ido-meta-cell__icon"
+                              />
+                              <div className="ido-meta-cell__body">
+                                <span className="ido-meta-cell__label">
+                                  Updated
+                                </span>
+                                <span className="ido-meta-cell__value">
+                                  {timeAgo(displayItem.lua)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {displayItem.rs?.days != null && (
-                        <div className="ido-meta-cell">
-                          <Truck size={14} className="ido-meta-cell__icon" />
-                          <div className="ido-meta-cell__body">
-                            <span className="ido-meta-cell__label">Avg delivery</span>
-                            <span className="ido-meta-cell__value">
-                              {displayItem.rs.days.toFixed(1)}
-                              <span className="ido-meta-cell__unit">d</span>
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      {displayItem.fsa && (
-                        <div className="ido-meta-cell">
-                          <Calendar size={14} className="ido-meta-cell__icon" />
-                          <div className="ido-meta-cell__body">
-                            <span className="ido-meta-cell__label">Listed</span>
-                            <span className="ido-meta-cell__value">{timeAgo(displayItem.fsa)}</span>
-                          </div>
-                        </div>
-                      )}
-                      {displayItem.lua && (
-                        <div className="ido-meta-cell">
-                          <RefreshCw size={14} className="ido-meta-cell__icon" />
-                          <div className="ido-meta-cell__body">
-                            <span className="ido-meta-cell__label">Updated</span>
-                            <span className="ido-meta-cell__value">{timeAgo(displayItem.lua)}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    </section>
+                      </section>
 
-                    {/* ── Description section ── */}
-                    <section data-section-id="description" className="ido-section">
-                    {/* Description */}
-                    <div className="ido-card">
-                      <div className="ido-card__head flex items-center justify-between gap-2">
-                        <h3 className="ido-card__title">Description</h3>
-                        <ShowOriginalToggle />
-                      </div>
-                      <div className="ido-card__body">
-                        {(() => {
-                          const desc = forceEnglish
-                            ? mergedDetail?.dEn || displayItem.dEn || mergedDetail?.d || displayItem.d
-                            : mergedDetail?.d || displayItem.d;
-                          return desc ? (
-                            <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">
-                              {decodeEntities(desc)}
-                            </p>
-                          ) : (
-                            <p className="text-sm text-muted italic">No description provided.</p>
-                          );
-                        })()}
-                      </div>
-                    </div>
+                      {/* ── Description section ── */}
+                      <section
+                        data-section-id="description"
+                        className="ido-section"
+                      >
+                        {/* Description */}
+                        <div className="ido-card">
+                          <div className="ido-card__head flex items-center justify-between gap-2">
+                            <h3 className="ido-card__title">Description</h3>
+                            <ShowOriginalToggle />
+                          </div>
+                          <div className="ido-card__body">
+                            {(() => {
+                              const desc = forceEnglish
+                                ? mergedDetail?.dEn ||
+                                  displayItem.dEn ||
+                                  mergedDetail?.d ||
+                                  displayItem.d
+                                : mergedDetail?.d || displayItem.d;
+                              return desc ? (
+                                <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">
+                                  {decodeEntities(desc)}
+                                </p>
+                              ) : (
+                                <p className="text-sm text-muted italic">
+                                  No description provided.
+                                </p>
+                              );
+                            })()}
+                          </div>
+                        </div>
 
-                    {/* Attributes — spec-sheet layout: one row per attribute
+                        {/* Attributes — spec-sheet layout: one row per attribute
                         key (Effect, Grow, Origin, …) with a compact label
                         column and a wrapping row of value chips. Much more
                         readable than a wall of key+value chips. */}
-                    {displayItem.at && Object.keys(displayItem.at).length > 0 && (() => {
-                      type AttrRow = { key: string; label: string; chips: React.ReactNode[] };
-                      const rows: AttrRow[] = [];
-                      const flags: React.ReactNode[] = [];
-                      for (const [key, vals] of Object.entries(displayItem.at)) {
-                        const label = AT_LABELS[key] ?? key;
-                        const values: (string | number | boolean)[] = Array.isArray(vals)
-                          ? vals
-                          : vals == null
-                            ? []
-                            : [vals as string | number | boolean];
-                        // Boolean-true attrs (CBD, Vegan, etc) collapse to a single flag chip
-                        if (values.length === 1 && typeof values[0] === "boolean") {
-                          if (values[0]) {
-                            flags.push(
-                              <span key={key} className="ido-attr-flag">{label}</span>,
-                            );
-                          }
-                          continue;
-                        }
-                        const chips = values
-                          .filter((v) => v !== false && v != null && v !== "")
-                          .map((val) => (
-                            <span key={`${key}-${val}`} className="ido-attr-val">
-                              {formatAttrValue(key, val)}
-                            </span>
-                          ));
-                        if (chips.length > 0) rows.push({ key, label, chips });
-                      }
-                      if (rows.length === 0 && flags.length === 0) return null;
-                      return (
-                        <div className="ido-card">
-                          <div className="ido-card__head">
-                            <h3 className="ido-card__title">Attributes</h3>
-                          </div>
-                          <div className="ido-card__body">
-                            {rows.length > 0 && (
-                              <dl className="ido-attr-grid">
-                                {rows.map((row) => (
-                                  <Fragment key={row.key}>
-                                    <dt className="ido-attr-grid__label">{row.label}</dt>
-                                    <dd className="ido-attr-grid__values">{row.chips}</dd>
-                                  </Fragment>
-                                ))}
-                              </dl>
-                            )}
-                            {flags.length > 0 && (
-                              <div className="ido-attr-flags">{flags}</div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Price History — rendered after Description so the
-                        section doesn't steal visual attention from pricing. */}
-                    {priceHistory.length > 1 && (
-                      <div className="ido-card">
-                        <div className="ido-card__head">
-                          <h3 className="ido-card__title">Price History</h3>
-                          <span className="ido-card__count">{priceHistory.length}</span>
-                        </div>
-                        <div className="ido-card__body">
-                          <ul className="ido-price-history__list">
-                            {[...priceHistory].reverse().map((snap, idx, arr) => {
-                              const prev = arr[idx + 1];
-                              const change = prev ? formatPriceChange(prev.min, snap.min) : null;
-                              return (
-                                <li key={snap.d} className="ido-price-history__entry">
-                                  <time className="ido-price-history__date" dateTime={snap.d}>
-                                    {formatDateTime(snap.d)}
-                                  </time>
-                                  <span className="ido-price-history__price">
-                                    {fmtPrice(snap.min, cSym, cRate)}
-                                    {snap.max !== snap.min && (
-                                      <span className="ido-price-history__range">
-                                        {" "}&ndash; {fmtPrice(snap.max, cSym, cRate)}
-                                      </span>
-                                    )}
+                        {displayItem.at &&
+                          Object.keys(displayItem.at).length > 0 &&
+                          (() => {
+                            type AttrRow = {
+                              key: string;
+                              label: string;
+                              chips: React.ReactNode[];
+                            };
+                            const rows: AttrRow[] = [];
+                            const flags: React.ReactNode[] = [];
+                            for (const [key, vals] of Object.entries(
+                              displayItem.at,
+                            )) {
+                              const label = AT_LABELS[key] ?? key;
+                              const values: (string | number | boolean)[] =
+                                Array.isArray(vals)
+                                  ? vals
+                                  : vals == null
+                                    ? []
+                                    : [vals as string | number | boolean];
+                              // Boolean-true attrs (CBD, Vegan, etc) collapse to a single flag chip
+                              if (
+                                values.length === 1 &&
+                                typeof values[0] === "boolean"
+                              ) {
+                                if (values[0]) {
+                                  flags.push(
+                                    <span key={key} className="ido-attr-flag">
+                                      {label}
+                                    </span>,
+                                  );
+                                }
+                                continue;
+                              }
+                              const chips = values
+                                .filter(
+                                  (v) => v !== false && v != null && v !== "",
+                                )
+                                .map((val) => (
+                                  <span
+                                    key={`${key}-${val}`}
+                                    className="ido-attr-val"
+                                  >
+                                    {formatAttrValue(key, val)}
                                   </span>
-                                  {change ? (
-                                    <span
-                                      className={`ido-price-history__change ${
-                                        change.startsWith("\u2193")
-                                          ? "ido-price-history__change--down"
-                                          : "ido-price-history__change--up"
-                                      }`}
-                                    >
-                                      {change}
-                                    </span>
-                                  ) : (
-                                    <span className="ido-price-history__change ido-price-history__change--first">
-                                      First tracked
-                                    </span>
+                                ));
+                              if (chips.length > 0)
+                                rows.push({ key, label, chips });
+                            }
+                            if (rows.length === 0 && flags.length === 0)
+                              return null;
+                            return (
+                              <div className="ido-card">
+                                <div className="ido-card__head">
+                                  <h3 className="ido-card__title">
+                                    Attributes
+                                  </h3>
+                                </div>
+                                <div className="ido-card__body">
+                                  {rows.length > 0 && (
+                                    <dl className="ido-attr-grid">
+                                      {rows.map((row) => (
+                                        <Fragment key={row.key}>
+                                          <dt className="ido-attr-grid__label">
+                                            {row.label}
+                                          </dt>
+                                          <dd className="ido-attr-grid__values">
+                                            {row.chips}
+                                          </dd>
+                                        </Fragment>
+                                      ))}
+                                    </dl>
                                   )}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
+                                  {flags.length > 0 && (
+                                    <div className="ido-attr-flags">
+                                      {flags}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
 
-                    </section>
+                        {/* Price History — rendered after Description so the
+                        section doesn't steal visual attention from pricing. */}
+                        {priceHistory.length > 1 && (
+                          <div className="ido-card">
+                            <div className="ido-card__head">
+                              <h3 className="ido-card__title">Price History</h3>
+                              <span className="ido-card__count">
+                                {priceHistory.length}
+                              </span>
+                            </div>
+                            <div className="ido-card__body">
+                              <ul className="ido-price-history__list">
+                                {[...priceHistory]
+                                  .reverse()
+                                  .map((snap, idx, arr) => {
+                                    const prev = arr[idx + 1];
+                                    const change = prev
+                                      ? formatPriceChange(prev.min, snap.min)
+                                      : null;
+                                    return (
+                                      <li
+                                        key={snap.d}
+                                        className="ido-price-history__entry"
+                                      >
+                                        <time
+                                          className="ido-price-history__date"
+                                          dateTime={snap.d}
+                                        >
+                                          {formatDateTime(snap.d)}
+                                        </time>
+                                        <span className="ido-price-history__price">
+                                          {fmtPrice(snap.min, cSym, cRate)}
+                                          {snap.max !== snap.min && (
+                                            <span className="ido-price-history__range">
+                                              {" "}
+                                              &ndash;{" "}
+                                              {fmtPrice(snap.max, cSym, cRate)}
+                                            </span>
+                                          )}
+                                        </span>
+                                        {change ? (
+                                          <span
+                                            className={`ido-price-history__change ${
+                                              change.startsWith("\u2193")
+                                                ? "ido-price-history__change--down"
+                                                : "ido-price-history__change--up"
+                                            }`}
+                                          >
+                                            {change}
+                                          </span>
+                                        ) : (
+                                          <span className="ido-price-history__change ido-price-history__change--first">
+                                            First tracked
+                                          </span>
+                                        )}
+                                      </li>
+                                    );
+                                  })}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </section>
 
-                    {/* ── Reviews section (always renders on non-ultrawide) ──
+                      {/* ── Reviews section (always renders on non-ultrawide) ──
                         Wrapped in an .ido-card so it visually matches the
                         Description / Attributes / Price History cards and
                         reads as a distinct container on mobile. */}
-                    <section data-section-id="reviews" className="ido-section 2xl:hidden">
-                      <div className="ido-card">
-                        <div className="ido-card__body">
-                          <ItemReviewsBlock
-                            reviews={itemReviews}
-                            rs={displayItem.rs}
-                            loading={detailLoading}
-                            shareLink={displayItem.sl}
-                            focusReviewId={focusReviewId}
-                            onFocusHandled={() => setFocusReviewId(null)}
-                            compact
-                          />
+                      <section
+                        data-section-id="reviews"
+                        className="ido-section 2xl:hidden"
+                      >
+                        <div className="ido-card">
+                          <div className="ido-card__body">
+                            <ItemReviewsBlock
+                              reviews={itemReviews}
+                              rs={displayItem.rs}
+                              loading={detailLoading}
+                              shareLink={displayItem.sl}
+                              focusReviewId={focusReviewId}
+                              onFocusHandled={() => setFocusReviewId(null)}
+                              compact
+                            />
+                          </div>
                         </div>
-                      </div>
-                    </section>
+                      </section>
 
-                    {/* Suggest link — mobile/phone only (<48rem). On tablet+
+                      {/* Suggest link — mobile/phone only (<48rem). On tablet+
                         it lives at the bottom-left of the panel, mirroring
                         the LittleBiggy button on the bottom-right. */}
-                    <div className="flex justify-end pt-1 md:hidden">
-                      <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
+                      <div className="flex justify-end pt-1 md:hidden">
+                        <SuggestLink
+                          refNum={displayItem.refNum ?? displayItem.id}
+                          iconOnly
+                        />
+                      </div>
                     </div>
+                  </div>
+
+                  {/* ── Right: Reviews (ultrawide only) ── */}
+                  <div className="ido-right">
+                    <ItemReviewsBlock
+                      reviews={itemReviews}
+                      rs={displayItem.rs}
+                      loading={detailLoading}
+                      shareLink={displayItem.sl}
+                      focusReviewId={focusReviewId}
+                      onFocusHandled={() => setFocusReviewId(null)}
+                    />
                   </div>
                 </div>
 
-                {/* ── Right: Reviews (ultrawide only) ── */}
-                <div className="ido-right">
-                  <ItemReviewsBlock
-                    reviews={itemReviews}
-                    rs={displayItem.rs}
-                    loading={detailLoading}
-                    shareLink={displayItem.sl}
-                    focusReviewId={focusReviewId}
-                    onFocusHandled={() => setFocusReviewId(null)}
-                  />
-                </div>
-              </div>
-
-              {/* Flag/report button — pinned bottom-left of the panel on
+                {/* Flag/report button — pinned bottom-left of the panel on
                   tablet+, mirroring the LittleBiggy button anchored on the
                   bottom-right. Absolute to .ido-panel so it stays put while
                   either column scrolls. */}
-              <div className="ido-suggest-bottom">
-                <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
-              </div>
+                <div className="ido-suggest-bottom">
+                  <SuggestLink
+                    refNum={displayItem.refNum ?? displayItem.id}
+                    iconOnly
+                  />
+                </div>
 
-              {/* ── Mobile bottom action bar (<48rem) ──
+                {/* ── Mobile bottom action bar (<48rem) ──
                   Fixed to the viewport: Suggest icon + Prev / Next + LB CTA.
                   Mirrors the old-biggyindex pattern so users always have
                   navigation and the outbound CTA in reach. Hidden at md+. */}
-              <div className="ido-mobile-actions">
-                <SuggestLink refNum={displayItem.refNum ?? displayItem.id} iconOnly />
-                <div className="ido-mobile-actions__nav">
-                  <button
-                    type="button"
-                    onClick={gotoPrev}
-                    disabled={!hasPrev}
-                    aria-label="Previous item"
-                    className="ido-mobile-actions__nav-btn"
-                  >
-                    <ChevronLeft size={14} aria-hidden="true" />
-                    <span>Prev</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={gotoNext}
-                    disabled={!hasNext}
-                    aria-label="Next item"
-                    className="ido-mobile-actions__nav-btn"
-                  >
-                    <span>Next</span>
-                    <ChevronRight size={14} aria-hidden="true" />
-                  </button>
+                <div className="ido-mobile-actions">
+                  <SuggestLink
+                    refNum={displayItem.refNum ?? displayItem.id}
+                    iconOnly
+                  />
+                  <div className="ido-mobile-actions__nav">
+                    <button
+                      type="button"
+                      onClick={gotoPrev}
+                      disabled={!hasPrev}
+                      aria-label="Previous item"
+                      className="ido-mobile-actions__nav-btn"
+                    >
+                      <ChevronLeft size={14} aria-hidden="true" />
+                      <span>Prev</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={gotoNext}
+                      disabled={!hasNext}
+                      aria-label="Next item"
+                      className="ido-mobile-actions__nav-btn"
+                    >
+                      <span>Next</span>
+                      <ChevronRight size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                  {displayItem.sl && (
+                    <a
+                      href={displayItem.sl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ido-mobile-actions__lb"
+                    >
+                      <span>View on Little Biggy</span>
+                      <span className="ido-lb-btn__arrow" aria-hidden="true">
+                        →
+                      </span>
+                    </a>
+                  )}
                 </div>
+
+                {/* Absolute "View on LittleBiggy" button (bottom-right of panel, md+) */}
                 {displayItem.sl && (
                   <a
                     href={displayItem.sl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ido-mobile-actions__lb"
+                    className="ido-lb-btn"
                   >
-                    <span>View on Little Biggy</span>
-                    <span className="ido-lb-btn__arrow" aria-hidden="true">→</span>
+                    <span className="ido-lb-btn__label">
+                      View on LittleBiggy
+                    </span>
+                    <span className="ido-lb-btn__arrow" aria-hidden="true">
+                      →
+                    </span>
                   </a>
                 )}
-              </div>
-
-              {/* Absolute "View on LittleBiggy" button (bottom-right of panel, md+) */}
-              {displayItem.sl && (
-                <a
-                  href={displayItem.sl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ido-lb-btn"
-                >
-                  <span className="ido-lb-btn__label">View on LittleBiggy</span>
-                  <span className="ido-lb-btn__arrow" aria-hidden="true">→</span>
-                </a>
-              )}
               </>
             ) : isLoading ? (
               <div className="flex items-center justify-center h-full">

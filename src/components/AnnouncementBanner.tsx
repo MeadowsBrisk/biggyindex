@@ -1,9 +1,9 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { X } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
 import type { AnnouncementSeverity } from "@/lib/announcement";
 
 /** Record of bannerId → ISO-dismissed-at timestamp. */
@@ -46,7 +46,8 @@ export function AnnouncementBanner({
   }, []);
 
   if (!mounted || !id || !message) return null;
-  const isDismissed = dismissals && typeof dismissals === "object" && dismissals[id];
+  const isDismissed =
+    dismissals && typeof dismissals === "object" && dismissals[id];
   if (isDismissed && !isClosing) return null;
 
   const close = () => {

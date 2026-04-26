@@ -2,8 +2,8 @@ import type { Item } from "@/lib/types";
 import {
   groupByQuantity,
   groupByWeight,
-  parseVariant,
   type ParsedVariant,
+  parseVariant,
   type QuantityGroup,
   type WeightGroup,
 } from "@/lib/variants";

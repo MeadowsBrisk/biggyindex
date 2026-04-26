@@ -21,5 +21,13 @@ export function buildSeedItems(items: Item[], count = 12): SeedItem[] {
   return [...items]
     .sort((a, b) => (b.h ?? 0) - (a.h ?? 0))
     .slice(0, count)
-    .map(({ id, n, i, ih, ia, uMin, sn }) => ({ id, n, i, ih, ia, uMin: uMin ?? 0, sn }));
+    .map(({ id, n, i, ih, ia, uMin, sn }) => ({
+      id,
+      n,
+      i,
+      ih,
+      ia,
+      uMin: uMin ?? 0,
+      sn,
+    }));
 }

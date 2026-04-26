@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Cannabis } from "lucide-react";
-import { CountryFlag } from "@/components/icons/CountryFlag";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
+import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MARKETS } from "@/lib/constants";
 
@@ -71,9 +71,7 @@ export function HeroSection({
         >
           An index for the
           <br />
-          <span className="text-primary">
-            420 marketplace
-          </span>
+          <span className="text-primary">420 marketplace</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -102,7 +100,9 @@ export function HeroSection({
           </span>
           <span className="w-px h-4 bg-[var(--border)]" />
           <span>
-            <span className="text-foreground font-semibold">{totalSellers}</span>{" "}
+            <span className="text-foreground font-semibold">
+              {totalSellers}
+            </span>{" "}
             active sellers
           </span>
         </motion.div>
@@ -130,7 +130,9 @@ export function HeroSection({
                   >
                     <Icon size={16} strokeWidth={2.25} />
                   </span>
-                  <span className="flex-1 truncate text-left">{meta.label}</span>
+                  <span className="flex-1 truncate text-left">
+                    {meta.label}
+                  </span>
                   <span className="text-xs font-semibold tabular-nums text-muted-foreground group-hover:text-primary transition-colors">
                     {cat.count}
                   </span>

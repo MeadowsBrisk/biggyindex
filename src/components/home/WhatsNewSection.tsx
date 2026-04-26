@@ -1,8 +1,7 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useState } from "react";
-import Link from "next/link";
-import { useSetAtom, useAtomValue } from "jotai";
+import { motion } from "framer-motion";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   ArrowRight,
   ChevronLeft,
@@ -11,13 +10,18 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { Swiper, SwiperSlide } from "swiper/react";
+import Link from "next/link";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
-import { expandedRefNumAtom, currencyDisplayAtom, sellerModalIdAtom } from "@/store/atoms";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import {
+  currencyDisplayAtom,
+  expandedRefNumAtom,
+  sellerModalIdAtom,
+} from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -143,7 +147,11 @@ function HomeItemCard({
     .slice(0, 2)
     .toUpperCase();
 
-  const allImages = item.images?.length ? item.images : item.image ? [item.image] : [];
+  const allImages = item.images?.length
+    ? item.images
+    : item.image
+      ? [item.image]
+      : [];
 
   return (
     <div className="item-card group">
@@ -221,17 +229,25 @@ function HomeItemCard({
                   tabIndex={item.sellerId != null ? 0 : undefined}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (item.sellerId != null) setSellerModalId(String(item.sellerId));
+                    if (item.sellerId != null)
+                      setSellerModalId(String(item.sellerId));
                   }}
                   onKeyDown={(e) => {
-                    if (item.sellerId != null && (e.key === "Enter" || e.key === " ")) {
+                    if (
+                      item.sellerId != null &&
+                      (e.key === "Enter" || e.key === " ")
+                    ) {
                       e.preventDefault();
                       e.stopPropagation();
                       setSellerModalId(String(item.sellerId));
                     }
                   }}
                   className={`seller-card__avatar !w-5 !h-5 !text-[9px] !rounded shrink-0 overflow-hidden inline-flex items-center justify-center ${item.sellerId != null ? "cursor-pointer" : ""}`}
-                  aria-label={item.sellerId != null ? `View seller ${item.seller ?? ""}` : undefined}
+                  aria-label={
+                    item.sellerId != null
+                      ? `View seller ${item.seller ?? ""}`
+                      : undefined
+                  }
                 >
                   {item.sellerImageUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
@@ -253,10 +269,14 @@ function HomeItemCard({
                     tabIndex={item.sellerId != null ? 0 : undefined}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (item.sellerId != null) setSellerModalId(String(item.sellerId));
+                      if (item.sellerId != null)
+                        setSellerModalId(String(item.sellerId));
                     }}
                     onKeyDown={(e) => {
-                      if (item.sellerId != null && (e.key === "Enter" || e.key === " ")) {
+                      if (
+                        item.sellerId != null &&
+                        (e.key === "Enter" || e.key === " ")
+                      ) {
                         e.preventDefault();
                         e.stopPropagation();
                         setSellerModalId(String(item.sellerId));
@@ -409,7 +429,11 @@ export function WhatsNewSection({
           centeredSlides
           spaceBetween={12}
           breakpoints={{
-            480: { slidesPerView: 2.2, centeredSlides: false, spaceBetween: 12 },
+            480: {
+              slidesPerView: 2.2,
+              centeredSlides: false,
+              spaceBetween: 12,
+            },
             640: { slidesPerView: 3, centeredSlides: false, spaceBetween: 12 },
             900: { slidesPerView: 4, centeredSlides: false, spaceBetween: 14 },
             1200: { slidesPerView: 5, centeredSlides: false, spaceBetween: 16 },
@@ -438,7 +462,10 @@ export function WhatsNewSection({
           className="group inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:text-primary"
         >
           Browse all items
-          <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight
+            size={16}
+            className="transition-transform group-hover:translate-x-0.5"
+          />
         </Link>
       </div>
     </section>
