@@ -5,9 +5,9 @@
  * and improve readability of the indexer orchestrator.
  */
 
-import type { IndexMetaEntry } from '../../shared/logic/indexMetaStore';
+import type { IndexMetaEntry, PriceSnapshot } from '../../shared/logic/indexMetaStore';
 import { diffMarketIndexEntries } from '../../shared/logic/changes';
-import { mergeIndexMetaEntry } from '../../shared/logic/indexMetaStore';
+import { mergeIndexMetaEntry, MAX_PRICE_HISTORY } from '../../shared/logic/indexMetaStore';
 import { isTipListing, isCustomListing } from '../../shared/exclusions/listing';
 import { categorize } from '../../shared/categorization/index';
 
@@ -20,7 +20,7 @@ export interface NormalizeContext {
   sharesAgg: Record<string, string>;
   shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }>;
   indexMetaAgg: Record<string, IndexMetaEntry>;
-  imageMetaAgg: Record<string, { hashes: string[] }>;
+  imageMetaAgg: Record<string, { hashes?: string[]; animated?: Array<0 | 1 | boolean | null> }>;
   translationsAgg: Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }>;
   categoryOverrides: Map<string, { primary: string; subcategories: string[] }>;
   itemReviewSummaries: Record<string, any>;
@@ -54,6 +54,44 @@ function normalizeSh(x: any) {
   return Object.keys(out).length ? out : undefined;
 }
 
+const GIF_REGEX = /\.gif(?:$|[?#])/i;
+
+function isGifUrl(url: string): boolean {
+  return GIF_REGEX.test(url);
+}
+
+function getImageMeta(
+  ctx: NormalizeContext,
+  canonicalKey: string,
+  numKey: string | null,
+) {
+  return ctx.imageMetaAgg[canonicalKey] ?? (numKey ? ctx.imageMetaAgg[numKey] : undefined);
+}
+
+function metaHasHash(meta: { hashes?: string[] } | undefined, hash: string): boolean {
+  return Array.isArray(meta?.hashes) && meta.hashes.includes(hash);
+}
+
+function metaAnimatedFlag(
+  meta: { hashes?: string[]; animated?: Array<0 | 1 | boolean | null> } | undefined,
+  hash: string,
+): 0 | 1 | undefined {
+  if (!Array.isArray(meta?.hashes) || !Array.isArray(meta.animated)) return undefined;
+  const index = meta.hashes.indexOf(hash);
+  if (index < 0) return undefined;
+  const flag = meta.animated[index];
+  if (flag == null) return undefined;
+  return flag === true || flag === 1 ? 1 : 0;
+}
+
+function animationFlagFor(
+  url: string,
+  hash: string,
+  meta: { hashes?: string[]; animated?: Array<0 | 1 | boolean | null> } | undefined,
+): 0 | 1 | undefined {
+  return metaAnimatedFlag(meta, hash) ?? (isGifUrl(url) ? 1 : undefined);
+}
+
 /**
  * Normalize a single raw API item into a minified market-index entry.
  * Returns null if the item should be excluded (tip listing, custom order, etc.).
@@ -78,7 +116,7 @@ export function normalizeItem(it: any, ctx: NormalizeContext): NormalizeResult |
 
   const images: string[] = Array.isArray(it?.images) ? it.images : [];
   const primaryImg = images[0] || undefined;
-  const imgSmall = images.length ? images.slice(0, 3) : undefined;
+  const imgSmall = images.length ? images.slice(0, 8) : undefined;
 
   // Normalize varieties into compact variant entries with USD
   const varieties: any[] = Array.isArray(it?.varieties) ? it.varieties : [];
@@ -110,19 +148,32 @@ export function normalizeItem(it: any, ctx: NormalizeContext): NormalizeResult |
   if (name) entry.n = name;
   if (description) entry.d = description;
 
+  // Image hashes + optimization metadata
   let _appliedImageMeta = false;
+  const imageMeta = getImageMeta(ctx, canonicalKey, numKey);
   if (primaryImg) {
     entry.i = primaryImg;
     const hash = ctx.hashUrl(primaryImg);
-    const meta = canonicalKey ? ctx.imageMetaAgg[canonicalKey] : undefined;
-    const metaNum = numKey ? ctx.imageMetaAgg[numKey] : undefined;
-    const hashes = meta?.hashes || metaNum?.hashes;
-    if (hashes && Array.isArray(hashes) && hashes.includes(hash)) {
+    entry.ih = hash;
+    const animated = animationFlagFor(primaryImg, hash, imageMeta);
+    if (animated === 1 || (animated === 0 && isGifUrl(primaryImg))) entry.ia = animated;
+    if (metaHasHash(imageMeta, hash)) {
       entry.io = 1;
       _appliedImageMeta = true;
     }
   }
-  if (imgSmall && imgSmall.length) entry.is = imgSmall;
+  if (imgSmall && imgSmall.length) {
+    entry.is = imgSmall;
+    entry.ish = imgSmall.map((url) => ctx.hashUrl(url));
+    const animatedFlags = imgSmall.map((url) => {
+      const hash = ctx.hashUrl(url);
+      const animated = animationFlagFor(url, hash, imageMeta);
+      if (animated === 1) return 1;
+      if (animated === 0 && isGifUrl(url)) return 0;
+      return null;
+    });
+    if (animatedFlags.some((flag) => flag != null)) entry.isa = animatedFlags;
+  }
   if (v.length) entry.v = v;
   if (uMin != null) entry.uMin = uMin;
   if (uMax != null) entry.uMax = uMax;
@@ -184,6 +235,30 @@ export function normalizeItem(it: any, ctx: NormalizeContext): NormalizeResult |
     if (carriedLur != null) entry.lur = carriedLur;
   }
 
+  // Price history: append snapshot when price changed
+  let ph: PriceSnapshot[] | undefined = metaHit?.ph ? [...metaHit.ph] : undefined;
+  if (changed && changeReasons.includes('Price changed') && typeof uMin === 'number' && typeof uMax === 'number') {
+    if (!ph) ph = [];
+    // Seed with old price if history is empty (captures the "from" baseline)
+    if (ph.length === 0 && prev) {
+      const oldMin = typeof prev.uMin === 'number' ? prev.uMin : undefined;
+      const oldMax = typeof prev.uMax === 'number' ? prev.uMax : undefined;
+      if (oldMin != null && oldMax != null) {
+        const oldDate = carriedLua ?? metaHit?.fsa ?? nowIso;
+        ph.push({ d: oldDate, min: oldMin, max: oldMax });
+      }
+    }
+    ph.push({ d: nowIso, min: uMin, max: uMax });
+    if (ph.length > MAX_PRICE_HISTORY) {
+      ph = ph.slice(ph.length - MAX_PRICE_HISTORY);
+    }
+    // lp = previous uMin (the price before this change)
+    if (typeof prev?.uMin === 'number') entry.lp = prev.uMin;
+  } else if (typeof prev?.lp === 'number') {
+    // Carry forward last price from previous run
+    entry.lp = prev.lp;
+  }
+
   // Translations (applied AFTER change detection)
   let _appliedTranslation = false;
   if (ctx.needsTranslation && ctx.targetLocale && canonicalKey) {
@@ -236,6 +311,7 @@ export function normalizeItem(it: any, ctx: NormalizeContext): NormalizeResult |
       lua: typeof entry.lua === 'string' ? entry.lua : null,
       lur: typeof entry.lur === 'string' ? entry.lur : null,
       lsi: new Date().toISOString(),
+      ...(ph && ph.length > 0 ? { ph } : {}),
     };
     const result = mergeIndexMetaEntry(ctx.indexMetaAgg[canonicalKey], candidate);
     if (result.changed) {

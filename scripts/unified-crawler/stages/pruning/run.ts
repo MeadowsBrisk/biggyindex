@@ -3,6 +3,7 @@ import { loadEnv } from "../../shared/env/loadEnv";
 import { marketStore } from "../../shared/env/markets";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
+import { mirrorIndexMeta, mirrorImageMeta } from "../../shared/persistence/v2Mirror";
 import { pruneIndexMeta, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
 import { log } from "../../shared/logging/logger";
 import { createR2Client, getR2Config } from "../images/optimizer";
@@ -130,6 +131,7 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
 
       if (!dryRun && (result.removed > 0 || result.migrated > 0)) {
         await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), indexMetaAgg);
+        await mirrorIndexMeta(indexMetaAgg);
       }
       log.cli.info(`pruning: indexMeta ${dryRun ? 'scan' : 'update'}`, {
         removed: indexMetaRemoved,
@@ -271,6 +273,7 @@ export async function runPruning(markets?: MarketCode[], opts: PruningOptions = 
 
       if (imageMetaChanged && !dryRun) {
         await sharedBlob.putJSON(Keys.shared.aggregates.imageMeta(), imageMeta);
+        await mirrorImageMeta(imageMeta);
         log.cli.info('pruning: updated image-meta (removed expired items)');
       }
 

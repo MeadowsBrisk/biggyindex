@@ -1,8 +1,17 @@
+export interface PriceSnapshot {
+  d: string;    // ISO date of the change
+  min: number;  // uMin at this point
+  max: number;  // uMax at this point
+}
+
+export const MAX_PRICE_HISTORY = 20;
+
 export interface IndexMetaEntry {
   fsa?: string;  // firstSeenAt
   lua?: string;  // lastUpdatedAt
   lur?: string;  // lastUpdateReason
   lsi?: string;  // lastSeenInIndex - when item was last present in any market index
+  ph?: PriceSnapshot[];  // price history — newest last, max MAX_PRICE_HISTORY
 }
 
 export interface IndexMetaCandidate {
@@ -10,6 +19,7 @@ export interface IndexMetaCandidate {
   lua?: string | null;
   lur?: string | null;
   lsi?: string | null;  // lastSeenInIndex
+  ph?: PriceSnapshot[];  // price history update (set by normalizeItem on price change)
 }
 
 const toTimestamp = (value?: string | null): number | null => {
@@ -58,6 +68,12 @@ export function mergeIndexMetaEntry(
       next.lsi = candidate.lsi;
       changed = true;
     }
+  }
+
+  // ph: replace with candidate when provided (already built by normalizeItem)
+  if (candidate.ph && candidate.ph.length > 0) {
+    next.ph = candidate.ph;
+    changed = true;
   }
 
   return { changed, next };

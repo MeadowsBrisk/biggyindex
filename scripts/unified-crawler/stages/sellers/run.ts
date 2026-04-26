@@ -3,6 +3,7 @@ import type { SellerStateAggregate } from "../../shared/types";
 import { loadEnv } from "../../shared/env/loadEnv";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
+import { mirrorSellerState } from "../../shared/persistence/v2Mirror";
 import { buildSellerWorklist } from "../../shared/sellers/worklist";
 import { planSellerEnrichmentSync, buildSellerStateEntry, runSellerEnrichment, type SellerEnrichmentConfig, type SellerPipelineTask } from "../../shared/sellers/enrichment";
 import { processSellerAnalytics } from "../../shared/sellers/analytics";
@@ -248,6 +249,7 @@ export async function runSellers(markets: MarketCode[]): Promise<SellersRunResul
       }
 
       await sharedBlob.putJSON(Keys.shared.aggregates.sellerState(), updatedState);
+      await mirrorSellerState(updatedState);
       log.sellers.success(`updated seller-state aggregate`, {
         entries: Object.keys(updatedState.sellers).length,
         time: `${Date.now() - stateUpdateStart}ms`,

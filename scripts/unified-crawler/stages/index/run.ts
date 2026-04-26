@@ -5,10 +5,52 @@ import { loadEnv } from "../../shared/env/loadEnv";
 import { ACCEPT_LANGUAGE, marketStore } from "../../shared/env/markets";
 import { getBlobClient } from "../../shared/persistence/blobs";
 import { Keys } from "../../shared/persistence/keys";
+import { mirrorIndexMeta } from "../../shared/persistence/v2Mirror";
 import { appendRunMeta } from "../../shared/persistence/runMeta";
 import { mergeIndexMetaEntry, type IndexMetaEntry } from "../../shared/logic/indexMetaStore";
+import { buildItemImageLookupFromIndex } from "../../shared/aggregation/buildItemImageLookup";
 import axios from "axios";
 import { buildMarketSellers } from "./buildSellers";
+
+type ImageMetaLike = { hashes?: string[] } | null | undefined;
+
+function imageMetaFor(entry: Record<string, any>, imageMetaAgg: Record<string, ImageMetaLike>): ImageMetaLike {
+  const refKey = entry.refNum != null ? String(entry.refNum) : null;
+  const idKey = entry.id != null ? String(entry.id) : null;
+  return (refKey ? imageMetaAgg[refKey] : undefined) ?? (idKey ? imageMetaAgg[idKey] : undefined);
+}
+
+function metaHasHashPublic(meta: ImageMetaLike, hash: unknown): boolean {
+  return typeof hash === 'string' && Array.isArray(meta?.hashes) && meta.hashes.includes(hash);
+}
+
+/**
+ * Compact a normalized index entry for public browse JSON:
+ *   - Drops `i` when `ih` is present AND the hash is recorded in image-meta (or `io === 1`).
+ *   - Drops `is` when `ish` aligns 1:1 and every gallery hash is in image-meta.
+ *
+ * Gated by INDEX_COMPACT_IMAGES=1 — off by default so the v1 frontend
+ * (which still reads raw `i`/`is`) keeps working until it is migrated
+ * to the item-image-lookup + hash pattern.
+ */
+function compactPublicIndexItem(entry: Record<string, any>, imageMetaAgg: Record<string, ImageMetaLike>): Record<string, any> {
+  if (process.env.INDEX_COMPACT_IMAGES !== '1') return entry;
+  const out = { ...entry };
+  const meta = imageMetaFor(entry, imageMetaAgg);
+
+  if (out.ih && (out.io === 1 || metaHasHashPublic(meta, out.ih))) {
+    delete out.i;
+  }
+
+  if (Array.isArray(out.is) && out.is.length && Array.isArray(out.ish) && out.ish.length >= out.is.length) {
+    const hashes = out.ish.slice(0, out.is.length);
+    if (hashes.length === out.is.length && hashes.every((hash: unknown) => metaHasHashPublic(meta, hash))) {
+      delete out.is;
+    }
+  }
+
+  return out;
+}
 import { MARKET_TO_FULL_LOCALE } from '../../shared/locale-map';
 import { createCookieHttp, warmCookieJar } from "../../shared/http/client";
 import { seedLocationFilterCookie } from "../../shared/http/lfCookie";
@@ -207,7 +249,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   let sharesAgg: Record<string, string> = {};
   let shipAgg: Record<string, { min?: number; max?: number; free?: number | boolean }> = {};
   let indexMetaAgg: Record<string, IndexMetaEntry> = {};
-  let imageMetaAgg: Record<string, { hashes: string[] }> = {};
+  let imageMetaAgg: Record<string, { hashes?: string[]; animated?: Array<0 | 1 | boolean | null> }> = {};
   let translationsAgg: Record<string, { sourceHash: string; locales: Record<string, { n: string; d: string; v?: { vid: string | number; d: string }[] }> }> = {};
   const categoryOverrides = new Map<string, { primary: string; subcategories: string[] }>();
 
@@ -427,15 +469,34 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
 
   const indexKey = Keys.market.index(code);
   const indexPackKey = Keys.market.indexPack(code);
+  const itemImageLookupKey = Keys.market.data.itemImageLookup();
   const writeTasks: Promise<any>[] = [];
+
+  // Build rich item-image-lookup from the full (pre-compaction) items so
+  // downstream crawler stages can recover source URLs even when the public
+  // index strips raw `i`/`is`.
+  const itemImageLookup = buildItemImageLookupFromIndex(marketIndexItems as any[]);
+  const publicIndexItems = marketIndexItems.map((entry: Record<string, any>) => compactPublicIndexItem(entry, imageMetaAgg as any));
+  if (marketIndexItems.length > 0) {
+    const strippedPrimary = publicIndexItems.reduce((count, entry, index) => count + ((marketIndexItems[index] as any)?.i && !entry.i ? 1 : 0), 0);
+    const strippedGallery = publicIndexItems.reduce((count, entry, index) => count + ((marketIndexItems[index] as any)?.is && !entry.is ? 1 : 0), 0);
+    logger.info(`[index:${code}] Public image compaction primary=${strippedPrimary} gallery=${strippedGallery} lookup=${Object.keys(itemImageLookup.recordsByRef).length}`);
+  }
+
   if (marketIndexItems.length > 0) {
     const metaNote = appliedMeta ? ` indexMetaHits=${appliedMeta}` : '';
     const transNote = appliedTranslations ? ` translations=${appliedTranslations}` : '';
     const imgNote = appliedImageMeta ? ` optimizedImages=${appliedImageMeta}` : '';
     writeTasks.push(
-      blob.putJSON(indexKey, marketIndexItems)
-        .then(() => logger.info(`[index:${code}] Wrote ${indexKey} (${marketIndexItems.length} items).${metaNote}${transNote}${imgNote}`))
+      blob.putJSON(indexKey, publicIndexItems)
+        .then(() => logger.info(`[index:${code}] Wrote ${indexKey} (${publicIndexItems.length} items).${metaNote}${transNote}${imgNote}`))
         .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${indexKey}: ${e?.message || e}`))
+    );
+    // Item image lookup — rich shape (records + legacy byRef/byId display URLs)
+    writeTasks.push(
+      blob.putJSON(itemImageLookupKey, itemImageLookup)
+        .then(() => logger.info(`[index:${code}] Wrote ${itemImageLookupKey} (${Object.keys(itemImageLookup.recordsByRef).length}).`))
+        .catch((e: any) => logger.warn(`[index:${code}] Failed writing ${itemImageLookupKey}: ${e?.message || e}`))
     );
     // Pre-build MessagePack binary alongside JSON — served directly by /api/items-pack
     // without on-the-fly encoding, saving CPU on every request
@@ -443,9 +504,9 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       (async () => {
         try {
           const { encode } = await import('@msgpack/msgpack');
-          const packed = Buffer.from(encode(marketIndexItems));
+          const packed = Buffer.from(encode(publicIndexItems));
           await blob.putRaw(indexPackKey, packed, 'application/msgpack');
-          logger.info(`[index:${code}] Wrote ${indexPackKey} (${packed.length} bytes, ${marketIndexItems.length} items).`);
+          logger.info(`[index:${code}] Wrote ${indexPackKey} (${packed.length} bytes, ${publicIndexItems.length} items).`);
         } catch (e: any) {
           logger.warn(`[index:${code}] Failed writing ${indexPackKey}: ${e?.message || e}`);
         }
@@ -470,12 +531,13 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     try { sellersList = (await blob.getJSON<any[]>(sellersKey)) || []; } catch { }
   }
 
-  // Derive categories and manifest from the finalized marketIndexItems
+  // Derive categories and manifest from the compacted public items so the
+  // per-category JSONs match the shape served from indexed_items.json.
   type Entry = Record<string, any>;
   const byCat = new Map<string, Entry[]>();
   let minPrice = Number.POSITIVE_INFINITY;
   let maxPrice = 0;
-  for (const e of marketIndexItems as Entry[]) {
+  for (const e of publicIndexItems as Entry[]) {
     if (typeof e.uMin === 'number') minPrice = Math.min(minPrice, e.uMin);
     if (typeof e.uMax === 'number') maxPrice = Math.max(maxPrice, e.uMax);
     const cat = (e.c && String(e.c)) || null;
@@ -595,6 +657,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     }
     try {
       await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), latestMeta);
+      // Fire-and-forget mirror to the v2 bucket (no-op unless R2_V2_MIRROR=1).
+      await mirrorIndexMeta(latestMeta);
     } catch (e: any) {
       logger.warn(`[index:${code}] failed to persist index-meta aggregate: ${e?.message || e}`);
     }
@@ -612,7 +676,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     await appendRunMeta(storeName, runMetaKey, {
       scope: String(code),
       counts: { items: itemsCount },
-      notes: { artifacts: ["snapshot_meta.json", "data/manifest.json", "indexed_items.json", "indexed_items.msgpack", "sellers.json"], durationMs: durMs, source: snapshotMeta.source, version: snapshotMeta.version },
+      notes: { artifacts: ["snapshot_meta.json", "data/manifest.json", "indexed_items.json", "indexed_items.msgpack", "sellers.json", itemImageLookupKey], durationMs: durMs, source: snapshotMeta.source, version: snapshotMeta.version },
     });
     logger.info(`[index:${code}] Appended run-meta (${durMs}ms) to ${runMetaKey}.`);
   } catch (e: any) {
@@ -629,6 +693,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       "indexed_items.json",
       "indexed_items.msgpack",
       "sellers.json",
+      itemImageLookupKey,
     ],
     snapshotMeta,
   };

@@ -71,7 +71,7 @@ export const handler: Handler = async (event) => {
     } = await import("../../scripts/unified-crawler/stages/images/imageMeta");
 
     // Also need deleteImageFolder for stale cleanup
-    const { hashUrl, deleteImageFolder } = await import("../../scripts/unified-crawler/stages/images/optimizer");
+    const { hashUrl, deleteImageFolder, isGifUrl } = await import("../../scripts/unified-crawler/stages/images/optimizer");
 
     // Load image metadata
     const imageMeta = force ? {} : await loadImageMeta(sharedBlob);
@@ -153,6 +153,8 @@ export const handler: Handler = async (event) => {
 
     for (const item of itemsToProcess) {
       const newHashes = item.imageUrls.map(url => hashUrl(url));
+      // `animated` is positionally aligned with `newHashes`: 1 = GIF → has anim.webp
+      const animated: (0 | 1)[] = item.imageUrls.map(url => (isGifUrl(url) ? 1 : 0));
 
       // Delete stale images
       const staleHashes = getStaleHashes(item.existingHashes, newHashes);
@@ -162,7 +164,7 @@ export const handler: Handler = async (event) => {
       }
 
       // Update metadata
-      updatedMeta = updateItemImageMeta(updatedMeta, item.id, item.lua, newHashes);
+      updatedMeta = updateItemImageMeta(updatedMeta, item.id, item.lua, newHashes, animated);
     }
 
     if (staleDeleted > 0) log(`deleted stale images count=${staleDeleted}`);

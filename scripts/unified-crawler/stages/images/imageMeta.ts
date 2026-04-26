@@ -1,18 +1,19 @@
 /**
  * Image Metadata Tracking
- * 
+ *
  * Tracks which images have been processed for each item, enabling:
  * 1. Skip items that haven't changed (lua unchanged)
  * 2. Delete old images when an item's images change
  * 3. Process only new/updated items (consistent with items stage)
- * 
+ *
  * Storage: aggregates/image-meta.json in shared store
- * 
+ *
  * Structure per item:
  * {
  *   "item-123": {
  *     "lua": "2024-01-15T10:00:00Z",      // lastUpdatedAt from index when images were processed
  *     "hashes": ["abc123", "def456"],      // R2 folder hashes for this item's images
+ *     "animated": [0, 1],                  // positionally matches hashes; 1 has anim.webp
  *     "lastProcessed": "2024-01-15T12:00:00Z"
  *   }
  * }
@@ -20,15 +21,32 @@
 
 import type { BlobClient } from '../../shared/persistence/blobs';
 import { Keys } from '../../shared/persistence/keys';
+import { mirrorImageMeta } from '../../shared/persistence/v2Mirror';
 import { log } from '../../shared/logging/logger';
+import { hashUrl } from './optimizer';
+
+export type ImageAnimatedFlag = 0 | 1;
 
 export interface ItemImageMeta {
     lua: string;           // lastUpdatedAt from index when images were last processed
     hashes: string[];      // R2 folder hashes (URL hashes) for this item's images
+    animated?: ImageAnimatedFlag[]; // 1 if the matching hash has anim.webp, otherwise 0
     lastProcessed: string; // ISO timestamp when images were last processed
 }
 
 export type ImageMetaAggregate = Record<string, ItemImageMeta>;
+
+function hasCompleteImageMeta(metaEntry: ItemImageMeta | undefined, imageUrls: string[]): boolean {
+    if (!metaEntry || !Array.isArray(metaEntry.hashes)) {
+        return false;
+    }
+
+    if (metaEntry.hashes.length !== imageUrls.length) {
+        return false;
+    }
+
+    return imageUrls.every((url, index) => metaEntry.hashes[index] === hashUrl(url));
+}
 
 /**
  * Load the image metadata aggregate from blobs
@@ -50,6 +68,8 @@ export async function saveImageMeta(
     meta: ImageMetaAggregate
 ): Promise<void> {
     await sharedBlob.putJSON(Keys.shared.aggregates.imageMeta(), meta);
+    // Dual-write to the v2 bucket (gated by R2_V2_MIRROR=1).
+    await mirrorImageMeta(meta);
 }
 
 /**
@@ -82,10 +102,10 @@ export function getItemsNeedingImageUpdate(
         if (imageUrls.length === 0) continue; // No images to process
 
         // Need processing if:
-        // 1. No metadata exists (new item)
+        // 1. No metadata exists or the hash list doesn't match current URLs
         // 2. lua has changed since last processing (item updated)
-        const needsProcessing = !metaEntry ||
-            !metaEntry.lua ||
+        const needsProcessing = !hasCompleteImageMeta(metaEntry, imageUrls) ||
+            !metaEntry?.lua ||
             (itemLua && new Date(itemLua) > new Date(metaEntry.lua));
 
         if (needsProcessing) {
@@ -108,13 +128,15 @@ export function updateItemImageMeta(
     meta: ImageMetaAggregate,
     itemId: string,
     lua: string,
-    newHashes: string[]
+    newHashes: string[],
+    animated: ImageAnimatedFlag[] = newHashes.map(() => 0)
 ): ImageMetaAggregate {
     return {
         ...meta,
         [itemId]: {
             lua,
             hashes: newHashes,
+            animated,
             lastProcessed: new Date().toISOString(),
         },
     };
