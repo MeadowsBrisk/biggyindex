@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { useSetAtom } from "jotai";
 import { AlertTriangle, ShieldCheck, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useMemo } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
 import { sellerModalIdAtom } from "@/store/atoms";
@@ -23,6 +25,22 @@ interface SellerTrustBoardProps {
   topSellers: LeaderboardSeller[];
   bottomSellers: LeaderboardSeller[];
   recentlyJoined: LeaderboardSeller[];
+}
+
+interface SellerTimeCopy {
+  today: string;
+  yesterday: string;
+  daysAgo: (count: number) => string;
+  monthsAgo: (count: number) => string;
+  yearsAgo: (count: number) => string;
+  monthsActive: (count: number) => string;
+  yearsActive: (count: number) => string;
+}
+
+interface SellerTrustCopy {
+  reviews: (count: string) => string;
+  negative: (count: string) => string;
+  time: SellerTimeCopy;
 }
 
 /* ────────────────────────── helpers ────────────────────────── */
@@ -46,26 +64,29 @@ function compact(n: number): string {
   return String(n);
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, copy: SellerTimeCopy): string {
   const d = new Date(iso);
   const now = new Date();
   const days = Math.floor((now.getTime() - d.getTime()) / 86_400_000);
-  if (days === 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 30) return `${days}d ago`;
-  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
-  return `${Math.floor(days / 365)}y ago`;
+  if (days === 0) return copy.today;
+  if (days === 1) return copy.yesterday;
+  if (days < 30) return copy.daysAgo(days);
+  if (days < 365) return copy.monthsAgo(Math.floor(days / 30));
+  return copy.yearsAgo(Math.floor(days / 365));
 }
 
 /** Compact tenure e.g. "3y active", "8mo active". Returns null for < 30 days. */
-function formatTenure(iso: string | undefined): string | null {
+function formatTenure(
+  iso: string | undefined,
+  copy: SellerTimeCopy,
+): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
   const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
   if (days < 30) return null;
-  if (days < 365) return `${Math.floor(days / 30)}mo active`;
-  return `${Math.floor(days / 365)}y active`;
+  if (days < 365) return copy.monthsActive(Math.floor(days / 30));
+  return copy.yearsActive(Math.floor(days / 365));
 }
 
 /* ────────────────────────── avatar ────────────────────────── */
@@ -152,14 +173,17 @@ function SellerRow({
   variant,
   featured,
   onOpen,
+  copy,
 }: {
   seller: LeaderboardSeller;
   variant: "top" | "bottom";
   featured?: boolean;
   onOpen: (id: string) => void;
+  copy: SellerTrustCopy;
 }) {
   const pct = positivePercent(seller.positiveCount, seller.totalReviews);
   const isTop = variant === "top";
+  const tenure = formatTenure(seller.joined, copy.time);
   const tone: Tone = isTop ? "emerald" : "amber";
   const pctColor = isTop
     ? pct >= 90
@@ -193,19 +217,19 @@ function SellerRow({
           {seller.sellerName}
         </p>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tabular-nums">
-          <span>{compact(seller.totalReviews)} reviews</span>
+          <span>{copy.reviews(compact(seller.totalReviews))}</span>
           {!isTop && seller.negativeCount > 0 && (
             <>
               <span className="text-muted-foreground/40">·</span>
               <span className="text-red-400/80">
-                {compact(seller.negativeCount)} negative
+                {copy.negative(compact(seller.negativeCount))}
               </span>
             </>
           )}
-          {formatTenure(seller.joined) && (
+          {tenure && (
             <>
               <span className="text-muted-foreground/40">·</span>
-              <span>{formatTenure(seller.joined)}</span>
+              <span>{tenure}</span>
             </>
           )}
         </div>
@@ -234,6 +258,8 @@ function Panel({
   variant,
   onOpen,
   delay,
+  copy,
+  reviewsLabel,
 }: {
   tone: Tone;
   icon: React.ReactNode;
@@ -243,6 +269,8 @@ function Panel({
   variant: "top" | "bottom";
   onOpen: (id: string) => void;
   delay: number;
+  copy: SellerTrustCopy;
+  reviewsLabel: string;
 }) {
   const totalReviews = sellers.reduce((sum, s) => sum + s.totalReviews, 0);
 
@@ -279,7 +307,7 @@ function Panel({
         </div>
         <div className="text-right shrink-0">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Reviews
+            {reviewsLabel}
           </p>
           <p className="text-sm font-semibold text-foreground tabular-nums">
             {compact(totalReviews)}
@@ -296,6 +324,7 @@ function Panel({
               variant={variant}
               featured={i === 0}
               onOpen={onOpen}
+              copy={copy}
             />
           </li>
         ))}
@@ -311,7 +340,24 @@ export function SellerTrustBoard({
   bottomSellers,
   recentlyJoined,
 }: SellerTrustBoardProps) {
+  const t = useTranslations("home.sellerTrust");
   const openSeller = useSetAtom(sellerModalIdAtom);
+  const copy: SellerTrustCopy = useMemo(
+    () => ({
+      reviews: (count) => t("row.reviews", { count }),
+      negative: (count) => t("row.negative", { count }),
+      time: {
+        today: t("time.today"),
+        yesterday: t("time.yesterday"),
+        daysAgo: (count) => t("time.daysAgo", { count }),
+        monthsAgo: (count) => t("time.monthsAgo", { count }),
+        yearsAgo: (count) => t("time.yearsAgo", { count }),
+        monthsActive: (count) => t("time.monthsActive", { count }),
+        yearsActive: (count) => t("time.yearsActive", { count }),
+      },
+    }),
+    [t],
+  );
 
   return (
     <section className="py-20 px-4 bg-[var(--surface)]">
@@ -325,15 +371,12 @@ export function SellerTrustBoard({
         >
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-primary/80 font-semibold mb-2">
-              Community Trust
+              {t("eyebrow")}
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
-              Seller Trust Board
+              {t("heading")}
             </h2>
-            <p className="text-muted mt-2 max-w-xl">
-              Rankings drawn from community reviews. Hover an avatar for a
-              preview, tap to open the seller&apos;s full profile.
-            </p>
+            <p className="text-muted mt-2 max-w-xl">{t("description")}</p>
           </div>
         </motion.div>
 
@@ -342,22 +385,26 @@ export function SellerTrustBoard({
           <Panel
             tone="emerald"
             icon={<ShieldCheck size={18} />}
-            title="Top Rated"
-            subtitle="Highest positive-review ratio"
+            title={t("panels.top.title")}
+            subtitle={t("panels.top.subtitle")}
             sellers={topSellers}
             variant="top"
             onOpen={openSeller}
             delay={0.1}
+            copy={copy}
+            reviewsLabel={t("panels.reviewsLabel")}
           />
           <Panel
             tone="amber"
             icon={<AlertTriangle size={18} />}
-            title="Use Caution"
-            subtitle="Elevated negative feedback"
+            title={t("panels.caution.title")}
+            subtitle={t("panels.caution.subtitle")}
             sellers={bottomSellers}
             variant="bottom"
             onOpen={openSeller}
             delay={0.2}
+            copy={copy}
+            reviewsLabel={t("panels.reviewsLabel")}
           />
         </div>
 
@@ -376,10 +423,10 @@ export function SellerTrustBoard({
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-[15px] font-semibold text-foreground leading-tight">
-                  Recently Joined
+                  {t("recentlyJoined.title")}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  New sellers — no track record yet
+                  {t("recentlyJoined.subtitle")}
                 </p>
               </div>
             </header>
@@ -397,7 +444,7 @@ export function SellerTrustBoard({
                   </span>
                   {seller.joined && (
                     <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {formatDate(seller.joined)}
+                      {formatDate(seller.joined, copy.time)}
                     </span>
                   )}
                 </button>

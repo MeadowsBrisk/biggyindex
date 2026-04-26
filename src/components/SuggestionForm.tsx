@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SuggestibleField } from "@/lib/suggestion-fields";
 import { getSuggestibleFields, readItemField } from "@/lib/suggestion-fields";
@@ -28,6 +29,7 @@ interface StagedEdit {
 }
 
 export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
+  const t = useTranslations("suggest.form");
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [staged, setStaged] = useState<StagedEdit[]>([]);
@@ -165,10 +167,10 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         if (res.ok) {
           successCount++;
         } else {
-          lastError = data.error || "Something went wrong";
+          lastError = data.error || t("somethingWentWrong");
         }
       } catch {
-        lastError = "Network error";
+        lastError = t("networkError");
       }
     }
 
@@ -177,16 +179,20 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         ok: true,
         message:
           staged.length === 1
-            ? "Suggestion submitted!"
-            : `All ${staged.length} suggestions submitted!`,
+            ? t("suggestionSubmitted")
+            : t("allSubmitted", { count: staged.length }),
       });
     } else if (successCount > 0) {
       setResult({
         ok: true,
-        message: `${successCount} of ${staged.length} submitted. ${lastError}`,
+        message: t("partialSubmitted", {
+          successCount,
+          totalCount: staged.length,
+          error: lastError,
+        }),
       });
     } else {
-      setResult({ ok: false, message: lastError || "Something went wrong" });
+      setResult({ ok: false, message: lastError || t("somethingWentWrong") });
     }
 
     setStaged([]);
@@ -201,7 +207,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
     } catch {
       // silent
     }
-  }, [staged, refNum, itemName, sellerName]);
+  }, [staged, refNum, itemName, sellerName, t]);
 
   async function handleVote(suggestionId: string) {
     try {
@@ -228,7 +234,20 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
   const availableFields = fields.filter((f) => !stagedKeys.has(f.key));
 
   function fieldLabel(key: string): string {
-    return fields.find((f) => f.key === key)?.label ?? key;
+    switch (key) {
+      case "category":
+        return t("fields.category");
+      case "subcategories":
+        return t("fields.subcategories");
+      case "tier":
+        return t("fields.tier");
+      case "micron":
+        return t("fields.micron");
+      case "wrongProduct":
+        return t("fields.wrongProduct");
+      default:
+        return fields.find((f) => f.key === key)?.label ?? key;
+    }
   }
 
   return (
@@ -237,7 +256,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
       {staged.length > 0 && (
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
           <h3 className="text-sm font-semibold text-foreground">
-            Your edits ({staged.length})
+            {t("stagedEdits", { count: staged.length })}
           </h3>
           {staged.map((edit) => (
             <div
@@ -246,7 +265,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
             >
               <div className="min-w-0">
                 <span className="font-medium text-foreground">
-                  {edit.field.label}:
+                  {fieldLabel(edit.field.key)}:
                 </span>{" "}
                 {edit.currentValue && (
                   <>
@@ -264,7 +283,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
                 type="button"
                 onClick={() => removeStaged(edit.field.key)}
                 className="shrink-0 text-muted hover:text-foreground text-xs cursor-pointer"
-                title="Remove this edit"
+                title={t("removeEdit")}
               >
                 ✕
               </button>
@@ -278,8 +297,8 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         <div className="space-y-3">
           <h2 className="text-base font-semibold text-foreground">
             {staged.length > 0
-              ? "Add another correction"
-              : "What needs fixing?"}
+              ? t("addAnotherCorrection")
+              : t("whatNeedsFixing")}
           </h2>
           <div className="flex flex-col gap-1.5">
             {availableFields.map((f) => (
@@ -293,10 +312,10 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
                     : "border-border bg-surface text-foreground hover:border-primary/40"
                 }`}
               >
-                {f.label}
+                {fieldLabel(f.key)}
                 {f.key === "wrongProduct" && (
                   <span className="text-xs text-muted">
-                    This isn&apos;t a valid product
+                    {t("wrongProductHint")}
                   </span>
                 )}
               </button>
@@ -310,17 +329,19 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         <div className="space-y-3">
           {currentValue && currentValue.length > 0 && (
             <div className="rounded-md bg-foreground/5 px-3 py-2 text-sm">
-              <span className="font-semibold">Currently:</span>{" "}
+              <span className="font-semibold">{t("currently")}</span>{" "}
               {currentValue.join(", ")}
             </div>
           )}
           {!currentValue && (
             <div className="rounded-md bg-foreground/5 px-3 py-2 text-sm text-muted">
-              Currently: <em>not set</em>
+              {t("currently")} <em>{t("notSet")}</em>
             </div>
           )}
 
-          <h3 className="text-sm font-semibold text-foreground">Should be:</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            {t("shouldBe")}
+          </h3>
           <div className="flex flex-wrap gap-1.5">
             {fieldDef.options?.map((opt) => {
               const isSelected = selectedValues.includes(opt);
@@ -350,8 +371,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
       {/* Flag: wrong product */}
       {fieldDef && fieldDef.inputType === "flag" && (
         <div className="text-sm text-muted leading-relaxed">
-          Flag this product for review. It may be miscategorised or not belong
-          on this site.
+          {t("wrongProductDescription")}
         </div>
       )}
 
@@ -363,7 +383,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
           onClick={addToStaged}
           className="inline-flex items-center rounded-lg border border-dashed border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
         >
-          {staged.length > 0 ? "+ Add this edit" : "+ Add edit"}
+          {staged.length > 0 ? t("addThisEdit") : t("addEdit")}
         </button>
       )}
 
@@ -376,10 +396,10 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
           className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-50 cursor-pointer"
         >
           {submitting
-            ? "Submitting…"
+            ? t("submitting")
             : staged.length === 1
-              ? "Submit suggestion"
-              : `Submit ${staged.length} suggestions`}
+              ? t("submitSuggestion")
+              : t("submitSuggestions", { count: staged.length })}
         </button>
       )}
 
@@ -403,7 +423,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
               }}
               className="ml-3 text-xs font-medium underline underline-offset-2 hover:no-underline cursor-pointer"
             >
-              Suggest more edits
+              {t("suggestMoreEdits")}
             </button>
           )}
         </div>
@@ -413,7 +433,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
       {pending.length > 0 && (
         <div className="space-y-3 border-t border-border pt-4">
           <h3 className="text-sm font-semibold text-foreground">
-            Pending suggestions ({pending.length})
+            {t("pendingSuggestions", { count: pending.length })}
           </h3>
           {pending.map((s) => {
             const voted = votedIds.has(s.id);
@@ -462,7 +482,7 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
                   type="button"
                   disabled={voted}
                   onClick={() => handleVote(s.id)}
-                  title={voted ? "Already voted" : "Upvote this suggestion"}
+                  title={voted ? t("alreadyVoted") : t("upvoteSuggestion")}
                   className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
                     voted
                       ? "border-primary/30 bg-primary/10 text-primary"

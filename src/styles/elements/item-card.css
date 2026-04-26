@@ -194,10 +194,11 @@
 /* Bookmark button — shares the frosted glass base with .card-lb-btn for consistency. */
 .bookmark-btn {
   @apply rounded-full p-2 border cursor-pointer;
-  background-color: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  backdrop-filter: blur(var(--glass-blur));
+  background-color: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
   border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
   color: var(--muted);
   transition:
     transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -209,6 +210,7 @@
 }
 [data-theme="dark"] .bookmark-btn {
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
 }
 
 .bookmark-btn:hover {
@@ -233,12 +235,12 @@
 .bookmark-active-btn {
   color: #f43f5e;
   border-color: rgba(244, 63, 94, 0.4);
-  background: color-mix(in srgb, #f43f5e 10%, var(--card));
+  background: color-mix(in srgb, #f43f5e 12%, var(--glass-bg-strong));
 }
 [data-theme="dark"] .bookmark-active-btn {
   color: #fb7185;
   border-color: rgba(251, 113, 133, 0.35);
-  background: color-mix(in srgb, #fb7185 12%, var(--card));
+  background: color-mix(in srgb, #fb7185 14%, var(--glass-bg-strong));
 }
 
 .card-lb-btn {

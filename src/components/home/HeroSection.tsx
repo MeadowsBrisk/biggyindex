@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Cannabis } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
@@ -26,6 +27,7 @@ export function HeroSection({
   totalSellers,
   categoryCounts,
 }: HeroSectionProps) {
+  const t = useTranslations("home.hero");
   const [scrolledPast, setScrolledPast] = useState(false);
 
   useEffect(() => {
@@ -69,9 +71,9 @@ export function HeroSection({
           transition={{ duration: 0.6, delay: 0.15 }}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground text-center tracking-tight leading-tight"
         >
-          An index for the
+          {t("title.line1")}
           <br />
-          <span className="text-primary">420 marketplace</span>
+          <span className="text-primary">{t("title.highlight")}</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -81,8 +83,7 @@ export function HeroSection({
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-6 text-lg sm:text-xl text-muted text-center max-w-2xl"
         >
-          Faster search, cleaner categories, and at-a-glance seller trust for
-          the Little Biggy marketplace.
+          {t("subtitle")}
         </motion.p>
 
         {/* Live stats - items and sellers only */}
@@ -96,14 +97,14 @@ export function HeroSection({
             <span className="text-foreground font-semibold">
               {totalItems.toLocaleString()}
             </span>{" "}
-            items indexed
+            {t("stats.itemsIndexed")}
           </span>
           <span className="w-px h-4 bg-[var(--border)]" />
           <span>
             <span className="text-foreground font-semibold">
               {totalSellers}
             </span>{" "}
-            active sellers
+            {t("stats.activeSellers")}
           </span>
         </motion.div>
 
@@ -154,7 +155,7 @@ export function HeroSection({
             prefetch={false}
             className="group inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/25"
           >
-            Browse Marketplace
+            {t("cta")}
             <ArrowRight
               size={20}
               className="transition-transform group-hover:translate-x-1"
@@ -170,7 +171,7 @@ export function HeroSection({
           className="mt-16 flex items-center gap-4"
         >
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-            Markets
+            {t("markets")}
           </span>
           <div className="flex items-center gap-3">
             {MARKETS.map((m) => (

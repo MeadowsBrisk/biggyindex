@@ -58,7 +58,7 @@ export default async function BrowsePage({
       </main>
 
       <FooterSentinel />
-      <SiteFooter hideBrowseCta />
+      <SiteFooter hideBrowseCta locale={locale} />
     </>
   );
 }

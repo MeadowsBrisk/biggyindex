@@ -1,6 +1,7 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useTranslations } from "next-intl";
 import {
   Fragment,
   lazy,
@@ -82,23 +83,23 @@ interface ItemReview {
 /* ── Helpers ── */
 
 /* Human-friendly labels + value formatters for item attributes (`at` field). */
-const AT_LABELS: Record<string, string> = {
-  effect: "Effect",
-  cbd: "CBD",
-  grow: "Grow",
-  tier: "Tier",
-  imported: "Imported",
-  micron: "Micron",
-  origin: "Origin",
-  fullMelt: "Full Melt",
-  mg: "Potency",
-  vegan: "Vegan",
-  mlSize: "Size",
-  purity: "Purity",
-  delta: "Type",
-  terped: "Terped",
-  species: "Species",
-};
+const ATTR_LABEL_KEYS = new Set<string>([
+  "effect",
+  "cbd",
+  "grow",
+  "tier",
+  "imported",
+  "micron",
+  "origin",
+  "fullMelt",
+  "mg",
+  "vegan",
+  "mlSize",
+  "purity",
+  "delta",
+  "terped",
+  "species",
+]);
 
 function formatAttrValue(key: string, val: string | number | boolean): string {
   if (key === "delta") {
@@ -120,17 +121,22 @@ function formatAttrValue(key: string, val: string | number | boolean): string {
   return String(val);
 }
 
-function timeAgo(iso: string | null | undefined): string | null {
+type DetailRelativeAge = {
+  unit: "minutes" | "hours" | "days" | "months";
+  count: number;
+};
+
+function relativeAge(iso: string | null | undefined): DetailRelativeAge | null {
   if (!iso) return null;
   const ms = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(ms / 60_000);
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60) return { unit: "minutes", count: mins };
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return { unit: "hours", count: hrs };
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
+  if (days < 30) return { unit: "days", count: days };
   const months = Math.floor(days / 30);
-  return `${months}mo ago`;
+  return { unit: "months", count: months };
 }
 
 /* ── Reviews block (shared between inline + ultrawide column) ── */
@@ -158,6 +164,7 @@ function ItemReviewsBlock({
       clear the global focus atom and not re-trigger on every rerender. */
   onFocusHandled?: () => void;
 }) {
+  const t = useTranslations("item.detail");
   // Always render every review in the merged-detail blob. We used to truncate
   // to 5 in compact mode, but the full list is already cached and the user
   // should never see "+N more reviews" on mobile \u2014 it felt like a bug when the
@@ -183,7 +190,7 @@ function ItemReviewsBlock({
             : "text-sm font-semibold text-foreground mb-1"
         }
       >
-        Reviews
+        {t("reviews.heading")}
         {reviews.length > 0 && (
           <span className="ml-1 text-muted font-normal">
             ({reviews.length})
@@ -201,7 +208,7 @@ function ItemReviewsBlock({
           <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
       ) : reviews.length === 0 ? (
-        <p className="text-sm text-muted">No reviews available</p>
+        <p className="text-sm text-muted">{t("reviews.noneAvailable")}</p>
       ) : (
         <div className={compact ? "space-y-2" : "space-y-2"}>
           {shown.map((r) => (
@@ -215,7 +222,7 @@ function ItemReviewsBlock({
         </div>
       )}
       {shareLink && reviews.length >= 2 && (rs?.cnt ?? 0) > reviews.length && (
-        <p className="ido-reviews-hint">Read more reviews at:</p>
+        <p className="ido-reviews-hint">{t("reviews.readMoreAt")}</p>
       )}
     </>
   );
@@ -223,11 +230,7 @@ function ItemReviewsBlock({
 
 /* ── Scroll-spy tabs for item detail sections (mobile + desktop) ── */
 type SectionId = "prices" | "description" | "reviews";
-const SECTION_TAB_LABELS: Record<SectionId, string> = {
-  prices: "Prices",
-  description: "Description",
-  reviews: "Reviews",
-};
+const SECTION_IDS: SectionId[] = ["prices", "description", "reviews"];
 
 function ItemDetailTabs({
   scrollRef,
@@ -236,6 +239,7 @@ function ItemDetailTabs({
   scrollRef: React.RefObject<HTMLDivElement | null>;
   refNum: string | number | null;
 }) {
+  const t = useTranslations("item.detail.tabs");
   const [active, setActive] = useState<SectionId>("prices");
   const manualRef = useRef(false);
   const manualTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -349,7 +353,7 @@ function ItemDetailTabs({
 
   return (
     <div className="ido-tabs">
-      {(Object.keys(SECTION_TAB_LABELS) as SectionId[]).map((key) => (
+      {SECTION_IDS.map((key) => (
         <button
           key={key}
           type="button"
@@ -360,7 +364,7 @@ function ItemDetailTabs({
             active === key && "ido-tab--active",
           )}
         >
-          {SECTION_TAB_LABELS[key]}
+          {t(key)}
         </button>
       ))}
     </div>
@@ -369,6 +373,7 @@ function ItemDetailTabs({
 
 /* ── Component ── */
 export function ItemDetailOverlay() {
+  const t = useTranslations("item.detail");
   const [refNum, setRefNum] = useAtom(expandedRefNumAtom);
   const [focusReviewId, setFocusReviewId] = useAtom(focusReviewIdAtom);
   const items = useAtomValue(itemsAtom);
@@ -692,7 +697,7 @@ export function ItemDetailOverlay() {
               onClick={gotoPrev}
               onMouseDown={(e) => e.stopPropagation()}
               disabled={!hasPrev}
-              aria-label="Previous item"
+              aria-label={t("previousItem")}
               className="ido-nav-zone"
             >
               <span className="ido-nav-btn">
@@ -714,7 +719,7 @@ export function ItemDetailOverlay() {
               type="button"
               onClick={close}
               className="ido-close"
-              aria-label="Close"
+              aria-label={t("close")}
             >
               <X size={16} />
             </button>
@@ -870,7 +875,7 @@ export function ItemDetailOverlay() {
                                 </span>
                               </SellerAvatarTooltip>
                               <span>
-                                by{" "}
+                                {t("by")}{" "}
                                 <span className="font-medium text-foreground">
                                   {decodeEntities(displayItem.sn)}
                                 </span>
@@ -924,7 +929,9 @@ export function ItemDetailOverlay() {
                                 >
                                   {change}
                                   <span className="ido-price-badge__was">
-                                    was {fmtPrice(lastPrice, cSym, cRate)}
+                                    {t("wasPrice", {
+                                      price: fmtPrice(lastPrice, cSym, cRate),
+                                    })}
                                   </span>
                                 </span>
                               );
@@ -946,11 +953,13 @@ export function ItemDetailOverlay() {
                                 .filter((u): u is string => u != null),
                             );
                             const headerUnit =
-                              units.size === 1 ? [...units][0] : "unit";
+                              units.size === 1
+                                ? [...units][0]
+                                : t("variants.unit");
                             return (
                               <div className="ido-card ido-card--variants">
                                 <div className="ido-table__caption">
-                                  <span>Variants</span>
+                                  <span>{t("variants.heading")}</span>
                                   <span className="ido-table__count">
                                     {variantRows.length}
                                   </span>
@@ -959,24 +968,28 @@ export function ItemDetailOverlay() {
                                   {hasAnyPpu ? (
                                     <thead>
                                       <tr>
-                                        <th>Size</th>
-                                        <th>Price</th>
+                                        <th>{t("variants.size")}</th>
+                                        <th>{t("variants.price")}</th>
                                         <th>
                                           <abbr
-                                            title={`Price per ${headerUnit}`}
+                                            title={t("variants.pricePerUnit", {
+                                              unit: headerUnit,
+                                            })}
                                           >
                                             /{headerUnit}
                                           </abbr>
                                         </th>
-                                        <th className="sr-only">Add</th>
+                                        <th className="sr-only">
+                                          {t("variants.add")}
+                                        </th>
                                       </tr>
                                     </thead>
                                   ) : (
                                     <thead className="sr-only">
                                       <tr>
-                                        <th>Variant</th>
-                                        <th>Price</th>
-                                        <th>Add</th>
+                                        <th>{t("variants.variant")}</th>
+                                        <th>{t("variants.price")}</th>
+                                        <th>{t("variants.add")}</th>
                                       </tr>
                                     </thead>
                                   )}
@@ -1001,7 +1014,8 @@ export function ItemDetailOverlay() {
                                               {row.label}
                                               {isBest && (
                                                 <span className="ido-best-value">
-                                                  <Award size={9} /> Best value
+                                                  <Award size={9} />
+                                                  {t("variants.bestValue")}
                                                 </span>
                                               )}
                                             </span>
@@ -1028,7 +1042,7 @@ export function ItemDetailOverlay() {
                                             <button
                                               type="button"
                                               className={`ido-add-btn${addedVariantKey === row.key ? " ido-add-btn--added" : ""}`}
-                                              title="Add to basket"
+                                              title={t("variants.addToBasket")}
                                               onClick={() => {
                                                 const ref = String(
                                                   displayItem.refNum ??
@@ -1076,7 +1090,10 @@ export function ItemDetailOverlay() {
                                                     1200,
                                                   );
                                                 addToast({
-                                                  message: `Added ${row.label} to basket`,
+                                                  message: t(
+                                                    "variants.addedToBasket",
+                                                    { variant: row.label },
+                                                  ),
                                                   variant: "success",
                                                   duration: 2200,
                                                 });
@@ -1121,7 +1138,7 @@ export function ItemDetailOverlay() {
                               />
                               <div className="ido-meta-cell__body">
                                 <span className="ido-meta-cell__label">
-                                  Rating
+                                  {t("meta.rating")}
                                 </span>
                                 <span className="ido-meta-cell__value">
                                   {displayItem.rs.avg.toFixed(1)}
@@ -1146,7 +1163,7 @@ export function ItemDetailOverlay() {
                               />
                               <div className="ido-meta-cell__body">
                                 <span className="ido-meta-cell__label">
-                                  Avg delivery
+                                  {t("meta.avgDelivery")}
                                 </span>
                                 <span className="ido-meta-cell__value">
                                   {displayItem.rs.days.toFixed(1)}
@@ -1163,10 +1180,17 @@ export function ItemDetailOverlay() {
                               />
                               <div className="ido-meta-cell__body">
                                 <span className="ido-meta-cell__label">
-                                  Listed
+                                  {t("meta.listed")}
                                 </span>
                                 <span className="ido-meta-cell__value">
-                                  {timeAgo(displayItem.fsa)}
+                                  {(() => {
+                                    const age = relativeAge(displayItem.fsa);
+                                    return age
+                                      ? t(`time.${age.unit}Ago`, {
+                                          count: age.count,
+                                        })
+                                      : null;
+                                  })()}
                                 </span>
                               </div>
                             </div>
@@ -1179,10 +1203,17 @@ export function ItemDetailOverlay() {
                               />
                               <div className="ido-meta-cell__body">
                                 <span className="ido-meta-cell__label">
-                                  Updated
+                                  {t("meta.updated")}
                                 </span>
                                 <span className="ido-meta-cell__value">
-                                  {timeAgo(displayItem.lua)}
+                                  {(() => {
+                                    const age = relativeAge(displayItem.lua);
+                                    return age
+                                      ? t(`time.${age.unit}Ago`, {
+                                          count: age.count,
+                                        })
+                                      : null;
+                                  })()}
                                 </span>
                               </div>
                             </div>
@@ -1198,7 +1229,9 @@ export function ItemDetailOverlay() {
                         {/* Description */}
                         <div className="ido-card">
                           <div className="ido-card__head flex items-center justify-between gap-2">
-                            <h3 className="ido-card__title">Description</h3>
+                            <h3 className="ido-card__title">
+                              {t("description.heading")}
+                            </h3>
                             <ShowOriginalToggle />
                           </div>
                           <div className="ido-card__body">
@@ -1215,7 +1248,7 @@ export function ItemDetailOverlay() {
                                 </p>
                               ) : (
                                 <p className="text-sm text-muted italic">
-                                  No description provided.
+                                  {t("description.noneProvided")}
                                 </p>
                               );
                             })()}
@@ -1239,7 +1272,9 @@ export function ItemDetailOverlay() {
                             for (const [key, vals] of Object.entries(
                               displayItem.at,
                             )) {
-                              const label = AT_LABELS[key] ?? key;
+                              const label = ATTR_LABEL_KEYS.has(key)
+                                ? t(`attributes.labels.${key}`)
+                                : key;
                               const values: (string | number | boolean)[] =
                                 Array.isArray(vals)
                                   ? vals
@@ -1281,7 +1316,7 @@ export function ItemDetailOverlay() {
                               <div className="ido-card">
                                 <div className="ido-card__head">
                                   <h3 className="ido-card__title">
-                                    Attributes
+                                    {t("attributes.heading")}
                                   </h3>
                                 </div>
                                 <div className="ido-card__body">
@@ -1314,7 +1349,9 @@ export function ItemDetailOverlay() {
                         {priceHistory.length > 1 && (
                           <div className="ido-card">
                             <div className="ido-card__head">
-                              <h3 className="ido-card__title">Price History</h3>
+                              <h3 className="ido-card__title">
+                                {t("priceHistory.heading")}
+                              </h3>
                               <span className="ido-card__count">
                                 {priceHistory.length}
                               </span>
@@ -1361,7 +1398,7 @@ export function ItemDetailOverlay() {
                                           </span>
                                         ) : (
                                           <span className="ido-price-history__change ido-price-history__change--first">
-                                            First tracked
+                                            {t("priceHistory.firstTracked")}
                                           </span>
                                         )}
                                       </li>
@@ -1446,20 +1483,20 @@ export function ItemDetailOverlay() {
                       type="button"
                       onClick={gotoPrev}
                       disabled={!hasPrev}
-                      aria-label="Previous item"
+                      aria-label={t("previousItem")}
                       className="ido-mobile-actions__nav-btn"
                     >
                       <ChevronLeft size={14} aria-hidden="true" />
-                      <span>Prev</span>
+                      <span>{t("prev")}</span>
                     </button>
                     <button
                       type="button"
                       onClick={gotoNext}
                       disabled={!hasNext}
-                      aria-label="Next item"
+                      aria-label={t("nextItem")}
                       className="ido-mobile-actions__nav-btn"
                     >
-                      <span>Next</span>
+                      <span>{t("next")}</span>
                       <ChevronRight size={14} aria-hidden="true" />
                     </button>
                   </div>
@@ -1470,7 +1507,7 @@ export function ItemDetailOverlay() {
                       rel="noopener noreferrer"
                       className="ido-mobile-actions__lb"
                     >
-                      <span>View on Little Biggy</span>
+                      <span>{t("viewOnLittleBiggy")}</span>
                       <span className="ido-lb-btn__arrow" aria-hidden="true">
                         →
                       </span>
@@ -1487,7 +1524,7 @@ export function ItemDetailOverlay() {
                     className="ido-lb-btn"
                   >
                     <span className="ido-lb-btn__label">
-                      View on LittleBiggy
+                      {t("viewOnLittleBiggy")}
                     </span>
                     <span className="ido-lb-btn__arrow" aria-hidden="true">
                       →
@@ -1501,7 +1538,7 @@ export function ItemDetailOverlay() {
               </div>
             ) : (
               <div className="flex items-center justify-center h-full">
-                <p className="text-muted">Item not found.</p>
+                <p className="text-muted">{t("itemNotFound")}</p>
               </div>
             )}
           </div>
@@ -1513,7 +1550,7 @@ export function ItemDetailOverlay() {
               onClick={gotoNext}
               onMouseDown={(e) => e.stopPropagation()}
               disabled={!hasNext}
-              aria-label="Next item"
+              aria-label={t("nextItem")}
               className="ido-nav-zone"
             >
               <span className="ido-nav-btn">
@@ -1553,6 +1590,7 @@ function ShippingOptions({
   cRate: number;
   setSelectedShipCost: (v: number) => void;
 }) {
+  const t = useTranslations("item.detail.shipping");
   // Build display options. Real R2 labels (deduped) are preserved exactly
   // as the seller provided them — this is what the user cares about.
   // A synthetic "No shipping" chip is prepended (selected by default) so
@@ -1560,17 +1598,18 @@ function ShippingOptions({
   // every real option is free (or sh.free with no real labels), the
   // "No shipping" chip is omitted since it's redundant.
   const options = useMemo(() => {
-    const result: { label: string; value: number }[] = [];
+    const result: { label: string; value: number; isNone?: boolean }[] = [];
 
     if (shipOptions.length > 0) {
-      const deduped: { label: string; value: number }[] = [];
+      const deduped: { label: string; value: number; isNone?: boolean }[] = [];
       for (const opt of shipOptions) {
         const cost = opt.cost ?? 0;
         if (deduped.some((r) => r.label === opt.label)) continue;
         deduped.push({ label: opt.label, value: cost });
       }
       const allFree = deduped.every((o) => o.value === 0);
-      if (!allFree) result.push({ label: "No shipping", value: 0 });
+      if (!allFree)
+        result.push({ label: t("noShipping"), value: 0, isNone: true });
       result.push(...deduped);
       return result;
     }
@@ -1578,22 +1617,23 @@ function ShippingOptions({
     // Fallback to aggregate sh.min/max when we have no real labels
     if (!sh) return result;
     if (sh.free) {
-      result.push({ label: "Free shipping", value: 0 });
+      result.push({ label: t("freeShipping"), value: 0 });
       return result;
     }
     const hasMin = sh.min != null && sh.min > 0;
     const hasMax = sh.max != null && sh.max > 0;
-    if (hasMin || hasMax) result.push({ label: "No shipping", value: 0 });
+    if (hasMin || hasMax)
+      result.push({ label: t("noShipping"), value: 0, isNone: true });
     if (hasMin && hasMax && sh.max !== sh.min) {
-      result.push({ label: "Cheapest", value: sh.min! });
-      result.push({ label: "Highest", value: sh.max! });
+      result.push({ label: t("cheapest"), value: sh.min! });
+      result.push({ label: t("highest"), value: sh.max! });
     } else if (hasMin) {
-      result.push({ label: "Shipping", value: sh.min! });
+      result.push({ label: t("shipping"), value: sh.min! });
     } else if (hasMax) {
-      result.push({ label: "Shipping", value: sh.max! });
+      result.push({ label: t("shipping"), value: sh.max! });
     }
     return result;
-  }, [sh, shipOptions]);
+  }, [sh, shipOptions, t]);
 
   // Selected index — default 0 ("No shipping" when present, else cheapest)
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -1614,12 +1654,12 @@ function ShippingOptions({
     <div className="ido-ship">
       <div className="ido-ship__head">
         <Truck size={13} className="ido-ship__icon" />
-        <span className="ido-ship__label">Shipping</span>
+        <span className="ido-ship__label">{t("label")}</span>
       </div>
       <div className="ido-ship__chips">
         {options.map((opt, idx) => {
           const isSelected = selectedIdx === idx;
-          const isNone = opt.label === "No shipping";
+          const isNone = opt.isNone === true;
           const isFree = !isNone && opt.value === 0;
           const isPaid = !isNone && !isFree;
           return (
@@ -1633,7 +1673,7 @@ function ShippingOptions({
               <span className="ido-ship__chip-label">{opt.label}</span>
               {!isNone && (
                 <span className="ido-ship__chip-cost">
-                  {isFree ? "Free" : fmtPrice(opt.value, cSym, cRate)}
+                  {isFree ? t("free") : fmtPrice(opt.value, cSym, cRate)}
                 </span>
               )}
             </button>

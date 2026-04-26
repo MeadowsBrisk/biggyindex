@@ -3,6 +3,7 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SlidersHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import {
   useCallback,
   useEffect,
@@ -68,12 +69,13 @@ function useHydratedTransitionReady(isReady: boolean) {
 export function FilterToggle() {
   const setOpen = useSetAtom(filterPanelOpenAtom);
   const filterCount = useAtomValue(activeFiltersCountAtom);
+  const t = useTranslations("browse.filters");
 
   return (
     <button
       type="button"
       onClick={() => setOpen((open) => !open)}
-      aria-label="Toggle filters"
+      aria-label={t("toggle")}
       data-tour="filter-toggle"
       className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
         filterCount > 0
@@ -82,7 +84,7 @@ export function FilterToggle() {
       }`}
     >
       <SlidersHorizontal size={14} />
-      <span className="hidden sm:inline">Filters</span>
+      <span className="hidden sm:inline">{t("label")}</span>
       {filterCount > 0 && (
         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
           {filterCount}
@@ -98,6 +100,7 @@ export function FilterPanel() {
   const [contentReady, setContentReady] = useState(false);
   const gateComplete = useAtomValue(gateCompleteAtom);
   const setFilterPanelSettled = useSetAtom(filterPanelSettledAtom);
+  const t = useTranslations("browse.filters");
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -200,7 +203,7 @@ export function FilterPanel() {
           <>
             <button
               type="button"
-              aria-label="Close filters"
+              aria-label={t("close")}
               aria-hidden={!panelOpen}
               tabIndex={panelOpen ? 0 : -1}
               className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden transition-opacity duration-300 ${

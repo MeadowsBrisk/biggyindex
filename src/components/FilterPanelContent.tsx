@@ -2,12 +2,13 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ChevronDown, EyeOff, Pin, RotateCcw, Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { MouseEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
-import { CATEGORIES, CATEGORY_LABELS } from "@/lib/constants";
+import { CATEGORIES } from "@/lib/constants";
 import { SHIP_FROM_CODES } from "@/lib/shipFrom";
 import {
   activeFiltersCountAtom,
@@ -91,36 +92,19 @@ function Section({
   );
 }
 
-const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string; label: string }[]> =
-  {
-    Flower: [
-      { key: "effect", label: "Effect" },
-      { key: "tier", label: "Tier" },
-    ],
-    Shake: [
-      { key: "effect", label: "Effect" },
-      { key: "tier", label: "Tier" },
-    ],
-    Hash: [
-      { key: "micron", label: "Micron" },
-      { key: "filtration", label: "Filtration" },
-      { key: "texture", label: "Texture" },
-      { key: "tier", label: "Tier" },
-    ],
-    Concentrates: [
-      { key: "process", label: "Process" },
-      { key: "form", label: "Form" },
-      { key: "tier", label: "Tier" },
-    ],
-    Vapes: [
-      { key: "extract", label: "Extract" },
-      { key: "form", label: "Form" },
-    ],
-    Edibles: [
-      { key: "dietary", label: "Dietary" },
-      { key: "strength", label: "Strength" },
-    ],
-  };
+const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string }[]> = {
+  Flower: [{ key: "effect" }, { key: "tier" }],
+  Shake: [{ key: "effect" }, { key: "tier" }],
+  Hash: [
+    { key: "micron" },
+    { key: "filtration" },
+    { key: "texture" },
+    { key: "tier" },
+  ],
+  Concentrates: [{ key: "process" }, { key: "form" }, { key: "tier" }],
+  Vapes: [{ key: "extract" }, { key: "form" }],
+  Edibles: [{ key: "dietary" }, { key: "strength" }],
+};
 
 export function FilterPanelContent({
   onClose,
@@ -149,6 +133,8 @@ export function FilterPanelContent({
   const [pinnedShipFrom, setPinnedShipFrom] = useAtom(pinnedShipFromAtom);
   const clearFilters = useSetAtom(clearFiltersAtom);
   const filterCount = useAtomValue(activeFiltersCountAtom);
+  const t = useTranslations("browse.filters");
+  const tCategories = useTranslations("categories");
 
   const [sellerQuery, setSellerQuery] = useState("");
   const [showAllSellers, setShowAllSellers] = useState(false);
@@ -269,8 +255,8 @@ export function FilterPanelContent({
           type="button"
           onClick={onClose}
           className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
-          aria-label="Close filters"
-          title="Close filters"
+          aria-label={t("close")}
+          title={t("close")}
         >
           <X size={14} />
         </button>
@@ -279,16 +265,16 @@ export function FilterPanelContent({
       {filterCount > 0 && (
         <div className="flex h-8 items-center justify-between border-b border-border bg-surface/40 px-4">
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted">
-            {filterCount} active
+            {t("active", { count: filterCount })}
           </span>
           <button
             type="button"
             onClick={() => clearFilters()}
             className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
-            title="Clear all non-pinned filters"
+            title={t("clearAllTitle")}
           >
             <RotateCcw size={11} />
-            Clear all
+            {t("clearAll")}
           </button>
         </div>
       )}
@@ -301,7 +287,7 @@ export function FilterPanelContent({
           />
           <input
             type="text"
-            placeholder="Search items..."
+            placeholder={t("searchItems")}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className={`w-full rounded-lg border border-border bg-surface py-1.5 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors ${search ? "pr-8" : "pr-3"}`}
@@ -310,8 +296,8 @@ export function FilterPanelContent({
             <button
               type="button"
               onClick={() => setSearch("")}
-              aria-label="Clear search"
-              title="Clear search"
+              aria-label={t("clearSearch")}
+              title={t("clearSearch")}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
             >
               <X size={12} />
@@ -323,7 +309,7 @@ export function FilterPanelContent({
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 lg:pl-0 py-3 pb-10">
         <div className="mb-4">
           <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
-            Categories
+            {t("categories")}
           </h3>
           <div className="flex flex-wrap gap-1.5">
             <button
@@ -335,7 +321,8 @@ export function FilterPanelContent({
                   : "border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
               }`}
             >
-              All <span className="opacity-60">{categoryCounts.All ?? 0}</span>
+              {tCategories("all")}{" "}
+              <span className="opacity-60">{categoryCounts.All ?? 0}</span>
             </button>
             {CATEGORIES.map((cat) => {
               const count = categoryCounts[cat] ?? 0;
@@ -362,7 +349,7 @@ export function FilterPanelContent({
                         : "opacity-70 group-hover:opacity-100"
                     }`}
                   />
-                  <span>{CATEGORY_LABELS[cat] ?? cat}</span>
+                  <span>{tCategories(cat)}</span>
                   <span className="opacity-60">{count}</span>
                 </button>
               );
@@ -373,7 +360,7 @@ export function FilterPanelContent({
         {subcategories.length > 0 && (
           <div className="mb-4">
             <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
-              Subcategories
+              {t("subcategories")}
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {subcategories.map((sc) => (
@@ -398,7 +385,7 @@ export function FilterPanelContent({
           <AttrFilterGroup
             key={def.key}
             attrKey={def.key}
-            label={def.label}
+            label={t(`attrs.${def.key}`)}
             selected={attrFilters[def.key] ?? []}
             onToggle={(value) => toggleAttr(def.key, value)}
           />
@@ -406,7 +393,7 @@ export function FilterPanelContent({
 
         {shipFromOptions.length > 0 && (
           <Section
-            title="Ships From"
+            title={t("sections.shipsFrom")}
             storageKey="ships-from"
             activeCount={shipInclude.length + shipExclude.length}
             trailing={
@@ -416,11 +403,7 @@ export function FilterPanelContent({
                   event.stopPropagation();
                   setPinnedShipFrom((value) => !value);
                 }}
-                title={
-                  pinnedShipFrom
-                    ? "Unpin - will clear with filters"
-                    : "Pin - keeps selection when clearing filters"
-                }
+                title={pinnedShipFrom ? t("pin.unpin") : t("pin.pin")}
                 className={`p-0.5 rounded transition-colors cursor-pointer ${
                   pinnedShipFrom
                     ? "text-primary"
@@ -456,7 +439,7 @@ export function FilterPanelContent({
                         setShipExclude((prev) => [...prev, shipFrom.value]);
                       }
                     }}
-                    title="Click: include. Right-click: exclude"
+                    title={t("shipFromHelp")}
                     className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
                       isIncluded
                         ? "bg-primary/20 text-primary"
@@ -481,7 +464,10 @@ export function FilterPanelContent({
         )}
 
         {weightOptions.length > 0 && (
-          <Section title="Weight" activeCount={selectedWeights.length}>
+          <Section
+            title={t("sections.weight")}
+            activeCount={selectedWeights.length}
+          >
             <div className="flex flex-wrap gap-1.5">
               {weightOptions.map((weight) => (
                 <button
@@ -502,13 +488,17 @@ export function FilterPanelContent({
           </Section>
         )}
 
-        <Section title="Price" defaultOpen={false} storageKey="price">
+        <Section
+          title={t("sections.price")}
+          defaultOpen={false}
+          storageKey="price"
+        >
           <PriceRangeSlider />
         </Section>
 
         {visibleSellers.length > 0 && (
           <Section
-            title="Sellers"
+            title={t("sections.sellers")}
             activeCount={selectedSellers.length}
             trailing={
               <button
@@ -517,11 +507,7 @@ export function FilterPanelContent({
                   event.stopPropagation();
                   setPinnedSellers((value) => !value);
                 }}
-                title={
-                  pinnedSellers
-                    ? "Unpin - will clear with filters"
-                    : "Pin - keeps selection when clearing filters"
-                }
+                title={pinnedSellers ? t("pin.unpin") : t("pin.pin")}
                 className={`p-0.5 rounded transition-colors cursor-pointer ${
                   pinnedSellers
                     ? "text-primary"
@@ -543,7 +529,7 @@ export function FilterPanelContent({
                 />
                 <input
                   type="text"
-                  placeholder="Search sellers..."
+                  placeholder={t("searchSellers")}
                   value={sellerQuery}
                   onChange={(event) => setSellerQuery(event.target.value)}
                   className="w-full rounded-md border border-border bg-surface py-1.5 pl-7 pr-3 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
@@ -558,8 +544,8 @@ export function FilterPanelContent({
                 }
                 title={
                   sellerSort === "alpha"
-                    ? "Sorted A-Z - click for most items first"
-                    : "Sorted by item count - click for A-Z"
+                    ? t("sellerSortAlpha")
+                    : t("sellerSortCount")
                 }
                 className="shrink-0 rounded-md border border-border bg-surface px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
               >
@@ -579,7 +565,7 @@ export function FilterPanelContent({
                       type="button"
                       onClick={() => toggleSeller(id)}
                       className="inline-flex items-center gap-1 rounded-md bg-primary/15 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-                      title={`Remove ${seller?.name ?? id}`}
+                      title={t("removeSeller", { seller: seller?.name ?? id })}
                     >
                       <span className="truncate max-w-24">
                         {seller?.name ?? `#${id}`}
@@ -622,8 +608,8 @@ export function FilterPanelContent({
                           className="flex flex-1 items-center gap-1.5 px-2 py-1.5 text-left cursor-pointer min-w-0"
                           title={
                             isSelected
-                              ? `Unselect ${seller.name}`
-                              : `Select ${seller.name}`
+                              ? t("unselectSeller", { seller: seller.name })
+                              : t("selectSeller", { seller: seller.name })
                           }
                         >
                           <span className="truncate flex-1">{seller.name}</span>
@@ -642,8 +628,10 @@ export function FilterPanelContent({
                             }
                             toggleHiddenSeller(seller.id);
                           }}
-                          title={`Hide ${seller.name} - removes all their items from results`}
-                          aria-label={`Hide ${seller.name}`}
+                          title={t("hideSeller", { seller: seller.name })}
+                          aria-label={t("hideSellerAria", {
+                            seller: seller.name,
+                          })}
                           className="absolute right-0 top-0 bottom-0 flex items-center px-1.5 bg-inherit text-muted/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none transition-opacity cursor-pointer"
                         >
                           <EyeOff size={12} />
@@ -656,8 +644,8 @@ export function FilterPanelContent({
             ) : (
               <div className="rounded-md border border-dashed border-border px-2 py-3 text-center text-[11px] text-muted">
                 {sellerQuery.trim()
-                  ? "No sellers match"
-                  : "No sellers available"}
+                  ? t("noSellersMatch")
+                  : t("noSellersAvailable")}
               </div>
             )}
 
@@ -669,16 +657,14 @@ export function FilterPanelContent({
                   className="mt-1.5 w-full rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted hover:text-foreground transition-colors cursor-pointer"
                 >
                   {showAllSellers
-                    ? "Show less"
-                    : `Show all ${querySellers.length}`}
+                    ? t("showLess")
+                    : t("showAll", { count: querySellers.length })}
                 </button>
               )}
 
             {hiddenSellers.length > 0 && (
               <div className="mt-1.5 text-[10px] text-muted italic">
-                {hiddenSellers.length} seller
-                {hiddenSellers.length > 1 ? "s" : ""} hidden - manage in
-                Settings
+                {t("hiddenSellers", { count: hiddenSellers.length })}
               </div>
             )}
           </Section>

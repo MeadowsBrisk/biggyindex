@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 interface Step {
@@ -11,204 +12,171 @@ interface Step {
   detail: React.ReactNode;
 }
 
-const STEPS: Step[] = [
-  {
-    emoji: "\uD83E\uDE99",
-    title: "Get Some Bitcoin",
-    summary: "Grab some Bitcoin so you're ready to check out.",
-    detail: (
-      <div className="space-y-3">
-        <p>
-          Little Biggy only accepts Bitcoin. You'll need to set up a way to buy
-          some if you haven't already, so that you're ready to start ordering
-          items.
-        </p>
-        <div>
-          <p className="font-medium text-foreground mb-1">Easiest way</p>
-          <p>
-            Apps you may already use, such as Revolut or Monzo, let you purchase
-            Bitcoin inside the banking app in a few taps.
-          </p>
-        </div>
-        <div>
-          <p className="font-medium text-foreground mb-1">
-            Other popular options
-          </p>
-          <p>
-            A crypto exchange such as Coinbase or Kraken works just as well.
-            They operate a bit like an online currency bureau.
-          </p>
-        </div>
-        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <span className="font-medium text-primary">Pro tip:</span> Buy a few
-          pounds more than you need and round up. That extra buffer covers
-          network fees or crypto volatility.
-        </div>
-        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <span className="font-medium text-primary">
-            Want to skip the exchange?
-          </span>{" "}
-          Peer-to-peer platforms such as{" "}
-          <a
-            href="https://bisq.network/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-primary"
-          >
-            Bisq
-          </a>{" "}
-          or{" "}
-          <a
-            href="https://robosats.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-primary"
-          >
-            RoboSats
-          </a>{" "}
-          let you buy Bitcoin directly from another person — no exchange
-          account, no KYC paperwork. It's more hands-on, but the coins land
-          straight in a wallet you control.
-        </div>
-      </div>
-    ),
-  },
-  {
-    emoji: "\uD83D\uDECD\uFE0F",
-    title: "Find Your Items",
-    summary: "Browse the Little Biggy catalogue like you would on eBay.",
-    detail: (
-      <div className="space-y-3">
-        <p>
-          Find items you want to buy — on Little Biggy itself or via the index.
-          There's a huge selection, so have a good browse.
-        </p>
-        <ul className="list-disc pl-5 space-y-1">
-          <li>
-            Click the <strong>Browse Items</strong> button below to start
-            browsing.
-          </li>
-          <li>
-            Check product descriptions and reviews to spot trusted sellers. If
-            unsure, Google the seller's name or look on{" "}
+type Translate = (key: string) => string;
+
+function buildSteps(t: Translate): Step[] {
+  return [
+    {
+      emoji: "\uD83E\uDE99",
+      title: t("steps.bitcoin.title"),
+      summary: t("steps.bitcoin.summary"),
+      detail: (
+        <div className="space-y-3">
+          <p>{t("steps.bitcoin.intro")}</p>
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              {t("steps.bitcoin.easiestWay.heading")}
+            </p>
+            <p>{t("steps.bitcoin.easiestWay.text")}</p>
+          </div>
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              {t("steps.bitcoin.otherOptions.heading")}
+            </p>
+            <p>{t("steps.bitcoin.otherOptions.text")}</p>
+          </div>
+          <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
+            <span className="font-medium text-primary">
+              {t("steps.bitcoin.proTip.label")}
+            </span>{" "}
+            {t("steps.bitcoin.proTip.text")}
+          </div>
+          <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
+            <span className="font-medium text-primary">
+              {t("steps.bitcoin.peerToPeer.label")}
+            </span>{" "}
+            {t("steps.bitcoin.peerToPeer.beforeLinks")}{" "}
             <a
-              href="https://www.reddit.com/r/LittleBiggy/"
+              href="https://bisq.network/"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-primary"
             >
-              Reddit
-            </a>
-            .
-          </li>
-          <li>
-            When ready, add what you want to your cart and enter your delivery
-            details just like any other online store.
-          </li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    emoji: "\u2705",
-    title: "Checkout & Send Your Bitcoin",
-    summary:
-      "Copy the details, then send the payment from your phone or laptop.",
-    detail: (
-      <div className="space-y-3">
-        <p>
-          At checkout, Little Biggy shows a private order page with everything
-          you need to pay safely, whether you're on one device or switching
-          between phone and desktop.
-        </p>
-        <div>
-          <p className="font-medium text-foreground mb-1">
-            Copy the two checkout details
-          </p>
+              Bisq
+            </a>{" "}
+            {t("steps.bitcoin.peerToPeer.betweenLinks")}{" "}
+            <a
+              href="https://learn.robosats.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              RoboSats
+            </a>{" "}
+            {t("steps.bitcoin.peerToPeer.afterLinks")}
+          </div>
+        </div>
+      ),
+    },
+    {
+      emoji: "\uD83D\uDECD\uFE0F",
+      title: t("steps.browse.title"),
+      summary: t("steps.browse.summary"),
+      detail: (
+        <div className="space-y-3">
+          <p>{t("steps.browse.intro")}</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>
-              The exact BTC amount: it looks like{" "}
-              <code className="text-xs">0.00123456</code>. Copy it exactly so
-              you do not underpay.
+              {t("steps.browse.startBefore")}{" "}
+              <strong>{t("steps.browse.browseButton")}</strong>{" "}
+              {t("steps.browse.startAfter")}
             </li>
             <li>
-              The Bitcoin address: a long string such as{" "}
-              <code className="text-xs">bc1q...</code> - think of it as the
-              account number for this order.
+              {t("steps.browse.trustBefore")}{" "}
+              <a
+                href="https://www.reddit.com/r/LittleBiggy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-primary"
+              >
+                Reddit
+              </a>
+              {t("steps.browse.trustAfter")}
             </li>
+            <li>{t("steps.browse.cart")}</li>
           </ul>
         </div>
-        <div>
-          <p className="font-medium text-foreground mb-1">Send the payment</p>
-          <ol className="list-decimal pl-5 space-y-1">
-            <li>
-              Open the app or exchange you used to buy Bitcoin (Revolut,
-              Coinbase, Monzo, Kraken, etc.).
-            </li>
-            <li>Choose the option to send or withdraw Bitcoin.</li>
-            <li>
-              Paste the Bitcoin address into the recipient field and the exact
-              BTC amount into the amount field.
-            </li>
-            <li>
-              Confirm the transfer. Network confirmations usually land within a
-              few minutes and your order page will update automatically.
-            </li>
-          </ol>
+      ),
+    },
+    {
+      emoji: "\u2705",
+      title: t("steps.checkout.title"),
+      summary: t("steps.checkout.summary"),
+      detail: (
+        <div className="space-y-3">
+          <p>{t("steps.checkout.intro")}</p>
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              {t("steps.checkout.copyHeading")}
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                <span className="font-medium text-foreground">
+                  {t("steps.checkout.amountLabel")}
+                </span>{" "}
+                {t("steps.checkout.amountBefore")}{" "}
+                <code className="text-xs">0.00123456</code>.{" "}
+                {t("steps.checkout.amountAfter")}
+              </li>
+              <li>
+                <span className="font-medium text-foreground">
+                  {t("steps.checkout.addressLabel")}
+                </span>{" "}
+                {t("steps.checkout.addressBefore")}{" "}
+                <code className="text-xs">bc1q...</code> -{" "}
+                {t("steps.checkout.addressAfter")}
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              {t("steps.checkout.sendHeading")}
+            </p>
+            <ol className="list-decimal pl-5 space-y-1">
+              <li>{t("steps.checkout.sendSteps.openApp")}</li>
+              <li>{t("steps.checkout.sendSteps.chooseSend")}</li>
+              <li>{t("steps.checkout.sendSteps.pasteDetails")}</li>
+              <li>{t("steps.checkout.sendSteps.confirm")}</li>
+            </ol>
+          </div>
         </div>
-      </div>
-    ),
-  },
-  {
-    emoji: "\uD83D\uDD10",
-    title: "Your Funds Are Safe (Escrow)",
-    summary: "Transaxe holds the money until your order arrives.",
-    detail: (
-      <div className="space-y-3">
-        <p>
-          Your Bitcoin goes to Transaxe, Little Biggy's built-in escrow system.
-          The seller can see the payment has arrived, but the funds are held
-          securely.
-        </p>
-        <p>
-          The money is only released to the seller once the dispute window
-          closes. This protects you as a buyer - if something goes wrong, you
-          can open a dispute before the window ends.
-        </p>
-        <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
-          <p className="font-medium text-primary mb-1">Peace of mind</p>
-          <p>
-            Escrow means the seller never touches your funds until the item is
-            shipped and received. It is the safeguard that keeps Little Biggy
-            honest.
-          </p>
+      ),
+    },
+    {
+      emoji: "\uD83D\uDD10",
+      title: t("steps.escrow.title"),
+      summary: t("steps.escrow.summary"),
+      detail: (
+        <div className="space-y-3">
+          <p>{t("steps.escrow.intro")}</p>
+          <p>{t("steps.escrow.release")}</p>
+          <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-sm">
+            <p className="font-medium text-primary mb-1">
+              {t("steps.escrow.peaceHeading")}
+            </p>
+            <p>{t("steps.escrow.peaceText")}</p>
+          </div>
         </div>
-      </div>
-    ),
-  },
-  {
-    emoji: "\uD83D\uDCEE",
-    title: "Wait for the Postie",
-    summary: "Relax while it makes its way to you.",
-    detail: (
-      <div className="space-y-3">
-        <p>
-          Sellers typically mark your order as shipped within one business day.
-          Delivery times depend on the seller and your location, but most UK
-          orders arrive within a few days.
-        </p>
-        <p>
-          If your order is late, contact the seller through Little Biggy first -
-          most issues get resolved quickly. Only open a dispute as a last
-          resort.
-        </p>
-      </div>
-    ),
-  },
-];
+      ),
+    },
+    {
+      emoji: "\uD83D\uDCEE",
+      title: t("steps.delivery.title"),
+      summary: t("steps.delivery.summary"),
+      detail: (
+        <div className="space-y-3">
+          <p>{t("steps.delivery.intro")}</p>
+          <p>{t("steps.delivery.late")}</p>
+        </div>
+      ),
+    },
+  ];
+}
 
 export function QuickStartGuide() {
+  const t = useTranslations("home.quickStart");
   const [expanded, setExpanded] = useState<number | null>(null);
+  const steps = buildSteps(t);
 
   return (
     <section className="py-20 px-4 bg-surface">
@@ -221,17 +189,14 @@ export function QuickStartGuide() {
           className="text-center mb-14"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-            How It Works
+            {t("heading")}
           </h2>
-          <p className="text-muted max-w-lg mx-auto">
-            New to Little Biggy? Here's a quick overview of the process from
-            start to finish.
-          </p>
+          <p className="text-muted max-w-lg mx-auto">{t("subheading")}</p>
         </motion.div>
 
         {/* Steps — vertical layout for clarity */}
         <div className="space-y-4 max-w-2xl mx-auto">
-          {STEPS.map((step, i) => {
+          {steps.map((step, i) => {
             const isExpanded = expanded === i;
             return (
               <motion.div

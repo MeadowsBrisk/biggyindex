@@ -2,6 +2,8 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "@/lib/cn";
 import { fmtPrice } from "@/lib/format";
@@ -28,6 +30,7 @@ interface SellerGroup {
 }
 
 export function Basket() {
+  const t = useTranslations("basket");
   const [open, setOpen] = useAtom(basketOpenAtom);
   const items = useAtomValue(basketAtom);
   const count = useAtomValue(basketCountAtom);
@@ -151,16 +154,16 @@ export function Basket() {
         className={cx("basket-drawer", closing && "basket-drawer--closing")}
         role="dialog"
         aria-modal="true"
-        aria-label="Basket"
+        aria-label={t("label")}
       >
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2.5 text-base font-semibold text-foreground">
               <ShoppingCart size={18} />
-              Basket
+              {t("label")}
               {count > 0 && (
-                <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                <span className="inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
                   {count}
                 </span>
               )}
@@ -172,14 +175,14 @@ export function Basket() {
                   onClick={() => clear()}
                   className="text-xs font-semibold text-red-500 hover:underline cursor-pointer"
                 >
-                  Clear all
+                  {t("clearAll")}
                 </button>
               )}
               <button
                 type="button"
                 onClick={close}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] text-muted hover:bg-surface cursor-pointer"
-                aria-label="Close basket"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted hover:bg-surface cursor-pointer"
+                aria-label={t("close")}
               >
                 <X size={16} />
               </button>
@@ -190,7 +193,7 @@ export function Basket() {
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
             {items.length === 0 ? (
               <p className="text-sm text-muted text-center py-8">
-                Your basket is empty.
+                {t("empty")}
               </p>
             ) : (
               groups.map((group) => {
@@ -202,18 +205,18 @@ export function Basket() {
                   resolveShipCost(group);
                 const sellerTotal = itemsTotal + shipCost;
                 const hasOptions = group.shOpts.length > 0;
+                const shippingSelectId = `basket-shipping-${group.key.replace(/[^a-z0-9_-]/gi, "-")}`;
                 return (
                   <section
                     key={group.key}
-                    className="rounded-xl border border-[var(--border)] bg-surface/50 overflow-hidden"
+                    className="rounded-xl border border-border bg-surface/50 overflow-hidden"
                   >
                     <div className="flex items-center justify-between px-4 pt-3">
                       <span className="text-xs font-medium uppercase tracking-wider text-muted">
                         {group.sellerName}
                       </span>
                       <span className="text-[11px] text-muted-foreground">
-                        {group.items.length} item
-                        {group.items.length !== 1 ? "s" : ""}
+                        {t("sellerItemCount", { count: group.items.length })}
                       </span>
                     </div>
                     <div className="px-4 pb-3 pt-2 space-y-2">
@@ -234,18 +237,22 @@ export function Basket() {
 
                       {hasOptions && (
                         <div className="pt-2">
-                          <label className="mb-1 block text-[11px] font-medium text-muted">
-                            Shipping
+                          <label
+                            htmlFor={shippingSelectId}
+                            className="mb-1 block text-[11px] font-medium text-muted"
+                          >
+                            {t("shipping")}
                           </label>
                           <select
+                            id={shippingSelectId}
                             value={selectedLabel ?? ""}
                             onChange={(e) =>
                               setShipForGroup(group.key, e.target.value || null)
                             }
-                            className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none cursor-pointer"
+                            className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none cursor-pointer"
                           >
                             <option value="">
-                              No shipping — {fmtPrice(0, cSym, cRate)}
+                              {t("noShipping")} — {fmtPrice(0, cSym, cRate)}
                             </option>
                             {group.shOpts.map((o) => (
                               <option key={o.label} value={o.label}>
@@ -256,16 +263,16 @@ export function Basket() {
                         </div>
                       )}
 
-                      <div className="space-y-1 border-t border-[var(--border)] pt-2 text-xs text-muted">
+                      <div className="space-y-1 border-t border-border pt-2 text-xs text-muted">
                         <div className="flex justify-between">
-                          <span>Items</span>
+                          <span>{t("items")}</span>
                           <span className="font-semibold text-foreground">
                             {fmtPrice(itemsTotal, cSym, cRate)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span>
-                            Shipping
+                            {t("shipping")}
                             {selectedLabel && (
                               <span className="ml-1 text-muted-foreground">
                                 ({selectedLabel})
@@ -277,7 +284,7 @@ export function Basket() {
                           </span>
                         </div>
                         <div className="flex justify-between pt-1 text-sm font-bold text-foreground">
-                          <span>Total</span>
+                          <span>{t("total")}</span>
                           <span>{fmtPrice(sellerTotal, cSym, cRate)}</span>
                         </div>
                       </div>
@@ -290,15 +297,15 @@ export function Basket() {
 
           {/* Footer totals */}
           {items.length > 0 && (
-            <div className="border-t border-[var(--border)] bg-surface px-5 py-4">
+            <div className="border-t border-border bg-surface px-5 py-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted">Total</span>
+                <span className="text-muted">{t("total")}</span>
                 <span className="text-base font-bold text-foreground">
                   {fmtPrice(total, cSym, cRate)}
                 </span>
               </div>
               <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
-                This is a virtual basket for price comparison — no checkout.
+                {t("virtualNotice")}
               </p>
             </div>
           )}
@@ -327,23 +334,25 @@ function BasketLine({
   removeItem,
   onItemClick,
 }: BasketLineProps) {
+  const t = useTranslations("basket");
   const lineTotal = entry.priceUSD * entry.qty;
 
   return (
-    <div className="flex gap-3 rounded-lg border border-[var(--border)] p-3">
+    <div className="flex gap-3 rounded-lg border border-border p-3">
       {/* Image */}
       {entry.imageUrl && (
         <button
           type="button"
           onClick={onItemClick}
-          className="flex-shrink-0 w-14 h-14 rounded-md overflow-hidden bg-surface cursor-pointer"
+          aria-label={t("viewItem", { item: entry.name })}
+          className="shrink-0 w-14 h-14 rounded-md overflow-hidden bg-surface cursor-pointer"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={entry.imageUrl}
             alt={entry.name}
+            width={56}
+            height={56}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
         </button>
       )}
@@ -353,13 +362,14 @@ function BasketLine({
         <button
           type="button"
           onClick={onItemClick}
+          aria-label={t("viewItem", { item: entry.name })}
           className="text-sm font-medium text-foreground hover:text-primary truncate block w-full text-left cursor-pointer"
         >
           {entry.name}
         </button>
         <div className="text-xs text-muted truncate">{entry.variantDesc}</div>
         <div className="mt-1 text-xs font-medium text-primary">
-          {fmtPrice(entry.priceUSD, cSym, cRate)} each
+          {fmtPrice(entry.priceUSD, cSym, cRate)} {t("each")}
         </div>
       </div>
 
@@ -383,7 +393,10 @@ function BasketLine({
                     qty: entry.qty - 1,
                   })
             }
-            className="inline-flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] text-muted hover:bg-surface cursor-pointer"
+            className="inline-flex h-6 w-6 items-center justify-center rounded border border-border text-muted hover:bg-surface cursor-pointer"
+            aria-label={t(entry.qty <= 1 ? "removeItem" : "decreaseQty", {
+              item: entry.name,
+            })}
           >
             {entry.qty <= 1 ? <Trash2 size={12} /> : <Minus size={12} />}
           </button>
@@ -399,7 +412,8 @@ function BasketLine({
                 qty: entry.qty + 1,
               })
             }
-            className="inline-flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] text-muted hover:bg-surface cursor-pointer"
+            className="inline-flex h-6 w-6 items-center justify-center rounded border border-border text-muted hover:bg-surface cursor-pointer"
+            aria-label={t("increaseQty", { item: entry.name })}
           >
             <Plus size={12} />
           </button>

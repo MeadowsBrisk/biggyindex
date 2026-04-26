@@ -2,6 +2,7 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { EyeOff, Search, Settings, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type AccentColor,
@@ -51,17 +52,18 @@ function Toggle({
 
 // ─── Color swatches ────────────────────────────────────────────────
 
-const SWATCHES: { key: AccentColor; label: string; color: string }[] = [
-  { key: "green", label: "Forest", color: "#16a34a" },
-  { key: "blue", label: "Ocean", color: "#2563eb" },
-  { key: "purple", label: "Haze", color: "#7c3aed" },
-  { key: "amber", label: "Sunset", color: "#d97706" },
-  { key: "rose", label: "Cherry", color: "#e11d48" },
+const SWATCHES: { key: AccentColor; labelKey: string; color: string }[] = [
+  { key: "green", labelKey: "forest", color: "#16a34a" },
+  { key: "blue", labelKey: "ocean", color: "#2563eb" },
+  { key: "purple", labelKey: "haze", color: "#7c3aed" },
+  { key: "amber", labelKey: "sunset", color: "#d97706" },
+  { key: "rose", labelKey: "cherry", color: "#e11d48" },
 ];
 
 // ─── Modal ─────────────────────────────────────────────────────────
 
 export function SettingsModal() {
+  const t = useTranslations("settings.modal");
   const [open, setOpen] = useAtom(settingsModalOpenAtom);
   const [highRes, setHighRes] = useAtom(highResImagesAtom);
   const [pauseGifs, setPauseGifs] = useAtom(pauseGifsAtom);
@@ -91,6 +93,13 @@ export function SettingsModal() {
     for (const s of allSellers) map.set(s.id, s.name);
     return map;
   }, [allSellers]);
+
+  const selectedAccentLabel = useMemo(() => {
+    if (accent === "custom")
+      return t("swatches.customValue", { value: customHex });
+    const swatch = SWATCHES.find((s) => s.key === accent);
+    return swatch ? t(`swatches.${swatch.labelKey}`) : t("swatches.default");
+  }, [accent, customHex, t]);
 
   const close = useCallback(() => {
     setClosing(true);
@@ -131,7 +140,7 @@ export function SettingsModal() {
     >
       <button
         type="button"
-        aria-label="Close settings"
+        aria-label={t("close")}
         className="absolute inset-0 cursor-default"
         onClick={close}
       />
@@ -140,7 +149,7 @@ export function SettingsModal() {
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Settings"
+        aria-label={t("label")}
         tabIndex={-1}
         className={`modal-panel modal-panel--sm z-10${closing ? " modal-panel--closing" : ""}`}
       >
@@ -148,13 +157,15 @@ export function SettingsModal() {
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
             <Settings size={18} className="text-muted" />
-            <h2 className="text-base font-bold text-foreground">Settings</h2>
+            <h2 className="text-base font-bold text-foreground">
+              {t("label")}
+            </h2>
           </div>
           <button
             type="button"
             onClick={close}
             className="inline-flex items-center justify-center size-8 rounded-lg bg-surface hover:bg-surface-hover text-muted hover:text-foreground transition-colors cursor-pointer"
-            aria-label="Close settings"
+            aria-label={t("close")}
           >
             <X size={16} />
           </button>
@@ -166,15 +177,14 @@ export function SettingsModal() {
           <div className="flex items-center justify-between gap-3 group">
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium group-hover:text-primary transition-colors">
-                High-res images
+                {t("highResImages")}
               </div>
               <div className="text-xs text-muted mt-0.5">
-                Use full-resolution product images. Uses more data but looks
-                sharper.
+                {t("highResDescription")}
               </div>
             </div>
             <Toggle
-              label="High-res images"
+              label={t("highResImages")}
               checked={highRes}
               onChange={setHighRes}
             />
@@ -184,15 +194,14 @@ export function SettingsModal() {
           <div className="flex items-center justify-between gap-3 group">
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium group-hover:text-primary transition-colors">
-                Pause GIFs
+                {t("pauseGifs")}
               </div>
               <div className="text-xs text-muted mt-0.5">
-                Show static thumbnails for animated images. Reduces distraction
-                and saves battery.
+                {t("pauseGifsDescription")}
               </div>
             </div>
             <Toggle
-              label="Pause GIFs"
+              label={t("pauseGifs")}
               checked={pauseGifs}
               onChange={setPauseGifs}
             />
@@ -200,16 +209,18 @@ export function SettingsModal() {
 
           {/* Thumbnail aspect ratio */}
           <div>
-            <div className="text-sm font-medium mb-1">Thumbnail shape</div>
+            <div className="text-sm font-medium mb-1">
+              {t("thumbnailShape")}
+            </div>
             <div className="text-xs text-muted mb-2">
-              Change the crop ratio of product images on cards.
+              {t("thumbnailDescription")}
             </div>
             <div className="flex gap-2">
               {(
                 [
-                  { key: "square", label: "Square", ratio: "1 / 1" },
-                  { key: "4:3", label: "4:3", ratio: "4 / 3" },
-                  { key: "3:2", label: "3:2", ratio: "3 / 2" },
+                  { key: "square", label: t("aspect.square"), ratio: "1 / 1" },
+                  { key: "4:3", label: t("aspect.fourThree"), ratio: "4 / 3" },
+                  { key: "3:2", label: t("aspect.threeTwo"), ratio: "3 / 2" },
                 ] as const
               ).map((opt) => (
                 <button
@@ -234,14 +245,14 @@ export function SettingsModal() {
 
           {/* Accent color picker */}
           <div>
-            <div className="text-sm font-medium mb-2">Accent colour</div>
+            <div className="text-sm font-medium mb-2">{t("accentColour")}</div>
             <div className="flex items-center gap-2">
               {SWATCHES.map((s) => (
                 <button
                   key={s.key}
                   type="button"
                   onClick={() => setAccent(s.key)}
-                  title={s.label}
+                  title={t(`swatches.${s.labelKey}`)}
                   className={`size-7 rounded-full transition-all cursor-pointer ring-offset-2 ring-offset-card ${
                     accent === s.key
                       ? "ring-2 ring-foreground scale-110"
@@ -252,7 +263,7 @@ export function SettingsModal() {
               ))}
               {/* Custom color picker */}
               <label
-                title="Custom"
+                title={t("swatches.custom")}
                 className={`relative size-7 rounded-full cursor-pointer transition-all ring-offset-2 ring-offset-card overflow-hidden ${
                   accent === "custom"
                     ? "ring-2 ring-foreground scale-110"
@@ -275,9 +286,7 @@ export function SettingsModal() {
               </label>
             </div>
             <div className="text-[11px] text-muted mt-1.5">
-              {accent === "custom"
-                ? `Custom ${customHex}`
-                : (SWATCHES.find((s) => s.key === accent)?.label ?? "Default")}
+              {selectedAccentLabel}
             </div>
           </div>
 
@@ -285,11 +294,10 @@ export function SettingsModal() {
           <div>
             <div className="flex items-center gap-1.5 mb-1">
               <EyeOff size={14} className="text-muted" />
-              <div className="text-sm font-medium">Hidden sellers</div>
+              <div className="text-sm font-medium">{t("hiddenSellers")}</div>
             </div>
             <div className="text-xs text-muted mb-2">
-              Items from hidden sellers won't appear anywhere. This persists
-              across sessions and isn't cleared by "Clear filters".
+              {t("hiddenDescription")}
             </div>
 
             {/* Search input */}
@@ -300,7 +308,7 @@ export function SettingsModal() {
               />
               <input
                 type="text"
-                placeholder="Search sellers to hide…"
+                placeholder={t("searchSellers")}
                 value={sellerQuery}
                 onChange={(e) => setSellerQuery(e.target.value)}
                 className="w-full rounded-md border border-border bg-surface py-1.5 pl-7 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
@@ -323,7 +331,7 @@ export function SettingsModal() {
                     <EyeOff size={11} className="shrink-0 opacity-50" />
                     <span className="truncate flex-1 text-left">{s.name}</span>
                     <span className="opacity-50 text-[10px]">
-                      {s.count} items
+                      {t("sellerItemCount", { count: s.count })}
                     </span>
                   </button>
                 ))}
@@ -339,7 +347,9 @@ export function SettingsModal() {
                     type="button"
                     onClick={() => toggleHidden(id)}
                     className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-0.5 text-xs text-red-500 hover:bg-red-500/20 transition-colors cursor-pointer"
-                    title={`Click to unhide ${sellerNameMap.get(id) ?? id}`}
+                    title={t("unhideSeller", {
+                      seller: sellerNameMap.get(id) ?? id,
+                    })}
                   >
                     <span className="truncate max-w-28">
                       {sellerNameMap.get(id) ?? `#${id}`}
@@ -350,7 +360,7 @@ export function SettingsModal() {
               </div>
             ) : (
               <div className="text-[11px] text-muted italic">
-                No sellers hidden
+                {t("noSellersHidden")}
               </div>
             )}
           </div>

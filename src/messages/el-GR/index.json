@@ -1,64 +1,876 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Cannabis Marketplace Browser",
-    "description": "Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more."
+    "tagline": "Πρόγραμμα περιήγησης Cannabis Marketplace",
+    "description": "Περιηγηθείτε και συγκρίνετε προϊόντα κάνναβης σε όλες τις αγορές. Τιμές, στελέχη, κριτικές και πολλά άλλα."
   },
   "nav": {
-    "browse": "Browse",
-    "reviews": "Reviews",
-    "sellers": "Sellers",
-    "settings": "Settings"
+    "browse": "Περιήγηση",
+    "reviews": "Κριτικές",
+    "sellers": "Πωλητές",
+    "settings": "Ρυθμίσεις"
+  },
+  "categories": {
+    "all": "Όλα",
+    "Flower": "Λουλούδι",
+    "Shake": "Σέικ",
+    "Hash": "Χασίς",
+    "Concentrates": "Συμπυκνώματα",
+    "Distillate": "Απόσταγμα",
+    "Vapes": "Ατμιστές",
+    "PreRolls": "Προ-ρολά",
+    "Edibles": "Βρώσιμα",
+    "Tincture": "Βάμμα",
+    "Psychedelics": "Ψυχεδελικά",
+    "Other": "Άλλα"
+  },
+  "markets": {
+    "GB": "Ηνωμένο Βασίλειο",
+    "IE": "Ιρλανδία",
+    "DE": "Γερμανία",
+    "FR": "Γαλλία",
+    "PT": "Πορτογαλία",
+    "IT": "Ιταλία",
+    "ES": "Ισπανία",
+    "GR": "Ελλάδα",
+    "CZ": "Δημοκρατία της Τσεχίας"
+  },
+  "header": {
+    "basket": {
+      "items": "{count, plural, one {Basket (1 item)} other {Basket (# items)}}"
+    },
+    "mobileMenu": {
+      "open": "Άνοιγμα μενού",
+      "close": "Κλείσιμο μενού"
+    },
+    "marketMenu": {
+      "market": "Αγορά",
+      "displayPricesIn": "Εμφάνιση τιμών σε",
+      "approximateWhenConverted": "Κατά προσέγγιση κατά τη μετατροπή"
+    }
+  },
+  "footer": {
+    "ctaTitle": "Βρείτε αυτό που ψάχνετε.",
+    "ctaCopy": "Εξερευνήστε χιλιάδες καταχωρίσεις από Little Biggy πωλητές - μια αγορά που βασίζεται στην αρχή του μη βλάπτειν.",
+    "browseItems": "Αναζήτηση στοιχείων",
+    "community": "Κοινότητα",
+    "communityCopy": "Ενώστε τη συζήτηση. Μοιραστείτε εμπειρίες, κάντε ερωτήσεις ή ελέγξτε τη φήμη των πωλητών.",
+    "privacy": "Απόρρητο",
+    "terms": "Όροι",
+    "cookies": "Μπισκότα",
+    "copyright": "© {year} Biggy Index. Οι τιμές που εμφανίζονται ενδέχεται να διαφέρουν - ελέγχετε πάντα το κατάστημα για τις πιο πρόσφατες τιμές."
   },
   "home": {
-    "heroTitle": "The Cannabis Index",
-    "heroSubtitle": "Browse {itemCount} products from {sellerCount} sellers",
-    "whatsNew": "What's New",
-    "recentlyAdded": "Recently Added",
-    "recentlyUpdated": "Recently Updated",
-    "popular": "Popular",
-    "topSellers": "Top Sellers",
-    "communityReviews": "Community Reviews",
-    "viewAll": "View all"
+    "heroTitle": "Ο Δείκτης Κάνναβης",
+    "heroSubtitle": "Περιηγηθείτε στα προϊόντα {itemCount} από τους πωλητές {sellerCount}",
+    "whatsNew": "Τι νέα",
+    "recentlyAdded": "Προστέθηκαν πρόσφατα",
+    "recentlyUpdated": "Πρόσφατα ενημερώθηκε",
+    "popular": "Δημοφιλές",
+    "topSellers": "Κορυφαία σε πωλήσεις",
+    "communityReviews": "Κριτικές κοινότητας",
+    "viewAll": "Προβολή όλων",
+    "photoReviewModal": {
+      "time": {
+        "justNow": "Μόλις τώρα",
+        "hoursAgo": "{count}h πριν",
+        "oneDayAgo": "1 ημέρα Πριν",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν"
+      },
+      "noImages": "Δεν επισυνάπτονται εικόνες",
+      "zoomImage": "Μεγέθυνση εικόνας",
+      "zoomPhoto": "Μεγέθυνση φωτογραφίας {index} {total}",
+      "reviewPhoto": "Φωτογραφία κριτικής",
+      "close": "Κλείσιμο κριτικής",
+      "bySeller": "από {seller}",
+      "deliveryDays": "{days}d",
+      "noText": "Δεν υπάρχει γραπτό κείμενο κριτικής.",
+      "openItem": "Άνοιγμα στοιχείου",
+      "viewOnLittleBiggy": "Προβολή στο LittleBiggy"
+    },
+    "hero": {
+      "title": {
+        "line1": "Ένας δείκτης για το",
+        "highlight": "420 αγορά"
+      },
+      "subtitle": "Ταχύτερη αναζήτηση, καθαρότερες κατηγορίες και εμπιστοσύνη πωλητών με μια ματιά για την αγορά Little Biggy.",
+      "stats": {
+        "itemsIndexed": "Στοιχεία που έχουν ευρετηριαστεί",
+        "activeSellers": "Ενεργοί πωλητές"
+      },
+      "cta": "Περιήγηση στο Marketplace",
+      "markets": "Αγορές"
+    },
+    "quickStart": {
+      "heading": "Πως δουλεύει",
+      "subheading": "Είστε νέος στο Little Biggy; Ακολουθεί μια γρήγορη επισκόπηση της διαδικασίας από την αρχή μέχρι το τέλος.",
+      "steps": {
+        "bitcoin": {
+          "title": "Πάρτε λίγο Bitcoin",
+          "summary": "Πάρτε λίγο Bitcoin για να είστε έτοιμοι να το ελέγξετε.",
+          "intro": "Little Biggy δέχεται μόνο Bitcoin. Θα χρειαστεί να δημιουργήσετε έναν τρόπο για να αγοράσετε μερικά, αν δεν το έχετε κάνει ήδη, ώστε να είστε έτοιμοι να αρχίσετε να παραγγέλνετε αντικείμενα.",
+          "easiestWay": {
+            "heading": "Ο ευκολότερος τρόπος",
+            "text": "Οι εφαρμογές που μπορεί να χρησιμοποιείτε ήδη, όπως η Revolut ή η Monzo, σας επιτρέπουν να αγοράσετε Bitcoin μέσα στην τραπεζική εφαρμογή με λίγα αγγίγματα."
+          },
+          "otherOptions": {
+            "heading": "Άλλες δημοφιλείς επιλογές",
+            "text": "Ένα ανταλλακτήριο κρυπτογράφησης όπως το Coinbase ή το Kraken λειτουργεί εξίσου καλά. Λειτουργούν λίγο σαν ένα διαδικτυακό γραφείο συναλλάγματος."
+          },
+          "proTip": {
+            "label": "Επαγγελματική συμβουλή:",
+            "text": "Αγοράστε μερικές λίρες παραπάνω από όσες χρειάζεστε και στρογγυλοποιήστε προς τα πάνω. Αυτό το επιπλέον buffer καλύπτει τα τέλη δικτύου ή τη μεταβλητότητα των κρυπτονομισμάτων."
+          },
+          "peerToPeer": {
+            "label": "Θέλετε να παραλείψετε την ανταλλαγή;",
+            "beforeLinks": "Οι πλατφόρμες peer-to-peer, όπως",
+            "betweenLinks": "ή",
+            "afterLinks": "σας επιτρέπει να αγοράσετε Bitcoin απευθείας από άλλο άτομο - χωρίς λογαριασμό ανταλλαγής, χωρίς έγγραφα KYC. Είναι πιο πρακτικό, αλλά τα νομίσματα προσγειώνονται κατευθείαν σε ένα πορτοφόλι που ελέγχετε."
+          }
+        },
+        "browse": {
+          "title": "Βρείτε τα αντικείμενά σας",
+          "summary": "Περιηγηθείτε στον κατάλογο Little Biggy όπως θα κάνατε στο eBay.",
+          "intro": "Βρείτε αντικείμενα που θέλετε να αγοράσετε - στο ίδιο Little Biggy ή μέσω του ευρετηρίου. Υπάρχει μια τεράστια ποικιλία, οπότε κάντε μια καλή περιήγηση.",
+          "startBefore": "Κάντε κλικ στο κουμπί",
+          "browseButton": "Αναζήτηση στοιχείων",
+          "startAfter": "κουμπί παρακάτω για να ξεκινήσετε την περιήγηση.",
+          "trustBefore": "Ελέγξτε τις περιγραφές και τις κριτικές προϊόντων για να εντοπίσετε αξιόπιστους πωλητές. Εάν δεν είστε σίγουροι, αναζητήστε στο Google το όνομα του πωλητή ή κοιτάξτε",
+          "trustAfter": ".",
+          "cart": "Όταν είστε έτοιμοι, προσθέστε αυτό που θέλετε στο καλάθι σας και εισαγάγετε τα στοιχεία παράδοσης όπως κάθε άλλο ηλεκτρονικό κατάστημα."
+        },
+        "checkout": {
+          "title": "Ολοκλήρωση αγοράς και αποστολή του Bitcoin σας",
+          "summary": "Αντιγράψτε τα στοιχεία και, στη συνέχεια, στείλτε την πληρωμή από το τηλέφωνο ή τον φορητό υπολογιστή σας.",
+          "intro": "Στο ταμείο, Little Biggy εμφανίζει μια ιδιωτική σελίδα παραγγελιών με όλα όσα χρειάζεστε για να πληρώσετε με ασφάλεια, είτε βρίσκεστε σε μία συσκευή είτε κάνετε εναλλαγή μεταξύ τηλεφώνου και επιτραπέζιου υπολογιστή.",
+          "copyHeading": "Αντιγράψτε τα δύο στοιχεία δανεισμού",
+          "amountLabel": "Το ακριβές ποσό BTC:",
+          "amountBefore": "Μοιάζει με",
+          "amountAfter": "Αντιγράψτε το ακριβώς για να μην πληρώσετε λιγότερο.",
+          "addressLabel": "Η διεύθυνση Bitcoin:",
+          "addressBefore": "μια μακριά χορδή όπως",
+          "addressAfter": "Σκεφτείτε το ως τον αριθμό λογαριασμού για αυτήν την παραγγελία.",
+          "sendHeading": "Αποστολή της πληρωμής",
+          "sendSteps": {
+            "openApp": "Ανοίξτε την εφαρμογή ή το ανταλλακτήριο που χρησιμοποιήσατε για να αγοράσετε Bitcoin (Revolut, Coinbase, Monzo, Kraken κ.λπ.).",
+            "chooseSend": "Επιλέξτε την επιλογή αποστολής ή ανάληψης Bitcoin.",
+            "pasteDetails": "Επικολλήστε τη διεύθυνση Bitcoin στο πεδίο παραλήπτη και το ακριβές ποσό BTC στο πεδίο ποσού.",
+            "confirm": "Επιβεβαιώστε τη μεταφορά. Οι επιβεβαιώσεις δικτύου συνήθως φτάνουν μέσα σε λίγα λεπτά και η σελίδα παραγγελίας σας θα ενημερωθεί αυτόματα."
+          }
+        },
+        "escrow": {
+          "title": "Τα χρήματά σας είναι ασφαλή (μεσεγγύηση)",
+          "summary": "Η Transaxe κρατά τα χρήματα μέχρι να φτάσει η παραγγελία σας.",
+          "intro": "Το Bitcoin σας πηγαίνει στο Transaxe, το ενσωματωμένο σύστημα μεσεγγύησης της Little Biggy. Ο πωλητής μπορεί να δει ότι η πληρωμή έχει φτάσει, αλλά τα χρήματα φυλάσσονται με ασφάλεια.",
+          "release": "Τα χρήματα αποδεσμεύονται στον πωλητή μόνο όταν κλείσει το παράθυρο διαφωνίας. Αυτό σας προστατεύει ως αγοραστή - εάν κάτι πάει στραβά, μπορείτε να ανοίξετε μια διαφωνία πριν λήξει το παράθυρο.",
+          "peaceHeading": "Ξεγνοιασιά",
+          "peaceText": "Μεσεγγύηση σημαίνει ότι ο πωλητής δεν αγγίζει ποτέ τα χρήματά σας μέχρι να αποσταλεί και να παραληφθεί το αντικείμενο. Είναι η προστασία που Little Biggy κρατά ειλικρινείς."
+        },
+        "delivery": {
+          "title": "Περιμένετε τον Postie",
+          "summary": "Χαλαρώστε ενώ φτάνει προς εσάς.",
+          "intro": "Οι πωλητές συνήθως επισημαίνουν την παραγγελία σας ως αποστολή εντός μίας εργάσιμης ημέρας. Οι χρόνοι παράδοσης εξαρτώνται από τον πωλητή και την τοποθεσία σας, αλλά οι περισσότερες παραγγελίες στο Ηνωμένο Βασίλειο φτάνουν εντός λίγων ημερών.",
+          "late": "Εάν η παραγγελία σας καθυστερήσει, επικοινωνήστε πρώτα με τον πωλητή μέσω Little Biggy - τα περισσότερα ζητήματα επιλύονται γρήγορα. Ανοίξτε μια διαφωνία μόνο ως έσχατη λύση."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "Συχνές ερωτήσεις",
+      "heading": "Συχνές ερωτήσεις για επισκέπτες για πρώτη φορά",
+      "tabs": {
+        "about": "Σχετικά με Biggy Index",
+        "bitcoin": "Little Biggy & Bitcoin"
+      },
+      "about": {
+        "items": {
+          "whatIs": {
+            "q": "Ποια είναι η Biggy Index;",
+            "a": "Το Biggy Index παρέχει έναν ευκολότερο τρόπο περιήγησης στην αγορά Little Biggy, με κατηγοριοποίηση αντικειμένων, πρόσθετες επιλογές ταξινόμησης και άλλα εύχρηστα εργαλεία προσαρμοσμένα για τους αγοραστές του Ηνωμένου Βασιλείου."
+          },
+          "sellOrShip": {
+            "q": "Πουλάτε ή αποστέλλετε αντικείμενα;",
+            "a": "Όχι. Biggy Index είναι μόνο για ανάγνωση και σας στέλνει πίσω στο Little Biggy για να ολοκληρώσετε την παραγγελία σας."
+          },
+          "dataSource": {
+            "q": "Από πού προέρχονται τα δεδομένα;",
+            "a": "Το ευρετήριο ανακτά δεδομένα δημόσιας Little Biggy, κανονικοποίηση κατηγοριών, περιλήψεις τιμών, πληροφορίες αποστολής, κριτικές και εικόνες."
+          },
+          "refreshRate": {
+            "q": "Πόσο συχνά ανανεώνεται;",
+            "a": "Υπάρχουν 3 στοιχεία που ανανεώνονται σε διαφορετικά διαστήματα. Το κύριο ευρετήριο εκτελείται κάθε 30 λεπτά. Τα προγράμματα ανίχνευσης στοιχείων και πωλητών εκτελούνται κάθε 4 ώρες, σε ξεχωριστές ώρες για να έχουν υπόψη τους τον διακομιστή του Little Biggy."
+          },
+          "timestamps": {
+            "q": "Τι σημαίνει Πρώτη εμφάνιση ή ενημέρωση σε αντικείμενα;",
+            "a": "Πρώτη εμφάνιση/δημιουργία σημαίνει ότι είναι η πρώτη φορά που το στοιχείο ευρετηριάστηκε από τον ανιχνευτή. Αυτό μπορεί να περιλαμβάνει στοιχεία που βρίσκονταν στο LB πριν από την ύπαρξη του ευρετηρίου. Ενημερώθηκε σημαίνει ότι το στοιχείο υποβλήθηκε σε επεξεργασία από τον πωλητή ή ότι ο ανιχνευτής εντόπισε μια αλλαγή (π.χ. τιμή, παραλλαγές, περιγραφή)."
+          },
+          "endorsements": {
+            "q": "Τι είναι οι εγκρίσεις;",
+            "a": "Ψήφοι κοινότητας που επισημαίνουν δημοφιλή στοιχεία χωρίς να σας παρακολουθούν."
+          }
+        }
+      },
+      "bitcoin": {
+        "items": {
+          "payments": {
+            "q": "Ποιες πληρωμές δέχεται Little Biggy;",
+            "a": "Μόνο Bitcoin - χωρίς κάρτες, τραπεζικά εμβάσματα ή άλλα κρυπτονομίσματα."
+          },
+          "buying": {
+            "q": "Πώς μπορώ να αγοράσω Bitcoin στο Ηνωμένο Βασίλειο;",
+            "a": "Οι περισσότεροι αγοραστές χρησιμοποιούν Revolut, Monzo, Kraken ή Coinbase. Συμπληρώστε σε λίρες, αγοράστε το ποσό BTC που εμφανίζεται στο ταμείο και επιτρέψτε μερικές λίρες για χρεώσεις δικτύου ή ανταλλαγής."
+          },
+          "wallet": {
+            "q": "Χρειάζομαι πρώτα το δικό μου πορτοφόλι;",
+            "a": "Μπορείτε να πληρώσετε απευθείας από το ανταλλακτήριο, αλλά πολλοί άνθρωποι μεταφέρουν BTC σε ένα ιδιωτικό πορτοφόλι όπως το Cake Wallet ή το Trust Wallet για επιπλέον προστασία της ιδιωτικής ζωής. Τα ανταλλακτήρια του Ηνωμένου Βασιλείου πρέπει να ρωτούν πού στέλνετε νομίσματα - έτσι ορισμένοι αγοραστές προτιμούν τη δρομολόγηση μέσω ενός προσωπικού πορτοφολιού."
+          },
+          "escrow": {
+            "q": "Πώς με προστατεύει η μεσεγγύηση Transaxe;",
+            "a": "Η πληρωμή σας πηγαίνει σε μια διεύθυνση μεσεγγύησης Transaxe. Οι πωλητές έχουν περίπου 80 ώρες για να επισημάνουν τις παραγγελίες ως απεσταλμένες ή να επιστρέψουν αυτόματα τα χρήματα. Οι διαφωνίες ανοίγουν μετά από εννέα ημέρες, εάν χρειαστεί."
+          },
+          "mistakes": {
+            "q": "Κάποιες συμβουλές για την αποφυγή λαθών;",
+            "a": "Αντιγράψτε-επικολλήστε το ποσό και τη διεύθυνση BTC, προσθέστε ένα buffer για χρεώσεις και κρατήστε στιγμιότυπα οθόνης μέχρι να φτάσει το δέμα σας. Το blockchain δεν μπορεί να αναιρέσει τυπογραφικά λάθη."
+          },
+          "clearnet": {
+            "q": "Γιατί να μην χρησιμοποιήσετε απλώς τα καταστήματα clearnet;",
+            "a": "Ο ανταγωνισμός σε Little Biggy διατηρεί την ποιότητα υψηλή και τις τιμές δίκαιες. Οι μεταπωλητές Clearnet συχνά χρεώνουν μεγάλες προσαυξήσεις ή αποστέλλουν αμφισβητήσιμα αποθέματα."
+          },
+          "legality": {
+            "q": "Τι γίνεται με τη νομιμότητα του Ηνωμένου Βασιλείου;",
+            "a": "Οι νόμοι για την κάνναβη εξακολουθούν να ισχύουν. Είστε υπεύθυνοι για την τήρηση των τοπικών κανονισμών και την επαλήθευση κάθε λεπτομέρειας σχετικά με Little Biggy."
+          }
+        }
+      }
+    },
+    "whatsNewSection": {
+      "eyebrow": "Φρέσκια δραστηριότητα",
+      "heading": "Πρόσφατα ευρετηριασμένα στοιχεία",
+      "description": "Δείτε τα πιο πρόσφατα ή πιο πρόσφατα ενημερωμένα στοιχεία στο Little Biggy.",
+      "tabs": {
+        "newest": "Προστέθηκε πρόσφατα",
+        "updated": "Πρόσφατα ενημερωμένο"
+      },
+      "browseAll": "Περιήγηση σε όλα τα στοιχεία",
+      "scrollLeft": "Κύλιση προς τα αριστερά",
+      "scrollRight": "Κύλιση προς τα δεξιά",
+      "priceUnavailable": "Δ/Υ",
+      "unknownSeller": "Άγνωστος πωλητής",
+      "viewSeller": "Προβολή {seller} πωλητή",
+      "alternateImageAlt": "{item} εναλλακτικό",
+      "time": {
+        "justNow": "Μόλις τώρα",
+        "hoursAgo": "{count}h πριν",
+        "oneDayAgo": "1 ημέρα Πριν",
+        "daysAgo": "{count} μέρες πριν",
+        "monthsAgo": "{count}mo πριν"
+      }
+    },
+    "sellerTrust": {
+      "eyebrow": "Κοινοτική εμπιστοσύνη",
+      "heading": "Συμβούλιο εμπιστοσύνης πωλητή",
+      "description": "Κατατάξεις που προέρχονται από κριτικές κοινότητας. Τοποθετήστε το δείκτη του ποντικιού σε ένα avatar για μια προεπισκόπηση, πατήστε για να ανοίξετε το πλήρες προφίλ του πωλητή.",
+      "panels": {
+        "top": {
+          "title": "Κορυφαία βαθμολογία",
+          "subtitle": "Υψηλότερη αναλογία θετικών κριτικών"
+        },
+        "caution": {
+          "title": "Να είστε προσεκτικοί",
+          "subtitle": "Αυξημένη αρνητική ανατροφοδότηση"
+        },
+        "reviewsLabel": "Κριτικές"
+      },
+      "row": {
+        "reviews": "{count} κριτικές",
+        "negative": "{count} αρνητικό"
+      },
+      "recentlyJoined": {
+        "title": "Πρόσφατα εντάχθηκε",
+        "subtitle": "Νέοι πωλητές - δεν υπάρχει ακόμη ιστορικό"
+      },
+      "time": {
+        "today": "Σήμερα",
+        "yesterday": "χθες",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν",
+        "yearsAgo": "{count}y πριν",
+        "monthsActive": "{count}mo ενεργός",
+        "yearsActive": "{count}y ενεργός"
+      }
+    },
+    "communityReviewsSection": {
+      "eyebrow": "Σχόλια αγοραστών",
+      "heading": "Κριτικές κοινότητας",
+      "subtitle": "Πραγματικά σχόλια από πραγματικούς αγοραστές",
+      "seeAll": "Δείτε όλες τις κριτικές",
+      "recentReviews": "Πρόσφατες κριτικές",
+      "photoReviews": "Κριτικές φωτογραφιών",
+      "fallback": {
+        "seller": "Πωλητής",
+        "product": "Προϊόν",
+        "reviewPhoto": "Φωτογραφία κριτικής"
+      },
+      "stats": {
+        "avgDelivery": "Μέση παράδοση",
+        "avgDeliveryValue": "~{count} ημέρες",
+        "basedOnRecentReviews": "με βάση πρόσφατες κριτικές",
+        "newReviews": "Νέες κριτικές",
+        "postedThisWeek": "δημοσιεύτηκε αυτήν την εβδομάδα",
+        "avgRating": "Μέση βαθμολογία",
+        "avgRatingValue": "{rating} ★",
+        "fromReviews": "Βάσει {count} κριτικών"
+      },
+      "deliveryDays": "{count}d",
+      "time": {
+        "justNow": "Μόλις τώρα",
+        "hoursAgo": "{count}h πριν",
+        "oneDayAgo": "1 ημέρα Πριν",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν"
+      }
+    }
   },
   "browse": {
-    "allCategories": "All Categories",
-    "noResults": "No products match your filters",
-    "clearFilters": "Clear filters",
+    "allCategories": "Όλες οι Κατηγορίες",
+    "noResults": "Κανένα προϊόν δεν ταιριάζει με τα φίλτρα σας",
+    "clearFilters": "Καθαρισμός φίλτρων",
     "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
-    "sortBy": "Sort by",
-    "search": "Search products..."
+    "sortBy": "Ταξινόμηση ανά",
+    "search": "Αναζήτηση προϊόντων...",
+    "noItemsFound": "Δεν βρέθηκαν αντικείμενα",
+    "adjustFilters": "Δοκιμάστε να προσαρμόσετε τα φίλτρα σας",
+    "toolbar": {
+      "removeFilter": "Αφαίρεση: {label}",
+      "fromFilter": "Από: {value}",
+      "notFilter": "Δεν: {value}",
+      "priceRange": "Εύρος τιμών",
+      "bookmarksShowAll": "Εμφάνιση όλων των στοιχείων",
+      "bookmarksOnly": "Εμφάνιση μόνο με σελιδοδείκτη",
+      "shippingIncluded": "Προβολή τιμών με μεταφορικά",
+      "addShipping": "Προσθέστε τα μεταφορικά στις τιμές",
+      "shippingShort": "+Πλοίο",
+      "itemsLabel": "{count, plural, one {item} other {items}}",
+      "freeShippingActive": "Εμφάνιση δωρεάν αποστολής μόνο",
+      "freeShippingInactive": "Φιλτράρισμα για δωρεάν αποστολή",
+      "freeShippingShort": "Δωρεάν αποστολή",
+      "comfortableCards": "Μετάβαση σε άνετες κάρτες",
+      "compactCards": "Μετάβαση σε συμπαγείς κάρτες",
+      "roomy": "Ευρύχωρο",
+      "compact": "Συμπαγής",
+      "sort": {
+        "hottest": "Ζεστό",
+        "newest": "Νεότερο",
+        "updated": "ΕΠΙΚΑΙΡΟΠΟΙΗΜΕΝΟ",
+        "price": "Τιμή",
+        "pricePerGram": "£/g",
+        "name": "Όνομα",
+        "aria": "Ταξινόμηση ανά",
+        "ascending": "Αύξουσα ταξινόμηση",
+        "descending": "Φθίνουσα ταξινόμηση"
+      }
+    },
+    "filters": {
+      "toggle": "Εναλλαγή φίλτρων",
+      "label": "Φίλτρα",
+      "close": "Κλείσιμο φίλτρων",
+      "active": "{count} ενεργός",
+      "clearAll": "Καθαρισμός όλων",
+      "clearAllTitle": "Απαλοιφή όλων των μη καρφιτσωμένων φίλτρων",
+      "searchItems": "Αναζήτηση αντικειμένων...",
+      "clearSearch": "Εκκαθάριση αναζήτησης",
+      "categories": "Κατηγορίες",
+      "subcategories": "Υποκατηγορίες",
+      "sections": {
+        "shipsFrom": "Αποστολή από",
+        "weight": "Βάρος",
+        "price": "Τιμή",
+        "sellers": "Πωλητές"
+      },
+      "attrs": {
+        "effect": "Αποτέλεσμα",
+        "tier": "Βαθμίδα",
+        "micron": "Μικρον",
+        "filtration": "Διήθηση",
+        "texture": "Υφή",
+        "process": "Διαδικασία",
+        "form": "Μορφή",
+        "extract": "Εκχύλισμα",
+        "dietary": "Διαιτητικός",
+        "strength": "Δύναμη"
+      },
+      "pin": {
+        "unpin": "Ξεκαρφίτσωμα - θα καθαρίσει με φίλτρα",
+        "pin": "Pin - διατηρεί την επιλογή κατά την εκκαθάριση των φίλτρων"
+      },
+      "shipFromHelp": "Κλικ: συμπερίληψη. Δεξί κλικ: εξαίρεση",
+      "searchSellers": "Αναζήτηση πωλητών...",
+      "sellerSortAlpha": "Ταξινόμηση Α-Ω - κάντε κλικ πρώτα για τα περισσότερα στοιχεία",
+      "sellerSortCount": "Ταξινόμηση κατά αριθμό αντικειμένων - κάντε κλικ για Α-Ω",
+      "removeSeller": "Αφαιρέστε {seller}",
+      "selectSeller": "Επιλέξτε {seller}",
+      "unselectSeller": "Αποεπιλέξτε {seller}",
+      "hideSeller": "Απόκρυψη {seller} - αφαιρεί όλα τα στοιχεία τους από τα αποτελέσματα",
+      "hideSellerAria": "Απόκρυψη {seller}",
+      "noSellersMatch": "Δεν ταιριάζουν πωλητές",
+      "noSellersAvailable": "Δεν υπάρχουν διαθέσιμοι πωλητές",
+      "showLess": "Εμφάνιση λιγότερων",
+      "showAll": "Εμφάνιση όλων {count}",
+      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
+    },
+    "priceRange": {
+      "title": "Τιμή",
+      "reset": "Επαναφορά φίλτρου τιμών",
+      "minimum": "Ελάχιστη τιμή",
+      "maximum": "Μέγιστη τιμή"
+    },
+    "card": {
+      "lowConfidence": "Αβέβαιη κατηγορία ({percent}% εμπιστοσύνης)",
+      "lowConfidenceAria": "Χαμηλή εμπιστοσύνη κατηγοριοποίησης: {percent}%",
+      "preview": "Προεπισκόπηση {item}",
+      "removeBookmark": "Κατάργηση σελιδοδείκτη",
+      "bookmarkProduct": "Προσθήκη προϊόντος στους σελιδοδείκτες",
+      "bookmarkRemoved": "Ο σελιδοδείκτης αφαιρέθηκε",
+      "bookmarked": "Σελιδοδείκτης",
+      "viewOnLittleBiggy": "Δείτε {item} στο LittleBiggy",
+      "onlineToday": "Online σήμερα",
+      "freeShipping": "Δωρεάν αποστολή",
+      "shipsFrom": "Πλοία από",
+      "shipsFromAria": "Πλοία από {country}",
+      "deliveryDays": "~ {count}d παράδοση",
+      "showAllSellers": "Εμφάνιση όλων των πωλητών",
+      "onlySeller": "Μόνο {seller}",
+      "all": "Όλα",
+      "only": "Μόνο",
+      "hideSeller": "Απόκρυψη {seller}",
+      "hide": "Απόκρυψη",
+      "updated": "Ενημερώθηκε {time}",
+      "listed": "Αναφέρονται {time}",
+      "listedUnknown": "Εισηγμένες -",
+      "time": {
+        "minutesAgo": "{count}m πριν",
+        "hoursAgo": "{count}h πριν",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν"
+      }
+    }
   },
   "sort": {
-    "newest": "Newest",
-    "priceAsc": "Price: Low → High",
-    "priceDesc": "Price: High → Low",
-    "rating": "Top Rated",
-    "hot": "Hottest"
+    "newest": "Νεότερο",
+    "priceAsc": "Τιμή: Χαμηλή → Υψηλή",
+    "priceDesc": "Τιμή: Υψηλή → Χαμηλή",
+    "rating": "Κορυφαία βαθμολογία",
+    "hot": "Το πιο καυτό"
   },
   "item": {
-    "from": "from",
-    "perGram": "/g",
+    "from": "από",
+    "perGram": "/γ",
     "variants": "{count, plural, one {1 variant} other {# variants}}",
     "reviews": "{count, plural, one {1 review} other {# reviews}}",
-    "noReviews": "No reviews yet",
-    "shipping": "Shipping",
-    "freeShipping": "Free shipping",
-    "viewOnSeller": "View on {seller}",
-    "addToBasket": "Add to basket",
-    "firstSeen": "First seen",
-    "lastUpdated": "Last updated"
+    "noReviews": "Δεν υπάρχουν ακόμη κριτικές",
+    "shipping": "Αποστολή",
+    "freeShipping": "Δωρεάν αποστολή",
+    "viewOnSeller": "Προβολή στο {seller}",
+    "addToBasket": "Προσθήκη στο καλάθι",
+    "firstSeen": "Πρώτη εμφάνιση",
+    "lastUpdated": "Τελευταία ενημέρωση",
+    "detail": {
+      "close": "Κλείσιμο",
+      "previousItem": "Προηγούμενο στοιχείο",
+      "nextItem": "Επόμενο στοιχείο",
+      "prev": "Προηγ",
+      "next": "Επόμενο",
+      "by": "από τον",
+      "wasPrice": "ήταν {price}",
+      "viewOnLittleBiggy": "Προβολή στο Little Biggy",
+      "itemNotFound": "Το αντικείμενο δεν βρέθηκε.",
+      "tabs": {
+        "prices": "Τιμές",
+        "description": "Περιγραφή",
+        "reviews": "Κριτικές"
+      },
+      "reviews": {
+        "heading": "Κριτικές",
+        "noneAvailable": "Δεν υπάρχουν διαθέσιμες κριτικές",
+        "readMoreAt": "Διαβάστε περισσότερες κριτικές στο:"
+      },
+      "variants": {
+        "heading": "Παραλλαγές",
+        "size": "Μέγεθος",
+        "price": "Τιμή",
+        "variant": "Παραλλαγή",
+        "add": "Προσθήκη",
+        "addToBasket": "Προσθήκη στο καλάθι",
+        "addedToBasket": "Προστέθηκε {variant} στο καλάθι",
+        "bestValue": "Η καλύτερη αξία",
+        "pricePerUnit": "Τιμή ανά {unit}",
+        "unit": "μονάδα"
+      },
+      "meta": {
+        "rating": "Εκτίμηση",
+        "avgDelivery": "Μέση παράδοση",
+        "listed": "Εισηγμένες",
+        "updated": "ΕΠΙΚΑΙΡΟΠΟΙΗΜΕΝΟ"
+      },
+      "description": {
+        "heading": "Περιγραφή",
+        "noneProvided": "Δεν παρέχεται περιγραφή."
+      },
+      "attributes": {
+        "heading": "Χαρακτηριστικά",
+        "labels": {
+          "effect": "Αποτέλεσμα",
+          "cbd": "CBD",
+          "grow": "Καλλιεργώ",
+          "tier": "Βαθμίδα",
+          "imported": "Εισαγόμενος",
+          "micron": "Μικρον",
+          "origin": "Προέλευση",
+          "fullMelt": "Πλήρης τήξη",
+          "mg": "Ισχύς",
+          "vegan": "Χορτοφάγος",
+          "mlSize": "Μέγεθος",
+          "purity": "Καθαρότητα",
+          "delta": "Τύπος",
+          "terped": "Τερμπέν",
+          "species": "Είδος"
+        }
+      },
+      "priceHistory": {
+        "heading": "Ιστορικό τιμών",
+        "firstTracked": "Πρώτη παρακολούθηση"
+      },
+      "shipping": {
+        "label": "Αποστολή",
+        "noShipping": "Χωρίς αποστολή",
+        "freeShipping": "Δωρεάν αποστολή",
+        "cheapest": "Το φθηνότερο",
+        "highest": "Υψηλότερη",
+        "shipping": "Αποστολή",
+        "free": "Δωρεάν"
+      },
+      "time": {
+        "minutesAgo": "{count}m πριν",
+        "hoursAgo": "{count}h πριν",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν"
+      }
+    },
+    "page": {
+      "browseIndex": "Περιηγηθείτε στο ευρετήριο",
+      "breadcrumb": "Τριμμένη φρυγανιά",
+      "notFoundTitle": "Το προϊόν δεν βρέθηκε",
+      "notFoundDescription": "Το στοιχείο \"{ref}\" δεν υπάρχει ή έχει αφαιρεθεί.",
+      "backToIndex": "Επιστροφή στο ευρετήριο",
+      "imageAlt": "{item} εικόνα {index}",
+      "by": "από τον",
+      "shipsFrom": "Πλοία από {country}",
+      "unavailable": "Δ/Υ",
+      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "deliveryShort": "~ {count}d παράδοση",
+      "avgDelivery": "{days} ημέρες μέση παράδοση",
+      "attributes": "Χαρακτηριστικά",
+      "variants": "Παραλλαγές",
+      "bestValue": "Η καλύτερη αξία",
+      "shipping": "Αποστολή",
+      "free": "Δωρεάν",
+      "viewOnLittleBiggy": "Προβολή στο LittleBiggy",
+      "firstSeen": "Πρώτη εμφάνιση: {date}",
+      "updated": "Ανανεώθηκε: {date}",
+      "priceHistory": "Ιστορικό τιμών",
+      "reviews": "Κριτικές",
+      "reviewDelivery": "{days}d παράδοση",
+      "moreReviews": "+{count} περισσότερες κριτικές - δείτε την πλήρη λίστα στο LittleBiggy"
+    },
+    "legacyModal": {
+      "close": "Κλείσιμο",
+      "itemNotFound": "Το αντικείμενο δεν βρέθηκε.",
+      "by": "από τον",
+      "unavailable": "Δ/Υ",
+      "variants": "Παραλλαγές",
+      "attributes": "Χαρακτηριστικά",
+      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "avgDelivery": "{days} ημέρες μέση παράδοση",
+      "shipping": "Αποστολή",
+      "freeAvailable": "Δωρεάν διαθέσιμο",
+      "firstSeen": "Πρώτη εμφάνιση: {date}",
+      "updated": "Ανανεώθηκε: {date}",
+      "viewOnLittleBiggy": "Προβολή στο LittleBiggy",
+      "fullPage": "Ολοσέλιδο"
+    }
   },
   "seller": {
     "products": "{count, plural, one {1 product} other {# products}}",
-    "rating": "Rating",
-    "visitStore": "Visit store"
+    "rating": "Εκτίμηση",
+    "visitStore": "Επισκεφθείτε το κατάστημα",
+    "page": {
+      "metadataTitle": "Πωλητές - BiggyIndex",
+      "metadataDescription": "Περιηγηθείτε σε όλους τους πωλητές Little Biggy με βαθμολογίες εμπιστοσύνης, πλήθος κριτικών και αξιολογήσεις κοινότητας.",
+      "title": "Πωλητές",
+      "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
+      "leaderboard": {
+        "title": "Πίνακας κατάταξης εμπιστοσύνης",
+        "allTime": "Ολη την ώρα",
+        "thisWeek": "Αυτή την εβδομάδα",
+        "topRated": "Κορυφαία βαθμολογία",
+        "topRatedSubtitle": "Υψηλότερη αναλογία θετικών κριτικών",
+        "useCaution": "Να είστε προσεκτικοί",
+        "useCautionSubtitle": "Αυξημένη αρνητική ανατροφοδότηση",
+        "reviews": "Κριτικές",
+        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "negativeCount": "{count, plural, one {1 negative} other {# negative}}"
+      },
+      "allSellers": "Όλοι οι πωλητές",
+      "search": "Αναζήτηση...",
+      "table": {
+        "seller": "Πωλητής",
+        "total": "Σύνολο",
+        "seen": "Προβλήθηκε",
+        "positive": "Θετικό",
+        "negatives": "Αρνήσεις",
+        "perfect": "10/10",
+        "rating": "Εκτίμηση",
+        "days": "Ημέρες",
+        "items": "Αντικείμενα",
+        "totalTitle": "Συνολικές κριτικές που αναφέρθηκαν από Little Biggy",
+        "seenTitle": "Κριτικές που απορροφήθηκαν από τον ανιχνευτή BiggyIndex"
+      },
+      "noSellersFound": "Δεν βρέθηκαν πωλητές"
+    },
+    "modal": {
+      "fallbackName": "Πωλητής",
+      "close": "Κλείσιμο",
+      "zoomProfileImage": "Εικόνα προφίλ του Zoom {seller}",
+      "onlineToday": "Online σήμερα",
+      "lastSeen": "Εθεάθη τελευταία φορά {time}",
+      "joined": "Έγινε μέλος {date}",
+      "itemCount": "{count, plural, one {1 item} other {# items}}",
+      "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+      "deliveryShort": "~ {days}d παράδοση",
+      "about": "Σχετικά με",
+      "noDescription": "Δεν υπάρχει διαθέσιμη περιγραφή",
+      "feedback": {
+        "endpointMissing": "Το τελικό σημείο σχολίων δεν έχει ρυθμιστεί.",
+        "hourlyLimit": "Έχετε συμπληρώσει το ωριαίο όριο (20 ανά ώρα). Δοκιμάστε ξανά αργότερα.",
+        "duplicateThanks": "Ευχαριστώ - η ψήφος σας προστέθηκε σε μια υπάρχουσα έκθεση.",
+        "reviewThanks": "Ευχαριστώ - ένας συντονιστής θα ελέγξει.",
+        "networkError": "Σφάλμα δικτύου",
+        "endorsed": "Εγκρίθηκε",
+        "submitting": "Υποβολή...",
+        "endorseSeller": "Εγκρίνετε τον πωλητή",
+        "reported": "Εχουν αναφερθεί",
+        "reportSeller": "Αναφορά πωλητή",
+        "reasonOptional": "Αιτιολογία (προαιρετικό)",
+        "reasonPlaceholder": "Τι παρατηρήσατε; (απάτη, ψεύτικες κριτικές, πρόβλημα αποστολής...)",
+        "cancel": "Ακύρωση",
+        "submitReport": "Υποβολή αναφοράς"
+      },
+      "reviews": {
+        "heading": "Κριτικές",
+        "loading": "Φόρτωση...",
+        "recentTotal": "{recent} πρόσφατα ({total} σύνολο)",
+        "recentCount": "{count} πρόσφατα",
+        "avgDelivery": "~{days}d Μέση παράδοση",
+        "removeFilter": "Αφαιρέστε το φίλτρο",
+        "filter": "Φίλτρο",
+        "removeLowRatingFilterTitle": "Remove low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
+        "applyLowRatingFilterTitle": "Apply low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
+        "lowRating": "{count, plural, one {1 low rating} other {# low ratings}}",
+        "ratingFilterTitle": "{action}: {count, plural, one {1 review} other {# reviews}} rated {rating}/10",
+        "noReviewsYet": "Δεν υπάρχουν ακόμη κριτικές",
+        "lowRated": "χαμηλής βαθμολογίας",
+        "noFilteredReviews": "Δεν υπάρχουν {filter} κριτικές",
+        "readMoreAt": "Διαβάστε περισσότερες κριτικές στο:"
+      },
+      "visitAria": "Επισκεφθείτε {seller} στο LittleBiggy",
+      "visit": "Επισκεφθείτε {seller}"
+    },
+    "error": {
+      "title": "Αποτυχία φόρτωσης πωλητών",
+      "description": "Δεν ήταν δυνατή η φόρτωση της σελίδας πωλητών. Αυτό είναι συνήθως προσωρινό.",
+      "retry": "Επανάληψη"
+    }
+  },
+  "reviews": {
+    "page": {
+      "metadataTitle": "Αξιολογήσεις - BiggyIndex",
+      "metadataDescription": "Οι τελευταίες κριτικές κοινότητας από Little Biggy αγοραστές με εικόνες, αξιολογήσεις και χρόνους παράδοσης.",
+      "title": "Κριτικές κοινότητας",
+      "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
+      "filters": {
+        "all": "Όλα",
+        "withPhotos": "Με φωτογραφίες",
+        "withComments": "Με σχόλια"
+      },
+      "noMatches": "Δεν υπάρχουν κριτικές που να ταιριάζουν με αυτό το φίλτρο",
+      "row": {
+        "justNow": "Μόλις τώρα",
+        "hoursAgo": "{count}h πριν",
+        "oneDayAgo": "1 ημέρα Πριν",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν",
+        "sameDay": "αυθημερόν",
+        "oneDay": "1 ημέρα",
+        "days": "{count} ημέρες",
+        "reviewPhoto": "Ανασκόπηση φωτογραφιών {index}"
+      },
+      "error": {
+        "title": "Αποτυχία φόρτωσης κριτικών",
+        "description": "Δεν ήταν δυνατή η φόρτωση της σελίδας κριτικών. Αυτό είναι συνήθως προσωρινό.",
+        "retry": "Επανάληψη"
+      }
+    },
+    "card": {
+      "time": {
+        "minutesAgo": "{count}m πριν",
+        "hoursAgo": "{count}h πριν",
+        "daysAgo": "{count}d πριν",
+        "monthsAgo": "{count}mo πριν"
+      },
+      "imageAlt": "Ελέγξτε την εικόνα {index}",
+      "stats": {
+        "average": "{rating}/10 μ.ο.",
+        "recentTotal": "{recent} πρόσφατα ({total} σύνολο)",
+        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "avgDelivery": "~{days}d Μέση παράδοση"
+      }
+    }
+  },
+  "suggest": {
+    "link": {
+      "label": "Προτείνετε διόρθωση",
+      "title": "Προτείνετε μια διόρθωση"
+    },
+    "page": {
+      "itemNotFound": "Το προϊόν δεν βρέθηκε",
+      "notFoundDescription": "Δεν είναι δυνατή η υποβολή διόρθωσης για ένα στοιχείο που δεν υπάρχει.",
+      "backToIndex": "Επιστροφή στο ευρετήριο",
+      "backToItem": "Επιστροφή στο στοιχείο",
+      "title": "Προτείνετε μια διόρθωση",
+      "intro": "Βοηθήστε μας να διορθώσουμε στοιχεία που δεν έχουν ταξινομηθεί σωστά. Οι προτάσεις αποστέλλονται σε έναν επόπτη πριν εφαρμοστούν - δεν απαιτείται λογαριασμός.",
+      "itemLabel": "Είδος",
+      "bySeller": "από {seller}",
+      "error": {
+        "title": "Δεν ήταν δυνατή η φόρτωση της φόρμας προτάσεων",
+        "retry": "Επανάληψη"
+      }
+    },
+    "form": {
+      "stagedEdits": "Οι επεξεργασίες σας ({count})",
+      "removeEdit": "Αφαίρεση αυτής της επεξεργασίας",
+      "addAnotherCorrection": "Προσθήκη άλλης διόρθωσης",
+      "whatNeedsFixing": "Τι χρειάζεται διόρθωση;",
+      "wrongProductHint": "Αυτό δεν είναι έγκυρο προϊόν",
+      "currently": "Επί του παρόντος:",
+      "notSet": "δεν έχει οριστεί",
+      "shouldBe": "Θα πρέπει να είναι:",
+      "wrongProductDescription": "Επισημάνετε αυτό το προϊόν για αξιολόγηση. Μπορεί να έχει κατηγοριοποιηθεί εσφαλμένα ή να μην ανήκει σε αυτόν τον ιστότοπο.",
+      "addThisEdit": "+ Προσθέστε αυτήν την επεξεργασία",
+      "addEdit": "+ Προσθήκη επεξεργασίας",
+      "submitting": "Υποβολή...",
+      "submitSuggestion": "Υποβολή πρότασης",
+      "submitSuggestions": "Υποβολή {count} προτάσεων",
+      "suggestionSubmitted": "Η πρόταση υποβλήθηκε!",
+      "allSubmitted": "Υποβλήθηκαν όλες οι προτάσεις {count}!",
+      "partialSubmitted": "{successCount} των {totalCount} που υποβλήθηκαν. {error}",
+      "somethingWentWrong": "Κάτι πήγε στραβά",
+      "networkError": "Σφάλμα δικτύου",
+      "suggestMoreEdits": "Προτείνετε περισσότερες αλλαγές",
+      "pendingSuggestions": "Εκκρεμείς προτάσεις ({count})",
+      "alreadyVoted": "Έχει ήδη ψηφιστεί",
+      "upvoteSuggestion": "Υπερψηφίστε αυτήν την πρόταση",
+      "fields": {
+        "category": "Κατηγορία",
+        "subcategories": "Υποκατηγορίες",
+        "tier": "Επίπεδο ποιότητας",
+        "micron": "Μέγεθος Micron",
+        "wrongProduct": "Λάθος προϊόν"
+      }
+    }
+  },
+  "basket": {
+    "label": "Καλάθι",
+    "clearAll": "Καθαρισμός όλων",
+    "close": "Κλείσιμο καλαθιού",
+    "empty": "Το καλάθι σας είναι άδειο.",
+    "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+    "shipping": "Αποστολή",
+    "noShipping": "Χωρίς αποστολή",
+    "items": "Αντικείμενα",
+    "total": "Σύνολο",
+    "each": "κάθε",
+    "virtualNotice": "Αυτό είναι ένα εικονικό καλάθι για σύγκριση τιμών - χωρίς ταμείο.",
+    "viewItem": "Προβολή {item}",
+    "decreaseQty": "Μείωση ποσότητας για {item}",
+    "removeItem": "Αφαιρέστε {item}",
+    "increaseQty": "Αύξηση ποσότητας για {item}"
+  },
+  "settings": {
+    "theme": {
+      "switchToLight": "Μετάβαση σε λειτουργία φωτισμού",
+      "switchToDark": "Μετάβαση σε σκοτεινή λειτουργία"
+    },
+    "modal": {
+      "label": "Ρυθμίσεις",
+      "close": "Κλείσιμο ρυθμίσεων",
+      "highResImages": "Εικόνες υψηλής ανάλυσης",
+      "highResDescription": "Χρησιμοποιήστε εικόνες προϊόντων πλήρους ανάλυσης. Χρησιμοποιεί περισσότερα δεδομένα, αλλά φαίνεται πιο ευκρινής.",
+      "pauseGifs": "Παύση GIF",
+      "pauseGifsDescription": "Εμφάνιση στατικών μικρογραφιών για κινούμενες εικόνες. Μειώνει την απόσπαση της προσοχής και εξοικονομεί μπαταρία.",
+      "thumbnailShape": "Σχήμα μικρογραφίας",
+      "thumbnailDescription": "Αλλάξτε την αναλογία περικοπής των εικόνων προϊόντων στις κάρτες.",
+      "aspect": {
+        "square": "τετράγωνο",
+        "fourThree": "4:3",
+        "threeTwo": "3:2"
+      },
+      "accentColour": "Χρώμα έμφασης",
+      "swatches": {
+        "forest": "Δάσος",
+        "ocean": "Ωκεανός",
+        "haze": "Ομίχλη",
+        "sunset": "Ηλιοβασίλεμα",
+        "cherry": "Κεράσι",
+        "custom": "Εθιμο",
+        "customValue": "Προσαρμοσμένο {value}",
+        "default": "Προεπιλογή"
+      },
+      "hiddenSellers": "Κρυφοί πωλητές",
+      "hiddenDescription": "Τα στοιχεία από κρυφούς πωλητές δεν θα εμφανίζονται πουθενά. Αυτό παραμένει σε όλες τις περιόδους σύνδεσης και δεν διαγράφεται από την επιλογή \"Διαγραφή φίλτρων\".",
+      "searchSellers": "Αναζήτηση πωλητών για απόκρυψη...",
+      "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+      "unhideSeller": "Κάντε κλικ για επανεμφάνιση {seller}",
+      "noSellersHidden": "Δεν κρύβονται πωλητές"
+    }
+  },
+  "errors": {
+    "global": {
+      "title": "Κάτι πήγε στραβά",
+      "description": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα. Αυτό έχει καταγραφεί αυτόματα.",
+      "retry": "Προσπάθησε ξανά"
+    },
+    "browse": {
+      "title": "Αποτυχία φόρτωσης στοιχείων",
+      "description": "Δεν ήταν δυνατή η φόρτωση της σελίδας περιήγησης. Αυτό είναι συνήθως προσωρινό.",
+      "retry": "Επανάληψη"
+    },
+    "item": {
+      "title": "Το προϊόν δεν είναι διαθέσιμο",
+      "description": "Δεν ήταν δυνατή η φόρτωση αυτού του στοιχείου. Μπορεί να έχει αφαιρεθεί ή να υπήρξε προσωρινό σφάλμα.",
+      "retry": "Επανάληψη",
+      "browseItems": "Αναζήτηση στοιχείων"
+    },
+    "notFound": {
+      "title": "Η σελίδα δεν βρέθηκε",
+      "description": "Η σελίδα που αναζητάτε δεν υπάρχει ή έχει μετακινηθεί.",
+      "browseItems": "Αναζήτηση στοιχείων"
+    }
   },
   "common": {
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "retry": "Try again",
-    "close": "Close",
-    "back": "Back"
+    "loading": "Φόρτωση...",
+    "error": "Κάτι πήγε στραβά",
+    "retry": "Προσπάθησε ξανά",
+    "close": "Κλείσιμο",
+    "back": "Πίσω"
   }
 }

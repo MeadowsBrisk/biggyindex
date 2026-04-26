@@ -2,6 +2,7 @@
 
 import { useAtom, useAtomValue } from "jotai";
 import { RotateCcw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   currencyDisplayAtom,
@@ -19,6 +20,7 @@ export function PriceRangeSlider() {
   const [priceRange, setPriceRange] = useAtom(priceRangeAtom);
   const bounds = useAtomValue(priceBoundsAtom);
   const { symbol, rate } = useAtomValue(currencyDisplayAtom);
+  const t = useTranslations("browse.priceRange");
 
   // Don't render if we have no price data
   if (bounds.max <= 0) return null;
@@ -47,14 +49,14 @@ export function PriceRangeSlider() {
     <div className="mb-4 px-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
-          Price
+          {t("title")}
         </h3>
         {isActive && (
           <button
             type="button"
             onClick={() => setPriceRange({ min: 0, max: Infinity })}
             className="p-0.5 rounded text-muted/40 hover:text-muted transition-colors cursor-pointer"
-            title="Reset price filter"
+            title={t("reset")}
           >
             <RotateCcw size={12} />
           </button>
@@ -133,6 +135,7 @@ function DualSlider({
   onChange: (min: number, max: number) => void;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("browse.priceRange");
 
   const pct = (val: number) =>
     absMax === absMin ? 0 : ((val - absMin) / (absMax - absMin)) * 100;
@@ -203,7 +206,7 @@ function DualSlider({
         style={{ left: `${leftPct}%` }}
         onPointerDown={onPointerDown("min")}
         role="slider"
-        aria-label="Minimum price"
+        aria-label={t("minimum")}
         aria-valuemin={absMin}
         aria-valuemax={absMax}
         aria-valuenow={curMin}
@@ -216,7 +219,7 @@ function DualSlider({
         style={{ left: `${rightPct}%` }}
         onPointerDown={onPointerDown("max")}
         role="slider"
-        aria-label="Maximum price"
+        aria-label={t("maximum")}
         aria-valuemin={absMin}
         aria-valuemax={absMax}
         aria-valuenow={curMax}

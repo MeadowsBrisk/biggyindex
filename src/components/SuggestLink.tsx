@@ -1,6 +1,7 @@
 "use client";
 
 import { Flag } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 /**
  * Opens the /suggest/<ref> page in a centered popup window,
@@ -18,6 +19,8 @@ export function SuggestLink({
   className?: string;
   iconOnly?: boolean;
 }) {
+  const t = useTranslations("suggest.link");
+
   const openPopup = () => {
     const w = 620;
     const h = 820;
@@ -35,8 +38,8 @@ export function SuggestLink({
       <button
         type="button"
         onClick={openPopup}
-        title="Suggest a correction"
-        aria-label="Suggest a correction"
+        title={t("title")}
+        aria-label={t("title")}
         className={
           className ??
           "inline-flex items-center justify-center size-7 rounded-md text-muted hover:text-foreground hover:bg-surface transition-colors cursor-pointer"
@@ -57,7 +60,7 @@ export function SuggestLink({
       }
     >
       <Flag size={12} />
-      Suggest correction
+      {t("label")}
     </button>
   );
 }

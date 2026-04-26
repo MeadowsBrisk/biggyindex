@@ -12,6 +12,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   useEffect,
   useMemo,
@@ -114,6 +115,7 @@ export function Toolbar() {
 // ─── Active filter pills ───────────────────────────────────────────
 
 function ActivePills() {
+  const t = useTranslations("browse.toolbar");
   const search = useAtomValue(searchQueryAtom);
   const setSearch = useSetAtom(searchQueryAtom);
   const category = useAtomValue(categoryAtom);
@@ -183,7 +185,7 @@ function ActivePills() {
     }
     for (const sf of shipInclude) {
       p.push({
-        label: `From: ${sf}`,
+        label: t("fromFilter", { value: sf }),
         clear: () =>
           startTransition(() =>
             setShipInclude((prev) => prev.filter((v) => v !== sf)),
@@ -192,7 +194,7 @@ function ActivePills() {
     }
     for (const sf of shipExclude) {
       p.push({
-        label: `Not: ${sf}`,
+        label: t("notFilter", { value: sf }),
         clear: () =>
           startTransition(() =>
             setShipExclude((prev) => prev.filter((v) => v !== sf)),
@@ -211,7 +213,7 @@ function ActivePills() {
     }
     if (priceRange.min > 0 || priceRange.max < Infinity) {
       p.push({
-        label: "Price range",
+        label: t("priceRange"),
         clear: () =>
           startTransition(() => setPriceRange({ min: 0, max: Infinity })),
       });
@@ -254,6 +256,7 @@ function ActivePills() {
     setWeights,
     setPriceRange,
     setAttrs,
+    t,
   ]);
 
   if (pills.length === 0) return null;
@@ -266,7 +269,7 @@ function ActivePills() {
           type="button"
           onClick={pill.clear}
           className="group flex shrink-0 items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors cursor-pointer"
-          title={`Remove: ${pill.label}`}
+          title={t("removeFilter", { label: pill.label })}
         >
           {pill.label}
           <X size={10} className="opacity-60 group-hover:opacity-100" />
@@ -279,6 +282,7 @@ function ActivePills() {
 // ─── Bookmark toggle ───────────────────────────────────────────────
 
 function BookmarkToggle() {
+  const t = useTranslations("browse.toolbar");
   const bookmarks = useAtomValue(bookmarksAtom);
   const [active, setActive] = useAtom(bookmarksOnlyAtom);
   const count = bookmarks.length;
@@ -292,7 +296,7 @@ function BookmarkToggle() {
           ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
           : "text-muted hover:text-foreground"
       }`}
-      title={active ? "Show all items" : "Show bookmarked only"}
+      title={active ? t("bookmarksShowAll") : t("bookmarksOnly")}
     >
       <Heart size={13} fill={active ? "currentColor" : "none"} />
       {count > 0 && <span>{count}</span>}
@@ -303,6 +307,7 @@ function BookmarkToggle() {
 // ─── Shipping-included toggle ──────────────────────────────────────
 
 function ShippingToggle() {
+  const t = useTranslations("browse.toolbar");
   const [active, setActive] = useAtom(includeShippingAtom);
 
   return (
@@ -314,10 +319,10 @@ function ShippingToggle() {
           ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
           : "text-muted hover:text-foreground"
       }`}
-      title={active ? "Showing prices with shipping" : "Add shipping to prices"}
+      title={active ? t("shippingIncluded") : t("addShipping")}
     >
       <Truck size={13} />
-      <span>+Ship</span>
+      <span>{t("shippingShort")}</span>
     </button>
   );
 }
@@ -325,6 +330,7 @@ function ShippingToggle() {
 // ─── Result count ──────────────────────────────────────────────────
 
 function ResultCount({ mobile }: { mobile?: boolean }) {
+  const t = useTranslations("browse.toolbar");
   const filtered = useAtomValue(filteredItemsAtom);
   const total = useAtomValue(itemsAtom);
   const isFiltered = filtered.length !== total.length;
@@ -337,7 +343,7 @@ function ResultCount({ mobile }: { mobile?: boolean }) {
       {isFiltered && (
         <span className="text-muted-foreground">/{total.length}</span>
       )}{" "}
-      items
+      {t("itemsLabel", { count: filtered.length })}
     </span>
   );
 }
@@ -346,15 +352,21 @@ function ResultCount({ mobile }: { mobile?: boolean }) {
 
 const BASE_SORT_OPTIONS: {
   key: SortKey;
-  label: string;
+  labelKey:
+    | "hottest"
+    | "newest"
+    | "updated"
+    | "price"
+    | "pricePerGram"
+    | "name";
   defaultDir: "asc" | "desc";
 }[] = [
-  { key: "hottest", label: "Hot", defaultDir: "desc" },
-  { key: "newest", label: "Newest", defaultDir: "desc" },
-  { key: "updated", label: "Updated", defaultDir: "desc" },
-  { key: "price", label: "Price", defaultDir: "asc" },
-  { key: "ppg", label: "£/g", defaultDir: "asc" },
-  { key: "name", label: "Name", defaultDir: "asc" },
+  { key: "hottest", labelKey: "hottest", defaultDir: "desc" },
+  { key: "newest", labelKey: "newest", defaultDir: "desc" },
+  { key: "updated", labelKey: "updated", defaultDir: "desc" },
+  { key: "price", labelKey: "price", defaultDir: "asc" },
+  { key: "ppg", labelKey: "pricePerGram", defaultDir: "asc" },
+  { key: "name", labelKey: "name", defaultDir: "asc" },
 ];
 
 /**
@@ -374,6 +386,7 @@ function useIsClient() {
 }
 
 function SortPills() {
+  const tSort = useTranslations("browse.toolbar.sort");
   const [sortKey, setSortKey] = useAtom(sortKeyAtom);
   const [sortDir, setSortDir] = useAtom(sortDirAtom);
   const mounted = useIsClient();
@@ -407,7 +420,7 @@ function SortPills() {
             onClick={() => handleSortChange(opt.key)}
             className={`sort-bar__btn${active ? " sort-bar__btn--active" : ""}`}
           >
-            {opt.label}
+            {tSort(opt.labelKey)}
             {active && <DirIcon size={10} className="sort-bar__dir" />}
           </button>
         );
@@ -419,6 +432,7 @@ function SortPills() {
 // ─── Sort select (mobile) ──────────────────────────────────────────
 
 function FreeShippingToggle() {
+  const t = useTranslations("browse.toolbar");
   const [active, setActive] = useAtom(freeShippingOnlyAtom);
 
   return (
@@ -430,10 +444,10 @@ function FreeShippingToggle() {
           ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
           : "text-muted hover:text-foreground"
       }`}
-      title={active ? "Showing free shipping only" : "Filter to free shipping"}
+      title={active ? t("freeShippingActive") : t("freeShippingInactive")}
     >
       <Package size={13} />
-      <span>Free Ship</span>
+      <span>{t("freeShippingShort")}</span>
     </button>
   );
 }
@@ -441,6 +455,7 @@ function FreeShippingToggle() {
 // ─── Density toggle (mobile only — comfortable ↔ compact) ─────────
 
 function ViewModeToggle() {
+  const t = useTranslations("browse.toolbar");
   const [mode, setMode] = useAtom(viewModeAtom);
   const isCompact = mode === "compact";
   return (
@@ -448,15 +463,11 @@ function ViewModeToggle() {
       type="button"
       onClick={() => setMode(isCompact ? "comfortable" : "compact")}
       className="sm:hidden flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer text-muted hover:text-foreground"
-      title={
-        isCompact ? "Switch to comfortable cards" : "Switch to compact cards"
-      }
-      aria-label={
-        isCompact ? "Switch to comfortable cards" : "Switch to compact cards"
-      }
+      title={isCompact ? t("comfortableCards") : t("compactCards")}
+      aria-label={isCompact ? t("comfortableCards") : t("compactCards")}
     >
       {isCompact ? <LayoutGrid size={13} /> : <List size={13} />}
-      <span>{isCompact ? "Roomy" : "Compact"}</span>
+      <span>{isCompact ? t("roomy") : t("compact")}</span>
     </button>
   );
 }
@@ -464,6 +475,7 @@ function ViewModeToggle() {
 // ─── Sort select (mobile) ──────────────────────────────────────────
 
 function SortSelect() {
+  const tSort = useTranslations("browse.toolbar.sort");
   const [sortKey, setSortKey] = useAtom(sortKeyAtom);
   const [sortDir, setSortDir] = useAtom(sortDirAtom);
   const mounted = useIsClient();
@@ -494,11 +506,11 @@ function SortSelect() {
           value={effectiveSortKey}
           onChange={handleChange}
           className="sort-select__field"
-          aria-label="Sort by"
+          aria-label={tSort("aria")}
         >
           {BASE_SORT_OPTIONS.map((opt) => (
             <option key={opt.key} value={opt.key}>
-              {opt.label}
+              {tSort(opt.labelKey)}
             </option>
           ))}
         </select>
@@ -514,7 +526,9 @@ function SortSelect() {
           startTransition(() => setSortDir(sortDir === "asc" ? "desc" : "asc"))
         }
         className="sort-select__dir"
-        aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
+        aria-label={
+          sortDir === "asc" ? tSort("ascending") : tSort("descending")
+        }
       >
         <DirIcon size={14} />
       </button>

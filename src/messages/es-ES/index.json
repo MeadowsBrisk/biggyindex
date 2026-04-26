@@ -1,64 +1,876 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Cannabis Marketplace Browser",
-    "description": "Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more."
+    "tagline": "Navegador de mercado de cannabis",
+    "description": "Explora y compara productos de cannabis en diferentes marketplaces. Precios, variedades, opiniones y más."
   },
   "nav": {
-    "browse": "Browse",
-    "reviews": "Reviews",
-    "sellers": "Sellers",
-    "settings": "Settings"
+    "browse": "Explorar",
+    "reviews": "Reseñas",
+    "sellers": "Vendedores",
+    "settings": "Escenarios"
+  },
+  "categories": {
+    "all": "Todos",
+    "Flower": "Flor",
+    "Shake": "Shake",
+    "Hash": "Hash",
+    "Concentrates": "Concentrados",
+    "Distillate": "Destilado",
+    "Vapes": "Vapeadores",
+    "PreRolls": "Pre-Rolls",
+    "Edibles": "Comestibles",
+    "Tincture": "Tintura",
+    "Psychedelics": "Psicodélicos",
+    "Other": "Otros"
+  },
+  "markets": {
+    "GB": "Reino Unido",
+    "IE": "Irlanda",
+    "DE": "Alemania",
+    "FR": "Francia",
+    "PT": "Portugal",
+    "IT": "Italia",
+    "ES": "España",
+    "GR": "Grecia",
+    "CZ": "República Checa"
+  },
+  "header": {
+    "basket": {
+      "items": "{count, plural, one {Basket (1 item)} other {Basket (# items)}}"
+    },
+    "mobileMenu": {
+      "open": "Menú abierto",
+      "close": "Menú cerrado"
+    },
+    "marketMenu": {
+      "market": "Mercado",
+      "displayPricesIn": "Precios de visualización en",
+      "approximateWhenConverted": "Aproximar cuando se convierte"
+    }
+  },
+  "footer": {
+    "ctaTitle": "Encuentra lo que buscas.",
+    "ctaCopy": "Explora miles de anuncios de vendedores Little Biggy, un mercado construido bajo el principio de no hacer daño.",
+    "browseItems": "Explorar los artículos",
+    "community": "Comunidad",
+    "communityCopy": "Únete a la conversación. Comparte experiencias, haz preguntas o consulta la reputación de los vendedores.",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "cookies": "Galletas",
+    "copyright": "© {year} Biggy Index. Los precios que aparecen pueden variar: siempre consulta la tienda para ver los precios más recientes."
   },
   "home": {
-    "heroTitle": "The Cannabis Index",
-    "heroSubtitle": "Browse {itemCount} products from {sellerCount} sellers",
-    "whatsNew": "What's New",
-    "recentlyAdded": "Recently Added",
-    "recentlyUpdated": "Recently Updated",
-    "popular": "Popular",
-    "topSellers": "Top Sellers",
-    "communityReviews": "Community Reviews",
-    "viewAll": "View all"
+    "heroTitle": "El Índice de Cannabis",
+    "heroSubtitle": "Explora {itemCount} productos de {sellerCount} vendedores",
+    "whatsNew": "Qué hay de nuevo",
+    "recentlyAdded": "Añadido recientemente",
+    "recentlyUpdated": "Actualizado recientemente",
+    "popular": "Populares",
+    "topSellers": "Más vendidos",
+    "communityReviews": "Reseñas de la comunidad",
+    "viewAll": "Ver todo",
+    "photoReviewModal": {
+      "time": {
+        "justNow": "Justo ahora",
+        "hoursAgo": "Hace {count}h",
+        "oneDayAgo": "Hace 1 día",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      },
+      "noImages": "No se adjuntan imágenes",
+      "zoomImage": "Imagen ampliada",
+      "zoomPhoto": "Zoom foto {index} de {total}",
+      "reviewPhoto": "Foto de reseña",
+      "close": "Revisión detallada",
+      "bySeller": "por {seller}",
+      "deliveryDays": "{days}d",
+      "noText": "No hay texto escrito de reseña.",
+      "openItem": "Punto abierto",
+      "viewOnLittleBiggy": "Ver en LittleBiggy"
+    },
+    "hero": {
+      "title": {
+        "line1": "Un índice para la",
+        "highlight": "Mercado 420"
+      },
+      "subtitle": "Búsqueda más rápida, categorías más limpias y confianza rápida en el mercado Little Biggy de los vendedores.",
+      "stats": {
+        "itemsIndexed": "Elementos indexados",
+        "activeSellers": "Vendedores activos"
+      },
+      "cta": "Navegar por el Marketplace",
+      "markets": "Mercados"
+    },
+    "quickStart": {
+      "heading": "Cómo funciona",
+      "subheading": "¿Nuevo en Little Biggy? Aquí tienes un resumen rápido del proceso de principio a fin.",
+      "steps": {
+        "bitcoin": {
+          "title": "Consigue algo de Bitcoin",
+          "summary": "Consigue algo de Bitcoin para estar listo para probarlo.",
+          "intro": "Little Biggy solo acepta Bitcoin. Tendrás que configurar una forma de comprar algunos si aún no lo has hecho, para estar listo para empezar a pedir artículos.",
+          "easiestWay": {
+            "heading": "La forma más fácil",
+            "text": "Las aplicaciones que quizá ya uses, como Revolut o Monzo, te permiten comprar Bitcoin dentro de la app bancaria con unos pocos toques."
+          },
+          "otherOptions": {
+            "heading": "Otras opciones populares",
+            "text": "Un exchange de criptomonedas como Coinbase o Kraken funciona igual de bien. Funcionan un poco como una agencia de divisas online."
+          },
+          "proTip": {
+            "label": "Consejo profesional:",
+            "text": "Compra unas pocas libras más de las que necesitas y redondea al alza. Ese colchón extra cubre las comisiones de la red o la volatilidad de las criptomonedas."
+          },
+          "peerToPeer": {
+            "label": "¿Quieres saltarte el intercambio?",
+            "beforeLinks": "Plataformas peer-to-peer como",
+            "betweenLinks": "o",
+            "afterLinks": "Te permite comprar Bitcoin directamente a otra persona: sin cuenta de intercambio, sin papeleo KYC. Es más práctico, pero las monedas caen directamente en una cartera que controlas."
+          }
+        },
+        "browse": {
+          "title": "Encuentra tus objetos",
+          "summary": "Explora el catálogo de Little Biggy como harías en eBay.",
+          "intro": "Encuentra los artículos que quieras comprar, ya sea en Little Biggy o a través del índice. Hay una gran selección, así que échale un buen vistazo.",
+          "startBefore": "Haz clic en",
+          "browseButton": "Explorar artículos",
+          "startAfter": "botón abajo para empezar a navegar.",
+          "trustBefore": "Consulta las descripciones y opiniones de los productos para encontrar vendedores de confianza. Si no estás seguro, busca en Google el nombre del vendedor o busca",
+          "trustAfter": ".",
+          "cart": "Cuando estés listo, añade lo que quieras a tu carrito e introduce tus datos de entrega como en cualquier otra tienda online."
+        },
+        "checkout": {
+          "title": "Paga y envía tu Bitcoin",
+          "summary": "Copia los datos y luego envía el pago desde tu móvil o portátil.",
+          "intro": "En el momento de pagar, Little Biggy muestra una página de pedido privada con todo lo necesario para pagar de forma segura, ya sea que estés en un solo dispositivo o cambiando entre teléfono y ordenador.",
+          "copyHeading": "Copia los dos datos de compra",
+          "amountLabel": "La cantidad exacta de BTC:",
+          "amountBefore": "Parece que",
+          "amountAfter": "Cópialo exactamente para no pagar menos.",
+          "addressLabel": "La dirección de Bitcoin:",
+          "addressBefore": "una cadena larga como",
+          "addressAfter": "Piénsalo como el número de cuenta de este pedido.",
+          "sendHeading": "Envía el pago",
+          "sendSteps": {
+            "openApp": "Abre la app o el exchange que usaste para comprar Bitcoin (Revolut, Coinbase, Monzo, Kraken, etc.).",
+            "chooseSend": "Elige la opción de enviar o retirar Bitcoin.",
+            "pasteDetails": "Pega la dirección de Bitcoin en el campo de destinatario y la cantidad exacta de BTC en el campo de la cantidad.",
+            "confirm": "Confirma la transferencia. Las confirmaciones de la red suelen llegar en pocos minutos y tu página de pedido se actualizará automáticamente."
+          }
+        },
+        "escrow": {
+          "title": "Tus fondos están seguros (Depósito en garantía)",
+          "summary": "Transaxe retiene el dinero hasta que llegue tu pedido.",
+          "intro": "Tu Bitcoin va a Transaxe, el sistema de depósito en garantía integrado de Little Biggy. El vendedor puede ver que el pago ha llegado, pero los fondos están retenidos de forma segura.",
+          "release": "El dinero solo se libera al vendedor una vez que se cierra la ventana de disputa. Esto te protege como comprador: si algo sale mal, puedes abrir una disputa antes de que termine la ventana.",
+          "peaceHeading": "Tranquilidad",
+          "peaceText": "El depósito en garantía significa que el vendedor nunca toca tus fondos hasta que el artículo sea enviado y recibido. Es la salvaguarda que Little Biggy mantiene honesto."
+        },
+        "delivery": {
+          "title": "Espera al cartero",
+          "summary": "Relájate mientras llega hasta ti.",
+          "intro": "Los vendedores suelen marcar tu pedido como enviado en un día laborable. Los tiempos de entrega dependen del vendedor y de tu ubicación, pero la mayoría de los pedidos en el Reino Unido llegan en pocos días.",
+          "late": "Si tu pedido llega tarde, contacta primero con el vendedor a través de Little Biggy; la mayoría de los problemas se resuelven rápido. Solo abre una disputa como último recurso."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "Preguntas frecuentes",
+      "heading": "Preguntas frecuentes para visitantes primerizos",
+      "tabs": {
+        "about": "Sobre Biggy Index",
+        "bitcoin": "Little Biggy & Bitcoin"
+      },
+      "about": {
+        "items": {
+          "whatIs": {
+            "q": "¿Cuál es la Biggy Index?",
+            "a": "El Biggy Index ofrece una forma más sencilla de navegar por el mercado Little Biggy, con categorización de artículos, opciones adicionales de clasificación y otras herramientas útiles adaptadas a los compradores del Reino Unido."
+          },
+          "sellOrShip": {
+            "q": "¿Vendes o envías objetos?",
+            "a": "No. Biggy Index es de solo lectura y te envía de vuelta a Little Biggy para completar tu pedido."
+          },
+          "dataSource": {
+            "q": "¿De dónde provienen los datos?",
+            "a": "El índice recopila datos de Little Biggy públicas, normalizando categorías, resúmenes de precios, información de envíos, opiniones e imágenes."
+          },
+          "refreshRate": {
+            "q": "¿Con qué frecuencia se renueva la actualización?",
+            "a": "Hay 3 componentes que se actualizan en diferentes intervalos. El indexador principal se ejecuta cada 30 minutos. El rastreador de objetos y vendedores se ejecuta cada 4 horas, en momentos distintos para tener en cuenta el servidor de Little Biggy."
+          },
+          "timestamps": {
+            "q": "¿Qué significa Primero Visto o Actualizado en los artículos?",
+            "a": "Primero visto/creado significa que es la primera vez que el objeto fue indexado por el rastreador. Esto puede incluir elementos que estaban en LB antes de que existiera el indexador. Actualizado significa que el artículo fue editado por el vendedor, o que el rastreador detectó un cambio (por ejemplo, precio, variantes, descripción)."
+          },
+          "endorsements": {
+            "q": "¿Qué son los endossos?",
+            "a": "Votaciones de la comunidad que destacan objetos populares sin rastrearte."
+          }
+        }
+      },
+      "bitcoin": {
+        "items": {
+          "payments": {
+            "q": "¿Qué pagos acepta Little Biggy?",
+            "a": "Solo Bitcoin, sin tarjetas, transferencias bancarias ni otras criptomonedas."
+          },
+          "buying": {
+            "q": "¿Cómo compro Bitcoin en el Reino Unido?",
+            "a": "La mayoría de los compradores usan Revolut, Monzo, Kraken o Coinbase. Recarga en libras, compra la cantidad de BTC que aparece en el momento del pago y permite unas pocas libras para comisiones de red o de intercambio."
+          },
+          "wallet": {
+            "q": "¿Necesito primero mi propia cartera?",
+            "a": "Puedes pagar directamente desde el exchange, pero mucha gente mueve BTC a una cartera privada como Cake Wallet o Trust Wallet para mayor privacidad. Los exchanges del Reino Unido están obligados a preguntar dónde envías monedas, por lo que algunos compradores prefieren enrutar a través de una cartera personal."
+          },
+          "escrow": {
+            "q": "¿Cómo me protege Transaxe escrow?",
+            "a": "Tu pago va a una dirección de depósito en garantía de Transaxe. Los vendedores tienen unas 80 horas para marcar los pedidos como enviados o para que los fondos se reembolsen automáticamente. Las disputas se abren después de nueve días si es necesario."
+          },
+          "mistakes": {
+            "q": "¿Algún consejo para evitar errores?",
+            "a": "Copia y pega la cantidad y dirección del BTC, añade un buffer para las comisiones y guarda capturas de pantalla hasta que llegue tu paquete. La blockchain no puede deshacer errores tipográficos."
+          },
+          "clearnet": {
+            "q": "¿Por qué no usar simplemente tiendas de la net?",
+            "a": "La competencia en Little Biggy mantiene alta la calidad y los precios justos. Los distribuidores de clearnet suelen cobrar grandes sobrecargos o enviar stock cuestionable."
+          },
+          "legality": {
+            "q": "¿Y qué hay de la legalidad en el Reino Unido?",
+            "a": "Las leyes sobre cannabis siguen vigentes. Eres responsable de cumplir con la normativa local y verificar cada detalle de Little Biggy."
+          }
+        }
+      }
+    },
+    "whatsNewSection": {
+      "eyebrow": "Actividad fresca",
+      "heading": "Elementos indexados recientemente",
+      "description": "Consulta los artículos más recientes o actualizados en Little Biggy.",
+      "tabs": {
+        "newest": "Añadido recientemente",
+        "updated": "Actualizado recientemente"
+      },
+      "browseAll": "Explora todos los artículos",
+      "scrollLeft": "Desplego a la izquierda",
+      "scrollRight": "Desplázate a la derecha",
+      "priceUnavailable": "N/A",
+      "unknownSeller": "Vendedor desconocido",
+      "viewSeller": "Ver {seller} vendedor",
+      "alternateImageAlt": "{item} alternativa",
+      "time": {
+        "justNow": "Justo ahora",
+        "hoursAgo": "Hace {count}h",
+        "oneDayAgo": "Hace 1 día",
+        "daysAgo": "{count} días",
+        "monthsAgo": "{count}mo"
+      }
+    },
+    "sellerTrust": {
+      "eyebrow": "Fideicomiso Comunitario",
+      "heading": "Junta de Fideicomiso del Vendedor",
+      "description": "Clasificaciones extraídas de reseñas de la comunidad. Pasa el cursor a un avatar para ver una vista previa, toca para abrir el perfil completo del vendedor.",
+      "panels": {
+        "top": {
+          "title": "Mejor valorado",
+          "subtitle": "Mayor ratio de valoraciones positivas"
+        },
+        "caution": {
+          "title": "Usa precaución",
+          "subtitle": "Retroalimentación negativa elevada"
+        },
+        "reviewsLabel": "Reseñas"
+      },
+      "row": {
+        "reviews": "{count} reseñas",
+        "negative": "{count} negativo"
+      },
+      "recentlyJoined": {
+        "title": "Recién incorporado",
+        "subtitle": "Nuevos vendedores: aún no hay historial"
+      },
+      "time": {
+        "today": "Hoy en día",
+        "yesterday": "ayer",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo",
+        "yearsAgo": "{count}y",
+        "monthsActive": "{count}mo activo",
+        "yearsActive": "{count}y activo"
+      }
+    },
+    "communityReviewsSection": {
+      "eyebrow": "Opiniones de los compradores",
+      "heading": "Reseñas de la comunidad",
+      "subtitle": "Comentarios reales de compradores reales",
+      "seeAll": "Ver todas las reseñas",
+      "recentReviews": "Críticas recientes",
+      "photoReviews": "Reseñas de fotos",
+      "fallback": {
+        "seller": "Vendedor",
+        "product": "Producto",
+        "reviewPhoto": "Foto de reseña"
+      },
+      "stats": {
+        "avgDelivery": "Entrega media",
+        "avgDeliveryValue": "~{count} días",
+        "basedOnRecentReviews": "basado en reseñas recientes",
+        "newReviews": "Nuevas críticas",
+        "postedThisWeek": "Publicado esta semana",
+        "avgRating": "Calificación media",
+        "avgRatingValue": "{rating} ★",
+        "fromReviews": "De {count} reseñas"
+      },
+      "deliveryDays": "{count}d",
+      "time": {
+        "justNow": "Justo ahora",
+        "hoursAgo": "Hace {count}h",
+        "oneDayAgo": "Hace 1 día",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      }
+    }
   },
   "browse": {
-    "allCategories": "All Categories",
-    "noResults": "No products match your filters",
-    "clearFilters": "Clear filters",
+    "allCategories": "Todas las categorías",
+    "noResults": "Ningún producto coincide con tus filtros",
+    "clearFilters": "Filtros claros",
     "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
-    "sortBy": "Sort by",
-    "search": "Search products..."
+    "sortBy": "Ordenar por",
+    "search": "Buscar productos...",
+    "noItemsFound": "No se han encontrado objetos",
+    "adjustFilters": "Prueba a ajustar los filtros",
+    "toolbar": {
+      "removeFilter": "Eliminar: {label}",
+      "fromFilter": "De: {value}",
+      "notFilter": "No: {value}",
+      "priceRange": "Rango de precios",
+      "bookmarksShowAll": "Mostrar todos los elementos",
+      "bookmarksOnly": "Espectáculo solo guardado en favoritos",
+      "shippingIncluded": "Mostrar precios con envío",
+      "addShipping": "Suma el envío a los precios",
+      "shippingShort": "+Nave",
+      "itemsLabel": "{count, plural, one {item} other {items}}",
+      "freeShippingActive": "Mostrando solo envío gratuito",
+      "freeShippingInactive": "Filtrar a envío gratuito",
+      "freeShippingShort": "Nave libre",
+      "comfortableCards": "Cambiar a cartas cómodas",
+      "compactCards": "Cambiar a tarjetas compactas",
+      "roomy": "Espacioso",
+      "compact": "Compacto",
+      "sort": {
+        "hottest": "Caliente",
+        "newest": "Más recientes",
+        "updated": "Actualizado",
+        "price": "Precio",
+        "pricePerGram": "£/g",
+        "name": "Nombre",
+        "aria": "Ordenar por",
+        "ascending": "Ordenar ascendente",
+        "descending": "Ordenamiento descendente"
+      }
+    },
+    "filters": {
+      "toggle": "Filtros alternantes",
+      "label": "Filtros",
+      "close": "Filtros cerrados",
+      "active": "{count} activo",
+      "clearAll": "Limpiar todo",
+      "clearAllTitle": "Borra todos los filtros que no estén clavados",
+      "searchItems": "Registrar objetos...",
+      "clearSearch": "Búsqueda limpia",
+      "categories": "Categorías",
+      "subcategories": "Subcategorías",
+      "sections": {
+        "shipsFrom": "Barcos de",
+        "weight": "Peso",
+        "price": "Precio",
+        "sellers": "Vendedores"
+      },
+      "attrs": {
+        "effect": "Efecto",
+        "tier": "Nivel",
+        "micron": "Micron",
+        "filtration": "Filtración",
+        "texture": "Textura",
+        "process": "Proceso",
+        "form": "Forma",
+        "extract": "Extracto",
+        "dietary": "Dieta",
+        "strength": "Fuerza"
+      },
+      "pin": {
+        "unpin": "Desenganchar - se limpiará con filtros",
+        "pin": "Pin - mantiene la selección al borrar los filtros"
+      },
+      "shipFromHelp": "Haz clic: incluir. Haz clic derecho: excluir",
+      "searchSellers": "Vendedores de búsqueda...",
+      "sellerSortAlpha": "Ordenado de la A a la Z - haz clic primero para la mayoría de los elementos",
+      "sellerSortCount": "Ordenado por recuento de elementos - haz clic para ver de la A a la Z",
+      "removeSeller": "Elimina {seller}",
+      "selectSeller": "Seleccionar {seller}",
+      "unselectSeller": "Desseleccionar {seller}",
+      "hideSeller": "Ocultar {seller} - elimina todos sus elementos de los resultados",
+      "hideSellerAria": "Esconde {seller}",
+      "noSellersMatch": "Sin igualación de vendedores",
+      "noSellersAvailable": "No hay vendedores disponibles",
+      "showLess": "Mostrar menos",
+      "showAll": "Mostrar todos {count}",
+      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
+    },
+    "priceRange": {
+      "title": "Precio",
+      "reset": "Restablecer filtro de precios",
+      "minimum": "Precio mínimo",
+      "maximum": "Precio máximo"
+    },
+    "card": {
+      "lowConfidence": "Categoría incierta ({percent}% de confianza)",
+      "lowConfidenceAria": "Baja confianza en la categorización: {percent}%",
+      "preview": "Vista previa {item}",
+      "removeBookmark": "Eliminar marcador",
+      "bookmarkProduct": "Guarda este producto en favoritos",
+      "bookmarkRemoved": "Marcador eliminado",
+      "bookmarked": "Marcado",
+      "viewOnLittleBiggy": "Ver {item} en LittleBiggy",
+      "onlineToday": "Hoy en línea",
+      "freeShipping": "Envío gratuito",
+      "shipsFrom": "Barcos de",
+      "shipsFromAria": "Barcos de {country}",
+      "deliveryDays": "~{count}d entrega",
+      "showAllSellers": "Mostrar todos los vendedores",
+      "onlySeller": "Solo {seller}",
+      "all": "Todos",
+      "only": "Solo",
+      "hideSeller": "Esconde {seller}",
+      "hide": "Escóndete",
+      "updated": "Actualizado {time}",
+      "listed": "Listados {time}",
+      "listedUnknown": "Listados -",
+      "time": {
+        "minutesAgo": "{count}m",
+        "hoursAgo": "Hace {count}h",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      }
+    }
   },
   "sort": {
-    "newest": "Newest",
-    "priceAsc": "Price: Low → High",
-    "priceDesc": "Price: High → Low",
-    "rating": "Top Rated",
-    "hot": "Hottest"
+    "newest": "Más recientes",
+    "priceAsc": "Precio: Bajo → alto",
+    "priceDesc": "Precio: Alto → Bajo",
+    "rating": "Mejor valorado",
+    "hot": "El más caliente"
   },
   "item": {
-    "from": "from",
+    "from": "de",
     "perGram": "/g",
     "variants": "{count, plural, one {1 variant} other {# variants}}",
     "reviews": "{count, plural, one {1 review} other {# reviews}}",
-    "noReviews": "No reviews yet",
-    "shipping": "Shipping",
-    "freeShipping": "Free shipping",
-    "viewOnSeller": "View on {seller}",
-    "addToBasket": "Add to basket",
-    "firstSeen": "First seen",
-    "lastUpdated": "Last updated"
+    "noReviews": "Aún no hay reseñas",
+    "shipping": "Transporte marítimo",
+    "freeShipping": "Envío gratuito",
+    "viewOnSeller": "Ver en {seller}",
+    "addToBasket": "Añadir a la cesta",
+    "firstSeen": "Primera aparición",
+    "lastUpdated": "Última actualización",
+    "detail": {
+      "close": "Cierre",
+      "previousItem": "Ítem anterior",
+      "nextItem": "Siguiente punto",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "by": "por",
+      "wasPrice": "fue {price}",
+      "viewOnLittleBiggy": "Ver en Little Biggy",
+      "itemNotFound": "Artículo no encontrado.",
+      "tabs": {
+        "prices": "Precios",
+        "description": "Descripción",
+        "reviews": "Reseñas"
+      },
+      "reviews": {
+        "heading": "Reseñas",
+        "noneAvailable": "No hay reseñas disponibles",
+        "readMoreAt": "Lee más reseñas en:"
+      },
+      "variants": {
+        "heading": "Variantes",
+        "size": "Tamaño",
+        "price": "Precio",
+        "variant": "Variante",
+        "add": "Añadir",
+        "addToBasket": "Añadir a la cesta",
+        "addedToBasket": "Añadido {variant} a la cesta",
+        "bestValue": "Mejor relación calidad-precio",
+        "pricePerUnit": "Precio por {unit}",
+        "unit": "Unidad"
+      },
+      "meta": {
+        "rating": "Clasificación",
+        "avgDelivery": "Entrega media",
+        "listed": "Listados",
+        "updated": "Actualizado"
+      },
+      "description": {
+        "heading": "Descripción",
+        "noneProvided": "No se ha proporcionado ninguna descripción."
+      },
+      "attributes": {
+        "heading": "Atributos",
+        "labels": {
+          "effect": "Efecto",
+          "cbd": "CBD",
+          "grow": "Crecer",
+          "tier": "Nivel",
+          "imported": "Importados",
+          "micron": "Micron",
+          "origin": "Origen",
+          "fullMelt": "Full Melt",
+          "mg": "Potencia",
+          "vegan": "Vegano",
+          "mlSize": "Tamaño",
+          "purity": "Pureza",
+          "delta": "Tipo",
+          "terped": "Terpedo",
+          "species": "Especies"
+        }
+      },
+      "priceHistory": {
+        "heading": "Historial de precios",
+        "firstTracked": "Primera pista"
+      },
+      "shipping": {
+        "label": "Transporte marítimo",
+        "noShipping": "No se permite enviar",
+        "freeShipping": "Envío gratuito",
+        "cheapest": "El más barato",
+        "highest": "Más alto",
+        "shipping": "Transporte marítimo",
+        "free": "Gratis"
+      },
+      "time": {
+        "minutesAgo": "{count}m",
+        "hoursAgo": "Hace {count}h",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      }
+    },
+    "page": {
+      "browseIndex": "Consulta el índice",
+      "breadcrumb": "Miga de pan",
+      "notFoundTitle": "Elemento no encontrado",
+      "notFoundDescription": "El elemento \"{ref}\" no existe o ha sido eliminado.",
+      "backToIndex": "Volver al índice",
+      "imageAlt": "{item} imagen {index}",
+      "by": "por",
+      "shipsFrom": "Barcos de {country}",
+      "unavailable": "N/A",
+      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "deliveryShort": "~{count}d entrega",
+      "avgDelivery": "{days} días de media de entrega",
+      "attributes": "Atributos",
+      "variants": "Variantes",
+      "bestValue": "Mejor relación calidad-precio",
+      "shipping": "Transporte marítimo",
+      "free": "Gratis",
+      "viewOnLittleBiggy": "Ver en LittleBiggy",
+      "firstSeen": "Primera vez visto: {date}",
+      "updated": "Actualizado: {date}",
+      "priceHistory": "Historial de precios",
+      "reviews": "Reseñas",
+      "reviewDelivery": "{days}d entrega",
+      "moreReviews": "+{count} más reseñas - consulta la lista completa en LittleBiggy"
+    },
+    "legacyModal": {
+      "close": "Cierre",
+      "itemNotFound": "Artículo no encontrado.",
+      "by": "por",
+      "unavailable": "N/A",
+      "variants": "Variantes",
+      "attributes": "Atributos",
+      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "avgDelivery": "{days} días de media de entrega",
+      "shipping": "Transporte marítimo",
+      "freeAvailable": "Disponible gratis",
+      "firstSeen": "Primera vez visto: {date}",
+      "updated": "Actualizado: {date}",
+      "viewOnLittleBiggy": "Ver en LittleBiggy",
+      "fullPage": "Página completa"
+    }
   },
   "seller": {
     "products": "{count, plural, one {1 product} other {# products}}",
-    "rating": "Rating",
-    "visitStore": "Visit store"
+    "rating": "Clasificación",
+    "visitStore": "Visitar tienda",
+    "page": {
+      "metadataTitle": "Vendedores - BiggyIndex",
+      "metadataDescription": "Explora todos los vendedores Little Biggy con puntuaciones de confianza, recuentos de reseñas y valoraciones de la comunidad.",
+      "title": "Vendedores",
+      "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
+      "leaderboard": {
+        "title": "Tabla de Clasificación de Trust",
+        "allTime": "Todos los tiempos",
+        "thisWeek": "Esta semana",
+        "topRated": "Mejor valorado",
+        "topRatedSubtitle": "Mayor ratio de valoraciones positivas",
+        "useCaution": "Usa precaución",
+        "useCautionSubtitle": "Retroalimentación negativa elevada",
+        "reviews": "Reseñas",
+        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "negativeCount": "{count, plural, one {1 negative} other {# negative}}"
+      },
+      "allSellers": "Todos los vendedores",
+      "search": "Buscar...",
+      "table": {
+        "seller": "Vendedor",
+        "total": "Total",
+        "seen": "Visto",
+        "positive": "Positivo",
+        "negatives": "Negs",
+        "perfect": "10/10",
+        "rating": "Clasificación",
+        "days": "Días",
+        "items": "Elementos",
+        "totalTitle": "Total de reseñas reportadas por Little Biggy",
+        "seenTitle": "Reseñas ingeridas por el BiggyIndex crawler"
+      },
+      "noSellersFound": "No se han encontrado vendedores"
+    },
+    "modal": {
+      "fallbackName": "Vendedor",
+      "close": "Cierre",
+      "zoomProfileImage": "Ampliar la imagen de perfil de {seller}",
+      "onlineToday": "Hoy en línea",
+      "lastSeen": "Última vez que se ve {time}",
+      "joined": "Me he unido a {date}",
+      "itemCount": "{count, plural, one {1 item} other {# items}}",
+      "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+      "deliveryShort": "~{days}d entrega",
+      "about": "Acerca de",
+      "noDescription": "No hay descripción disponible",
+      "feedback": {
+        "endpointMissing": "Endpoint de retroalimentación no configurado.",
+        "hourlyLimit": "Has alcanzado el límite horario (20 por hora). Inténtalo de nuevo más tarde.",
+        "duplicateThanks": "Gracias, tu voto se añadió a un informe existente.",
+        "reviewThanks": "Gracias, un moderador hará una reseña.",
+        "networkError": "Error de red",
+        "endorsed": "Respaldado",
+        "submitting": "Entregando...",
+        "endorseSeller": "Vendedor endosado",
+        "reported": "Reportado",
+        "reportSeller": "Reportar vendedor",
+        "reasonOptional": "Motivo (opcional)",
+        "reasonPlaceholder": "¿Qué has notado? (estafa, reseñas falsas, problema de envío...)",
+        "cancel": "Cancelar",
+        "submitReport": "Enviar informe"
+      },
+      "reviews": {
+        "heading": "Reseñas",
+        "loading": "Cargando...",
+        "recentTotal": "{recent} reciente ({total} total)",
+        "recentCount": "{count} reciente",
+        "avgDelivery": "~{days}d Entrega media",
+        "removeFilter": "Quitar el filtro",
+        "filter": "Filtro",
+        "removeLowRatingFilterTitle": "Remove low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
+        "applyLowRatingFilterTitle": "Apply low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
+        "lowRating": "{count, plural, one {1 low rating} other {# low ratings}}",
+        "ratingFilterTitle": "{action}: {count, plural, one {1 review} other {# reviews}} rated {rating}/10",
+        "noReviewsYet": "Aún no hay reseñas",
+        "lowRated": "De baja calificación",
+        "noFilteredReviews": "No {filter} reseñas",
+        "readMoreAt": "Lee más reseñas en:"
+      },
+      "visitAria": "Visita {seller} en LittleBiggy",
+      "visit": "Visita {seller}"
+    },
+    "error": {
+      "title": "No se cargaron los vendedores",
+      "description": "No pudimos cargar la página del vendedor. Esto suele ser temporal.",
+      "retry": "Reintento"
+    }
+  },
+  "reviews": {
+    "page": {
+      "metadataTitle": "Reseñas - BiggyIndex",
+      "metadataDescription": "Últimas opiniones de la comunidad de compradores Little Biggy con imágenes, valoraciones y plazos de entrega.",
+      "title": "Reseñas de la comunidad",
+      "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
+      "filters": {
+        "all": "Todos",
+        "withPhotos": "Con fotos",
+        "withComments": "Con comentarios"
+      },
+      "noMatches": "Ninguna reseña coincide con este filtro",
+      "row": {
+        "justNow": "Justo ahora",
+        "hoursAgo": "Hace {count}h",
+        "oneDayAgo": "Hace 1 día",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo",
+        "sameDay": "Mismo día",
+        "oneDay": "1 día",
+        "days": "{count} días",
+        "reviewPhoto": "Foto de reseña {index}"
+      },
+      "error": {
+        "title": "No se han cargado las reseñas",
+        "description": "No pudimos cargar la página de reseñas. Esto suele ser temporal.",
+        "retry": "Reintento"
+      }
+    },
+    "card": {
+      "time": {
+        "minutesAgo": "{count}m",
+        "hoursAgo": "Hace {count}h",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      },
+      "imageAlt": "Imagen de la reseña {index}",
+      "stats": {
+        "average": "{rating}/10 de media",
+        "recentTotal": "{recent} reciente ({total} total)",
+        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "avgDelivery": "~{days}d Entrega media"
+      }
+    }
+  },
+  "suggest": {
+    "link": {
+      "label": "Sugiero corrección",
+      "title": "Sugiere una corrección"
+    },
+    "page": {
+      "itemNotFound": "Elemento no encontrado",
+      "notFoundDescription": "No puedo enviar una corrección por un elemento que no existe.",
+      "backToIndex": "Volver al índice",
+      "backToItem": "Volver al ítem",
+      "title": "Sugiere una corrección",
+      "intro": "Ayúdanos a corregir elementos mal clasificados. Las sugerencias van a un moderador antes de aplicarlas, no hace falta cuenta.",
+      "itemLabel": "Punto",
+      "bySeller": "por {seller}",
+      "error": {
+        "title": "No pude cargar el formulario de sugerencias",
+        "retry": "Reintento"
+      }
+    },
+    "form": {
+      "stagedEdits": "Tus ediciones ({count})",
+      "removeEdit": "Elimina esta edición",
+      "addAnotherCorrection": "Añadir otra corrección",
+      "whatNeedsFixing": "¿Qué necesita arreglar?",
+      "wrongProductHint": "Este no es un producto válido",
+      "currently": "Actualmente:",
+      "notSet": "no fijado",
+      "shouldBe": "Debería ser:",
+      "wrongProductDescription": "Marca este producto para su reseña. Puede estar mal categorizado o no pertenecer a este sitio.",
+      "addThisEdit": "+ Añadir esta edición",
+      "addEdit": "+ Añadir edición",
+      "submitting": "Entregando...",
+      "submitSuggestion": "Enviar sugerencia",
+      "submitSuggestions": "Envía {count} sugerencias",
+      "suggestionSubmitted": "¡Sugerencia enviada!",
+      "allSubmitted": "¡Todas {count} sugerencias enviadas!",
+      "partialSubmitted": "{successCount} de {totalCount} presentado. {error}",
+      "somethingWentWrong": "Algo salió mal",
+      "networkError": "Error de red",
+      "suggestMoreEdits": "Sugiere más ediciones",
+      "pendingSuggestions": "Sugerencias pendientes ({count})",
+      "alreadyVoted": "Ya votado",
+      "upvoteSuggestion": "¡Vota a favor de esta sugerencia",
+      "fields": {
+        "category": "Categoría",
+        "subcategories": "Subcategorías",
+        "tier": "Nivel de calidad",
+        "micron": "Tamaño de micras",
+        "wrongProduct": "Producto equivocado"
+      }
+    }
+  },
+  "basket": {
+    "label": "Cesta",
+    "clearAll": "Limpiar todo",
+    "close": "Cesta cerrada",
+    "empty": "Tu cesta está vacía.",
+    "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+    "shipping": "Transporte marítimo",
+    "noShipping": "No se permite enviar",
+    "items": "Elementos",
+    "total": "Total",
+    "each": "cada uno",
+    "virtualNotice": "Esta es una cesta virtual para comparar precios, sin pagar.",
+    "viewItem": "Ver {item}",
+    "decreaseQty": "Reduce la cantidad para {item}",
+    "removeItem": "Elimina {item}",
+    "increaseQty": "Aumenta la cantidad para {item}"
+  },
+  "settings": {
+    "theme": {
+      "switchToLight": "Cambiar a modo ligero",
+      "switchToDark": "Cambiar a modo oscuro"
+    },
+    "modal": {
+      "label": "Escenarios",
+      "close": "Ajustes cercanos",
+      "highResImages": "Imágenes de alta resolución",
+      "highResDescription": "Usa imágenes de producto a resolución completa. Usa más datos pero se ve más nítido.",
+      "pauseGifs": "Pausa GIFs",
+      "pauseGifsDescription": "Muestra miniaturas estáticas para imágenes animadas. Reduce la distracción y ahorra batería.",
+      "thumbnailShape": "Forma de la miniatura",
+      "thumbnailDescription": "Cambia la proporción de recortes de las imágenes de productos en las tarjetas.",
+      "aspect": {
+        "square": "Plaza",
+        "fourThree": "4:3",
+        "threeTwo": "3:2"
+      },
+      "accentColour": "Color de acento",
+      "swatches": {
+        "forest": "Bosque",
+        "ocean": "Océano",
+        "haze": "Haze",
+        "sunset": "Atardecer",
+        "cherry": "Cherry",
+        "custom": "Costumbres",
+        "customValue": "Personalizados {value}",
+        "default": "Default"
+      },
+      "hiddenSellers": "Vendedores ocultos",
+      "hiddenDescription": "Los artículos de vendedores ocultos no aparecerán en ningún sitio. Esto persiste durante las sesiones y no se elimina mediante \"Borrar filtros\".",
+      "searchSellers": "Buscar vendedores para ocultar...",
+      "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+      "unhideSeller": "Haz clic para mostrar {seller}",
+      "noSellersHidden": "No hay vendedores ocultos"
+    }
+  },
+  "errors": {
+    "global": {
+      "title": "Algo salió mal",
+      "description": "Ha ocurrido un error inesperado. Esto se ha registrado automáticamente.",
+      "retry": "Inténtalo de nuevo"
+    },
+    "browse": {
+      "title": "No se han cargado los objetos",
+      "description": "No pudimos cargar la página de navegación. Esto suele ser temporal.",
+      "retry": "Reintento"
+    },
+    "item": {
+      "title": "Artículo no disponible",
+      "description": "No pudimos cargar este artículo. Puede que se haya retirado o que haya habido un error temporal.",
+      "retry": "Reintento",
+      "browseItems": "Explorar los artículos"
+    },
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "La página que buscas no existe o ha sido movida.",
+      "browseItems": "Explorar los artículos"
+    }
   },
   "common": {
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "retry": "Try again",
-    "close": "Close",
-    "back": "Back"
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Inténtalo de nuevo",
+    "close": "Cierre",
+    "back": "Atrás"
   }
 }

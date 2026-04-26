@@ -2,6 +2,7 @@
 
 import { useAtomValue } from "jotai";
 import { Package } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_MARKET } from "@/lib/constants";
 import { getItemPrimaryImage } from "@/lib/images";
@@ -147,6 +148,7 @@ export function ItemGrid({
   seedItems?: SeedItem[];
   seedSym?: string;
 }) {
+  const t = useTranslations("browse");
   const items = useAtomValue(sortedItemsAtom);
   const isLoading = useAtomValue(isLoadingAtom);
   const gateComplete = useAtomValue(gateCompleteAtom);
@@ -241,8 +243,8 @@ export function ItemGrid({
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-        <p className="text-lg font-medium">No items found</p>
-        <p className="text-sm">Try adjusting your filters</p>
+        <p className="text-lg font-medium">{t("noItemsFound")}</p>
+        <p className="text-sm">{t("adjustFilters")}</p>
       </div>
     );
   }

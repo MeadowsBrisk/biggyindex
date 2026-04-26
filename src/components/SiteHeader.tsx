@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { CATEGORIES, CATEGORY_LABELS, MARKETS } from "@/lib/constants";
+import { CATEGORIES, MARKETS } from "@/lib/constants";
 import {
   basketCountAtom,
   basketOpenAtom,
@@ -39,9 +40,10 @@ const CURRENCY_OPTIONS: { key: DisplayCurrency; label: string }[] = [
 export function SiteHeader() {
   const [category, setCategory] = useAtom(categoryAtom);
   const setSubcategory = useSetAtom(subcategoryAtom);
-  const market = useAtomValue(marketAtom);
   const pathname = usePathname();
   const isBrowse = pathname === "/browse";
+  const tNav = useTranslations("nav");
+  const tCategories = useTranslations("categories");
 
   const handleCategoryClick = (cat: string) => {
     setCategory(cat);
@@ -86,13 +88,13 @@ export function SiteHeader() {
             {/* Core nav links — always visible */}
             <nav className="hidden sm:flex items-center gap-0.5">
               <HeaderNavLink href="/browse" active={isBrowse}>
-                Browse
+                {tNav("browse")}
               </HeaderNavLink>
               <HeaderNavLink href="/sellers" active={pathname === "/sellers"}>
-                Sellers
+                {tNav("sellers")}
               </HeaderNavLink>
               <HeaderNavLink href="/reviews" active={pathname === "/reviews"}>
-                Reviews
+                {tNav("reviews")}
               </HeaderNavLink>
             </nav>
           </div>
@@ -104,7 +106,7 @@ export function SiteHeader() {
                 active={category === "All"}
                 onClick={() => handleCategoryClick("All")}
               >
-                All
+                {tCategories("all")}
               </HeaderNavLink>
               {CATEGORIES.slice(0, 8).map((cat) => (
                 <HeaderNavLink
@@ -112,7 +114,7 @@ export function SiteHeader() {
                   active={category === cat}
                   onClick={() => handleCategoryClick(cat)}
                 >
-                  {CATEGORY_LABELS[cat] ?? cat}
+                  {tCategories(cat)}
                 </HeaderNavLink>
               ))}
             </nav>
@@ -137,11 +139,13 @@ export function SiteHeader() {
 
 function SettingsButton() {
   const setOpen = useSetAtom(settingsModalOpenAtom);
+  const tNav = useTranslations("nav");
   return (
     <button
+      type="button"
       onClick={() => setOpen(true)}
       className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer"
-      aria-label="Settings"
+      aria-label={tNav("settings")}
     >
       <Settings size={18} />
     </button>
@@ -151,6 +155,7 @@ function SettingsButton() {
 function BasketButton() {
   const count = useAtomValue(basketCountAtom);
   const setOpen = useSetAtom(basketOpenAtom);
+  const tBasket = useTranslations("header.basket");
   // Defer rendering until client mount to avoid hydration mismatch
   // (atomWithStorage reads localStorage which differs from SSR default)
   const [mounted, setMounted] = useState(false);
@@ -163,7 +168,7 @@ function BasketButton() {
       type="button"
       onClick={() => setOpen(true)}
       className="relative inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-2.5 py-1.5 text-sm font-semibold text-foreground transition-all hover:bg-surface cursor-pointer"
-      aria-label={`Basket (${count} items)`}
+      aria-label={tBasket("items", { count })}
     >
       <ShoppingCart size={15} />
       <span className="inline-flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
@@ -178,6 +183,8 @@ function MarketDropdown() {
   const [displayCurrency, setDisplayCurrency] = useAtom(displayCurrencyAtom);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const tMarketMenu = useTranslations("header.marketMenu");
+  const tMarkets = useTranslations("markets");
 
   const currentMarket = MARKETS.find((m) => m.code === market) ?? MARKETS[0];
 
@@ -235,7 +242,7 @@ function MarketDropdown() {
           {/* Market list */}
           <div className="p-1.5">
             <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
-              Market
+              {tMarketMenu("market")}
             </div>
             {MARKETS.map((m) => (
               <button
@@ -249,7 +256,7 @@ function MarketDropdown() {
                 }`}
               >
                 <CountryFlag code={m.code} size={18} />
-                <span className="flex-1 text-left">{m.name}</span>
+                <span className="flex-1 text-left">{tMarkets(m.code)}</span>
                 <span className="text-xs opacity-60">
                   {m.currencySymbol} {m.currency}
                 </span>
@@ -263,7 +270,7 @@ function MarketDropdown() {
           {/* Currency selector */}
           <div className="p-1.5">
             <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
-              Display prices in
+              {tMarketMenu("displayPricesIn")}
             </div>
             <div className="flex gap-1 px-1 pb-1">
               {CURRENCY_OPTIONS.map((opt) => (
@@ -282,7 +289,7 @@ function MarketDropdown() {
               ))}
             </div>
             <div className="px-2 text-[10px] text-muted">
-              Approximate when converted
+              {tMarketMenu("approximateWhenConverted")}
             </div>
           </div>
         </div>
@@ -293,12 +300,13 @@ function MarketDropdown() {
 
 function MobileMenuButton() {
   const [open, setOpen] = useAtom(mobileMenuOpenAtom);
+  const tMobileMenu = useTranslations("header.mobileMenu");
   return (
     <button
       type="button"
       onClick={() => setOpen((o) => !o)}
       className="sm:hidden rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer"
-      aria-label={open ? "Close menu" : "Open menu"}
+      aria-label={open ? tMobileMenu("close") : tMobileMenu("open")}
     >
       {open ? <X size={18} /> : <Menu size={18} />}
     </button>
@@ -308,17 +316,22 @@ function MobileMenuButton() {
 function MobileNav() {
   const [open, setOpen] = useAtom(mobileMenuOpenAtom);
   const pathname = usePathname();
+  const previousPathnameRef = useRef(pathname);
+  const tNav = useTranslations("nav");
 
   useEffect(() => {
-    setOpen(false);
+    if (previousPathnameRef.current !== pathname) {
+      previousPathnameRef.current = pathname;
+      setOpen(false);
+    }
   }, [pathname, setOpen]);
 
   if (!open) return null;
 
   const links = [
-    { href: "/browse", label: "Browse" },
-    { href: "/sellers", label: "Sellers" },
-    { href: "/reviews", label: "Reviews" },
+    { href: "/browse", label: tNav("browse") },
+    { href: "/sellers", label: tNav("sellers") },
+    { href: "/reviews", label: tNav("reviews") },
   ];
 
   return (

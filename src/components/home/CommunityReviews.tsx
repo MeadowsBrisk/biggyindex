@@ -13,6 +13,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { expandedRefNumAtom, photoReviewModalAtom } from "@/store/atoms";
@@ -46,6 +47,34 @@ interface CommunityReviewsProps {
   reviewStats: ReviewStats;
 }
 
+const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
+
+interface TimeAgoCopy {
+  justNow: string;
+  hoursAgo: (count: number) => string;
+  oneDayAgo: string;
+  daysAgo: (count: number) => string;
+  monthsAgo: (count: number) => string;
+}
+
+interface CommunityReviewCopy {
+  fallbackSeller: string;
+  fallbackProduct: string;
+  fallbackReviewPhoto: string;
+  deliveryDays: (count: number) => string;
+  stats: {
+    avgDelivery: string;
+    avgDeliveryValue: (count: number) => string;
+    basedOnRecentReviews: string;
+    newReviews: string;
+    postedThisWeek: string;
+    avgRating: string;
+    avgRatingValue: (rating: number) => string;
+    fromReviews: (count: number) => string;
+  };
+  time: TimeAgoCopy;
+}
+
 function StarRating({
   rating,
   max = 5,
@@ -58,12 +87,12 @@ function StarRating({
   const stars = Math.round((rating / 10) * max);
   return (
     <div className="flex items-center gap-0.5">
-      {Array.from({ length: max }, (_, i) => (
+      {STAR_POSITIONS.slice(0, max).map((starIndex) => (
         <Star
-          key={i}
+          key={starIndex}
           size={size}
           className={
-            i < stars
+            starIndex < stars
               ? "fill-amber-400 text-amber-400"
               : "fill-none text-white/30"
           }
@@ -85,12 +114,12 @@ function StarRatingDark({
   const stars = Math.round((rating / 10) * max);
   return (
     <div className="flex items-center gap-0.5">
-      {Array.from({ length: max }, (_, i) => (
+      {STAR_POSITIONS.slice(0, max).map((starIndex) => (
         <Star
-          key={i}
+          key={starIndex}
           size={size}
           className={
-            i < stars
+            starIndex < stars
               ? "fill-amber-400 text-amber-400"
               : "fill-none text-foreground/15"
           }
@@ -100,15 +129,15 @@ function StarRatingDark({
   );
 }
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, copy: TimeAgoCopy): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 1) return copy.justNow;
+  if (hours < 24) return copy.hoursAgo(hours);
   const days = Math.floor(hours / 24);
-  if (days === 1) return "1 day ago";
-  if (days < 30) return `${days}d ago`;
-  return `${Math.floor(days / 30)}mo ago`;
+  if (days === 1) return copy.oneDayAgo;
+  if (days < 30) return copy.daysAgo(days);
+  return copy.monthsAgo(Math.floor(days / 30));
 }
 
 /* ─── Photo Review Card ─────────────────────────────────────────────── */
@@ -116,9 +145,11 @@ function timeAgo(dateStr: string): string {
 function PhotoReviewCard({
   review,
   height,
+  copy,
 }: {
   review: ReviewCardData;
   height: string;
+  copy: CommunityReviewCopy;
 }) {
   const openModal = useSetAtom(photoReviewModalAtom);
   const imageUrl = review.images?.[0] ?? undefined;
@@ -135,7 +166,7 @@ function PhotoReviewCard({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={imageUrl}
-          alt={review.itemName ?? "Review photo"}
+          alt={review.itemName ?? copy.fallbackReviewPhoto}
           loading="lazy"
           onError={() => setImgError(true)}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
@@ -149,7 +180,7 @@ function PhotoReviewCard({
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 pt-3">
         <StarRating rating={review.rating} size={12} />
         <span className="text-[10px] text-white/50 font-medium">
-          {timeAgo(review.createdAt)}
+          {timeAgo(review.createdAt, copy.time)}
         </span>
       </div>
       <div className="absolute bottom-0 left-0 right-0 z-10 px-3 pb-3">
@@ -161,14 +192,14 @@ function PhotoReviewCard({
         <div className="flex items-center gap-2 mt-1">
           {/* Seller avatar with tooltip */}
           <SellerAvatarTooltip
-            sellerName={review.sellerName ?? "Seller"}
+            sellerName={review.sellerName ?? copy.fallbackSeller}
             imageUrl={review.sellerAvatar ?? null}
             showInitialTooltip
           >
             {review.sellerAvatar ? (
               <img
                 src={review.sellerAvatar}
-                alt={review.sellerName ?? "Seller"}
+                alt={review.sellerName ?? copy.fallbackSeller}
                 className="w-5 h-5 rounded-full object-cover border border-white/20 shrink-0"
                 loading="lazy"
               />
@@ -185,14 +216,14 @@ function PhotoReviewCard({
               </p>
             )}
             <p className="text-[10px] text-white/50 truncate">
-              {review.sellerName}
+              {review.sellerName ?? copy.fallbackSeller}
             </p>
           </div>
           {review.daysToArrive != null && (
             <div className="flex items-center gap-1 shrink-0">
               <Truck size={9} className="text-white/40" />
               <span className="text-[9px] text-white/40">
-                {review.daysToArrive}d
+                {copy.deliveryDays(review.daysToArrive)}
               </span>
             </div>
           )}
@@ -204,7 +235,13 @@ function PhotoReviewCard({
 
 /* ─── Marquee Review Card ───────────────────────────────────────────── */
 
-function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
+function MarqueeReviewCard({
+  review,
+  copy,
+}: {
+  review: ReviewCardData;
+  copy: CommunityReviewCopy;
+}) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const canOpen = !!review.refNum;
 
@@ -224,7 +261,7 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
       <div className="flex items-center justify-between mb-1.5 shrink-0">
         <StarRatingDark rating={review.rating} size={10} />
         <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
-          {timeAgo(review.createdAt)}
+          {timeAgo(review.createdAt, copy.time)}
         </span>
       </div>
 
@@ -240,14 +277,14 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {/* Seller avatar with tooltip */}
           <SellerAvatarTooltip
-            sellerName={review.sellerName ?? "Seller"}
+            sellerName={review.sellerName ?? copy.fallbackSeller}
             imageUrl={review.sellerAvatar ?? null}
             showInitialTooltip
           >
             {review.sellerAvatar ? (
               <img
                 src={review.sellerAvatar}
-                alt={review.sellerName ?? "Seller"}
+                alt={review.sellerName ?? copy.fallbackSeller}
                 className="w-6 h-6 rounded-full object-cover border border-border shrink-0"
                 loading="lazy"
               />
@@ -264,21 +301,21 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
               </p>
             )}
             <p className="text-[10px] text-muted-foreground truncate">
-              {review.sellerName}
+              {review.sellerName ?? copy.fallbackSeller}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {/* Product thumbnail with hover tooltip */}
           <SellerAvatarTooltip
-            sellerName={review.itemName ?? "Product"}
+            sellerName={review.itemName ?? copy.fallbackProduct}
             imageUrl={review.itemImage ?? null}
             tooltipSize={160}
           >
             {review.itemImage ? (
               <img
                 src={review.itemImage}
-                alt={review.itemName ?? "Product"}
+                alt={review.itemName ?? copy.fallbackProduct}
                 className="w-6 h-6 rounded object-cover border border-border"
                 loading="lazy"
               />
@@ -292,7 +329,7 @@ function MarqueeReviewCard({ review }: { review: ReviewCardData }) {
             <div className="flex items-center gap-1 rounded-full bg-surface px-1.5 py-0.5">
               <Truck size={9} className="text-muted-foreground" />
               <span className="text-[9px] font-medium text-muted-foreground">
-                {review.daysToArrive}d
+                {copy.deliveryDays(review.daysToArrive)}
               </span>
             </div>
           )}
@@ -343,28 +380,34 @@ function MarqueeRow({
   direction,
   fillerCard,
   speed = 25,
+  copy,
 }: {
   reviews: ReviewCardData[];
   direction: "left" | "right";
   fillerCard?: React.ReactNode;
   speed?: number;
+  copy: CommunityReviewCopy;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
 
   // Build the card list once — we duplicate for seamless looping
   const cards = useMemo(() => {
     const items: React.ReactNode[] = [];
-    reviews.forEach((review, i) => {
+    reviews.forEach((review) => {
       items.push(
         <MarqueeReviewCard
-          key={`${review.sellerId}-${review.createdAt}-${i}`}
+          key={
+            review.id ??
+            `${review.sellerId}-${review.createdAt}-${review.refNum ?? review.itemName ?? "review"}`
+          }
           review={review}
+          copy={copy}
         />,
       );
     });
     if (fillerCard) items.push(fillerCard);
     return items;
-  }, [reviews, fillerCard]);
+  }, [reviews, fillerCard, copy]);
 
   // Duration: based on total width approximation
   // ~330px per card (320 + 10 gap)
@@ -397,9 +440,11 @@ function MarqueeRow({
 function ReviewWall({
   reviews,
   stats,
+  copy,
 }: {
   reviews: ReviewCardData[];
   stats: ReviewStats;
+  copy: CommunityReviewCopy;
 }) {
   // Split reviews into 3 rows
   const rows = useMemo(() => {
@@ -425,13 +470,14 @@ function ReviewWall({
           reviews={rows[0]}
           direction="left"
           speed={25}
+          copy={copy}
           fillerCard={
             <FillerBrick
               key="filler-delivery"
               icon={<Truck size={12} />}
-              label="Avg delivery"
-              value={`~${stats.avgDeliveryDays} days`}
-              sub="based on recent reviews"
+              label={copy.stats.avgDelivery}
+              value={copy.stats.avgDeliveryValue(stats.avgDeliveryDays)}
+              sub={copy.stats.basedOnRecentReviews}
             />
           }
         />
@@ -439,13 +485,14 @@ function ReviewWall({
           reviews={rows[1]}
           direction="right"
           speed={22}
+          copy={copy}
           fillerCard={
             <FillerBrick
               key="filler-week"
               icon={<MessageSquare size={12} />}
-              label="New reviews"
+              label={copy.stats.newReviews}
               value={String(stats.thisWeek)}
-              sub="posted this week"
+              sub={copy.stats.postedThisWeek}
             />
           }
         />
@@ -453,13 +500,14 @@ function ReviewWall({
           reviews={rows[2]}
           direction="left"
           speed={28}
+          copy={copy}
           fillerCard={
             <FillerBrick
               key="filler-community"
               icon={<Star size={12} />}
-              label="Avg rating"
-              value={`${stats.avgRating} ★`}
-              sub={`from ${stats.total} reviews`}
+              label={copy.stats.avgRating}
+              value={copy.stats.avgRatingValue(stats.avgRating)}
+              sub={copy.stats.fromReviews(stats.total)}
             />
           }
         />
@@ -488,6 +536,33 @@ export function CommunityReviews({
   reviews,
   reviewStats,
 }: CommunityReviewsProps) {
+  const t = useTranslations("home.communityReviewsSection");
+  const copy: CommunityReviewCopy = useMemo(
+    () => ({
+      fallbackSeller: t("fallback.seller"),
+      fallbackProduct: t("fallback.product"),
+      fallbackReviewPhoto: t("fallback.reviewPhoto"),
+      deliveryDays: (count) => t("deliveryDays", { count }),
+      stats: {
+        avgDelivery: t("stats.avgDelivery"),
+        avgDeliveryValue: (count) => t("stats.avgDeliveryValue", { count }),
+        basedOnRecentReviews: t("stats.basedOnRecentReviews"),
+        newReviews: t("stats.newReviews"),
+        postedThisWeek: t("stats.postedThisWeek"),
+        avgRating: t("stats.avgRating"),
+        avgRatingValue: (rating) => t("stats.avgRatingValue", { rating }),
+        fromReviews: (count) => t("stats.fromReviews", { count }),
+      },
+      time: {
+        justNow: t("time.justNow"),
+        hoursAgo: (count) => t("time.hoursAgo", { count }),
+        oneDayAgo: t("time.oneDayAgo"),
+        daysAgo: (count) => t("time.daysAgo", { count }),
+        monthsAgo: (count) => t("time.monthsAgo", { count }),
+      },
+    }),
+    [t],
+  );
   const { photoReviews, textReviews } = useMemo(() => {
     const photo: ReviewCardData[] = [];
     const text: ReviewCardData[] = [];
@@ -515,16 +590,16 @@ export function CommunityReviews({
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-primary mb-2">
-            Buyer feedback
+            {t("eyebrow")}
           </p>
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-                Community Reviews
+                {t("heading")}
               </h2>
               <p className="text-muted-foreground flex items-center gap-1.5">
                 <MessageSquare size={14} />
-                Real feedback from real buyers
+                {t("subtitle")}
               </p>
             </div>
             <Link
@@ -532,7 +607,7 @@ export function CommunityReviews({
               prefetch={false}
               className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:brightness-110 transition-colors"
             >
-              See all reviews
+              {t("seeAll")}
               <ArrowRight size={14} />
             </Link>
           </div>
@@ -545,10 +620,10 @@ export function CommunityReviews({
           <div className="max-w-7xl mx-auto px-4 mb-5">
             <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
               <MessageSquare size={14} />
-              Recent reviews
+              {t("recentReviews")}
             </h3>
           </div>
-          <ReviewWall reviews={textReviews} stats={reviewStats} />
+          <ReviewWall reviews={textReviews} stats={reviewStats} copy={copy} />
         </div>
       )}
 
@@ -557,14 +632,18 @@ export function CommunityReviews({
         <div className="max-w-7xl mx-auto px-4">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5 mb-5">
             <Camera size={14} />
-            Photo reviews
+            {t("photoReviews")}
           </h3>
           <div className="columns-2 sm:columns-3 lg:columns-4 gap-4">
             {photoReviews.map((review, i) => (
               <PhotoReviewCard
-                key={`photo-${review.sellerId}-${review.createdAt}-${i}`}
+                key={
+                  review.id ??
+                  `photo-${review.sellerId}-${review.createdAt}-${review.refNum ?? review.itemName ?? "review"}`
+                }
                 review={review}
                 height={PHOTO_HEIGHTS[i % PHOTO_HEIGHTS.length]}
+                copy={copy}
               />
             ))}
           </div>
@@ -578,7 +657,7 @@ export function CommunityReviews({
           prefetch={false}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary"
         >
-          See all reviews
+          {t("seeAll")}
           <ArrowRight size={14} />
         </Link>
       </div>

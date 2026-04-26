@@ -2,12 +2,14 @@
 
 import { useAtom } from "jotai";
 import { Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore } from "react";
 import { darkModeAtom } from "@/store/atoms";
 
 const emptySubscribe = () => () => {};
 
 export function ThemeToggle() {
+  const t = useTranslations("settings.theme");
   const [dark, setDark] = useAtom(darkModeAtom);
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -45,7 +47,7 @@ export function ThemeToggle() {
       type="button"
       onClick={() => setDark((current) => !current)}
       className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer"
-      aria-label={displayDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={displayDark ? t("switchToLight") : t("switchToDark")}
     >
       {displayDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>

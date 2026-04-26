@@ -1,64 +1,876 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Cannabis Marketplace Browser",
-    "description": "Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more."
+    "tagline": "Prohlížeč Cannabis Marketplace",
+    "description": "Prohlížejte a porovnávejte konopné produkty napříč tržišti. Ceny, odrůdy, recenze a další."
   },
   "nav": {
-    "browse": "Browse",
-    "reviews": "Reviews",
-    "sellers": "Sellers",
-    "settings": "Settings"
+    "browse": "Procházet",
+    "reviews": "Recenze",
+    "sellers": "Prodejci",
+    "settings": "Prostředí"
+  },
+  "categories": {
+    "all": "Všichni",
+    "Flower": "Květina",
+    "Shake": "Shake",
+    "Hash": "Hash",
+    "Concentrates": "Koncentráty",
+    "Distillate": "Destilát",
+    "Vapes": "Vape",
+    "PreRolls": "Před-Rolls",
+    "Edibles": "Jedlé produkty",
+    "Tincture": "Tinktura",
+    "Psychedelics": "Psychedelika",
+    "Other": "Ostatní"
+  },
+  "markets": {
+    "GB": "Spojené království",
+    "IE": "Irsko",
+    "DE": "Německo",
+    "FR": "Francie",
+    "PT": "Portugalsko",
+    "IT": "Itálie",
+    "ES": "Španělsko",
+    "GR": "Řecko",
+    "CZ": "Česká republika"
+  },
+  "header": {
+    "basket": {
+      "items": "{count, plural, one {Basket (1 item)} other {Basket (# items)}}"
+    },
+    "mobileMenu": {
+      "open": "Otevřít menu",
+      "close": "Zavřít menu"
+    },
+    "marketMenu": {
+      "market": "Trh",
+      "displayPricesIn": "Zobrazit ceny v",
+      "approximateWhenConverted": "Přibližné při převodu"
+    }
+  },
+  "footer": {
+    "ctaTitle": "Najděte, co hledáte.",
+    "ctaCopy": "Prozkoumejte tisíce nabídek od Little Biggy prodejců – tržiště postavené na principu neškodit.",
+    "browseItems": "Prohlížení položek",
+    "community": "Komunita",
+    "communityCopy": "Připojte se k diskusi. Sdílejte zkušenosti, ptejte se na otázky nebo kontrolujte reputaci prodejců.",
+    "privacy": "Soukromí",
+    "terms": "Podmínky",
+    "cookies": "Sušenky",
+    "copyright": "© {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě."
   },
   "home": {
-    "heroTitle": "The Cannabis Index",
-    "heroSubtitle": "Browse {itemCount} products from {sellerCount} sellers",
-    "whatsNew": "What's New",
-    "recentlyAdded": "Recently Added",
-    "recentlyUpdated": "Recently Updated",
-    "popular": "Popular",
-    "topSellers": "Top Sellers",
-    "communityReviews": "Community Reviews",
-    "viewAll": "View all"
+    "heroTitle": "Index konopí",
+    "heroSubtitle": "Prohlédněte si {itemCount} produkty od {sellerCount} prodejců",
+    "whatsNew": "Co je nového",
+    "recentlyAdded": "Nedávno přidáno",
+    "recentlyUpdated": "Nedávno aktualizováno",
+    "popular": "Populární",
+    "topSellers": "Nejprodávanější knihy",
+    "communityReviews": "Recenze komunity",
+    "viewAll": "Zobrazit vše",
+    "photoReviewModal": {
+      "time": {
+        "justNow": "Právě teď",
+        "hoursAgo": "{count}h",
+        "oneDayAgo": "Před 1 dnem",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      },
+      "noImages": "Žádné obrázky nejsou připojeny",
+      "zoomImage": "Přiblížení obrazu",
+      "zoomPhoto": "Zoom fotografie {index} {total}",
+      "reviewPhoto": "Recenzní fotografie",
+      "close": "Důkladná recenze",
+      "bySeller": "od {seller}",
+      "deliveryDays": "{days}d",
+      "noText": "Žádný psaný recenzní text.",
+      "openItem": "Otevřená položka",
+      "viewOnLittleBiggy": "Zobrazit LittleBiggy"
+    },
+    "hero": {
+      "title": {
+        "line1": "Index pro",
+        "highlight": "Tržiště 420"
+      },
+      "subtitle": "Rychlejší vyhledávání, čistší kategorie a okamžitá důvěra prodejců pro Little Biggy trh.",
+      "stats": {
+        "itemsIndexed": "Položky indexované",
+        "activeSellers": "Aktivní prodejci"
+      },
+      "cta": "Procházet tržiště",
+      "markets": "Trhy"
+    },
+    "quickStart": {
+      "heading": "Jak to funguje",
+      "subheading": "Jste v Little Biggy noví? Tady je rychlý přehled celého procesu od začátku do konce.",
+      "steps": {
+        "bitcoin": {
+          "title": "Získejte nějaký Bitcoin",
+          "summary": "Pořiďte si Bitcoin, abyste byli připraveni odejít.",
+          "intro": "Little Biggy přijímá pouze Bitcoin. Pokud jste to ještě neudělali, budete si muset nastavit způsob, jak si nějaké koupit, abyste byli připraveni začít objednávat zboží.",
+          "easiestWay": {
+            "heading": "Nejjednodušší způsob",
+            "text": "Aplikace, které už možná používáte, jako Revolut nebo Monzo, vám umožní nakupovat Bitcoin přímo v bankovní aplikaci několika kliknutími."
+          },
+          "otherOptions": {
+            "heading": "Další oblíbené možnosti",
+            "text": "Kryptoměnová burza jako Coinbase nebo Kraken funguje stejně dobře. Fungují trochu jako online měnový úřad."
+          },
+          "proTip": {
+            "label": "Tip:",
+            "text": "Kupte si o pár liber víc, než potřebujete, a zaokrouhlete nahoru. Tato dodatečná rezerva pokrývá síťové poplatky nebo volatilitu kryptoměn."
+          },
+          "peerToPeer": {
+            "label": "Chcete vynechat výměnu?",
+            "beforeLinks": "Peer-to-peer platformy jako",
+            "betweenLinks": "nebo",
+            "afterLinks": "umožňuje nakupovat Bitcoin přímo od jiné osoby – bez směnárního účtu, bez KYC papírování. Je to více praktické, ale mince dopadnou přímo do peněženky, kterou ovládáte."
+          }
+        },
+        "browse": {
+          "title": "Najděte své věci",
+          "summary": "Prohlédněte si katalog Little Biggy jako byste to dělali na eBay.",
+          "intro": "Najděte věci, které chcete koupit – přímo na Little Biggy nebo přes index. Je tam obrovský výběr, tak si dobře prohlížejte.",
+          "startBefore": "Klikněte na",
+          "browseButton": "Procházet položky",
+          "startAfter": "tlačítko níže pro začátek prohlížení.",
+          "trustBefore": "Zkontrolujte popisy produktů a recenze, abyste našli důvěryhodné prodejce. Pokud si nejste jisti, vyhledejte jméno prodejce na Googlu nebo se podívejte dál",
+          "trustAfter": ".",
+          "cart": "Až budete připraveni, přidejte do košíku to, co chcete, a zadejte doručovací údaje stejně jako v každém jiném online obchodě."
+        },
+        "checkout": {
+          "title": "Vypůjčte si a pošlete svůj Bitcoin",
+          "summary": "Zkopírujte údaje a pak pošlete platbu z telefonu nebo notebooku.",
+          "intro": "Při placení Little Biggy zobrazí soukromou stránku objednávky se vším, co potřebujete k bezpečné placení, ať už jste na jednom zařízení nebo přepínáte mezi telefonem a počítačem.",
+          "copyHeading": "Zkopírovat dva údaje o pokladně",
+          "amountLabel": "Přesná částka BTC:",
+          "amountBefore": "Vypadá to tak.",
+          "amountAfter": "Opište to přesně, abyste nepodplatili.",
+          "addressLabel": "Bitcoinová adresa:",
+          "addressBefore": "dlouhý provázek, například",
+          "addressAfter": "Představte si to jako číslo účtu pro tuto objednávku.",
+          "sendHeading": "Pošlete platbu",
+          "sendSteps": {
+            "openApp": "Otevřete aplikaci nebo burzu, kterou jste použili k nákupu Bitcoinu (Revolut, Coinbase, Monzo, Kraken atd.).",
+            "chooseSend": "Vyberte možnost poslat nebo vybrat Bitcoin.",
+            "pasteDetails": "Vložte adresu Bitcoinu do pole příjemce a přesnou částku BTC do pole pro částku.",
+            "confirm": "Potvrďte převod. Potvrzení sítě obvykle přicházejí během několika minut a vaše objednávková stránka se automaticky aktualizuje."
+          }
+        },
+        "escrow": {
+          "title": "Vaše prostředky jsou v bezpečí (escrow)",
+          "summary": "Transaxe drží peníze, dokud vaše objednávka nedorazí.",
+          "intro": "Váš Bitcoin jde do Transaxe, vestavěného systému úschovy Little Biggy. Prodávající vidí, že platba dorazila, ale prostředky jsou bezpečně uloženy.",
+          "release": "Peníze jsou prodávajícímu uvolněny až po uzavření okna pro spor. To vás chrání jako kupujícího – pokud se něco pokazí, můžete spor otevřít ještě před koncem tohoto období.",
+          "peaceHeading": "Klid na duši",
+          "peaceText": "Escrow znamená, že prodejce nikdy nedotkne vašich prostředků, dokud není zboží odesláno a přijato. Je to ochrana, která Little Biggy udržuje poctivý."
+        },
+        "delivery": {
+          "title": "Počkej na pošťáka",
+          "summary": "Uvolněte se, zatímco se k vám dostane.",
+          "intro": "Prodejci obvykle označí vaši objednávku jako odeslánou do jednoho pracovního dne. Doba doručení závisí na prodejci a vaší lokalitě, ale většina objednávek ve Velké Británii dorazí během několika dnů.",
+          "late": "Pokud je vaše objednávka opožděná, nejdříve kontaktujte prodejce přes Little Biggy – většina problémů se rychle vyřeší. Spor otevírejte jen jako poslední možnost."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "Často se ptá",
+      "heading": "Často kladené otázky pro návštěvníky poprvé",
+      "tabs": {
+        "about": "O Biggy Index",
+        "bitcoin": "Little Biggy & Bitcoin"
+      },
+      "about": {
+        "items": {
+          "whatIs": {
+            "q": "Jaký je Biggy Index?",
+            "a": "Biggy Index poskytuje jednodušší způsob procházení Little Biggy tržiště, s kategorizací položek, dalšími možnostmi třídění a dalšími užitečnými nástroji přizpůsobenými britským zákazníkům."
+          },
+          "sellOrShip": {
+            "q": "Prodáváte nebo posíláte předměty?",
+            "a": "Ne. Biggy Index je pouze pro čtení a posílá vás zpět do Little Biggy, abyste dokončili objednávku."
+          },
+          "dataSource": {
+            "q": "Odkud data pocházejí?",
+            "a": "Index získává veřejná Little Biggy data, normalizuje kategorie, shrnutí cen, informace o dopravě, recenze a obrázky."
+          },
+          "refreshRate": {
+            "q": "Jak často se obnovuje?",
+            "a": "Jsou zde 3 komponenty, které se obnovují v různých intervalech. Hlavní indexer běží každých 30 minut. Crawlery pro zboží a prodejce běží každé 4 hodiny, v oddělených časech, aby byly ohleduplné k serveru Little Biggy."
+          },
+          "timestamps": {
+            "q": "Co znamená První viděno nebo Aktualizováno předmětů?",
+            "a": "První viděn/vytvořený znamená, že je to poprvé, co byla položka indexována crawlerem. To může zahrnovat položky, které byly na LB před vznikem indexeru. Aktualizováno znamená, že položku upravil prodejce, nebo že crawler zaznamenal změnu (např. cena, varianty, popis)."
+          },
+          "endorsements": {
+            "q": "Co jsou to doporučení?",
+            "a": "Komunitní hlasování, která zdůrazňují oblíbené položky, aniž by vás museli sledovat."
+          }
+        }
+      },
+      "bitcoin": {
+        "items": {
+          "payments": {
+            "q": "Jaké platby Little Biggy přijímá?",
+            "a": "Pouze Bitcoin – žádné karty, bankovní převody ani jiné kryptoměny."
+          },
+          "buying": {
+            "q": "Jak si mohu koupit Bitcoin ve Velké Británii?",
+            "a": "Většina kupujících používá Revolut, Monzo, Kraken nebo Coinbase. Dobíjejte v librách, kupte částku BTC zobrazenou při placení a vyhraďte několik liber na síťové nebo výměnné poplatky."
+          },
+          "wallet": {
+            "q": "Potřebuji nejdřív vlastní peněženku?",
+            "a": "Můžete platit přímo z burzy, ale mnoho lidí přesouvá BTC do soukromé peněženky jako Cake Wallet nebo Trust Wallet pro větší soukromí. Britské burzy se musí ptát, kam posíláte mince – proto někteří kupující preferují směrování přes osobní peněženku."
+          },
+          "escrow": {
+            "q": "Jak mě Transaxe chrání v úschově?",
+            "a": "Vaše platba jde na Transaxe escrow adresu. Prodávající mají asi 80 hodin na označení objednávek jako odeslaných, jinak se peníze automaticky vrátí. Spory se otevírají po devíti dnech, pokud je to potřeba."
+          },
+          "mistakes": {
+            "q": "Máte nějaké tipy, jak se vyhnout chybám?",
+            "a": "Zkopírujte a vložte částku a adresu BTC, přidejte si rezervu pro poplatky a uchovejte si screenshoty, dokud vám balíček nedorazí. Blockchain nemůže napravit překlepy."
+          },
+          "clearnet": {
+            "q": "Proč prostě nevyužít clearnet obchody?",
+            "a": "Konkurence na Little Biggy udržuje vysokou kvalitu a ceny spravedlivé. Clearnet přeprodejci často účtují vysoké přirážky nebo posílají pochybný sortiment."
+          },
+          "legality": {
+            "q": "A co legálnost ve Velké Británii?",
+            "a": "Zákony o konopí stále platí. Jste odpovědní za dodržování místních předpisů a ověřování každého detailu Little Biggy."
+          }
+        }
+      }
+    },
+    "whatsNewSection": {
+      "eyebrow": "Nová aktivita",
+      "heading": "Nedávno indexované položky",
+      "description": "Podívejte se na nejnovější nebo nejnovější aktualizované položky na Little Biggy.",
+      "tabs": {
+        "newest": "Nedávno přidáno",
+        "updated": "Nedávno aktualizováno"
+      },
+      "browseAll": "Procházejte všechny položky",
+      "scrollLeft": "Levý svitek",
+      "scrollRight": "Posuňte doprava",
+      "priceUnavailable": "N/A",
+      "unknownSeller": "Neznámý prodejce",
+      "viewSeller": "Zobrazit {seller} prodejce",
+      "alternateImageAlt": "{item} alternativa",
+      "time": {
+        "justNow": "Právě teď",
+        "hoursAgo": "{count}h",
+        "oneDayAgo": "Před 1 dnem",
+        "daysAgo": "{count} dny zpátky",
+        "monthsAgo": "{count}mo"
+      }
+    },
+    "sellerTrust": {
+      "eyebrow": "Komunitní trust",
+      "heading": "Správní rada prodejcových trustů",
+      "description": "Žebříčky vycházejí z recenzí komunity. Přejděte myší na avatar pro náhled, klepněte pro otevření celého profilu prodejce.",
+      "panels": {
+        "top": {
+          "title": "Nejlépe hodnocené",
+          "subtitle": "Nejvyšší poměr pozitivních recenzí"
+        },
+        "caution": {
+          "title": "Buďte opatrní",
+          "subtitle": "Zvýšená negativní zpětná vazba"
+        },
+        "reviewsLabel": "Recenze"
+      },
+      "row": {
+        "reviews": "{count} recenze",
+        "negative": "{count} negativní"
+      },
+      "recentlyJoined": {
+        "title": "Nedávno přišel",
+        "subtitle": "Noví prodejci – zatím žádná historie"
+      },
+      "time": {
+        "today": "Dnes",
+        "yesterday": "Včera",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo",
+        "yearsAgo": "{count}y",
+        "monthsActive": "{count}mo aktivní",
+        "yearsActive": "{count}y aktivní"
+      }
+    },
+    "communityReviewsSection": {
+      "eyebrow": "Zpětná vazba od kupujících",
+      "heading": "Recenze komunity",
+      "subtitle": "Skutečná zpětná vazba od skutečných kupujících",
+      "seeAll": "Zobrazit všechny recenze",
+      "recentReviews": "Nedávné recenze",
+      "photoReviews": "Recenze fotografií",
+      "fallback": {
+        "seller": "Prodávající",
+        "product": "Produkt",
+        "reviewPhoto": "Recenzní fotografie"
+      },
+      "stats": {
+        "avgDelivery": "Průměrné doručení",
+        "avgDeliveryValue": "~{count} dní",
+        "basedOnRecentReviews": "na základě nedávných recenzí",
+        "newReviews": "Nové recenze",
+        "postedThisWeek": "Zveřejněno tento týden",
+        "avgRating": "Průměrné hodnocení",
+        "avgRatingValue": "{rating} ★",
+        "fromReviews": "Z recenzí {count}"
+      },
+      "deliveryDays": "{count}d",
+      "time": {
+        "justNow": "Právě teď",
+        "hoursAgo": "{count}h",
+        "oneDayAgo": "Před 1 dnem",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      }
+    }
   },
   "browse": {
-    "allCategories": "All Categories",
-    "noResults": "No products match your filters",
-    "clearFilters": "Clear filters",
+    "allCategories": "Všechny kategorie",
+    "noResults": "Žádné produkty neodpovídají vašim filtrům",
+    "clearFilters": "Průhledné filtry",
     "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
-    "sortBy": "Sort by",
-    "search": "Search products..."
+    "sortBy": "Seřadit podle",
+    "search": "Vyhledávej produkty...",
+    "noItemsFound": "Žádné předměty nalezeny",
+    "adjustFilters": "Zkuste nastavit filtry",
+    "toolbar": {
+      "removeFilter": "Odstranit: {label}",
+      "fromFilter": "Od: {value}",
+      "notFilter": "Ne: {value}",
+      "priceRange": "Cenové rozpětí",
+      "bookmarksShowAll": "Zobrazit všechny položky",
+      "bookmarksOnly": "Pouze pro pořad uložené do záložek",
+      "shippingIncluded": "Zobrazení cen s dopravou",
+      "addShipping": "Přidejte poštovné k cenám",
+      "shippingShort": "+Loď",
+      "itemsLabel": "{count, plural, one {item} other {items}}",
+      "freeShippingActive": "Zobrazuje pouze dopravu zdarma",
+      "freeShippingInactive": "Filtrovat na bezplatné doručení",
+      "freeShippingShort": "Free Ship",
+      "comfortableCards": "Přejděte na pohodlné karty",
+      "compactCards": "Přechod na kompaktní karty",
+      "roomy": "Prostorný",
+      "compact": "Kompaktní",
+      "sort": {
+        "hottest": "Horko",
+        "newest": "Nejnovější",
+        "updated": "Aktualizováno",
+        "price": "Cena",
+        "pricePerGram": "£/g",
+        "name": "Jméno",
+        "aria": "Seřadit podle",
+        "ascending": "Třídění vzestupně",
+        "descending": "Třídit sestupně"
+      }
+    },
+    "filters": {
+      "toggle": "Přepínané filtry",
+      "label": "Filtry",
+      "close": "Blízké filtry",
+      "active": "{count} aktivní",
+      "clearAll": "Vyjasnit vše",
+      "clearAllTitle": "Vyčistěte všechny filtry, které nejsou připnuté",
+      "searchItems": "Hledejte předměty...",
+      "clearSearch": "Čisté vyhledávání",
+      "categories": "Kategorie",
+      "subcategories": "Podkategorie",
+      "sections": {
+        "shipsFrom": "Lodě z",
+        "weight": "Hmotnost",
+        "price": "Cena",
+        "sellers": "Prodejci"
+      },
+      "attrs": {
+        "effect": "Dopad",
+        "tier": "Úroveň",
+        "micron": "Micron",
+        "filtration": "Filtrace",
+        "texture": "Textura",
+        "process": "Proces",
+        "form": "Forma",
+        "extract": "Výňatek",
+        "dietary": "Strava",
+        "strength": "Síla"
+      },
+      "pin": {
+        "unpin": "Odpinovat – filtry se vymažou",
+        "pin": "Pin – zachovává výběr při vymazávání filtrů"
+      },
+      "shipFromHelp": "Kliknout: zahrnout. Pravé kliknutí: vyloučit",
+      "searchSellers": "Hledejte prodejce...",
+      "sellerSortAlpha": "Seřazeno od A do Z – nejdřív klikněte pro většinu položek",
+      "sellerSortCount": "Seřazeno podle počtu položek – klikněte pro A-Z",
+      "removeSeller": "Odstraňte {seller}",
+      "selectSeller": "Vyberte {seller}",
+      "unselectSeller": "Zrušit výběr {seller}",
+      "hideSeller": "Skrýt {seller} - odstraní všechny jejich předměty z výsledků",
+      "hideSellerAria": "Schovej {seller}",
+      "noSellersMatch": "Žádný prodejci",
+      "noSellersAvailable": "Žádní prodejci nejsou k dispozici",
+      "showLess": "Zobrazit méně",
+      "showAll": "Ukaž všechny {count}",
+      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
+    },
+    "priceRange": {
+      "title": "Cena",
+      "reset": "Resetovat cenový filtr",
+      "minimum": "Minimální cena",
+      "maximum": "Maximální cena"
+    },
+    "card": {
+      "lowConfidence": "Nejistá kategorie ({percent}% jistota)",
+      "lowConfidenceAria": "Nízká kategorizace sebevědomí: {percent} %",
+      "preview": "Náhled {item}",
+      "removeBookmark": "Odstraňte záložku",
+      "bookmarkProduct": "Uložte si tento produkt do záložek",
+      "bookmarkRemoved": "Záložka odstraněna",
+      "bookmarked": "Uloženo do záložek",
+      "viewOnLittleBiggy": "Zobrazit {item} na LittleBiggy",
+      "onlineToday": "Online dnes",
+      "freeShipping": "Doprava zdarma",
+      "shipsFrom": "Lodě z",
+      "shipsFromAria": "Lodě z {country}",
+      "deliveryDays": "~{count}d doručení",
+      "showAllSellers": "Zobrazit všechny prodejce",
+      "onlySeller": "Jen {seller}",
+      "all": "Všichni",
+      "only": "Pouze",
+      "hideSeller": "Schovej {seller}",
+      "hide": "Schovej se",
+      "updated": "Aktualizováno {time}",
+      "listed": "Uvedeno {time}",
+      "listedUnknown": "Uvedeno -",
+      "time": {
+        "minutesAgo": "{count}m",
+        "hoursAgo": "{count}h",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      }
+    }
   },
   "sort": {
-    "newest": "Newest",
-    "priceAsc": "Price: Low → High",
-    "priceDesc": "Price: High → Low",
-    "rating": "Top Rated",
-    "hot": "Hottest"
+    "newest": "Nejnovější",
+    "priceAsc": "Cena: Nízká → Vysoká",
+    "priceDesc": "Cena: Vysoká → nízká",
+    "rating": "Nejlépe hodnocené",
+    "hot": "Nejžhavější"
   },
   "item": {
-    "from": "from",
+    "from": "od",
     "perGram": "/g",
     "variants": "{count, plural, one {1 variant} other {# variants}}",
     "reviews": "{count, plural, one {1 review} other {# reviews}}",
-    "noReviews": "No reviews yet",
-    "shipping": "Shipping",
-    "freeShipping": "Free shipping",
-    "viewOnSeller": "View on {seller}",
-    "addToBasket": "Add to basket",
-    "firstSeen": "First seen",
-    "lastUpdated": "Last updated"
+    "noReviews": "Recenze zatím nejsou",
+    "shipping": "Lodní doprava",
+    "freeShipping": "Doprava zdarma",
+    "viewOnSeller": "Zobrazit {seller}",
+    "addToBasket": "Přidat do košíku",
+    "firstSeen": "Poprvé spatřený",
+    "lastUpdated": "Poslední aktualizace",
+    "detail": {
+      "close": "Zavřít",
+      "previousItem": "Předchozí položka",
+      "nextItem": "Další bod",
+      "prev": "Předchozí",
+      "next": "Další",
+      "by": "autor",
+      "wasPrice": "byl {price}",
+      "viewOnLittleBiggy": "Zobrazit Little Biggy",
+      "itemNotFound": "Položka nenalezena.",
+      "tabs": {
+        "prices": "Ceny",
+        "description": "Popis",
+        "reviews": "Recenze"
+      },
+      "reviews": {
+        "heading": "Recenze",
+        "noneAvailable": "Recenze nejsou k dispozici",
+        "readMoreAt": "Další recenze si můžete přečíst na:"
+      },
+      "variants": {
+        "heading": "Varianty",
+        "size": "Velikost",
+        "price": "Cena",
+        "variant": "Varianta",
+        "add": "Přidat",
+        "addToBasket": "Přidat do košíku",
+        "addedToBasket": "Přidal {variant} do košíku",
+        "bestValue": "Nejlepší poměr cena/výkon",
+        "pricePerUnit": "Cena za {unit}",
+        "unit": "Jednotka"
+      },
+      "meta": {
+        "rating": "Hodnocení",
+        "avgDelivery": "Průměrné doručení",
+        "listed": "Seznam",
+        "updated": "Aktualizováno"
+      },
+      "description": {
+        "heading": "Popis",
+        "noneProvided": "Popis nebyl poskytnut."
+      },
+      "attributes": {
+        "heading": "Atributy",
+        "labels": {
+          "effect": "Dopad",
+          "cbd": "CBD",
+          "grow": "Rost",
+          "tier": "Úroveň",
+          "imported": "Dovezený",
+          "micron": "Micron",
+          "origin": "Původ",
+          "fullMelt": "Full Melt",
+          "mg": "Síla",
+          "vegan": "Vegan",
+          "mlSize": "Velikost",
+          "purity": "Čistota",
+          "delta": "Typ",
+          "terped": "Terped",
+          "species": "Druhy"
+        }
+      },
+      "priceHistory": {
+        "heading": "Historie cen",
+        "firstTracked": "První stopa"
+      },
+      "shipping": {
+        "label": "Lodní doprava",
+        "noShipping": "Žádná doprava",
+        "freeShipping": "Doprava zdarma",
+        "cheapest": "Nejlevnější",
+        "highest": "Nejvyšší",
+        "shipping": "Lodní doprava",
+        "free": "Zdarma"
+      },
+      "time": {
+        "minutesAgo": "{count}m",
+        "hoursAgo": "{count}h",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      }
+    },
+    "page": {
+      "browseIndex": "Procházejte rejstřík",
+      "breadcrumb": "Drobeček",
+      "notFoundTitle": "Položka nenalezena",
+      "notFoundDescription": "Položka \"{ref}\" neexistuje nebo byla odstraněna.",
+      "backToIndex": "Zpět na index",
+      "imageAlt": "{item} obrázek {index}",
+      "by": "autor",
+      "shipsFrom": "Lodě z {country}",
+      "unavailable": "N/A",
+      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "deliveryShort": "~{count}d doručení",
+      "avgDelivery": "{days} dní průměrné doručení",
+      "attributes": "Atributy",
+      "variants": "Varianty",
+      "bestValue": "Nejlepší poměr cena/výkon",
+      "shipping": "Lodní doprava",
+      "free": "Zdarma",
+      "viewOnLittleBiggy": "Zobrazit LittleBiggy",
+      "firstSeen": "Poprvé viděn: {date}",
+      "updated": "Aktualizováno: {date}",
+      "priceHistory": "Historie cen",
+      "reviews": "Recenze",
+      "reviewDelivery": "{days}d doručení",
+      "moreReviews": "+{count} více recenzí – zobrazit celý seznam na LittleBiggy"
+    },
+    "legacyModal": {
+      "close": "Zavřít",
+      "itemNotFound": "Položka nenalezena.",
+      "by": "autor",
+      "unavailable": "N/A",
+      "variants": "Varianty",
+      "attributes": "Atributy",
+      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "avgDelivery": "{days} dní průměrné doručení",
+      "shipping": "Lodní doprava",
+      "freeAvailable": "Zdarma dostupné",
+      "firstSeen": "Poprvé viděn: {date}",
+      "updated": "Aktualizováno: {date}",
+      "viewOnLittleBiggy": "Zobrazit LittleBiggy",
+      "fullPage": "Celá stránka"
+    }
   },
   "seller": {
     "products": "{count, plural, one {1 product} other {# products}}",
-    "rating": "Rating",
-    "visitStore": "Visit store"
+    "rating": "Hodnocení",
+    "visitStore": "Navštivte obchod",
+    "page": {
+      "metadataTitle": "Prodejci - BiggyIndex",
+      "metadataDescription": "Prohlédněte si všechny Little Biggy prodejce s důvěryhodnými skóre, počtem recenzí a hodnoceními komunity.",
+      "title": "Prodejci",
+      "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
+      "leaderboard": {
+        "title": "Žebříček Trust",
+        "allTime": "Všech dob",
+        "thisWeek": "Tento týden",
+        "topRated": "Nejlépe hodnocené",
+        "topRatedSubtitle": "Nejvyšší poměr pozitivních recenzí",
+        "useCaution": "Buďte opatrní",
+        "useCautionSubtitle": "Zvýšená negativní zpětná vazba",
+        "reviews": "Recenze",
+        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "negativeCount": "{count, plural, one {1 negative} other {# negative}}"
+      },
+      "allSellers": "Všichni prodejci",
+      "search": "Hledat...",
+      "table": {
+        "seller": "Prodávající",
+        "total": "Celkem",
+        "seen": "Viděno",
+        "positive": "Pozitivní",
+        "negatives": "Negativci",
+        "perfect": "10/10",
+        "rating": "Hodnocení",
+        "days": "Dny",
+        "items": "Předměty",
+        "totalTitle": "Celkový počet recenzí nahlášených Little Biggy",
+        "seenTitle": "Recenze pohlcené BiggyIndex crawlerem"
+      },
+      "noSellersFound": "Žádní prodejci nalezeni"
+    },
+    "modal": {
+      "fallbackName": "Prodávající",
+      "close": "Zavřít",
+      "zoomProfileImage": "Profilový obrázek Zoom {seller}",
+      "onlineToday": "Online dnes",
+      "lastSeen": "Naposledy viděný {time}",
+      "joined": "Připojil se k {date}",
+      "itemCount": "{count, plural, one {1 item} other {# items}}",
+      "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+      "deliveryShort": "~{days}d doručení",
+      "about": "O nás",
+      "noDescription": "Popis není k dispozici",
+      "feedback": {
+        "endpointMissing": "Endpoint zpětné vazby není nastaven.",
+        "hourlyLimit": "Dosáhl jsi hodinového limitu (20 za hodinu). Zkus to později znovu.",
+        "duplicateThanks": "Díky – váš hlas byl přidán do existující zprávy.",
+        "reviewThanks": "Díky – moderátor to zkontroluje.",
+        "networkError": "Chyba sítě",
+        "endorsed": "Schváleno",
+        "submitting": "Podevzdání...",
+        "endorseSeller": "Doporučit prodejce",
+        "reported": "Hlášeno",
+        "reportSeller": "Nahlásit prodejce",
+        "reasonOptional": "Důvod (volitelné)",
+        "reasonPlaceholder": "Čeho jste si všimli? (podvod, falešné recenze, problém s doručením...)",
+        "cancel": "Zrušit",
+        "submitReport": "Odevzdat zprávu"
+      },
+      "reviews": {
+        "heading": "Recenze",
+        "loading": "Načítám...",
+        "recentTotal": "{recent} nedávné ({total} celkem)",
+        "recentCount": "{count} nedávné",
+        "avgDelivery": "~{days}d průměrné doručení",
+        "removeFilter": "Odstraňte filtr",
+        "filter": "Filtr",
+        "removeLowRatingFilterTitle": "Remove low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
+        "applyLowRatingFilterTitle": "Apply low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
+        "lowRating": "{count, plural, one {1 low rating} other {# low ratings}}",
+        "ratingFilterTitle": "{action}: {count, plural, one {1 review} other {# reviews}} rated {rating}/10",
+        "noReviewsYet": "Recenze zatím nejsou",
+        "lowRated": "Nízké hodnocení",
+        "noFilteredReviews": "Recenze bez {filter}",
+        "readMoreAt": "Další recenze si můžete přečíst na:"
+      },
+      "visitAria": "Navštivte {seller} na LittleBiggy",
+      "visit": "Navštivte {seller}"
+    },
+    "error": {
+      "title": "Nepodařilo se načíst prodejce",
+      "description": "Nemohli jsme načíst stránku prodejců. Obvykle je to jen dočasné.",
+      "retry": "Opakování"
+    }
+  },
+  "reviews": {
+    "page": {
+      "metadataTitle": "Recenze - BiggyIndex",
+      "metadataDescription": "Nejnovější recenze komunity od Little Biggy kupujících s obrázky, hodnoceními a časy doručení.",
+      "title": "Recenze komunity",
+      "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
+      "filters": {
+        "all": "Všichni",
+        "withPhotos": "S fotografiemi",
+        "withComments": "S komentáři"
+      },
+      "noMatches": "Žádné recenze s tímto filtrem nesouhlasí",
+      "row": {
+        "justNow": "Právě teď",
+        "hoursAgo": "{count}h",
+        "oneDayAgo": "Před 1 dnem",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo",
+        "sameDay": "Stejný den",
+        "oneDay": "1 den",
+        "days": "{count} dní",
+        "reviewPhoto": "Recenzní foto {index}"
+      },
+      "error": {
+        "title": "Nepodařilo se načíst recenze",
+        "description": "Nemohli jsme načíst stránku s recenzemi. To je obvykle dočasné.",
+        "retry": "Opakování"
+      }
+    },
+    "card": {
+      "time": {
+        "minutesAgo": "{count}m",
+        "hoursAgo": "{count}h",
+        "daysAgo": "{count}d",
+        "monthsAgo": "{count}mo"
+      },
+      "imageAlt": "Recenze obrázku {index}",
+      "stats": {
+        "average": "{rating}/10 průměr",
+        "recentTotal": "{recent} nedávné ({total} celkem)",
+        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "avgDelivery": "~{days}d průměrné doručení"
+      }
+    }
+  },
+  "suggest": {
+    "link": {
+      "label": "Navrhněte opravu",
+      "title": "Navrhněte opravu"
+    },
+    "page": {
+      "itemNotFound": "Položka nenalezena",
+      "notFoundDescription": "Nemohu odeslat opravu pro položku, která neexistuje.",
+      "backToIndex": "Zpět na index",
+      "backToItem": "Zpět k tématu",
+      "title": "Navrhněte opravu",
+      "intro": "Pomozte nám opravit špatně klasifikované položky. Návrhy jdou moderátorovi ještě před jejich aplikací – účet není potřeba.",
+      "itemLabel": "Položka",
+      "bySeller": "od {seller}",
+      "error": {
+        "title": "Nepodařilo se načíst formulář pro návrhy",
+        "retry": "Opakování"
+      }
+    },
+    "form": {
+      "stagedEdits": "Vaše úpravy ({count})",
+      "removeEdit": "Odstraňte tuto úpravu",
+      "addAnotherCorrection": "Přidat další opravu",
+      "whatNeedsFixing": "Co je potřeba opravit?",
+      "wrongProductHint": "Tohle není platný produkt",
+      "currently": "V současnosti:",
+      "notSet": "Není nastaveno",
+      "shouldBe": "Mělo by to být:",
+      "wrongProductDescription": "Označte tento produkt k recenzi. Může být nesprávně zařazen nebo na tento web nepatřit.",
+      "addThisEdit": "+ Přidat tuto úpravu",
+      "addEdit": "+ Přidat upravit",
+      "submitting": "Podevzdání...",
+      "submitSuggestion": "Pošlete návrh",
+      "submitSuggestions": "Pošlete {count} návrhy",
+      "suggestionSubmitted": "Návrh podán!",
+      "allSubmitted": "Všechny {count} návrhy zaslany!",
+      "partialSubmitted": "{successCount} {totalCount} odevzdal. {error}",
+      "somethingWentWrong": "Něco se pokazilo",
+      "networkError": "Chyba sítě",
+      "suggestMoreEdits": "Navrhněte další úpravy",
+      "pendingSuggestions": "Čekám na doporučení ({count})",
+      "alreadyVoted": "Už hlasováno",
+      "upvoteSuggestion": "Hlasujte pro tento návrh",
+      "fields": {
+        "category": "Kategorie",
+        "subcategories": "Podkategorie",
+        "tier": "Úroveň kvality",
+        "micron": "Velikost mikronu",
+        "wrongProduct": "Špatný produkt"
+      }
+    }
+  },
+  "basket": {
+    "label": "Koš",
+    "clearAll": "Vyjasnit vše",
+    "close": "Zavřený košík",
+    "empty": "Váš košík je prázdný.",
+    "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+    "shipping": "Lodní doprava",
+    "noShipping": "Žádná doprava",
+    "items": "Předměty",
+    "total": "Celkem",
+    "each": "každý",
+    "virtualNotice": "Toto je virtuální košík pro srovnání cen – bez placení.",
+    "viewItem": "Zobrazit {item}",
+    "decreaseQty": "Snižte množství pro {item}",
+    "removeItem": "Odstraňte {item}",
+    "increaseQty": "Zvyšte množství pro {item}"
+  },
+  "settings": {
+    "theme": {
+      "switchToLight": "Přepnout na režim světla",
+      "switchToDark": "Přepnout na tmavý režim"
+    },
+    "modal": {
+      "label": "Prostředí",
+      "close": "Uzavřená prostředí",
+      "highResImages": "Obrázky ve vysokém rozlišení",
+      "highResDescription": "Používejte produkty v plném rozlišení. Spotřebovává více dat, ale vypadá ostřejší.",
+      "pauseGifs": "GIFy na pauzu",
+      "pauseGifsDescription": "Zobrazit statické náhledy animovaných obrázků. Snižuje rušivé vlivy a šetří baterii.",
+      "thumbnailShape": "Tvar náhledu",
+      "thumbnailDescription": "Změňte poměr ořezů obrázků produktů na kartách.",
+      "aspect": {
+        "square": "Square",
+        "fourThree": "4:3",
+        "threeTwo": "3:2"
+      },
+      "accentColour": "Akcentní barva",
+      "swatches": {
+        "forest": "Les",
+        "ocean": "Oceán",
+        "haze": "Mlha",
+        "sunset": "Západ slunce",
+        "cherry": "Cherry",
+        "custom": "Zvyk",
+        "customValue": "Zakázkové {value}",
+        "default": "Výchozí stav"
+      },
+      "hiddenSellers": "Skrytí prodejci",
+      "hiddenDescription": "Položky od skrytých prodejců se nikde nezobrazí. Toto přetrvává napříč relacemi a není vymazáno \"Vymazat filtry\".",
+      "searchSellers": "Prohledejte prodejce, abyste se skryli...",
+      "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+      "unhideSeller": "Klikněte pro odkrytí {seller}",
+      "noSellersHidden": "Žádní prodejci nejsou skryti"
+    }
+  },
+  "errors": {
+    "global": {
+      "title": "Něco se pokazilo",
+      "description": "Došlo k neočekávané chybě. To bylo zaznamenáno automaticky.",
+      "retry": "Zkus to znovu"
+    },
+    "browse": {
+      "title": "Nepodařilo se načíst položky",
+      "description": "Nemohli jsme načíst stránku prohlížení. Obvykle je to dočasné.",
+      "retry": "Opakování"
+    },
+    "item": {
+      "title": "Položka není dostupná",
+      "description": "Nemohli jsme tuto položku načíst. Možná byla odstraněna nebo došlo k dočasné chybě.",
+      "retry": "Opakování",
+      "browseItems": "Prohlížení položek"
+    },
+    "notFound": {
+      "title": "Stránka nenalezena",
+      "description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
+      "browseItems": "Prohlížení položek"
+    }
   },
   "common": {
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "retry": "Try again",
-    "close": "Close",
-    "back": "Back"
+    "loading": "Načítám...",
+    "error": "Něco se pokazilo",
+    "retry": "Zkus to znovu",
+    "close": "Zavřít",
+    "back": "Zpět"
   }
 }

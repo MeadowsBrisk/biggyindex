@@ -12,6 +12,7 @@ import {
   Star,
   Truck,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
@@ -162,6 +163,7 @@ function LeaderboardCard({
   entries: LeaderboardEntry[];
   variant: "top" | "bottom";
 }) {
+  const t = useTranslations("seller.page.leaderboard");
   const openSeller = useSetAtom(sellerModalIdAtom);
   const isTop = variant === "top";
   const tone: Tone = isTop ? "emerald" : "amber";
@@ -193,7 +195,7 @@ function LeaderboardCard({
         </div>
         <div className="text-right shrink-0">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Reviews
+            {t("reviews")}
           </p>
           <p className="text-sm font-semibold text-foreground tabular-nums">
             {compact(totalReviews)}
@@ -239,12 +241,12 @@ function LeaderboardCard({
                     {e.sellerName}
                   </p>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tabular-nums">
-                    <span>{compact(e.total)} reviews</span>
+                    <span>{t("reviewCount", { count: e.total })}</span>
                     {!isTop && e.negative > 0 && (
                       <>
                         <span className="text-muted-foreground/40">·</span>
                         <span className="text-red-400/80">
-                          {compact(e.negative)} negative
+                          {t("negativeCount", { count: e.negative })}
                         </span>
                       </>
                     )}
@@ -312,6 +314,7 @@ export function SellersPageClient({
   leaderboardWeekly,
   generatedAt,
 }: Props) {
+  const t = useTranslations("seller.page");
   const openSeller = useSetAtom(sellerModalIdAtom);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("reviews");
@@ -389,16 +392,16 @@ export function SellersPageClient({
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold text-foreground mb-1">Sellers</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-1">{t("title")}</h1>
       <p className="text-muted text-sm mb-8">
-        {sellers.length} active sellers on Little Biggy
+        {t("activeSellers", { count: sellers.length })}
       </p>
 
       {/* Leaderboard */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-4">
           <h2 className="text-lg font-semibold text-foreground">
-            Trust Leaderboard
+            {t("leaderboard.title")}
           </h2>
           <div className="flex gap-0.5 rounded-lg bg-[var(--surface)] p-0.5">
             {(["all", "week"] as const).map((tab) => (
@@ -412,22 +415,24 @@ export function SellersPageClient({
                     : "text-muted hover:text-foreground"
                 }`}
               >
-                {tab === "all" ? "All time" : "This week"}
+                {tab === "all"
+                  ? t("leaderboard.allTime")
+                  : t("leaderboard.thisWeek")}
               </button>
             ))}
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <LeaderboardCard
-            title="Top Rated"
-            subtitle="Highest positive-review ratio"
+            title={t("leaderboard.topRated")}
+            subtitle={t("leaderboard.topRatedSubtitle")}
             icon={<ShieldCheck size={18} />}
             entries={leaderboard.top}
             variant="top"
           />
           <LeaderboardCard
-            title="Use Caution"
-            subtitle="Elevated negative feedback"
+            title={t("leaderboard.useCaution")}
+            subtitle={t("leaderboard.useCautionSubtitle")}
             icon={<AlertTriangle size={18} />}
             entries={leaderboard.bottom}
             variant="bottom"
@@ -438,7 +443,9 @@ export function SellersPageClient({
       {/* All sellers */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground">All Sellers</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            {t("allSellers")}
+          </h2>
           <div className="relative">
             <Search
               size={14}
@@ -446,7 +453,7 @@ export function SellersPageClient({
             />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t("search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="rounded-lg border border-[var(--border)] bg-[var(--surface)] pl-8 pr-3 py-2 text-sm text-foreground placeholder:text-muted outline-none focus:border-primary/40 w-48"
@@ -462,14 +469,14 @@ export function SellersPageClient({
               {/* Table header */}
               <div className="grid grid-cols-[minmax(10rem,1fr)_60px_56px_64px_48px_48px_56px_60px_48px] gap-1.5 px-3 py-2.5 border-b border-[var(--border)] bg-[var(--surface)]">
                 <SortHeader
-                  label="Seller"
+                  label={t("table.seller")}
                   sortKey="name"
                   currentSort={sortKey}
                   currentDir={sortDir}
                   onSort={handleSort}
                 />
                 <SortHeader
-                  label="Total"
+                  label={t("table.total")}
                   sortKey="reported"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -477,7 +484,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="Seen"
+                  label={t("table.seen")}
                   sortKey="reviews"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -485,7 +492,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="Positive"
+                  label={t("table.positive")}
                   sortKey="positive"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -493,7 +500,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="Negs"
+                  label={t("table.negatives")}
                   sortKey="negatives"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -501,7 +508,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="10/10"
+                  label={t("table.perfect")}
                   sortKey="perfect"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -509,7 +516,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="Rating"
+                  label={t("table.rating")}
                   sortKey="rating"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -517,7 +524,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="Days"
+                  label={t("table.days")}
                   sortKey="delivery"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -525,7 +532,7 @@ export function SellersPageClient({
                   className="justify-end"
                 />
                 <SortHeader
-                  label="Items"
+                  label={t("table.items")}
                   sortKey="items"
                   currentSort={sortKey}
                   currentDir={sortDir}
@@ -603,7 +610,7 @@ export function SellersPageClient({
                       {/* Total — LB-reported lifetime reviews */}
                       <span
                         className="text-sm text-foreground font-medium tabular-nums text-right"
-                        title="Total reviews reported by Little Biggy"
+                        title={t("table.totalTitle")}
                       >
                         {(seller.numberOfReviews ?? 0).toLocaleString()}
                       </span>
@@ -611,7 +618,7 @@ export function SellersPageClient({
                       {/* Seen — reviews actually seen by our indexer */}
                       <span
                         className="text-sm text-muted tabular-nums text-right"
-                        title="Reviews ingested by the BiggyIndex crawler"
+                        title={t("table.seenTitle")}
                       >
                         {reviewsShown.toLocaleString()}
                       </span>
@@ -679,7 +686,7 @@ export function SellersPageClient({
         </div>
 
         {filtered.length === 0 && (
-          <p className="text-center text-muted py-8">No sellers found</p>
+          <p className="text-center text-muted py-8">{t("noSellersFound")}</p>
         )}
       </div>
     </div>

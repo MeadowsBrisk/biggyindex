@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 export default function SuggestError({
@@ -9,21 +10,21 @@ export default function SuggestError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("suggest.page.error");
+
   useEffect(() => {
     console.error("[BiggyIndex] Suggest error:", error);
   }, [error]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <h2 className="text-xl font-bold text-foreground">
-        Couldn&apos;t load suggestion form
-      </h2>
+      <h2 className="text-xl font-bold text-foreground">{t("title")}</h2>
       <button
         type="button"
         onClick={reset}
         className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
       >
-        Retry
+        {t("retry")}
       </button>
     </div>
   );

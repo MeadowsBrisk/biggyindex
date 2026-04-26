@@ -11,7 +11,9 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import type { KeyboardEvent, MouseEvent } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -55,45 +57,64 @@ interface WhatsNewSectionProps {
 
 type Tab = "newest" | "updated";
 
-const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-  { key: "newest", label: "Recently added", icon: <Sparkles size={14} /> },
-  { key: "updated", label: "Recently updated", icon: <Clock size={14} /> },
+const TABS: { key: Tab; labelKey: string; icon: React.ReactNode }[] = [
+  { key: "newest", labelKey: "tabs.newest", icon: <Sparkles size={14} /> },
+  { key: "updated", labelKey: "tabs.updated", icon: <Clock size={14} /> },
 ];
+
+const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
+
+interface TimeAgoCopy {
+  justNow: string;
+  hoursAgo: (count: number) => string;
+  oneDayAgo: string;
+  daysAgo: (count: number) => string;
+  monthsAgo: (count: number) => string;
+}
+
+interface HomeItemCardCopy {
+  priceUnavailable: string;
+  unknownSeller: string;
+  viewSeller: (seller: string) => string;
+  alternateImageAlt: (item: string) => string;
+  time: TimeAgoCopy;
+}
 
 function formatPrice(
   min?: number | null,
   max?: number | null,
   symbol = "\u00A3",
   rate = 0.79,
+  unavailableLabel = "N/A",
 ): string {
-  if (min == null) return "N/A";
+  if (min == null) return unavailableLabel;
   const lo = `${symbol}${(min * rate).toFixed(0)}`;
   if (max != null && max !== min)
     return `${lo} - ${symbol}${(max * rate).toFixed(0)}`;
   return lo;
 }
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, copy: TimeAgoCopy): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 1) return copy.justNow;
+  if (hours < 24) return copy.hoursAgo(hours);
   const days = Math.floor(hours / 24);
-  if (days === 1) return "1 day ago";
-  if (days < 30) return `${days} days ago`;
-  return `${Math.floor(days / 30)}mo ago`;
+  if (days === 1) return copy.oneDayAgo;
+  if (days < 30) return copy.daysAgo(days);
+  return copy.monthsAgo(Math.floor(days / 30));
 }
 
 function StarRating({ avg }: { avg: number }) {
   const stars = Math.round((avg / 10) * 5);
   return (
     <span className="inline-flex items-center gap-0.5">
-      {Array.from({ length: 5 }, (_, i) => (
+      {STAR_POSITIONS.map((starIndex) => (
         <Star
-          key={i}
+          key={starIndex}
           size={10}
           className={
-            i < stars
+            starIndex < stars
               ? "fill-amber-400 text-amber-400"
               : "fill-none text-[var(--muted-foreground)]"
           }
@@ -107,6 +128,7 @@ function StarRating({ avg }: { avg: number }) {
 function ExpandArrow() {
   return (
     <svg
+      aria-hidden="true"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -125,10 +147,12 @@ function HomeItemCard({
   item,
   currencySymbol,
   exchangeRate,
+  copy,
 }: {
   item: NewItem;
   currencySymbol: string;
   exchangeRate: number;
+  copy: HomeItemCardCopy;
 }) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const setSellerModalId = useSetAtom(sellerModalIdAtom);
@@ -152,6 +176,22 @@ function HomeItemCard({
     : item.image
       ? [item.image]
       : [];
+  const sellerName = item.seller ?? copy.unknownSeller;
+  const hasSellerLink = item.sellerId != null;
+  const openSellerModal = () => {
+    if (item.sellerId != null) setSellerModalId(String(item.sellerId));
+  };
+  const handleSellerClick = (event: MouseEvent<HTMLSpanElement>) => {
+    event.stopPropagation();
+    openSellerModal();
+  };
+  const handleSellerKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      event.stopPropagation();
+      openSellerModal();
+    }
+  };
 
   return (
     <div className="item-card group">
@@ -175,7 +215,7 @@ function HomeItemCard({
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={secondImage}
-                  alt={`${item.name} alternate`}
+                  alt={copy.alternateImageAlt(item.name)}
                   loading="lazy"
                   className="card-image card-image--hover"
                 />
@@ -220,72 +260,66 @@ function HomeItemCard({
                 are invalid HTML. */}
             <div className="seller-card mt-1.5">
               <SellerAvatarTooltip
-                sellerName={item.seller ?? "Unknown seller"}
+                sellerName={sellerName}
                 imageUrl={item.sellerImageUrl}
                 showInitialTooltip
               >
-                <span
-                  role={item.sellerId != null ? "button" : undefined}
-                  tabIndex={item.sellerId != null ? 0 : undefined}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (item.sellerId != null)
-                      setSellerModalId(String(item.sellerId));
-                  }}
-                  onKeyDown={(e) => {
-                    if (
-                      item.sellerId != null &&
-                      (e.key === "Enter" || e.key === " ")
-                    ) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setSellerModalId(String(item.sellerId));
-                    }
-                  }}
-                  className={`seller-card__avatar !w-5 !h-5 !text-[9px] !rounded shrink-0 overflow-hidden inline-flex items-center justify-center ${item.sellerId != null ? "cursor-pointer" : ""}`}
-                  aria-label={
-                    item.sellerId != null
-                      ? `View seller ${item.seller ?? ""}`
-                      : undefined
-                  }
-                >
-                  {item.sellerImageUrl ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={item.sellerImageUrl}
-                      alt={item.seller ?? ""}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    sellerInitials
-                  )}
-                </span>
+                {hasSellerLink ? (
+                  /* biome-ignore lint/a11y/useSemanticElements: This control sits inside the card detail button, so a nested button would be invalid HTML. */
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={handleSellerClick}
+                    onKeyDown={handleSellerKeyDown}
+                    className="seller-card__avatar !w-5 !h-5 !text-[9px] !rounded shrink-0 overflow-hidden inline-flex items-center justify-center cursor-pointer"
+                    aria-label={copy.viewSeller(sellerName)}
+                  >
+                    {item.sellerImageUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={item.sellerImageUrl}
+                        alt={sellerName}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      sellerInitials
+                    )}
+                  </span>
+                ) : (
+                  <span className="seller-card__avatar !w-5 !h-5 !text-[9px] !rounded shrink-0 overflow-hidden inline-flex items-center justify-center">
+                    {item.sellerImageUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={item.sellerImageUrl}
+                        alt={sellerName}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      sellerInitials
+                    )}
+                  </span>
+                )}
               </SellerAvatarTooltip>
               <div className="seller-card__body">
                 <div className="seller-card__name-row">
-                  <span
-                    role={item.sellerId != null ? "button" : undefined}
-                    tabIndex={item.sellerId != null ? 0 : undefined}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (item.sellerId != null)
-                        setSellerModalId(String(item.sellerId));
-                    }}
-                    onKeyDown={(e) => {
-                      if (
-                        item.sellerId != null &&
-                        (e.key === "Enter" || e.key === " ")
-                      ) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setSellerModalId(String(item.sellerId));
-                      }
-                    }}
-                    className={`seller-card__name text-[11px] hover:text-foreground transition-colors ${item.sellerId != null ? "cursor-pointer" : ""}`}
-                  >
-                    {item.seller ?? "Unknown seller"}
-                  </span>
+                  {hasSellerLink ? (
+                    /* biome-ignore lint/a11y/useSemanticElements: This control sits inside the card detail button, so a nested button would be invalid HTML. */
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={handleSellerClick}
+                      onKeyDown={handleSellerKeyDown}
+                      className="seller-card__name text-[11px] hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      {sellerName}
+                    </span>
+                  ) : (
+                    <span className="seller-card__name text-[11px] hover:text-foreground transition-colors">
+                      {sellerName}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -299,6 +333,7 @@ function HomeItemCard({
                     item.priceMax,
                     currencySymbol,
                     exchangeRate,
+                    copy.priceUnavailable,
                   )}
                 </span>
               </div>
@@ -307,7 +342,7 @@ function HomeItemCard({
             {/* Footer row: time ago + reviews */}
             <div className="flex items-center justify-between mt-1">
               <span className="text-[11px] text-muted-foreground">
-                {timeAgo(item.date)}
+                {timeAgo(item.date, copy.time)}
               </span>
               {hasReviews && (
                 <span className="flex items-center gap-1">
@@ -341,6 +376,7 @@ export function WhatsNewSection({
   newest,
   recentlyUpdated,
 }: WhatsNewSectionProps) {
+  const t = useTranslations("home.whatsNewSection");
   const [activeTab, setActiveTab] = useState<Tab>("newest");
   const { symbol, rate } = useAtomValue(currencyDisplayAtom);
 
@@ -352,6 +388,22 @@ export function WhatsNewSection({
   const exchangeRate = mounted ? rate : 1;
 
   const items = activeTab === "newest" ? newest : recentlyUpdated;
+  const itemCardCopy: HomeItemCardCopy = useMemo(
+    () => ({
+      priceUnavailable: t("priceUnavailable"),
+      unknownSeller: t("unknownSeller"),
+      viewSeller: (seller) => t("viewSeller", { seller }),
+      alternateImageAlt: (item) => t("alternateImageAlt", { item }),
+      time: {
+        justNow: t("time.justNow"),
+        hoursAgo: (count) => t("time.hoursAgo", { count }),
+        oneDayAgo: t("time.oneDayAgo"),
+        daysAgo: (count) => t("time.daysAgo", { count }),
+        monthsAgo: (count) => t("time.monthsAgo", { count }),
+      },
+    }),
+    [t],
+  );
 
   return (
     <section className="py-20 bg-[var(--background)]">
@@ -365,16 +417,14 @@ export function WhatsNewSection({
         >
           {/* Section label */}
           <p className="text-sm font-semibold uppercase tracking-wider text-primary mb-2">
-            Fresh activity
+            {t("eyebrow")}
           </p>
 
           {/* Section heading */}
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-            Recently indexed items
+            {t("heading")}
           </h2>
-          <p className="text-muted mb-8">
-            See the latest or most recently updated items on Little Biggy.
-          </p>
+          <p className="text-muted mb-8">{t("description")}</p>
 
           {/* Tab switcher + scroll arrows */}
           <div className="flex items-center justify-between mb-6">
@@ -391,7 +441,7 @@ export function WhatsNewSection({
                   }`}
                 >
                   {tab.icon}
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="hidden sm:inline">{t(tab.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -401,14 +451,14 @@ export function WhatsNewSection({
               <button
                 type="button"
                 className="whats-new-prev rounded-full border border-[var(--border)] p-2 text-muted hover:text-foreground hover:bg-[var(--surface-hover)] transition-colors"
-                aria-label="Scroll left"
+                aria-label={t("scrollLeft")}
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 type="button"
                 className="whats-new-next rounded-full border border-[var(--border)] p-2 text-muted hover:text-foreground hover:bg-[var(--surface-hover)] transition-colors"
-                aria-label="Scroll right"
+                aria-label={t("scrollRight")}
               >
                 <ChevronRight size={16} />
               </button>
@@ -448,6 +498,7 @@ export function WhatsNewSection({
                 item={item}
                 currencySymbol={currencySymbol}
                 exchangeRate={exchangeRate}
+                copy={itemCardCopy}
               />
             </SwiperSlide>
           ))}
@@ -461,7 +512,7 @@ export function WhatsNewSection({
           prefetch={false}
           className="group inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:text-primary"
         >
-          Browse all items
+          {t("browseAll")}
           <ArrowRight
             size={16}
             className="transition-transform group-hover:translate-x-0.5"

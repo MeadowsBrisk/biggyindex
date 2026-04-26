@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { RouteDataLoader } from "@/components/RouteDataLoader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -7,11 +8,19 @@ import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
 import { ReviewsPageClient } from "./ReviewsPageClient";
 
-export const metadata = {
-  title: "Reviews - BiggyIndex",
-  description:
-    "Latest community reviews from Little Biggy buyers with images, ratings, and delivery times.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "reviews.page" });
+
+  return {
+    title: t("metadataTitle"),
+    description: t("metadataDescription"),
+  };
+}
 
 interface RawReviewSegment {
   type: "text" | "image";
@@ -122,10 +131,10 @@ export default async function ReviewsPage({
         market={market}
       />
       <SiteHeader />
-      <main className="min-h-screen bg-[var(--background)]">
+      <main className="min-h-screen bg-background">
         <ReviewsPageClient reviews={allReviews} />
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </>
   );
 }

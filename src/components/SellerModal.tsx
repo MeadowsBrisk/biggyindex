@@ -3,6 +3,7 @@
 import { useAtom, useAtomValue } from "jotai";
 import { Flag, Star, ThumbsUp, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   lazy,
   Suspense,
@@ -88,6 +89,7 @@ function SellerFeedbackActions({
   sellerId: string;
   sellerName: string;
 }) {
+  const t = useTranslations("seller.modal.feedback");
   const [submitted, setSubmitted] = useState<Record<FeedbackKind, boolean>>({
     endorse: false,
     report: false,
@@ -115,7 +117,7 @@ function SellerFeedbackActions({
   const submit = useCallback(
     async (kind: FeedbackKind, reasonText?: string) => {
       if (!FEEDBACK_API) {
-        setMessage("Feedback endpoint not configured.");
+        setMessage(t("endpointMissing"));
         return;
       }
       setBusy(kind);
@@ -137,9 +139,7 @@ function SellerFeedbackActions({
         };
         if (!res.ok) {
           if (res.status === 429) {
-            setMessage(
-              "You've hit the hourly limit (20 per hour). Try again later.",
-            );
+            setMessage(t("hourlyLimit"));
           } else {
             setMessage(data.error ?? `HTTP ${res.status}`);
           }
@@ -153,20 +153,16 @@ function SellerFeedbackActions({
             /* ignore */
           }
           setSubmitted((s) => ({ ...s, [kind]: true }));
-          setMessage(
-            data.duplicate
-              ? "Thanks — your vote was added to an existing report."
-              : "Thanks — a moderator will review.",
-          );
+          setMessage(data.duplicate ? t("duplicateThanks") : t("reviewThanks"));
           if (kind === "report") setReportOpen(false);
         }
       } catch (e) {
-        setMessage(e instanceof Error ? e.message : "Network error");
+        setMessage(e instanceof Error ? e.message : t("networkError"));
       } finally {
         setBusy(null);
       }
     },
-    [sellerId, sellerName],
+    [sellerId, sellerName, t],
   );
 
   return (
@@ -180,10 +176,10 @@ function SellerFeedbackActions({
         >
           <ThumbsUp size={12} />
           {submitted.endorse
-            ? "Endorsed"
+            ? t("endorsed")
             : busy === "endorse"
-              ? "Submitting…"
-              : "Endorse seller"}
+              ? t("submitting")
+              : t("endorseSeller")}
         </button>
         <button
           type="button"
@@ -192,20 +188,20 @@ function SellerFeedbackActions({
           className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-muted hover:text-red-500 hover:border-red-500/40 disabled:opacity-60 disabled:cursor-default transition-colors"
         >
           <Flag size={12} />
-          {submitted.report ? "Reported" : "Report seller"}
+          {submitted.report ? t("reported") : t("reportSeller")}
         </button>
       </div>
 
       {reportOpen && !submitted.report && (
         <div className="space-y-2 rounded-md border border-[var(--border)] bg-[var(--surface)] p-3">
           <label className="text-[11px] font-medium uppercase tracking-wider text-muted">
-            Reason (optional)
+            {t("reasonOptional")}
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value.slice(0, 300))}
             rows={3}
-            placeholder="What did you notice? (scam, fake reviews, shipping issue…)"
+            placeholder={t("reasonPlaceholder")}
             className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] p-2 text-xs text-foreground outline-none focus:border-primary/40"
           />
           <div className="flex items-center justify-end gap-2">
@@ -214,7 +210,7 @@ function SellerFeedbackActions({
               onClick={() => setReportOpen(false)}
               className="text-xs text-muted hover:text-foreground"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="button"
@@ -222,7 +218,7 @@ function SellerFeedbackActions({
               onClick={() => submit("report", reason.trim())}
               className="rounded-md bg-red-500/90 px-3 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-60"
             >
-              {busy === "report" ? "Submitting…" : "Submit report"}
+              {busy === "report" ? t("submitting") : t("submitReport")}
             </button>
           </div>
         </div>
@@ -235,6 +231,7 @@ function SellerFeedbackActions({
 
 /* ── Component ── */
 export function SellerModal() {
+  const t = useTranslations("seller.modal");
   const [sellerId, setSellerId] = useAtom(sellerModalIdAtom);
   const sellersMap = useAtomValue(sellersMapAtom);
   const market = useAtomValue(marketAtom);
@@ -260,7 +257,7 @@ export function SellerModal() {
 
   // Seller from the index (instant)
   const indexSeller = sellerId ? sellersMap.get(sellerId) : undefined;
-  const name = detail?.sellerName ?? indexSeller?.name ?? "Seller";
+  const name = detail?.sellerName ?? indexSeller?.name ?? t("fallbackName");
   const initial = name.charAt(0).toUpperCase();
 
   // Fetch detail on open
@@ -432,7 +429,7 @@ export function SellerModal() {
         <button
           onClick={closeViaHistory}
           className="ido-close"
-          aria-label="Close"
+          aria-label={t("close")}
         >
           <X size={16} />
         </button>
@@ -455,7 +452,7 @@ export function SellerModal() {
                     }
                     disabled={!img}
                     aria-label={
-                      img ? `Zoom ${name}'s profile image` : undefined
+                      img ? t("zoomProfileImage", { seller: name }) : undefined
                     }
                     className={`w-20 h-20 rounded-xl overflow-hidden bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center transition-shadow ${
                       img
@@ -501,12 +498,12 @@ export function SellerModal() {
                         className={`size-1.5 rounded-full ${online === "today" ? "bg-emerald-500" : "bg-yellow-500"}`}
                       />
                       {online === "today"
-                        ? "Online today"
-                        : `Last seen ${online}`}
+                        ? t("onlineToday")
+                        : t("lastSeen", { time: online })}
                     </span>
                   )}
                   {detail?.sellerJoined && (
-                    <span>Joined {detail.sellerJoined}</span>
+                    <span>{t("joined", { date: detail.sellerJoined })}</span>
                   )}
                 </div>
 
@@ -518,10 +515,12 @@ export function SellerModal() {
                       onClick={filterBySeller}
                       className="hover:text-primary transition-colors cursor-pointer"
                     >
-                      {itemsCount} items
+                      {t("itemCount", { count: itemsCount })}
                     </button>
                   )}
-                  {numReviews != null && <span>{numReviews} reviews</span>}
+                  {numReviews != null && (
+                    <span>{t("reviewCount", { count: numReviews })}</span>
+                  )}
                   {avgRating != null && (
                     <span className="inline-flex items-center gap-0.5">
                       <Star
@@ -532,7 +531,9 @@ export function SellerModal() {
                     </span>
                   )}
                   {avgDays != null && (
-                    <span>~{Math.round(avgDays)}d delivery</span>
+                    <span>
+                      {t("deliveryShort", { days: Math.round(avgDays) })}
+                    </span>
                   )}
                 </div>
               </div>
@@ -541,7 +542,7 @@ export function SellerModal() {
             {/* Manifesto */}
             <div className="mt-4">
               <h3 className="text-sm font-semibold text-foreground mb-1">
-                About
+                {t("about")}
               </h3>
               {loading && !detail ? (
                 <div className="space-y-2 animate-pulse">
@@ -555,7 +556,7 @@ export function SellerModal() {
                 </p>
               ) : (
                 <p className="text-xs italic text-muted">
-                  No description available
+                  {t("noDescription")}
                 </p>
               )}
             </div>
@@ -575,15 +576,24 @@ export function SellerModal() {
           <div className="min-w-0 flex flex-col min-h-0 overflow-hidden relative">
             {/* Reviews header (pr-14 reserves space for the close X) */}
             <div className="sticky top-0 z-10 bg-[var(--card)] border-b border-[var(--border)] px-5 py-3 pr-14">
-              <h3 className="text-sm font-semibold text-foreground">Reviews</h3>
+              <h3 className="text-sm font-semibold text-foreground">
+                {t("reviews.heading")}
+              </h3>
               <div className="text-[11px] text-muted flex items-baseline justify-between gap-3">
                 <span>
                   {loading
-                    ? "Loading..."
-                    : `${reviews.length} recent${numReviews && numReviews > reviews.length ? ` (${numReviews} total)` : ""}`}
+                    ? t("reviews.loading")
+                    : numReviews && numReviews > reviews.length
+                      ? t("reviews.recentTotal", {
+                          recent: reviews.length,
+                          total: numReviews,
+                        })
+                      : t("reviews.recentCount", { count: reviews.length })}
                 </span>
                 {avgDays != null && (
-                  <span>~{Math.round(avgDays)}d avg delivery</span>
+                  <span>
+                    {t("reviews.avgDelivery", { days: Math.round(avgDays) })}
+                  </span>
                 )}
               </div>
               {ratingStats.total > 0 && (
@@ -602,13 +612,19 @@ export function SellerModal() {
                               ? "bg-red-500/15 text-red-700 dark:bg-red-500/20 dark:text-red-200"
                               : "bg-amber-500/15 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200"
                           } ${isActive ? "ring-2 ring-primary/50" : "hover:brightness-110"}`}
-                          title={`${isActive ? "Remove" : "Apply"} low-rating filter (≤ 5/10) — ${ratingStats.recentNegatives} review${ratingStats.recentNegatives === 1 ? "" : "s"}`}
+                          title={t(
+                            isActive
+                              ? "reviews.removeLowRatingFilterTitle"
+                              : "reviews.applyLowRatingFilterTitle",
+                            { count: ratingStats.recentNegatives },
+                          )}
                         >
                           <span
                             className={`inline-block size-2 rounded-full ${ratingStats.recentNegatives > 6 ? "bg-red-500" : "bg-amber-500"}`}
                           />
-                          {ratingStats.recentNegatives} low rating
-                          {ratingStats.recentNegatives === 1 ? "" : "s"}
+                          {t("reviews.lowRating", {
+                            count: ratingStats.recentNegatives,
+                          })}
                         </button>
                       );
                     })()}
@@ -627,7 +643,15 @@ export function SellerModal() {
                               ratingBucketClass(b.rating)
                             : ratingBucketClass(b.rating)
                         }`}
-                        title={`${isActive ? "Remove filter" : "Filter"}: ${b.count} review${b.count === 1 ? "" : "s"} rated ${b.rating}/10`}
+                        title={t("reviews.ratingFilterTitle", {
+                          action: t(
+                            isActive
+                              ? "reviews.removeFilter"
+                              : "reviews.filter",
+                          ),
+                          count: b.count,
+                          rating: b.rating,
+                        })}
                       >
                         <span className="font-semibold">{b.rating}/10</span>
                         <span className="opacity-80">{b.count}</span>
@@ -643,7 +667,7 @@ export function SellerModal() {
               {loading && reviews.length === 0 ? (
                 <div className="space-y-4 animate-pulse">
                   {Array.from({ length: 5 }, (_, i) => (
-                    <div key={i} className="space-y-2">
+                    <div key={`review-skeleton-${i}`} className="space-y-2">
                       <div className="h-3 bg-[var(--surface)] rounded w-1/4" />
                       <div className="h-3 bg-[var(--surface)] rounded w-3/4" />
                     </div>
@@ -651,7 +675,7 @@ export function SellerModal() {
                 </div>
               ) : reviews.length === 0 ? (
                 <p className="text-sm text-muted italic py-8 text-center">
-                  No reviews yet
+                  {t("reviews.noReviewsYet")}
                 </p>
               ) : (
                 (() => {
@@ -664,10 +688,12 @@ export function SellerModal() {
                             (r) => Math.round(r.rating) === ratingFilter,
                           );
                   const emptyLabel =
-                    ratingFilter === "low" ? "low-rated" : `${ratingFilter}/10`;
+                    ratingFilter === "low"
+                      ? t("reviews.lowRated")
+                      : `${ratingFilter}/10`;
                   return displayed.length === 0 ? (
                     <p className="text-sm text-muted italic py-8 text-center">
-                      No {emptyLabel} reviews
+                      {t("reviews.noFilteredReviews", { filter: emptyLabel })}
                     </p>
                   ) : (
                     displayed.map((review) => (
@@ -687,7 +713,7 @@ export function SellerModal() {
               {shareLink &&
                 numReviews != null &&
                 numReviews > reviews.length && (
-                  <p className="ido-reviews-hint">Read more reviews at:</p>
+                  <p className="ido-reviews-hint">{t("reviews.readMoreAt")}</p>
                 )}
               <div className="pb-16" />
             </div>
@@ -699,9 +725,11 @@ export function SellerModal() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ido-lb-btn"
-                aria-label={`Visit ${name} on LittleBiggy`}
+                aria-label={t("visitAria", { seller: name })}
               >
-                <span className="ido-lb-btn__label">Visit {name}</span>
+                <span className="ido-lb-btn__label">
+                  {t("visit", { seller: name })}
+                </span>
                 <span className="ido-lb-btn__arrow" aria-hidden="true">
                   →
                 </span>

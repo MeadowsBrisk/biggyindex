@@ -21,6 +21,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowRight, ExternalLink, Star, Truck, User, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
@@ -34,23 +35,38 @@ import {
 } from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
+const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
 
-function timeAgo(dateStr: string): string {
+interface TimeAgoParts {
+  key:
+    | "time.justNow"
+    | "time.hoursAgo"
+    | "time.oneDayAgo"
+    | "time.daysAgo"
+    | "time.monthsAgo";
+  count?: number;
+}
+
+function timeAgoParts(dateStr: string): TimeAgoParts {
   const diff = Date.now() - new Date(dateStr).getTime();
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 1) return { key: "time.justNow" };
+  if (hours < 24) return { key: "time.hoursAgo", count: hours };
   const days = Math.floor(hours / 24);
-  if (days === 1) return "1 day ago";
-  if (days < 30) return `${days}d ago`;
-  return `${Math.floor(days / 30)}mo ago`;
+  if (days === 1) return { key: "time.oneDayAgo" };
+  if (days < 30) return { key: "time.daysAgo", count: days };
+  return { key: "time.monthsAgo", count: Math.floor(days / 30) };
 }
 
 function Stars({ rating }: { rating: number }) {
   const stars = Math.round((rating / 10) * 5);
   return (
-    <div className="flex items-center gap-0.5" aria-label={`${rating}/10`}>
-      {Array.from({ length: 5 }, (_, i) => (
+    <div
+      className="flex items-center gap-0.5"
+      role="img"
+      aria-label={`${rating}/10`}
+    >
+      {STAR_POSITIONS.map((i) => (
         <Star
           key={i}
           size={14}
@@ -66,6 +82,7 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export function PhotoReviewModal() {
+  const t = useTranslations("home.photoReviewModal");
   const [review, setReview] = useAtom(photoReviewModalAtom);
   const setExpandedRefNum = useSetAtom(expandedRefNumAtom);
   const setFocusReviewId = useSetAtom(focusReviewIdAtom);
@@ -97,6 +114,13 @@ export function PhotoReviewModal() {
   useBodyScrollLock(isOpen);
 
   const images = useMemo(() => review?.images ?? [], [review]);
+  const createdAgo = useMemo(() => {
+    if (!review) return null;
+    const parts = timeAgoParts(review.createdAt);
+    return parts.count == null
+      ? t(parts.key)
+      : t(parts.key, { count: parts.count });
+  }, [review, t]);
 
   const openItem = () => {
     if (!review) return;
@@ -148,7 +172,7 @@ export function PhotoReviewModal() {
             <div className="relative flex-1 min-h-60 md:min-h-115 bg-black/90 md:w-1/2 overflow-y-auto">
               {images.length === 0 ? (
                 <div className="flex h-full w-full items-center justify-center text-white/40 text-sm">
-                  No images attached
+                  {t("noImages")}
                 </div>
               ) : images.length === 1 ? (
                 <button
@@ -158,12 +182,12 @@ export function PhotoReviewModal() {
                     setZoomSignal(Date.now());
                   }}
                   className="absolute inset-0 flex items-center justify-center overflow-hidden cursor-zoom-in"
-                  aria-label="Zoom image"
+                  aria-label={t("zoomImage")}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {/* biome-ignore lint/performance/noImgElement: review images are arbitrary marketplace URLs */}
                   <img
                     src={images[0]}
-                    alt={review.itemName ?? "Review photo"}
+                    alt={review.itemName ?? t("reviewPhoto")}
                     className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-[1.02]"
                   />
                 </button>
@@ -178,13 +202,16 @@ export function PhotoReviewModal() {
                 >
                   {images.map((src, idx) => (
                     <button
-                      key={src + idx}
+                      key={src}
                       type="button"
                       onClick={() => {
                         setZoomIndex(idx);
                         setZoomSignal(Date.now());
                       }}
-                      aria-label={`Zoom photo ${idx + 1} of ${images.length}`}
+                      aria-label={t("zoomPhoto", {
+                        index: idx + 1,
+                        total: images.length,
+                      })}
                       className={cx(
                         "relative aspect-square overflow-hidden rounded-md bg-black/60 group cursor-zoom-in",
                         // First image spans 2x2 when there are >=3 so the
@@ -194,7 +221,7 @@ export function PhotoReviewModal() {
                           "row-span-2 aspect-auto",
                       )}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {/* biome-ignore lint/performance/noImgElement: review images are arbitrary marketplace URLs */}
                       <img
                         src={src}
                         alt=""
@@ -210,7 +237,7 @@ export function PhotoReviewModal() {
                 <Suspense fallback={null}>
                   <ImageZoomPreview
                     imageUrls={images}
-                    alt={review.itemName ?? "Review photo"}
+                    alt={review.itemName ?? t("reviewPhoto")}
                     openSignal={zoomSignal}
                     startIndex={zoomIndex}
                   />
@@ -224,7 +251,7 @@ export function PhotoReviewModal() {
               <button
                 type="button"
                 onClick={handleClose}
-                aria-label="Close review"
+                aria-label={t("close")}
                 className="sticky top-2 ml-auto mr-2 z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 border border-border text-muted hover:text-foreground hover:bg-surface transition-colors"
               >
                 <X size={16} />
@@ -234,15 +261,13 @@ export function PhotoReviewModal() {
                 {/* Header: stars + when */}
                 <div className="flex items-center justify-between mb-3">
                   <Stars rating={review.rating} />
-                  <span className="text-xs text-muted">
-                    {timeAgo(review.createdAt)}
-                  </span>
+                  <span className="text-xs text-muted">{createdAgo}</span>
                 </div>
 
                 {/* Seller + item */}
                 <div className="flex items-start gap-3 mb-4">
                   {review.sellerAvatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                    // biome-ignore lint/performance/noImgElement: seller avatar is an arbitrary marketplace URL
                     <img
                       src={review.sellerAvatar}
                       alt={review.sellerName ?? ""}
@@ -262,14 +287,14 @@ export function PhotoReviewModal() {
                     )}
                     {review.sellerName && (
                       <p className="text-xs text-muted truncate">
-                        by {review.sellerName}
+                        {t("bySeller", { seller: review.sellerName })}
                       </p>
                     )}
                   </div>
                   {review.daysToArrive != null && (
                     <div className="flex items-center gap-1 shrink-0 text-xs text-muted">
                       <Truck size={12} />
-                      {review.daysToArrive}d
+                      {t("deliveryDays", { days: review.daysToArrive })}
                     </div>
                   )}
                 </div>
@@ -280,9 +305,7 @@ export function PhotoReviewModal() {
                     {review.text}
                   </p>
                 ) : (
-                  <p className="text-sm italic text-muted">
-                    No written review text.
-                  </p>
+                  <p className="text-sm italic text-muted">{t("noText")}</p>
                 )}
               </div>
 
@@ -297,7 +320,7 @@ export function PhotoReviewModal() {
                     onClick={openItem}
                     className="prm-primary-btn group"
                   >
-                    <span>Open item</span>
+                    <span>{t("openItem")}</span>
                     <ArrowRight size={14} className="prm-primary-btn__arrow" />
                   </button>
                 )}
@@ -308,7 +331,7 @@ export function PhotoReviewModal() {
                     rel="noopener noreferrer"
                     className="prm-ghost-btn"
                   >
-                    <span>View on LittleBiggy</span>
+                    <span>{t("viewOnLittleBiggy")}</span>
                     <ExternalLink size={13} className="opacity-70" />
                   </a>
                 )}

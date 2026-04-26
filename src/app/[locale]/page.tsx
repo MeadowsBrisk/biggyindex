@@ -51,7 +51,7 @@ export default async function HomePage({
         <div className="flex items-center justify-center min-h-[60vh] text-muted-foreground">
           Home feed unavailable — data may still be building.
         </div>
-        <SiteFooter />
+        <SiteFooter locale={locale} />
       </>
     );
   }
@@ -104,7 +104,7 @@ export default async function HomePage({
         <FaqSection />
       </Suspense>
 
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </>
   );
 }

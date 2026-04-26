@@ -2,6 +2,7 @@
 
 import { useSetAtom } from "jotai";
 import { Camera, MessageSquare, Star, Truck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   lazy,
   Suspense,
@@ -58,8 +59,12 @@ function StarRating({ rating }: { rating: number }) {
         const isFull = starValue >= i + 1;
         const isHalf = !isFull && starValue > i && starValue < i + 1;
         return (
-          <span key={i} className="relative inline-flex h-3.5 w-3.5">
-            <svg viewBox="0 0 24 24" className="absolute inset-0 h-full w-full">
+          <span key={`star-${i}`} className="relative inline-flex h-3.5 w-3.5">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="absolute inset-0 h-full w-full"
+            >
               <path
                 className="fill-[var(--border)]"
                 d="M12 2.5 14.9 8l6.1.9-4.4 4.3 1 6.2L12 16.9 6.4 19.4l1-6.2-4.4-4.3L9.1 8z"
@@ -82,22 +87,32 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function timeAgo(dateStr: string, now: number): string {
-  const diff = now - new Date(dateStr).getTime();
-  const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days === 1) return "1 day ago";
-  if (days < 30) return `${days}d ago`;
-  return `${Math.floor(days / 30)}mo ago`;
+interface TimeAgoParts {
+  key: "justNow" | "hoursAgo" | "oneDayAgo" | "daysAgo" | "monthsAgo";
+  count?: number;
 }
 
-function arrivalLabel(days?: number): string | null {
+function timeAgoParts(dateStr: string, now: number): TimeAgoParts {
+  const diff = now - new Date(dateStr).getTime();
+  const hours = Math.floor(diff / 3_600_000);
+  if (hours < 1) return { key: "justNow" };
+  if (hours < 24) return { key: "hoursAgo", count: hours };
+  const days = Math.floor(hours / 24);
+  if (days === 1) return { key: "oneDayAgo" };
+  if (days < 30) return { key: "daysAgo", count: days };
+  return { key: "monthsAgo", count: Math.floor(days / 30) };
+}
+
+interface ArrivalParts {
+  key: "sameDay" | "oneDay" | "days";
+  count?: number;
+}
+
+function arrivalParts(days?: number): ArrivalParts | null {
   if (days == null) return null;
-  if (days === 0) return "same day";
-  if (days === 1) return "1 day";
-  return `${days} days`;
+  if (days === 0) return { key: "sameDay" };
+  if (days === 1) return { key: "oneDay" };
+  return { key: "days", count: days };
 }
 
 function getInitials(name: string): string {
@@ -110,17 +125,31 @@ function getInitials(name: string): string {
 }
 
 function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
+  const t = useTranslations("reviews.page.row");
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const setSellerModal = useSetAtom(sellerModalIdAtom);
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
+  const [zoomIndex, setZoomIndex] = useState(0);
   const hasText = review.text && review.text.trim().length > 0;
   const hasImages = review.images && review.images.length > 0;
   const hasItemImage = !!review.itemImageUrl;
-  const arrival = arrivalLabel(review.daysToArrive);
+  const arrival = arrivalParts(review.daysToArrive);
   const panel = panelClass(review.rating);
   const sellerAvatar = getSellerImageUrl(review.sellerImageUrl);
+  const createdAgo = useMemo(() => {
+    const parts = timeAgoParts(review.createdAt, now);
+    return parts.count == null
+      ? t(parts.key)
+      : t(parts.key, { count: parts.count });
+  }, [now, review.createdAt, t]);
+  const arrivalText = arrival
+    ? arrival.count == null
+      ? t(arrival.key)
+      : t(arrival.key, { count: arrival.count })
+    : null;
 
-  const openZoom = useCallback(() => {
+  const openZoom = useCallback((index: number) => {
+    setZoomIndex(index);
     setZoomSignal((s) => (s ?? 0) + 1);
   }, []);
 
@@ -208,11 +237,11 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
               {arrival && (
                 <span className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
                   <Truck size={11} />
-                  {arrival}
+                  {arrivalText}
                 </span>
               )}
               <span className="text-[10px] font-medium text-muted-foreground ml-auto shrink-0">
-                {timeAgo(review.createdAt, now)}
+                {createdAgo}
               </span>
             </div>
           </div>
@@ -225,7 +254,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
               .text!.split(/\n{2,}/)
               .filter(Boolean)
               .map((para, i) => (
-                <p key={i} className="mb-1.5 last:mb-0">
+                <p key={`${para}-${i}`} className="mb-1.5 last:mb-0">
                   {para.replace(/\n+/g, " ").trim()}
                 </p>
               ))}
@@ -237,15 +266,15 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
           <div className="flex flex-wrap gap-1.5 mt-2 pl-[42px]">
             {review.images!.map((img, i) => (
               <button
-                key={i}
+                key={`${img}-${i}`}
                 type="button"
-                onClick={openZoom}
+                onClick={() => openZoom(i)}
                 className="cursor-zoom-in"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img}
-                  alt="Review photo"
+                  alt={t("reviewPhoto", { index: i + 1 })}
                   loading="lazy"
                   className="h-16 w-16 rounded-lg object-cover border border-[var(--border)] hover:scale-105 hover:ring-2 hover:ring-primary/40 transition-all"
                 />
@@ -254,9 +283,10 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
             {zoomSignal != null && (
               <Suspense fallback={null}>
                 <ImageZoomPreview
-                  imageUrl={review.images![0]}
+                  imageUrl={review.images![zoomIndex]}
                   imageUrls={review.images}
-                  alt="Review photo"
+                  startIndex={zoomIndex}
+                  alt={t("reviewPhoto", { index: zoomIndex + 1 })}
                   openSignal={zoomSignal}
                 />
               </Suspense>
@@ -269,6 +299,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
 }
 
 export function ReviewsPageClient({ reviews }: Props) {
+  const t = useTranslations("reviews.page");
   const [now, setNow] = useState(0);
   useEffect(() => setNow(Date.now()), []);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
@@ -295,10 +326,10 @@ export function ReviewsPageClient({ reviews }: Props) {
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-1">
-          Community Reviews
+          {t("title")}
         </h1>
         <p className="text-muted text-sm">
-          {reviews.length} recent reviews from Little Biggy buyers
+          {t("subtitle", { count: reviews.length })}
         </p>
       </div>
 
@@ -306,16 +337,16 @@ export function ReviewsPageClient({ reviews }: Props) {
       <div className="flex items-center gap-2 mb-6 flex-wrap">
         {(
           [
-            { key: "all", label: "All", count: reviews.length },
+            { key: "all", label: t("filters.all"), count: reviews.length },
             {
               key: "with-images",
-              label: "With photos",
+              label: t("filters.withPhotos"),
               count: imageCount,
               icon: <Camera size={12} />,
             },
             {
               key: "with-text",
-              label: "With comments",
+              label: t("filters.withComments"),
               count: textCount,
               icon: <MessageSquare size={12} />,
             },
@@ -341,16 +372,14 @@ export function ReviewsPageClient({ reviews }: Props) {
       {/* Review list — single column on mobile, two columns on xl */}
       <div className="columns-1 xl:columns-2 gap-4">
         {filtered.map((review, i) => (
-          <div key={`${review.id}-${i}`} className="break-inside-avoid mb-4">
+          <div key={review.id} className="break-inside-avoid mb-4">
             <ReviewRow review={review} now={now} />
           </div>
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-center text-muted py-12">
-          No reviews match this filter
-        </p>
+        <p className="text-center text-muted py-12">{t("noMatches")}</p>
       )}
     </div>
   );

@@ -12,6 +12,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { LocalizedText } from "@/components/LocalizedText";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
@@ -60,6 +61,7 @@ async function ItemContent({ params }: ItemPageProps) {
   cacheTag("item-detail");
 
   const { ref, locale } = await params;
+  const t = await getTranslations({ locale, namespace: "item.page" });
   const market = localeToMarket(locale);
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
@@ -69,18 +71,21 @@ async function ItemContent({ params }: ItemPageProps) {
   if (!item) {
     return (
       <>
-        <ItemPageBar />
+        <ItemPageBar
+          browseLabel={t("browseIndex")}
+          breadcrumbLabel={t("breadcrumb")}
+        />
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-foreground">Item not found</h1>
-          <p className="mt-2 text-muted">
-            The item &quot;{ref}&quot; doesn&apos;t exist or has been removed.
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("notFoundTitle")}
+          </h1>
+          <p className="mt-2 text-muted">{t("notFoundDescription", { ref })}</p>
           <Link
             href="/browse"
             prefetch={false}
             className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Back to index
+            {t("backToIndex")}
           </Link>
         </div>
       </>
@@ -109,7 +114,7 @@ async function ItemContent({ params }: ItemPageProps) {
         const parsed = parseVariant(v);
         return {
           key: v.vid != null ? String(v.vid) : String(i),
-          label: v.d || "—",
+          label: decodeEntities(v.d || "—"),
           price: v.usd,
           grams: parsed?.grams ?? null,
           ppg:
@@ -132,7 +137,13 @@ async function ItemContent({ params }: ItemPageProps) {
 
   return (
     <>
-      <ItemPageBar category={item.c} subcategory={item.sc?.[0]} name={name} />
+      <ItemPageBar
+        category={item.c}
+        subcategory={item.sc?.[0]}
+        name={name}
+        browseLabel={t("browseIndex")}
+        breadcrumbLabel={t("breadcrumb")}
+      />
 
       <div className="mx-auto max-w-5xl px-4 py-8">
         {/* ── Main grid ── */}
@@ -160,7 +171,7 @@ async function ItemContent({ params }: ItemPageProps) {
                   >
                     <Image
                       src={url!}
-                      alt={`${name} image ${i + 2}`}
+                      alt={t("imageAlt", { item: name, index: i + 2 })}
                       fill
                       className="object-cover"
                       sizes="80px"
@@ -210,12 +221,12 @@ async function ItemContent({ params }: ItemPageProps) {
             {item.sn && (
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>
-                  by{" "}
+                  {t("by")}{" "}
                   <span className="font-medium text-foreground">{item.sn}</span>
                 </span>
                 {item.sf && (
                   <span className="text-xs text-muted-foreground">
-                    · Ships from {item.sf}
+                    · {t("shipsFrom", { country: item.sf })}
                   </span>
                 )}
               </div>
@@ -224,7 +235,9 @@ async function ItemContent({ params }: ItemPageProps) {
             {/* Price */}
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-primary">
-                {item.uMin != null ? `${cSym}${item.uMin.toFixed(2)}` : "N/A"}
+                {item.uMin != null
+                  ? `${cSym}${item.uMin.toFixed(2)}`
+                  : t("unavailable")}
               </span>
               {item.uMax != null && item.uMax !== item.uMin && (
                 <span className="text-lg text-muted">
@@ -250,9 +263,13 @@ async function ItemContent({ params }: ItemPageProps) {
                     <span>/10</span>
                   </span>
                 )}
-                {item.rs.cnt != null && <span>{item.rs.cnt} reviews</span>}
+                {item.rs.cnt != null && (
+                  <span>{t("reviewsCount", { count: item.rs.cnt })}</span>
+                )}
                 {item.rs.days != null && (
-                  <span>~{Math.round(item.rs.days)}d delivery</span>
+                  <span>
+                    {t("deliveryShort", { count: Math.round(item.rs.days) })}
+                  </span>
                 )}
               </div>
             )}
@@ -261,7 +278,7 @@ async function ItemContent({ params }: ItemPageProps) {
             {item.at && Object.keys(item.at).length > 0 && (
               <div className="space-y-1.5">
                 <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-                  Attributes
+                  {t("attributes")}
                 </h2>
                 <div className="flex flex-wrap gap-1.5">
                   {Object.entries(item.at).map(([key, vals]) =>
@@ -294,7 +311,7 @@ async function ItemContent({ params }: ItemPageProps) {
             {variantRows.length > 0 && (
               <div>
                 <h2 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
-                  Variants
+                  {t("variants")}
                 </h2>
                 <div className="space-y-1">
                   {variantRows.map((v) => (
@@ -310,7 +327,7 @@ async function ItemContent({ params }: ItemPageProps) {
                         <span className="text-foreground">{v.label}</span>
                         {v.key === bestPpgKey && (
                           <span className="text-[10px] font-medium text-primary uppercase">
-                            Best value
+                            {t("bestValue")}
                           </span>
                         )}
                       </div>
@@ -336,18 +353,18 @@ async function ItemContent({ params }: ItemPageProps) {
             {shipOptions.length > 0 && (
               <div>
                 <h2 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
-                  Shipping
+                  {t("shipping")}
                 </h2>
                 <div className="space-y-1">
                   {shipOptions.map((opt, i) => (
                     <div
-                      key={i}
+                      key={`${opt.label}-${opt.cost}-${i}`}
                       className="flex justify-between rounded-md bg-surface px-3 py-1.5 text-sm"
                     >
                       <span className="text-foreground">{opt.label}</span>
                       <span className="font-medium text-muted">
                         {opt.cost === 0
-                          ? "Free"
+                          ? t("free")
                           : `${cSym}${opt.cost.toFixed(2)}`}
                       </span>
                     </div>
@@ -365,8 +382,9 @@ async function ItemContent({ params }: ItemPageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
-                  View on LittleBiggy
+                  {t("viewOnLittleBiggy")}
                   <svg
+                    aria-hidden="true"
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"
@@ -390,8 +408,12 @@ async function ItemContent({ params }: ItemPageProps) {
 
             {/* Timestamps */}
             <div className="flex gap-4 text-xs text-muted-foreground pt-2">
-              {item.fsa && <span>First seen: {fmtDate(item.fsa)}</span>}
-              {item.lua && <span>Updated: {fmtDate(item.lua)}</span>}
+              {item.fsa && (
+                <span>{t("firstSeen", { date: fmtDate(item.fsa) ?? "" })}</span>
+              )}
+              {item.lua && (
+                <span>{t("updated", { date: fmtDate(item.lua) ?? "" })}</span>
+              )}
               {item.lur && <span className="text-muted">({item.lur})</span>}
             </div>
           </div>
@@ -401,7 +423,7 @@ async function ItemContent({ params }: ItemPageProps) {
         {priceHistory.length > 1 && (
           <section className="mt-10">
             <h2 className="mb-3 text-sm font-semibold text-foreground">
-              Price History
+              {t("priceHistory")}
             </h2>
             <div className="overflow-x-auto">
               <div className="flex gap-2 text-xs">
@@ -443,7 +465,7 @@ async function ItemContent({ params }: ItemPageProps) {
         {reviews.length > 0 && (
           <section className="mt-10">
             <h2 className="mb-3 text-sm font-semibold text-foreground">
-              Reviews
+              {t("reviews")}
               <span className="ml-1 font-normal text-muted">
                 ({reviews.length})
               </span>
@@ -462,7 +484,7 @@ async function ItemContent({ params }: ItemPageProps) {
                     </span>
                     {r.daysToArrive != null && (
                       <span className="text-xs text-muted">
-                        {r.daysToArrive}d delivery
+                        {t("reviewDelivery", { days: r.daysToArrive })}
                       </span>
                     )}
                     {r.created && (
@@ -483,7 +505,9 @@ async function ItemContent({ params }: ItemPageProps) {
                       {r.segments
                         .filter((s: any) => s.type === "text")
                         .map((s: any, i: number) => (
-                          <span key={i}>{decodeEntities(s.value)} </span>
+                          <span key={`${s.value}-${i}`}>
+                            {decodeEntities(s.value)}{" "}
+                          </span>
                         ))}
                     </div>
                   )}
@@ -491,8 +515,7 @@ async function ItemContent({ params }: ItemPageProps) {
               ))}
               {reviews.length > 20 && (
                 <p className="text-xs text-muted italic">
-                  +{reviews.length - 20} more reviews — view full list on
-                  LittleBiggy
+                  {t("moreReviews", { count: reviews.length - 20 })}
                 </p>
               )}
             </div>
@@ -509,11 +532,15 @@ function ItemPageBar({
   category,
   subcategory,
   name,
+  browseLabel,
+  breadcrumbLabel,
 }: {
   category?: string | null;
   subcategory?: string | null;
   name?: string | null;
-} = {}) {
+  browseLabel: string;
+  breadcrumbLabel: string;
+}) {
   return (
     <div className="sticky top-0 z-50 border-b border-border bg-(--background)/80 backdrop-blur-md">
       <div className="mx-auto flex h-12 max-w-5xl items-center gap-3 px-4">
@@ -525,11 +552,11 @@ function ItemPageBar({
           <span className="inline-block transition-transform duration-200 group-hover:-translate-x-0.5">
             ←
           </span>
-          Browse the Index
+          {browseLabel}
         </Link>
         {(category || name) && (
           <nav
-            aria-label="Breadcrumb"
+            aria-label={breadcrumbLabel}
             className="min-w-0 flex items-center gap-1.5 text-xs text-muted"
           >
             {category && (

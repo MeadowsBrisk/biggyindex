@@ -1,6 +1,7 @@
 "use client";
 
 import { Truck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { cx } from "@/lib/cn";
@@ -26,16 +27,21 @@ export interface Review {
 
 /* ── Helpers ── */
 
-function relativeTime(unix: number): string {
+interface RelativeTimeParts {
+  key: "time.minutesAgo" | "time.hoursAgo" | "time.daysAgo" | "time.monthsAgo";
+  count: number;
+}
+
+function relativeTimeParts(unix: number): RelativeTimeParts {
   const ms = Date.now() - unix * 1000;
   const mins = Math.floor(ms / 60_000);
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60) return { key: "time.minutesAgo", count: mins };
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return { key: "time.hoursAgo", count: hrs };
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
+  if (days < 30) return { key: "time.daysAgo", count: days };
   const months = Math.floor(days / 30);
-  return `${months}mo ago`;
+  return { key: "time.monthsAgo", count: months };
 }
 
 /** Per-score panel class (background + border) matching old-biggyindex */
@@ -59,7 +65,7 @@ function renderParagraphs(text: string) {
   return (
     <>
       {paragraphs.map((p, i) => (
-        <span key={i} className={i > 0 ? "block mt-1.5" : undefined}>
+        <span key={`${p}-${i}`} className={i > 0 ? "block mt-1.5" : undefined}>
           {p}
         </span>
       ))}
@@ -90,6 +96,7 @@ export function ReviewCard({
   compact,
   highlighted,
 }: ReviewCardProps) {
+  const t = useTranslations("reviews.card");
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [zoomIndex, setZoomIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -118,6 +125,10 @@ export function ReviewCard({
   }, [review.segments]);
 
   const panelClass = panelClassForScore(review.rating);
+  const createdAgo = useMemo(() => {
+    const parts = relativeTimeParts(review.created);
+    return t(parts.key, { count: parts.count });
+  }, [review.created, t]);
 
   return (
     <>
@@ -141,9 +152,7 @@ export function ReviewCard({
           >
             {review.rating}
           </span>
-          <span className="text-[11px] text-muted ml-auto">
-            {relativeTime(review.created)}
-          </span>
+          <span className="text-[11px] text-muted ml-auto">{createdAgo}</span>
         </div>
 
         {/* Item link */}
@@ -185,7 +194,7 @@ export function ReviewCard({
           <div className="flex flex-wrap gap-1.5 mt-2">
             {imageUrls.map((src, idx) => (
               <button
-                key={idx}
+                key={`${src}-${idx}`}
                 type="button"
                 onClick={() => {
                   setZoomIndex(idx);
@@ -196,7 +205,7 @@ export function ReviewCard({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
-                  alt={`Review image ${idx + 1}`}
+                  alt={t("imageAlt", { index: idx + 1 })}
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
@@ -222,7 +231,7 @@ export function ReviewCard({
         <Suspense fallback={null}>
           <ImageZoomPreview
             imageUrls={imageUrls}
-            alt="Review image"
+            alt={t("imageAlt", { index: zoomIndex + 1 })}
             openSignal={zoomSignal}
             startIndex={zoomIndex}
           />
@@ -247,6 +256,8 @@ export function ReviewStatsHeader({
   days,
   recentCount,
 }: ReviewStatsProps) {
+  const t = useTranslations("reviews.card.stats");
+
   if (avg == null && count == null) return null;
 
   return (
@@ -258,17 +269,19 @@ export function ReviewStatsHeader({
             scoreTextClass(Math.round(avg)),
           )}
         >
-          {avg.toFixed(1)}/10 avg
+          {t("average", { rating: avg.toFixed(1) })}
         </span>
       )}
       {count != null && (
         <span>
           {recentCount != null && recentCount < count
-            ? `${recentCount} recent (${count} total)`
-            : `${count} reviews`}
+            ? t("recentTotal", { recent: recentCount, total: count })
+            : t("reviewCount", { count })}
         </span>
       )}
-      {days != null && <span>~{Math.round(days)}d avg delivery</span>}
+      {days != null && (
+        <span>{t("avgDelivery", { days: Math.round(days) })}</span>
+      )}
     </div>
   );
 }

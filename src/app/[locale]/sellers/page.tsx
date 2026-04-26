@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { RouteDataLoader } from "@/components/RouteDataLoader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -8,11 +9,19 @@ import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
 import { SellersPageClient } from "./SellersPageClient";
 
-export const metadata = {
-  title: "Sellers - BiggyIndex",
-  description:
-    "Browse all Little Biggy sellers with trust scores, review counts, and community ratings.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "seller.page" });
+
+  return {
+    title: t("metadataTitle"),
+    description: t("metadataDescription"),
+  };
+}
 
 interface LeaderboardEntry {
   sellerId: string;
@@ -102,7 +111,7 @@ export default async function SellersPage({
         market={market}
       />
       <SiteHeader />
-      <main className="min-h-screen bg-[var(--background)]">
+      <main className="min-h-screen bg-background">
         <Suspense>
           <SellersPageClient
             sellers={sellerList}
@@ -113,7 +122,7 @@ export default async function SellersPage({
           />
         </Suspense>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </>
   );
 }

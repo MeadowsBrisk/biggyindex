@@ -2,6 +2,7 @@
 
 import { useSetAtom } from "jotai";
 import { EyeOff, Filter, Heart, Package, Star, Truck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   lazy,
   memo,
@@ -110,8 +111,13 @@ function ExpandArrow() {
    and don't have meaningful "listed" dates ── */
 const FIRST_CRAWL_TS = new Date("2025-09-01T00:00:00Z").getTime();
 
+type RelativeAge = {
+  unit: "minutes" | "hours" | "days" | "months";
+  count: number;
+};
+
 /* ── Relative time (lightweight, no deps) ── */
-function timeAgo(iso: string | null | undefined): string | null {
+function relativeAge(iso: string | null | undefined): RelativeAge | null {
   if (!iso) return null;
   const ts = new Date(iso).getTime();
   if (Number.isNaN(ts)) return null;
@@ -119,13 +125,13 @@ function timeAgo(iso: string | null | undefined): string | null {
   const ms = Date.now() - ts;
   if (ms < 0) return null;
   const mins = Math.floor(ms / 60_000);
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60) return { unit: "minutes", count: mins };
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return { unit: "hours", count: hrs };
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
+  if (days < 30) return { unit: "days", count: days };
   const months = Math.floor(days / 30);
-  return `${months}mo ago`;
+  return { unit: "months", count: months };
 }
 
 /* ── Format price with currency symbol + rate ── */
@@ -165,6 +171,7 @@ function CardPill({
   item: Item;
   activeCategory: string;
 }) {
+  const tCategories = useTranslations("categories");
   const inCategory = activeCategory !== "All" && item.c === activeCategory;
   const firstSub = item.sc?.[0];
   const cat = item.c ?? "Other";
@@ -178,9 +185,9 @@ function CardPill({
   // Build label: "Category · Sub" when browsing All, just "Sub" or "Category" when inside a category
   let label: string;
   if (inCategory) {
-    label = firstSub ?? cat;
+    label = firstSub ?? tCategories(cat);
   } else {
-    label = firstSub ? `${cat} · ${firstSub}` : cat;
+    label = firstSub ? `${tCategories(cat)} · ${firstSub}` : tCategories(cat);
   }
 
   return (
@@ -201,17 +208,18 @@ function CardPill({
  * "?" glyph tinted amber; tooltip carries the full explanation on hover.
  */
 function LowConfidenceBadge({ cf }: { cf?: number | null }) {
+  const t = useTranslations("browse.card");
   if (cf == null || cf >= 0.5) return null;
   const pct = Math.round(cf * 100);
   return (
     <Tooltip
-      content={`Uncertain category (${pct}% confidence)`}
+      content={t("lowConfidence", { percent: pct })}
       side="bottom"
       delay={300}
     >
       <span
         className="card-pill card-pill--image glass text-[10px] font-semibold pointer-events-auto text-amber-500"
-        aria-label={`Low categorization confidence: ${pct}%`}
+        aria-label={t("lowConfidenceAria", { percent: pct })}
       >
         ?
       </span>
@@ -255,6 +263,7 @@ function ItemCardInner({
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const setSelectedSellers = useSetAtom(selectedSellersAtom);
   const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
+  const t = useTranslations("browse.card");
   const seller =
     item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
   const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
@@ -579,9 +588,13 @@ function ItemCardInner({
   }, [activeGroup, activeQtyGroup, exactPrice, item.v, shipSurcharge]);
 
   // Timestamps
-  const listed = timeAgo(item.fsa);
+  const listedAge = relativeAge(item.fsa);
   const updated =
-    item.lua && item.lur && item.lur !== "N" ? timeAgo(item.lua) : null;
+    item.lua && item.lur && item.lur !== "N" ? relativeAge(item.lua) : null;
+  const formatAge = useCallback(
+    (age: RelativeAge) => t(`time.${age.unit}Ago`, { count: age.count }),
+    [t],
+  );
 
   // Is price a range (different min/max)?
   const priceIsRange =
@@ -688,7 +701,7 @@ function ItemCardInner({
             type="button"
             onClick={openZoom}
             className="block h-full w-full cursor-zoom-in"
-            aria-label={`Preview ${decodeEntities(item.n)}`}
+            aria-label={t("preview", { item: decodeEntities(item.n) })}
           >
             {hasImage ? (
               <>
@@ -742,7 +755,7 @@ function ItemCardInner({
             </div>
             <Tooltip
               content={
-                isBookmarked ? "Remove bookmark" : "Bookmark this product"
+                isBookmarked ? t("removeBookmark") : t("bookmarkProduct")
               }
               side="left"
               delay={350}
@@ -753,7 +766,9 @@ function ItemCardInner({
                   e.preventDefault();
                   e.stopPropagation();
                   addToast({
-                    message: isBookmarked ? "Bookmark removed" : "Bookmarked",
+                    message: isBookmarked
+                      ? t("bookmarkRemoved")
+                      : t("bookmarked"),
                     variant: "success",
                     duration: 1800,
                   });
@@ -761,7 +776,7 @@ function ItemCardInner({
                 }}
                 className={`bookmark-btn pointer-events-auto${isBookmarked ? " bookmark-active-btn always-show" : ""}`}
                 aria-label={
-                  isBookmarked ? "Remove bookmark" : "Bookmark this product"
+                  isBookmarked ? t("removeBookmark") : t("bookmarkProduct")
                 }
               >
                 <Heart
@@ -779,7 +794,9 @@ function ItemCardInner({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              aria-label={`View ${decodeEntities(item.n)} on LittleBiggy`}
+              aria-label={t("viewOnLittleBiggy", {
+                item: decodeEntities(item.n),
+              })}
               className="card-lb-btn"
             >
               <span>Little Biggy</span>
@@ -850,7 +867,7 @@ function ItemCardInner({
                     {seller?.online === "today" && (
                       <span
                         className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-[1.5px] ring-[var(--card)]"
-                        title="Online today"
+                        title={t("onlineToday")}
                       />
                     )}
                     {sellerAvatarUrl ? (
@@ -888,7 +905,7 @@ function ItemCardInner({
                     )}
                     {shippingIsFree ? (
                       <span className="seller-card__badge seller-card__badge--free">
-                        <Truck size={10} /> Free shipping
+                        <Truck size={10} /> {t("freeShipping")}
                       </span>
                     ) : shippingCost ? (
                       <span className="seller-card__badge seller-card__badge--shipping">
@@ -908,9 +925,11 @@ function ItemCardInner({
                           <Tooltip content={full}>
                             <span
                               className="seller-card__ship-flag"
-                              aria-label={`Ships from ${full}`}
+                              aria-label={t("shipsFromAria", {
+                                country: full,
+                              })}
                             >
-                              <span>Ships from</span>
+                              <span>{t("shipsFrom")}</span>
                               {code ? (
                                 <CountryFlag code={code} size={12} />
                               ) : (
@@ -922,11 +941,11 @@ function ItemCardInner({
                       })()}
                     {(seller?.averageDaysToArrive ?? item.rs?.days) != null && (
                       <span className="seller-card__domain">
-                        ~
-                        {Math.round(
-                          seller?.averageDaysToArrive ?? item.rs!.days!,
-                        )}
-                        d delivery
+                        {t("deliveryDays", {
+                          count: Math.round(
+                            seller?.averageDaysToArrive ?? item.rs!.days!,
+                          ),
+                        })}
                       </span>
                     )}
                     {item.sid != null &&
@@ -942,8 +961,8 @@ function ItemCardInner({
                               className="seller-card__action"
                               title={
                                 isFiltered
-                                  ? "Show all sellers"
-                                  : `Only ${item.sn}`
+                                  ? t("showAllSellers")
+                                  : t("onlySeller", { seller: item.sn ?? "" })
                               }
                               onClick={(e) => {
                                 e.preventDefault();
@@ -952,12 +971,13 @@ function ItemCardInner({
                                 window.scrollTo({ top: 0, behavior: "smooth" });
                               }}
                             >
-                              <Filter size={8} /> {isFiltered ? "All" : "Only"}
+                              <Filter size={8} />
+                              {isFiltered ? t("all") : t("only")}
                             </button>
                             <button
                               type="button"
                               className="seller-card__action seller-card__action--hide"
-                              title={`Hide ${item.sn}`}
+                              title={t("hideSeller", { seller: item.sn ?? "" })}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -965,7 +985,7 @@ function ItemCardInner({
                                 toggleHiddenSeller(sid);
                               }}
                             >
-                              <EyeOff size={8} /> Hide
+                              <EyeOff size={8} /> {t("hide")}
                             </button>
                           </span>
                         );
@@ -1007,7 +1027,7 @@ function ItemCardInner({
                             className={`card-pill card-pill--strain${selectedStrain === strain ? " card-pill--selected" : ""}`}
                             onClick={(e) => handleStrainClick(e, strain)}
                           >
-                            {strain}
+                            {decodeEntities(strain)}
                             {strainUsd != null && (
                               <span className="card-pill--strain__price">
                                 {cSym}
@@ -1152,7 +1172,7 @@ function ItemCardInner({
                           <div className="pill-row__track">
                             <div className="pill-row__scroll">
                               <span className="card-pill card-pill--strain">
-                                {pv.strain}
+                                {decodeEntities(pv.strain)}
                               </span>
                             </div>
                           </div>
@@ -1239,19 +1259,19 @@ function ItemCardInner({
                       : undefined
                   }
                 >
-                  Updated {updated}
+                  {t("updated", { time: formatAge(updated) })}
                 </span>
               )}
-              {listed ? (
+              {listedAge ? (
                 <span
                   className="text-[10px] leading-none text-muted-foreground cursor-default"
                   title={item.fsa ?? undefined}
                 >
-                  Listed {listed}
+                  {t("listed", { time: formatAge(listedAge) })}
                 </span>
               ) : (
                 <span className="text-[10px] leading-none text-muted-foreground cursor-default">
-                  Listed –
+                  {t("listedUnknown")}
                 </span>
               )}
             </div>

@@ -1,23 +1,24 @@
 import { ArrowRight, Cannabis, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 /**
  * SiteFooter — distinct from food-agg: gradient top bar, centered layout, cannabis branding.
  */
-export function SiteFooter({
+export async function SiteFooter({
   hideBrowseCta,
+  locale,
 }: {
   hideBrowseCta?: boolean;
-} = {}) {
+  locale: string;
+}) {
   const year = new Date().getFullYear();
+  const t = await getTranslations({ locale, namespace: "footer" });
 
   return (
     <footer className={`mt-auto${hideBrowseCta ? " pt-12" : ""}`}>
       {/* Gradient accent bar — mirrors header */}
-      <div
-        className="h-[2px]"
-        style={{ background: "var(--accent-gradient)" }}
-      />
+      <div className="h-0.5" style={{ background: "var(--accent-gradient)" }} />
 
       <div className="bg-surface">
         <div className="mx-auto max-w-7xl px-4 py-12">
@@ -30,11 +31,10 @@ export function SiteFooter({
               </span>
             </div>
             <h3 className="text-2xl sm:text-3xl font-bold text-foreground text-center">
-              Find what you're looking for.
+              {t("ctaTitle")}
             </h3>
             <p className="text-sm text-muted text-center max-w-lg">
-              Explore thousands of listings from Little Biggy sellers - a
-              marketplace built on the principle of do no harm.
+              {t("ctaCopy")}
             </p>
             {!hideBrowseCta && (
               <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
@@ -43,7 +43,7 @@ export function SiteFooter({
                   prefetch={false}
                   className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/25"
                 >
-                  Browse items
+                  {t("browseItems")}
                   <ArrowRight
                     size={16}
                     className="transition-transform group-hover:translate-x-0.5"
@@ -54,11 +54,11 @@ export function SiteFooter({
           </div>
 
           {/* Community + links row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-[var(--border)] pt-8 mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-border pt-8 mb-8">
             {/* Community */}
             <div className="flex flex-col items-center sm:items-start gap-2 max-w-sm">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Community
+                {t("community")}
               </span>
               <div className="flex items-center gap-4">
                 <a
@@ -81,8 +81,7 @@ export function SiteFooter({
                 </a>
               </div>
               <p className="text-xs text-muted text-center sm:text-left">
-                Join the conversation. Share experiences, ask questions, or
-                check seller reputations.
+                {t("communityCopy")}
               </p>
             </div>
 
@@ -93,29 +92,28 @@ export function SiteFooter({
                 prefetch={false}
                 className="text-muted hover:text-primary transition-colors"
               >
-                Privacy
+                {t("privacy")}
               </Link>
               <Link
                 href="/terms"
                 prefetch={false}
                 className="text-muted hover:text-primary transition-colors"
               >
-                Terms
+                {t("terms")}
               </Link>
               <Link
                 href="/cookies"
                 prefetch={false}
                 className="text-muted hover:text-primary transition-colors"
               >
-                Cookies
+                {t("cookies")}
               </Link>
             </nav>
           </div>
 
           {/* Copyright */}
           <p className="text-center text-xs text-muted-foreground">
-            &copy; {year} Biggy Index. Prices shown may vary - always check the
-            store for the latest pricing.
+            {t("copyright", { year })}
           </p>
         </div>
       </div>
