@@ -1,11 +1,11 @@
-import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
+import { Suspense } from "react";
+import { RouteDataLoader } from "@/components/RouteDataLoader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
-import { loadItems, loadSellers } from "@/lib/data";
-import { DataLoader } from "@/components/DataLoader";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
 import { SellersPageClient } from "./SellersPageClient";
 
 export const metadata = {
@@ -75,8 +75,7 @@ export default async function SellersPage({
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
 
-  const [itemList, sellerList, leaderboard, analytics] = await Promise.all([
-    loadItems(mkt),
+  const [sellerList, leaderboard, analytics] = await Promise.all([
     loadSellers(mkt),
     readR2JSON<LeaderboardData>(
       `markets/${mkt}/aggregates/sellers-leaderboard.json`,
@@ -97,13 +96,11 @@ export default async function SellersPage({
 
   return (
     <>
-      <Suspense>
-        <DataLoader
-          items={itemList}
-          sellers={sellerList}
-          currencySymbol={cSym}
-        />
-      </Suspense>
+      <RouteDataLoader
+        sellers={sellerList}
+        currencySymbol={cSym}
+        market={market}
+      />
       <SiteHeader />
       <main className="min-h-screen bg-[var(--background)]">
         <Suspense>

@@ -8,53 +8,32 @@
  *   sellers=4772053  pmin=20  pmax=200
  */
 
-import { useEffect, useRef } from "react";
 import { useAtom, useAtomValue } from "jotai";
+import { useQueryStates } from "nuqs";
+import { useEffect, useRef } from "react";
 import {
-  useQueryStates,
-  parseAsString,
-  parseAsArrayOf,
-  parseAsInteger,
-} from "nuqs";
-import type { SortKey, SortDir } from "@/lib/types";
+  browseUrlParsers,
+  buildBrowseUrlState,
+  readBrowseUrlState,
+} from "@/lib/urlFilters";
 import {
-  sortKeyAtom,
-  sortDirAtom,
-  searchQueryAtom,
   categoryAtom,
-  subcategoryAtom,
-  selectedSellersAtom,
-  priceRangeAtom,
-  isLoadingAtom,
-  urlSyncDoneAtom,
   expandedRefNumAtom,
+  isLoadingAtom,
+  priceRangeAtom,
+  searchQueryAtom,
+  selectedSellersAtom,
+  sortDirAtom,
+  sortKeyAtom,
+  subcategoryAtom,
+  urlSyncDoneAtom,
 } from "@/store/atoms";
-
-const VALID_SORT_KEYS = new Set<string>([
-  "hottest",
-  "newest",
-  "updated",
-  "price",
-  "ppg",
-  "name",
-]);
-
-const parsers = {
-  sort: parseAsString,
-  dir: parseAsString,
-  q: parseAsString,
-  cat: parseAsString,
-  sub: parseAsArrayOf(parseAsString, ","),
-  sellers: parseAsArrayOf(parseAsString, ","),
-  pmin: parseAsInteger,
-  pmax: parseAsInteger,
-};
 
 export function UrlSync() {
   const isLoading = useAtomValue(isLoadingAtom);
   const [, setUrlSyncDone] = useAtom(urlSyncDoneAtom);
 
-  const [urlState, setUrlState] = useQueryStates(parsers, {
+  const [urlState, setUrlState] = useQueryStates(browseUrlParsers, {
     history: "replace",
     shallow: true,
   });
@@ -73,30 +52,18 @@ export function UrlSync() {
 
   // ── Phase 1: URL → Atoms (on mount) ──
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || hydratedRef.current) return;
 
     suppressSyncRef.current = true;
+    const parsed = readBrowseUrlState(urlState);
 
-    if (urlState.sort && VALID_SORT_KEYS.has(urlState.sort)) {
-      setSortKey(urlState.sort as SortKey);
-    }
-    if (urlState.dir === "asc" || urlState.dir === "desc") {
-      setSortDir(urlState.dir as SortDir);
-    }
-    if (urlState.q != null) setSearch(urlState.q);
-    if (urlState.cat != null) setCategory(urlState.cat);
-    if (urlState.sub != null && urlState.sub.length > 0) {
-      setSubcategory(urlState.sub.filter(Boolean) as string[]);
-    }
-    if (urlState.sellers != null && urlState.sellers.length > 0) {
-      setSellers(urlState.sellers.filter(Boolean) as string[]);
-    }
-    if (urlState.pmin != null || urlState.pmax != null) {
-      setPriceRange({
-        min: urlState.pmin ?? 0,
-        max: urlState.pmax ?? Infinity,
-      });
-    }
+    if (parsed.sortKey) setSortKey(parsed.sortKey);
+    if (parsed.sortDir) setSortDir(parsed.sortDir);
+    if (parsed.search != null) setSearch(parsed.search);
+    if (parsed.category != null) setCategory(parsed.category);
+    if (parsed.subcategories) setSubcategory(parsed.subcategories);
+    if (parsed.sellers) setSellers(parsed.sellers);
+    if (parsed.priceRange) setPriceRange(parsed.priceRange);
 
     hydratedRef.current = true;
     setUrlSyncDone(true);
@@ -104,8 +71,18 @@ export function UrlSync() {
     requestAnimationFrame(() => {
       suppressSyncRef.current = false;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [
+    isLoading,
+    urlState,
+    setSortKey,
+    setSortDir,
+    setSearch,
+    setCategory,
+    setSubcategory,
+    setSellers,
+    setPriceRange,
+    setUrlSyncDone,
+  ]);
 
   // ── Phase 2: Atoms → URL (on user interaction) ──
   useEffect(() => {
@@ -113,16 +90,17 @@ export function UrlSync() {
     // Don't overwrite the URL while the item detail overlay is open
     if (expandedRefNum) return;
 
-    setUrlState({
-      sort: sortKey !== "hottest" ? sortKey : null,
-      dir: sortDir !== "desc" ? sortDir : null,
-      q: search || null,
-      cat: category !== "All" ? category : null,
-      sub: subcategory.length > 0 ? subcategory : null,
-      sellers: sellers.length > 0 ? sellers : null,
-      pmin: priceRange.min > 0 ? priceRange.min : null,
-      pmax: priceRange.max < Infinity ? priceRange.max : null,
-    });
+    setUrlState(
+      buildBrowseUrlState({
+        sortKey,
+        sortDir,
+        search,
+        category,
+        subcategories: subcategory,
+        sellers,
+        priceRange,
+      }),
+    );
   }, [
     sortKey,
     sortDir,

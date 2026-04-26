@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readR2JSON, R2Keys } from "@/lib/r2";
+import { R2Keys, readR2JSON } from "@/lib/r2";
 
 /**
  * Proxy for seller detail from R2.
@@ -11,19 +11,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-
   const detail = await readR2JSON(R2Keys.sellerDetail(id));
 
   if (!detail) {
-    return NextResponse.json(
-      { error: "not_found", id },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "not_found", id }, { status: 404 });
   }
 
   return NextResponse.json(detail, {
     headers: {
-      "Cache-Control": "public, max-age=60, s-maxage=43200, stale-while-revalidate=86400",
+      "Cache-Control":
+        "public, max-age=60, s-maxage=43200, stale-while-revalidate=86400",
     },
   });
 }

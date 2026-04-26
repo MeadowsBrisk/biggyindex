@@ -1,22 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
 import { useSetAtom } from "jotai";
-import {
-  setItemsAtom,
-  setSellersAtom,
-  isLoadingAtom,
-  urlSyncDoneAtom,
-  dataLoaderActiveAtom,
-  categoryAtom,
-  subcategoryAtom,
-  searchQueryAtom,
-  selectedSellersAtom,
-  attrFiltersAtom,
-  currencySymbolAtom,
-} from "@/store/atoms";
+import { useEffect } from "react";
 import { UrlSync } from "@/components/UrlSync";
 import type { Item, Seller } from "@/lib/types";
+import { getInitialBrowseFilters } from "@/lib/urlFilters";
+import {
+  attrFiltersAtom,
+  categoryAtom,
+  currencySymbolAtom,
+  dataLoaderActiveAtom,
+  isLoadingAtom,
+  searchQueryAtom,
+  selectedSellersAtom,
+  setItemsAtom,
+  setSellersAtom,
+  subcategoryAtom,
+  urlSyncDoneAtom,
+} from "@/store/atoms";
 
 /**
  * Client component that hydrates items into the Jotai store.
@@ -57,31 +58,28 @@ export function DataLoader({
     // But honor URL params that UrlSync will hydrate from (cat/sub/q/sellers) —
     // otherwise we race: DataLoader writes "All" first, UrlSync restores later,
     // and the intermediate paint + Phase 2 might clobber the URL back to /browse.
-    const sp =
-      typeof window !== "undefined"
-        ? new URLSearchParams(window.location.search)
-        : null;
-    const urlCat = sp?.get("cat");
-    const urlSub = sp?.get("sub");
-    const urlQ = sp?.get("q");
-    const urlSellers = sp?.get("sellers");
-
-    setSearch(urlQ ?? "");
-    setSubcategory(urlSub ? urlSub.split(",").filter(Boolean) : []);
-    setSelectedSellers(
-      urlSellers ? urlSellers.split(",").filter(Boolean) : [],
+    const initialFilters = getInitialBrowseFilters(
+      typeof window !== "undefined" ? window.location.search : "",
+      routeCategory,
     );
+
+    setSearch(initialFilters.search);
+    setSubcategory(initialFilters.subcategories);
+    setSelectedSellers(initialFilters.sellers);
     setAttrFilters({});
 
     // Set the route category, falling back to URL ?cat=, then "All".
-    const rc = routeCategory ?? urlCat ?? null;
-    setCategory(rc ?? "All");
+    setCategory(initialFilters.category);
 
     // Set sellers BEFORE items so seller map is ready
     if (sellers) setSellerData(sellers);
     setItems(items);
     if (currencySymbol) setCurrencySymbol(currencySymbol);
     setLoading(false);
+
+    return () => {
+      setDataLoaderActive(false);
+    };
   }, [
     items,
     sellers,

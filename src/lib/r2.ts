@@ -102,5 +102,6 @@ export const R2Keys = {
     `markets/${market}/item-detail/${encodeURIComponent(refNum)}.json`,
 
   /** Per-item detail (shared/items/{refNum}.json) */
-  itemDetail: (refNum: string) => `shared/items/${encodeURIComponent(refNum)}.json`,
+  itemDetail: (refNum: string) =>
+    `shared/items/${encodeURIComponent(refNum)}.json`,
 } as const;

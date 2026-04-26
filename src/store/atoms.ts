@@ -416,7 +416,16 @@ export const filteredSellersAtom = atom<
 
 export const availableSellersAtom = atom<
   { id: string; name: string; count: number }[]
->((get) => get(browseSnapshotAtom).availableSellers);
+>((get) => {
+  const items = get(itemsAtom);
+  if (items.length > 0) return get(browseSnapshotAtom).availableSellers;
+
+  return get(sellersAtom).map((seller) => ({
+    id: String(seller.id),
+    name: seller.name,
+    count: seller.itemsCount ?? 0,
+  }));
+});
 
 export const availableShipFromAtom = atom<
   { value: string; label: string; count: number }[]

@@ -1,12 +1,10 @@
-import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
+import { RouteDataLoader } from "@/components/RouteDataLoader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
-import { loadItems, loadSellers } from "@/lib/data";
-import { getItemPrimaryImage } from "@/lib/images";
-import { DataLoader } from "@/components/DataLoader";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
 import { ReviewsPageClient } from "./ReviewsPageClient";
 
 export const metadata = {
@@ -29,7 +27,7 @@ interface RawReview {
   rating: number;
   daysToArrive?: number;
   segments?: RawReviewSegment[];
-  item?: { refNum: string; name: string; id: number };
+  item?: { refNum: string; name: string; id: number; imageUrl?: string };
   itemId?: string;
   itemImage?: string;
 }
@@ -38,7 +36,6 @@ interface RawMediaReview extends RawReview {
   media?: string[];
   mediaCount?: number;
 }
-
 
 export default async function ReviewsPage({
   params,
@@ -54,22 +51,12 @@ export default async function ReviewsPage({
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
 
-  const [itemList, sellerList, reviews, mediaReviews] =
-    await Promise.all([
-      loadItems(mkt),
-      loadSellers(mkt),
-      readR2JSON<RawReview[]>(`markets/${mkt}/aggregates/recent-reviews.json`),
-      readR2JSON<RawMediaReview[]>(`markets/${mkt}/aggregates/recent-media.json`),
-    ]);
+  const [sellerList, reviews, mediaReviews] = await Promise.all([
+    loadSellers(mkt),
+    readR2JSON<RawReview[]>(`markets/${mkt}/aggregates/recent-reviews.json`),
+    readR2JSON<RawMediaReview[]>(`markets/${mkt}/aggregates/recent-media.json`),
+  ]);
 
-  // Build lookup maps for review enrichment
-  const itemImageMap = new Map<string, string>();
-  for (const item of itemList) {
-    if (item.refNum) {
-      const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
-      if (imageUrl) itemImageMap.set(String(item.refNum), imageUrl);
-    }
-  }
   const sellerImageMap = new Map<string, string>();
   for (const s of sellerList) {
     if (s.imageUrl) sellerImageMap.set(String(s.id), s.imageUrl);
@@ -77,8 +64,7 @@ export default async function ReviewsPage({
 
   // Map raw review to enriched shape
   function mapReview(r: RawReview | RawMediaReview) {
-    const mediaUrls =
-      "media" in r && Array.isArray(r.media) ? r.media : [];
+    const mediaUrls = "media" in r && Array.isArray(r.media) ? r.media : [];
     const segmentImages = (r.segments ?? [])
       .filter((s) => s.type === "image")
       .map((s) => s.url ?? s.value)
@@ -92,7 +78,7 @@ export default async function ReviewsPage({
       sellerName: r.sellerName,
       sellerImageUrl: sellerImageMap.get(r.sellerId),
       itemName: r.item?.name ?? undefined,
-      itemImageUrl: r.itemImage ?? (refNum ? itemImageMap.get(refNum) : undefined),
+      itemImageUrl: r.itemImage ?? r.item?.imageUrl,
       refNum,
       rating: r.rating,
       text:
@@ -130,13 +116,11 @@ export default async function ReviewsPage({
 
   return (
     <>
-      <Suspense>
-        <DataLoader
-          items={itemList}
-          sellers={sellerList}
-          currencySymbol={cSym}
-        />
-      </Suspense>
+      <RouteDataLoader
+        sellers={sellerList}
+        currencySymbol={cSym}
+        market={market}
+      />
       <SiteHeader />
       <main className="min-h-screen bg-[var(--background)]">
         <ReviewsPageClient reviews={allReviews} />

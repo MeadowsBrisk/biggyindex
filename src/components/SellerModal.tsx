@@ -1,24 +1,31 @@
 "use client";
 
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { useAtom, useAtomValue } from "jotai";
 import { Flag, Star, ThumbsUp, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  sellerModalIdAtom,
-  sellersMapAtom,
-  selectedSellersAtom,
-  categoryAtom,
-  expandedRefNumAtom,
-  itemsAtom,
-} from "@/store/atoms";
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { type Review, ReviewCard } from "@/components/ReviewCard";
 
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
-import { ReviewCard, type Review } from "@/components/ReviewCard";
-import { getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
-import { decodeEntities } from "@/lib/format";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import historyManager from "@/lib/historyManager";
+import { getSellerImageUrl } from "@/lib/images";
+import {
+  categoryAtom,
+  expandedRefNumAtom,
+  marketAtom,
+  selectedSellersAtom,
+  sellerModalIdAtom,
+  sellersMapAtom,
+} from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -29,7 +36,8 @@ interface SellerReview {
   rating: number;
   daysToArrive: number | null;
   segments: { type: string; value: string }[];
-  item: { refNum: string; name: string; id: number };
+  item: { refNum: string; name: string; id: number; imageUrl?: string };
+  itemImage?: string;
 }
 
 interface SellerDetail {
@@ -43,31 +51,47 @@ interface SellerDetail {
   sellerJoined: string | null;
   manifesto: string | null;
   share: string | null;
-  overview: { itemsCount?: number; numberOfReviews?: number; averageDaysToArrive?: number } | null;
+  overview: {
+    itemsCount?: number;
+    numberOfReviews?: number;
+    averageDaysToArrive?: number;
+  } | null;
   reviews: SellerReview[];
   reviewsMeta: { fetched: number; updatedAt?: string } | null;
 }
 
 /** Rating-based badge color (matches old biggyindex review-panel-N pattern) */
 function ratingBucketClass(rating: number): string {
-  if (rating <= 2) return "border-red-400/40 bg-red-500/10 dark:border-red-500/30 dark:bg-red-500/15";
-  if (rating <= 4) return "border-orange-400/40 bg-orange-500/10 dark:border-orange-500/30 dark:bg-orange-500/15";
-  if (rating <= 5) return "border-yellow-400/40 bg-yellow-500/10 dark:border-yellow-500/30 dark:bg-yellow-500/15";
-  if (rating <= 7) return "border-lime-400/40 bg-lime-500/10 dark:border-lime-500/30 dark:bg-lime-500/15";
-  if (rating <= 8) return "border-emerald-400/40 bg-emerald-500/10 dark:border-emerald-500/30 dark:bg-emerald-500/15";
+  if (rating <= 2)
+    return "border-red-400/40 bg-red-500/10 dark:border-red-500/30 dark:bg-red-500/15";
+  if (rating <= 4)
+    return "border-orange-400/40 bg-orange-500/10 dark:border-orange-500/30 dark:bg-orange-500/15";
+  if (rating <= 5)
+    return "border-yellow-400/40 bg-yellow-500/10 dark:border-yellow-500/30 dark:bg-yellow-500/15";
+  if (rating <= 7)
+    return "border-lime-400/40 bg-lime-500/10 dark:border-lime-500/30 dark:bg-lime-500/15";
+  if (rating <= 8)
+    return "border-emerald-400/40 bg-emerald-500/10 dark:border-emerald-500/30 dark:bg-emerald-500/15";
   return "border-sky-400/40 bg-sky-500/10 dark:border-sky-500/30 dark:bg-sky-500/15";
 }
 
 /* ── Helpers ── */
 
-
-
 /* ── Community feedback actions ── */
 const FEEDBACK_API = process.env.NEXT_PUBLIC_SUGGESTIONS_API ?? "";
 type FeedbackKind = "endorse" | "report";
 
-function SellerFeedbackActions({ sellerId, sellerName }: { sellerId: string; sellerName: string }) {
-  const [submitted, setSubmitted] = useState<Record<FeedbackKind, boolean>>({ endorse: false, report: false });
+function SellerFeedbackActions({
+  sellerId,
+  sellerName,
+}: {
+  sellerId: string;
+  sellerName: string;
+}) {
+  const [submitted, setSubmitted] = useState<Record<FeedbackKind, boolean>>({
+    endorse: false,
+    report: false,
+  });
   const [busy, setBusy] = useState<FeedbackKind | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -100,23 +124,40 @@ function SellerFeedbackActions({ sellerId, sellerName }: { sellerId: string; sel
         const res = await fetch(`${FEEDBACK_API}/seller-feedback`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sellerId, sellerName, kind, reason: reasonText || undefined }),
+          body: JSON.stringify({
+            sellerId,
+            sellerName,
+            kind,
+            reason: reasonText || undefined,
+          }),
         });
-        const data = (await res.json().catch(() => ({}))) as { error?: string; duplicate?: boolean };
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          duplicate?: boolean;
+        };
         if (!res.ok) {
           if (res.status === 429) {
-            setMessage("You've hit the hourly limit (20 per hour). Try again later.");
+            setMessage(
+              "You've hit the hourly limit (20 per hour). Try again later.",
+            );
           } else {
             setMessage(data.error ?? `HTTP ${res.status}`);
           }
         } else {
           try {
-            localStorage.setItem(`bi:sf:${kind}:${sellerId}`, String(Date.now()));
+            localStorage.setItem(
+              `bi:sf:${kind}:${sellerId}`,
+              String(Date.now()),
+            );
           } catch {
             /* ignore */
           }
           setSubmitted((s) => ({ ...s, [kind]: true }));
-          setMessage(data.duplicate ? "Thanks — your vote was added to an existing report." : "Thanks — a moderator will review.");
+          setMessage(
+            data.duplicate
+              ? "Thanks — your vote was added to an existing report."
+              : "Thanks — a moderator will review.",
+          );
           if (kind === "report") setReportOpen(false);
         }
       } catch (e) {
@@ -138,7 +179,11 @@ function SellerFeedbackActions({ sellerId, sellerName }: { sellerId: string; sel
           className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-muted hover:text-emerald-500 hover:border-emerald-500/40 disabled:opacity-60 disabled:cursor-default transition-colors"
         >
           <ThumbsUp size={12} />
-          {submitted.endorse ? "Endorsed" : busy === "endorse" ? "Submitting…" : "Endorse seller"}
+          {submitted.endorse
+            ? "Endorsed"
+            : busy === "endorse"
+              ? "Submitting…"
+              : "Endorse seller"}
         </button>
         <button
           type="button"
@@ -192,7 +237,7 @@ function SellerFeedbackActions({ sellerId, sellerName }: { sellerId: string; sel
 export function SellerModal() {
   const [sellerId, setSellerId] = useAtom(sellerModalIdAtom);
   const sellersMap = useAtomValue(sellersMapAtom);
-  const items = useAtomValue(itemsAtom);
+  const market = useAtomValue(marketAtom);
   const [, setRefNum] = useAtom(expandedRefNumAtom);
   const [, setSelectedSellers] = useAtom(selectedSellersAtom);
   const [, setCategory] = useAtom(categoryAtom);
@@ -213,18 +258,6 @@ export function SellerModal() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Build item image lookup from loaded index (for review item name tooltips)
-  const itemImageMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const item of items) {
-      if (item.refNum && (item.i || item.ih)) {
-        const url = getItemPrimaryImage(item);
-        if (url) map.set(String(item.refNum), url);
-      }
-    }
-    return map;
-  }, [items]);
-
   // Seller from the index (instant)
   const indexSeller = sellerId ? sellersMap.get(sellerId) : undefined;
   const name = detail?.sellerName ?? indexSeller?.name ?? "Seller";
@@ -241,7 +274,11 @@ export function SellerModal() {
     const ac = new AbortController();
     detailAbortRef.current = ac;
     setLoading(true);
-    fetch(`/api/seller/${encodeURIComponent(String(sellerId))}`, { signal: ac.signal })
+    const mkt = String(market || "GB").toLowerCase();
+    fetch(
+      `/api/seller/${encodeURIComponent(String(sellerId))}?mkt=${encodeURIComponent(mkt)}`,
+      { signal: ac.signal },
+    )
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!ac.signal.aborted) {
@@ -253,7 +290,7 @@ export function SellerModal() {
         if (!ac.signal.aborted) setLoading(false);
       });
     return () => ac.abort();
-  }, [sellerId]);
+  }, [sellerId, market]);
 
   const close = useCallback(() => {
     setClosing(true);
@@ -288,7 +325,9 @@ export function SellerModal() {
   useEffect(() => {
     if (!sellerId) return;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [sellerId]);
 
   // Image from detail — optimized via CDN
@@ -304,14 +343,19 @@ export function SellerModal() {
   }, [detail]);
 
   // Online status
-  const online = detail?.sellerOnline ?? detail?.online ?? indexSeller?.online ?? null;
+  const online =
+    detail?.sellerOnline ?? detail?.online ?? indexSeller?.online ?? null;
 
   // Reviews
   const reviews = useMemo(() => detail?.reviews ?? [], [detail]);
 
   // Rating distribution + low-rating warning
   const ratingStats = useMemo(() => {
-    const out = { total: 0, buckets: [] as { rating: number; count: number }[], recentNegatives: 0 };
+    const out = {
+      total: 0,
+      buckets: [] as { rating: number; count: number }[],
+      recentNegatives: 0,
+    };
     if (reviews.length === 0) return out;
     const counts = new Map<number, number>();
     for (const r of reviews) {
@@ -327,10 +371,15 @@ export function SellerModal() {
   }, [reviews]);
 
   // Stats
-  const itemsCount = detail?.overview?.itemsCount ?? indexSeller?.itemsCount ?? null;
-  const avgDays = detail?.overview?.averageDaysToArrive ?? indexSeller?.averageDaysToArrive ?? null;
+  const itemsCount =
+    detail?.overview?.itemsCount ?? indexSeller?.itemsCount ?? null;
+  const avgDays =
+    detail?.overview?.averageDaysToArrive ??
+    indexSeller?.averageDaysToArrive ??
+    null;
   const avgRating = indexSeller?.averageRating ?? null;
-  const numReviews = detail?.overview?.numberOfReviews ?? indexSeller?.numberOfReviews ?? null;
+  const numReviews =
+    detail?.overview?.numberOfReviews ?? indexSeller?.numberOfReviews ?? null;
 
   const filterBySeller = useCallback(() => {
     if (!sellerId) return;
@@ -349,7 +398,15 @@ export function SellerModal() {
     historyManager.remove(`seller-modal-${sellerId}`);
     setSellerId(null);
     router.push(`/browse?sellers=${encodeURIComponent(sellerId)}`);
-  }, [sellerId, pathname, setSelectedSellers, setCategory, closeViaHistory, setSellerId, router]);
+  }, [
+    sellerId,
+    pathname,
+    setSelectedSellers,
+    setCategory,
+    closeViaHistory,
+    setSellerId,
+    router,
+  ]);
 
   if (!sellerId) return null;
 
@@ -358,11 +415,17 @@ export function SellerModal() {
       ref={backdropRef}
       className={`modal-backdrop${closing ? " modal-backdrop--closing" : ""}`}
       style={{ zIndex: 210 }}
-      onMouseDown={(e) => { if (e.target === backdropRef.current) closeViaHistory(); }}
+      onMouseDown={(e) => {
+        if (e.target === backdropRef.current) closeViaHistory();
+      }}
     >
       <div
         className={`modal-panel modal-panel--xl${closing ? " modal-panel--closing" : ""}`}
-        style={{ height: "min(90vh, 800px)", maxHeight: "calc(100dvh - 2rem)", padding: 0 }}
+        style={{
+          height: "min(90vh, 800px)",
+          maxHeight: "calc(100dvh - 2rem)",
+          padding: 0,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -380,23 +443,40 @@ export function SellerModal() {
             {/* Identity */}
             <div className="flex items-start gap-4">
               <div className="shrink-0">
-                <SellerAvatarTooltip sellerName={name} imageUrl={img} tooltipSize={200}>
+                <SellerAvatarTooltip
+                  sellerName={name}
+                  imageUrl={img}
+                  tooltipSize={200}
+                >
                   <button
                     type="button"
-                    onClick={() => img && setAvatarZoomSignal((s) => (s ?? 0) + 1)}
+                    onClick={() =>
+                      img && setAvatarZoomSignal((s) => (s ?? 0) + 1)
+                    }
                     disabled={!img}
-                    aria-label={img ? `Zoom ${name}'s profile image` : undefined}
+                    aria-label={
+                      img ? `Zoom ${name}'s profile image` : undefined
+                    }
                     className={`w-20 h-20 rounded-xl overflow-hidden bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center transition-shadow ${
-                      img ? "cursor-zoom-in hover:shadow-md hover:border-primary/40" : "cursor-default"
+                      img
+                        ? "cursor-zoom-in hover:shadow-md hover:border-primary/40"
+                        : "cursor-default"
                     }`}
                   >
                     {img ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={img} alt={name} className="w-full h-full object-cover" loading="eager" />
+                      <img
+                        src={img}
+                        alt={name}
+                        className="w-full h-full object-cover"
+                        loading="eager"
+                      />
                     ) : loading ? (
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--muted)] border-t-[var(--primary)]" />
                     ) : (
-                      <span className="text-2xl font-bold text-muted">{initial}</span>
+                      <span className="text-2xl font-bold text-muted">
+                        {initial}
+                      </span>
                     )}
                   </button>
                 </SellerAvatarTooltip>
@@ -411,12 +491,18 @@ export function SellerModal() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-semibold text-foreground truncate">{name}</h2>
+                <h2 className="text-lg font-semibold text-foreground truncate">
+                  {name}
+                </h2>
                 <div className="mt-1 text-xs text-muted flex items-center gap-3 flex-wrap">
                   {online && (
                     <span className="inline-flex items-center gap-1">
-                      <span className={`size-1.5 rounded-full ${online === "today" ? "bg-emerald-500" : "bg-yellow-500"}`} />
-                      {online === "today" ? "Online today" : `Last seen ${online}`}
+                      <span
+                        className={`size-1.5 rounded-full ${online === "today" ? "bg-emerald-500" : "bg-yellow-500"}`}
+                      />
+                      {online === "today"
+                        ? "Online today"
+                        : `Last seen ${online}`}
                     </span>
                   )}
                   {detail?.sellerJoined && (
@@ -427,16 +513,21 @@ export function SellerModal() {
                 {/* Stats row */}
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
                   {itemsCount != null && (
-                    <button type="button" onClick={filterBySeller} className="hover:text-primary transition-colors cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={filterBySeller}
+                      className="hover:text-primary transition-colors cursor-pointer"
+                    >
                       {itemsCount} items
                     </button>
                   )}
-                  {numReviews != null && (
-                    <span>{numReviews} reviews</span>
-                  )}
+                  {numReviews != null && <span>{numReviews} reviews</span>}
                   {avgRating != null && (
                     <span className="inline-flex items-center gap-0.5">
-                      <Star size={10} className="fill-current text-yellow-500" />
+                      <Star
+                        size={10}
+                        className="fill-current text-yellow-500"
+                      />
                       {avgRating.toFixed(1)}/10
                     </span>
                   )}
@@ -449,7 +540,9 @@ export function SellerModal() {
 
             {/* Manifesto */}
             <div className="mt-4">
-              <h3 className="text-sm font-semibold text-foreground mb-1">About</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                About
+              </h3>
               {loading && !detail ? (
                 <div className="space-y-2 animate-pulse">
                   <div className="h-3 bg-[var(--surface)] rounded w-5/6" />
@@ -457,9 +550,13 @@ export function SellerModal() {
                   <div className="h-3 bg-[var(--surface)] rounded w-2/3" />
                 </div>
               ) : detail?.manifesto ? (
-                <p className="text-sm text-muted leading-relaxed whitespace-pre-line">{detail.manifesto}</p>
+                <p className="text-sm text-muted leading-relaxed whitespace-pre-line">
+                  {detail.manifesto}
+                </p>
               ) : (
-                <p className="text-xs italic text-muted">No description available</p>
+                <p className="text-xs italic text-muted">
+                  No description available
+                </p>
               )}
             </div>
 
@@ -481,7 +578,9 @@ export function SellerModal() {
               <h3 className="text-sm font-semibold text-foreground">Reviews</h3>
               <div className="text-[11px] text-muted flex items-baseline justify-between gap-3">
                 <span>
-                  {loading ? "Loading..." : `${reviews.length} recent${numReviews && numReviews > reviews.length ? ` (${numReviews} total)` : ""}`}
+                  {loading
+                    ? "Loading..."
+                    : `${reviews.length} recent${numReviews && numReviews > reviews.length ? ` (${numReviews} total)` : ""}`}
                 </span>
                 {avgDays != null && (
                   <span>~{Math.round(avgDays)}d avg delivery</span>
@@ -489,34 +588,43 @@ export function SellerModal() {
               </div>
               {ratingStats.total > 0 && (
                 <div className="mt-2 rating-pill-group">
-                  {ratingStats.recentNegatives > 0 && (() => {
-                    const isActive = ratingFilter === "low";
-                    return (
-                      <button
-                        type="button"
-                        onClick={() => setRatingFilter(isActive ? null : "low")}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition-shadow cursor-pointer ${
-                          ratingStats.recentNegatives > 6
-                            ? "bg-red-500/15 text-red-700 dark:bg-red-500/20 dark:text-red-200"
-                            : "bg-amber-500/15 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200"
-                        } ${isActive ? "ring-2 ring-primary/50" : "hover:brightness-110"}`}
-                        title={`${isActive ? "Remove" : "Apply"} low-rating filter (≤ 5/10) — ${ratingStats.recentNegatives} review${ratingStats.recentNegatives === 1 ? "" : "s"}`}
-                      >
-                        <span className={`inline-block size-2 rounded-full ${ratingStats.recentNegatives > 6 ? "bg-red-500" : "bg-amber-500"}`} />
-                        {ratingStats.recentNegatives} low rating{ratingStats.recentNegatives === 1 ? "" : "s"}
-                      </button>
-                    );
-                  })()}
+                  {ratingStats.recentNegatives > 0 &&
+                    (() => {
+                      const isActive = ratingFilter === "low";
+                      return (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setRatingFilter(isActive ? null : "low")
+                          }
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition-shadow cursor-pointer ${
+                            ratingStats.recentNegatives > 6
+                              ? "bg-red-500/15 text-red-700 dark:bg-red-500/20 dark:text-red-200"
+                              : "bg-amber-500/15 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200"
+                          } ${isActive ? "ring-2 ring-primary/50" : "hover:brightness-110"}`}
+                          title={`${isActive ? "Remove" : "Apply"} low-rating filter (≤ 5/10) — ${ratingStats.recentNegatives} review${ratingStats.recentNegatives === 1 ? "" : "s"}`}
+                        >
+                          <span
+                            className={`inline-block size-2 rounded-full ${ratingStats.recentNegatives > 6 ? "bg-red-500" : "bg-amber-500"}`}
+                          />
+                          {ratingStats.recentNegatives} low rating
+                          {ratingStats.recentNegatives === 1 ? "" : "s"}
+                        </button>
+                      );
+                    })()}
                   {ratingStats.buckets.map((b) => {
                     const isActive = ratingFilter === b.rating;
                     return (
                       <button
                         key={b.rating}
                         type="button"
-                        onClick={() => setRatingFilter(isActive ? null : b.rating)}
+                        onClick={() =>
+                          setRatingFilter(isActive ? null : b.rating)
+                        }
                         className={`rating-pill inline-flex items-center gap-1 rounded-full px-2 py-0.5 border text-[11px] cursor-pointer ${
                           isActive
-                            ? "rating-pill--active ring-2 ring-primary/50 " + ratingBucketClass(b.rating)
+                            ? "rating-pill--active ring-2 ring-primary/50 " +
+                              ratingBucketClass(b.rating)
                             : ratingBucketClass(b.rating)
                         }`}
                         title={`${isActive ? "Remove filter" : "Filter"}: ${b.count} review${b.count === 1 ? "" : "s"} rated ${b.rating}/10`}
@@ -542,35 +650,45 @@ export function SellerModal() {
                   ))}
                 </div>
               ) : reviews.length === 0 ? (
-                <p className="text-sm text-muted italic py-8 text-center">No reviews yet</p>
-              ) : (() => {
-                const displayed = ratingFilter == null
-                  ? reviews
-                  : ratingFilter === "low"
-                    ? reviews.filter((r) => Math.round(r.rating) <= 5)
-                    : reviews.filter((r) => Math.round(r.rating) === ratingFilter);
-                const emptyLabel = ratingFilter === "low" ? "low-rated" : `${ratingFilter}/10`;
-                return displayed.length === 0 ? (
-                  <p className="text-sm text-muted italic py-8 text-center">
-                    No {emptyLabel} reviews
-                  </p>
-                ) : (
-                  displayed.map((review) => (
-                    <ReviewCard
-                      key={review.id}
-                      review={review as Review}
-                      itemImageUrl={review.item?.refNum ? itemImageMap.get(String(review.item.refNum)) : undefined}
-                      onItemClick={(ref) => {
-                        setSellerId(null);
-                        setRefNum(ref);
-                      }}
-                    />
-                  ))
-                );
-              })()}
-              {shareLink && numReviews != null && numReviews > reviews.length && (
-                <p className="ido-reviews-hint">Read more reviews at:</p>
+                <p className="text-sm text-muted italic py-8 text-center">
+                  No reviews yet
+                </p>
+              ) : (
+                (() => {
+                  const displayed =
+                    ratingFilter == null
+                      ? reviews
+                      : ratingFilter === "low"
+                        ? reviews.filter((r) => Math.round(r.rating) <= 5)
+                        : reviews.filter(
+                            (r) => Math.round(r.rating) === ratingFilter,
+                          );
+                  const emptyLabel =
+                    ratingFilter === "low" ? "low-rated" : `${ratingFilter}/10`;
+                  return displayed.length === 0 ? (
+                    <p className="text-sm text-muted italic py-8 text-center">
+                      No {emptyLabel} reviews
+                    </p>
+                  ) : (
+                    displayed.map((review) => (
+                      <ReviewCard
+                        key={review.id}
+                        review={review as Review}
+                        itemImageUrl={review.item?.imageUrl ?? review.itemImage}
+                        onItemClick={(ref) => {
+                          setSellerId(null);
+                          setRefNum(ref);
+                        }}
+                      />
+                    ))
+                  );
+                })()
               )}
+              {shareLink &&
+                numReviews != null &&
+                numReviews > reviews.length && (
+                  <p className="ido-reviews-hint">Read more reviews at:</p>
+                )}
               <div className="pb-16" />
             </div>
 
@@ -584,7 +702,9 @@ export function SellerModal() {
                 aria-label={`Visit ${name} on LittleBiggy`}
               >
                 <span className="ido-lb-btn__label">Visit {name}</span>
-                <span className="ido-lb-btn__arrow" aria-hidden="true">→</span>
+                <span className="ido-lb-btn__arrow" aria-hidden="true">
+                  →
+                </span>
               </a>
             )}
           </div>
