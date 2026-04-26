@@ -104,35 +104,62 @@ export function diffMarketIndexEntries(prev: Record<string, any> | null | undefi
       if (prevDesc !== curDesc) reasons.push('Description changed');
     }
 
-    // Images: primary URL change OR a previously-known gallery URL disappeared.
-    // Normalize URLs (strip scheme + host) so a CDN rotation does not trigger
-    // a false positive. Use SET membership rather than length so that pure
-    // gallery growth (e.g. slice cap raised from 3 → 8 source images) does
-    // not fire — additions are enrichment, not a change. We only flag when
-    // a prev URL is no longer present (replacement or removal) or the
-    // primary `i` changes.
+    // Images: prefer hash-based diff (`ih`/`ish`) when available. The public
+    // `markets/{m}/indexed_items.json` strips raw `i`/`is` fields after
+    // hashing (see compactPublicIndexItem in stages/index/run.ts), so
+    // URL-based diffing against that file always reports "Images changed"
+    // on every item. Hashes survive the stripping and are deterministic
+    // (FNV-1a), so they're equally precise.
+    //
+    // Use SET membership rather than length so that pure gallery growth
+    // (e.g. slice cap raised from 3 → 8 source images) does not fire —
+    // additions are enrichment, not a change. We only flag when a prev hash
+    // is no longer present (replacement or removal) or the primary hash
+    // changes. Falls back to normalized-URL diff for legacy / pre-hash data.
     const normUrl = (u: unknown): string | null => {
       if (typeof u !== 'string' || !u) return null;
       try {
         const url = new URL(u);
-        return url.pathname + url.search; // drop scheme + host
+        return url.pathname + url.search;
       } catch {
-        return u; // not a full URL — compare as-is
+        return u;
       }
     };
-    const prevPrimary = normUrl(prev?.i);
-    const curPrimary = normUrl(curr?.i);
-    let imagesChanged = prevPrimary !== curPrimary;
-    if (!imagesChanged) {
-      const prevThumbs = Array.isArray(prev?.is) ? prev.is : [];
-      const curThumbSet = new Set(
-        (Array.isArray(curr?.is) ? curr.is : []).map(normUrl).filter((u): u is string => !!u),
-      );
-      for (const u of prevThumbs) {
-        const n = normUrl(u);
-        if (n && !curThumbSet.has(n)) { imagesChanged = true; break; }
+
+    const prevIh = typeof prev?.ih === 'string' && prev.ih ? prev.ih : null;
+    const curIh = typeof curr?.ih === 'string' && curr.ih ? curr.ih : null;
+    const prevIsh: string[] = Array.isArray(prev?.ish)
+      ? prev.ish.filter((h: any): h is string => typeof h === 'string' && h.length > 0)
+      : [];
+    const curIsh: string[] = Array.isArray(curr?.ish)
+      ? curr.ish.filter((h: any): h is string => typeof h === 'string' && h.length > 0)
+      : [];
+
+    let imagesChanged = false;
+    if (prevIh && curIh) {
+      imagesChanged = prevIh !== curIh;
+      if (!imagesChanged && prevIsh.length) {
+        const curSet = new Set(curIsh);
+        for (const h of prevIsh) {
+          if (!curSet.has(h)) { imagesChanged = true; break; }
+        }
+      }
+    } else if (prev?.i || (Array.isArray(prev?.is) && prev.is.length)) {
+      const prevPrimary = normUrl(prev?.i);
+      const curPrimary = normUrl(curr?.i);
+      imagesChanged = prevPrimary !== curPrimary;
+      if (!imagesChanged) {
+        const prevThumbs = Array.isArray(prev?.is) ? prev.is : [];
+        const curThumbSet = new Set(
+          (Array.isArray(curr?.is) ? curr.is : []).map(normUrl).filter((u): u is string => !!u),
+        );
+        for (const u of prevThumbs) {
+          const n = normUrl(u);
+          if (n && !curThumbSet.has(n)) { imagesChanged = true; break; }
+        }
       }
     }
+    // else: prev has neither hashes nor URLs — no information, don't fire.
     if (imagesChanged) reasons.push('Images changed');
 
     // Variants comparison
