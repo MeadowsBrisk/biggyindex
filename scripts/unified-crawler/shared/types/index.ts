@@ -1,4 +1,6 @@
 // Shared types for the unified crawler (stub)
+import type { IndexMetaEntry } from "../logic/indexMetaStore";
+
 export type MarketCode = "GB" | "DE" | "FR" | "PT" | "IT" | "ES";
 
 export interface ItemCore {
@@ -24,6 +26,14 @@ export interface IndexResult {
   counts?: Record<string, number>;
   artifacts?: string[];
   snapshotMeta?: Record<string, unknown>;
+  /**
+   * When `runIndexMarket` is invoked with `deferSharedFlush: true`, the
+   * per-market meta updates are returned here instead of being written to
+   * `shared/aggregates/index-meta.json`. The orchestrator collects updates
+   * from all markets and flushes once via `flushSharedIndexMeta` to avoid
+   * read-modify-write races when markets run in parallel.
+   */
+  metaUpdates?: Record<string, IndexMetaEntry>;
 }
 
 /**

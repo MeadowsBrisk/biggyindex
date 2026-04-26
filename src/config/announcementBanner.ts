@@ -12,9 +12,9 @@ export type AnnouncementBannerConfig = {
 };
 
 export const announcementBanner: AnnouncementBannerConfig = {
-  id: '2025-xmas',
+  id: '2026-v2-switchover',
   messageByLocale: {
-    'en-GB': 'Have a merry Christmas and a happy New Year from the Biggy Index',
+    'en-GB': 'Index v2 is coming soon. You may notice temporary issues until then.',
   },
   // allowedLocales: ['en-GB', 'en'],
   severity: 'info',

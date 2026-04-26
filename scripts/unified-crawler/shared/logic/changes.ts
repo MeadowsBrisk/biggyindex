@@ -104,9 +104,13 @@ export function diffMarketIndexEntries(prev: Record<string, any> | null | undefi
       if (prevDesc !== curDesc) reasons.push('Description changed');
     }
 
-    // Images: primary or thumbnail count
-    // Normalize URLs before comparison — strip CDN domain so a CDN rotation
-    // (same path, different host) does not trigger false-positive "Images changed"
+    // Images: primary URL change OR a previously-known gallery URL disappeared.
+    // Normalize URLs (strip scheme + host) so a CDN rotation does not trigger
+    // a false positive. Use SET membership rather than length so that pure
+    // gallery growth (e.g. slice cap raised from 3 → 8 source images) does
+    // not fire — additions are enrichment, not a change. We only flag when
+    // a prev URL is no longer present (replacement or removal) or the
+    // primary `i` changes.
     const normUrl = (u: unknown): string | null => {
       if (typeof u !== 'string' || !u) return null;
       try {
@@ -118,9 +122,18 @@ export function diffMarketIndexEntries(prev: Record<string, any> | null | undefi
     };
     const prevPrimary = normUrl(prev?.i);
     const curPrimary = normUrl(curr?.i);
-    const prevThumbCount = Array.isArray(prev?.is) ? prev.is.length : 0;
-    const curThumbCount = Array.isArray(curr?.is) ? curr.is.length : 0;
-    if (prevPrimary !== curPrimary || prevThumbCount !== curThumbCount) reasons.push('Images changed');
+    let imagesChanged = prevPrimary !== curPrimary;
+    if (!imagesChanged) {
+      const prevThumbs = Array.isArray(prev?.is) ? prev.is : [];
+      const curThumbSet = new Set(
+        (Array.isArray(curr?.is) ? curr.is : []).map(normUrl).filter((u): u is string => !!u),
+      );
+      for (const u of prevThumbs) {
+        const n = normUrl(u);
+        if (n && !curThumbSet.has(n)) { imagesChanged = true; break; }
+      }
+    }
+    if (imagesChanged) reasons.push('Images changed');
 
     // Variants comparison
     const prevV: Array<Record<string, any>> = Array.isArray(prev?.v) ? prev.v : [];

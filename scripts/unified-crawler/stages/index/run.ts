@@ -61,10 +61,22 @@ import { saveCookieJar } from "../../shared/http/cookies";
  * Contract: return counts and known artifacts; do not change blob key schemas.
  * Future: implement full fetch → normalize → categorize → persist for market.
  */
-export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
+export interface RunIndexMarketOptions {
+  /**
+   * When true, do NOT write `shared/aggregates/index-meta.json` (or the
+   * daily backup, or fire the v2 mirror) at the end of the run. Instead,
+   * return the per-item meta updates in the `metaUpdates` field of the
+   * result so the orchestrator can flush once across all markets via
+   * `flushSharedIndexMeta`. Required for safe parallel market runs.
+   */
+  deferSharedFlush?: boolean;
+}
+
+export async function runIndexMarket(code: MarketCode, opts: RunIndexMarketOptions = {}): Promise<IndexResult> {
   const startedAt = Date.now();
   const env = loadEnv();
   const logger = createLogger();
+  const deferSharedFlush = opts.deferSharedFlush === true;
   if (!env.markets.includes(code)) {
     logger.warn(`[index:${code}] Market not enabled in config; skipping.`);
     return { ok: true, market: code, counts: { items: 0, sellers: 0 }, artifacts: [] };
@@ -612,7 +624,7 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
   }
 
   const metaUpdateKeys = Object.keys(metaUpdates);
-  if (metaUpdateKeys.length) {
+  if (metaUpdateKeys.length && !deferSharedFlush) {
     let latestMeta: Record<string, IndexMetaEntry> = {};
     try {
       const fresh = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
@@ -662,6 +674,8 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
     } catch (e: any) {
       logger.warn(`[index:${code}] failed to persist index-meta aggregate: ${e?.message || e}`);
     }
+  } else if (metaUpdateKeys.length && deferSharedFlush) {
+    logger.info(`[index:${code}] deferred shared index-meta flush (${metaUpdateKeys.length} updates queued for orchestrator)`);
   }
 
   // Backfills no longer needed when aggregates are present
@@ -696,5 +710,109 @@ export async function runIndexMarket(code: MarketCode): Promise<IndexResult> {
       itemImageLookupKey,
     ],
     snapshotMeta,
+    ...(deferSharedFlush ? { metaUpdates } : {}),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared index-meta flush (orchestrator-only)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Flush queued per-market index-meta updates to `shared/aggregates/index-meta.json`
+ * in a single read-modify-write pass. Use this when running markets in parallel
+ * with `runIndexMarket(code, { deferSharedFlush: true })` — the per-market write
+ * would otherwise race on the shared aggregate.
+ *
+ * Side effects (in order):
+ *   1. Reads the latest meta from R2.
+ *   2. Writes a daily rotating backup `aggregates/index-meta.backup.YYYY-MM-DD.json`
+ *      and prunes backups beyond the retention window (6).
+ *   3. Merges every market's updates via `mergeIndexMetaEntry`.
+ *   4. Writes the merged meta back to R2.
+ *   5. Mirrors to the v2 bucket (no-op unless `R2_V2_MIRROR=1`).
+ *
+ * If `updatesByMarket` is empty (or every market's update map is empty) this
+ * is a no-op — the daily backup is still produced because it's tied to a
+ * successful index run, not to whether any items changed.
+ */
+export async function flushSharedIndexMeta(args: {
+  updatesByMarket: Record<string, Record<string, IndexMetaEntry>>;
+  logger?: ReturnType<typeof createLogger>;
+}): Promise<{ totalUpdates: number; totalEntries: number; markets: number }> {
+  const logger = args.logger ?? createLogger();
+  const updatesByMarket = args.updatesByMarket || {};
+  const marketCodes = Object.keys(updatesByMarket).filter(
+    (m) => updatesByMarket[m] && Object.keys(updatesByMarket[m]).length > 0,
+  );
+
+  const env = loadEnv();
+  const sharedBlob = getBlobClient(env.stores.shared);
+
+  // Always load fresh; we still want the daily backup even if no updates exist.
+  let latestMeta: Record<string, IndexMetaEntry> = {};
+  try {
+    const fresh = await sharedBlob.getJSON<any>(Keys.shared.aggregates.indexMeta());
+    if (fresh && typeof fresh === 'object') latestMeta = fresh as Record<string, IndexMetaEntry>;
+  } catch { }
+
+  // ── Daily rotating backup of index-meta ──
+  try {
+    const todayUTC = new Date().toISOString().slice(0, 10);
+    const dailyBackupKey = `aggregates/index-meta.backup.${todayUTC}.json`;
+    await sharedBlob.putJSON(dailyBackupKey, latestMeta);
+    logger.info(`[index] Wrote daily index-meta backup: ${dailyBackupKey}`);
+
+    const MAX_DAILY_BACKUPS = 6;
+    try {
+      const allKeys = await sharedBlob.list('aggregates/index-meta.backup.');
+      const dated = allKeys
+        .filter((k) => /^aggregates\/index-meta\.backup\.\d{4}-\d{2}-\d{2}\.json$/.test(k))
+        .sort();
+      if (dated.length > MAX_DAILY_BACKUPS) {
+        const toDelete = dated.slice(0, dated.length - MAX_DAILY_BACKUPS);
+        for (const old of toDelete) {
+          await sharedBlob.del(old);
+          logger.info(`[index] Pruned old index-meta backup: ${old}`);
+        }
+      }
+    } catch (trimErr: any) {
+      logger.warn(`[index] index-meta backup trim failed (non-fatal): ${trimErr?.message || trimErr}`);
+    }
+  } catch (backupErr: any) {
+    logger.warn(`[index] index-meta daily backup failed (non-fatal): ${backupErr?.message || backupErr}`);
+  }
+
+  // Merge every market's updates. If two markets touched the same key,
+  // mergeIndexMetaEntry handles the second pass correctly because it's a
+  // pure (prev, update) → next merger.
+  let totalUpdates = 0;
+  for (const market of marketCodes) {
+    const updates = updatesByMarket[market];
+    for (const [key, update] of Object.entries(updates)) {
+      const { next } = mergeIndexMetaEntry(latestMeta[key], update);
+      latestMeta[key] = next;
+      totalUpdates++;
+    }
+  }
+
+  if (totalUpdates > 0) {
+    try {
+      await sharedBlob.putJSON(Keys.shared.aggregates.indexMeta(), latestMeta);
+      await mirrorIndexMeta(latestMeta);
+      logger.info(
+        `[index] Flushed shared index-meta updates=${totalUpdates} markets=${marketCodes.length} totalEntries=${Object.keys(latestMeta).length}`,
+      );
+    } catch (e: any) {
+      logger.warn(`[index] failed to persist index-meta aggregate: ${e?.message || e}`);
+    }
+  } else {
+    logger.info(`[index] flushSharedIndexMeta: no per-market updates to apply (totalEntries=${Object.keys(latestMeta).length})`);
+  }
+
+  return {
+    totalUpdates,
+    totalEntries: Object.keys(latestMeta).length,
+    markets: marketCodes.length,
   };
 }

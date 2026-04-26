@@ -12,8 +12,11 @@ import VotesHydrator from "@/components/hydrators/VotesHydrator";
 import FXHydrator from "@/components/hydrators/FXHydrator";
 import Head from "next/head";
 import type { AppProps } from "next/app";
+import dynamic from "next/dynamic";
 import { IntlProvider } from "@/providers/IntlProvider";
 import { Lato, Nunito_Sans } from 'next/font/google';
+
+const AnnouncementBanner = dynamic(() => import('@/components/banners/AnnouncementBanner'), { ssr: false });
 
 const lato = Lato({
   subsets: ['latin'],
@@ -46,6 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <FXHydrator />
       <ErrorBoundary>
         <IntlProvider ssrMessages={ssrMessages}>
+          <AnnouncementBanner />
           <main>
             <Component {...pageProps} />
           </main>
