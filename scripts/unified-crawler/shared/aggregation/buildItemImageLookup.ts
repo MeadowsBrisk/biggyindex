@@ -143,14 +143,14 @@ export function getItemImageRecord(
 
 export function mergeItemImageRecord<T extends Record<string, any>>(entry: T, record: ItemImageRecord | null | undefined): T {
   if (!record) return entry;
-  const merged = { ...entry } as T;
+  const merged = { ...entry } as Record<string, any>;
   if (record.i && !merged.i && !merged.imageUrl) merged.i = record.i;
   if (record.is?.length && !(Array.isArray(merged.is) && merged.is.length) && !(Array.isArray(merged.imageUrls) && merged.imageUrls.length)) merged.is = record.is;
   if (record.ih && !merged.ih) merged.ih = record.ih;
   if (record.ish?.length && !(Array.isArray(merged.ish) && merged.ish.length)) merged.ish = record.ish;
   if (record.ia != null && merged.ia == null) merged.ia = record.ia;
   if (record.isa?.length && !(Array.isArray(merged.isa) && merged.isa.length)) merged.isa = record.isa;
-  return merged;
+  return merged as T;
 }
 
 export function collectItemImageSourceUrls(entry: IndexEntry | any, record?: ItemImageRecord | null): string[] {
