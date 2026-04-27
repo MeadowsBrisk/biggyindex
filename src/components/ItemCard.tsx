@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   lazy,
   memo,
+  type MouseEvent as ReactMouseEvent,
   Suspense,
   useCallback,
   useEffect,
@@ -28,6 +29,7 @@ import {
   isItemPrimaryAnimated,
 } from "@/lib/images";
 import { formatShipFrom, shipFromCode } from "@/lib/shipFrom";
+import { trackOutboundClick } from "@/lib/tracking/outbound";
 import type { Item, Seller } from "@/lib/types";
 import {
   cheapestPpu,
@@ -277,6 +279,35 @@ function ItemCardInner({
     [itemIndex, item],
   );
   const itemKey = itemMeta.bookmarkKey;
+  const littleBiggyUrl = useMemo(
+    () => item.sl?.replace("littlebiggy.net", "littlebiggy.org") ?? null,
+    [item.sl],
+  );
+  const trackLittleBiggyClick = useCallback(
+    (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      event.stopPropagation();
+      if (!littleBiggyUrl) return;
+      trackOutboundClick({
+        id: String(item.refNum ?? item.id),
+        url: littleBiggyUrl,
+        n: decodeEntities(item.n),
+        sid: item.sid != null ? String(item.sid) : undefined,
+        sn: item.sn ?? undefined,
+        c: item.c ?? undefined,
+        mkt: currentMarket,
+      });
+    },
+    [
+      currentMarket,
+      item.c,
+      item.id,
+      item.n,
+      item.refNum,
+      item.sid,
+      item.sn,
+      littleBiggyUrl,
+    ],
+  );
 
   // Zoom preview signal — increment to open (lazy-loaded on first click)
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
@@ -788,12 +819,12 @@ function ItemCardInner({
           </div>
 
           {/* LittleBiggy outbound (bottom-right of image, reveals on hover) */}
-          {item.sl && (
+          {littleBiggyUrl && (
             <a
-              href={item.sl}
+              href={littleBiggyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
+              onClick={trackLittleBiggyClick}
               aria-label={t("viewOnLittleBiggy", {
                 item: decodeEntities(item.n),
               })}

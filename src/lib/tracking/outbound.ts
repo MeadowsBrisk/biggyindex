@@ -13,6 +13,8 @@ export interface OutboundEvent {
   id: string;
   /** Destination URL */
   url: string;
+  /** Item name */
+  n?: string;
   /** Seller ID */
   sid?: string;
   /** Seller name */

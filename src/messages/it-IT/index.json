@@ -492,7 +492,11 @@
       "reviews": {
         "heading": "Recensioni",
         "noneAvailable": "Nessuna recensione disponibile",
-        "readMoreAt": "Leggi altre recensioni su:"
+        "readMoreAt": "Leggi altre recensioni su:",
+        "filter": {
+          "all": "Tutte ({count})",
+          "withText": "Con testo ({count})"
+        }
       },
       "variants": {
         "heading": "Varianti",

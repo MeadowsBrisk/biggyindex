@@ -28,57 +28,65 @@ export const LOCALE_TO_MARKET: Record<Locale, string> = {
   "cs-CZ": "CZ",
 };
 
+const domains: Array<{
+  domain: string;
+  defaultLocale: Locale;
+  locales: Locale[];
+}> = [
+  {
+    domain: "biggyindex.com",
+    defaultLocale: "en-GB",
+    locales: ["en-GB"],
+  },
+  {
+    domain: "ie.biggyindex.com",
+    defaultLocale: "en-IE",
+    locales: ["en-IE"],
+  },
+  {
+    domain: "de.biggyindex.com",
+    defaultLocale: "de-DE",
+    locales: ["de-DE"],
+  },
+  {
+    domain: "fr.biggyindex.com",
+    defaultLocale: "fr-FR",
+    locales: ["fr-FR"],
+  },
+  {
+    domain: "pt.biggyindex.com",
+    defaultLocale: "pt-PT",
+    locales: ["pt-PT"],
+  },
+  {
+    domain: "it.biggyindex.com",
+    defaultLocale: "it-IT",
+    locales: ["it-IT"],
+  },
+  {
+    domain: "es.biggyindex.com",
+    defaultLocale: "es-ES",
+    locales: ["es-ES"],
+  },
+  {
+    domain: "gr.biggyindex.com",
+    defaultLocale: "el-GR",
+    locales: ["el-GR"],
+  },
+  {
+    domain: "cz.biggyindex.com",
+    defaultLocale: "cs-CZ",
+    locales: ["cs-CZ"],
+  },
+];
+
 export const routing = defineRouting({
   locales,
   defaultLocale,
-  domains: [
-    {
-      domain: "biggyindex.com",
-      defaultLocale: "en-GB",
-      locales: ["en-GB"],
-    },
-    {
-      domain: "ie.biggyindex.com",
-      defaultLocale: "en-IE",
-      locales: ["en-IE"],
-    },
-    {
-      domain: "de.biggyindex.com",
-      defaultLocale: "de-DE",
-      locales: ["de-DE"],
-    },
-    {
-      domain: "fr.biggyindex.com",
-      defaultLocale: "fr-FR",
-      locales: ["fr-FR"],
-    },
-    {
-      domain: "pt.biggyindex.com",
-      defaultLocale: "pt-PT",
-      locales: ["pt-PT"],
-    },
-    {
-      domain: "it.biggyindex.com",
-      defaultLocale: "it-IT",
-      locales: ["it-IT"],
-    },
-    {
-      domain: "es.biggyindex.com",
-      defaultLocale: "es-ES",
-      locales: ["es-ES"],
-    },
-    {
-      domain: "gr.biggyindex.com",
-      defaultLocale: "el-GR",
-      locales: ["el-GR"],
-    },
-    {
-      domain: "cz.biggyindex.com",
-      defaultLocale: "cs-CZ",
-      locales: ["cs-CZ"],
-    },
-  ],
+  domains: process.env.NODE_ENV === "production" ? domains : undefined,
   // No /en-GB prefix — each domain has exactly one locale
+  // In local dev, domains are disabled so /de-DE, /fr-FR, etc. can be tested
+  // on localhost without host-file aliases.
   localePrefix: "as-needed",
   // Domains already pin the locale per host. Disable header/cookie sniffing so
   // localhost (and any unmatched host) always falls back to defaultLocale

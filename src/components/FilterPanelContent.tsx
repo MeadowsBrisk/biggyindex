@@ -1,7 +1,15 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { ChevronDown, EyeOff, Pin, RotateCcw, Search, X } from "lucide-react";
+import {
+  ChevronDown,
+  EyeOff,
+  Pin,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { MouseEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -250,15 +258,19 @@ export function FilterPanelContent({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-8 items-center justify-end border-b border-border px-2">
+      <div className="ido-filter-header flex h-10 items-center justify-between border-b border-border px-3 md:h-8 md:justify-end md:px-2">
+        <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground md:hidden">
+          <SlidersHorizontal size={14} aria-hidden="true" />
+          {t("label")}
+        </span>
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer md:h-6 md:w-6"
           aria-label={t("close")}
           title={t("close")}
         >
-          <X size={14} />
+          <X size={16} />
         </button>
       </div>
 
@@ -315,10 +327,10 @@ export function FilterPanelContent({
             <button
               type="button"
               onClick={() => handleCategoryClick("All")}
-              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer ${
+              className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors ${
                 category === "All"
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+                  ? "border-transparent bg-primary text-primary-foreground"
+                  : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
               }`}
             >
               {tCategories("all")}{" "}
@@ -335,10 +347,10 @@ export function FilterPanelContent({
                   key={cat}
                   type="button"
                   onClick={() => handleCategoryClick(cat)}
-                  className={`group inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium cursor-pointer transition-colors ${
+                  className={`group inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium cursor-pointer transition-colors ${
                     active
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                      ? "border-transparent bg-primary text-primary-foreground"
+                      : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
                   }`}
                 >
                   <Icon
@@ -440,12 +452,12 @@ export function FilterPanelContent({
                       }
                     }}
                     title={t("shipFromHelp")}
-                    className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
+                    className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
                       isIncluded
-                        ? "bg-primary/20 text-primary"
+                        ? "border-transparent bg-primary/20 text-primary"
                         : isExcluded
-                          ? "bg-red-500/20 text-red-400 line-through"
-                          : "border border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                          ? "border-transparent bg-red-500/20 text-red-400 line-through"
+                          : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
                     }`}
                   >
                     {SHIP_FROM_CODES[shipFrom.value] && (

@@ -3165,6 +3165,25 @@ item:
         es-ES: "Lee más reseñas en:"
         el-GR: "Διαβάστε περισσότερες κριτικές στο:"
         cs-CZ: "Další recenze si můžete přečíst na:"
+      filter:
+        all:
+          en-GB: "All ({count})"
+          de-DE: "Alle ({count})"
+          fr-FR: "Tous ({count})"
+          pt-PT: "Todas ({count})"
+          it-IT: "Tutte ({count})"
+          es-ES: "Todas ({count})"
+          el-GR: "Όλες ({count})"
+          cs-CZ: "Vše ({count})"
+        withText:
+          en-GB: "With text ({count})"
+          de-DE: "Mit Text ({count})"
+          fr-FR: "Avec texte ({count})"
+          pt-PT: "Com texto ({count})"
+          it-IT: "Con testo ({count})"
+          es-ES: "Con texto ({count})"
+          el-GR: "Με κείμενο ({count})"
+          cs-CZ: "S textem ({count})"
     variants:
       heading:
         en-GB: Variants

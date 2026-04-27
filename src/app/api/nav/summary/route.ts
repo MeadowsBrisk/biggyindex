@@ -10,34 +10,33 @@ import type { OutboundEvent } from "@/lib/tracking/outbound";
 /**
  * GET /api/nav/summary
  *
- * Returns pre-aggregated outbound click summary.
- * If the cached summary is fresh (< 1 hour old), returns it directly.
- * Otherwise rebuilds from daily event files.
+ * Returns pre-aggregated outbound click analytics. The dashboard reads the
+ * resulting outbound/summary.json object directly from R2, so this endpoint is
+ * only for rebuilds, manual checks, and future scheduled refreshes.
  *
- * Handles two R2 key formats:
- *   - Legacy daily arrays:    outbound/events/{YYYY-MM-DD}.json  (OutboundEvent[])
- *   - Individual event files: outbound/events/{YYYY-MM-DD}/{uid}.json (OutboundEvent)
- *
- * Individual events are consolidated into daily arrays during rebuild,
- * then the originals are deleted — keeping future rebuilds fast.
+ * Event flow:
+ *   - Clicks write append-only files: outbound/events/{YYYY-MM-DD}/{uid}.json
+ *   - Rebuilds consolidate those files into outbound/events/{YYYY-MM-DD}.json
+ *   - Rebuilds publish one dashboard-friendly outbound/summary.json
  *
  * Query params:
- *   ?rebuild=1  — force rebuild regardless of age
+ *   ?rebuild=1  force rebuild regardless of cache age
  */
 
-interface OutboundItemSummary {
+interface OutboundAggregateSummary {
+  clicks1d: number;
   clicks7d: number;
   clicks30d: number;
   clicksAll: number;
+}
+
+interface OutboundItemSummary extends OutboundAggregateSummary {
   lastClick: string;
   sn?: string;
   c?: string;
-}
-
-interface OutboundAggregateSummary {
-  clicks7d: number;
-  clicks30d: number;
-  clicksAll: number;
+  url?: string;
+  mkt?: string;
+  n?: string;
 }
 
 interface OutboundSummary {
@@ -46,18 +45,24 @@ interface OutboundSummary {
   items: Record<string, OutboundItemSummary>;
   sellers: Record<string, OutboundAggregateSummary>;
   categories: Record<string, OutboundAggregateSummary>;
+  markets: Record<string, OutboundAggregateSummary>;
   daily: Array<{ date: string; count: number }>;
+  recent: OutboundEvent[];
 }
 
 const SUMMARY_KEY = "outbound/summary.json";
 const ONE_HOUR_MS = 60 * 60 * 1000;
+const SUMMARY_WINDOW_DAYS = 90;
+const RECENT_LIMIT = 100;
+
+const DAILY_RE = /^outbound\/events\/(\d{4}-\d{2}-\d{2})\.json$/;
+const EVENT_RE = /^outbound\/events\/(\d{4}-\d{2}-\d{2})\/.+\.json$/;
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const forceRebuild = url.searchParams.get("rebuild") === "1";
 
-    // Check existing summary freshness
     if (!forceRebuild) {
       const existing = await readR2JSON<OutboundSummary>(SUMMARY_KEY);
       if (existing?.builtAt) {
@@ -70,17 +75,15 @@ export async function GET(request: Request) {
       }
     }
 
-    // Rebuild from event files (consolidates as it goes)
     const summary = await rebuildSummary();
-
     await writeR2JSON(SUMMARY_KEY, summary);
 
     return NextResponse.json(summary, {
       headers: { "Cache-Control": "public, max-age=300" },
     });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error("[nav/summary] Error:", msg);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[nav/summary] Error:", message);
     return NextResponse.json(
       { error: "summary_build_failed" },
       { status: 500 },
@@ -88,23 +91,19 @@ export async function GET(request: Request) {
   }
 }
 
-// ─── Key format detection ───────────────────────────────────────
-
-/** Legacy/consolidated daily array: outbound/events/2026-04-01.json */
-const DAILY_RE = /^outbound\/events\/(\d{4}-\d{2}-\d{2})\.json$/;
-/** Individual event file: outbound/events/2026-04-01/m1abc.json */
-const EVENT_RE = /^outbound\/events\/(\d{4}-\d{2}-\d{2})\/.+\.json$/;
-
-// ─── Helpers ────────────────────────────────────────────────────
-
-function fmtDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
+function fmtDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
 }
 
 function daysAgo(days: number): Date {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d;
+  const date = new Date();
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCDate(date.getUTCDate() - days);
+  return date;
+}
+
+function windowStartDate(days: number): string {
+  return fmtDate(daysAgo(days - 1));
 }
 
 async function readBatch<T>(
@@ -122,78 +121,153 @@ async function readBatch<T>(
   return results;
 }
 
-// ─── Rebuild + consolidate ──────────────────────────────────────
+function createAggregate(): OutboundAggregateSummary {
+  return {
+    clicks1d: 0,
+    clicks7d: 0,
+    clicks30d: 0,
+    clicksAll: 0,
+  };
+}
+
+function bumpAggregate(
+  aggregate: OutboundAggregateSummary,
+  date: string,
+  thresholds: { oneDay: string; sevenDays: string; thirtyDays: string },
+): void {
+  aggregate.clicksAll++;
+  if (date >= thresholds.thirtyDays) aggregate.clicks30d++;
+  if (date >= thresholds.sevenDays) aggregate.clicks7d++;
+  if (date >= thresholds.oneDay) aggregate.clicks1d++;
+}
+
+function eventTimestamp(event: OutboundEvent, date: string): number {
+  if (typeof event.ts === "number" && Number.isFinite(event.ts)) {
+    return event.ts;
+  }
+  return Date.parse(`${date}T00:00:00.000Z`);
+}
+
+function eventKey(event: OutboundEvent): string {
+  return `${event.id}|${event.url}|${event.ts ?? ""}`;
+}
+
+function getOrCreateEvents(
+  eventsByDate: Map<string, OutboundEvent[]>,
+  date: string,
+): OutboundEvent[] {
+  const existing = eventsByDate.get(date);
+  if (existing) return existing;
+
+  const events: OutboundEvent[] = [];
+  eventsByDate.set(date, events);
+  return events;
+}
+
+function getOrCreateDedupe(
+  dedupeByDate: Map<string, Set<string>>,
+  date: string,
+): Set<string> {
+  const existing = dedupeByDate.get(date);
+  if (existing) return existing;
+
+  const dedupe = new Set<string>();
+  dedupeByDate.set(date, dedupe);
+  return dedupe;
+}
+
+function addEvent(
+  eventsByDate: Map<string, OutboundEvent[]>,
+  dedupeByDate: Map<string, Set<string>>,
+  date: string,
+  event: OutboundEvent,
+): void {
+  if (!event?.id || !event?.url) return;
+
+  const events = getOrCreateEvents(eventsByDate, date);
+  const dedupe = getOrCreateDedupe(dedupeByDate, date);
+  const key = eventKey(event);
+  if (dedupe.has(key)) return;
+
+  dedupe.add(key);
+  events.push({
+    ...event,
+    id: String(event.id),
+    url: String(event.url),
+    ts: eventTimestamp(event, date),
+  });
+}
 
 async function rebuildSummary(): Promise<OutboundSummary> {
   const now = new Date();
-  const cutoff90 = fmtDate(daysAgo(90));
+  const cutoffDate = windowStartDate(SUMMARY_WINDOW_DAYS);
 
-  // List all keys under outbound/events/
   const allKeys = await listR2Keys("outbound/events/");
 
-  // Classify keys
   const dailyKeys: Array<{ key: string; date: string }> = [];
   const individualKeys: Array<{ key: string; date: string }> = [];
 
   for (const key of allKeys) {
     const dailyMatch = key.match(DAILY_RE);
-    if (dailyMatch && dailyMatch[1] >= cutoff90) {
+    if (dailyMatch && dailyMatch[1] >= cutoffDate) {
       dailyKeys.push({ key, date: dailyMatch[1] });
       continue;
     }
+
     const eventMatch = key.match(EVENT_RE);
-    if (eventMatch && eventMatch[1] >= cutoff90) {
+    if (eventMatch && eventMatch[1] >= cutoffDate) {
       individualKeys.push({ key, date: eventMatch[1] });
     }
   }
 
-  // Load daily arrays (already consolidated)
   const eventsByDate = new Map<string, OutboundEvent[]>();
+  const dedupeByDate = new Map<string, Set<string>>();
 
   const dailyResults = await readBatch<OutboundEvent[]>(
-    dailyKeys.map((d) => d.key),
+    dailyKeys.map((daily) => daily.key),
   );
   for (let i = 0; i < dailyKeys.length; i++) {
     const { date } = dailyKeys[i];
-    const events = dailyResults[i] ?? [];
-    eventsByDate.set(date, events);
+    for (const event of dailyResults[i] ?? []) {
+      addEvent(eventsByDate, dedupeByDate, date, event);
+    }
   }
 
-  // Load individual events and merge into daily groups
   const keysToDelete: string[] = [];
 
   if (individualKeys.length > 0) {
-    // Group individual keys by date
     const groupedByDate = new Map<string, string[]>();
     for (const { key, date } of individualKeys) {
-      if (!groupedByDate.has(date)) groupedByDate.set(date, []);
-      groupedByDate.get(date)!.push(key);
+      const keys = groupedByDate.get(date);
+      if (keys) {
+        keys.push(key);
+      } else {
+        groupedByDate.set(date, [key]);
+      }
     }
 
-    // Read all individual events
-    const indivResults = await readBatch<OutboundEvent>(
-      individualKeys.map((e) => e.key),
+    const individualResults = await readBatch<OutboundEvent>(
+      individualKeys.map((event) => event.key),
     );
 
-    let idx = 0;
-    for (const { date } of individualKeys) {
-      const event = indivResults[idx++];
+    for (let i = 0; i < individualKeys.length; i++) {
+      const { key, date } = individualKeys[i];
+      const event = individualResults[i];
       if (!event) continue;
-      if (!eventsByDate.has(date)) eventsByDate.set(date, []);
-      eventsByDate.get(date)!.push(event);
+      addEvent(eventsByDate, dedupeByDate, date, event);
+      keysToDelete.push(key);
     }
 
-    // Consolidate: write merged daily arrays, queue individual keys for deletion
-    for (const [date, keys] of groupedByDate) {
-      const merged = eventsByDate.get(date) ?? [];
-      await writeR2JSON(`outbound/events/${date}.json`, merged);
-      keysToDelete.push(...keys);
+    for (const date of groupedByDate.keys()) {
+      await writeR2JSON(
+        `outbound/events/${date}.json`,
+        eventsByDate.get(date) ?? [],
+      );
     }
 
-    // Fire-and-forget cleanup of individual event files
-    deleteR2Keys(keysToDelete).catch((e) => {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error("[nav/summary] cleanup error:", msg);
+    deleteR2Keys(keysToDelete).catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("[nav/summary] cleanup error:", message);
     });
 
     console.log(
@@ -201,80 +275,84 @@ async function rebuildSummary(): Promise<OutboundSummary> {
     );
   }
 
-  // ─── Aggregate ────────────────────────────────────────────────
-
-  const threshold30 = fmtDate(daysAgo(30));
-  const threshold7 = fmtDate(daysAgo(7));
+  const thresholds = {
+    oneDay: windowStartDate(1),
+    sevenDays: windowStartDate(7),
+    thirtyDays: windowStartDate(30),
+  };
 
   const items: Record<string, OutboundItemSummary> = {};
   const sellers: Record<string, OutboundAggregateSummary> = {};
   const categories: Record<string, OutboundAggregateSummary> = {};
+  const markets: Record<string, OutboundAggregateSummary> = {};
   const dailyCounts: Record<string, number> = {};
+  const recent: OutboundEvent[] = [];
 
   for (const [date, events] of eventsByDate) {
     dailyCounts[date] = (dailyCounts[date] ?? 0) + events.length;
-    const is30d = date >= threshold30;
-    const is7d = date >= threshold7;
 
     for (const event of events) {
-      // Items
+      const timestamp = eventTimestamp(event, date);
+      const eventIso = new Date(timestamp).toISOString();
+
       if (!items[event.id]) {
         items[event.id] = {
-          clicks7d: 0,
-          clicks30d: 0,
-          clicksAll: 0,
-          lastClick: new Date(event.ts ?? 0).toISOString(),
+          ...createAggregate(),
+          lastClick: eventIso,
           sn: event.sn,
           c: event.c,
+          url: event.url,
+          mkt: event.mkt,
+          n: event.n,
         };
       }
       const item = items[event.id];
-      item.clicksAll++;
-      if (is30d) item.clicks30d++;
-      if (is7d) item.clicks7d++;
-      const eventIso = new Date(event.ts ?? 0).toISOString();
+      bumpAggregate(item, date, thresholds);
       if (eventIso > item.lastClick) item.lastClick = eventIso;
       if (event.sn) item.sn = event.sn;
       if (event.c) item.c = event.c;
+      if (event.url) item.url = event.url;
+      if (event.mkt) item.mkt = event.mkt;
+      if (event.n) item.n = event.n;
 
-      // Sellers
       if (event.sid) {
-        if (!sellers[event.sid]) {
-          sellers[event.sid] = { clicks7d: 0, clicks30d: 0, clicksAll: 0 };
-        }
-        sellers[event.sid].clicksAll++;
-        if (is30d) sellers[event.sid].clicks30d++;
-        if (is7d) sellers[event.sid].clicks7d++;
+        if (!sellers[event.sid]) sellers[event.sid] = createAggregate();
+        bumpAggregate(sellers[event.sid], date, thresholds);
       }
 
-      // Categories
       if (event.c) {
-        if (!categories[event.c]) {
-          categories[event.c] = { clicks7d: 0, clicks30d: 0, clicksAll: 0 };
-        }
-        categories[event.c].clicksAll++;
-        if (is30d) categories[event.c].clicks30d++;
-        if (is7d) categories[event.c].clicks7d++;
+        if (!categories[event.c]) categories[event.c] = createAggregate();
+        bumpAggregate(categories[event.c], date, thresholds);
       }
+
+      if (event.mkt) {
+        if (!markets[event.mkt]) markets[event.mkt] = createAggregate();
+        bumpAggregate(markets[event.mkt], date, thresholds);
+      }
+
+      recent.push({ ...event, ts: timestamp });
     }
   }
 
-  // Build daily trend (last 30 days)
   const daily: Array<{ date: string; count: number }> = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = fmtDate(daysAgo(i));
-    daily.push({ date: d, count: dailyCounts[d] ?? 0 });
+  for (let i = SUMMARY_WINDOW_DAYS - 1; i >= 0; i--) {
+    const date = fmtDate(daysAgo(i));
+    daily.push({ date, count: dailyCounts[date] ?? 0 });
   }
 
   return {
     builtAt: now.toISOString(),
     period: {
-      from: cutoff90,
+      from: cutoffDate,
       to: fmtDate(now),
     },
     items,
     sellers,
     categories,
+    markets,
     daily,
+    recent: recent
+      .sort((a, b) => (b.ts ?? 0) - (a.ts ?? 0))
+      .slice(0, RECENT_LIMIT),
   };
 }

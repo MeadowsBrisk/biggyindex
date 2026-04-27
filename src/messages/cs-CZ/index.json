@@ -492,7 +492,11 @@
       "reviews": {
         "heading": "Recenze",
         "noneAvailable": "Recenze nejsou k dispozici",
-        "readMoreAt": "Další recenze si můžete přečíst na:"
+        "readMoreAt": "Další recenze si můžete přečíst na:",
+        "filter": {
+          "all": "Vše ({count})",
+          "withText": "S textem ({count})"
+        }
       },
       "variants": {
         "heading": "Varianty",

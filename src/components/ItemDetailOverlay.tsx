@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   Fragment,
   lazy,
+  type MouseEvent,
   Suspense,
   useCallback,
   useEffect,
@@ -53,7 +54,8 @@ import {
   getItemPrimaryImage,
   getSellerImageUrl,
 } from "@/lib/images";
-import type { Item, MergedDetailBlob, PriceSnapshot } from "@/lib/types";
+import { trackOutboundClick } from "@/lib/tracking/outbound";
+import type { Item, MergedDetailBlob } from "@/lib/types";
 import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
 import {
   addToBasketAtom,
@@ -165,11 +167,32 @@ function ItemReviewsBlock({
   onFocusHandled?: () => void;
 }) {
   const t = useTranslations("item.detail");
+  // Optional "with text only" filter — many reviews are rating-only.
+  const [textOnly, setTextOnly] = useState(false);
+  const textReviewCount = useMemo(
+    () =>
+      reviews.filter((r) =>
+        r.segments?.some(
+          (seg) => seg.type === "text" && seg.value?.trim().length > 0,
+        ),
+      ).length,
+    [reviews],
+  );
   // Always render every review in the merged-detail blob. We used to truncate
   // to 5 in compact mode, but the full list is already cached and the user
-  // should never see "+N more reviews" on mobile \u2014 it felt like a bug when the
+  // should never see "+N more reviews" on mobile — it felt like a bug when the
   // section header says "100 reviews" but only shows 5.
-  const shown = reviews;
+  const shown = useMemo(
+    () =>
+      textOnly
+        ? reviews.filter((r) =>
+            r.segments?.some(
+              (seg) => seg.type === "text" && seg.value?.trim().length > 0,
+            ),
+          )
+        : reviews,
+    [reviews, textOnly],
+  );
 
   const focusMatched =
     focusReviewId != null && reviews.some((r) => r.id === focusReviewId);
@@ -203,6 +226,34 @@ function ItemReviewsBlock({
         days={rs?.days}
         recentCount={reviews.length}
       />
+      {reviews.length > 1 &&
+        textReviewCount > 0 &&
+        textReviewCount < reviews.length && (
+          <div className="mt-1 mb-2 flex flex-wrap items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setTextOnly(false)}
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
+                textOnly
+                  ? "border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                  : "border-transparent bg-primary/15 text-primary"
+              }`}
+            >
+              {t("reviews.filter.all", { count: reviews.length })}
+            </button>
+            <button
+              type="button"
+              onClick={() => setTextOnly(true)}
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
+                textOnly
+                  ? "border-transparent bg-primary/15 text-primary"
+                  : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
+              }`}
+            >
+              {t("reviews.filter.withText", { count: textReviewCount })}
+            </button>
+          </div>
+        )}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -541,6 +592,27 @@ export function ItemDetailOverlay() {
   const displayItem: Item | null = item ?? mergedDetail;
   // Treat as loading if refNum is set but neither source resolved yet (avoids flash of "not found")
   const isLoading = detailLoading || (!!refNum && !item && !mergedDetail);
+  const littleBiggyUrl = useMemo(
+    () =>
+      displayItem?.sl?.replace("littlebiggy.net", "littlebiggy.org") ?? null,
+    [displayItem?.sl],
+  );
+  const trackLittleBiggyClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      event.stopPropagation();
+      if (!displayItem || !littleBiggyUrl) return;
+      trackOutboundClick({
+        id: String(displayItem.refNum ?? displayItem.id),
+        url: littleBiggyUrl,
+        n: decodeEntities(displayItem.n),
+        sid: displayItem.sid != null ? String(displayItem.sid) : undefined,
+        sn: displayItem.sn ?? undefined,
+        c: displayItem.c ?? undefined,
+        mkt: market,
+      });
+    },
+    [displayItem, littleBiggyUrl, market],
+  );
 
   // ── Gallery images ──
   const images = useMemo(() => {
@@ -1433,15 +1505,10 @@ export function ItemDetailOverlay() {
                         </div>
                       </section>
 
-                      {/* Suggest link — mobile/phone only (<48rem). On tablet+
-                        it lives at the bottom-left of the panel, mirroring
-                        the LittleBiggy button on the bottom-right. */}
-                      <div className="flex justify-end pt-1 md:hidden">
-                        <SuggestLink
-                          refNum={displayItem.refNum ?? displayItem.id}
-                          iconOnly
-                        />
-                      </div>
+                      {/* Suggest link — mobile/phone only (<48rem) is rendered
+                        inside the fixed bottom action bar (.ido-mobile-actions).
+                        On tablet+ it lives at the bottom-left of the panel,
+                        mirroring the LittleBiggy button on the bottom-right. */}
                     </div>
                   </div>
 
@@ -1500,11 +1567,12 @@ export function ItemDetailOverlay() {
                       <ChevronRight size={14} aria-hidden="true" />
                     </button>
                   </div>
-                  {displayItem.sl && (
+                  {littleBiggyUrl && (
                     <a
-                      href={displayItem.sl}
+                      href={littleBiggyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={trackLittleBiggyClick}
                       className="ido-mobile-actions__lb"
                     >
                       <span>{t("viewOnLittleBiggy")}</span>
@@ -1516,11 +1584,12 @@ export function ItemDetailOverlay() {
                 </div>
 
                 {/* Absolute "View on LittleBiggy" button (bottom-right of panel, md+) */}
-                {displayItem.sl && (
+                {littleBiggyUrl && (
                   <a
-                    href={displayItem.sl}
+                    href={littleBiggyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={trackLittleBiggyClick}
                     className="ido-lb-btn"
                   >
                     <span className="ido-lb-btn__label">

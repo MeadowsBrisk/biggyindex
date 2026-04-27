@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     const event: OutboundEvent = {
       id: String(id),
       url: String(url),
+      n: body.n || undefined,
       sid: body.sid ? String(body.sid) : undefined,
       sn: body.sn || undefined,
       c: body.c || undefined,

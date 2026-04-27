@@ -492,7 +492,11 @@
       "reviews": {
         "heading": "Rezensionen",
         "noneAvailable": "Keine Bewertungen verfügbar",
-        "readMoreAt": "Lesen Sie weitere Rezensionen unter:"
+        "readMoreAt": "Lesen Sie weitere Rezensionen unter:",
+        "filter": {
+          "all": "Alle ({count})",
+          "withText": "Mit Text ({count})"
+        }
       },
       "variants": {
         "heading": "Varianten",
