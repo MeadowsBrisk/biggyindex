@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import {
   deleteR2Keys,
   listR2Keys,
@@ -6,8 +6,6 @@ import {
   writeR2JSON,
 } from "@/lib/r2-server";
 import type { OutboundEvent } from "@/lib/tracking/outbound";
-
-export const dynamic = "force-dynamic";
 
 /**
  * GET /api/nav/summary
@@ -61,6 +59,8 @@ const DAILY_RE = /^outbound\/events\/(\d{4}-\d{2}-\d{2})\.json$/;
 const EVENT_RE = /^outbound\/events\/(\d{4}-\d{2}-\d{2})\/.+\.json$/;
 
 export async function GET(request: Request) {
+  await connection();
+
   try {
     const url = new URL(request.url);
     const forceRebuild = url.searchParams.get("rebuild") === "1";
