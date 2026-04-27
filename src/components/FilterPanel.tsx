@@ -3,19 +3,12 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { FilterPanelContent } from "@/components/FilterPanelContent";
 import {
   activeFiltersCountAtom,
   filterPanelOpenAtom,
-  filterPanelSettledAtom,
   gateCompleteAtom,
 } from "@/store/atoms";
 
@@ -40,20 +33,24 @@ function useDelayedUnmount(isOpen: boolean, delayMs: number) {
   return shouldRender;
 }
 
-function useHydratedTransitionReady(isReady: boolean) {
-  const [transitionReady, setTransitionReady] = useState(false);
-
+/**
+ * One-frame transition suppressor — prevents the panel from animating on
+ * its very first paint (e.g. when navigating from `/` to `/browse`, where
+ * `gateComplete` is already true but atomWithStorage may still flip
+ * `filterPanelOpenAtom` from its SSR `false` to the persisted user value).
+ */
+function useMountSettled() {
+  const [settled, setSettled] = useState(false);
   useEffect(() => {
-    if (!isReady) {
-      setTransitionReady(false);
-      return;
-    }
-
-    const id = window.requestAnimationFrame(() => setTransitionReady(true));
-    return () => window.cancelAnimationFrame(id);
-  }, [isReady]);
-
-  return transitionReady;
+    // Two RAFs: one for atomWithStorage to hydrate, one to commit the snap,
+    // then transitions are safe to enable.
+    const id1 = window.requestAnimationFrame(() => {
+      const id2 = window.requestAnimationFrame(() => setSettled(true));
+      return () => window.cancelAnimationFrame(id2);
+    });
+    return () => window.cancelAnimationFrame(id1);
+  }, []);
+  return settled;
 }
 
 export function FilterToggle() {
@@ -88,39 +85,23 @@ export function FilterPanel() {
   const [open, setOpen] = useAtom(filterPanelOpenAtom);
   const [isMobile, setIsMobile] = useState(false);
   const gateComplete = useAtomValue(gateCompleteAtom);
-  const setFilterPanelSettled = useSetAtom(filterPanelSettledAtom);
   const t = useTranslations("browse.filters");
-  const previousPanelOpenRef = useRef<boolean | null>(null);
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
     () => false,
   );
   const panelOpen = mounted && open;
-  const transitionReady = useHydratedTransitionReady(mounted && gateComplete);
+  // Transitions are safe to enable once both the global hydration gate has
+  // completed AND this component has had two frames to absorb its initial
+  // atomWithStorage snap. The mount flag matters when navigating to /browse
+  // from another route where gateComplete is already true.
+  const mountSettled = useMountSettled();
+  const transitionReady = mounted && gateComplete && mountSettled;
   const shouldRenderContent = useDelayedUnmount(
     panelOpen,
     transitionReady ? CLOSE_TRANSITION_MS : 0,
   );
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    const previousPanelOpen = previousPanelOpenRef.current;
-    previousPanelOpenRef.current = panelOpen;
-
-    if (previousPanelOpen === null || previousPanelOpen === panelOpen) {
-      setFilterPanelSettled(true);
-      return;
-    }
-
-    setFilterPanelSettled(false);
-    const id = window.setTimeout(
-      () => setFilterPanelSettled(true),
-      transitionReady ? CLOSE_TRANSITION_MS : 0,
-    );
-    return () => window.clearTimeout(id);
-  }, [mounted, panelOpen, transitionReady, setFilterPanelSettled]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");

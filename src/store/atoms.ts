@@ -296,9 +296,6 @@ export const filterPanelOpenAtom = atomWithStorage<boolean>(
   readStorageOnClientInit,
 );
 
-/** True once persisted panel layout has been applied for the current page. */
-export const filterPanelSettledAtom = atom<boolean>(true);
-
 /** Persisted open/closed state for filter panel accordion sections */
 export const sectionOpenAtom = atomWithStorage<Record<string, boolean>>(
   "sectionOpen",

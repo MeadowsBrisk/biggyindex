@@ -16,15 +16,31 @@
 import { R2_DATA_PUBLIC_URL, R2_IMAGES_PUBLIC_URL } from "./constants";
 
 /**
+ * Normalize a configured public bucket URL — accepts bare hostnames
+ * (`cdn.biggyindex.com`) or full URLs (`https://cdn.biggyindex.com`)
+ * and always returns an absolute https URL with no trailing slash.
+ * Mirrors the helper in lib/images.ts so both code paths agree.
+ */
+function toAbsoluteBase(value: string): string {
+  const trimmed = value.replace(/\/+$/, "");
+  return trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
+}
+
+const DATA_BASE = R2_DATA_PUBLIC_URL ? toAbsoluteBase(R2_DATA_PUBLIC_URL) : "";
+const IMAGES_BASE = R2_IMAGES_PUBLIC_URL
+  ? toAbsoluteBase(R2_IMAGES_PUBLIC_URL)
+  : "";
+
+/**
  * Read JSON from the R2 data bucket (public, no credentials).
  */
 export async function readR2JSON<T = unknown>(key: string): Promise<T | null> {
-  if (!R2_DATA_PUBLIC_URL) {
+  if (!DATA_BASE) {
     console.warn("[r2] NEXT_PUBLIC_R2_DATA_URL not set");
     return null;
   }
 
-  const url = `${R2_DATA_PUBLIC_URL}/${key}`;
+  const url = `${DATA_BASE}/${key}`;
   try {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
@@ -38,9 +54,9 @@ export async function readR2JSON<T = unknown>(key: string): Promise<T | null> {
  * Read raw bytes from the R2 data bucket (public).
  */
 export async function readR2Raw(key: string): Promise<ArrayBuffer | null> {
-  if (!R2_DATA_PUBLIC_URL) return null;
+  if (!DATA_BASE) return null;
 
-  const url = `${R2_DATA_PUBLIC_URL}/${key}`;
+  const url = `${DATA_BASE}/${key}`;
   try {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
@@ -54,8 +70,8 @@ export async function readR2Raw(key: string): Promise<ArrayBuffer | null> {
  * Build a public image URL from an item's image key.
  */
 export function imageUrl(key: string): string {
-  if (!R2_IMAGES_PUBLIC_URL) return key;
-  return `${R2_IMAGES_PUBLIC_URL}/${key}`;
+  if (!IMAGES_BASE) return key;
+  return `${IMAGES_BASE}/${key}`;
 }
 
 /**

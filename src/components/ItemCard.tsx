@@ -392,9 +392,20 @@ function ItemCardInner({
       e.preventDefault();
       e.stopPropagation();
       setManualGrams((prev) => (prev === grams ? null : grams));
-      setSelectedStrain(null);
+      // Reconcile the strain selection: keep it if the new weight still
+      // carries it, otherwise clear. Symmetric to handleStrainClick so the
+      // user can pick strain → weight or weight → strain in any order.
+      setSelectedStrain((prev) => {
+        if (!prev || !weightGroups) return prev;
+        const wg = weightGroups.find((g) => g.grams === grams);
+        if (!wg) return prev;
+        const stillCarries = wg.strains.some(
+          (s) => s.toLowerCase() === prev.toLowerCase(),
+        );
+        return stillCarries ? prev : null;
+      });
     },
-    [],
+    [weightGroups],
   );
 
   const handleStrainClick = useCallback(

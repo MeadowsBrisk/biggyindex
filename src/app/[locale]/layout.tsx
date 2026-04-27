@@ -5,6 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { AnnouncementBannerGate } from "@/components/AnnouncementBannerGate";
 import { ExchangeRateProvider } from "@/components/ExchangeRateProvider";
+import { FlagFontPolyfill } from "@/components/FlagFontPolyfill";
 import { HydrationGate } from "@/components/HydrationGate";
 import { ModalHost } from "@/components/ModalHost";
 import { JotaiProvider } from "@/components/Providers";
@@ -103,6 +104,7 @@ export default async function LocaleLayout({
             <ToastHost />
             <AccentSync />
             <PauseGifsSync />
+            <FlagFontPolyfill />
             <HydrationGate />
           </JotaiProvider>
         </NextIntlClientProvider>
