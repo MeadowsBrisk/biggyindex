@@ -424,7 +424,6 @@
       },
       "attrs": {
         "effect": "Αποτέλεσμα",
-        "tier": "Βαθμίδα",
         "micron": "Μικρον",
         "filtration": "Διήθηση",
         "texture": "Υφή",
@@ -561,7 +560,6 @@
           "effect": "Αποτέλεσμα",
           "cbd": "CBD",
           "grow": "Καλλιεργώ",
-          "tier": "Βαθμίδα",
           "imported": "Εισαγόμενος",
           "micron": "Μικρον",
           "origin": "Προέλευση",
@@ -617,9 +615,7 @@
       "firstSeen": "Πρώτη εμφάνιση: {date}",
       "updated": "Ανανεώθηκε: {date}",
       "priceHistory": "Ιστορικό τιμών",
-      "reviews": "Κριτικές",
-      "reviewDelivery": "{days}d παράδοση",
-      "moreReviews": "+{count} περισσότερες κριτικές - δείτε την πλήρη λίστα στο LittleBiggy"
+      "reviews": "Κριτικές"
     },
     "legacyModal": {
       "close": "Κλείσιμο",
@@ -821,7 +817,6 @@
       "fields": {
         "category": "Κατηγορία",
         "subcategories": "Υποκατηγορίες",
-        "tier": "Επίπεδο ποιότητας",
         "micron": "Μέγεθος Micron",
         "wrongProduct": "Λάθος προϊόν"
       }

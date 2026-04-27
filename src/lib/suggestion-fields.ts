@@ -4,7 +4,7 @@
  * `getSuggestibleFields(category)` returns fields relevant to a given category:
  * - Category (always)
  * - Subcategories filtered to the active category
- * - Attribute fields that apply to that category (tier, micron, etc.)
+ * - Attribute fields that apply to that category (micron, etc.)
  * - Wrong Product flag (always)
  *
  * The form recomputes this when the user stages a category change, so the
@@ -17,7 +17,7 @@ export interface SuggestibleField {
   /** 'single' = radio/pill picker, 'multi' = checkbox list, 'flag' = boolean flag */
   inputType: "single" | "multi" | "flag";
   options?: string[];
-  /** Dot-path to read current value from Item (e.g. 'c', 'sc', 'at.tier') */
+  /** Dot-path to read current value from Item (e.g. 'c', 'sc', 'at.micron') */
   itemField: string;
 }
 
@@ -111,24 +111,6 @@ const SUBCATEGORIES_BY_CATEGORY: Record<string, string[]> = {
 
 /** Attribute fields that are suggestible per-category. */
 const ATTR_FIELDS_BY_CATEGORY: Record<string, SuggestibleField[]> = {
-  Flower: [
-    {
-      key: "tier",
-      label: "Quality Tier",
-      inputType: "single",
-      options: ["Budget", "Mid", "Premium", "Exotic/Cali"],
-      itemField: "at.tier",
-    },
-  ],
-  Shake: [
-    {
-      key: "tier",
-      label: "Quality Tier",
-      inputType: "single",
-      options: ["Budget", "Mid", "Premium", "Exotic/Cali"],
-      itemField: "at.tier",
-    },
-  ],
   Hash: [
     {
       key: "micron",
@@ -136,22 +118,6 @@ const ATTR_FIELDS_BY_CATEGORY: Record<string, SuggestibleField[]> = {
       inputType: "single",
       options: ["45u", "73u", "90u", "120u", "150u", "190u", "Full Spectrum"],
       itemField: "at.micron",
-    },
-    {
-      key: "tier",
-      label: "Quality Tier",
-      inputType: "single",
-      options: ["Budget", "Mid", "Premium", "Exotic/Cali"],
-      itemField: "at.tier",
-    },
-  ],
-  Concentrates: [
-    {
-      key: "tier",
-      label: "Quality Tier",
-      inputType: "single",
-      options: ["Budget", "Mid", "Premium", "Exotic/Cali"],
-      itemField: "at.tier",
     },
   ],
 };
@@ -201,7 +167,7 @@ export function getSuggestibleFields(
   return fields;
 }
 
-/** Read a nested item field value. Supports 'at.tier' dot notation. */
+/** Read a nested item field value. Supports 'at.micron' dot notation. */
 export function readItemField(
   item: Record<string, unknown>,
   fieldPath: string,

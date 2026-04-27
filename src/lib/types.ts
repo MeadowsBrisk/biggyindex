@@ -51,8 +51,6 @@ export interface ItemAttributes {
   effect?: string[];
   /** Flower: grow type (Indoor, Outdoor, Greenhouse, Hydro) */
   grow?: string[];
-  /** Shared: quality tier (Budget, Mid, Premium, Exotic/Cali) */
-  tier?: string[];
   /** Shared: origin (UK, Cali/US, Spanish, Dutch, Moroccan, etc.) */
   origin?: string[];
   /** Hash: micron size (45u, 73u, 90u, 120u, etc.) */

@@ -32,8 +32,8 @@ interface RelativeTimeParts {
   count: number;
 }
 
-function relativeTimeParts(unix: number): RelativeTimeParts {
-  const ms = Date.now() - unix * 1000;
+function relativeTimeParts(unix: number, now: number): RelativeTimeParts {
+  const ms = Math.max(0, now - unix * 1000);
   const mins = Math.floor(ms / 60_000);
   if (mins < 60) return { key: "time.minutesAgo", count: mins };
   const hrs = Math.floor(mins / 60);
@@ -83,6 +83,8 @@ interface ReviewCardProps {
   itemImageUrl?: string;
   /** Compact mode: smaller card, less spacing (for item-detail inline reviews) */
   compact?: boolean;
+  /** Hide the item label when reviews are already scoped to a single item. */
+  showItemName?: boolean;
   /** When true, scroll into view and flash a highlight ring. Used when
       jumping from the home-page photo review modal to the corresponding
       review inside the item-detail overlay. */
@@ -94,12 +96,21 @@ export function ReviewCard({
   onItemClick,
   itemImageUrl,
   compact,
+  showItemName = true,
   highlighted,
 }: ReviewCardProps) {
   const t = useTranslations("reviews.card");
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [zoomIndex, setZoomIndex] = useState(0);
+  const [clientNow, setClientNow] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setClientNow(Date.now());
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     if (!highlighted) return;
@@ -126,9 +137,10 @@ export function ReviewCard({
 
   const panelClass = panelClassForScore(review.rating);
   const createdAgo = useMemo(() => {
-    const parts = relativeTimeParts(review.created);
+    if (clientNow == null) return null;
+    const parts = relativeTimeParts(review.created, clientNow);
     return t(parts.key, { count: parts.count });
-  }, [review.created, t]);
+  }, [clientNow, review.created, t]);
 
   return (
     <>
@@ -156,7 +168,8 @@ export function ReviewCard({
         </div>
 
         {/* Item link */}
-        {review.item?.name &&
+        {showItemName &&
+          review.item?.name &&
           (onItemClick && itemImageUrl ? (
             <SellerAvatarTooltip
               sellerName={decodeEntities(review.item.name)}

@@ -239,8 +239,6 @@ export function SuggestionForm({ refNum, itemName, sellerName, item }: Props) {
         return t("fields.category");
       case "subcategories":
         return t("fields.subcategories");
-      case "tier":
-        return t("fields.tier");
       case "micron":
         return t("fields.micron");
       case "wrongProduct":

@@ -22,7 +22,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowRight, ExternalLink, Star, Truck, User, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
@@ -51,8 +51,8 @@ interface TimeAgoParts {
   count?: number;
 }
 
-function timeAgoParts(dateStr: string): TimeAgoParts {
-  const diff = Date.now() - new Date(dateStr).getTime();
+function timeAgoParts(dateStr: string, now: number): TimeAgoParts {
+  const diff = Math.max(0, now - new Date(dateStr).getTime());
   const hours = Math.floor(diff / 3_600_000);
   if (hours < 1) return { key: "time.justNow" };
   if (hours < 24) return { key: "time.hoursAgo", count: hours };
@@ -94,7 +94,15 @@ export function PhotoReviewModal() {
   const market = useAtomValue(marketAtom);
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [zoomIndex, setZoomIndex] = useState(0);
+  const [clientNow, setClientNow] = useState<number | null>(null);
   const isOpen = review != null;
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setClientNow(Date.now());
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   // Look up the item's LittleBiggy share link by refNum. We don't store it on
   // the review payload itself (home-feed reviews are intentionally slim), and
@@ -137,12 +145,12 @@ export function PhotoReviewModal() {
 
   const images = useMemo(() => review?.images ?? [], [review]);
   const createdAgo = useMemo(() => {
-    if (!review) return null;
-    const parts = timeAgoParts(review.createdAt);
+    if (!review || clientNow == null) return null;
+    const parts = timeAgoParts(review.createdAt, clientNow);
     return parts.count == null
       ? t(parts.key)
       : t(parts.key, { count: parts.count });
-  }, [review, t]);
+  }, [clientNow, review, t]);
 
   const openItem = () => {
     if (!review) return;

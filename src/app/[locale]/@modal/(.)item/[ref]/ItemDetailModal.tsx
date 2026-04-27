@@ -13,6 +13,15 @@ import { getItemPrimaryImage } from "@/lib/images";
 import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import { itemsAtom, marketAtom } from "@/store/atoms";
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export function ItemDetailModal({ refNum }: { refNum: string }) {
   const t = useTranslations("item.legacyModal");
   const router = useRouter();
@@ -240,14 +249,14 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
             {item.fsa && (
               <span>
                 {t("firstSeen", {
-                  date: new Date(item.fsa).toLocaleDateString(),
+                  date: formatDate(item.fsa),
                 })}
               </span>
             )}
             {item.lua && (
               <span>
                 {t("updated", {
-                  date: new Date(item.lua).toLocaleDateString(),
+                  date: formatDate(item.lua),
                 })}
               </span>
             )}

@@ -10,7 +10,7 @@
  *  - For pricing aggregates the crawler has its own parser; intentionally duplicated.
  */
 
-import type { ItemVariant } from "./types";
+import type { Item, ItemVariant } from "./types";
 
 /* ─────────── Types ─────────── */
 
@@ -24,7 +24,8 @@ export interface ParsedVariant {
    *   - 'mg' — dose
    *   - 'pk' | 'pc' | 'cart' | 'pod' | 'pen' | 'tab' | 'cap' | 'gummy' |
    *     'bottle' | 'jar' | 'bag' | 'bar' | 'chew' | 'square' | 'star' |
-   *     'joint' | 'box' | 'tub' | 'pot' | 'item'
+   *     'joint' | 'stick' | 'cone' | 'paper' | 'cube' | 'vape' |
+   *     'box' | 'tub' | 'pot' | 'strip' | 'item'
    */
   unit: string;
   /** Weight in grams — only set when the variant is weight-bearing. */
@@ -101,6 +102,7 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   cap: "cap",
   caps: "cap",
   gummy: "gummy",
+  gummie: "gummy",
   gummies: "gummy",
   bottle: "bottle",
   bottles: "bottle",
@@ -118,21 +120,36 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   stars: "star",
   preroll: "joint",
   prerolls: "joint",
+  "pre roll": "joint",
+  "pre rolls": "joint",
   "pre-roll": "joint",
   "pre-rolls": "joint",
   joint: "joint",
   joints: "joint",
   roll: "joint",
   rolls: "joint",
+  stick: "stick",
+  sticks: "stick",
+  cone: "cone",
+  cones: "cone",
+  paper: "paper",
+  papers: "paper",
+  blotter: "paper",
+  blotters: "paper",
+  cube: "cube",
+  cubes: "cube",
+  vape: "vape",
+  vapes: "vape",
+  inhaler: "inhaler",
+  inhalers: "inhaler",
   box: "box",
   boxes: "box",
   tub: "tub",
   tubs: "tub",
   pot: "pot",
   pots: "pot",
-  // Pharmaceutical packaging — a "strip" is a blister of N tablets. We
-  // don't expand to per-tablet (counts vary 5–15) but we do treat strips
-  // as a discrete count unit so multi-strip variants get a meaningful PPU.
+  // Pharmaceutical packaging. Explicit "strip of N" labels expand to tabs;
+  // otherwise strip stays a count unit because blister sizes vary.
   strip: "strip",
   strips: "strip",
   blister: "strip",
@@ -148,7 +165,7 @@ const COUNT_UNIT_ALT = Object.keys(COUNT_LABEL_CANONICAL)
 
 /** Inline weight tokens we strip from residuals to kill "7g jelly breath" → "jelly breath". */
 const INNER_WEIGHT_RE =
-  /\b\d+(?:\.\d+)?\s*(?:g|gram|grams|mg|kg|ml|oz|ounce|ounces|z)\b/gi;
+  /\b\d+(?:\.\d+)?\s*(?:g|gram|grams|mg|ug|mcg|kg|ml|oz|ounce|ounces|z)\b/gi;
 
 /** Single-token residuals that are weight-slang noise, not descriptors. */
 const WEIGHT_SLANG_NOISE = new Set([
@@ -175,11 +192,17 @@ const WEIGHT_SLANG_NOISE = new Set([
   "grams",
   "ml",
   "mg",
+  "ug",
+  "mcg",
   "qp",
   "hp",
   "lb",
   "pound",
 ]);
+
+export function itemVariantContext(item: Pick<Item, "n" | "c" | "sc">): string {
+  return [item.n, item.c, ...(item.sc ?? [])].filter(Boolean).join(" ");
+}
 
 /* ─────────── Patterns ─────────── */
 
@@ -214,11 +237,19 @@ const MULTIPACK_RE =
 const MULTIPACK_MG_RE =
   /^(\d+)\s*(?:x|×)\s*(\d+(?:\.\d+)?)\s*(?:mg|milligram|milligrams)\b/i;
 
+/** "2x1ml cart" / "pick and mix (2x1ml cart)" → total ml. */
+const MULTIPACK_ML_RE =
+  /\b(\d+)\s*(?:x|×)\s*(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
+
+/** "10 1ml carts" → total ml, common vape cart shorthand. */
+const COUNTED_ML_RE =
+  /^(\d+)\s+(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\s*(?:carts?|cartridges?|vapes?)\b/i;
+
 /** "1 g rr - 5 pack mix" → check for "N pack" after a weight match. */
 const PACK_MULT_RE = /\b(\d+)\s*x?\s*pack/i;
 
-/** "1 ml", "10ml". */
-const ML_RE = /^(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
+/** "1 ml", "10ml", "og kush 1ml". */
+const ML_RE = /\b(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
 
 /** "500 mg" — dose units, typically edibles. */
 const MG_RE = /^(\d+(?:\.\d+)?)\s*(?:mg|milligram|milligrams)\b/i;
@@ -238,11 +269,24 @@ const KG_RE = /^(\d+(?:\.\d+)?)\s*kg\b/i;
 /** "1 lb" — pound. */
 const LB_RE = /^(\d+(?:\.\d+)?)\s*lb\b/i;
 
-/** "3 packs", "2 carts", "10 pieces". */
+/** "1 strip of 10 40mg" → 10 tabs, not 1 strip. */
+const STRIP_OF_COUNT_RE =
+  /^(\d+(?:\.\d+)?)\s*strips?\s+of\s+(\d+(?:\.\d+)?)(?:\s+\d+(?:\.\d+)?\s*(?:mg|ug|mcg))?\b/i;
+
+/** "3 packs", "30 20mg tablets", "1 each 200ug papers". */
 const COUNT_RE = new RegExp(
-  `^(\\d+(?:\\.\\d+)?)\\s*(${COUNT_UNIT_ALT})\\b`,
+  `^(\\d+(?:\\.\\d+)?)\\s*(?:(?:each|total)\\s*)?(?:\\d+(?:\\.\\d+)?\\s*(?:mg|ug|mcg)\\s*)?(${COUNT_UNIT_ALT})\\b`,
   "i",
 );
+
+/** "magic paper x10" / "paper × 25". */
+const UNIT_THEN_COUNT_RE = new RegExp(
+  `\\b(${COUNT_UNIT_ALT})\\s*(?:x|×)\\s*(\\d+(?:\\.\\d+)?)\\b`,
+  "i",
+);
+
+/** "7 mixed flavour" can only be trusted with item context. */
+const BARE_COUNT_RE = /^(\d+(?:\.\d+)?)\b/i;
 
 const OZ_TO_G = 28.3495;
 const LB_TO_G = 453.592;
@@ -251,6 +295,52 @@ const QP_TO_G = LB_TO_G / 4;
 /** Round to 2 decimal places. */
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+function residualWithoutMatch(
+  clean: string,
+  match: RegExpMatchArray,
+): string | null {
+  const start = match.index ?? 0;
+  const end = start + match[0].length;
+  return cleanResidual(`${clean.slice(0, start)} ${clean.slice(end)}`.trim());
+}
+
+function contextUnit(context: string | null | undefined): string | null {
+  if (!context) return null;
+  const text = context.toLowerCase();
+
+  if (/\bcubes?\b/.test(text)) return "cube";
+  if (/\bgumm(?:y|ie|ies)\b|\bgummies\b/.test(text)) return "gummy";
+  if (/\b(?:blotters?|papers?|lsd|acid)\b/.test(text)) return "paper";
+  if (/\b(?:vapes?|disposables?)\b/.test(text)) return "vape";
+  if (/\b(?:tablets?|tabs?)\b/.test(text)) return "tab";
+  if (/\b(?:carts?|cartridges?)\b/.test(text)) return "cart";
+  if (/\b(?:sticks?)\b/.test(text)) return "stick";
+  if (/\b(?:cones?)\b/.test(text)) return "cone";
+  if (/\b(?:pre\s*-?\s*rolls?|prerolls?|joints?)\b/.test(text)) return "joint";
+
+  return null;
+}
+
+const POTENCY_CONTEXT_UNITS = new Set([
+  "vape",
+  "cart",
+  "pod",
+  "pen",
+  "inhaler",
+]);
+
+function potencyProductUnit(
+  residual: string | null,
+  context: string | null | undefined,
+): { unit: string; strain: string | null } | null {
+  const residualUnit = contextUnit(residual);
+  if (residualUnit === "tab") return { unit: "tab", strain: null };
+
+  const inferred = contextUnit(context);
+  if (!inferred || !POTENCY_CONTEXT_UNITS.has(inferred)) return null;
+  return { unit: inferred, strain: residual };
 }
 
 /* ─────────── Residual cleanup ─────────── */
@@ -269,6 +359,9 @@ function cleanResidual(raw: string): string | null {
   // Strip leftover money / BTC tails ("$15.00", "BTC0.0001977").
   s = s.replace(/\$\d+(?:\.\d{1,2})?/g, "");
   s = s.replace(/btc\s*\d+(?:\.\d+)?/gi, "");
+  // Strip postage/free-shipping tails that sellers add to option labels.
+  s = s.replace(/\+?\s*free\s*shipping\b/gi, "");
+  s = s.replace(/\+?\s*freeshipping\b/gi, "");
   // Strip redundant "=400mg" / "=1g" totals.
   s = s.replace(
     /=\s*\d+(?:\.\d+)?\s*(?:g|mg|ml|oz|grams?|milligrams?)\b/gi,
@@ -276,13 +369,15 @@ function cleanResidual(raw: string): string | null {
   );
   // Strip redundant inline weight tokens ("q 7g" → "q", "7g jelly breath" → " jelly breath").
   s = s.replace(INNER_WEIGHT_RE, "");
+  // Strip orphaned packaging labels left after embedded counts: "(2x1ml cart)" → "".
+  s = s.replace(/\(\s*(?:carts?|cartridges?|vapes?|pods?|pens?)\s*\)/gi, "");
   // Strip stray sale/status emojis.
   s = s.replace(/[❌✅🚫]/gu, "");
   // Collapse whitespace.
   s = s.replace(/\s+/g, " ").trim();
   // Strip leading connector words ("7g of shatter" → "shatter"; "3.5g and fire" → "fire").
   // Only strip a single leading connector to avoid gutting real names.
-  s = s.replace(/^(?:of|and|&|with|the|a|an|plus|x)\s+/i, "").trim();
+  s = s.replace(/^(?:of|and|&|with|the|a|an|plus|each|total|x)\s+/i, "").trim();
   // Strip trailing punctuation residue (",", "-", "&").
   s = s.replace(/[\s,\-&|]+$/g, "").trim();
 
@@ -324,7 +419,10 @@ function preprocessRaw(s: string): string {
   return s;
 }
 
-export function parseVariant(v: ItemVariant): ParsedVariant | null {
+export function parseVariant(
+  v: ItemVariant,
+  context?: string | null,
+): ParsedVariant | null {
   const raw = (v.dEn || v.d || "").trim();
   if (!raw) return null;
 
@@ -344,7 +442,7 @@ export function parseVariant(v: ItemVariant): ParsedVariant | null {
     const start = m.index ?? 0;
     const end = start + matchedText.length;
     const residual = cleanResidual(
-      (clean.slice(0, start) + " " + clean.slice(end)).trim(),
+      `${clean.slice(0, start)} ${clean.slice(end)}`.trim(),
     );
 
     if (pat.grams != null && pat.label) {
@@ -387,6 +485,42 @@ export function parseVariant(v: ItemVariant): ParsedVariant | null {
       qty: total,
       unit: "mg",
       weightLabel: `${total}mg`,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Multi-pack ml: "pick and mix (2x1ml cart)" → total 2ml. */
+  const mpMl = clean.match(MULTIPACK_ML_RE);
+  if (mpMl) {
+    const count = parseInt(mpMl[1], 10);
+    const ml = parseFloat(mpMl[2]);
+    const total = count * ml;
+    const residual = residualWithoutMatch(clean, mpMl);
+    const lab = `${count}×${ml}ml`;
+    return {
+      qty: total,
+      unit: "ml",
+      weightLabel: `${total}ml`,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Counted ml carts: "10 1ml carts" → total 10ml. */
+  const countedMl = clean.match(COUNTED_ML_RE);
+  if (countedMl) {
+    const count = parseInt(countedMl[1], 10);
+    const ml = parseFloat(countedMl[2]);
+    const total = count * ml;
+    const residual = cleanResidual(clean.slice(countedMl[0].length));
+    const lab = `${count}×${ml}ml`;
+    return {
+      qty: total,
+      unit: "ml",
+      weightLabel: `${total}ml`,
       originalLabel: lab,
       strain: residual,
       variant: v,
@@ -533,15 +667,33 @@ export function parseVariant(v: ItemVariant): ParsedVariant | null {
     };
   }
 
-  /* Volume: "1 ml zskittles". */
+  /* Volume: "1 ml zskittles" / "og kush 1ml". */
   const ml = clean.match(ML_RE);
   if (ml) {
     const qty = parseFloat(ml[1]);
-    const residual = cleanResidual(clean.slice(ml[0].length));
+    const residual = residualWithoutMatch(clean, ml);
     const lab = `${qty}ml`;
     return {
       qty,
       unit: "ml",
+      weightLabel: lab,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Pharmaceutical strips with explicit inner count: "10 strips of 10 40mg". */
+  const stripOf = clean.match(STRIP_OF_COUNT_RE);
+  if (stripOf) {
+    const strips = parseFloat(stripOf[1]);
+    const tabsPerStrip = parseFloat(stripOf[2]);
+    const qty = strips * tabsPerStrip;
+    const residual = cleanResidual(clean.slice(stripOf[0].length));
+    const lab = formatCountLabel(qty, "tab");
+    return {
+      qty,
+      unit: "tab",
       weightLabel: lab,
       originalLabel: lab,
       strain: residual,
@@ -554,6 +706,18 @@ export function parseVariant(v: ItemVariant): ParsedVariant | null {
   if (mg) {
     const qty = parseFloat(mg[1]);
     const residual = cleanResidual(clean.slice(mg[0].length));
+    const potencyUnit = potencyProductUnit(residual, context);
+    if (potencyUnit) {
+      const lab = formatCountLabel(1, potencyUnit.unit);
+      return {
+        qty: 1,
+        unit: potencyUnit.unit,
+        weightLabel: lab,
+        originalLabel: lab,
+        strain: potencyUnit.strain,
+        variant: v,
+      };
+    }
     const lab = `${qty}mg`;
     return {
       qty,
@@ -583,6 +747,43 @@ export function parseVariant(v: ItemVariant): ParsedVariant | null {
     };
   }
 
+  /* Suffix count: "magic paper x10" / "magic paper x25". */
+  const unitThenCount = clean.match(UNIT_THEN_COUNT_RE);
+  if (unitThenCount) {
+    const rawUnit = unitThenCount[1].toLowerCase();
+    const unit = COUNT_LABEL_CANONICAL[rawUnit] ?? rawUnit;
+    const qty = parseFloat(unitThenCount[2]);
+    const residual = residualWithoutMatch(clean, unitThenCount);
+    const lab = formatCountLabel(qty, unit);
+    return {
+      qty,
+      unit,
+      weightLabel: lab,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Bare count with item context: "7 mixed flavour" on a gummies item. */
+  const bareCount = clean.match(BARE_COUNT_RE);
+  const inferredUnit = contextUnit(context);
+  if (bareCount && inferredUnit) {
+    const qty = parseFloat(bareCount[1]);
+    const rest = clean.slice(bareCount[0].length);
+    if (/^\s*(?:each\s+)?custom\b/i.test(rest)) return null;
+    const residual = cleanResidual(rest);
+    const lab = formatCountLabel(qty, inferredUnit);
+    return {
+      qty,
+      unit: inferredUnit,
+      weightLabel: lab,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
   return null;
 }
 
@@ -605,15 +806,23 @@ function formatCountLabel(qty: number, unit: string): string {
     square: "square",
     star: "star",
     joint: "joint",
+    stick: "stick",
+    cone: "cone",
+    paper: "paper",
+    cube: "cube",
+    vape: "vape",
+    inhaler: "inhaler",
     box: "box",
     tub: "tub",
     pot: "pot",
+    strip: "strip",
     item: "item",
   };
   const word = base[unit] ?? unit;
   if (qty === 1) return `${qty} ${word}`;
   if (word === "gummy") return `${qty} gummies`;
   if (word === "box") return `${qty} boxes`;
+  if (word === "inhaler") return `${qty} inhalers`;
   return `${qty} ${word}s`;
 }
 
@@ -626,9 +835,10 @@ function formatCountLabel(qty: number, unit: string): string {
  */
 export function groupByQuantity(
   variants: ItemVariant[],
+  context?: string | null,
 ): QuantityGroup[] | null {
   const parsed = variants
-    .map(parseVariant)
+    .map((v) => parseVariant(v, context))
     .filter((p): p is ParsedVariant => p !== null);
   if (parsed.length < 2) return null;
 
@@ -684,8 +894,11 @@ export function groupByQuantity(
  * Returns groups if there are 2+ weight tiers, OR a single tier with multiple strains.
  * Used by weight filter / price-per-gram sort / ItemCard's weight chip path.
  */
-export function groupByWeight(variants: ItemVariant[]): WeightGroup[] | null {
-  const all = groupByQuantity(variants);
+export function groupByWeight(
+  variants: ItemVariant[],
+  context?: string | null,
+): WeightGroup[] | null {
+  const all = groupByQuantity(variants, context);
   if (!all) return null;
   const weight = all.filter(
     (g): g is WeightGroup => typeof g.grams === "number",
@@ -709,11 +922,30 @@ export function pricePerGram(price: number, grams: number): number | null {
 
 /**
  * Continuous units have meaningful per-unit pricing at any quantity including
- * fractional (0.5g, 0.25ml). Discrete count units (pc, cart, joint, pod, …)
- * only have meaningful PPU when qty > 1 — a single preroll has no "per unit"
- * because PPU would equal the variant price.
+ * fractional (0.5g, 0.25ml). Some explicit single-count units also deserve a
+ * PPU because "1 vape" / "1 paper" is the product unit, not packaging.
  */
 const CONTINUOUS_UNITS = new Set(["g", "ml", "mg"]);
+
+const PRICEABLE_SINGLE_UNITS = new Set([
+  "cart",
+  "pod",
+  "pen",
+  "tab",
+  "cap",
+  "gummy",
+  "bar",
+  "chew",
+  "square",
+  "star",
+  "joint",
+  "stick",
+  "cone",
+  "paper",
+  "cube",
+  "vape",
+  "inhaler",
+]);
 
 /**
  * Short display label for each canonical unit. Used after the slash in
@@ -737,6 +969,12 @@ export const UNIT_DISPLAY_LABEL: Record<string, string> = {
   square: "sq",
   star: "star",
   joint: "roll",
+  stick: "stick",
+  cone: "cone",
+  paper: "paper",
+  cube: "cube",
+  vape: "vape",
+  inhaler: "inhaler",
   box: "box",
   bottle: "bottle",
   jar: "jar",
@@ -750,8 +988,8 @@ export const UNIT_DISPLAY_LABEL: Record<string, string> = {
 /**
  * Per-unit price for any parsed quantity. Mirrors old-biggyindex
  * `perUnitSuffix`: returns `price / qty` for any unit, or null when PPU
- * would be meaningless (qty missing, qty <= 0, or qty === 1 on a discrete
- * count unit).
+ * would be meaningless (qty missing, qty <= 0, or qty === 1 on ambiguous
+ * packaging count units like pack/bag/jar).
  */
 export function pricePerUnit(
   price: number,
@@ -760,8 +998,13 @@ export function pricePerUnit(
   if (!parsed) return null;
   if (!(parsed.qty > 0)) return null;
   if (!(price > 0)) return null;
-  // Skip qty==1 for discrete count units — "1 preroll" has no meaningful PPU.
-  if (!CONTINUOUS_UNITS.has(parsed.unit) && parsed.qty <= 1) return null;
+  if (
+    !CONTINUOUS_UNITS.has(parsed.unit) &&
+    parsed.qty <= 1 &&
+    !PRICEABLE_SINGLE_UNITS.has(parsed.unit)
+  ) {
+    return null;
+  }
   return price / parsed.qty;
 }
 
@@ -773,8 +1016,9 @@ export function pricePerUnit(
 export function variantPpu(
   v: ItemVariant,
   shipSurcharge = 0,
+  context?: string | null,
 ): { ppu: number; unit: string; qty: number } | null {
-  const parsed = parseVariant(v);
+  const parsed = parseVariant(v, context);
   if (!parsed) return null;
   const ppu = pricePerUnit(v.usd + shipSurcharge, parsed);
   if (ppu == null) return null;
@@ -790,11 +1034,12 @@ export function variantPpu(
 export function cheapestPpu(
   variants: ItemVariant[] | null | undefined,
   shipSurcharge = 0,
+  context?: string | null,
 ): { ppu: number; unit: string } | null {
   if (!variants || variants.length === 0) return null;
   const byUnit = new Map<string, number[]>();
   for (const v of variants) {
-    const res = variantPpu(v, shipSurcharge);
+    const res = variantPpu(v, shipSurcharge, context);
     if (!res) continue;
     const arr = byUnit.get(res.unit) ?? [];
     arr.push(res.ppu);

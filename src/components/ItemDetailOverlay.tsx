@@ -4,38 +4,31 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import {
   Fragment,
-  lazy,
   type MouseEvent,
-  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { EffectFade, Keyboard } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import type { Swiper as SwiperInstance } from "swiper/types";
-import "swiper/css";
-import "swiper/css/effect-fade";
 import {
   Award,
   Calendar,
   Check,
   ChevronLeft,
   ChevronRight,
-  Package,
   Plus,
   RefreshCw,
   Star,
   Truck,
   X,
 } from "lucide-react";
+import { ItemDetailGallery } from "@/components/ItemDetailGallery";
+import { ItemDetailTabs } from "@/components/ItemDetailTabs";
 import {
-  type Review,
-  ReviewCard,
-  ReviewStatsHeader,
-} from "@/components/ReviewCard";
+  type ItemReview,
+  ItemReviewsBlock,
+} from "@/components/ItemReviewsBlock";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
@@ -57,7 +50,12 @@ import {
 } from "@/lib/images";
 import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, MergedDetailBlob } from "@/lib/types";
-import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
+import {
+  itemVariantContext,
+  parseVariant,
+  pricePerUnit,
+  UNIT_DISPLAY_LABEL,
+} from "@/lib/variants";
 import {
   addToBasketAtom,
   currencyDisplayAtom,
@@ -71,18 +69,6 @@ import {
   sortedItemsAtom,
 } from "@/store/atoms";
 
-const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
-
-/* ── Review shape from merged detail ── */
-interface ItemReview {
-  id: number;
-  created: number;
-  rating: number;
-  daysToArrive: number | null;
-  segments: { type: string; value: string }[];
-  item?: { refNum: string; name: string; id: number };
-}
-
 /* ── Helpers ── */
 
 /* Human-friendly labels + value formatters for item attributes (`at` field). */
@@ -90,7 +76,6 @@ const ATTR_LABEL_KEYS = new Set<string>([
   "effect",
   "cbd",
   "grow",
-  "tier",
   "imported",
   "micron",
   "origin",
@@ -129,9 +114,15 @@ type DetailRelativeAge = {
   count: number;
 };
 
-function relativeAge(iso: string | null | undefined): DetailRelativeAge | null {
+function relativeAge(
+  iso: string | null | undefined,
+  now: number | null,
+): DetailRelativeAge | null {
+  if (now == null) return null;
   if (!iso) return null;
-  const ms = Date.now() - new Date(iso).getTime();
+  const ts = new Date(iso).getTime();
+  if (Number.isNaN(ts)) return null;
+  const ms = Math.max(0, now - ts);
   const mins = Math.floor(ms / 60_000);
   if (mins < 60) return { unit: "minutes", count: mins };
   const hrs = Math.floor(mins / 60);
@@ -140,287 +131,6 @@ function relativeAge(iso: string | null | undefined): DetailRelativeAge | null {
   if (days < 30) return { unit: "days", count: days };
   const months = Math.floor(days / 30);
   return { unit: "months", count: months };
-}
-
-/* ── Reviews block (shared between inline + ultrawide column) ── */
-function ItemReviewsBlock({
-  reviews,
-  rs,
-  loading,
-  compact,
-  shareLink,
-  focusReviewId,
-  onFocusHandled,
-}: {
-  reviews: ItemReview[];
-  rs?: {
-    avg?: number | null;
-    cnt?: number | null;
-    days?: number | null;
-  } | null;
-  loading: boolean;
-  compact?: boolean;
-  shareLink?: string | null;
-  /** If set, flag the matching review for scroll-into-view + highlight. */
-  focusReviewId?: number | null;
-  /** Called after the focused review has been rendered, so the parent can
-      clear the global focus atom and not re-trigger on every rerender. */
-  onFocusHandled?: () => void;
-}) {
-  const t = useTranslations("item.detail");
-  // Optional "with text only" filter — many reviews are rating-only.
-  const [textOnly, setTextOnly] = useState(false);
-  const textReviewCount = useMemo(
-    () =>
-      reviews.filter((r) =>
-        r.segments?.some(
-          (seg) => seg.type === "text" && seg.value?.trim().length > 0,
-        ),
-      ).length,
-    [reviews],
-  );
-  // Always render every review in the merged-detail blob. We used to truncate
-  // to 5 in compact mode, but the full list is already cached and the user
-  // should never see "+N more reviews" on mobile — it felt like a bug when the
-  // section header says "100 reviews" but only shows 5.
-  const shown = useMemo(
-    () =>
-      textOnly
-        ? reviews.filter((r) =>
-            r.segments?.some(
-              (seg) => seg.type === "text" && seg.value?.trim().length > 0,
-            ),
-          )
-        : reviews,
-    [reviews, textOnly],
-  );
-
-  const focusMatched =
-    focusReviewId != null && reviews.some((r) => r.id === focusReviewId);
-  // Clear the focus atom once we've handed off the highlight flag to the
-  // matching card (useEffect runs after render so the scroll can happen).
-  useEffect(() => {
-    if (focusMatched && onFocusHandled) {
-      onFocusHandled();
-    }
-  }, [focusMatched, onFocusHandled]);
-
-  return (
-    <>
-      <h3
-        className={
-          compact
-            ? "mb-1 text-xs font-medium uppercase tracking-wider text-muted"
-            : "text-sm font-semibold text-foreground mb-1"
-        }
-      >
-        {t("reviews.heading")}
-        {reviews.length > 0 && (
-          <span className="ml-1 text-muted font-normal">
-            ({reviews.length})
-          </span>
-        )}
-      </h3>
-      <ReviewStatsHeader
-        avg={rs?.avg}
-        count={rs?.cnt}
-        days={rs?.days}
-        recentCount={reviews.length}
-      />
-      {reviews.length > 1 &&
-        textReviewCount > 0 &&
-        textReviewCount < reviews.length && (
-          <div className="mt-1 mb-2 flex flex-wrap items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setTextOnly(false)}
-              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
-                textOnly
-                  ? "border-border text-muted hover:bg-surface-hover hover:text-foreground"
-                  : "border-transparent bg-primary/15 text-primary"
-              }`}
-            >
-              {t("reviews.filter.all", { count: reviews.length })}
-            </button>
-            <button
-              type="button"
-              onClick={() => setTextOnly(true)}
-              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
-                textOnly
-                  ? "border-transparent bg-primary/15 text-primary"
-                  : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
-              }`}
-            >
-              {t("reviews.filter.withText", { count: textReviewCount })}
-            </button>
-          </div>
-        )}
-      {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-        </div>
-      ) : reviews.length === 0 ? (
-        <p className="text-sm text-muted">{t("reviews.noneAvailable")}</p>
-      ) : (
-        <div className={compact ? "space-y-2" : "space-y-2"}>
-          {shown.map((r) => (
-            <ReviewCard
-              key={r.id}
-              review={r as Review}
-              compact={compact}
-              highlighted={focusReviewId != null && r.id === focusReviewId}
-            />
-          ))}
-        </div>
-      )}
-      {shareLink && reviews.length >= 2 && (rs?.cnt ?? 0) > reviews.length && (
-        <p className="ido-reviews-hint">{t("reviews.readMoreAt")}</p>
-      )}
-    </>
-  );
-}
-
-/* ── Scroll-spy tabs for item detail sections (mobile + desktop) ── */
-type SectionId = "prices" | "description" | "reviews";
-const SECTION_IDS: SectionId[] = ["prices", "description", "reviews"];
-
-function ItemDetailTabs({
-  scrollRef,
-  refNum,
-}: {
-  scrollRef: React.RefObject<HTMLDivElement | null>;
-  refNum: string | number | null;
-}) {
-  const t = useTranslations("item.detail.tabs");
-  const [active, setActive] = useState<SectionId>("prices");
-  const manualRef = useRef(false);
-  const manualTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Reset on item change
-  useEffect(() => {
-    setActive("prices");
-  }, [refNum]);
-
-  // Scroll-spy via IntersectionObserver (scrollRef is the root on desktop;
-  // on mobile the panel itself scrolls, so fall back to viewport)
-  useEffect(() => {
-    const root = scrollRef.current;
-    // Query sections inside root (or document if root isn't the scroller)
-    const findSections = (): HTMLElement[] => {
-      const scope: ParentNode = root ?? document;
-      return Array.from(
-        scope.querySelectorAll<HTMLElement>("[data-section-id]"),
-      );
-    };
-
-    let sections = findSections();
-    if (sections.length === 0) {
-      // Content may not have mounted yet — retry next frame
-      const raf = requestAnimationFrame(() => {
-        sections = findSections();
-        if (sections.length) setup();
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-
-    let observer: IntersectionObserver | null = null;
-    const visible = new Map<string, number>();
-
-    function pick() {
-      if (manualRef.current) return;
-      if (visible.size === 0) return;
-      // Pick the section whose top is closest to (at or just above) the header offset
-      const HEADER_OFFSET = 64;
-      let bestId: SectionId | null = null;
-      let bestTop = -Infinity;
-      visible.forEach((top, id) => {
-        if (top <= HEADER_OFFSET && top > bestTop) {
-          bestTop = top;
-          bestId = id as SectionId;
-        }
-      });
-      if (!bestId) {
-        // Nothing has crossed yet — pick the highest visible
-        let lowest = Infinity;
-        visible.forEach((top, id) => {
-          if (top < lowest) {
-            lowest = top;
-            bestId = id as SectionId;
-          }
-        });
-        if (bestId) setActive(bestId);
-        return;
-      }
-      setActive(bestId);
-    }
-
-    function setup() {
-      observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const id = entry.target.getAttribute("data-section-id");
-            if (!id) continue;
-            if (entry.isIntersecting) {
-              visible.set(id, entry.boundingClientRect.top);
-            } else {
-              visible.delete(id);
-            }
-          }
-          // Refresh tops for all visible entries (scroll event isn't fired here)
-          visible.forEach((_, id) => {
-            const el = (root ?? document).querySelector<HTMLElement>(
-              `[data-section-id="${id}"]`,
-            );
-            if (el) visible.set(id, el.getBoundingClientRect().top);
-          });
-          pick();
-        },
-        { threshold: [0, 0.1, 0.25, 0.5, 0.9, 1] },
-      );
-      for (const s of sections) observer.observe(s);
-    }
-
-    setup();
-
-    return () => {
-      observer?.disconnect();
-      visible.clear();
-    };
-  }, [scrollRef, refNum]);
-
-  const scrollTo = (id: SectionId) => {
-    const root = scrollRef.current ?? document;
-    const target = (root as ParentNode).querySelector<HTMLElement>(
-      `[data-section-id="${id}"]`,
-    );
-    if (!target) return;
-    setActive(id);
-    manualRef.current = true;
-    if (manualTimerRef.current) clearTimeout(manualTimerRef.current);
-    manualTimerRef.current = setTimeout(() => {
-      manualRef.current = false;
-    }, 800);
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  return (
-    <div className="ido-tabs">
-      {SECTION_IDS.map((key) => (
-        <button
-          key={key}
-          type="button"
-          onClick={() => scrollTo(key)}
-          className={cx(
-            "ido-tab",
-            `ido-tab--${key}`,
-            active === key && "ido-tab--active",
-          )}
-        >
-          {t(key)}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 /* ── Component ── */
@@ -564,14 +274,18 @@ export function ItemDetailOverlay() {
 
   useEffect(() => {
     if (!refNum || !market) {
-      setMergedDetail(null);
-      setDetailLoading(false);
-      return;
+      const frame = window.requestAnimationFrame(() => {
+        setMergedDetail(null);
+        setDetailLoading(false);
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
     detailAbortRef.current?.abort();
     const ac = new AbortController();
     detailAbortRef.current = ac;
-    setDetailLoading(true);
+    const loadingFrame = window.requestAnimationFrame(() => {
+      if (!ac.signal.aborted) setDetailLoading(true);
+    });
     fetch(
       `/api/item-detail/${encodeURIComponent(refNum)}?mkt=${encodeURIComponent(market.toLowerCase())}`,
       { signal: ac.signal },
@@ -586,11 +300,23 @@ export function ItemDetailOverlay() {
       .catch(() => {
         if (!ac.signal.aborted) setDetailLoading(false);
       });
-    return () => ac.abort();
+    return () => {
+      window.cancelAnimationFrame(loadingFrame);
+      ac.abort();
+    };
   }, [refNum, market]);
 
   // ── Effective item: atom (browse page) or merged detail (other pages) ──
   const displayItem: Item | null = item ?? mergedDetail;
+  const [clientNow, setClientNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setClientNow(Date.now());
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   // Treat as loading if refNum is set but neither source resolved yet (avoids flash of "not found")
   const isLoading = detailLoading || (!!refNum && !item && !mergedDetail);
   const littleBiggyUrl = useMemo(
@@ -624,29 +350,6 @@ export function ItemDetailOverlay() {
     return getItemGalleryImages(displayItem);
   }, [displayItem]);
 
-  // ── Swiper state ──
-  const [mainSwiper, setMainSwiper] = useState<SwiperInstance | null>(null);
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  // Reset swiper on item change
-  useEffect(() => {
-    setActiveSlide(0);
-    if (mainSwiper) {
-      try {
-        mainSwiper.slideTo(0, 0);
-      } catch {}
-    }
-  }, [refNum, mainSwiper]);
-
-  // ── Zoom preview ──
-  const [zoomSignal, setZoomSignal] = useState<number | null>(null);
-  const [startZoomIndex, setStartZoomIndex] = useState(0);
-
-  const openZoom = useCallback((index: number) => {
-    setStartZoomIndex(index);
-    setZoomSignal(Date.now());
-  }, []);
-
   // ── Selected shipping cost (local to overlay) ──
   const [selectedShipCost, setSelectedShipCost] = useState(0);
 
@@ -656,7 +359,10 @@ export function ItemDetailOverlay() {
 
   // Reset shipping selection when item changes
   useEffect(() => {
-    setSelectedShipCost(0);
+    const frame = window.requestAnimationFrame(() => {
+      setSelectedShipCost(0);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [refNum]);
 
   // ── Extras from merged detail ──
@@ -664,7 +370,10 @@ export function ItemDetailOverlay() {
     (forceEnglish && mergedDetail?.shOptsEn?.length
       ? mergedDetail.shOptsEn
       : mergedDetail?.shOpts) ?? [];
-  const priceHistory = mergedDetail?.ph ?? [];
+  const priceHistory = useMemo(
+    () => mergedDetail?.ph ?? [],
+    [mergedDetail?.ph],
+  );
 
   // Derive last price from price history (replaces lp field)
   const lastPrice = useMemo(() => {
@@ -684,7 +393,11 @@ export function ItemDetailOverlay() {
   // PPU (price-per-unit) is computed via shared `pricePerUnit` from
   // @/lib/variants — the same helper ItemCard and atoms use. It works for
   // any parsed unit (g, ml, mg, pc, joint, cart, pod, …) and returns null
-  // when not meaningful (qty<=1 on discrete count units, etc.).
+  // when not meaningful (single ambiguous packaging units, etc.).
+  const variantContext = useMemo(
+    () => (displayItem ? itemVariantContext(displayItem) : null),
+    [displayItem],
+  );
   const variantRows = useMemo(() => {
     if (!displayItem?.v || displayItem.v.length === 0) return null;
     // For weight-based categories a bare-number variant label ("7", "14 mixed") implies grams.
@@ -694,7 +407,7 @@ export function ItemDetailOverlay() {
     return displayItem.v
       .filter((v) => v.usd > 0)
       .map((v, i) => {
-        const parsed = parseVariant(v);
+        const parsed = parseVariant(v, variantContext);
         let grams = parsed?.grams ?? null;
         let effectiveParsed: { unit: string; qty: number } | null = parsed;
         // Weight-category fallback: bare-number labels ("7", "14 mixed") are grams.
@@ -722,7 +435,7 @@ export function ItemDetailOverlay() {
           unitLabel: unit ? (UNIT_DISPLAY_LABEL[unit] ?? unit) : null,
         };
       });
-  }, [displayItem?.v, displayItem?.c]);
+  }, [displayItem, variantContext]);
 
   const bestValueKey = useMemo(() => {
     if (!variantRows || variantRows.length <= 1) return null;
@@ -806,78 +519,11 @@ export function ItemDetailOverlay() {
                   {/* ── Left: Gallery ── */}
                   <div className="ido-left">
                     <div className="ido-image-area">
-                      {images.length > 0 ? (
-                        <>
-                          <Swiper
-                            modules={[Keyboard, EffectFade]}
-                            effect="fade"
-                            fadeEffect={{ crossFade: true }}
-                            keyboard={{ enabled: true }}
-                            spaceBetween={0}
-                            slidesPerView={1}
-                            onSwiper={setMainSwiper}
-                            onSlideChange={(sw) =>
-                              setActiveSlide(sw.activeIndex ?? 0)
-                            }
-                            className="ido-swiper"
-                          >
-                            {images.map((src, idx) => (
-                              <SwiperSlide key={`${idx}-${src}`}>
-                                <button
-                                  type="button"
-                                  onClick={() => openZoom(idx)}
-                                  className="w-full h-full focus:outline-none"
-                                >
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
-                                    src={src}
-                                    alt={name}
-                                    loading={idx === 0 ? "eager" : "lazy"}
-                                    decoding="async"
-                                    draggable={false}
-                                  />
-                                </button>
-                              </SwiperSlide>
-                            ))}
-                          </Swiper>
-
-                          {/* Thumbnails (mobile: overlay at bottom, desktop: below swiper) */}
-                          {images.length > 1 && (
-                            <div className="absolute bottom-3 left-3 z-20 md:relative md:bottom-auto md:left-auto md:mt-3 md:flex md:justify-center">
-                              <div className="ido-thumbs">
-                                {images.map((src, idx) => (
-                                  <button
-                                    key={`thumb-${idx}`}
-                                    type="button"
-                                    onClick={() => mainSwiper?.slideTo(idx)}
-                                    className={cx(
-                                      "ido-thumb",
-                                      activeSlide === idx &&
-                                        "ido-thumb--active",
-                                    )}
-                                  >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                      src={src}
-                                      alt={`${name} ${idx + 1}`}
-                                      loading="lazy"
-                                      decoding="async"
-                                      draggable={false}
-                                    />
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="w-full aspect-square flex items-center justify-center bg-surface rounded-lg">
-                          <Package
-                            size={64}
-                            className="text-muted opacity-30"
-                          />
-                        </div>
-                      )}
+                      <ItemDetailGallery
+                        images={images}
+                        alt={name}
+                        itemKey={refNum}
+                      />
                     </div>
                   </div>
 
@@ -1260,7 +906,10 @@ export function ItemDetailOverlay() {
                                 </span>
                                 <span className="ido-meta-cell__value">
                                   {(() => {
-                                    const age = relativeAge(displayItem.fsa);
+                                    const age = relativeAge(
+                                      displayItem.fsa,
+                                      clientNow,
+                                    );
                                     return age
                                       ? t(`time.${age.unit}Ago`, {
                                           count: age.count,
@@ -1283,7 +932,10 @@ export function ItemDetailOverlay() {
                                 </span>
                                 <span className="ido-meta-cell__value">
                                   {(() => {
-                                    const age = relativeAge(displayItem.lua);
+                                    const age = relativeAge(
+                                      displayItem.lua,
+                                      clientNow,
+                                    );
                                     return age
                                       ? t(`time.${age.unit}Ago`, {
                                           count: age.count,
@@ -1348,6 +1000,7 @@ export function ItemDetailOverlay() {
                             for (const [key, vals] of Object.entries(
                               displayItem.at,
                             )) {
+                              if (key === "tier") continue;
                               const label = ATTR_LABEL_KEYS.has(key)
                                 ? t(`attributes.labels.${key}`)
                                 : key;
@@ -1634,17 +1287,6 @@ export function ItemDetailOverlay() {
         </div>
       </div>
 
-      {/* ImageZoomPreview — lazy-loaded portal */}
-      {images.length > 0 && (
-        <Suspense fallback={null}>
-          <ImageZoomPreview
-            imageUrls={images}
-            alt={name}
-            openSignal={zoomSignal}
-            startIndex={startZoomIndex}
-          />
-        </Suspense>
-      )}
     </>
   );
 }

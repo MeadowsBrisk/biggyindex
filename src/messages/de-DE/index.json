@@ -424,7 +424,6 @@
       },
       "attrs": {
         "effect": "Wirkung",
-        "tier": "Tier",
         "micron": "Micron",
         "filtration": "Filtration",
         "texture": "Textur",
@@ -561,7 +560,6 @@
           "effect": "Wirkung",
           "cbd": "CBD",
           "grow": "Wachsen",
-          "tier": "Tier",
           "imported": "Importiert",
           "micron": "Micron",
           "origin": "Ursprung",
@@ -617,9 +615,7 @@
       "firstSeen": "Zuerst gesehen: {date}",
       "updated": "Aktualisiert: {date}",
       "priceHistory": "Preisgeschichte",
-      "reviews": "Rezensionen",
-      "reviewDelivery": "{days}d Lieferung",
-      "moreReviews": "+{count} weitere Rezensionen – vollständige Liste auf LittleBiggy"
+      "reviews": "Rezensionen"
     },
     "legacyModal": {
       "close": "Schließen",
@@ -821,7 +817,6 @@
       "fields": {
         "category": "Kategorie",
         "subcategories": "Unterkategorien",
-        "tier": "Qualitätsstufe",
         "micron": "Mikrongröße",
         "wrongProduct": "Falsches Produkt"
       }

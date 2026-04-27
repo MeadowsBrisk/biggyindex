@@ -101,15 +101,10 @@ function Section({
 }
 
 const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string }[]> = {
-  Flower: [{ key: "effect" }, { key: "tier" }],
-  Shake: [{ key: "effect" }, { key: "tier" }],
-  Hash: [
-    { key: "micron" },
-    { key: "filtration" },
-    { key: "texture" },
-    { key: "tier" },
-  ],
-  Concentrates: [{ key: "process" }, { key: "form" }, { key: "tier" }],
+  Flower: [{ key: "effect" }],
+  Shake: [{ key: "effect" }],
+  Hash: [{ key: "micron" }, { key: "filtration" }, { key: "texture" }],
+  Concentrates: [{ key: "process" }, { key: "form" }],
   Vapes: [{ key: "extract" }, { key: "form" }],
   Edibles: [{ key: "dietary" }, { key: "strength" }],
 };

@@ -66,7 +66,7 @@ function StarRating({ rating }: { rating: number }) {
               className="absolute inset-0 h-full w-full"
             >
               <path
-                className="fill-[var(--border)]"
+                className="fill-border"
                 d="M12 2.5 14.9 8l6.1.9-4.4 4.3 1 6.2L12 16.9 6.4 19.4l1-6.2-4.4-4.3L9.1 8z"
               />
               {(isFull || isHalf) && (
@@ -169,7 +169,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
           <button
             type="button"
             onClick={() => review.refNum && setRefNum(review.refNum)}
-            className="absolute right-3 top-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-sm hover:ring-2 hover:ring-primary/30 transition-all"
+            className="absolute right-3 top-3 overflow-hidden rounded-lg border border-border bg-surface shadow-sm hover:ring-2 hover:ring-primary/30 transition-all"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -201,7 +201,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
                 <img
                   src={sellerAvatar}
                   alt={review.sellerName}
-                  className="w-8 h-8 rounded-full object-cover border border-[var(--border)]"
+                  className="w-8 h-8 rounded-full object-cover border border-border"
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
@@ -249,7 +249,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
 
         {/* Review text */}
         {hasText && (
-          <div className="text-[13px] text-foreground/85 leading-relaxed pl-[42px]">
+          <div className="text-[13px] text-foreground/85 leading-relaxed pl-10.5">
             {review
               .text!.split(/\n{2,}/)
               .filter(Boolean)
@@ -263,7 +263,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
 
         {/* Review images — clickable with zoom */}
         {hasImages && (
-          <div className="flex flex-wrap gap-1.5 mt-2 pl-[42px]">
+          <div className="flex flex-wrap gap-1.5 mt-2 pl-10.5">
             {review.images!.map((img, i) => (
               <button
                 key={`${img}-${i}`}
@@ -276,7 +276,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
                   src={img}
                   alt={t("reviewPhoto", { index: i + 1 })}
                   loading="lazy"
-                  className="h-16 w-16 rounded-lg object-cover border border-[var(--border)] hover:scale-105 hover:ring-2 hover:ring-primary/40 transition-all"
+                  className="h-16 w-16 rounded-lg object-cover border border-border hover:scale-105 hover:ring-2 hover:ring-primary/40 transition-all"
                 />
               </button>
             ))}
@@ -301,7 +301,12 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
 export function ReviewsPageClient({ reviews }: Props) {
   const t = useTranslations("reviews.page");
   const [now, setNow] = useState(0);
-  useEffect(() => setNow(Date.now()), []);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setNow(Date.now());
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
   const filtered = useMemo(() => {
@@ -359,7 +364,7 @@ export function ReviewsPageClient({ reviews }: Props) {
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               filterMode === f.key
                 ? "bg-primary/15 text-primary"
-                : "text-muted bg-[var(--surface)] border border-[var(--border)] hover:text-foreground"
+                : "text-muted bg-surface border border-border hover:text-foreground"
             }`}
           >
             {"icon" in f && f.icon}

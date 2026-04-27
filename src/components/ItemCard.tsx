@@ -22,7 +22,7 @@ import { useEntryAnimation } from "@/hooks/useEntryAnimation";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { getItemBrowseMeta, type ItemIndex } from "@/lib/browse/item-index";
 import { MARKETS } from "@/lib/constants";
-import { decodeEntities } from "@/lib/format";
+import { decodeEntities, formatDateTime } from "@/lib/format";
 import {
   getItemGalleryImages,
   getItemPrimaryImage,
@@ -35,8 +35,10 @@ import type { Item, Seller } from "@/lib/types";
 import {
   cheapestPpu,
   formatWeight,
+  itemVariantContext,
   parseVariant,
   pricePerGram,
+  pricePerUnit,
   UNIT_DISPLAY_LABEL,
   variantPpu,
 } from "@/lib/variants";
@@ -62,6 +64,7 @@ export interface CardConfig {
   thumbAspect: string;
   activeCategory: string;
   itemIndex: ItemIndex;
+  clientNow: number | null;
 }
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
@@ -120,12 +123,16 @@ type RelativeAge = {
 };
 
 /* ── Relative time (lightweight, no deps) ── */
-function relativeAge(iso: string | null | undefined): RelativeAge | null {
+function relativeAge(
+  iso: string | null | undefined,
+  now: number | null,
+): RelativeAge | null {
+  if (now == null) return null;
   if (!iso) return null;
   const ts = new Date(iso).getTime();
   if (Number.isNaN(ts)) return null;
   if (ts < FIRST_CRAWL_TS) return null; // Pre-dates our crawling — no real listed date
-  const ms = Date.now() - ts;
+  const ms = now - ts;
   if (ms < 0) return null;
   const mins = Math.floor(ms / 60_000);
   if (mins < 60) return { unit: "minutes", count: mins };
@@ -261,6 +268,7 @@ function ItemCardInner({
     thumbAspect,
     activeCategory,
     itemIndex,
+    clientNow,
   } = config;
   const setSellerModalId = useSetAtom(sellerModalIdAtom);
   const setRefNum = useSetAtom(expandedRefNumAtom);
@@ -279,6 +287,7 @@ function ItemCardInner({
     () => getItemBrowseMeta(itemIndex, item),
     [itemIndex, item],
   );
+  const variantContext = useMemo(() => itemVariantContext(item), [item]);
   const itemKey = itemMeta.bookmarkKey;
   const littleBiggyUrl = useMemo(
     () => (item.sl ? normalizeLittleBiggyUrl(item.sl) : null),
@@ -458,13 +467,13 @@ function ItemCardInner({
     if (!activeGroup || !item.v) return null;
     const map = new Map<string, number>();
     for (const v of item.v) {
-      const pv = parseVariant(v);
+      const pv = parseVariant(v, variantContext);
       if (pv && pv.grams === activeGroup.grams && pv.strain) {
         map.set(pv.strain.toLowerCase(), v.usd);
       }
     }
     return map.size > 0 ? map : null;
-  }, [activeGroup, item.v]);
+  }, [activeGroup, item.v, variantContext]);
 
   // (grams → price) and (qtyKey → price) for the currently selected strain.
   // Lets weight / quantity buttons show the exact strain price instead of a
@@ -474,21 +483,21 @@ function ItemCardInner({
     const strainLower = selectedStrain.toLowerCase();
     const map = new Map<number, number>();
     for (const v of item.v) {
-      const pv = parseVariant(v);
+      const pv = parseVariant(v, variantContext);
       if (!pv || pv.grams == null) continue;
       if (pv.strain?.toLowerCase() !== strainLower) continue;
       const prev = map.get(pv.grams);
       if (prev == null || v.usd < prev) map.set(pv.grams, v.usd);
     }
     return map.size > 0 ? map : null;
-  }, [selectedStrain, item.v]);
+  }, [selectedStrain, item.v, variantContext]);
 
   const strainQtyPrice = useMemo(() => {
     if (!selectedStrain || !item.v) return null;
     const strainLower = selectedStrain.toLowerCase();
     const map = new Map<string, number>();
     for (const v of item.v) {
-      const pv = parseVariant(v);
+      const pv = parseVariant(v, variantContext);
       if (!pv) continue;
       if (pv.strain?.toLowerCase() !== strainLower) continue;
       const key = `${pv.qty}:${pv.unit}`;
@@ -496,7 +505,7 @@ function ItemCardInner({
       if (prev == null || v.usd < prev) map.set(key, v.usd);
     }
     return map.size > 0 ? map : null;
-  }, [selectedStrain, item.v]);
+  }, [selectedStrain, item.v, variantContext]);
 
   // When a strain is selected, compute which weight tiers carry that strain
   // so we can dim weight buttons that don't have it.
@@ -532,7 +541,7 @@ function ItemCardInner({
     if (!activeGroup || !selectedStrain) return null;
     const strainLower = selectedStrain.toLowerCase();
     const match = item.v?.find((v) => {
-      const pv = parseVariant(v);
+      const pv = parseVariant(v, variantContext);
       if (!pv) return false;
       return (
         pv.grams === activeGroup.grams &&
@@ -540,7 +549,7 @@ function ItemCardInner({
       );
     });
     return match?.usd ?? null;
-  }, [activeGroup, selectedStrain, item.v]);
+  }, [activeGroup, selectedStrain, item.v, variantContext]);
 
   // Shipping
   const shippingIsFree = item.sh?.free === 1;
@@ -590,43 +599,50 @@ function ItemCardInner({
       return { value: perGramMin, unit: "g" };
     }
     if (activeQtyGroup) {
-      // Discrete units (cart, pack, pc…) need qty>1 for meaningful PPU.
-      if (activeQtyGroup.qty > 1) {
-        const priceMin = activeQtyGroup.price + shipSurcharge;
-        if (!(priceMin > 0)) return null;
-        const ppuMin = priceMin / activeQtyGroup.qty;
-        if (activeQtyGroup.priceMax !== activeQtyGroup.price) {
-          const ppuMax =
-            (activeQtyGroup.priceMax + shipSurcharge) / activeQtyGroup.qty;
-          if (ppuMax !== ppuMin) {
-            return {
-              value: ppuMin,
-              valueMax: ppuMax,
-              unit: activeQtyGroup.unit,
-            };
-          }
+      const priceMin = activeQtyGroup.price + shipSurcharge;
+      const ppuMin = pricePerUnit(priceMin, activeQtyGroup);
+      if (ppuMin == null) return null;
+      if (activeQtyGroup.priceMax !== activeQtyGroup.price) {
+        const ppuMax = pricePerUnit(
+          activeQtyGroup.priceMax + shipSurcharge,
+          activeQtyGroup,
+        );
+        if (ppuMax != null && ppuMax !== ppuMin) {
+          return {
+            value: ppuMin,
+            valueMax: ppuMax,
+            unit: activeQtyGroup.unit,
+          };
         }
-        return { value: ppuMin, unit: activeQtyGroup.unit };
       }
-      return null;
+      return { value: ppuMin, unit: activeQtyGroup.unit };
     }
-    const best = cheapestPpu(item.v, shipSurcharge);
+    const best = cheapestPpu(item.v, shipSurcharge, variantContext);
     if (!best) return null;
     // Compute max ppu in the same unit-group for range display.
     let maxPpu = best.ppu;
     for (const v of item.v ?? []) {
-      const r = variantPpu(v, shipSurcharge);
+      const r = variantPpu(v, shipSurcharge, variantContext);
       if (r && r.unit === best.unit && r.ppu > maxPpu) maxPpu = r.ppu;
     }
     return maxPpu > best.ppu
       ? { value: best.ppu, valueMax: maxPpu, unit: best.unit }
       : { value: best.ppu, unit: best.unit };
-  }, [activeGroup, activeQtyGroup, exactPrice, item.v, shipSurcharge]);
+  }, [
+    activeGroup,
+    activeQtyGroup,
+    exactPrice,
+    item.v,
+    shipSurcharge,
+    variantContext,
+  ]);
 
   // Timestamps
-  const listedAge = relativeAge(item.fsa);
+  const listedAge = relativeAge(item.fsa, clientNow);
   const updated =
-    item.lua && item.lur && item.lur !== "N" ? relativeAge(item.lua) : null;
+    item.lua && item.lur && item.lur !== "N"
+      ? relativeAge(item.lua, clientNow)
+      : null;
   const formatAge = useCallback(
     (age: RelativeAge) => t(`time.${age.unit}Ago`, { count: age.count }),
     [t],
@@ -844,7 +860,7 @@ function ItemCardInner({
         </div>
 
         {/* ── Body ── */}
-        <div className="p-[6px] pt-[4px]">
+        <div className="p-1.5 pt-1">
           <div className="pb-20 lg:pb-15 flex flex-col">
             {/* Clickable content → opens detail modal */}
             <a
@@ -891,7 +907,7 @@ function ItemCardInner({
               </div>
             </a>
 
-            <div className="item-info-wrap px-[8px]">
+            <div className="item-info-wrap px-2">
               {/* Seller row */}
               <div className="seller-card mt-2">
                 <SellerAvatarTooltip
@@ -902,7 +918,7 @@ function ItemCardInner({
                   <span className="seller-card__avatar" aria-hidden="true">
                     {seller?.online === "today" && (
                       <span
-                        className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-[1.5px] ring-[var(--card)]"
+                        className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-[1.5px] ring-card"
                         title={t("onlineToday")}
                       />
                     )}
@@ -1277,40 +1293,44 @@ function ItemCardInner({
             </div>
 
             {/* Timestamps */}
-            <div className="flex flex-col items-end gap-1">
-              {updated && (
-                <span
-                  className="text-[10px] leading-none text-muted-foreground cursor-default"
-                  title={
-                    item.lua
-                      ? item.lur && item.lur !== "N"
-                        ? `${new Date(item.lua).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })} (${item.lur})`
-                        : new Date(item.lua).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                      : undefined
-                  }
-                >
-                  {t("updated", { time: formatAge(updated) })}
-                </span>
-              )}
-              {listedAge ? (
-                <span
-                  className="text-[10px] leading-none text-muted-foreground cursor-default"
-                  title={item.fsa ?? undefined}
-                >
-                  {t("listed", { time: formatAge(listedAge) })}
-                </span>
-              ) : (
-                <span className="text-[10px] leading-none text-muted-foreground cursor-default">
-                  {t("listedUnknown")}
-                </span>
-              )}
-            </div>
+            {clientNow == null ? (
+              <div
+                className="flex flex-col items-end gap-1 opacity-0"
+                aria-hidden="true"
+              >
+                <span className="text-[10px] leading-none">0</span>
+                <span className="text-[10px] leading-none">0</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-end gap-1">
+                {updated && (
+                  <span
+                    className="text-[10px] leading-none text-muted-foreground cursor-default"
+                    title={
+                      item.lua
+                        ? item.lur && item.lur !== "N"
+                          ? `${formatDateTime(item.lua)} (${item.lur})`
+                          : formatDateTime(item.lua)
+                        : undefined
+                    }
+                  >
+                    {t("updated", { time: formatAge(updated) })}
+                  </span>
+                )}
+                {listedAge ? (
+                  <span
+                    className="text-[10px] leading-none text-muted-foreground cursor-default"
+                    title={item.fsa ?? undefined}
+                  >
+                    {t("listed", { time: formatAge(listedAge) })}
+                  </span>
+                ) : (
+                  <span className="text-[10px] leading-none text-muted-foreground cursor-default">
+                    {t("listedUnknown")}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

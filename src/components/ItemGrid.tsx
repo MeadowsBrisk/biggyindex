@@ -179,6 +179,14 @@ export function ItemGrid({
   const activeCategory = useAtomValue(categoryAtom);
   const viewMode = useAtomValue(viewModeAtom);
   const itemIndex = useAtomValue(itemIndexAtom);
+  const [clientNow, setClientNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setClientNow(Date.now());
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const config = useMemo<CardConfig>(
     () => ({
@@ -193,6 +201,7 @@ export function ItemGrid({
       thumbAspect,
       activeCategory,
       itemIndex,
+      clientNow,
     }),
     [
       currentMarket,
@@ -206,6 +215,7 @@ export function ItemGrid({
       thumbAspect,
       activeCategory,
       itemIndex,
+      clientNow,
     ],
   );
 

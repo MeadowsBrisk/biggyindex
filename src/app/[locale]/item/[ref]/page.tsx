@@ -1,5 +1,5 @@
 /**
- * Full item page — SEO-crawlable, server-rendered.
+ * Full item page - SEO-crawlable, server-rendered.
  * Reached via direct URL or when JS is disabled.
  *
  * Uses `item-detail` cache tag so revalidation of browse pages
@@ -10,26 +10,50 @@
  */
 
 import { cacheLife, cacheTag } from "next/cache";
-import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
+import { ItemDetailGallery } from "@/components/ItemDetailGallery";
+import { ItemDetailTabs } from "@/components/ItemDetailTabs";
+import {
+  type ItemReview,
+  ItemReviewsBlock,
+} from "@/components/ItemReviewsBlock";
 import { LocalizedText } from "@/components/LocalizedText";
 import { OutboundLink } from "@/components/OutboundLink";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { loadMergedDetail } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
-import { getItemGalleryImages, getItemPrimaryImage } from "@/lib/images";
+import { getItemGalleryImages } from "@/lib/images";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
-import { parseVariant } from "@/lib/variants";
+import {
+  itemVariantContext,
+  parseVariant,
+  pricePerUnit,
+  UNIT_DISPLAY_LABEL,
+} from "@/lib/variants";
 
 interface ItemPageProps {
   params: Promise<{ locale: string; ref: string }>;
 }
 
-/* ── Helpers ── */
+type AttributeScalar = string | number | boolean;
+
+interface RawDetailReview {
+  id?: string | number | null;
+  created?: number | null;
+  rating?: unknown;
+  daysToArrive?: number | null;
+  segments?: Array<{ type?: string | null; value?: string | null }> | null;
+  item?: {
+    refNum?: string | number | null;
+    name?: string | null;
+    id?: string | number | null;
+  } | null;
+}
 
 function fmtDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
@@ -37,42 +61,23 @@ function fmtDate(iso: string | null | undefined): string | null {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
-function ratingColor(r: number): string {
-  if (r <= 3) return "text-red-500";
-  if (r <= 5) return "text-amber-500";
-  if (r <= 7) return "text-lime-500";
+function shortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
+function ratingColor(rating: number): string {
+  if (rating <= 3) return "text-red-500";
+  if (rating <= 5) return "text-amber-500";
+  if (rating <= 7) return "text-lime-500";
   return "text-emerald-500";
-}
-
-function ratingBg(r: number): string {
-  if (r <= 3) return "bg-red-500/10 border-red-500/20";
-  if (r <= 5) return "bg-amber-500/10 border-amber-500/20";
-  if (r <= 7) return "bg-lime-500/10 border-lime-500/20";
-  return "bg-emerald-500/10 border-emerald-500/20";
-}
-
-type AttributeScalar = string | number | boolean;
-
-interface DetailReviewSegment {
-  type?: string;
-  value?: string;
-}
-
-interface DetailReview {
-  id?: string | number;
-  created?: number | null;
-  rating: number;
-  daysToArrive?: number | null;
-  segments?: DetailReviewSegment[];
-}
-
-function isDetailReview(value: unknown): value is DetailReview {
-  if (!value || typeof value !== "object") return false;
-  const review = value as Record<string, unknown>;
-  return typeof review.rating === "number";
 }
 
 function attributeLabel(key: string): string {
@@ -97,6 +102,7 @@ function attributeRows(
   if (!attrs) return [];
 
   return Object.entries(attrs)
+    .filter(([key]) => key !== "tier")
     .map(([key, rawValue]) => {
       const values = (Array.isArray(rawValue) ? rawValue : [rawValue])
         .filter(
@@ -110,7 +116,77 @@ function attributeRows(
     .filter((row) => row.values.length > 0);
 }
 
-/* ── Page content ── */
+function toFiniteNumber(
+  value: string | number | null | undefined,
+): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string" || value.trim() === "") return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function itemReviewsFromDetail(
+  rawReviews: unknown[] | undefined,
+  item: MergedDetailBlob,
+): ItemReview[] {
+  const fallbackItemId = toFiniteNumber(item.id ?? item.refNum ?? null) ?? 0;
+  const fallbackItem = {
+    refNum: String(item.refNum ?? item.id ?? ""),
+    name: decodeEntities(item.n),
+    id: fallbackItemId,
+  };
+
+  return (rawReviews ?? []).flatMap((value, index) => {
+    if (!value || typeof value !== "object") return [];
+    const raw = value as RawDetailReview;
+    if (typeof raw.rating !== "number" || !Number.isFinite(raw.rating)) {
+      return [];
+    }
+
+    const created =
+      typeof raw.created === "number" && Number.isFinite(raw.created)
+        ? raw.created
+        : 0;
+    const explicitId = toFiniteNumber(raw.id ?? null);
+    const id = explicitId ?? created * 1000 + index;
+    const daysToArrive =
+      typeof raw.daysToArrive === "number" && Number.isFinite(raw.daysToArrive)
+        ? raw.daysToArrive
+        : null;
+    const segments = Array.isArray(raw.segments)
+      ? raw.segments.flatMap((segment) => {
+          if (
+            !segment ||
+            typeof segment.type !== "string" ||
+            typeof segment.value !== "string"
+          ) {
+            return [];
+          }
+          return [{ type: segment.type, value: segment.value }];
+        })
+      : [];
+    const rawItemId = toFiniteNumber(raw.item?.id ?? null);
+    const reviewItem =
+      raw.item?.refNum && raw.item.name
+        ? {
+            refNum: String(raw.item.refNum),
+            name: raw.item.name,
+            id: rawItemId ?? fallbackItemId,
+          }
+        : fallbackItem;
+
+    return [
+      {
+        id,
+        created,
+        rating: raw.rating,
+        daysToArrive,
+        segments,
+        item: reviewItem,
+      },
+    ];
+  });
+}
 
 async function ItemContent({ params }: ItemPageProps) {
   "use cache";
@@ -119,6 +195,7 @@ async function ItemContent({ params }: ItemPageProps) {
 
   const { ref, locale } = await params;
   const t = await getTranslations({ locale, namespace: "item.page" });
+  const detailT = await getTranslations({ locale, namespace: "item.detail" });
   const market = localeToMarket(locale);
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
@@ -154,42 +231,39 @@ async function ItemContent({ params }: ItemPageProps) {
   const name = translatedName;
   const translatedDesc = item.d ? decodeEntities(item.d) : null;
   const englishDesc = item.dEn ? decodeEntities(item.dEn) : null;
-  const primaryImage = getItemPrimaryImage(item, "full", { forceStatic: true });
-  const additionalImages = getItemGalleryImages(item, "thumb", {
-    forceStatic: true,
-  }).slice(1, 5);
-  const reviews = ((item as MergedDetailBlob).reviews ?? []).filter(
-    isDetailReview,
-  );
+  const images = getItemGalleryImages(item);
+  const reviews = itemReviewsFromDetail(item.reviews, item);
   const priceHistory = (item as MergedDetailBlob).ph ?? [];
   const shipOptions = (item as MergedDetailBlob).shOpts ?? [];
   const shareLink = item.sl;
   const attrs = attributeRows(item.at);
+  const variantContext = itemVariantContext(item);
 
-  // Compute PPG for variants
   const variantRows =
     item.v
-      ?.filter((v) => v.usd > 0)
-      .map((v, i) => {
-        const parsed = parseVariant(v);
+      ?.filter((variant) => variant.usd > 0)
+      .map((variant, index) => {
+        const parsed = parseVariant(variant, variantContext);
+        const ppu = pricePerUnit(variant.usd, parsed);
+        const unitLabel = parsed
+          ? (UNIT_DISPLAY_LABEL[parsed.unit] ?? parsed.unit)
+          : null;
+
         return {
-          key: v.vid != null ? String(v.vid) : String(i),
-          label: decodeEntities(v.d || "—"),
-          price: v.usd,
-          grams: parsed?.grams ?? null,
-          ppg:
-            parsed && parsed.grams != null && parsed.grams > 0
-              ? v.usd / parsed.grams
-              : null,
+          key: variant.vid != null ? String(variant.vid) : String(index),
+          label: decodeEntities(variant.d || parsed?.originalLabel || "-"),
+          price: variant.usd,
+          ppu,
+          unitLabel,
         };
       }) ?? [];
 
-  const bestPpgKey = (() => {
+  const bestPpuKey = (() => {
     if (variantRows.length <= 1) return null;
-    let best: { key: string; ppg: number } | null = null;
+    let best: { key: string; ppu: number } | null = null;
     for (const row of variantRows) {
-      if (row.ppg != null && (!best || row.ppg < best.ppg)) {
-        best = { key: row.key, ppg: row.ppg };
+      if (row.ppu != null && (!best || row.ppu < best.ppu)) {
+        best = { key: row.key, ppu: row.ppu };
       }
     }
     return best?.key ?? null;
@@ -200,469 +274,486 @@ async function ItemContent({ params }: ItemPageProps) {
       <ItemPageBar
         category={item.c}
         subcategory={item.sc?.[0]}
-        name={name}
         browseLabel={t("browseIndex")}
         breadcrumbLabel={t("breadcrumb")}
       />
 
-      <div className="mx-auto max-w-5xl px-4 py-8">
-        {/* ── Main grid ── */}
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Left: Images */}
-          <div className="space-y-3">
-            {primaryImage && (
-              <div className="relative aspect-square overflow-hidden rounded-2xl bg-surface border border-border">
-                <Image
-                  src={primaryImage}
-                  alt={name}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
+      <main className="idp">
+        <div className="ido-panel idp-panel">
+          <div className="ido-grid">
+            <div className="ido-left">
+              <div className="ido-image-area">
+                <ItemDetailGallery images={images} alt={name} itemKey={ref} />
               </div>
-            )}
-            {additionalImages.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {additionalImages.map((url, i) => (
-                  <div
-                    key={url}
-                    className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface border border-border"
-                  >
-                    <Image
-                      src={url}
-                      alt={t("imageAlt", { item: name, index: i + 2 })}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Right: Details */}
-          <div className="space-y-5">
-            {/* Category / subcategory pills */}
-            <div className="flex flex-wrap gap-1.5">
-              {item.c && (
-                <span className="rounded-md bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  {item.c}
-                </span>
-              )}
-              {item.sc?.map((sc) => (
-                <span
-                  key={sc}
-                  className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted border border-border"
-                >
-                  {sc}
-                </span>
-              ))}
             </div>
 
-            <div className="flex items-start justify-between gap-2">
-              <h1 className="text-2xl font-bold text-foreground leading-tight">
-                {englishName ? (
-                  <LocalizedText
-                    translated={translatedName}
-                    english={englishName}
-                  />
-                ) : (
-                  name
-                )}
-              </h1>
-              {englishName && (
-                <ShowOriginalToggle market={market} className="shrink-0" />
-              )}
-            </div>
-
-            {/* Seller + ships from */}
-            {item.sn && (
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <span>
-                  {t("by")}{" "}
-                  <span className="font-medium text-foreground">{item.sn}</span>
-                </span>
-                {item.sf && (
-                  <span className="text-xs text-muted-foreground">
-                    · {t("shipsFrom", { country: item.sf })}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Price */}
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-primary">
-                {item.uMin != null
-                  ? `${cSym}${item.uMin.toFixed(2)}`
-                  : t("unavailable")}
-              </span>
-              {item.uMax != null && item.uMax !== item.uMin && (
-                <span className="text-lg text-muted">
-                  – {cSym}
-                  {item.uMax.toFixed(2)}
-                </span>
-              )}
-              {priceHistory.length >= 2 && (
-                <PriceChangeBadge history={priceHistory} />
-              )}
-            </div>
-
-            {/* Review stats summary */}
-            {item.rs && (item.rs.avg != null || item.rs.cnt != null) && (
-              <div className="flex items-center gap-3 text-sm text-muted">
-                {item.rs.avg != null && (
-                  <span className="inline-flex items-center gap-1">
-                    <span
-                      className={`font-semibold ${ratingColor(item.rs.avg)}`}
-                    >
-                      {item.rs.avg.toFixed(1)}
-                    </span>
-                    <span>/10</span>
-                  </span>
-                )}
-                {item.rs.cnt != null && (
-                  <span>{t("reviewsCount", { count: item.rs.cnt })}</span>
-                )}
-                {item.rs.days != null && (
-                  <span>
-                    {t("deliveryShort", { count: Math.round(item.rs.days) })}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Attributes */}
-            {attrs.length > 0 && (
-              <div className="space-y-1.5">
-                <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-                  {t("attributes")}
-                </h2>
+            <div className="ido-center">
+              <div className="ido-center__header">
                 <div className="flex flex-wrap gap-1.5">
-                  {attrs.map(({ key, label, values }) =>
-                    values.map((value) => (
-                      <span
-                        key={`${key}-${value}`}
-                        className="rounded-full bg-surface border border-border px-2 py-0.5 text-xs text-muted"
-                      >
-                        <span className="text-muted-foreground">{label}:</span>{" "}
-                        {value}
-                      </span>
-                    )),
+                  {item.c && (
+                    <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      {item.c}
+                    </span>
+                  )}
+                  {item.sc?.map((subcategory) => (
+                    <span
+                      key={subcategory}
+                      className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted"
+                    >
+                      {subcategory}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-start justify-between gap-2">
+                  <h1 className="text-xl font-bold leading-tight text-foreground">
+                    {englishName ? (
+                      <LocalizedText
+                        translated={translatedName}
+                        english={englishName}
+                      />
+                    ) : (
+                      name
+                    )}
+                  </h1>
+                  {englishName && (
+                    <ShowOriginalToggle market={market} className="shrink-0" />
                   )}
                 </div>
+
+                {item.sn && (
+                  <div className="flex items-center gap-2 text-sm text-muted">
+                    <span>
+                      {t("by")} {" "}
+                      <span className="font-medium text-foreground">
+                        {item.sn}
+                      </span>
+                    </span>
+                    {item.sf && (
+                      <span className="text-xs text-muted-foreground">
+                        {t("shipsFrom", { country: item.sf })}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Description */}
-            {translatedDesc && (
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                <LocalizedText
-                  translated={translatedDesc}
-                  english={englishDesc}
-                  preserveNewlines
-                />
-              </p>
-            )}
+              <ItemDetailTabs
+                refNum={ref}
+                className="idp-tabs"
+                topOffset={140}
+              />
 
-            {/* Variants */}
-            {variantRows.length > 0 && (
-              <div>
-                <h2 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
-                  {t("variants")}
-                </h2>
-                <div className="space-y-1">
-                  {variantRows.map((v) => (
-                    <div
-                      key={v.key}
-                      className={`flex items-center justify-between rounded-md px-3 py-1.5 text-sm ${
-                        v.key === bestPpgKey
-                          ? "bg-primary/5 border border-primary/20"
-                          : "bg-surface"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-foreground">{v.label}</span>
-                        {v.key === bestPpgKey && (
-                          <span className="text-[10px] font-medium text-primary uppercase">
-                            {t("bestValue")}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {v.ppg != null && (
-                          <span className="text-xs text-muted">
-                            {cSym}
-                            {v.ppg.toFixed(2)}/g
-                          </span>
-                        )}
-                        <span className="font-medium text-primary">
-                          {cSym}
-                          {v.price.toFixed(2)}
+              <div className="ido-center__body">
+                <section
+                  id="prices"
+                  data-section-id="prices"
+                  className="ido-section"
+                >
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-lg font-semibold text-primary">
+                      {item.uMin != null
+                        ? `${cSym}${item.uMin.toFixed(2)}`
+                        : t("unavailable")}
+                      {item.uMax != null &&
+                        item.uMax !== item.uMin &&
+                        ` - ${cSym}${item.uMax.toFixed(2)}`}
+                    </span>
+                    {priceHistory.length >= 2 && (
+                      <PriceChangeBadge history={priceHistory} />
+                    )}
+                  </div>
+
+                  {variantRows.length > 0 && (
+                    <div className="ido-card ido-card--variants">
+                      <div className="ido-table__caption">
+                        <span>{detailT("variants.heading")}</span>
+                        <span className="ido-table__count">
+                          {variantRows.length}
                         </span>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                      <table className="ido-table">
+                        <thead>
+                          <tr>
+                            <th>{detailT("variants.variant")}</th>
+                            <th>{detailT("variants.price")}</th>
+                            <th>{detailT("variants.unit")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {variantRows.map((variant) => (
+                            <tr key={variant.key}>
+                              <td>
+                                <span className="ido-table__format">
+                                  {variant.label}
+                                  {variant.key === bestPpuKey && (
+                                    <span className="ido-best-value">
+                                      {t("bestValue")}
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                              <td className="ido-table__price">
+                                {cSym}
+                                {variant.price.toFixed(2)}
+                              </td>
+                              <td className="ido-table__ppu">
+                                {variant.ppu != null && variant.unitLabel != null
+                                  ? `${cSym}${variant.ppu.toFixed(2)}/${variant.unitLabel}`
+                                  : "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
 
-            {/* Shipping options */}
-            {shipOptions.length > 0 && (
-              <div>
-                <h2 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
-                  {t("shipping")}
-                </h2>
-                <div className="space-y-1">
-                  {shipOptions.map((opt) => (
-                    <div
-                      key={`${opt.label}-${opt.cost}`}
-                      className="flex justify-between rounded-md bg-surface px-3 py-1.5 text-sm"
-                    >
-                      <span className="text-foreground">{opt.label}</span>
-                      <span className="font-medium text-muted">
-                        {opt.cost === 0
-                          ? t("free")
-                          : `${cSym}${opt.cost.toFixed(2)}`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* CTA buttons */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              {shareLink && (
-                <OutboundLink
-                  href={shareLink}
-                  id={String(item.refNum ?? item.id)}
-                  n={name}
-                  sid={item.sid != null ? String(item.sid) : undefined}
-                  sn={item.sn ?? undefined}
-                  c={item.c ?? undefined}
-                  mkt={market}
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
-                >
-                  {t("viewOnLittleBiggy")}
-                  <svg
-                    aria-hidden="true"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </OutboundLink>
-              )}
-              <SuggestLink
-                refNum={ref}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted hover:text-foreground hover:border-foreground/30 transition-colors cursor-pointer"
-              />
-            </div>
-
-            {/* Timestamps */}
-            <div className="flex gap-4 text-xs text-muted-foreground pt-2">
-              {item.fsa && (
-                <span>{t("firstSeen", { date: fmtDate(item.fsa) ?? "" })}</span>
-              )}
-              {item.lua && (
-                <span>{t("updated", { date: fmtDate(item.lua) ?? "" })}</span>
-              )}
-              {item.lur && <span className="text-muted">({item.lur})</span>}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Price History ── */}
-        {priceHistory.length > 1 && (
-          <section className="mt-10">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              {t("priceHistory")}
-            </h2>
-            <div className="overflow-x-auto">
-              <div className="flex gap-2 text-xs">
-                {priceHistory.map((snap, i) => (
-                  <div
-                    key={snap.d}
-                    className="flex flex-col items-center rounded-lg bg-surface border border-border px-3 py-2 min-w-20"
-                  >
-                    <span className="text-muted-foreground">
-                      {new Date(snap.d).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
-                    <span className="font-semibold text-foreground mt-0.5">
-                      {cSym}
-                      {snap.min.toFixed(2)}
-                    </span>
-                    {snap.max !== snap.min && (
-                      <span className="text-muted">
-                        – {cSym}
-                        {snap.max.toFixed(2)}
-                      </span>
-                    )}
-                    {i > 0 && snap.min !== priceHistory[i - 1].min && (
-                      <PriceDir
-                        prev={priceHistory[i - 1].min}
-                        curr={snap.min}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── Reviews ── */}
-        {reviews.length > 0 && (
-          <section className="mt-10">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              {t("reviews")}
-              <span className="ml-1 font-normal text-muted">
-                ({reviews.length})
-              </span>
-            </h2>
-            <div className="space-y-3">
-              {reviews.slice(0, 20).map((r) => (
-                <div
-                  key={r.id}
-                  className={`rounded-lg border p-3 ${ratingBg(r.rating)}`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className={`text-sm font-bold ${ratingColor(r.rating)}`}
-                    >
-                      {r.rating}/10
-                    </span>
-                    {r.daysToArrive != null && (
-                      <span className="text-xs text-muted">
-                        {t("reviewDelivery", { days: r.daysToArrive })}
-                      </span>
-                    )}
-                    {r.created && (
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        {new Date(r.created * 1000).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          },
-                        )}
-                      </span>
-                    )}
-                  </div>
-                  {r.segments && (
-                    <div className="text-sm text-muted-foreground leading-relaxed">
-                      {r.segments
-                        .filter((s) => s.type === "text")
-                        .map((s) => (
-                          <span key={`${s.type}-${s.value}`}>
-                            {decodeEntities(s.value)}{" "}
-                          </span>
-                        ))}
+                      {shipOptions.length > 0 && (
+                        <div className="ido-ship">
+                          <div className="ido-ship__head">
+                            <span className="ido-ship__label">
+                              {t("shipping")}
+                            </span>
+                          </div>
+                          <div className="ido-ship__chips">
+                            {shipOptions.map((option) => (
+                              <span
+                                key={`${option.label}-${option.cost}`}
+                                className={`ido-ship__chip${option.cost === 0 ? " ido-ship__chip--free" : ""}`}
+                              >
+                                <span className="ido-ship__chip-label">
+                                  {option.label}
+                                </span>
+                                <span className="ido-ship__chip-cost">
+                                  {option.cost === 0
+                                    ? t("free")
+                                    : `${cSym}${option.cost.toFixed(2)}`}
+                                </span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
+
+                  <div className="ido-meta-strip">
+                    {item.rs?.avg != null && (
+                      <div className="ido-meta-cell">
+                        <div className="ido-meta-cell__body">
+                          <span className="ido-meta-cell__label">
+                            {detailT("meta.rating")}
+                          </span>
+                          <span className="ido-meta-cell__value">
+                            <span className={ratingColor(item.rs.avg)}>
+                              {item.rs.avg.toFixed(1)}
+                            </span>
+                            <span className="ido-meta-cell__unit">/10</span>
+                            {item.rs.cnt != null && (
+                              <span className="ido-meta-cell__sub">
+                                {" "}
+                                ({item.rs.cnt})
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {item.rs?.days != null && (
+                      <div className="ido-meta-cell">
+                        <div className="ido-meta-cell__body">
+                          <span className="ido-meta-cell__label">
+                            {detailT("meta.avgDelivery")}
+                          </span>
+                          <span className="ido-meta-cell__value">
+                            {item.rs.days.toFixed(1)}
+                            <span className="ido-meta-cell__unit">d</span>
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {item.fsa && (
+                      <div className="ido-meta-cell">
+                        <div className="ido-meta-cell__body">
+                          <span className="ido-meta-cell__label">
+                            {detailT("meta.listed")}
+                          </span>
+                          <span className="ido-meta-cell__value">
+                            {fmtDate(item.fsa)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {item.lua && (
+                      <div className="ido-meta-cell">
+                        <div className="ido-meta-cell__body">
+                          <span className="ido-meta-cell__label">
+                            {detailT("meta.updated")}
+                          </span>
+                          <span className="ido-meta-cell__value">
+                            {fmtDate(item.lua)}
+                          </span>
+                          {item.lur && (
+                            <span className="ido-meta-cell__sub">
+                              {item.lur}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                <section
+                  id="description"
+                  data-section-id="description"
+                  className="ido-section"
+                >
+                  <div className="ido-card">
+                    <div className="ido-card__head">
+                      <h2 className="ido-card__title">
+                        {detailT("description.heading")}
+                      </h2>
+                      {englishDesc && <ShowOriginalToggle market={market} />}
+                    </div>
+                    <div className="ido-card__body">
+                      {translatedDesc ? (
+                        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+                          <LocalizedText
+                            translated={translatedDesc}
+                            english={englishDesc}
+                            preserveNewlines
+                          />
+                        </p>
+                      ) : (
+                        <p className="text-sm text-muted italic">
+                          {detailT("description.noneProvided")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {attrs.length > 0 && (
+                    <div className="ido-card">
+                      <div className="ido-card__head">
+                        <h2 className="ido-card__title">
+                          {detailT("attributes.heading")}
+                        </h2>
+                      </div>
+                      <div className="ido-card__body">
+                        <dl className="ido-attr-grid">
+                          {attrs.map(({ key, label, values }) => (
+                            <Fragment key={key}>
+                              <dt className="ido-attr-grid__label">
+                                {label}
+                              </dt>
+                              <dd className="ido-attr-grid__values">
+                                {values.map((value) => (
+                                  <span key={value} className="ido-attr-val">
+                                    {value}
+                                  </span>
+                                ))}
+                              </dd>
+                            </Fragment>
+                          ))}
+                        </dl>
+                      </div>
+                    </div>
+                  )}
+
+                  {priceHistory.length > 1 && (
+                    <div className="ido-card">
+                      <div className="ido-card__head">
+                        <h2 className="ido-card__title">
+                          {t("priceHistory")}
+                        </h2>
+                        <span className="ido-card__count">
+                          {priceHistory.length}
+                        </span>
+                      </div>
+                      <div className="ido-card__body">
+                        <ul className="ido-price-history__list">
+                          {[...priceHistory]
+                            .reverse()
+                            .map((snapshot, index, snapshots) => {
+                              const previous = snapshots[index + 1];
+                              return (
+                                <li
+                                  key={snapshot.d}
+                                  className="ido-price-history__entry"
+                                >
+                                  <time
+                                    className="ido-price-history__date"
+                                    dateTime={snapshot.d}
+                                  >
+                                    {shortDate(snapshot.d)}
+                                  </time>
+                                  <span className="ido-price-history__price">
+                                    {cSym}
+                                    {snapshot.min.toFixed(2)}
+                                    {snapshot.max !== snapshot.min && (
+                                      <span className="ido-price-history__range">
+                                        {" "}- {cSym}
+                                        {snapshot.max.toFixed(2)}
+                                      </span>
+                                    )}
+                                  </span>
+                                  {previous && previous.min !== snapshot.min ? (
+                                    <PriceDir
+                                      prev={previous.min}
+                                      curr={snapshot.min}
+                                    />
+                                  ) : null}
+                                </li>
+                              );
+                            })}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </section>
+
+                {reviews.length > 0 && (
+                  <section
+                    id="reviews"
+                    data-section-id="reviews"
+                    className="ido-section 2xl:hidden"
+                  >
+                    <div className="ido-card">
+                      <div className="ido-card__body">
+                        <ItemReviewsBlock
+                          reviews={reviews}
+                          rs={item.rs}
+                          loading={false}
+                          shareLink={shareLink}
+                          compact
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                <div className="flex flex-wrap gap-3 pt-1 md:hidden">
+                  <SuggestLink
+                    refNum={ref}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:border-foreground/30 hover:text-foreground cursor-pointer"
+                  />
+                  {shareLink && (
+                    <OutboundLink
+                      href={shareLink}
+                      id={String(item.refNum ?? item.id)}
+                      n={name}
+                      sid={item.sid != null ? String(item.sid) : undefined}
+                      sn={item.sn ?? undefined}
+                      c={item.c ?? undefined}
+                      mkt={market}
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-90"
+                    >
+                      {t("viewOnLittleBiggy")}
+                    </OutboundLink>
+                  )}
                 </div>
-              ))}
-              {reviews.length > 20 && (
-                <p className="text-xs text-muted italic">
-                  {t("moreReviews", { count: reviews.length - 20 })}
-                </p>
-              )}
+              </div>
             </div>
-          </section>
-        )}
-      </div>
+
+            {reviews.length > 0 && (
+              <aside className="ido-right idp-right">
+                <ItemReviewsBlock
+                  reviews={reviews}
+                  rs={item.rs}
+                  loading={false}
+                  shareLink={shareLink}
+                />
+              </aside>
+            )}
+          </div>
+
+          <div className="ido-suggest-bottom">
+            <SuggestLink refNum={ref} iconOnly />
+          </div>
+
+          {shareLink && (
+            <OutboundLink
+              href={shareLink}
+              id={String(item.refNum ?? item.id)}
+              n={name}
+              sid={item.sid != null ? String(item.sid) : undefined}
+              sn={item.sn ?? undefined}
+              c={item.c ?? undefined}
+              mkt={market}
+              className="ido-lb-btn"
+            >
+              <span className="ido-lb-btn__label">
+                {t("viewOnLittleBiggy")}
+              </span>
+              <span className="ido-lb-btn__arrow" aria-hidden="true">
+                -&gt;
+              </span>
+            </OutboundLink>
+          )}
+        </div>
+      </main>
     </>
   );
 }
 
-/* ── Sticky top bar ── */
-
 function ItemPageBar({
   category,
   subcategory,
-  name,
   browseLabel,
   breadcrumbLabel,
 }: {
   category?: string | null;
   subcategory?: string | null;
-  name?: string | null;
   browseLabel: string;
   breadcrumbLabel: string;
 }) {
   return (
     <div className="sticky top-0 z-50 border-b border-border bg-(--background)/80 backdrop-blur-md">
-      <div className="mx-auto flex h-12 max-w-5xl items-center gap-3 px-4">
+      <div className="mx-auto flex h-12 max-w-375 items-center gap-3 px-4">
         <Link
           href="/browse"
           prefetch={false}
-          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:shadow-primary/30"
         >
           <span className="inline-block transition-transform duration-200 group-hover:-translate-x-0.5">
-            ←
+            &lt;-
           </span>
           {browseLabel}
         </Link>
-        {(category || name) && (
+        {category && (
           <nav
             aria-label={breadcrumbLabel}
-            className="min-w-0 flex items-center gap-1.5 text-xs text-muted"
+            className="flex min-w-0 flex-1 items-center gap-1.5 text-xs text-muted"
           >
-            {category && (
-              <>
-                <span className="text-muted-foreground/50">/</span>
-                <Link
-                  href={`/browse?cat=${encodeURIComponent(category)}`}
-                  prefetch={false}
-                  className="shrink-0 hover:text-foreground transition-colors"
-                >
-                  {category}
-                </Link>
-              </>
-            )}
+            <span className="text-muted-foreground/50">/</span>
+            <Link
+              href={`/browse?cat=${encodeURIComponent(category)}`}
+              prefetch={false}
+              className="shrink-0 transition-colors hover:text-foreground"
+            >
+              {category}
+            </Link>
             {category && subcategory && (
               <>
                 <span className="text-muted-foreground/50">/</span>
                 <Link
                   href={`/browse?cat=${encodeURIComponent(category)}&sub=${encodeURIComponent(subcategory)}`}
                   prefetch={false}
-                  className="shrink-0 hover:text-foreground transition-colors"
+                  className="shrink-0 transition-colors hover:text-foreground"
                 >
                   {subcategory}
                 </Link>
               </>
             )}
-            {name && (
-              <>
-                <span className="text-muted-foreground/50">/</span>
-                <span className="truncate text-foreground/80" title={name}>
-                  {name}
-                </span>
-              </>
-            )}
           </nav>
         )}
+        <div className="ml-auto shrink-0">
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );
 }
-
-/* ── Price direction indicator ── */
 
 function PriceDir({ prev, curr }: { prev: number; curr: number }) {
   const pct = Math.round(Math.abs(((curr - prev) / prev) * 100));
@@ -670,14 +761,12 @@ function PriceDir({ prev, curr }: { prev: number; curr: number }) {
   const down = curr < prev;
   return (
     <span
-      className={`text-[10px] font-medium mt-0.5 ${down ? "text-emerald-500" : "text-red-400"}`}
+      className={`ido-price-history__change ${down ? "ido-price-history__change--down" : "ido-price-history__change--up"}`}
     >
-      {down ? "↓" : "↑"} {pct}%
+      {down ? "down" : "up"} {pct}%
     </span>
   );
 }
-
-/* ── Price change badge (for header) ── */
 
 function PriceChangeBadge({ history }: { history: PriceSnapshot[] }) {
   const prev = history[history.length - 2].min;
@@ -687,18 +776,12 @@ function PriceChangeBadge({ history }: { history: PriceSnapshot[] }) {
   const down = curr < prev;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${
-        down
-          ? "bg-emerald-500/10 text-emerald-600"
-          : "bg-red-500/10 text-red-500"
-      }`}
+      className={`ido-price-badge ${down ? "ido-price-badge--down" : "ido-price-badge--up"}`}
     >
-      {down ? "↓" : "↑"} {pct}%
+      {down ? "down" : "up"} {pct}%
     </span>
   );
 }
-
-/* ── Page export ── */
 
 export default async function ItemPage(props: ItemPageProps) {
   return (

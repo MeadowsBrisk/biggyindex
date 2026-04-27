@@ -2,6 +2,7 @@ import type { Item } from "@/lib/types";
 import {
   groupByQuantity,
   groupByWeight,
+  itemVariantContext,
   type ParsedVariant,
   parseVariant,
   type QuantityGroup,
@@ -70,16 +71,21 @@ function buildItemBrowseMeta(item: Item): ItemBrowseMeta {
   const ppgVariants: ItemPpgVariant[] = [];
   const variants = item.v ?? [];
   const hasMultipleVariants = variants.length > 1;
-  const weightGroups = hasMultipleVariants ? groupByWeight(variants) : null;
+  const variantContext = itemVariantContext(item);
+  const weightGroups = hasMultipleVariants
+    ? groupByWeight(variants, variantContext)
+    : null;
   const quantityGroups =
-    hasMultipleVariants && !weightGroups ? groupByQuantity(variants) : null;
+    hasMultipleVariants && !weightGroups
+      ? groupByQuantity(variants, variantContext)
+      : null;
   const singleVariantParsed =
     !weightGroups && !quantityGroups && variants.length === 1 && variants[0].d
-      ? parseVariant(variants[0])
+      ? parseVariant(variants[0], variantContext)
       : null;
 
   for (const variant of variants) {
-    const parsed = parseVariant(variant);
+    const parsed = parseVariant(variant, variantContext);
     if (parsed?.grams == null || parsed.grams <= 0) continue;
 
     weightBuckets.add(bucketGrams(parsed.grams));

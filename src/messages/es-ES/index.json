@@ -424,7 +424,6 @@
       },
       "attrs": {
         "effect": "Efecto",
-        "tier": "Nivel",
         "micron": "Micron",
         "filtration": "Filtración",
         "texture": "Textura",
@@ -561,7 +560,6 @@
           "effect": "Efecto",
           "cbd": "CBD",
           "grow": "Crecer",
-          "tier": "Nivel",
           "imported": "Importados",
           "micron": "Micron",
           "origin": "Origen",
@@ -617,9 +615,7 @@
       "firstSeen": "Primera vez visto: {date}",
       "updated": "Actualizado: {date}",
       "priceHistory": "Historial de precios",
-      "reviews": "Reseñas",
-      "reviewDelivery": "{days}d entrega",
-      "moreReviews": "+{count} más reseñas - consulta la lista completa en LittleBiggy"
+      "reviews": "Reseñas"
     },
     "legacyModal": {
       "close": "Cierre",
@@ -821,7 +817,6 @@
       "fields": {
         "category": "Categoría",
         "subcategories": "Subcategorías",
-        "tier": "Nivel de calidad",
         "micron": "Tamaño de micras",
         "wrongProduct": "Producto equivocado"
       }

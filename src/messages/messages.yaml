@@ -2603,15 +2603,6 @@ browse:
         es-ES: Efecto
         el-GR: Αποτέλεσμα
         cs-CZ: Dopad
-      tier:
-        en-GB: Tier
-        de-DE: Tier
-        fr-FR: Paliers
-        pt-PT: Tier
-        it-IT: Tier
-        es-ES: Nivel
-        el-GR: Βαθμίδα
-        cs-CZ: Úroveň
       micron:
         en-GB: Micron
         de-DE: Micron
@@ -3568,15 +3559,6 @@ item:
           es-ES: Crecer
           el-GR: Καλλιεργώ
           cs-CZ: Rost
-        tier:
-          en-GB: Tier
-          de-DE: Tier
-          fr-FR: Paliers
-          pt-PT: Tier
-          it-IT: Tier
-          es-ES: Nivel
-          el-GR: Βαθμίδα
-          cs-CZ: Úroveň
         imported:
           en-GB: Imported
           de-DE: Importiert
@@ -3987,24 +3969,6 @@ item:
       es-ES: Reseñas
       el-GR: Κριτικές
       cs-CZ: Recenze
-    reviewDelivery:
-      en-GB: "{days}d delivery"
-      de-DE: "{days}d Lieferung"
-      fr-FR: "{days}d livraison"
-      pt-PT: "{days}d entrega"
-      it-IT: "{days}d consegna"
-      es-ES: "{days}d entrega"
-      el-GR: "{days}d παράδοση"
-      cs-CZ: "{days}d doručení"
-    moreReviews:
-      en-GB: +{count} more reviews - view full list on LittleBiggy
-      de-DE: +{count} weitere Rezensionen – vollständige Liste auf LittleBiggy
-      fr-FR: +{count} plus d’avis - voir la liste complète sur LittleBiggy
-      pt-PT: +{count} mais avaliações - veja a lista completa no LittleBiggy
-      it-IT: +{count} altre recensioni - visualizza l'elenco completo su LittleBiggy
-      es-ES: +{count} más reseñas - consulta la lista completa en LittleBiggy
-      el-GR: +{count} περισσότερες κριτικές - δείτε την πλήρη λίστα στο LittleBiggy
-      cs-CZ: +{count} více recenzí – zobrazit celý seznam na LittleBiggy
   legacyModal:
     close:
       en-GB: Close
@@ -5331,15 +5295,6 @@ suggest:
         es-ES: Subcategorías
         el-GR: Υποκατηγορίες
         cs-CZ: Podkategorie
-      tier:
-        en-GB: Quality Tier
-        de-DE: Qualitätsstufe
-        fr-FR: Niveau de qualité
-        pt-PT: Nível de Qualidade
-        it-IT: Livello di Qualità
-        es-ES: Nivel de calidad
-        el-GR: Επίπεδο ποιότητας
-        cs-CZ: Úroveň kvality
       micron:
         en-GB: Micron Size
         de-DE: Mikrongröße
