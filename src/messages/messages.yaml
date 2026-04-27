@@ -5855,6 +5855,15 @@ common:
     es-ES: Cierre
     el-GR: Κλείσιμο
     cs-CZ: Zavřít
+  backToTop:
+    en-GB: Back to top
+    de-DE: Nach oben
+    fr-FR: Retour en haut
+    pt-PT: Voltar ao topo
+    it-IT: Torna su
+    es-ES: Volver arriba
+    el-GR: Επιστροφή στην αρχή
+    cs-CZ: Zpět nahoru
   back:
     en-GB: Back
     de-DE: Zurück

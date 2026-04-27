@@ -27,7 +27,6 @@ import {
   getItemGalleryImages,
   getItemPrimaryImage,
   getSellerImageUrl,
-  isItemPrimaryAnimated,
 } from "@/lib/images";
 import { formatShipFrom, shipFromCode } from "@/lib/shipFrom";
 import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
@@ -278,7 +277,6 @@ function ItemCardInner({
   const seller =
     item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
   const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
-  const primaryIsAnimated = isItemPrimaryAnimated(item);
 
   // Bookmarks
   const toggleBookmark = useSetAtom(toggleBookmarkAtom);
@@ -326,8 +324,8 @@ function ItemCardInner({
   // Zoom preview signal — increment to open (lazy-loaded on first click)
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const zoomImages = useMemo(() => {
-    return getItemGalleryImages(item, "full", { forceStatic: true });
-  }, [item]);
+    return getItemGalleryImages(item, "full", { forceStatic: pauseGifs });
+  }, [item, pauseGifs]);
 
   const openZoom = useCallback(() => {
     if (hasImage) setZoomSignal((s) => (s ?? 0) + 1);
@@ -370,15 +368,14 @@ function ItemCardInner({
         ? "aspect-[3/2]"
         : "aspect-square";
 
-  // CDN image URLs — hash raw URLs to R2 CDN paths
-  // thumbSrc: always static AVIF (forceStatic=true)
-  // If primary is a GIF and gifs not paused, thumbSrc shows anim.webp instead
+  // CDN image URLs — hash raw URLs to R2 CDN paths.
+  // Animated GIFs use anim.webp unless the user has paused GIFs.
   const thumbSrc = getItemPrimaryImage(item, "thumb", {
-    forceStatic: pauseGifs || !primaryIsAnimated,
+    forceStatic: pauseGifs,
   });
   const galleryThumbs = useMemo(
-    () => getItemGalleryImages(item, "thumb", { forceStatic: true }),
-    [item],
+    () => getItemGalleryImages(item, "thumb", { forceStatic: pauseGifs }),
+    [item, pauseGifs],
   );
   const hoverSrc = galleryThumbs[1] ?? null;
 
@@ -801,7 +798,7 @@ function ItemCardInner({
             <Suspense fallback={null}>
               <ImageZoomPreview
                 imageUrl={getItemPrimaryImage(item, "full", {
-                  forceStatic: true,
+                  forceStatic: pauseGifs,
                 })}
                 imageUrls={zoomImages.length > 0 ? zoomImages : undefined}
                 alt={decodeEntities(item.n)}

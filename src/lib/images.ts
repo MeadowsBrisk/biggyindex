@@ -7,12 +7,29 @@ import type { Item } from "@/lib/types";
  * - Crawler image optimizer (R2 keys during crawl)
  * - Frontend (CDN URL construction)
  *
- * Both MUST produce identical output for the same input.
+ * Both MUST produce identical output for the same input. URLs are normalized
+ * first so the same image served from rotating LittleBiggy subdomains
+ * (i2/i3/i4.littlebiggy.org or .net) hashes to the same key. Otherwise a
+ * subdomain rotation orphans every optimized image.
  */
+export function normalizeImageUrl(url: string): string {
+  if (!url) return url;
+  let out = url.replace(
+    /^(https?:\/\/)i\d*\.littlebiggy\.(?:org|net)/i,
+    "$1i.littlebiggy.org",
+  );
+  const q = out.indexOf("?");
+  if (q >= 0) out = out.slice(0, q);
+  const h = out.indexOf("#");
+  if (h >= 0) out = out.slice(0, h);
+  return out;
+}
+
 export function hashUrl(url: string): string {
+  const normalized = normalizeImageUrl(url);
   let hash = 2166136261;
-  for (let i = 0; i < url.length; i++) {
-    hash ^= url.charCodeAt(i);
+  for (let i = 0; i < normalized.length; i++) {
+    hash ^= normalized.charCodeAt(i);
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 0).toString(16).padStart(8, "0");
@@ -91,7 +108,7 @@ function isAnimatedImage(
   stampedFlag: 1 | 0 | boolean | null | undefined,
   rawUrl: string | null | undefined,
 ): boolean {
-  return imageFlag(stampedFlag) ?? isAnimatedUrl(rawUrl ?? "");
+  return imageFlag(stampedFlag) === true || isAnimatedUrl(rawUrl ?? "");
 }
 
 export function isItemPrimaryAnimated(item: Pick<Item, "i" | "ia">): boolean {

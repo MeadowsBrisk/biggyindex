@@ -907,6 +907,7 @@
     "error": "Algo salió mal",
     "retry": "Inténtalo de nuevo",
     "close": "Cierre",
+    "backToTop": "Volver arriba",
     "back": "Atrás"
   }
 }

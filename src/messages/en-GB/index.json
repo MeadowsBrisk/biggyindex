@@ -907,6 +907,7 @@
     "error": "Something went wrong",
     "retry": "Try again",
     "close": "Close",
+    "backToTop": "Back to top",
     "back": "Back"
   }
 }

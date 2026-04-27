@@ -907,6 +907,7 @@
     "error": "Quelque chose a mal tourné",
     "retry": "Essaie encore",
     "close": "Fermer",
+    "backToTop": "Retour en haut",
     "back": "Retour"
   }
 }
