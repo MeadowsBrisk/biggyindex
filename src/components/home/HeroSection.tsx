@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Cannabis, Loader2 } from "lucide-react";
+import { ArrowRight, Cannabis } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -29,8 +28,6 @@ export function HeroSection({
   categoryCounts,
 }: HeroSectionProps) {
   const t = useTranslations("home.hero");
-  const router = useRouter();
-  const [isNavigating, startNavigation] = useTransition();
   const [scrolledPast, setScrolledPast] = useState(false);
 
   useEffect(() => {
@@ -38,15 +35,6 @@ export function HeroSection({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const handleBrowseClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Let modifier-clicks (open in new tab, etc.) fall through to default.
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
-      return;
-    }
-    e.preventDefault();
-    startNavigation(() => router.push("/browse"));
-  };
 
   return (
     // svh (small viewport) is stable across mobile address-bar visibility,
@@ -167,23 +155,24 @@ export function HeroSection({
         >
           {/* Hero CTA — the one navigation we DO prefetch (high-traffic
               home → browse hop). Other links across the site stay
-              prefetch={false} to keep RSC fetches off the critical path. */}
+              prefetch={false} to keep RSC fetches off the critical path.
+              No manual onClick / useTransition — Next.js wraps Link
+              navigations in document.startViewTransition() automatically
+              when experimental.viewTransition is enabled (next.config.ts),
+              and CSS in globals.css does the cross-fade. Manual
+              router.push() would bypass that wrapping AND poisoned the
+              click feedback through bfcache (frozen isPending=true on
+              Back-button restore). */}
           <Link
             href="/browse"
             prefetch
-            onClick={handleBrowseClick}
-            aria-busy={isNavigating}
-            className="group inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/25 disabled:opacity-80"
+            className="group inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/25"
           >
             {t("cta")}
-            {isNavigating ? (
-              <Loader2 size={20} className="animate-spin" />
-            ) : (
-              <ArrowRight
-                size={20}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            )}
+            <ArrowRight
+              size={20}
+              className="transition-transform group-hover:translate-x-1"
+            />
           </Link>
         </motion.div>
 

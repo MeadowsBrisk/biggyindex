@@ -273,7 +273,7 @@ export default function ImageZoomPreview({
               </div>
               <div className="flex items-center gap-2 pointer-events-auto">
                 {total > 1 && (
-                  <span className="inline-flex items-center gap-1 font-mono bg-black/45 px-2 py-1 rounded-md backdrop-blur-md border border-white/10 text-xs sm:text-sm text-white/90">
+                  <span className="inline-flex items-center gap-1 tabular-nums bg-black/45 px-2 py-1 rounded-md backdrop-blur-md border border-white/10 text-xs sm:text-sm text-white/90">
                     {activeIndex + 1}
                     <span className="opacity-50">/</span>
                     {total}
