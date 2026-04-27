@@ -9,23 +9,26 @@ import {
 } from "@/store/atoms";
 
 /**
- * Hydration coordinator.
+ * Hydration coordinator — for the *initial* boot only.
  *
- * The app now lets server-rendered seed content paint immediately. This small
- * coordinator still marks when atomWithStorage, DataLoader, and UrlSync have
- * settled so components can suppress layout-shifting transitions until then.
+ * Once the gate has faded out it stays gone for the rest of the session.
+ * This is critical: `isHydratedAtom` flips back to `false` momentarily on
+ * every navigation to a page with a `DataLoader` (DataLoader resets
+ * `urlSyncDoneAtom` to `false` on mount). Re-showing the spinner there
+ * would (a) flash a full-screen overlay over every navigation, and (b)
+ * get *stuck* forever if `UrlSync.hydratedRef` is preserved across the
+ * cached nav and never re-fires `setUrlSyncDone(true)` — exactly the
+ * "infinite loader on returning to /browse" bug.
  *
- * NOTE: Do not gate this on per-component "settled" atoms (e.g. filter panel).
- * Doing so causes the gate spinner to re-appear on every toggle, which reads
- * to users as a full page refresh. Per-component layout shifts must be
- * suppressed locally (e.g. by gating their own CSS transitions on
- * `gateCompleteAtom` + a per-mount one-frame flag).
+ * NOTE: Do not gate this on per-component "settled" atoms (e.g. filter
+ * panel). Per-component layout shifts must be suppressed locally (e.g.
+ * by gating their own CSS transitions on `gateCompleteAtom` + a
+ * per-mount one-frame flag).
  */
 export function HydrationGate() {
   const setClientReady = useSetAtom(clientReadyAtom);
   const setGateComplete = useSetAtom(gateCompleteAtom);
   const isHydrated = useAtomValue(isHydratedAtom);
-  const ready = isHydrated;
   const [phase, setPhase] = useState<"loading" | "fading" | "done">("loading");
 
   // Signal that the client has mounted and atomWithStorage atoms have had one
@@ -35,29 +38,24 @@ export function HydrationGate() {
     return () => cancelAnimationFrame(id);
   }, [setClientReady]);
 
-  // Start the fade only after data, URL filters, and persisted layout have settled.
+  // Forward-only state machine: loading → fading → done. We only react to
+  // `isHydrated` while still in the "loading" phase. Once we leave "loading"
+  // we never re-enter it, so a later `isHydrated → false` cannot bring the
+  // spinner back.
   useEffect(() => {
-    if (!ready) {
-      setGateComplete(false);
-      const id = requestAnimationFrame(() => setPhase("loading"));
-      return () => cancelAnimationFrame(id);
-    }
-
+    if (phase !== "loading" || !isHydrated) return;
     const timer = setTimeout(() => setPhase("fading"), 60);
     return () => clearTimeout(timer);
-  }, [ready, setGateComplete]);
+  }, [phase, isHydrated]);
 
   useEffect(() => {
     if (phase !== "fading") return;
-    if (!ready) {
-      return;
-    }
     const timer = setTimeout(() => {
       setPhase("done");
       setGateComplete(true);
     }, 240);
     return () => clearTimeout(timer);
-  }, [phase, ready, setGateComplete]);
+  }, [phase, setGateComplete]);
 
   if (phase === "done") return null;
 

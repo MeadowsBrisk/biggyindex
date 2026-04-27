@@ -301,34 +301,59 @@ body {
   scrollbar-width: none;
 }
 
-/* Page navigation fade transition (View Transitions API) */
+/* Page navigation fade transition (View Transitions API).
+ *
+ * Old + new run concurrently by default, so the visible duration is the
+ * longer of the two. We use matched timings (260ms each) with a soft
+ * cubic-bezier so the cross-fade reads as a single smooth "shimmy"
+ * rather than two distinct fades. Slight scale on the incoming page
+ * gives a sense of forward motion without obvious zoom.
+ *
+ * NOTE: requires `experimental.viewTransition: true` in next.config.ts.
+ * Next wraps Link navigations in document.startViewTransition() and
+ * waits for the new route to render before triggering the cross-fade,
+ * so a hot prefetch (`prefetch` on the Link + `'use cache'` on the
+ * page) eliminates any Suspense-fallback flash in between.
+ */
 @view-transition {
   navigation: auto;
 }
 
 ::view-transition-old(root) {
-  animation: fade-out 0.15s ease-out;
+  animation: page-fade-out 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 ::view-transition-new(root) {
-  animation: fade-in 0.2s ease-in;
+  animation: page-fade-in 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-@keyframes fade-out {
+@keyframes page-fade-out {
   from {
     opacity: 1;
+    transform: scale(1);
   }
   to {
     opacity: 0;
+    transform: scale(0.995);
   }
 }
 
-@keyframes fade-in {
+@keyframes page-fade-in {
   from {
     opacity: 0;
+    transform: scale(1.005);
   }
   to {
     opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Honour the user's reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 1ms;
   }
 }
 

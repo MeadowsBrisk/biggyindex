@@ -219,7 +219,11 @@ export function ItemGrid({
     ],
   );
 
-  if (isLoading) {
+  // Only render the loading state when there's *nothing* to show. If the
+  // Jotai store still has items from a previous navigation (the user came
+  // back to /browse), render them immediately — the user shouldn't see a
+  // skeleton flash for data that's already in memory.
+  if (isLoading && items.length === 0) {
     // Show seed cards during initial page load (gate still active).
     // Skip during client-side navigation (gate already done) to avoid
     // flashing hot-sorted seeds before live sorted cards appear.
