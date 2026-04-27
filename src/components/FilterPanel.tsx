@@ -3,7 +3,13 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import { FilterPanelContent } from "@/components/FilterPanelContent";
 import {
@@ -84,6 +90,7 @@ export function FilterPanel() {
   const gateComplete = useAtomValue(gateCompleteAtom);
   const setFilterPanelSettled = useSetAtom(filterPanelSettledAtom);
   const t = useTranslations("browse.filters");
+  const previousPanelOpenRef = useRef<boolean | null>(null);
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -99,25 +106,21 @@ export function FilterPanel() {
   useEffect(() => {
     if (!mounted) return;
 
-    const settleDelay =
-      panelOpen || shouldRenderContent
-        ? transitionReady
-          ? CLOSE_TRANSITION_MS
-          : 0
-        : 0;
+    const previousPanelOpen = previousPanelOpenRef.current;
+    previousPanelOpenRef.current = panelOpen;
+
+    if (previousPanelOpen === null || previousPanelOpen === panelOpen) {
+      setFilterPanelSettled(true);
+      return;
+    }
+
     setFilterPanelSettled(false);
     const id = window.setTimeout(
       () => setFilterPanelSettled(true),
-      settleDelay,
+      transitionReady ? CLOSE_TRANSITION_MS : 0,
     );
     return () => window.clearTimeout(id);
-  }, [
-    mounted,
-    panelOpen,
-    shouldRenderContent,
-    transitionReady,
-    setFilterPanelSettled,
-  ]);
+  }, [mounted, panelOpen, transitionReady, setFilterPanelSettled]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");

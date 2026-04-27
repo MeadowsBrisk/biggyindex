@@ -25,6 +25,7 @@ interface SellerTrustBoardProps {
   topSellers: LeaderboardSeller[];
   bottomSellers: LeaderboardSeller[];
   recentlyJoined: LeaderboardSeller[];
+  now: number;
 }
 
 interface SellerTimeCopy {
@@ -64,10 +65,9 @@ function compact(n: number): string {
   return String(n);
 }
 
-function formatDate(iso: string, copy: SellerTimeCopy): string {
+function formatDate(iso: string, copy: SellerTimeCopy, now: number): string {
   const d = new Date(iso);
-  const now = new Date();
-  const days = Math.floor((now.getTime() - d.getTime()) / 86_400_000);
+  const days = Math.max(0, Math.floor((now - d.getTime()) / 86_400_000));
   if (days === 0) return copy.today;
   if (days === 1) return copy.yesterday;
   if (days < 30) return copy.daysAgo(days);
@@ -79,11 +79,12 @@ function formatDate(iso: string, copy: SellerTimeCopy): string {
 function formatTenure(
   iso: string | undefined,
   copy: SellerTimeCopy,
+  now: number,
 ): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
+  const days = Math.floor((now - d.getTime()) / 86_400_000);
   if (days < 30) return null;
   if (days < 365) return copy.monthsActive(Math.floor(days / 30));
   return copy.yearsActive(Math.floor(days / 365));
@@ -159,7 +160,7 @@ function MeterBar({ pct, tone }: { pct: number; tone: Tone }) {
         : "bg-gradient-to-r from-blue-500/70 to-blue-400";
 
   return (
-    <div className="relative h-[3px] w-full rounded-full bg-[var(--border)]/60 overflow-hidden">
+    <div className="relative h-0.75 w-full rounded-full bg-(--border)/60 overflow-hidden">
       <div
         className={`absolute inset-y-0 left-0 ${gradient} rounded-full`}
         style={{ width: `${Math.max(3, Math.min(100, pct))}%` }}
@@ -174,16 +175,18 @@ function SellerRow({
   featured,
   onOpen,
   copy,
+  now,
 }: {
   seller: LeaderboardSeller;
   variant: "top" | "bottom";
   featured?: boolean;
   onOpen: (id: string) => void;
   copy: SellerTrustCopy;
+  now: number;
 }) {
   const pct = positivePercent(seller.positiveCount, seller.totalReviews);
   const isTop = variant === "top";
-  const tenure = formatTenure(seller.joined, copy.time);
+  const tenure = formatTenure(seller.joined, copy.time, now);
   const tone: Tone = isTop ? "emerald" : "amber";
   const pctColor = isTop
     ? pct >= 90
@@ -199,7 +202,7 @@ function SellerRow({
     <button
       type="button"
       onClick={() => onOpen(seller.sellerId)}
-      className="group w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--surface-hover)]"
+      className="group w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
     >
       <SellerAvatar
         seller={seller}
@@ -260,6 +263,7 @@ function Panel({
   delay,
   copy,
   reviewsLabel,
+  now,
 }: {
   tone: Tone;
   icon: React.ReactNode;
@@ -271,6 +275,7 @@ function Panel({
   delay: number;
   copy: SellerTrustCopy;
   reviewsLabel: string;
+  now: number;
 }) {
   const totalReviews = sellers.reduce((sum, s) => sum + s.totalReviews, 0);
 
@@ -289,15 +294,15 @@ function Panel({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay }}
-      className="relative rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden"
+      className="relative rounded-2xl border border-border bg-card overflow-hidden"
     >
       <div
-        className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-b ${accentGrad} pointer-events-none`}
+        className={`absolute inset-x-0 top-0 h-32 bg-linear-to-b ${accentGrad} pointer-events-none`}
         aria-hidden
       />
 
       {/* Header */}
-      <header className="relative flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]/70">
+      <header className="relative flex items-center gap-3 px-5 py-4 border-b border-(--border)/70">
         <div className={`rounded-xl p-2 ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
           <h3 className="text-[15px] font-semibold text-foreground leading-tight">
@@ -316,7 +321,7 @@ function Panel({
       </header>
 
       {/* Rows */}
-      <ul className="relative divide-y divide-[var(--border)]/60">
+      <ul className="relative divide-y divide-(--border)/60">
         {sellers.slice(0, 8).map((seller, i) => (
           <li key={seller.sellerId}>
             <SellerRow
@@ -325,6 +330,7 @@ function Panel({
               featured={i === 0}
               onOpen={onOpen}
               copy={copy}
+              now={now}
             />
           </li>
         ))}
@@ -339,6 +345,7 @@ export function SellerTrustBoard({
   topSellers,
   bottomSellers,
   recentlyJoined,
+  now,
 }: SellerTrustBoardProps) {
   const t = useTranslations("home.sellerTrust");
   const openSeller = useSetAtom(sellerModalIdAtom);
@@ -360,7 +367,7 @@ export function SellerTrustBoard({
   );
 
   return (
-    <section className="py-20 px-4 bg-[var(--surface)]">
+    <section className="py-20 px-4 bg-surface">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -393,6 +400,7 @@ export function SellerTrustBoard({
             delay={0.1}
             copy={copy}
             reviewsLabel={t("panels.reviewsLabel")}
+            now={now}
           />
           <Panel
             tone="amber"
@@ -405,6 +413,7 @@ export function SellerTrustBoard({
             delay={0.2}
             copy={copy}
             reviewsLabel={t("panels.reviewsLabel")}
+            now={now}
           />
         </div>
 
@@ -415,9 +424,9 @@ export function SellerTrustBoard({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden"
+            className="mt-6 rounded-2xl border border-border bg-card overflow-hidden"
           >
-            <header className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]/70">
+            <header className="flex items-center gap-3 px-5 py-4 border-b border-(--border)/70">
               <div className="rounded-xl p-2 bg-blue-500/15 text-blue-500">
                 <Sparkles size={18} />
               </div>
@@ -436,7 +445,7 @@ export function SellerTrustBoard({
                   key={seller.sellerId}
                   type="button"
                   onClick={() => openSeller(seller.sellerId)}
-                  className="group flex items-center gap-2 rounded-full bg-[var(--surface)] border border-[var(--border)] pl-1 pr-3 py-1 transition-all hover:bg-[var(--surface-hover)] hover:border-blue-500/40 hover:shadow-sm"
+                  className="group flex items-center gap-2 rounded-full bg-surface border border-border pl-1 pr-3 py-1 transition-all hover:bg-surface-hover hover:border-blue-500/40 hover:shadow-sm"
                 >
                   <SellerAvatar seller={seller} size={24} tone="blue" />
                   <span className="text-xs font-medium text-foreground group-hover:text-primary">
@@ -444,7 +453,7 @@ export function SellerTrustBoard({
                   </span>
                   {seller.joined && (
                     <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {formatDate(seller.joined, copy.time)}
+                      {formatDate(seller.joined, copy.time, now)}
                     </span>
                   )}
                 </button>

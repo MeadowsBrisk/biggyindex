@@ -63,6 +63,8 @@ export default async function HomePage({
     ...c,
     emoji: "",
   }));
+  const feedBuiltAt = Date.parse(feed.builtAt);
+  const timeReference = Number.isFinite(feedBuiltAt) ? feedBuiltAt : 0;
 
   return (
     <>
@@ -80,6 +82,7 @@ export default async function HomePage({
           recentlyUpdated={feed.whatsNew.updated.map((i) =>
             toNewItem(i, "lua"),
           )}
+          now={timeReference}
         />
       </Suspense>
 
@@ -88,6 +91,7 @@ export default async function HomePage({
           topSellers={feed.sellers.top}
           bottomSellers={feed.sellers.bottom}
           recentlyJoined={feed.sellers.recentlyJoined}
+          now={timeReference}
         />
       </Suspense>
 
@@ -95,6 +99,7 @@ export default async function HomePage({
         <CommunityReviews
           reviews={feed.reviews.list}
           reviewStats={feed.reviews.stats}
+          now={timeReference}
         />
       </Suspense>
 

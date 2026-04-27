@@ -45,6 +45,7 @@ interface ReviewStats {
 interface CommunityReviewsProps {
   reviews: ReviewCardData[];
   reviewStats: ReviewStats;
+  now: number;
 }
 
 const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
@@ -129,8 +130,8 @@ function StarRatingDark({
   );
 }
 
-function timeAgo(dateStr: string, copy: TimeAgoCopy): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+function timeAgo(dateStr: string, copy: TimeAgoCopy, now: number): string {
+  const diff = Math.max(0, now - new Date(dateStr).getTime());
   const hours = Math.floor(diff / 3_600_000);
   if (hours < 1) return copy.justNow;
   if (hours < 24) return copy.hoursAgo(hours);
@@ -146,10 +147,12 @@ function PhotoReviewCard({
   review,
   height,
   copy,
+  now,
 }: {
   review: ReviewCardData;
   height: string;
   copy: CommunityReviewCopy;
+  now: number;
 }) {
   const openModal = useSetAtom(photoReviewModalAtom);
   const imageUrl = review.images?.[0] ?? undefined;
@@ -180,7 +183,7 @@ function PhotoReviewCard({
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 pt-3">
         <StarRating rating={review.rating} size={12} />
         <span className="text-[10px] text-white/50 font-medium">
-          {timeAgo(review.createdAt, copy.time)}
+          {timeAgo(review.createdAt, copy.time, now)}
         </span>
       </div>
       <div className="absolute bottom-0 left-0 right-0 z-10 px-3 pb-3">
@@ -238,9 +241,11 @@ function PhotoReviewCard({
 function MarqueeReviewCard({
   review,
   copy,
+  now,
 }: {
   review: ReviewCardData;
   copy: CommunityReviewCopy;
+  now: number;
 }) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const canOpen = !!review.refNum;
@@ -261,13 +266,13 @@ function MarqueeReviewCard({
       <div className="flex items-center justify-between mb-1.5 shrink-0">
         <StarRatingDark rating={review.rating} size={10} />
         <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
-          {timeAgo(review.createdAt, copy.time)}
+          {timeAgo(review.createdAt, copy.time, now)}
         </span>
       </div>
 
       {/* Middle: review text (fades at bottom if clamped; click card to read full via detail overlay) */}
       {review.text && (
-        <p className="text-[12.5px] text-foreground/80 leading-relaxed line-clamp-5 mb-1.5 flex-1 min-h-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]">
+        <p className="text-[12.5px] text-foreground/80 leading-relaxed line-clamp-5 mb-1.5 flex-1 min-h-0 mask-[linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]">
           {review.text}
         </p>
       )}
@@ -354,7 +359,7 @@ function FillerBrick({
 }) {
   return (
     <div
-      className="w-35 sm:w-40 shrink-0 rounded-xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-3 flex flex-col justify-center select-none relative overflow-hidden"
+      className="w-35 sm:w-40 shrink-0 rounded-xl border border-primary/25 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3 flex flex-col justify-center select-none relative overflow-hidden"
       style={{ height: "180px" }}
     >
       {/* Decorative accent blob */}
@@ -381,12 +386,14 @@ function MarqueeRow({
   fillerCard,
   speed = 25,
   copy,
+  now,
 }: {
   reviews: ReviewCardData[];
   direction: "left" | "right";
   fillerCard?: React.ReactNode;
   speed?: number;
   copy: CommunityReviewCopy;
+  now: number;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
 
@@ -402,12 +409,13 @@ function MarqueeRow({
           }
           review={review}
           copy={copy}
+          now={now}
         />,
       );
     });
     if (fillerCard) items.push(fillerCard);
     return items;
-  }, [reviews, fillerCard, copy]);
+  }, [reviews, fillerCard, copy, now]);
 
   // Duration: based on total width approximation
   // ~330px per card (320 + 10 gap)
@@ -441,10 +449,12 @@ function ReviewWall({
   reviews,
   stats,
   copy,
+  now,
 }: {
   reviews: ReviewCardData[];
   stats: ReviewStats;
   copy: CommunityReviewCopy;
+  now: number;
 }) {
   // Split reviews into 3 rows
   const rows = useMemo(() => {
@@ -471,6 +481,7 @@ function ReviewWall({
           direction="left"
           speed={25}
           copy={copy}
+          now={now}
           fillerCard={
             <FillerBrick
               key="filler-delivery"
@@ -486,6 +497,7 @@ function ReviewWall({
           direction="right"
           speed={22}
           copy={copy}
+          now={now}
           fillerCard={
             <FillerBrick
               key="filler-week"
@@ -501,6 +513,7 @@ function ReviewWall({
           direction="left"
           speed={28}
           copy={copy}
+          now={now}
           fillerCard={
             <FillerBrick
               key="filler-community"
@@ -535,6 +548,7 @@ const PHOTO_HEIGHTS = [
 export function CommunityReviews({
   reviews,
   reviewStats,
+  now,
 }: CommunityReviewsProps) {
   const t = useTranslations("home.communityReviewsSection");
   const copy: CommunityReviewCopy = useMemo(
@@ -623,7 +637,12 @@ export function CommunityReviews({
               {t("recentReviews")}
             </h3>
           </div>
-          <ReviewWall reviews={textReviews} stats={reviewStats} copy={copy} />
+          <ReviewWall
+            reviews={textReviews}
+            stats={reviewStats}
+            copy={copy}
+            now={now}
+          />
         </div>
       )}
 
@@ -644,6 +663,7 @@ export function CommunityReviews({
                 review={review}
                 height={PHOTO_HEIGHTS[i % PHOTO_HEIGHTS.length]}
                 copy={copy}
+                now={now}
               />
             ))}
           </div>

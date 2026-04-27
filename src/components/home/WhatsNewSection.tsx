@@ -53,6 +53,7 @@ interface NewItem {
 interface WhatsNewSectionProps {
   newest: NewItem[];
   recentlyUpdated: NewItem[];
+  now: number;
 }
 
 type Tab = "newest" | "updated";
@@ -94,8 +95,8 @@ function formatPrice(
   return lo;
 }
 
-function timeAgo(dateStr: string, copy: TimeAgoCopy): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+function timeAgo(dateStr: string, copy: TimeAgoCopy, now: number): string {
+  const diff = Math.max(0, now - new Date(dateStr).getTime());
   const hours = Math.floor(diff / 3_600_000);
   if (hours < 1) return copy.justNow;
   if (hours < 24) return copy.hoursAgo(hours);
@@ -116,7 +117,7 @@ function StarRating({ avg }: { avg: number }) {
           className={
             starIndex < stars
               ? "fill-amber-400 text-amber-400"
-              : "fill-none text-[var(--muted-foreground)]"
+              : "fill-none text-muted-foreground"
           }
         />
       ))}
@@ -148,11 +149,13 @@ function HomeItemCard({
   currencySymbol,
   exchangeRate,
   copy,
+  now,
 }: {
   item: NewItem;
   currencySymbol: string;
   exchangeRate: number;
   copy: HomeItemCardCopy;
+  now: number;
 }) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const setSellerModalId = useSetAtom(sellerModalIdAtom);
@@ -271,7 +274,7 @@ function HomeItemCard({
                     tabIndex={0}
                     onClick={handleSellerClick}
                     onKeyDown={handleSellerKeyDown}
-                    className="seller-card__avatar !w-5 !h-5 !text-[9px] !rounded shrink-0 overflow-hidden inline-flex items-center justify-center cursor-pointer"
+                    className="seller-card__avatar w-5! h-5! text-[9px]! rounded! shrink-0 overflow-hidden inline-flex items-center justify-center cursor-pointer"
                     aria-label={copy.viewSeller(sellerName)}
                   >
                     {item.sellerImageUrl ? (
@@ -287,7 +290,7 @@ function HomeItemCard({
                     )}
                   </span>
                 ) : (
-                  <span className="seller-card__avatar !w-5 !h-5 !text-[9px] !rounded shrink-0 overflow-hidden inline-flex items-center justify-center">
+                  <span className="seller-card__avatar w-5! h-5! text-[9px]! rounded! shrink-0 overflow-hidden inline-flex items-center justify-center">
                     {item.sellerImageUrl ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
@@ -327,7 +330,7 @@ function HomeItemCard({
             {/* Price */}
             <div className="card-price-area mt-2">
               <div className="card-price-row">
-                <span className="card-price-main !text-base">
+                <span className="card-price-main text-base!">
                   {formatPrice(
                     item.priceMin,
                     item.priceMax,
@@ -342,7 +345,7 @@ function HomeItemCard({
             {/* Footer row: time ago + reviews */}
             <div className="flex items-center justify-between mt-1">
               <span className="text-[11px] text-muted-foreground">
-                {timeAgo(item.date, copy.time)}
+                {timeAgo(item.date, copy.time, now)}
               </span>
               {hasReviews && (
                 <span className="flex items-center gap-1">
@@ -375,6 +378,7 @@ function HomeItemCard({
 export function WhatsNewSection({
   newest,
   recentlyUpdated,
+  now,
 }: WhatsNewSectionProps) {
   const t = useTranslations("home.whatsNewSection");
   const [activeTab, setActiveTab] = useState<Tab>("newest");
@@ -406,7 +410,7 @@ export function WhatsNewSection({
   );
 
   return (
-    <section className="py-20 bg-[var(--background)]">
+    <section className="py-20 bg-background">
       {/* Header area - contained */}
       <div className="max-w-7xl mx-auto px-4">
         <motion.div
@@ -428,7 +432,7 @@ export function WhatsNewSection({
 
           {/* Tab switcher + scroll arrows */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex gap-1 rounded-xl bg-[var(--surface)] p-1">
+            <div className="flex gap-1 rounded-xl bg-surface p-1">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
@@ -450,14 +454,14 @@ export function WhatsNewSection({
             <div className="hidden md:flex items-center gap-2">
               <button
                 type="button"
-                className="whats-new-prev rounded-full border border-[var(--border)] p-2 text-muted hover:text-foreground hover:bg-[var(--surface-hover)] transition-colors"
+                className="whats-new-prev rounded-full border border-border p-2 text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
                 aria-label={t("scrollLeft")}
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 type="button"
-                className="whats-new-next rounded-full border border-[var(--border)] p-2 text-muted hover:text-foreground hover:bg-[var(--surface-hover)] transition-colors"
+                className="whats-new-next rounded-full border border-border p-2 text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
                 aria-label={t("scrollRight")}
               >
                 <ChevronRight size={16} />
@@ -499,6 +503,7 @@ export function WhatsNewSection({
                 currencySymbol={currencySymbol}
                 exchangeRate={exchangeRate}
                 copy={itemCardCopy}
+                now={now}
               />
             </SwiperSlide>
           ))}
@@ -510,7 +515,7 @@ export function WhatsNewSection({
         <Link
           href="/browse"
           prefetch={false}
-          className="group inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:text-primary"
+          className="group inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:text-primary"
         >
           {t("browseAll")}
           <ArrowRight
