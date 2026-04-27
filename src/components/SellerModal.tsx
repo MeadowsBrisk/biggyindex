@@ -17,8 +17,13 @@ import { type Review, ReviewCard } from "@/components/ReviewCard";
 
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useHistoryState } from "@/hooks/useHistoryState";
+import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import historyManager from "@/lib/historyManager";
 import { getSellerImageUrl } from "@/lib/images";
+import {
+  extractLittleBiggyId,
+  normalizeLittleBiggyUrl,
+} from "@/lib/tracking/littlebiggy";
 import {
   categoryAtom,
   expandedRefNumAtom,
@@ -334,10 +339,24 @@ export function SellerModal() {
   // Share link (matches old-biggyindex: prefer share, fall back to sellerUrl)
   const shareLink = useMemo(() => {
     if (!detail) return null;
-    if (typeof detail.share === "string" && detail.share) return detail.share;
-    if (detail.sellerUrl) return detail.sellerUrl;
+    if (typeof detail.share === "string" && detail.share) {
+      return normalizeLittleBiggyUrl(detail.share);
+    }
+    if (detail.sellerUrl) return normalizeLittleBiggyUrl(detail.sellerUrl);
     return null;
   }, [detail]);
+  const outboundEvent = useMemo(() => {
+    if (!shareLink || !sellerId) return null;
+    return {
+      id: extractLittleBiggyId(shareLink),
+      url: shareLink,
+      sid: sellerId,
+      sn: name,
+      c: "Seller",
+      mkt: market,
+    };
+  }, [market, name, sellerId, shareLink]);
+  const handleLittleBiggyClick = useLBGuideGate(outboundEvent);
 
   // Online status
   const online =
@@ -724,6 +743,7 @@ export function SellerModal() {
                 href={shareLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleLittleBiggyClick}
                 className="ido-lb-btn"
                 aria-label={t("visitAria", { seller: name })}
               >

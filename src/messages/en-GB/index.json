@@ -70,6 +70,12 @@
     "topSellers": "Top Sellers",
     "communityReviews": "Community Reviews",
     "viewAll": "View all",
+    "embassy": {
+      "badge": "Need help?",
+      "title": "Little Biggy embassy",
+      "subtitle": "New to Little Biggy? Our embassy is a community post where you can ask questions and get help in your language.",
+      "cta": "Visit the embassy"
+    },
     "photoReviewModal": {
       "time": {
         "justNow": "Just now",
@@ -329,6 +335,35 @@
         "daysAgo": "{count}d ago",
         "monthsAgo": "{count}mo ago"
       }
+    }
+  },
+  "lbGuide": {
+    "title": "Before you go to Little Biggy...",
+    "subtitle": "Quick tips to help you get started on the marketplace.",
+    "close": "Close",
+    "steps": {
+      "country": {
+        "title": "1. Choose your country",
+        "text": "Little Biggy needs to know where you are before it can show product options. Select your country first — it saves a cookie so you only need to do this once."
+      },
+      "buy": {
+        "title": "2. Browse & buy",
+        "text": "Once your country is set, each product shows a buy button next to every variant. Tap one and it goes straight to your cart."
+      },
+      "account": {
+        "title": "3. Create an account",
+        "text": "You can check out without an account, but signing up is recommended. Just click \"Login\" then \"Register\" — no email needed, just a username and password."
+      },
+      "checkout": {
+        "title": "4. Pay with Bitcoin",
+        "text": "Little Biggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to."
+      }
+    },
+    "continueBtn": "Got it — take me to Little Biggy",
+    "dontShowAgain": "Don't show this again",
+    "guideLink": {
+      "title": "Visit the embassy",
+      "text": "Need help? Ask questions and get answers in your language."
     }
   },
   "browse": {

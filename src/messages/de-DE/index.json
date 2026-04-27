@@ -70,6 +70,12 @@
     "topSellers": "Bestseller",
     "communityReviews": "Community-Bewertungen",
     "viewAll": "Alle anzeigen",
+    "embassy": {
+      "badge": "Brauchst du Hilfe?",
+      "title": "Little Biggy-Botschaft",
+      "subtitle": "Neu bei Little Biggy? Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.",
+      "cta": "Zur Botschaft"
+    },
     "photoReviewModal": {
       "time": {
         "justNow": "Gerade eben",
@@ -329,6 +335,35 @@
         "daysAgo": "Vor {count}d",
         "monthsAgo": "Vor {count}mo"
       }
+    }
+  },
+  "lbGuide": {
+    "title": "Bevor du zu Little Biggy gehst...",
+    "subtitle": "Schnelle Tipps für den Einstieg auf dem Marktplatz.",
+    "close": "Schließen",
+    "steps": {
+      "country": {
+        "title": "1. Wähle dein Land",
+        "text": "Little Biggy muss wissen, wo du bist, bevor es Produktoptionen anzeigen kann. Wähle zuerst dein Land — ein Cookie wird gesetzt, damit du das nur einmal machen musst."
+      },
+      "buy": {
+        "title": "2. Stöbern & kaufen",
+        "text": "Sobald dein Land eingestellt ist, zeigt jedes Produkt einen Kaufen-Button neben jeder Variante. Tippe darauf und es landet direkt im Warenkorb."
+      },
+      "account": {
+        "title": "3. Konto erstellen",
+        "text": "Du kannst ohne Konto bezahlen, aber eine Registrierung wird empfohlen. Klicke einfach auf \"Login\" und dann \"Register\" — keine E-Mail nötig, nur Benutzername und Passwort."
+      },
+      "checkout": {
+        "title": "4. Mit Bitcoin bezahlen",
+        "text": "Little Biggy akzeptiert nur Bitcoin. Beim Checkout siehst du einen Betrag und eine Wallet-Adresse für die Zahlung."
+      }
+    },
+    "continueBtn": "Verstanden — weiter zu Little Biggy",
+    "dontShowAgain": "Nicht mehr anzeigen",
+    "guideLink": {
+      "title": "Zur Botschaft",
+      "text": "Brauchst du Hilfe? Stell deine Fragen und bekomme Antworten auf Deutsch."
     }
   },
   "browse": {

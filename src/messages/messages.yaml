@@ -506,6 +506,47 @@ home:
     es-ES: Ver todo
     el-GR: Προβολή όλων
     cs-CZ: Zobrazit vše
+  embassy:
+    badge:
+      en-GB: Need help?
+      en-IE: Need help?
+      de-DE: Brauchst du Hilfe?
+      fr-FR: Besoin d'aide ?
+      pt-PT: Precisas de ajuda?
+      it-IT: Hai bisogno di aiuto?
+      es-ES: ¿Necesitas ayuda?
+      el-GR: Χρειάζεστε βοήθεια;
+      cs-CZ: Potřebujete pomoc?
+    title:
+      en-GB: Little Biggy embassy
+      en-IE: Little Biggy embassy
+      de-DE: Little Biggy-Botschaft
+      fr-FR: Ambassade Little Biggy
+      pt-PT: Embaixada Little Biggy
+      it-IT: Ambasciata Little Biggy
+      es-ES: Embajada de Little Biggy
+      el-GR: Πρεσβεία Little Biggy
+      cs-CZ: Little Biggy ambasáda
+    subtitle:
+      en-GB: New to Little Biggy? Our embassy is a community post where you can ask questions and get help in your language.
+      en-IE: New to Little Biggy? Our embassy is a community post where you can ask questions and get help in your language.
+      de-DE: Neu bei Little Biggy? Die Botschaft ist ein Community-Beitrag, in dem du Fragen stellen und Hilfe auf Deutsch bekommen kannst.
+      fr-FR: Nouveau sur Little Biggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.
+      pt-PT: Novo no Little Biggy? A embaixada é um post da comunidade onde podes fazer perguntas e receber ajuda em português.
+      it-IT: Nuovo su Little Biggy? L'ambasciata è un post della community dove puoi fare domande e ricevere aiuto in italiano.
+      es-ES: ¿Nuevo en Little Biggy? La embajada es un post de la comunidad donde puedes hacer preguntas y recibir ayuda en español.
+      el-GR: Νέος στο Little Biggy; Η πρεσβεία είναι μια ανάρτηση της κοινότητας όπου μπορείτε να κάνετε ερωτήσεις και να λάβετε βοήθεια στη γλώσσα σας.
+      cs-CZ: Jste v Little Biggy noví? Ambasáda je komunitní příspěvek, kde můžete pokládat otázky a získat pomoc ve svém jazyce.
+    cta:
+      en-GB: Visit the embassy
+      en-IE: Visit the embassy
+      de-DE: Zur Botschaft
+      fr-FR: Visiter l'ambassade
+      pt-PT: Visitar a embaixada
+      it-IT: Visita l'ambasciata
+      es-ES: Visitar la embajada
+      el-GR: Επισκεφθείτε την πρεσβεία
+      cs-CZ: Navštívit ambasádu
   photoReviewModal:
     time:
       justNow:
@@ -1980,6 +2021,164 @@ home:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+
+lbGuide:
+  title:
+    en-GB: Before you go to Little Biggy...
+    en-IE: Before you go to Little Biggy...
+    de-DE: Bevor du zu Little Biggy gehst...
+    fr-FR: Avant d'aller sur Little Biggy...
+    pt-PT: Antes de ir para o Little Biggy...
+    it-IT: Prima di andare su Little Biggy...
+    es-ES: Antes de ir a Little Biggy...
+    el-GR: Πριν πάτε στο Little Biggy...
+    cs-CZ: Než přejdete na Little Biggy...
+  subtitle:
+    en-GB: Quick tips to help you get started on the marketplace.
+    en-IE: Quick tips to help you get started on the marketplace.
+    de-DE: Schnelle Tipps für den Einstieg auf dem Marktplatz.
+    fr-FR: Quelques conseils pour bien démarrer sur la marketplace.
+    pt-PT: Dicas rápidas para começar no marketplace.
+    it-IT: Consigli rapidi per iniziare sul marketplace.
+    es-ES: Consejos rápidos para empezar en el marketplace.
+    el-GR: Γρήγορες συμβουλές για να ξεκινήσετε στην αγορά.
+    cs-CZ: Rychlé tipy, které vám pomohou začít na tržišti.
+  close:
+    en-GB: Close
+    en-IE: Close
+    de-DE: Schließen
+    fr-FR: Fermer
+    pt-PT: Fechar
+    it-IT: Chiudi
+    es-ES: Cerrar
+    el-GR: Κλείσιμο
+    cs-CZ: Zavřít
+  steps:
+    country:
+      title:
+        en-GB: 1. Choose your country
+        en-IE: 1. Choose your country
+        de-DE: 1. Wähle dein Land
+        fr-FR: 1. Choisis ton pays
+        pt-PT: 1. Escolha o seu país
+        it-IT: 1. Scegli il tuo paese
+        es-ES: 1. Elige tu país
+        el-GR: 1. Επιλέξτε τη χώρα σας
+        cs-CZ: 1. Vyberte svou zemi
+      text:
+        en-GB: Little Biggy needs to know where you are before it can show product options. Select your country first — it saves a cookie so you only need to do this once.
+        en-IE: Little Biggy needs to know where you are before it can show product options. Select your country first — it saves a cookie so you only need to do this once.
+        de-DE: Little Biggy muss wissen, wo du bist, bevor es Produktoptionen anzeigen kann. Wähle zuerst dein Land — ein Cookie wird gesetzt, damit du das nur einmal machen musst.
+        fr-FR: Little Biggy a besoin de savoir où tu es avant d'afficher les options de produits. Sélectionne d'abord ton pays — un cookie est enregistré pour ne le faire qu'une seule fois.
+        pt-PT: O Little Biggy precisa de saber onde está antes de mostrar as opções de produto. Selecione primeiro o seu país — é guardado um cookie para que só precise de fazer isto uma vez.
+        it-IT: Little Biggy ha bisogno di sapere dove ti trovi prima di mostrare le opzioni dei prodotti. Seleziona prima il tuo paese — viene salvato un cookie così devi farlo solo una volta.
+        es-ES: Little Biggy necesita saber dónde estás antes de mostrar las opciones de producto. Selecciona primero tu país — se guarda una cookie para que solo tengas que hacerlo una vez.
+        el-GR: Το Little Biggy πρέπει να γνωρίζει πού βρίσκεστε πριν εμφανίσει επιλογές προϊόντων. Επιλέξτε πρώτα τη χώρα σας — αποθηκεύει ένα cookie ώστε να χρειαστεί να το κάνετε μόνο μία φορά.
+        cs-CZ: Little Biggy potřebuje vědět, kde jste, než zobrazí možnosti produktů. Nejprve vyberte svou zemi — uloží cookie, takže to stačí udělat jen jednou.
+    buy:
+      title:
+        en-GB: 2. Browse & buy
+        en-IE: 2. Browse & buy
+        de-DE: 2. Stöbern & kaufen
+        fr-FR: 2. Parcourir et acheter
+        pt-PT: 2. Explorar e comprar
+        it-IT: 2. Sfoglia e acquista
+        es-ES: 2. Explorar y comprar
+        el-GR: 2. Περιηγηθείτε και αγοράστε
+        cs-CZ: 2. Procházejte a nakupujte
+      text:
+        en-GB: Once your country is set, each product shows a buy button next to every variant. Tap one and it goes straight to your cart.
+        en-IE: Once your country is set, each product shows a buy button next to every variant. Tap one and it goes straight to your cart.
+        de-DE: Sobald dein Land eingestellt ist, zeigt jedes Produkt einen Kaufen-Button neben jeder Variante. Tippe darauf und es landet direkt im Warenkorb.
+        fr-FR: Une fois ton pays défini, chaque produit affiche un bouton d'achat à côté de chaque variante. Appuie dessus et il va directement dans ton panier.
+        pt-PT: Depois de definir o seu país, cada produto mostra um botão de compra junto a cada variante. Toque nele e vai diretamente para o seu carrinho.
+        it-IT: Una volta impostato il tuo paese, ogni prodotto mostra un pulsante di acquisto accanto a ogni variante. Toccalo e va direttamente nel tuo carrello.
+        es-ES: Una vez configurado tu país, cada producto muestra un botón de compra junto a cada variante. Tócalo y va directamente a tu carrito.
+        el-GR: Μόλις οριστεί η χώρα σας, κάθε προϊόν εμφανίζει ένα κουμπί αγοράς δίπλα σε κάθε παραλλαγή. Πατήστε ένα και πηγαίνει κατευθείαν στο καλάθι σας.
+        cs-CZ: Jakmile je vaše země nastavena, každý produkt zobrazí tlačítko nákupu vedle každé varianty. Klepněte na něj a položka jde přímo do košíku.
+    account:
+      title:
+        en-GB: 3. Create an account
+        en-IE: 3. Create an account
+        de-DE: 3. Konto erstellen
+        fr-FR: 3. Créer un compte
+        pt-PT: 3. Criar uma conta
+        it-IT: 3. Crea un account
+        es-ES: 3. Crear una cuenta
+        el-GR: 3. Δημιουργήστε λογαριασμό
+        cs-CZ: 3. Vytvořte si účet
+      text:
+        en-GB: "You can check out without an account, but signing up is recommended. Just click \"Login\" then \"Register\" — no email needed, just a username and password."
+        en-IE: "You can check out without an account, but signing up is recommended. Just click \"Login\" then \"Register\" — no email needed, just a username and password."
+        de-DE: "Du kannst ohne Konto bezahlen, aber eine Registrierung wird empfohlen. Klicke einfach auf \"Login\" und dann \"Register\" — keine E-Mail nötig, nur Benutzername und Passwort."
+        fr-FR: "Tu peux payer sans compte, mais l'inscription est recommandée. Clique sur \"Login\" puis \"Register\" — pas besoin d'e-mail, juste un nom d'utilisateur et un mot de passe."
+        pt-PT: "Pode pagar sem conta, mas registar-se é recomendado. Clique em \"Login\" e depois \"Register\" — não precisa de e-mail, apenas nome de utilizador e palavra-passe."
+        it-IT: "Puoi pagare senza account, ma registrarsi è consigliato. Clicca su \"Login\" poi \"Register\" — non serve un'e-mail, solo nome utente e password."
+        es-ES: "Puedes pagar sin cuenta, pero registrarte es recomendable. Haz clic en \"Login\" y luego en \"Register\" — no necesitas e-mail, solo nombre de usuario y contraseña."
+        el-GR: "Μπορείτε να κάνετε checkout χωρίς λογαριασμό, αλλά συνιστάται η εγγραφή. Απλώς κάντε κλικ στο \"Login\" και μετά στο \"Register\" — δεν χρειάζεται email, μόνο όνομα χρήστη και κωδικός."
+        cs-CZ: "Můžete dokončit nákup bez účtu, ale registrace se doporučuje. Stačí kliknout na \"Login\" a potom \"Register\" — není potřeba e-mail, jen uživatelské jméno a heslo."
+    checkout:
+      title:
+        en-GB: 4. Pay with Bitcoin
+        en-IE: 4. Pay with Bitcoin
+        de-DE: 4. Mit Bitcoin bezahlen
+        fr-FR: 4. Payer en Bitcoin
+        pt-PT: 4. Pagar com Bitcoin
+        it-IT: 4. Paga con Bitcoin
+        es-ES: 4. Pagar con Bitcoin
+        el-GR: 4. Πληρώστε με Bitcoin
+        cs-CZ: 4. Zaplaťte Bitcoinem
+      text:
+        en-GB: Little Biggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to.
+        en-IE: Little Biggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to.
+        de-DE: Little Biggy akzeptiert nur Bitcoin. Beim Checkout siehst du einen Betrag und eine Wallet-Adresse für die Zahlung.
+        fr-FR: Little Biggy n'accepte que le Bitcoin. Au moment du paiement, tu verras un montant et une adresse de portefeuille.
+        pt-PT: O Little Biggy aceita apenas Bitcoin. No checkout verá um montante e um endereço de carteira para enviar o pagamento.
+        it-IT: Little Biggy accetta solo Bitcoin. Al checkout vedrai un importo e un indirizzo wallet per inviare il pagamento.
+        es-ES: Little Biggy solo acepta Bitcoin. En el checkout verás un monto y una dirección de billetera para enviar el pago.
+        el-GR: Το Little Biggy δέχεται μόνο Bitcoin. Στο checkout θα δείτε ένα ποσό και μια διεύθυνση πορτοφολιού για να στείλετε την πληρωμή.
+        cs-CZ: Little Biggy přijímá pouze Bitcoin. Při placení uvidíte částku a adresu peněženky, kam poslat platbu.
+  continueBtn:
+    en-GB: Got it — take me to Little Biggy
+    en-IE: Got it — take me to Little Biggy
+    de-DE: Verstanden — weiter zu Little Biggy
+    fr-FR: Compris — aller sur Little Biggy
+    pt-PT: Entendido — ir para o Little Biggy
+    it-IT: Capito — vai su Little Biggy
+    es-ES: Entendido — ir a Little Biggy
+    el-GR: Το κατάλαβα — μετάβαση στο Little Biggy
+    cs-CZ: Rozumím — přejít na Little Biggy
+  dontShowAgain:
+    en-GB: Don't show this again
+    en-IE: Don't show this again
+    de-DE: Nicht mehr anzeigen
+    fr-FR: Ne plus afficher
+    pt-PT: Não mostrar novamente
+    it-IT: Non mostrare più
+    es-ES: No mostrar de nuevo
+    el-GR: Να μην εμφανιστεί ξανά
+    cs-CZ: Znovu nezobrazovat
+  guideLink:
+    title:
+      en-GB: Visit the embassy
+      en-IE: Visit the embassy
+      de-DE: Zur Botschaft
+      fr-FR: Visiter l'ambassade
+      pt-PT: Visitar a embaixada
+      it-IT: Visita l'ambasciata
+      es-ES: Visitar la embajada
+      el-GR: Επισκεφθείτε την πρεσβεία
+      cs-CZ: Navštívit ambasádu
+    text:
+      en-GB: Need help? Ask questions and get answers in your language.
+      en-IE: Need help? Ask questions and get answers in your language.
+      de-DE: Brauchst du Hilfe? Stell deine Fragen und bekomme Antworten auf Deutsch.
+      fr-FR: Besoin d'aide ? Pose tes questions et obtiens des réponses en français.
+      pt-PT: Precisas de ajuda? Faz as tuas perguntas e obtém respostas em português.
+      it-IT: Hai bisogno di aiuto? Fai le tue domande e ricevi risposte in italiano.
+      es-ES: ¿Necesitas ayuda? Haz tus preguntas y recibe respuestas en español.
+      el-GR: Χρειάζεστε βοήθεια; Κάντε ερωτήσεις και λάβετε απαντήσεις στη γλώσσα σας.
+      cs-CZ: Potřebujete pomoc? Ptejte se a získejte odpovědi ve svém jazyce.
 
 browse:
   allCategories:

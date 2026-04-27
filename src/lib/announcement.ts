@@ -14,6 +14,7 @@ export interface AnnouncementBannerConfig {
   id: string;
   messageByLocale: Record<string, string>;
   allowedLocales?: string[];
+  targetHostnames?: string[];
   href?: string;
   ctaLabel?: string;
   severity?: AnnouncementSeverity;
@@ -21,11 +22,13 @@ export interface AnnouncementBannerConfig {
 }
 
 const BANNER: AnnouncementBannerConfig = {
-  id: "placeholder",
-  active: false,
+  id: "lbindex-vip-launch-domain-2026-04",
+  active: true,
   severity: "info",
+  targetHostnames: ["lbindex.vip", "www.lbindex.vip"],
   messageByLocale: {
-    "en-GB": "",
+    "en-GB":
+      "You're on BiggyIndex's temporary launch domain. {{mbr}}We'll move back to biggyindex.com soon; lbindex.vip will redirect there after the switchover.",
   },
 };
 

@@ -1,7 +1,13 @@
 "use client";
 
-import type { AnchorHTMLAttributes, ReactNode } from "react";
-import { trackOutboundClick } from "@/lib/tracking/outbound";
+import type {
+  AnchorHTMLAttributes,
+  MouseEvent as ReactMouseEvent,
+  ReactNode,
+} from "react";
+import { useMemo } from "react";
+import { useLBGuideGate } from "@/hooks/useLBGuideGate";
+import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 
 interface OutboundLinkProps
   extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "target" | "rel"> {
@@ -14,6 +20,8 @@ interface OutboundLinkProps
   sn?: string;
   /** Category */
   c?: string;
+  /** Item name */
+  n?: string;
   /** Market code (defaults to 'GB') */
   mkt?: string;
   children: ReactNode;
@@ -32,6 +40,7 @@ export function OutboundLink({
   sid,
   sn,
   c,
+  n,
   mkt = "GB",
   children,
   onClick,
@@ -40,20 +49,26 @@ export function OutboundLink({
   // Defensive rewrite: any stray littlebiggy.net links in legacy R2 data
   // should resolve to littlebiggy.org (the canonical domain). R2 aggregates
   // are patched too, but this keeps the frontend safe in case anything slips through.
-  const normalizedHref = href.includes("littlebiggy.net")
-    ? href.replace(/littlebiggy\.net/g, "littlebiggy.org")
-    : href;
+  const normalizedHref = normalizeLittleBiggyUrl(href);
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    trackOutboundClick({
+  const outboundEvent = useMemo(
+    () => ({
       id,
       url: normalizedHref,
+      n,
       sid,
       sn,
       c,
       mkt,
-    });
+    }),
+    [c, id, mkt, n, normalizedHref, sid, sn],
+  );
+  const guideClick = useLBGuideGate(outboundEvent);
+
+  const handleClick = (e: ReactMouseEvent<HTMLAnchorElement>) => {
     onClick?.(e);
+    if (e.defaultPrevented) return;
+    guideClick(e);
   };
 
   return (

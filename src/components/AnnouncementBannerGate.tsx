@@ -20,6 +20,7 @@ export function AnnouncementBannerGate({ locale }: { locale: string }) {
       severity={cfg.severity}
       href={cfg.href}
       ctaLabel={cfg.ctaLabel}
+      targetHostnames={cfg.targetHostnames}
     />
   );
 }

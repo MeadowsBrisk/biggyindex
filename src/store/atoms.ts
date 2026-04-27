@@ -16,6 +16,7 @@ import {
   buildBrowseSnapshot,
 } from "@/lib/browse/filter-engine";
 import { buildItemIndex } from "@/lib/browse/item-index";
+import type { OutboundEvent } from "@/lib/tracking/outbound";
 import type {
   HomeFeedReview,
   Item,
@@ -114,6 +115,20 @@ export const darkModeAtom = atomWithStorage<boolean>(
 // ─── Settings ───────────────────────────────────────────────────
 
 export const settingsModalOpenAtom = atom<boolean>(false);
+
+export interface LbGuidePendingLink {
+  url: string;
+  event: Omit<OutboundEvent, "ts">;
+}
+
+export const lbGuideSeenAtom = atomWithStorage<boolean>(
+  "lbGuideSeen",
+  false,
+  undefined,
+  readStorageOnClientInit,
+);
+export const lbGuideModalOpenAtom = atom<boolean>(false);
+export const lbGuidePendingLinkAtom = atom<LbGuidePendingLink | null>(null);
 
 /** Mobile menu open state */
 export const mobileMenuOpenAtom = atom<boolean>(false);

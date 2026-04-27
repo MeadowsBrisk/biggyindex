@@ -70,6 +70,12 @@
     "topSellers": "Nejprodávanější knihy",
     "communityReviews": "Recenze komunity",
     "viewAll": "Zobrazit vše",
+    "embassy": {
+      "badge": "Potřebujete pomoc?",
+      "title": "Little Biggy ambasáda",
+      "subtitle": "Jste v Little Biggy noví? Ambasáda je komunitní příspěvek, kde můžete pokládat otázky a získat pomoc ve svém jazyce.",
+      "cta": "Navštívit ambasádu"
+    },
     "photoReviewModal": {
       "time": {
         "justNow": "Právě teď",
@@ -329,6 +335,35 @@
         "daysAgo": "{count}d",
         "monthsAgo": "{count}mo"
       }
+    }
+  },
+  "lbGuide": {
+    "title": "Než přejdete na Little Biggy...",
+    "subtitle": "Rychlé tipy, které vám pomohou začít na tržišti.",
+    "close": "Zavřít",
+    "steps": {
+      "country": {
+        "title": "1. Vyberte svou zemi",
+        "text": "Little Biggy potřebuje vědět, kde jste, než zobrazí možnosti produktů. Nejprve vyberte svou zemi — uloží cookie, takže to stačí udělat jen jednou."
+      },
+      "buy": {
+        "title": "2. Procházejte a nakupujte",
+        "text": "Jakmile je vaše země nastavena, každý produkt zobrazí tlačítko nákupu vedle každé varianty. Klepněte na něj a položka jde přímo do košíku."
+      },
+      "account": {
+        "title": "3. Vytvořte si účet",
+        "text": "Můžete dokončit nákup bez účtu, ale registrace se doporučuje. Stačí kliknout na \"Login\" a potom \"Register\" — není potřeba e-mail, jen uživatelské jméno a heslo."
+      },
+      "checkout": {
+        "title": "4. Zaplaťte Bitcoinem",
+        "text": "Little Biggy přijímá pouze Bitcoin. Při placení uvidíte částku a adresu peněženky, kam poslat platbu."
+      }
+    },
+    "continueBtn": "Rozumím — přejít na Little Biggy",
+    "dontShowAgain": "Znovu nezobrazovat",
+    "guideLink": {
+      "title": "Navštívit ambasádu",
+      "text": "Potřebujete pomoc? Ptejte se a získejte odpovědi ve svém jazyce."
     }
   },
   "browse": {

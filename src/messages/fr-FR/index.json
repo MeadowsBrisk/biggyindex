@@ -70,6 +70,12 @@
     "topSellers": "Meilleures ventes",
     "communityReviews": "Avis de la communauté",
     "viewAll": "Voir tout",
+    "embassy": {
+      "badge": "Besoin d'aide ?",
+      "title": "Ambassade Little Biggy",
+      "subtitle": "Nouveau sur Little Biggy ? L'ambassade est un post communautaire où tu peux poser tes questions et obtenir de l'aide en français.",
+      "cta": "Visiter l'ambassade"
+    },
     "photoReviewModal": {
       "time": {
         "justNow": "À l’instant",
@@ -329,6 +335,35 @@
         "daysAgo": "Il y a {count}d",
         "monthsAgo": "Il y a {count}mo"
       }
+    }
+  },
+  "lbGuide": {
+    "title": "Avant d'aller sur Little Biggy...",
+    "subtitle": "Quelques conseils pour bien démarrer sur la marketplace.",
+    "close": "Fermer",
+    "steps": {
+      "country": {
+        "title": "1. Choisis ton pays",
+        "text": "Little Biggy a besoin de savoir où tu es avant d'afficher les options de produits. Sélectionne d'abord ton pays — un cookie est enregistré pour ne le faire qu'une seule fois."
+      },
+      "buy": {
+        "title": "2. Parcourir et acheter",
+        "text": "Une fois ton pays défini, chaque produit affiche un bouton d'achat à côté de chaque variante. Appuie dessus et il va directement dans ton panier."
+      },
+      "account": {
+        "title": "3. Créer un compte",
+        "text": "Tu peux payer sans compte, mais l'inscription est recommandée. Clique sur \"Login\" puis \"Register\" — pas besoin d'e-mail, juste un nom d'utilisateur et un mot de passe."
+      },
+      "checkout": {
+        "title": "4. Payer en Bitcoin",
+        "text": "Little Biggy n'accepte que le Bitcoin. Au moment du paiement, tu verras un montant et une adresse de portefeuille."
+      }
+    },
+    "continueBtn": "Compris — aller sur Little Biggy",
+    "dontShowAgain": "Ne plus afficher",
+    "guideLink": {
+      "title": "Visiter l'ambassade",
+      "text": "Besoin d'aide ? Pose tes questions et obtiens des réponses en français."
     }
   },
   "browse": {

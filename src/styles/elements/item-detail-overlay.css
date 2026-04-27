@@ -959,8 +959,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem
-      max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+    padding: 0.5rem 0.75rem max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
     background: color-mix(in srgb, var(--background) 92%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -985,7 +984,9 @@
     color: var(--muted);
     background: transparent;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition:
+      background 0.15s,
+      color 0.15s;
   }
 
   .ido-mobile-actions__nav-btn + .ido-mobile-actions__nav-btn {

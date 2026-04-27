@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   basketOpenAtom,
   expandedRefNumAtom,
+  lbGuideModalOpenAtom,
   photoReviewModalAtom,
   sellerModalIdAtom,
   settingsModalOpenAtom,
@@ -42,6 +43,11 @@ const SellerModal = dynamic(
   { ssr: false, loading: () => null },
 );
 
+const LBGuideModal = dynamic(
+  () => import("@/components/LBGuideModal").then((mod) => mod.LBGuideModal),
+  { ssr: false, loading: () => null },
+);
+
 function useHasOpened(isOpen: boolean) {
   const [hasOpened, setHasOpened] = useState(isOpen);
 
@@ -58,12 +64,14 @@ export function ModalHost() {
   const basketOpen = useAtomValue(basketOpenAtom);
   const settingsOpen = useAtomValue(settingsModalOpenAtom);
   const sellerId = useAtomValue(sellerModalIdAtom);
+  const lbGuideOpen = useAtomValue(lbGuideModalOpenAtom);
 
   const itemHasOpened = useHasOpened(itemRefNum != null);
   const photoReviewHasOpened = useHasOpened(photoReview != null);
   const basketHasOpened = useHasOpened(basketOpen);
   const settingsHasOpened = useHasOpened(settingsOpen);
   const sellerHasOpened = useHasOpened(sellerId != null);
+  const lbGuideHasOpened = useHasOpened(lbGuideOpen);
 
   return (
     <>
@@ -72,6 +80,7 @@ export function ModalHost() {
       {basketHasOpened && <Basket />}
       {settingsHasOpened && <SettingsModal />}
       {sellerHasOpened && <SellerModal />}
+      {lbGuideHasOpened && <LBGuideModal />}
     </>
   );
 }

@@ -70,6 +70,12 @@
     "topSellers": "Mais Vendidos",
     "communityReviews": "Avaliações da Comunidade",
     "viewAll": "Ver tudo",
+    "embassy": {
+      "badge": "Precisas de ajuda?",
+      "title": "Embaixada Little Biggy",
+      "subtitle": "Novo no Little Biggy? A embaixada é um post da comunidade onde podes fazer perguntas e receber ajuda em português.",
+      "cta": "Visitar a embaixada"
+    },
     "photoReviewModal": {
       "time": {
         "justNow": "Agora mesmo",
@@ -329,6 +335,35 @@
         "daysAgo": "{count}d atrás",
         "monthsAgo": "{count}mo atrás"
       }
+    }
+  },
+  "lbGuide": {
+    "title": "Antes de ir para o Little Biggy...",
+    "subtitle": "Dicas rápidas para começar no marketplace.",
+    "close": "Fechar",
+    "steps": {
+      "country": {
+        "title": "1. Escolha o seu país",
+        "text": "O Little Biggy precisa de saber onde está antes de mostrar as opções de produto. Selecione primeiro o seu país — é guardado um cookie para que só precise de fazer isto uma vez."
+      },
+      "buy": {
+        "title": "2. Explorar e comprar",
+        "text": "Depois de definir o seu país, cada produto mostra um botão de compra junto a cada variante. Toque nele e vai diretamente para o seu carrinho."
+      },
+      "account": {
+        "title": "3. Criar uma conta",
+        "text": "Pode pagar sem conta, mas registar-se é recomendado. Clique em \"Login\" e depois \"Register\" — não precisa de e-mail, apenas nome de utilizador e palavra-passe."
+      },
+      "checkout": {
+        "title": "4. Pagar com Bitcoin",
+        "text": "O Little Biggy aceita apenas Bitcoin. No checkout verá um montante e um endereço de carteira para enviar o pagamento."
+      }
+    },
+    "continueBtn": "Entendido — ir para o Little Biggy",
+    "dontShowAgain": "Não mostrar novamente",
+    "guideLink": {
+      "title": "Visitar a embaixada",
+      "text": "Precisas de ajuda? Faz as tuas perguntas e obtém respostas em português."
     }
   },
   "browse": {

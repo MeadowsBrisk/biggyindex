@@ -28,6 +28,13 @@ interface AnnouncementBannerProps {
   severity?: AnnouncementSeverity;
   href?: string;
   ctaLabel?: string;
+  targetHostnames?: string[];
+}
+
+function matchesCurrentHost(targetHostnames?: string[]): boolean {
+  if (!targetHostnames?.length) return true;
+  const hostname = window.location.hostname.toLowerCase();
+  return targetHostnames.some((host) => host.toLowerCase() === hostname);
 }
 
 export function AnnouncementBanner({
@@ -36,6 +43,7 @@ export function AnnouncementBanner({
   severity = "info",
   href,
   ctaLabel,
+  targetHostnames,
 }: AnnouncementBannerProps) {
   const [dismissals, setDismissals] = useAtom(announcementBannerDismissalsAtom);
   const [mounted, setMounted] = useState(false);
@@ -46,6 +54,7 @@ export function AnnouncementBanner({
   }, []);
 
   if (!mounted || !id || !message) return null;
+  if (!matchesCurrentHost(targetHostnames)) return null;
   const isDismissed =
     dismissals && typeof dismissals === "object" && dismissals[id];
   if (isDismissed && !isClosing) return null;
@@ -79,7 +88,7 @@ export function AnnouncementBanner({
             <div className="flex-1 flex items-center justify-center gap-2 text-center sm:text-left sm:flex-none">
               <p className="font-medium">
                 {message.split("{{mbr}}").map((part, i, arr) => (
-                  <Fragment key={`${id}-${i}`}>
+                  <Fragment key={`${id}-${part}`}>
                     {part}
                     {i < arr.length - 1 && <br className="sm:hidden" />}
                   </Fragment>

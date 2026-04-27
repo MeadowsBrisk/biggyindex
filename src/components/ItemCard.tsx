@@ -19,6 +19,7 @@ import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useAddToast } from "@/components/Toast";
 import { Tooltip } from "@/components/Tooltip";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
+import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { getItemBrowseMeta, type ItemIndex } from "@/lib/browse/item-index";
 import { MARKETS } from "@/lib/constants";
 import { decodeEntities } from "@/lib/format";
@@ -29,7 +30,7 @@ import {
   isItemPrimaryAnimated,
 } from "@/lib/images";
 import { formatShipFrom, shipFromCode } from "@/lib/shipFrom";
-import { trackOutboundClick } from "@/lib/tracking/outbound";
+import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, Seller } from "@/lib/types";
 import {
   cheapestPpu,
@@ -280,33 +281,37 @@ function ItemCardInner({
   );
   const itemKey = itemMeta.bookmarkKey;
   const littleBiggyUrl = useMemo(
-    () => item.sl?.replace("littlebiggy.net", "littlebiggy.org") ?? null,
+    () => (item.sl ? normalizeLittleBiggyUrl(item.sl) : null),
     [item.sl],
   );
-  const trackLittleBiggyClick = useCallback(
+  const littleBiggyEvent = useMemo(() => {
+    if (!littleBiggyUrl) return null;
+    return {
+      id: String(item.refNum ?? item.id),
+      url: littleBiggyUrl,
+      n: decodeEntities(item.n),
+      sid: item.sid != null ? String(item.sid) : undefined,
+      sn: item.sn ?? undefined,
+      c: item.c ?? undefined,
+      mkt: currentMarket,
+    };
+  }, [
+    currentMarket,
+    item.c,
+    item.id,
+    item.n,
+    item.refNum,
+    item.sid,
+    item.sn,
+    littleBiggyUrl,
+  ]);
+  const gateLittleBiggyClick = useLBGuideGate(littleBiggyEvent);
+  const handleLittleBiggyClick = useCallback(
     (event: ReactMouseEvent<HTMLAnchorElement>) => {
       event.stopPropagation();
-      if (!littleBiggyUrl) return;
-      trackOutboundClick({
-        id: String(item.refNum ?? item.id),
-        url: littleBiggyUrl,
-        n: decodeEntities(item.n),
-        sid: item.sid != null ? String(item.sid) : undefined,
-        sn: item.sn ?? undefined,
-        c: item.c ?? undefined,
-        mkt: currentMarket,
-      });
+      gateLittleBiggyClick(event);
     },
-    [
-      currentMarket,
-      item.c,
-      item.id,
-      item.n,
-      item.refNum,
-      item.sid,
-      item.sn,
-      littleBiggyUrl,
-    ],
+    [gateLittleBiggyClick],
   );
 
   // Zoom preview signal — increment to open (lazy-loaded on first click)
@@ -824,7 +829,7 @@ function ItemCardInner({
               href={littleBiggyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={trackLittleBiggyClick}
+              onClick={handleLittleBiggyClick}
               aria-label={t("viewOnLittleBiggy", {
                 item: decodeEntities(item.n),
               })}

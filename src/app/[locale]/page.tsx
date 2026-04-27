@@ -1,6 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { CommunityReviews } from "@/components/home/CommunityReviews";
+import { EmbassySection } from "@/components/home/EmbassySection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { QuickStartGuide } from "@/components/home/QuickStartGuide";
@@ -10,9 +11,10 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { loadHomeFeed } from "@/lib/data";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { localeToMarket } from "@/lib/market/market";
+import type { HomeFeedItemCard } from "@/lib/types";
 
 /** Map a pre-shaped item card to the WhatsNewSection's NewItem shape */
-function toNewItem(item: any, dateField: "fsa" | "lua") {
+function toNewItem(item: HomeFeedItemCard, dateField: "fsa" | "lua") {
   const gallery = getItemGalleryImages(item, "thumb", { forceStatic: true });
   return {
     id: item.id,
@@ -98,6 +100,10 @@ export default async function HomePage({
 
       <Suspense>
         <QuickStartGuide />
+      </Suspense>
+
+      <Suspense>
+        <EmbassySection />
       </Suspense>
 
       <Suspense>

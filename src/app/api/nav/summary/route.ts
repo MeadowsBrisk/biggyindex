@@ -7,6 +7,8 @@ import {
 } from "@/lib/r2-server";
 import type { OutboundEvent } from "@/lib/tracking/outbound";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/nav/summary
  *

@@ -16,6 +16,13 @@ export type MarketCode =
   | "GR"
   | "CZ";
 
+const GB_HOSTS = new Set([
+  "biggyindex.com",
+  "www.biggyindex.com",
+  "lbindex.vip",
+  "www.lbindex.vip",
+]);
+
 /** Derive market from hostname (subdomain detection). */
 export function getMarketFromHost(
   hostname: string | undefined | null,
@@ -27,7 +34,7 @@ export function getMarketFromHost(
   if (!h) return "GB";
 
   // Apex or www → GB
-  if (h === "biggyindex.com" || h === "www.biggyindex.com") return "GB";
+  if (GB_HOSTS.has(h)) return "GB";
 
   // Subdomains
   if (h.endsWith(".biggyindex.com")) {
@@ -64,11 +71,7 @@ export function isHostBasedEnv(hostname?: string | null): boolean {
   ).toLowerCase();
 
   if (!h || h === "localhost" || h.startsWith("localhost:")) return false;
-  return (
-    h === "biggyindex.com" ||
-    h === "www.biggyindex.com" ||
-    h.endsWith(".biggyindex.com")
-  );
+  return GB_HOSTS.has(h) || h.endsWith(".biggyindex.com");
 }
 
 /** Map BCP 47 locale → market code. */

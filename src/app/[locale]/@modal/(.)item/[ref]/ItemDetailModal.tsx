@@ -7,20 +7,40 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
+import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage } from "@/lib/images";
-import { itemsAtom } from "@/store/atoms";
+import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import { itemsAtom, marketAtom } from "@/store/atoms";
 
 export function ItemDetailModal({ refNum }: { refNum: string }) {
   const t = useTranslations("item.legacyModal");
   const router = useRouter();
   const items = useAtomValue(itemsAtom);
+  const market = useAtomValue(marketAtom);
 
   const item = useMemo(
     () =>
       items.find((i) => String(i.refNum) === refNum || String(i.id) === refNum),
     [items, refNum],
   );
+  const littleBiggyUrl = useMemo(
+    () => (item?.sl ? normalizeLittleBiggyUrl(item.sl) : null),
+    [item?.sl],
+  );
+  const littleBiggyEvent = useMemo(() => {
+    if (!item || !littleBiggyUrl) return null;
+    return {
+      id: String(item.refNum ?? item.id),
+      url: littleBiggyUrl,
+      n: decodeEntities(item.n),
+      sid: item.sid != null ? String(item.sid) : undefined,
+      sn: item.sn ?? undefined,
+      c: item.c ?? undefined,
+      mkt: market,
+    };
+  }, [item, littleBiggyUrl, market]);
+  const handleLittleBiggyClick = useLBGuideGate(littleBiggyEvent);
 
   // Close on Escape
   useEffect(() => {
@@ -235,11 +255,12 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
 
           {/* Action links */}
           <div className="flex items-center gap-3 border-t border-border pt-4">
-            {item.sl && (
+            {littleBiggyUrl && (
               <a
-                href={item.sl}
+                href={littleBiggyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleLittleBiggyClick}
                 className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
               >
                 <ExternalLink size={14} />

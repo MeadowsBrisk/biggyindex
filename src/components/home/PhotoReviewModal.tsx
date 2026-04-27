@@ -26,11 +26,15 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
+import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { cx } from "@/lib/cn";
+import { decodeEntities } from "@/lib/format";
+import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import {
   expandedRefNumAtom,
   focusReviewIdAtom,
   itemsAtom,
+  marketAtom,
   photoReviewModalAtom,
 } from "@/store/atoms";
 
@@ -87,6 +91,7 @@ export function PhotoReviewModal() {
   const setExpandedRefNum = useSetAtom(expandedRefNumAtom);
   const setFocusReviewId = useSetAtom(focusReviewIdAtom);
   const items = useAtomValue(itemsAtom);
+  const market = useAtomValue(marketAtom);
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [zoomIndex, setZoomIndex] = useState(0);
   const isOpen = review != null;
@@ -95,11 +100,28 @@ export function PhotoReviewModal() {
   // the review payload itself (home-feed reviews are intentionally slim), and
   // we can't guess the URL pattern, so we fall back to no "View on LB" link
   // when the item isn't in the client's items list for any reason.
-  const shareLink = useMemo(() => {
+  const shareItem = useMemo(() => {
     if (!review?.refNum) return null;
-    const it = items.find((i) => i.refNum === review.refNum);
-    return it?.sl ?? null;
+    return items.find((i) => i.refNum === review.refNum) ?? null;
   }, [items, review?.refNum]);
+
+  const shareLink = useMemo(
+    () => (shareItem?.sl ? normalizeLittleBiggyUrl(shareItem.sl) : null),
+    [shareItem?.sl],
+  );
+  const outboundEvent = useMemo(() => {
+    if (!shareItem || !shareLink) return null;
+    return {
+      id: String(shareItem.refNum ?? shareItem.id),
+      url: shareLink,
+      n: decodeEntities(shareItem.n),
+      sid: shareItem.sid != null ? String(shareItem.sid) : undefined,
+      sn: shareItem.sn ?? undefined,
+      c: shareItem.c ?? undefined,
+      mkt: market,
+    };
+  }, [market, shareItem, shareLink]);
+  const handleLittleBiggyClick = useLBGuideGate(outboundEvent);
 
   const handleClose = () => setReview(null);
 
@@ -329,6 +351,7 @@ export function PhotoReviewModal() {
                     href={shareLink}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={handleLittleBiggyClick}
                     className="prm-ghost-btn"
                   >
                     <span>{t("viewOnLittleBiggy")}</span>

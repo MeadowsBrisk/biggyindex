@@ -15,6 +15,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { LocalizedText } from "@/components/LocalizedText";
+import { OutboundLink } from "@/components/OutboundLink";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
 import { loadMergedDetail } from "@/lib/data";
@@ -376,10 +377,14 @@ async function ItemContent({ params }: ItemPageProps) {
             {/* CTA buttons */}
             <div className="flex flex-wrap gap-3 pt-2">
               {shareLink && (
-                <a
+                <OutboundLink
                   href={shareLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  id={String(item.refNum ?? item.id)}
+                  n={name}
+                  sid={item.sid != null ? String(item.sid) : undefined}
+                  sn={item.sn ?? undefined}
+                  c={item.c ?? undefined}
+                  mkt={market}
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
                   {t("viewOnLittleBiggy")}
@@ -398,7 +403,7 @@ async function ItemContent({ params }: ItemPageProps) {
                     <polyline points="15 3 21 3 21 9" />
                     <line x1="10" y1="14" x2="21" y2="3" />
                   </svg>
-                </a>
+                </OutboundLink>
               )}
               <SuggestLink
                 refNum={ref}

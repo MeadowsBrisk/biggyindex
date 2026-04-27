@@ -42,6 +42,7 @@ import { SuggestLink } from "@/components/SuggestLink";
 import { useAddToast } from "@/components/Toast";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
+import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { cx } from "@/lib/cn";
 import {
   decodeEntities,
@@ -54,7 +55,7 @@ import {
   getItemPrimaryImage,
   getSellerImageUrl,
 } from "@/lib/images";
-import { trackOutboundClick } from "@/lib/tracking/outbound";
+import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, MergedDetailBlob } from "@/lib/types";
 import { parseVariant, pricePerUnit, UNIT_DISPLAY_LABEL } from "@/lib/variants";
 import {
@@ -593,25 +594,28 @@ export function ItemDetailOverlay() {
   // Treat as loading if refNum is set but neither source resolved yet (avoids flash of "not found")
   const isLoading = detailLoading || (!!refNum && !item && !mergedDetail);
   const littleBiggyUrl = useMemo(
-    () =>
-      displayItem?.sl?.replace("littlebiggy.net", "littlebiggy.org") ?? null,
-    [displayItem?.sl],
+    () => (displayItem?.sl ? normalizeLittleBiggyUrl(displayItem.sl) : null),
+    [displayItem],
   );
-  const trackLittleBiggyClick = useCallback(
+  const littleBiggyEvent = useMemo(() => {
+    if (!displayItem || !littleBiggyUrl) return null;
+    return {
+      id: String(displayItem.refNum ?? displayItem.id),
+      url: littleBiggyUrl,
+      n: decodeEntities(displayItem.n),
+      sid: displayItem.sid != null ? String(displayItem.sid) : undefined,
+      sn: displayItem.sn ?? undefined,
+      c: displayItem.c ?? undefined,
+      mkt: market,
+    };
+  }, [displayItem, littleBiggyUrl, market]);
+  const gateLittleBiggyClick = useLBGuideGate(littleBiggyEvent);
+  const handleLittleBiggyClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
       event.stopPropagation();
-      if (!displayItem || !littleBiggyUrl) return;
-      trackOutboundClick({
-        id: String(displayItem.refNum ?? displayItem.id),
-        url: littleBiggyUrl,
-        n: decodeEntities(displayItem.n),
-        sid: displayItem.sid != null ? String(displayItem.sid) : undefined,
-        sn: displayItem.sn ?? undefined,
-        c: displayItem.c ?? undefined,
-        mkt: market,
-      });
+      gateLittleBiggyClick(event);
     },
-    [displayItem, littleBiggyUrl, market],
+    [gateLittleBiggyClick],
   );
 
   // ── Gallery images ──
@@ -1572,7 +1576,7 @@ export function ItemDetailOverlay() {
                       href={littleBiggyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={trackLittleBiggyClick}
+                      onClick={handleLittleBiggyClick}
                       className="ido-mobile-actions__lb"
                     >
                       <span>{t("viewOnLittleBiggy")}</span>
@@ -1589,7 +1593,7 @@ export function ItemDetailOverlay() {
                     href={littleBiggyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={trackLittleBiggyClick}
+                    onClick={handleLittleBiggyClick}
                     className="ido-lb-btn"
                   >
                     <span className="ido-lb-btn__label">
