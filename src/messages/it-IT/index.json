@@ -856,6 +856,8 @@
       "highResDescription": "Usa immagini di prodotto a piena risoluzione. Usa più dati ma appare più nitido.",
       "pauseGifs": "Pausa le GIF",
       "pauseGifsDescription": "Mostra miniature statiche per immagini animate. Riduce le distrazioni e risparmia batteria.",
+      "skipGuides": "Skip help guides",
+      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
       "thumbnailShape": "Forma dell'unghia del pollice",
       "thumbnailDescription": "Cambia il rapporto di ritaglio delle immagini dei prodotti sulle carte.",
       "aspect": {

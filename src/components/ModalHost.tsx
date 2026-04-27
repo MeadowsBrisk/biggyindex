@@ -3,6 +3,8 @@
 import { useAtomValue } from "jotai";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { ItemDetailOverlay } from "@/components/ItemDetailOverlay";
+import { SellerModal } from "@/components/SellerModal";
 import {
   basketOpenAtom,
   expandedRefNumAtom,
@@ -11,14 +13,6 @@ import {
   sellerModalIdAtom,
   settingsModalOpenAtom,
 } from "@/store/atoms";
-
-const ItemDetailOverlay = dynamic(
-  () =>
-    import("@/components/ItemDetailOverlay").then(
-      (mod) => mod.ItemDetailOverlay,
-    ),
-  { ssr: false, loading: () => null },
-);
 
 const PhotoReviewModal = dynamic(
   () =>
@@ -35,11 +29,6 @@ const Basket = dynamic(
 
 const SettingsModal = dynamic(
   () => import("@/components/SettingsModal").then((mod) => mod.SettingsModal),
-  { ssr: false, loading: () => null },
-);
-
-const SellerModal = dynamic(
-  () => import("@/components/SellerModal").then((mod) => mod.SellerModal),
   { ssr: false, loading: () => null },
 );
 

@@ -856,6 +856,8 @@
       "highResDescription": "Χρησιμοποιήστε εικόνες προϊόντων πλήρους ανάλυσης. Χρησιμοποιεί περισσότερα δεδομένα, αλλά φαίνεται πιο ευκρινής.",
       "pauseGifs": "Παύση GIF",
       "pauseGifsDescription": "Εμφάνιση στατικών μικρογραφιών για κινούμενες εικόνες. Μειώνει την απόσπαση της προσοχής και εξοικονομεί μπαταρία.",
+      "skipGuides": "Skip help guides",
+      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
       "thumbnailShape": "Σχήμα μικρογραφίας",
       "thumbnailDescription": "Αλλάξτε την αναλογία περικοπής των εικόνων προϊόντων στις κάρτες.",
       "aspect": {

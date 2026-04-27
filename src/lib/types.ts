@@ -38,6 +38,14 @@ export interface ItemShipping {
 }
 
 /** v2 filterable attributes — per-category parsed attributes */
+export type ItemAttributeValue =
+  | string[]
+  | string
+  | number
+  | boolean
+  | null
+  | undefined;
+
 export interface ItemAttributes {
   /** Flower: effect (Indica, Sativa, Hybrid) */
   effect?: string[];
@@ -64,7 +72,7 @@ export interface ItemAttributes {
   /** Concentrates: process (BHO, Solventless, CO2, Pressed) */
   process?: string[];
   /** Catch-all for any additional parsed attributes */
-  [key: string]: string[] | undefined;
+  [key: string]: ItemAttributeValue;
 }
 
 /** Main item interface with minified keys */
@@ -158,7 +166,7 @@ export interface PriceSnapshot {
  */
 export interface MergedDetailBlob extends Item {
   /** Full item reviews from the crawler */
-  reviews?: any[];
+  reviews?: unknown[];
   /** Detailed shipping options (translated for non-GB) */
   shOpts?: { label: string; cost: number }[];
   /** English shipping options (fallback for non-GB) */

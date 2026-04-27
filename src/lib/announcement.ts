@@ -28,9 +28,9 @@ const BANNER: AnnouncementBannerConfig = {
   targetHostnames: ["lbindex.vip", "www.lbindex.vip"],
   messageByLocale: {
     "en-GB":
-      "You're on BiggyIndex's temporary launch domain. {{mbr}}We'll move back to biggyindex.com soon; lbindex.vip will redirect there after the switchover.",
+      "This domain is temporarily being used for testing v2. {{mbr}}biggyindex.com with more up to date data can still be used.",
   },
-};
+}; 
 
 /** Return the current banner config, or null when inactive. */
 export function getAnnouncementBanner(): AnnouncementBannerConfig | null {

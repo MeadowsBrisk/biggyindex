@@ -24,7 +24,14 @@ export async function POST(request: NextRequest) {
     payload = {};
   }
 
-  const secret = request.headers.get("x-revalidation-secret") ?? payload.secret;
+  const authHeader = request.headers.get("authorization");
+  const bearerSecret = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : undefined;
+  const secret =
+    request.headers.get("x-revalidation-secret") ??
+    bearerSecret ??
+    payload.secret;
   const expectedSecret = process.env.REVALIDATION_SECRET;
 
   if (!expectedSecret || secret !== expectedSecret) {
@@ -63,5 +70,10 @@ export async function POST(request: NextRequest) {
     revalidateTag(tag, tagProfiles[tag] || "config");
   }
 
-  return NextResponse.json({ revalidated: true, tags, now: Date.now() });
+  return NextResponse.json({
+    revalidated: true,
+    tags,
+    now: Date.now(),
+    timestamp: new Date().toISOString(),
+  });
 }

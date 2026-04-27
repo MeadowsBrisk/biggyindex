@@ -114,6 +114,12 @@ const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string }[]> = {
   Edibles: [{ key: "dietary" }, { key: "strength" }],
 };
 
+function scrollResultsToTop() {
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
 export function FilterPanelContent({
   onClose,
   onReady,
@@ -182,7 +188,7 @@ export function FilterPanelContent({
     (cat: string) => {
       setCategory(cat);
       setSubcategory([]);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollResultsToTop();
     },
     [setCategory, setSubcategory],
   );
@@ -194,7 +200,7 @@ export function FilterPanelContent({
           ? prev.filter((subcategory) => subcategory !== name)
           : [...prev, name],
       );
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollResultsToTop();
     },
     [setSubcategory],
   );
@@ -206,7 +212,7 @@ export function FilterPanelContent({
           ? prev.filter((sellerId) => sellerId !== id)
           : [...prev, id],
       );
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollResultsToTop();
     },
     [setSelectedSellers],
   );
@@ -225,6 +231,7 @@ export function FilterPanelContent({
       } else {
         setShipInclude((prev) => [...prev, value]);
       }
+      scrollResultsToTop();
     },
     [shipInclude, shipExclude, setShipInclude, setShipExclude],
   );
@@ -236,6 +243,7 @@ export function FilterPanelContent({
           ? prev.filter((weight) => weight !== grams)
           : [...prev, grams],
       );
+      scrollResultsToTop();
     },
     [setSelectedWeights],
   );
@@ -249,6 +257,7 @@ export function FilterPanelContent({
           : [...current, value];
         return { ...prev, [key]: next };
       });
+      scrollResultsToTop();
     },
     [setAttrFilters],
   );
@@ -281,7 +290,10 @@ export function FilterPanelContent({
           </span>
           <button
             type="button"
-            onClick={() => clearFilters()}
+            onClick={() => {
+              clearFilters();
+              scrollResultsToTop();
+            }}
             className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
             title={t("clearAllTitle")}
           >
@@ -450,6 +462,7 @@ export function FilterPanelContent({
                         );
                         setShipExclude((prev) => [...prev, shipFrom.value]);
                       }
+                      scrollResultsToTop();
                     }}
                     title={t("shipFromHelp")}
                     className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
@@ -505,7 +518,7 @@ export function FilterPanelContent({
           defaultOpen={false}
           storageKey="price"
         >
-          <PriceRangeSlider />
+          <PriceRangeSlider onFilterChange={scrollResultsToTop} />
         </Section>
 
         {visibleSellers.length > 0 && (

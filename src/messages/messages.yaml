@@ -5563,6 +5563,8 @@ settings:
       es-ES: Muestra miniaturas estáticas para imágenes animadas. Reduce la distracción y ahorra batería.
       el-GR: Εμφάνιση στατικών μικρογραφιών για κινούμενες εικόνες. Μειώνει την απόσπαση της προσοχής και εξοικονομεί μπαταρία.
       cs-CZ: Zobrazit statické náhledy animovaných obrázků. Snižuje rušivé vlivy a šetří baterii.
+    skipGuides: Skip help guides
+    skipGuidesDesc: Hide the quick tips shown before opening Little Biggy. Switch off to see them again.
     thumbnailShape:
       en-GB: Thumbnail shape
       de-DE: Daumennagelform

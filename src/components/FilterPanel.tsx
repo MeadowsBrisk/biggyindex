@@ -2,16 +2,10 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SlidersHorizontal } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import { FilterPanelContent } from "@/components/FilterPanelContent";
 import {
   activeFiltersCountAtom,
   filterPanelOpenAtom,
@@ -22,17 +16,7 @@ import {
 const PANEL_WIDTH = 280;
 const CLOSE_TRANSITION_MS = 300;
 
-const FilterPanelContent = dynamic(
-  () =>
-    import("@/components/FilterPanelContent").then(
-      (mod) => mod.FilterPanelContent,
-    ),
-  { ssr: false, loading: () => null },
-);
-
 const emptySubscribe = () => () => {};
-const useBrowserLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function useDelayedUnmount(isOpen: boolean, delayMs: number) {
   const [shouldRender, setShouldRender] = useState(isOpen);
@@ -97,7 +81,6 @@ export function FilterToggle() {
 export function FilterPanel() {
   const [open, setOpen] = useAtom(filterPanelOpenAtom);
   const [isMobile, setIsMobile] = useState(false);
-  const [contentReady, setContentReady] = useState(false);
   const gateComplete = useAtomValue(gateCompleteAtom);
   const setFilterPanelSettled = useSetAtom(filterPanelSettledAtom);
   const t = useTranslations("browse.filters");
@@ -113,18 +96,28 @@ export function FilterPanel() {
     transitionReady ? CLOSE_TRANSITION_MS : 0,
   );
 
-  useBrowserLayoutEffect(() => {
-    setFilterPanelSettled(false);
-    return () => setFilterPanelSettled(true);
-  }, [setFilterPanelSettled]);
-
   useEffect(() => {
     if (!mounted) return;
-    if (panelOpen && !contentReady) return;
 
-    const id = window.requestAnimationFrame(() => setFilterPanelSettled(true));
-    return () => window.cancelAnimationFrame(id);
-  }, [mounted, panelOpen, contentReady, setFilterPanelSettled]);
+    const settleDelay =
+      panelOpen || shouldRenderContent
+        ? transitionReady
+          ? CLOSE_TRANSITION_MS
+          : 0
+        : 0;
+    setFilterPanelSettled(false);
+    const id = window.setTimeout(
+      () => setFilterPanelSettled(true),
+      settleDelay,
+    );
+    return () => window.clearTimeout(id);
+  }, [
+    mounted,
+    panelOpen,
+    shouldRenderContent,
+    transitionReady,
+    setFilterPanelSettled,
+  ]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -159,10 +152,6 @@ export function FilterPanel() {
     setOpen(false);
   }, [setOpen]);
 
-  const markContentReady = useCallback(() => {
-    setContentReady(true);
-  }, []);
-
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === "Escape" && panelOpen) closePanel();
@@ -190,10 +179,15 @@ export function FilterPanel() {
           }}
         >
           {(panelOpen || shouldRenderContent) && (
-            <FilterPanelContent
-              onClose={() => setOpen(false)}
-              onReady={markContentReady}
-            />
+            <div
+              className={`h-full transition-[opacity,transform] duration-200 ease-out ${
+                panelOpen
+                  ? "translate-x-0 opacity-100"
+                  : "-translate-x-1 opacity-0"
+              }`}
+            >
+              <FilterPanelContent onClose={() => setOpen(false)} />
+            </div>
           )}
         </div>
       </aside>
@@ -219,10 +213,13 @@ export function FilterPanel() {
               } ${panelOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
               {(panelOpen || shouldRenderContent) && (
-                <FilterPanelContent
-                  onClose={closePanel}
-                  onReady={markContentReady}
-                />
+                <div
+                  className={`h-full transition-opacity duration-200 ease-out ${
+                    panelOpen ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <FilterPanelContent onClose={closePanel} />
+                </div>
               )}
             </aside>
           </>,

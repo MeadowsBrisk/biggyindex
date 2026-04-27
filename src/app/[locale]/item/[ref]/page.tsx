@@ -54,6 +54,62 @@ function ratingBg(r: number): string {
   return "bg-emerald-500/10 border-emerald-500/20";
 }
 
+type AttributeScalar = string | number | boolean;
+
+interface DetailReviewSegment {
+  type?: string;
+  value?: string;
+}
+
+interface DetailReview {
+  id?: string | number;
+  created?: number | null;
+  rating: number;
+  daysToArrive?: number | null;
+  segments?: DetailReviewSegment[];
+}
+
+function isDetailReview(value: unknown): value is DetailReview {
+  if (!value || typeof value !== "object") return false;
+  const review = value as Record<string, unknown>;
+  return typeof review.rating === "number";
+}
+
+function attributeLabel(key: string): string {
+  if (key === "mg") return "Potency";
+  if (key === "mlSize") return "Size";
+  return key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (char) => char.toUpperCase());
+}
+
+function attributeValue(key: string, value: AttributeScalar): string {
+  if (key === "mg") return `${value} mg`;
+  if (key === "mlSize") return `${value} ml`;
+  if (value === true) return "Yes";
+  if (value === false) return "No";
+  return String(value);
+}
+
+function attributeRows(
+  attrs: MergedDetailBlob["at"],
+): Array<{ key: string; label: string; values: string[] }> {
+  if (!attrs) return [];
+
+  return Object.entries(attrs)
+    .map(([key, rawValue]) => {
+      const values = (Array.isArray(rawValue) ? rawValue : [rawValue])
+        .filter(
+          (value): value is AttributeScalar =>
+            value != null && value !== false && value !== "",
+        )
+        .map((value) => attributeValue(key, value));
+
+      return { key, label: attributeLabel(key), values };
+    })
+    .filter((row) => row.values.length > 0);
+}
+
 /* ── Page content ── */
 
 async function ItemContent({ params }: ItemPageProps) {
@@ -102,10 +158,13 @@ async function ItemContent({ params }: ItemPageProps) {
   const additionalImages = getItemGalleryImages(item, "thumb", {
     forceStatic: true,
   }).slice(1, 5);
-  const reviews = (item as MergedDetailBlob).reviews ?? [];
+  const reviews = ((item as MergedDetailBlob).reviews ?? []).filter(
+    isDetailReview,
+  );
   const priceHistory = (item as MergedDetailBlob).ph ?? [];
   const shipOptions = (item as MergedDetailBlob).shOpts ?? [];
   const shareLink = item.sl;
+  const attrs = attributeRows(item.at);
 
   // Compute PPG for variants
   const variantRows =
@@ -171,7 +230,7 @@ async function ItemContent({ params }: ItemPageProps) {
                     className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface border border-border"
                   >
                     <Image
-                      src={url!}
+                      src={url}
                       alt={t("imageAlt", { item: name, index: i + 2 })}
                       fill
                       className="object-cover"
@@ -276,20 +335,20 @@ async function ItemContent({ params }: ItemPageProps) {
             )}
 
             {/* Attributes */}
-            {item.at && Object.keys(item.at).length > 0 && (
+            {attrs.length > 0 && (
               <div className="space-y-1.5">
                 <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
                   {t("attributes")}
                 </h2>
                 <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(item.at).map(([key, vals]) =>
-                    vals?.map((v) => (
+                  {attrs.map(({ key, label, values }) =>
+                    values.map((value) => (
                       <span
-                        key={`${key}-${v}`}
+                        key={`${key}-${value}`}
                         className="rounded-full bg-surface border border-border px-2 py-0.5 text-xs text-muted"
                       >
-                        <span className="text-muted-foreground">{key}:</span>{" "}
-                        {v}
+                        <span className="text-muted-foreground">{label}:</span>{" "}
+                        {value}
                       </span>
                     )),
                   )}
@@ -357,9 +416,9 @@ async function ItemContent({ params }: ItemPageProps) {
                   {t("shipping")}
                 </h2>
                 <div className="space-y-1">
-                  {shipOptions.map((opt, i) => (
+                  {shipOptions.map((opt) => (
                     <div
-                      key={`${opt.label}-${opt.cost}-${i}`}
+                      key={`${opt.label}-${opt.cost}`}
                       className="flex justify-between rounded-md bg-surface px-3 py-1.5 text-sm"
                     >
                       <span className="text-foreground">{opt.label}</span>
@@ -476,7 +535,7 @@ async function ItemContent({ params }: ItemPageProps) {
               </span>
             </h2>
             <div className="space-y-3">
-              {reviews.slice(0, 20).map((r: any) => (
+              {reviews.slice(0, 20).map((r) => (
                 <div
                   key={r.id}
                   className={`rounded-lg border p-3 ${ratingBg(r.rating)}`}
@@ -508,9 +567,9 @@ async function ItemContent({ params }: ItemPageProps) {
                   {r.segments && (
                     <div className="text-sm text-muted-foreground leading-relaxed">
                       {r.segments
-                        .filter((s: any) => s.type === "text")
-                        .map((s: any, i: number) => (
-                          <span key={`${s.value}-${i}`}>
+                        .filter((s) => s.type === "text")
+                        .map((s) => (
+                          <span key={`${s.type}-${s.value}`}>
                             {decodeEntities(s.value)}{" "}
                           </span>
                         ))}

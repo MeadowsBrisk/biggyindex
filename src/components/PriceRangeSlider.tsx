@@ -16,7 +16,11 @@ import {
  * Internally filters on USD (storage unit).
  * Displays values in the user's chosen display currency.
  */
-export function PriceRangeSlider() {
+export function PriceRangeSlider({
+  onFilterChange,
+}: {
+  onFilterChange?: () => void;
+} = {}) {
   const [priceRange, setPriceRange] = useAtom(priceRangeAtom);
   const bounds = useAtomValue(priceBoundsAtom);
   const { symbol, rate } = useAtomValue(currencyDisplayAtom);
@@ -54,7 +58,10 @@ export function PriceRangeSlider() {
         {isActive && (
           <button
             type="button"
-            onClick={() => setPriceRange({ min: 0, max: Infinity })}
+            onClick={() => {
+              setPriceRange({ min: 0, max: Infinity });
+              onFilterChange?.();
+            }}
             className="p-0.5 rounded text-muted/40 hover:text-muted transition-colors cursor-pointer"
             title={t("reset")}
           >
@@ -68,8 +75,7 @@ export function PriceRangeSlider() {
         absMax={absMax}
         curMin={curMin}
         curMax={curMax}
-        symbol={symbol}
-        rate={rate}
+        onCommit={onFilterChange}
         onChange={(min, max) => {
           setPriceRange({
             min: min <= absMin ? 0 : min,
@@ -94,6 +100,7 @@ export function PriceRangeSlider() {
                   ? 0
                   : Math.min(usd, prev.max === Infinity ? absMax : prev.max),
             }));
+            onFilterChange?.();
           }}
         />
         <span className="text-muted">—</span>
@@ -108,6 +115,7 @@ export function PriceRangeSlider() {
               ...prev,
               max: usd >= absMax ? Infinity : Math.max(usd, prev.min),
             }));
+            onFilterChange?.();
           }}
         />
       </div>
@@ -122,17 +130,15 @@ function DualSlider({
   absMax,
   curMin,
   curMax,
-  symbol,
-  rate,
   onChange,
+  onCommit,
 }: {
   absMin: number;
   absMax: number;
   curMin: number;
   curMax: number;
-  symbol: string;
-  rate: number;
   onChange: (min: number, max: number) => void;
+  onCommit?: () => void;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("browse.priceRange");
@@ -140,8 +146,10 @@ function DualSlider({
   const pct = (val: number) =>
     absMax === absMin ? 0 : ((val - absMin) / (absMax - absMin)) * 100;
 
-  const valFromPct = (p: number) =>
-    Math.round(absMin + (p / 100) * (absMax - absMin));
+  const valFromPct = useCallback(
+    (p: number) => Math.round(absMin + (p / 100) * (absMax - absMin)),
+    [absMin, absMax],
+  );
 
   const getPointerPct = useCallback((e: React.PointerEvent | PointerEvent) => {
     const rect = trackRef.current?.getBoundingClientRect();
@@ -174,12 +182,13 @@ function DualSlider({
         onChange(curMin, Math.max(v, curMin));
       }
     },
-    [getPointerPct, onChange, curMin, curMax, absMin, absMax],
+    [getPointerPct, onChange, curMin, curMax, valFromPct],
   );
 
   const onPointerUp = useCallback(() => {
+    if (dragging.current) onCommit?.();
     dragging.current = null;
-  }, []);
+  }, [onCommit]);
 
   const leftPct = pct(curMin);
   const rightPct = pct(curMax);
