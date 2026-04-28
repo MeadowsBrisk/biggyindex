@@ -202,12 +202,18 @@ export function isAnimated(url: string | null | undefined): boolean {
 /**
  * Get optimised seller avatar URL.
  * Hashes the source URL to derive the CDN path (same FNV-1a as crawler).
+ * Defaults to the tiny avatar crop. GIF avatars use animated icon.webp.
  */
 export function getSellerImageUrl(
   sourceUrl: string | null | undefined,
-  size: ImageSize = "thumb",
+  size: ImageSize = "icon",
 ): string | undefined {
   if (!sourceUrl) return undefined;
   const hash = hashUrl(sourceUrl);
+  if (isAnimatedUrl(sourceUrl)) {
+    return `${CDN_PREFIX}/${hash}/${
+      size === "icon" ? "icon.webp" : "anim.webp"
+    }`;
+  }
   return getImageUrl(hash, sourceUrl, size);
 }

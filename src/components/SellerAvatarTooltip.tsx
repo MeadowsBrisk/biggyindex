@@ -126,9 +126,11 @@ export function SellerAvatarTooltip({
 
   const initial = sellerName.charAt(0).toUpperCase();
 
-  // Tooltip loads the 600px thumb version instead of the tiny icon
+  // Tooltip upgrades tiny avatar assets to the larger hover preview.
   const tooltipImgUrl =
-    imageUrl?.replace("/icon.avif", "/thumb.avif") ?? imageUrl;
+    imageUrl
+      ?.replace("/icon.avif", "/thumb.avif")
+      .replace("/icon.webp", "/anim.webp") ?? imageUrl;
 
   return (
     <>

@@ -335,6 +335,7 @@ export function SellerModal() {
   // Image from detail — optimized via CDN
   const rawImg = detail?.sellerImageUrl ?? detail?.imageUrl ?? null;
   const img = getSellerImageUrl(rawImg) ?? null;
+  const zoomImg = getSellerImageUrl(rawImg, "full") ?? img;
 
   // Share link (matches old-biggyindex: prefer share, fall back to sellerUrl)
   const shareLink = useMemo(() => {
@@ -499,7 +500,7 @@ export function SellerModal() {
                 {avatarZoomSignal != null && img && (
                   <Suspense fallback={null}>
                     <ImageZoomPreview
-                      imageUrl={img}
+                      imageUrl={zoomImg ?? img}
                       alt={name}
                       openSignal={avatarZoomSignal}
                     />
