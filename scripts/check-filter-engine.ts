@@ -264,6 +264,37 @@ assert.deepEqual(ids(buildBrowseResults(input({}, "ppg", "asc")).sortedItems), [
   "edible-a",
 ]);
 
+const ppgWeightItems: Item[] = [
+  {
+    id: "cheap-eighth-expensive-half",
+    n: "Cheap eighth, dear half",
+    c: "Flower",
+    uMin: 10,
+    uMax: 70,
+    v: [
+      { d: "3.5g", usd: 10 },
+      { d: "14g", usd: 70 },
+    ],
+  },
+  {
+    id: "fair-half",
+    n: "Fair half",
+    c: "Flower",
+    uMin: 55,
+    uMax: 55,
+    v: [{ d: "14g", usd: 55 }],
+  },
+];
+
+assert.deepEqual(
+  ids(
+    buildBrowseResults(
+      input({ selectedWeights: [14] }, "ppg", "asc", ppgWeightItems),
+    ).sortedItems,
+  ),
+  ["fair-half", "cheap-eighth-expensive-half"],
+);
+
 const edgeSnapshot = buildBrowseSnapshot(
   input({}, "hottest", "desc", edgeItems),
 );

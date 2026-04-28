@@ -1,5 +1,5 @@
 import type { ItemIndex } from "@/lib/browse/item-index";
-import { getItemBrowseMeta } from "@/lib/browse/item-index";
+import { bucketGrams, getItemBrowseMeta } from "@/lib/browse/item-index";
 import type { Item, SortDir, SortKey } from "@/lib/types";
 
 export interface BrowseFilters {
@@ -127,6 +127,7 @@ export function buildBrowseResults(input: BrowseSnapshotInput): BrowseResults {
       input.sortKey,
       input.sortDir,
       input.includeShipping,
+      input.filters.selectedWeights,
       input.itemIndex,
     ),
   };
@@ -229,8 +230,14 @@ function sortItems(
   sortKey: SortKey,
   sortDir: SortDir,
   includeShipping: boolean,
+  selectedWeights: number[],
   itemIndex?: ItemIndex,
 ): Item[] {
+  const selectedWeightBuckets =
+    sortKey === "ppg" && selectedWeights.length > 0
+      ? new Set(selectedWeights)
+      : null;
+
   return [...items].sort((first, second) => {
     let comparison = 0;
 
@@ -258,11 +265,13 @@ function sortItems(
           first,
           itemShipCost(first, includeShipping),
           itemIndex,
+          selectedWeightBuckets,
         );
         const secondPpg = cheapestPpg(
           second,
           itemShipCost(second, includeShipping),
           itemIndex,
+          selectedWeightBuckets,
         );
 
         if (firstPpg === Infinity && secondPpg === Infinity) {
@@ -287,12 +296,20 @@ function cheapestPpg(
   item: Item,
   shipCost: number,
   itemIndex?: ItemIndex,
+  selectedWeightBuckets?: Set<number> | null,
 ): number {
   const meta = getItemBrowseMeta(itemIndex, item);
   if (meta.ppgVariants.length === 0) return Infinity;
 
   let bestPrice = Infinity;
   for (const variant of meta.ppgVariants) {
+    if (
+      selectedWeightBuckets &&
+      !selectedWeightBuckets.has(bucketGrams(variant.grams))
+    ) {
+      continue;
+    }
+
     const pricePerGram = (variant.usd + shipCost) / variant.grams;
     if (pricePerGram < bestPrice) bestPrice = pricePerGram;
   }
