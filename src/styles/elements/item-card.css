@@ -703,8 +703,11 @@
 
 .seller-card__avatar {
   @apply flex items-center justify-center shrink-0 relative;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
+
+  /* width: 24px;
+  height: 24px; */
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;

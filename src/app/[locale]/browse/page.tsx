@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { DataLoader } from "@/components/DataLoader";
@@ -10,6 +11,12 @@ import { Toolbar } from "@/components/Toolbar";
 import { loadItems, loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { buildSeedItems } from "@/lib/seed";
+
+export const metadata: Metadata = {
+  title: "Browse Cannabis Listings, Prices & Seller Reviews - BiggyIndex",
+  description:
+    "Search and filter Little Biggy cannabis listings by category, price, seller, shipping, reviews, and market.",
+};
 
 export default async function BrowsePage({
   params,
