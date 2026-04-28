@@ -87,6 +87,8 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   pieces: "pc",
   cart: "cart",
   carts: "cart",
+  "vape cart": "cart",
+  "vape carts": "cart",
   cartridge: "cart",
   cartridges: "cart",
   pod: "pod",
@@ -245,6 +247,26 @@ const MULTIPACK_ML_RE =
 const COUNTED_ML_RE =
   /^(\d+)\s+(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\s*(?:carts?|cartridges?|vapes?)\b/i;
 
+/** "2 x vape carts gelato" / "7 x carts all flavours" → counted carts. */
+const COUNT_X_UNIT_RE = new RegExp(
+  `^(\\d+(?:\\.\\d+)?)\\s*(?:x|×)\\s*(${COUNT_UNIT_ALT})\\b`,
+  "i",
+);
+
+/** "1 whole box x10 gelato" → 10 carts in cart/vape context. */
+const BOX_X_COUNT_RE =
+  /^(?:\d+\s+)?(?:whole\s+|full\s+)?box\s*x\s*(\d+(?:\.\d+)?)(?:\s*(carts?|cartridges?|vapes?))?\b/i;
+
+/** "10 full box mango kush full box x 10 carts" → 10 carts, residual mango kush. */
+const FULL_BOX_SUFFIX_RE =
+  /^\d+\s+full\s+box\s+(.+?)\s+full\s+box\s*x\s*(\d+(?:\.\d+)?)\s*(carts?|cartridges?|vapes?)\b/i;
+
+/** "1 jar 100ml" → one jar; the ml is content volume, not the sale quantity. */
+const COUNT_UNIT_WITH_VOLUME_RE = new RegExp(
+  `^(\\d+(?:\\.\\d+)?)\\s*(${COUNT_UNIT_ALT})\\s+\\d+(?:\\.\\d+)?\\s*(?:ml|milliliter|milliliters)\\b`,
+  "i",
+);
+
 /** "1 g rr - 5 pack mix" → check for "N pack" after a weight match. */
 const PACK_MULT_RE = /\b(\d+)\s*x?\s*pack/i;
 
@@ -313,14 +335,19 @@ function contextUnit(context: string | null | undefined): string | null {
   if (/\bcubes?\b/.test(text)) return "cube";
   if (/\bgumm(?:y|ie|ies)\b|\bgummies\b/.test(text)) return "gummy";
   if (/\b(?:blotters?|papers?|lsd|acid)\b/.test(text)) return "paper";
+  if (/\b(?:carts?|cartridges?)\b/.test(text)) return "cart";
   if (/\b(?:vapes?|disposables?)\b/.test(text)) return "vape";
   if (/\b(?:tablets?|tabs?)\b/.test(text)) return "tab";
-  if (/\b(?:carts?|cartridges?)\b/.test(text)) return "cart";
   if (/\b(?:sticks?)\b/.test(text)) return "stick";
   if (/\b(?:cones?)\b/.test(text)) return "cone";
   if (/\b(?:pre\s*-?\s*rolls?|prerolls?|joints?)\b/.test(text)) return "joint";
 
   return null;
+}
+
+function canonicalCountUnit(rawUnit: string, context?: string | null): string {
+  const unit = COUNT_LABEL_CANONICAL[rawUnit.toLowerCase()] ?? rawUnit;
+  return unit === "vape" && contextUnit(context) === "cart" ? "cart" : unit;
 }
 
 const POTENCY_CONTEXT_UNITS = new Set([
@@ -362,6 +389,18 @@ function cleanResidual(raw: string): string | null {
   // Strip postage/free-shipping tails that sellers add to option labels.
   s = s.replace(/\+?\s*free\s*shipping\b/gi, "");
   s = s.replace(/\+?\s*freeshipping\b/gi, "");
+  s = s.replace(/\+?\s*free\s*ndd\b/gi, "");
+  s = s.replace(/\bndd\b/gi, "");
+  s = s.replace(/\bnext\s*day\s*delivery\b/gi, "");
+  // Strip seller status/price notes that are not product descriptors.
+  s = s.replace(/\b(?:trial|trail)\s*price\b/gi, "");
+  s = s.replace(/\b(?:limited|special)\s*offer\b/gi, "");
+  // Strip equivalent quantity parentheticals: "28 grams(1oz)", "1000ml (1 litre)".
+  s = s.replace(
+    /\(\s*\d+(?:\.\d+)?\s*(?:g|gram|grams|mg|ug|mcg|ml|l|litre|litres|liter|liters|oz|ounce|ounces)\s*\)/gi,
+    "",
+  );
+  s = s.replace(/\(\s*\d+\s+of\s+each\s*\)/gi, "");
   // Strip redundant "=400mg" / "=1g" totals.
   s = s.replace(
     /=\s*\d+(?:\.\d+)?\s*(?:g|mg|ml|oz|grams?|milligrams?)\b/gi,
@@ -371,13 +410,33 @@ function cleanResidual(raw: string): string | null {
   s = s.replace(INNER_WEIGHT_RE, "");
   // Strip orphaned packaging labels left after embedded counts: "(2x1ml cart)" → "".
   s = s.replace(/\(\s*(?:carts?|cartridges?|vapes?|pods?|pens?)\s*\)/gi, "");
+  s = s.replace(/\(\s*\)/g, "");
+  // Strip packaging words that sellers mix into flavour labels.
+  s = s.replace(
+    /\b(?:full|whole)?\s*box\s+of\s+(?:ten|\d+)\s+(?:carts?|cartridges?|vapes?)\b/gi,
+    "",
+  );
+  s = s.replace(/\bof\s+(?:ten|\d+)\s+(?:carts?|cartridges?|vapes?)\b/gi, "");
+  s = s.replace(/\b(?:ten|\d+)\s+(?:carts?|cartridges?|vapes?)\b/gi, "");
+  s = s.replace(/\b(?:full|whole)\s+box\b/gi, "");
+  s = s.replace(/\bbox\s+of\s+ten\s+(?:carts?|cartridges?|vapes?)\b/gi, "");
+  s = s.replace(
+    /^(?:vape\s+)?(?:carts?|cartridges?|vapes?|pods?|pens?|jars?|bottles?|boxes?|packs?|pks?|pieces?|items?)\s+/i,
+    "",
+  );
+  s = s.replace(
+    /\s+(?:full\s+)?(?:carts?|cartridges?|vapes?|pods?|pens?|jars?|bottles?|boxes?|packs?|pks?|pieces?|items?)$/i,
+    "",
+  );
   // Strip stray sale/status emojis.
   s = s.replace(/[❌✅🚫]/gu, "");
   // Collapse whitespace.
   s = s.replace(/\s+/g, " ").trim();
   // Strip leading connector words ("7g of shatter" → "shatter"; "3.5g and fire" → "fire").
   // Only strip a single leading connector to avoid gutting real names.
-  s = s.replace(/^(?:of|and|&|with|the|a|an|plus|each|total|x)\s+/i, "").trim();
+  s = s
+    .replace(/^(?:of|and|&|with|the|a|an|plus|each|total|x|whole)\s+/i, "")
+    .trim();
   // Strip trailing punctuation residue (",", "-", "&").
   s = s.replace(/[\s,\-&|]+$/g, "").trim();
 
@@ -390,6 +449,7 @@ function cleanResidual(raw: string): string | null {
 
   // Single-token weight slang.
   if (WEIGHT_SLANG_NOISE.has(lower)) return null;
+  if (COUNT_LABEL_CANONICAL[lower]) return null;
   // "q", "q 1", "q2" — tail from quantity shorthand.
   if (/^q\s*\d*$/.test(lower)) return null;
   // "half zip", "half oz", "quarter oz", "eighth" etc.
@@ -521,6 +581,61 @@ export function parseVariant(
       qty: total,
       unit: "ml",
       weightLabel: `${total}ml`,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Full-box cart bundle: "10 full box mango kush full box x 10 carts". */
+  const fullBoxSuffix = clean.match(FULL_BOX_SUFFIX_RE);
+  if (fullBoxSuffix) {
+    const qty = parseFloat(fullBoxSuffix[2]);
+    const unit = canonicalCountUnit(fullBoxSuffix[3], context);
+    const residual = cleanResidual(fullBoxSuffix[1]);
+    const lab = formatCountLabel(qty, unit);
+    return {
+      qty,
+      unit,
+      weightLabel: lab,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Box shortcut in cart context: "1 whole box x10 gelato". */
+  const boxCount = clean.match(BOX_X_COUNT_RE);
+  if (boxCount) {
+    const qty = parseFloat(boxCount[1]);
+    const unit = boxCount[2]
+      ? canonicalCountUnit(boxCount[2], context)
+      : contextUnit(context) === "cart"
+        ? "cart"
+        : "box";
+    const residual = cleanResidual(clean.slice(boxCount[0].length));
+    const lab = formatCountLabel(qty, unit);
+    return {
+      qty,
+      unit,
+      weightLabel: lab,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Count × unit: "2 x vape carts gelato" / "5 x carts mix". */
+  const countXUnit = clean.match(COUNT_X_UNIT_RE);
+  if (countXUnit) {
+    const qty = parseFloat(countXUnit[1]);
+    const unit = canonicalCountUnit(countXUnit[2], context);
+    const residual = cleanResidual(clean.slice(countXUnit[0].length));
+    const lab = formatCountLabel(qty, unit);
+    return {
+      qty,
+      unit,
+      weightLabel: lab,
       originalLabel: lab,
       strain: residual,
       variant: v,
@@ -667,6 +782,23 @@ export function parseVariant(
     };
   }
 
+  /* Counted packaging with embedded volume: "1 jar 100ml" → 1 jar. */
+  const countUnitVolume = clean.match(COUNT_UNIT_WITH_VOLUME_RE);
+  if (countUnitVolume) {
+    const qty = parseFloat(countUnitVolume[1]);
+    const unit = canonicalCountUnit(countUnitVolume[2], context);
+    const residual = cleanResidual(clean.slice(countUnitVolume[0].length));
+    const lab = formatCountLabel(qty, unit);
+    return {
+      qty,
+      unit,
+      weightLabel: lab,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
   /* Volume: "1 ml zskittles" / "og kush 1ml". */
   const ml = clean.match(ML_RE);
   if (ml) {
@@ -733,8 +865,7 @@ export function parseVariant(
   const cm = clean.match(COUNT_RE);
   if (cm) {
     const qty = parseFloat(cm[1]);
-    const rawUnit = cm[2].toLowerCase();
-    const unit = COUNT_LABEL_CANONICAL[rawUnit] ?? rawUnit;
+    const unit = canonicalCountUnit(cm[2], context);
     const residual = cleanResidual(clean.slice(cm[0].length));
     const lab = formatCountLabel(qty, unit);
     return {
@@ -750,8 +881,7 @@ export function parseVariant(
   /* Suffix count: "magic paper x10" / "magic paper x25". */
   const unitThenCount = clean.match(UNIT_THEN_COUNT_RE);
   if (unitThenCount) {
-    const rawUnit = unitThenCount[1].toLowerCase();
-    const unit = COUNT_LABEL_CANONICAL[rawUnit] ?? rawUnit;
+    const unit = canonicalCountUnit(unitThenCount[1], context);
     const qty = parseFloat(unitThenCount[2]);
     const residual = residualWithoutMatch(clean, unitThenCount);
     const lab = formatCountLabel(qty, unit);
