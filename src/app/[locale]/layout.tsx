@@ -9,6 +9,7 @@ import { FlagFontPolyfill } from "@/components/FlagFontPolyfill";
 import { HydrationGate } from "@/components/HydrationGate";
 import { ModalHost } from "@/components/ModalHost";
 import { JotaiProvider } from "@/components/Providers";
+import { RouterRefreshOnReturn } from "@/components/RouterRefreshOnReturn";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
@@ -102,6 +103,7 @@ export default async function LocaleLayout({
             <PauseGifsSync />
             <FlagFontPolyfill />
             <ScrollToTopButton />
+            <RouterRefreshOnReturn />
             <HydrationGate />
           </JotaiProvider>
         </NextIntlClientProvider>
