@@ -89,7 +89,7 @@
 ### Unified background stages (items and sellers) on separate schedules
 [functions."crawler-items-background"]
   # Runs at :07 past the hour on 0,4,8,12,16,20 (4 mins after indexer to avoid overlap)
-  schedule = "7 0,4,8,12,16,20 * * *"
+  #schedule = "7 0,4,8,12,16,20 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -99,7 +99,7 @@
 
 [functions."crawler-sellers-background"]
   # Runs at :08 past the hour on 2,6,10,14,18,22 (8 mins after indexer to avoid overlap)
-  schedule = "8 2,6,10,14,18,22 * * *"
+  #schedule = "8 2,6,10,14,18,22 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
