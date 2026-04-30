@@ -322,7 +322,28 @@ export const isHydratedAtom = atom<boolean>((get) => {
 
 // ─── Market ─────────────────────────────────────────────────────
 
-export const marketAtom = atomWithStorage<string>("market", "GB");
+/**
+ * Current market code (e.g. "GB", "PT").
+ *
+ * Intentionally NOT persisted via `atomWithStorage`. The market is
+ * determined by the request host (`pt.biggyindex.com` → PT) and is
+ * hydrated per-render via `<MarketHydrate>` in the locale layout. A
+ * persisted value would create three bugs:
+ *
+ *   1. Each subdomain has its own localStorage, so the value stored on
+ *      `biggyindex.com` doesn't help when the user lands on
+ *      `pt.biggyindex.com` — the new origin would default to "GB" until
+ *      a write happens.
+ *   2. Stale values leak across sessions: a user who once switched to
+ *      PT from `biggyindex.com` would, on a later visit to the apex,
+ *      see the dropdown stuck on PT even though the page is rendering
+ *      GB data (host-pinned by proxy.ts).
+ *   3. The market never changes within a session except by navigating
+ *      to a different host, in which case the new host's hydration is
+ *      authoritative — there is no scenario where re-reading a stored
+ *      value is the right answer.
+ */
+export const marketAtom = atom<string>("GB");
 export const currencySymbolAtom = atom<string>("£");
 
 // ─── Display currency ───────────────────────────────────────────

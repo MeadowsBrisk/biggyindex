@@ -185,7 +185,7 @@ function BasketButton() {
 }
 
 function MarketDropdown() {
-  const [market, setMarket] = useAtom(marketAtom);
+  const market = useAtomValue(marketAtom);
   const [displayCurrency, setDisplayCurrency] = useAtom(displayCurrencyAtom);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -222,10 +222,12 @@ function MarketDropdown() {
       // Already on the picked market — nothing to do.
       if (code === market) return;
 
-      // Persist the atom locally too. localStorage is per-origin so the
-      // target host won't see this write, but it keeps the source-host
-      // session consistent if the navigation is cancelled/blocked.
-      setMarket(code);
+      // Do NOT write `marketAtom` here. The atom is now hydrated from
+      // the request host on every page load (see <MarketHydrate>). A
+      // pre-navigation write would have no effect on the destination
+      // origin (per-origin atom hydration) and would just persist a
+      // mismatched value into the source origin's session storage if
+      // the navigation were ever cancelled. Just navigate.
 
       // In production each market is its own subdomain (see `domains` in
       // src/i18n/routing.ts and `marketToHost`). The atom flip alone
@@ -260,7 +262,7 @@ function MarketDropdown() {
           : `/${targetLocale}${stripped || ""}`;
       window.location.assign(`${nextPath}${search}${hash}`);
     },
-    [market, setMarket],
+    [market],
   );
 
   return (

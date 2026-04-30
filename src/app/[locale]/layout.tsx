@@ -7,6 +7,7 @@ import { AnnouncementBannerGate } from "@/components/AnnouncementBannerGate";
 import { ExchangeRateProvider } from "@/components/ExchangeRateProvider";
 import { FlagFontPolyfill } from "@/components/FlagFontPolyfill";
 import { HydrationGate } from "@/components/HydrationGate";
+import { MarketHydrate } from "@/components/MarketHydrate";
 import { ModalHost } from "@/components/ModalHost";
 import { JotaiProvider } from "@/components/Providers";
 import { RouterRefreshOnReturn } from "@/components/RouterRefreshOnReturn";
@@ -14,6 +15,7 @@ import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
 import { type Locale, routing } from "@/i18n/routing";
+import { localeToMarket } from "@/lib/market/market";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -93,6 +95,12 @@ export default async function LocaleLayout({
       <body className="antialiased bg-background">
         <NextIntlClientProvider messages={messages}>
           <JotaiProvider>
+            {/* Seed marketAtom from the host-pinned locale BEFORE first
+                render so the dropdown / currency / shipping logic never
+                see the GB default on a non-GB host. Must be the first
+                child of JotaiProvider — useHydrateAtoms only sets the
+                value once per Provider scope. */}
+            <MarketHydrate market={localeToMarket(locale)} />
             <ExchangeRateProvider />
             <AnnouncementBannerGate locale={locale} />
             {children}
