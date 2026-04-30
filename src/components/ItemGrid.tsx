@@ -181,11 +181,38 @@ export function ItemGrid({
   const itemIndex = useAtomValue(itemIndexAtom);
   const [clientNow, setClientNow] = useState<number | null>(null);
 
+  // `clientNow` is the "now" reference fed to relative-time formatters on
+  // each card ("listed 3m ago"). It MUST be bumped when items change —
+  // otherwise router.refresh() (e.g. RouterRefreshOnReturn) brings in
+  // newer data with `lua` timestamps that are later than the cached now,
+  // and `relativeAge` returns null on every card (its `ms < 0` guard).
+  // Three triggers, all cheap:
+  //   1. Items reference change (data arrival, also fires on filter/sort
+  //      but that's benign — same clientNow within the same second).
+  //   2. Slow interval so a user sitting on a static page eventually
+  //      sees "3m ago" advance to "4m ago".
+  //   3. Tab return — covers the case where router.refresh hasn't fired
+  //      yet (e.g. < 2 min hidden) but times still drifted.
+  // `items` is intentionally a trigger-only sentinel — a new array
+  // reference means fresh data arrived (router.refresh, filter change)
+  // and we want a fresh `now` for relative-time formatting on the cards.
+  // Reading items.length inside the effect makes the dep "used" so biome's
+  // exhaustive-deps rule doesn't flag it.
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setClientNow(Date.now());
-    });
-    return () => window.cancelAnimationFrame(frame);
+    void items.length;
+    setClientNow(Date.now());
+  }, [items]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setClientNow(Date.now()), 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setClientNow(Date.now());
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   const config = useMemo<CardConfig>(
