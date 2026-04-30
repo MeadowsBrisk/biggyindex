@@ -76,7 +76,9 @@
   # Previous schedule for quick revert:
   # Run every 30 minutes (was every 20 min - reduced to save function requests)
   # At :00 and :30 past each hour = 48 requests/day (was 72/day)
-  schedule = "0,30 * * * *"
+  #schedule = "0,30 * * * *"
+    schedule = "7 * * * *"
+
 
   # Temporary reduced cadence to lower R2 usage.
   # Runs every 2 hours at the top of the hour = 12 requests/day.
@@ -110,7 +112,7 @@
 # Runs once daily at 5:10 AM UTC - after items crawler at 4:04 has completed
 # Uses Azure Translator with monthly budget tracking (2M chars/month free tier)
 [functions."translate-background"]
-  schedule = "10 5 * * *"
+  #schedule = "10 5 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -121,7 +123,7 @@
 # by fast-enrich during the index stage.
 # Runs once daily at 5:30 AM UTC - after translate-background at 5:10
 [functions."crawler-images-background"]
-  schedule = "30 5 * * *"
+  #schedule = "30 5 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
@@ -131,7 +133,7 @@
 # Runs once daily at 5:45 AM UTC - after images at 5:30 has completed
 # Generates pricing-{weight}g.json files for frontend ppg sorting
 [functions."crawler-pricing-background"]
-  schedule = "45 5 * * *"
+  #schedule = "45 5 * * *"
   node_bundler = "esbuild"
   included_files = [
     "scripts/unified-crawler/**"
