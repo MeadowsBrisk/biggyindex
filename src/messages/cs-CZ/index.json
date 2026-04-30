@@ -46,7 +46,9 @@
     "marketMenu": {
       "market": "Trh",
       "displayPricesIn": "Zobrazit ceny v",
-      "approximateWhenConverted": "Přibližné při převodu"
+      "approximateWhenConverted": "Přibližné při převodu",
+      "language": "Jazyk",
+      "english": "Angličtina"
     }
   },
   "footer": {

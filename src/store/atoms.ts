@@ -348,20 +348,59 @@ export const currencySymbolAtom = atom<string>("£");
 
 // ─── Display currency ───────────────────────────────────────────
 
-/** User-selected display currency — persisted */
-export type DisplayCurrency = "GBP" | "USD" | "EUR";
-export const displayCurrencyAtom = atomWithStorage<DisplayCurrency>(
-  "displayCurrency",
-  "GBP",
-);
+/** All currency codes the UI can render in. */
+export type DisplayCurrency = "GBP" | "USD" | "EUR" | "CZK";
 
-/** Live exchange rates: { GBP: 0.79, EUR: 0.92, ... } keyed from USD base */
+/**
+ * User's *explicit* display-currency override. `null` means "no choice
+ * yet — fall back to the market's native currency". Persisted per-origin
+ * so user choices stick across sessions, but each market starts on its
+ * own native currency rather than inheriting GBP from another origin.
+ */
+export const displayCurrencyOverrideAtom =
+  atomWithStorage<DisplayCurrency | null>("displayCurrency", null);
+
+/**
+ * Effective display currency: user override if set, otherwise the
+ * market's native currency. Components should generally read THIS, not
+ * `displayCurrencyOverrideAtom`, unless they specifically care whether
+ * the user has explicitly chosen.
+ */
+export const displayCurrencyAtom = atom<DisplayCurrency>((get) => {
+  const override = get(displayCurrencyOverrideAtom);
+  if (override) return override;
+  const market = get(marketAtom);
+  return marketNativeCurrency(market);
+});
+
+/** Map a market code to its native currency code. Mirrors MARKETS in lib/constants.ts. */
+function marketNativeCurrency(market: string): DisplayCurrency {
+  switch (market) {
+    case "GB":
+      return "GBP";
+    case "CZ":
+      return "CZK";
+    case "IE":
+    case "DE":
+    case "FR":
+    case "PT":
+    case "IT":
+    case "ES":
+    case "GR":
+      return "EUR";
+    default:
+      return "GBP";
+  }
+}
+
+/** Live exchange rates: { GBP: 0.79, EUR: 0.92, CZK: 22.5, ... } keyed from USD base */
 export const exchangeRatesAtom = atom<Record<string, number>>({});
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: "$",
   GBP: "£",
   EUR: "€",
+  CZK: "Kč",
 };
 
 /**

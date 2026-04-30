@@ -4,14 +4,17 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { EyeOff, Search, Settings, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ENGLISH_MARKETS } from "@/lib/market/market";
 import {
   type AccentColor,
   accentColorAtom,
   availableSellersAtom,
   customAccentHexAtom,
+  forceEnglishAtom,
   hiddenSellersAtom,
   highResImagesAtom,
   lbGuideSeenAtom,
+  marketAtom,
   pauseGifsAtom,
   settingsModalOpenAtom,
   thumbnailAspectAtom,
@@ -68,6 +71,11 @@ export function SettingsModal() {
   const [open, setOpen] = useAtom(settingsModalOpenAtom);
   const [highRes, setHighRes] = useAtom(highResImagesAtom);
   const [pauseGifs, setPauseGifs] = useAtom(pauseGifsAtom);
+  const [forceEnglish, setForceEnglish] = useAtom(forceEnglishAtom);
+  const market = useAtomValue(marketAtom);
+  const showLanguageToggle = !(ENGLISH_MARKETS as readonly string[]).includes(
+    market,
+  );
   const [guideSeen, setGuideSeen] = useAtom(lbGuideSeenAtom);
   const [thumbAspect, setThumbAspect] = useAtom(thumbnailAspectAtom);
   const [accent, setAccent] = useAtom(accentColorAtom);
@@ -208,6 +216,27 @@ export function SettingsModal() {
               onChange={setPauseGifs}
             />
           </div>
+
+          {/* Show in English toggle — only on non-English markets. Same
+              underlying atom as the dropdown toggle and the inline
+              ShowOriginalToggle on item overlays. Persists per-origin. */}
+          {showLanguageToggle && (
+            <div className="flex items-center justify-between gap-3 group">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium group-hover:text-primary transition-colors">
+                  {t("showInEnglish")}
+                </div>
+                <div className="text-xs text-muted mt-0.5">
+                  {t("showInEnglishDescription")}
+                </div>
+              </div>
+              <Toggle
+                label={t("showInEnglish")}
+                checked={forceEnglish}
+                onChange={setForceEnglish}
+              />
+            </div>
+          )}
 
           {/* Help guides toggle */}
           <div className="flex items-center justify-between gap-3 group">

@@ -17,6 +17,7 @@ import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CATEGORIES, MARKETS } from "@/lib/constants";
 import {
+  ENGLISH_MARKETS,
   isHostBasedEnv,
   type MarketCode,
   marketToHost,
@@ -28,16 +29,47 @@ import {
   categoryAtom,
   type DisplayCurrency,
   displayCurrencyAtom,
+  displayCurrencyOverrideAtom,
+  forceEnglishAtom,
   marketAtom,
   mobileMenuOpenAtom,
   settingsModalOpenAtom,
   subcategoryAtom,
 } from "@/store/atoms";
 
-const CURRENCY_OPTIONS: { key: DisplayCurrency; label: string }[] = [
-  { key: "GBP", label: "£ GBP" },
-  { key: "USD", label: "$ USD" },
-];
+/** All currencies the dropdown can offer, with display labels. */
+const CURRENCY_LABELS: Record<DisplayCurrency, string> = {
+  GBP: "£ GBP",
+  EUR: "€ EUR",
+  USD: "$ USD",
+  CZK: "Kč CZK",
+};
+
+/** Map a market code to its native currency for the dropdown header. */
+function nativeCurrencyForMarket(market: string): DisplayCurrency {
+  if (market === "GB") return "GBP";
+  if (market === "CZ") return "CZK";
+  return "EUR"; // IE, DE, FR, PT, IT, ES, GR
+}
+
+/**
+ * Build the currency options shown in the market dropdown for a given
+ * market: native currency first (so it's the obvious default visually),
+ * then GBP and USD as common alternatives, deduped.
+ */
+function currencyOptionsFor(
+  market: string,
+): Array<{ key: DisplayCurrency; label: string }> {
+  const native = nativeCurrencyForMarket(market);
+  const seen = new Set<DisplayCurrency>();
+  const out: Array<{ key: DisplayCurrency; label: string }> = [];
+  for (const key of [native, "GBP" as const, "USD" as const]) {
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ key, label: CURRENCY_LABELS[key] });
+  }
+  return out;
+}
 
 /**
  * SiteHeader — scrolls naturally with the page (not sticky).
@@ -186,13 +218,23 @@ function BasketButton() {
 
 function MarketDropdown() {
   const market = useAtomValue(marketAtom);
-  const [displayCurrency, setDisplayCurrency] = useAtom(displayCurrencyAtom);
+  // Effective (display) for highlighting the active button; override
+  // (writable) for persisting the user's explicit pick. Reading the
+  // derived atom means an unset override correctly highlights the
+  // market's native currency by default.
+  const displayCurrency = useAtomValue(displayCurrencyAtom);
+  const setDisplayCurrencyOverride = useSetAtom(displayCurrencyOverrideAtom);
+  const [forceEnglish, setForceEnglish] = useAtom(forceEnglishAtom);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const tMarketMenu = useTranslations("header.marketMenu");
   const tMarkets = useTranslations("markets");
 
   const currentMarket = MARKETS.find((m) => m.code === market) ?? MARKETS[0];
+  const currencyOptions = currencyOptionsFor(market);
+  const showLanguageToggle = !(ENGLISH_MARKETS as readonly string[]).includes(
+    market,
+  );
 
   // Close on outside click
   useEffect(() => {
@@ -314,17 +356,18 @@ function MarketDropdown() {
           {/* Currency divider */}
           <div className="mx-2 border-t border-[var(--border)]" />
 
-          {/* Currency selector */}
+          {/* Currency selector — options are derived per-market so the
+              local currency is always offered alongside GBP and USD. */}
           <div className="p-1.5">
             <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
               {tMarketMenu("displayPricesIn")}
             </div>
             <div className="flex gap-1 px-1 pb-1">
-              {CURRENCY_OPTIONS.map((opt) => (
+              {currencyOptions.map((opt) => (
                 <button
                   key={opt.key}
                   type="button"
-                  onClick={() => setDisplayCurrency(opt.key)}
+                  onClick={() => setDisplayCurrencyOverride(opt.key)}
                   className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                     displayCurrency === opt.key
                       ? "bg-primary/15 text-primary border border-primary/30"
@@ -339,6 +382,44 @@ function MarketDropdown() {
               {tMarketMenu("approximateWhenConverted")}
             </div>
           </div>
+
+          {/* Language toggle — only on non-English markets. Lets users
+              flip the UI to English source copy without digging into an
+              item overlay. Persists per-origin via forceEnglishAtom. */}
+          {showLanguageToggle && (
+            <>
+              <div className="mx-2 border-t border-[var(--border)]" />
+              <div className="p-1.5">
+                <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
+                  {tMarketMenu("language")}
+                </div>
+                <div className="flex gap-1 px-1 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setForceEnglish(false)}
+                    className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                      !forceEnglish
+                        ? "bg-primary/15 text-primary border border-primary/30"
+                        : "bg-surface border border-[var(--border)] text-muted hover:text-foreground"
+                    }`}
+                  >
+                    {tMarkets(market)}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForceEnglish(true)}
+                    className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                      forceEnglish
+                        ? "bg-primary/15 text-primary border border-primary/30"
+                        : "bg-surface border border-[var(--border)] text-muted hover:text-foreground"
+                    }`}
+                  >
+                    {tMarketMenu("english")}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

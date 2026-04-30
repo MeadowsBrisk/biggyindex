@@ -46,7 +46,9 @@
     "marketMenu": {
       "market": "Αγορά",
       "displayPricesIn": "Εμφάνιση τιμών σε",
-      "approximateWhenConverted": "Κατά προσέγγιση κατά τη μετατροπή"
+      "approximateWhenConverted": "Κατά προσέγγιση κατά τη μετατροπή",
+      "language": "Γλώσσα",
+      "english": "Αγγλικά"
     }
   },
   "footer": {

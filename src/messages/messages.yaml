@@ -340,6 +340,24 @@ header:
       es-ES: Aproximar cuando se convierte
       el-GR: Κατά προσέγγιση κατά τη μετατροπή
       cs-CZ: Přibližné při převodu
+    language:
+      en-GB: Language
+      de-DE: Sprache
+      fr-FR: Langue
+      pt-PT: Idioma
+      it-IT: Lingua
+      es-ES: Idioma
+      el-GR: Γλώσσα
+      cs-CZ: Jazyk
+    english:
+      en-GB: English
+      de-DE: Englisch
+      fr-FR: Anglais
+      pt-PT: Inglês
+      it-IT: Inglese
+      es-ES: Inglés
+      el-GR: Αγγλικά
+      cs-CZ: Angličtina
 
 footer:
   ctaTitle:
@@ -5518,6 +5536,24 @@ settings:
       es-ES: Muestra miniaturas estáticas para imágenes animadas. Reduce la distracción y ahorra batería.
       el-GR: Εμφάνιση στατικών μικρογραφιών για κινούμενες εικόνες. Μειώνει την απόσπαση της προσοχής και εξοικονομεί μπαταρία.
       cs-CZ: Zobrazit statické náhledy animovaných obrázků. Snižuje rušivé vlivy a šetří baterii.
+    showInEnglish:
+      en-GB: Show in English
+      de-DE: Auf Englisch anzeigen
+      fr-FR: Afficher en anglais
+      pt-PT: Mostrar em inglês
+      it-IT: Mostra in inglese
+      es-ES: Mostrar en inglés
+      el-GR: Εμφάνιση στα Αγγλικά
+      cs-CZ: Zobrazit v angličtině
+    showInEnglishDescription:
+      en-GB: Use English UI copy and original product names/descriptions where available.
+      de-DE: Englischen UI-Text und originale Produktnamen/-beschreibungen verwenden, wenn verfügbar.
+      fr-FR: Utiliser le texte anglais et les noms/descriptions d’origine des produits lorsque disponibles.
+      pt-PT: Utiliza o texto em inglês e os nomes/descrições originais dos produtos, quando disponíveis.
+      it-IT: Usa il testo in inglese e i nomi/le descrizioni originali dei prodotti, quando disponibili.
+      es-ES: Usa el texto en inglés y los nombres/descripciones originales del producto cuando estén disponibles.
+      el-GR: Χρήση κειμένου στα Αγγλικά και πρωτότυπων ονομάτων/περιγραφών προϊόντων όταν είναι διαθέσιμα.
+      cs-CZ: Použít anglický text a původní názvy a popisy produktů, pokud jsou k dispozici.
     skipGuides: Skip help guides
     skipGuidesDesc: Hide the quick tips shown before opening Little Biggy. Switch off to see them again.
     thumbnailShape:

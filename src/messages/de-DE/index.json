@@ -46,7 +46,9 @@
     "marketMenu": {
       "market": "Markt",
       "displayPricesIn": "Preise anzeigen in",
-      "approximateWhenConverted": "Ungefähr bei Umrechnung"
+      "approximateWhenConverted": "Ungefähr bei Umrechnung",
+      "language": "Sprache",
+      "english": "Englisch"
     }
   },
   "footer": {
