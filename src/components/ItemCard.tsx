@@ -168,6 +168,10 @@ function isDomestic(
   return sf.toLowerCase() === market.name.toLowerCase();
 }
 
+function variantDisplayLabel(variant: NonNullable<Item["v"]>[number]): string {
+  return variant.d || variant.dEn || "";
+}
+
 /**
  * Card pill — shows category · subcategory with an optional strain group dot.
  * When browsing inside a category, shows just the subcategory (or category if no sub).
@@ -1221,7 +1225,7 @@ function ItemCardInner({
                   const pv = singleVariantParsed;
                   const rawSizeLabel = pv
                     ? pv.originalLabel || pv.weightLabel
-                    : item.v[0].d;
+                    : variantDisplayLabel(item.v[0]);
                   const sizeLabel = rawSizeLabel
                     ? decodeEntities(rawSizeLabel)
                     : rawSizeLabel;

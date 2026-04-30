@@ -109,6 +109,15 @@ function formatAttrValue(key: string, val: string | number | boolean): string {
   return String(val);
 }
 
+function variantDisplayLabel(
+  variant: NonNullable<Item["v"]>[number],
+  forceEnglish: boolean,
+): string {
+  return forceEnglish
+    ? variant.dEn || variant.d || ""
+    : variant.d || variant.dEn || "";
+}
+
 type DetailRelativeAge = {
   unit: "minutes" | "hours" | "days" | "months";
   count: number;
@@ -426,7 +435,7 @@ export function ItemDetailOverlay() {
         const unit = effectiveParsed?.unit ?? null;
         return {
           key: v.vid != null ? String(v.vid) : String(i),
-          label: decodeEntities(v.dEn || v.d || "—"),
+          label: decodeEntities(variantDisplayLabel(v, forceEnglish) || "—"),
           price: v.usd,
           grams,
           ppu,
@@ -435,7 +444,7 @@ export function ItemDetailOverlay() {
           unitLabel: unit ? (UNIT_DISPLAY_LABEL[unit] ?? unit) : null,
         };
       });
-  }, [displayItem, variantContext]);
+  }, [displayItem, forceEnglish, variantContext]);
 
   const bestValueKey = useMemo(() => {
     if (!variantRows || variantRows.length <= 1) return null;
