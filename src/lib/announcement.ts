@@ -22,15 +22,17 @@ export interface AnnouncementBannerConfig {
 }
 
 const BANNER: AnnouncementBannerConfig = {
-  id: "lbindex-vip-launch-domain-2026-04",
+  id: "biggyindex-v2-launch-2026-04",
   active: true,
   severity: "info",
-  targetHostnames: ["lbindex.vip", "www.lbindex.vip"],
+  targetHostnames: ["biggyindex.com", "www.biggyindex.com"],
   messageByLocale: {
     "en-GB":
-      "This domain is temporarily being used for testing v2. {{mbr}}biggyindex.com with more up to date data can still be used.",
+      "Welcome to BiggyIndex v2. {{mbr}}The old site can still be found at",
   },
-}; 
+  href: "https://old.biggyindex.com",
+  ctaLabel: "old.biggyindex.com",
+};
 
 /** Return the current banner config, or null when inactive. */
 export function getAnnouncementBanner(): AnnouncementBannerConfig | null {
