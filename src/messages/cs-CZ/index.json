@@ -853,6 +853,8 @@
       "highResDescription": "Používejte produkty v plném rozlišení. Spotřebovává více dat, ale vypadá ostřejší.",
       "pauseGifs": "GIFy na pauzu",
       "pauseGifsDescription": "Zobrazit statické náhledy animovaných obrázků. Snižuje rušivé vlivy a šetří baterii.",
+      "showInEnglish": "Zobrazit v angličtině",
+      "showInEnglishDescription": "Použít anglický text a původní názvy a popisy produktů, pokud jsou k dispozici.",
       "skipGuides": "Skip help guides",
       "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
       "thumbnailShape": "Tvar náhledu",

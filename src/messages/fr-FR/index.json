@@ -853,6 +853,8 @@
       "highResDescription": "Utilisez des images produit en pleine résolution. Utilise plus de données mais paraît plus net.",
       "pauseGifs": "Pause des GIF",
       "pauseGifsDescription": "Affichez des vignettes statiques pour les images animées. Réduit les distractions et économise de la batterie.",
+      "showInEnglish": "Afficher en anglais",
+      "showInEnglishDescription": "Utiliser le texte anglais et les noms/descriptions d’origine des produits lorsque disponibles.",
       "skipGuides": "Skip help guides",
       "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
       "thumbnailShape": "Forme de l’ongle",

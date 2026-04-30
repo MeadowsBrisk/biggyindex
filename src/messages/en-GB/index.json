@@ -853,6 +853,8 @@
       "highResDescription": "Use full-resolution product images. Uses more data but looks sharper.",
       "pauseGifs": "Pause GIFs",
       "pauseGifsDescription": "Show static thumbnails for animated images. Reduces distraction and saves battery.",
+      "showInEnglish": "Show in English",
+      "showInEnglishDescription": "Use English UI copy and original product names/descriptions where available.",
       "skipGuides": "Skip help guides",
       "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
       "thumbnailShape": "Thumbnail shape",
