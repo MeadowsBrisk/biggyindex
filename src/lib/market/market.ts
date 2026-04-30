@@ -141,6 +141,37 @@ export const ALL_MARKETS: MarketCode[] = [
   "CZ",
 ];
 
+/**
+ * Map a market code to its production hostname. Mirrors the `domains`
+ * config in `src/i18n/routing.ts`. GB lives at the apex; every other
+ * market is a subdomain. Used by the market switcher in `SiteHeader` to
+ * build the cross-origin navigation URL.
+ */
+export function marketToHost(market: MarketCode): string {
+  switch (market) {
+    case "GB":
+      return "biggyindex.com";
+    case "IE":
+      return "ie.biggyindex.com";
+    case "DE":
+      return "de.biggyindex.com";
+    case "FR":
+      return "fr.biggyindex.com";
+    case "PT":
+      return "pt.biggyindex.com";
+    case "IT":
+      return "it.biggyindex.com";
+    case "ES":
+      return "es.biggyindex.com";
+    case "GR":
+      return "gr.biggyindex.com";
+    case "CZ":
+      return "cz.biggyindex.com";
+    default:
+      return "biggyindex.com";
+  }
+}
+
 /** Markets where the UI is English (skip translation toggle, reuse en-GB copy). */
 export const ENGLISH_MARKETS: MarketCode[] = ["GB", "IE"];
 

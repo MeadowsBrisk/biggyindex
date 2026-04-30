@@ -17,6 +17,12 @@ import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CATEGORIES, MARKETS } from "@/lib/constants";
 import {
+  isHostBasedEnv,
+  type MarketCode,
+  marketToHost,
+  marketToLocale,
+} from "@/lib/market/market";
+import {
   basketCountAtom,
   basketOpenAtom,
   categoryAtom,
@@ -212,10 +218,49 @@ function MarketDropdown() {
 
   const handleMarketSelect = useCallback(
     (code: string) => {
-      setMarket(code);
       setOpen(false);
+      // Already on the picked market — nothing to do.
+      if (code === market) return;
+
+      // Persist the atom locally too. localStorage is per-origin so the
+      // target host won't see this write, but it keeps the source-host
+      // session consistent if the navigation is cancelled/blocked.
+      setMarket(code);
+
+      // In production each market is its own subdomain (see `domains` in
+      // src/i18n/routing.ts and `marketToHost`). The atom flip alone
+      // doesn't change the SSR-rendered data — host detection in proxy.ts
+      // pins the locale per request — so we need a real navigation.
+      if (typeof window === "undefined") return;
+      const path = window.location.pathname;
+      const search = window.location.search;
+      const hash = window.location.hash;
+
+      if (isHostBasedEnv(window.location.hostname)) {
+        // Cross-origin → full page load. Preserve path + query + hash so
+        // a user on `/browse?cat=Flower` stays on the equivalent URL on
+        // the new market's host.
+        const targetHost = marketToHost(code as MarketCode);
+        window.location.assign(`https://${targetHost}${path}${search}${hash}`);
+        return;
+      }
+
+      // Dev / staging fallback (localhost, lbindex.vip, etc.) — domains
+      // are disabled in routing.ts when not in production, so locales
+      // live under path prefixes instead. Strip any existing locale
+      // prefix and replace with the target one.
+      const targetLocale = marketToLocale(code as MarketCode);
+      const stripped = path.replace(
+        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ)(?=\/|$)/,
+        "",
+      );
+      const nextPath =
+        targetLocale === "en-GB"
+          ? stripped || "/"
+          : `/${targetLocale}${stripped || ""}`;
+      window.location.assign(`${nextPath}${search}${hash}`);
     },
-    [setMarket],
+    [market, setMarket],
   );
 
   return (
