@@ -206,6 +206,62 @@ export interface Seller {
   communityReportCount?: number | null;
 }
 
+/** Seller review entry from shared/sellers/{id}.json. */
+export interface SellerReview {
+  id: number;
+  created: number;
+  rating: number;
+  daysToArrive: number | null;
+  segments: { type: string; value: string }[];
+  item: { refNum: string; name: string; id: number; imageUrl?: string };
+  itemImage?: string;
+}
+
+/** Per-locale seller manifesto translations. */
+export interface SellerTranslations {
+  sourceHash?: string;
+  updatedAt?: string;
+  locales?: Record<string, { manifesto?: string }>;
+}
+
+export interface SellerCommunityReport {
+  id: string;
+  reason: string;
+  votes: number;
+  createdAt?: string;
+  acceptedAt?: string;
+}
+
+export interface SellerCommunityFeedback {
+  endorseCount?: number | null;
+  reportCount?: number | null;
+  reports?: SellerCommunityReport[] | null;
+  updatedAt?: string | null;
+}
+
+/** Full seller detail blob from shared/sellers/{id}.json. */
+export interface SellerDetail {
+  sellerId: string;
+  sellerName: string;
+  sellerUrl: string | null;
+  imageUrl: string | null;
+  sellerImageUrl: string | null;
+  online: string | null;
+  sellerOnline: string | null;
+  sellerJoined: string | null;
+  manifesto: string | null;
+  share: string | null;
+  overview: {
+    itemsCount?: number;
+    numberOfReviews?: number;
+    averageDaysToArrive?: number;
+  } | null;
+  reviews: SellerReview[];
+  reviewsMeta: { fetched: number; updatedAt?: string } | null;
+  translations?: SellerTranslations;
+  communityFeedback?: SellerCommunityFeedback | null;
+}
+
 /** Market definition */
 export interface Market {
   code: string;

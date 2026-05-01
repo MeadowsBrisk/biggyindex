@@ -10,6 +10,7 @@ export const locales = [
   "es-ES",
   "el-GR",
   "cs-CZ",
+  "pl-PL",
 ] as const;
 
 export type Locale = (typeof locales)[number];
@@ -26,6 +27,7 @@ export const LOCALE_TO_MARKET: Record<Locale, string> = {
   "es-ES": "ES",
   "el-GR": "GR",
   "cs-CZ": "CZ",
+  "pl-PL": "PL",
 };
 
 const domains: Array<{
@@ -77,6 +79,11 @@ const domains: Array<{
     domain: "cz.biggyindex.com",
     defaultLocale: "cs-CZ",
     locales: ["cs-CZ"],
+  },
+  {
+    domain: "pl.biggyindex.com",
+    defaultLocale: "pl-PL",
+    locales: ["pl-PL"],
   },
 ];
 

@@ -96,6 +96,14 @@ export const MARKETS: Market[] = [
     locale: "cs-CZ",
     flag: "🇨🇿",
   },
+  {
+    code: "PL",
+    name: "Poland",
+    currency: "PLN",
+    currencySymbol: "zł",
+    locale: "pl-PL",
+    flag: "🇵🇱",
+  },
 ];
 
 export const DEFAULT_MARKET = "GB";

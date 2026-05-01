@@ -9,7 +9,13 @@
  */
 
 import { R2Keys, readR2JSON } from "./r2";
-import type { HomeFeed, Item, MergedDetailBlob, Seller } from "./types";
+import type {
+  HomeFeed,
+  Item,
+  MergedDetailBlob,
+  Seller,
+  SellerDetail,
+} from "./types";
 
 // ─── Browse field stripping ─────────────────────────────────────
 
@@ -90,6 +96,26 @@ export async function loadItems(market = "gb"): Promise<Item[]> {
 export async function loadSellers(market = "gb"): Promise<Seller[]> {
   const sellers = await readR2JSON<Seller[]>(R2Keys.sellers(market));
   return sellers ? stripSellerFields(sellers) : [];
+}
+
+/** Load full shared seller detail. */
+export async function loadSellerDetail(
+  id: string | number,
+): Promise<SellerDetail | null> {
+  const detail = await readR2JSON<SellerDetail>(R2Keys.sellerDetail(id));
+  if (!detail) return null;
+
+  if (detail.share?.includes("littlebiggy.net")) {
+    detail.share = detail.share.replace(/littlebiggy\.net/g, "littlebiggy.org");
+  }
+  if (detail.sellerUrl?.includes("littlebiggy.net")) {
+    detail.sellerUrl = detail.sellerUrl.replace(
+      /littlebiggy\.net/g,
+      "littlebiggy.org",
+    );
+  }
+
+  return detail;
 }
 
 /** Load pre-built home feed — single R2 read replaces 5 separate loads. */

@@ -675,6 +675,17 @@
       },
       "noSellersFound": "Nessun venditore trovato"
     },
+    "detail": {
+      "metadataTitle": "{seller} | BiggyIndex",
+      "notFoundTitle": "Seller not found | BiggyIndex",
+      "backToSellers": "Sellers",
+      "breadcrumb": "Seller page",
+      "currentListings": "Current listings",
+      "listingCount": "{count, plural, =0 {No active listings in this market} one {1 active listing in this market} other {# active listings in this market}}",
+      "viewAllListings": "View all listings",
+      "noListings": "No current listings for this seller in this market.",
+      "openItem": "Open {item}"
+    },
     "modal": {
       "fallbackName": "Venditore",
       "close": "Chiudi",

@@ -12,6 +12,7 @@ const MARKET_LABEL: Record<string, string> = {
   ES: "ES",
   GR: "EL",
   CZ: "CS",
+  PL: "PL",
 };
 
 interface ShowOriginalToggleProps {

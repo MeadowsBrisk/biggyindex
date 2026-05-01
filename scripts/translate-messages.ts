@@ -33,6 +33,7 @@ const TRANSLATOR_TARGETS: Record<string, string> = {
   "es-ES": "es",
   "el-GR": "el",
   "cs-CZ": "cs",
+  "pl-PL": "pl",
 };
 
 const BRAND_TOKENS = [

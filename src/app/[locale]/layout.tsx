@@ -19,7 +19,7 @@ import { localeToMarket } from "@/lib/market/market";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 /** Load messages for a specific locale (no request context needed). */

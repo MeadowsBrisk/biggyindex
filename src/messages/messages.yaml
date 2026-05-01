@@ -37,6 +37,7 @@ $locales:
   - es-ES
   - el-GR
   - cs-CZ
+  - pl-PL
 
 site:
   title: BiggyIndex
@@ -49,6 +50,7 @@ site:
     es-ES: Navegador de mercado de cannabis
     el-GR: Πρόγραμμα περιήγησης Cannabis Marketplace
     cs-CZ: Prohlížeč Cannabis Marketplace
+    pl-PL: Przeglądarka Cannabis Marketplace
   description:
     en-GB: Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more.
     de-DE: Durchstöbern und vergleichen Sie Cannabisprodukte auf Marktplätzen. Preise, Sorten, Bewertungen und mehr.
@@ -58,6 +60,7 @@ site:
     es-ES: Explora y compara productos de cannabis en diferentes marketplaces. Precios, variedades, opiniones y más.
     el-GR: Περιηγηθείτε και συγκρίνετε προϊόντα κάνναβης σε όλες τις αγορές. Τιμές, στελέχη, κριτικές και πολλά άλλα.
     cs-CZ: Prohlížejte a porovnávejte konopné produkty napříč tržišti. Ceny, odrůdy, recenze a další.
+    pl-PL: Przeglądaj i porównuj produkty konopne na różnych rynkach. Ceny, odmiany, recenzje i więcej.
 
 nav:
   browse:
@@ -69,6 +72,7 @@ nav:
     es-ES: Explorar
     el-GR: Περιήγηση
     cs-CZ: Procházet
+    pl-PL: Przeglądaj
   reviews:
     en-GB: Reviews
     de-DE: Rezensionen
@@ -78,6 +82,7 @@ nav:
     es-ES: Reseñas
     el-GR: Κριτικές
     cs-CZ: Recenze
+    pl-PL: Recenzje
   sellers:
     en-GB: Sellers
     de-DE: Verkäufer
@@ -87,6 +92,7 @@ nav:
     es-ES: Vendedores
     el-GR: Πωλητές
     cs-CZ: Prodejci
+    pl-PL: Sprzedawcy
   settings:
     en-GB: Settings
     de-DE: Einstellungen
@@ -96,6 +102,7 @@ nav:
     es-ES: Escenarios
     el-GR: Ρυθμίσεις
     cs-CZ: Prostředí
+    pl-PL: Ustawienia
 
 categories:
   all:
@@ -107,6 +114,7 @@ categories:
     es-ES: Todos
     el-GR: Όλα
     cs-CZ: Všichni
+    pl-PL: Wszyscy
   Flower:
     en-GB: Flower
     de-DE: Blume
@@ -116,6 +124,7 @@ categories:
     es-ES: Flor
     el-GR: Λουλούδι
     cs-CZ: Květina
+    pl-PL: Kwiat
   Shake:
     en-GB: Shake
     de-DE: Schütteln
@@ -125,6 +134,7 @@ categories:
     es-ES: Shake
     el-GR: Σέικ
     cs-CZ: Shake
+    pl-PL: Shake
   Hash:
     en-GB: Hash
     de-DE: Hash
@@ -134,6 +144,7 @@ categories:
     es-ES: Hash
     el-GR: Χασίς
     cs-CZ: Hash
+    pl-PL: Hash
   Concentrates:
     en-GB: Concentrates
     de-DE: Konzentrate
@@ -143,6 +154,7 @@ categories:
     es-ES: Concentrados
     el-GR: Συμπυκνώματα
     cs-CZ: Koncentráty
+    pl-PL: Koncentraty
   Distillate:
     en-GB: Distillate
     de-DE: Destillat
@@ -152,6 +164,7 @@ categories:
     es-ES: Destilado
     el-GR: Απόσταγμα
     cs-CZ: Destilát
+    pl-PL: Destylat
   Vapes:
     en-GB: Vapes
     de-DE: Vapes
@@ -161,6 +174,7 @@ categories:
     es-ES: Vapeadores
     el-GR: Ατμιστές
     cs-CZ: Vape
+    pl-PL: E-papierosy
   PreRolls:
     en-GB: Pre-Rolls
     de-DE: Pre-Rolls
@@ -170,6 +184,7 @@ categories:
     es-ES: Pre-Rolls
     el-GR: Προ-ρολά
     cs-CZ: Před-Rolls
+    pl-PL: Przed filmowaniem
   Edibles:
     en-GB: Edibles
     de-DE: Essbare Produkte
@@ -179,6 +194,7 @@ categories:
     es-ES: Comestibles
     el-GR: Βρώσιμα
     cs-CZ: Jedlé produkty
+    pl-PL: Edibles
   Tincture:
     en-GB: Tincture
     de-DE: Tinktur
@@ -188,6 +204,7 @@ categories:
     es-ES: Tintura
     el-GR: Βάμμα
     cs-CZ: Tinktura
+    pl-PL: Nalewka
   Psychedelics:
     en-GB: Psychedelics
     de-DE: Psychedelika
@@ -197,6 +214,7 @@ categories:
     es-ES: Psicodélicos
     el-GR: Ψυχεδελικά
     cs-CZ: Psychedelika
+    pl-PL: Psychodeliki
   Other:
     en-GB: Other
     de-DE: Sonstiges
@@ -206,6 +224,7 @@ categories:
     es-ES: Otros
     el-GR: Άλλα
     cs-CZ: Ostatní
+    pl-PL: Inne
 
 markets:
   GB:
@@ -217,6 +236,7 @@ markets:
     es-ES: Reino Unido
     el-GR: Ηνωμένο Βασίλειο
     cs-CZ: Spojené království
+    pl-PL: Wielka Brytania
   IE:
     en-GB: Ireland
     de-DE: Irland
@@ -226,6 +246,7 @@ markets:
     es-ES: Irlanda
     el-GR: Ιρλανδία
     cs-CZ: Irsko
+    pl-PL: Irlandia
   DE:
     en-GB: Germany
     de-DE: Deutschland
@@ -235,6 +256,7 @@ markets:
     es-ES: Alemania
     el-GR: Γερμανία
     cs-CZ: Německo
+    pl-PL: Niemcy
   FR:
     en-GB: France
     de-DE: Frankreich
@@ -244,6 +266,7 @@ markets:
     es-ES: Francia
     el-GR: Γαλλία
     cs-CZ: Francie
+    pl-PL: Francja
   PT:
     en-GB: Portugal
     de-DE: Portugal
@@ -253,6 +276,7 @@ markets:
     es-ES: Portugal
     el-GR: Πορτογαλία
     cs-CZ: Portugalsko
+    pl-PL: Portugalia
   IT:
     en-GB: Italy
     de-DE: Italien
@@ -262,6 +286,7 @@ markets:
     es-ES: Italia
     el-GR: Ιταλία
     cs-CZ: Itálie
+    pl-PL: Włochy
   ES:
     en-GB: Spain
     de-DE: Spanien
@@ -271,6 +296,7 @@ markets:
     es-ES: España
     el-GR: Ισπανία
     cs-CZ: Španělsko
+    pl-PL: Hiszpania
   GR:
     en-GB: Greece
     de-DE: Griechenland
@@ -280,6 +306,7 @@ markets:
     es-ES: Grecia
     el-GR: Ελλάδα
     cs-CZ: Řecko
+    pl-PL: Grecja
   CZ:
     en-GB: Czech Republic
     de-DE: Tschechische Republik
@@ -289,6 +316,7 @@ markets:
     es-ES: República Checa
     el-GR: Δημοκρατία της Τσεχίας
     cs-CZ: Česká republika
+    pl-PL: Czechy
 
 header:
   basket:
@@ -303,6 +331,7 @@ header:
       es-ES: Menú abierto
       el-GR: Άνοιγμα μενού
       cs-CZ: Otevřít menu
+      pl-PL: Otwórz menu
     close:
       en-GB: Close menu
       de-DE: Menü schließen
@@ -312,6 +341,7 @@ header:
       es-ES: Menú cerrado
       el-GR: Κλείσιμο μενού
       cs-CZ: Zavřít menu
+      pl-PL: Zamknij menu
   marketMenu:
     market:
       en-GB: Market
@@ -322,6 +352,7 @@ header:
       es-ES: Mercado
       el-GR: Αγορά
       cs-CZ: Trh
+      pl-PL: Rynek
     displayPricesIn:
       en-GB: Display prices in
       de-DE: Preise anzeigen in
@@ -331,6 +362,7 @@ header:
       es-ES: Precios de visualización en
       el-GR: Εμφάνιση τιμών σε
       cs-CZ: Zobrazit ceny v
+      pl-PL: Ceny wyświetlane w
     approximateWhenConverted:
       en-GB: Approximate when converted
       de-DE: Ungefähr bei Umrechnung
@@ -340,6 +372,7 @@ header:
       es-ES: Aproximar cuando se convierte
       el-GR: Κατά προσέγγιση κατά τη μετατροπή
       cs-CZ: Přibližné při převodu
+      pl-PL: Przybliżone po konwersji
     language:
       en-GB: Language
       de-DE: Sprache
@@ -349,6 +382,7 @@ header:
       es-ES: Idioma
       el-GR: Γλώσσα
       cs-CZ: Jazyk
+      pl-PL: Język
     english:
       en-GB: English
       de-DE: Englisch
@@ -358,6 +392,7 @@ header:
       es-ES: Inglés
       el-GR: Αγγλικά
       cs-CZ: Angličtina
+      pl-PL: Angielski
 
 footer:
   ctaTitle:
@@ -369,6 +404,7 @@ footer:
     es-ES: Encuentra lo que buscas.
     el-GR: Βρείτε αυτό που ψάχνετε.
     cs-CZ: Najděte, co hledáte.
+    pl-PL: Znajdź to, czego szukasz.
   ctaCopy:
     en-GB: Explore thousands of listings from Little Biggy sellers - a marketplace built on the principle of do no harm.
     de-DE: Entdecken Sie Tausende von Angeboten von Little Biggy Verkäufern – einem Marktplatz, der auf dem Prinzip "Schaden zufügen" basiert.
@@ -378,6 +414,7 @@ footer:
     es-ES: Explora miles de anuncios de vendedores Little Biggy, un mercado construido bajo el principio de no hacer daño.
     el-GR: Εξερευνήστε χιλιάδες καταχωρίσεις από Little Biggy πωλητές - μια αγορά που βασίζεται στην αρχή του μη βλάπτειν.
     cs-CZ: Prozkoumejte tisíce nabídek od Little Biggy prodejců – tržiště postavené na principu neškodit.
+    pl-PL: Odkryj tysiące ofert od Little Biggy sprzedawców – rynek zbudowany na zasadzie "nie szkodzić".
   browseItems:
     en-GB: Browse items
     de-DE: Durchstöbern Sie Artikel
@@ -387,6 +424,7 @@ footer:
     es-ES: Explorar los artículos
     el-GR: Αναζήτηση στοιχείων
     cs-CZ: Prohlížení položek
+    pl-PL: Przeglądaj przedmioty
   community:
     en-GB: Community
     de-DE: Gemeinschaft
@@ -396,6 +434,7 @@ footer:
     es-ES: Comunidad
     el-GR: Κοινότητα
     cs-CZ: Komunita
+    pl-PL: Społeczność
   communityCopy:
     en-GB: Join the conversation. Share experiences, ask questions, or check seller reputations.
     de-DE: Beteiligen Sie sich an der Diskussion. Teilen Sie Erfahrungen, stellen Sie Fragen oder überprüfen Sie den Ruf von Verkäufern.
@@ -405,6 +444,7 @@ footer:
     es-ES: Únete a la conversación. Comparte experiencias, haz preguntas o consulta la reputación de los vendedores.
     el-GR: Ενώστε τη συζήτηση. Μοιραστείτε εμπειρίες, κάντε ερωτήσεις ή ελέγξτε τη φήμη των πωλητών.
     cs-CZ: Připojte se k diskusi. Sdílejte zkušenosti, ptejte se na otázky nebo kontrolujte reputaci prodejců.
+    pl-PL: Dołącz do rozmowy. Dziel się doświadczeniami, zadawaj pytania lub sprawdź reputację sprzedawców.
   privacy:
     en-GB: Privacy
     de-DE: Privatsphäre
@@ -414,6 +454,7 @@ footer:
     es-ES: Privacidad
     el-GR: Απόρρητο
     cs-CZ: Soukromí
+    pl-PL: Prywatność
   terms:
     en-GB: Terms
     de-DE: Begriffe
@@ -423,6 +464,7 @@ footer:
     es-ES: Términos
     el-GR: Όροι
     cs-CZ: Podmínky
+    pl-PL: Warunki
   cookies:
     en-GB: Cookies
     de-DE: Kekse
@@ -432,6 +474,7 @@ footer:
     es-ES: Galletas
     el-GR: Μπισκότα
     cs-CZ: Sušenky
+    pl-PL: Ciasteczka
   copyright:
     en-GB: © {year} Biggy Index. Prices shown may vary - always check the store for the latest pricing.
     de-DE: © {year} Biggy Index. Die angezeigten Preise können variieren – prüfen Sie immer den Laden für die neuesten Preise.
@@ -441,6 +484,7 @@ footer:
     es-ES: "© {year} Biggy Index. Los precios que aparecen pueden variar: siempre consulta la tienda para ver los precios más recientes."
     el-GR: © {year} Biggy Index. Οι τιμές που εμφανίζονται ενδέχεται να διαφέρουν - ελέγχετε πάντα το κατάστημα για τις πιο πρόσφατες τιμές.
     cs-CZ: © {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě.
+    pl-PL: © {year} Biggy Index. Ceny mogą się różnić – zawsze sprawdź sklep pod kątem najnowszych cen.
 
 home:
   heroTitle:
@@ -452,6 +496,7 @@ home:
     es-ES: El Índice de Cannabis
     el-GR: Ο Δείκτης Κάνναβης
     cs-CZ: Index konopí
+    pl-PL: Indeks konopi
   heroSubtitle:
     en-GB: Browse {itemCount} products from {sellerCount} sellers
     de-DE: Durchstöbern Sie {itemCount} Produkte von {sellerCount} Verkäufern
@@ -461,6 +506,7 @@ home:
     es-ES: Explora {itemCount} productos de {sellerCount} vendedores
     el-GR: Περιηγηθείτε στα προϊόντα {itemCount} από τους πωλητές {sellerCount}
     cs-CZ: Prohlédněte si {itemCount} produkty od {sellerCount} prodejců
+    pl-PL: Przeglądaj {itemCount} produkty od {sellerCount} sprzedawców
   whatsNew:
     en-GB: What's New
     de-DE: Was gibt's Neues
@@ -470,6 +516,7 @@ home:
     es-ES: Qué hay de nuevo
     el-GR: Τι νέα
     cs-CZ: Co je nového
+    pl-PL: Co nowego
   recentlyAdded:
     en-GB: Recently Added
     de-DE: Kürzlich hinzugefügt
@@ -479,6 +526,7 @@ home:
     es-ES: Añadido recientemente
     el-GR: Προστέθηκαν πρόσφατα
     cs-CZ: Nedávno přidáno
+    pl-PL: Niedawno dodane
   recentlyUpdated:
     en-GB: Recently Updated
     de-DE: Kürzlich aktualisiert
@@ -488,6 +536,7 @@ home:
     es-ES: Actualizado recientemente
     el-GR: Πρόσφατα ενημερώθηκε
     cs-CZ: Nedávno aktualizováno
+    pl-PL: Ostatnio zaktualizowane
   popular:
     en-GB: Popular
     de-DE: Beliebt
@@ -497,6 +546,7 @@ home:
     es-ES: Populares
     el-GR: Δημοφιλές
     cs-CZ: Populární
+    pl-PL: Popularny
   topSellers:
     en-GB: Top Sellers
     de-DE: Bestseller
@@ -506,6 +556,7 @@ home:
     es-ES: Más vendidos
     el-GR: Κορυφαία σε πωλήσεις
     cs-CZ: Nejprodávanější knihy
+    pl-PL: Najlepiej sprzedające się książki
   communityReviews:
     en-GB: Community Reviews
     de-DE: Community-Bewertungen
@@ -515,6 +566,7 @@ home:
     es-ES: Reseñas de la comunidad
     el-GR: Κριτικές κοινότητας
     cs-CZ: Recenze komunity
+    pl-PL: Recenzje społeczności
   viewAll:
     en-GB: View all
     de-DE: Alle anzeigen
@@ -524,6 +576,7 @@ home:
     es-ES: Ver todo
     el-GR: Προβολή όλων
     cs-CZ: Zobrazit vše
+    pl-PL: Zobacz wszystko
   embassy:
     badge:
       en-GB: Need help?
@@ -535,6 +588,7 @@ home:
       es-ES: ¿Necesitas ayuda?
       el-GR: Χρειάζεστε βοήθεια;
       cs-CZ: Potřebujete pomoc?
+      pl-PL: Potrzebujesz pomocy?
     title:
       en-GB: Little Biggy embassy
       en-IE: Little Biggy embassy
@@ -545,6 +599,7 @@ home:
       es-ES: Embajada de Little Biggy
       el-GR: Πρεσβεία Little Biggy
       cs-CZ: Little Biggy ambasáda
+      pl-PL: Little Biggy ambasada
     subtitle:
       en-GB: New to Little Biggy? Our embassy is a community post where you can ask questions and get help in your language.
       en-IE: New to Little Biggy? Our embassy is a community post where you can ask questions and get help in your language.
@@ -555,6 +610,7 @@ home:
       es-ES: ¿Nuevo en Little Biggy? La embajada es un post de la comunidad donde puedes hacer preguntas y recibir ayuda en español.
       el-GR: Νέος στο Little Biggy; Η πρεσβεία είναι μια ανάρτηση της κοινότητας όπου μπορείτε να κάνετε ερωτήσεις και να λάβετε βοήθεια στη γλώσσα σας.
       cs-CZ: Jste v Little Biggy noví? Ambasáda je komunitní příspěvek, kde můžete pokládat otázky a získat pomoc ve svém jazyce.
+      pl-PL: Nowy w Little Biggy? Nasza ambasada to miejsce społecznościowe, gdzie możesz zadawać pytania i uzyskać pomoc w swoim języku.
     cta:
       en-GB: Visit the embassy
       en-IE: Visit the embassy
@@ -565,6 +621,7 @@ home:
       es-ES: Visitar la embajada
       el-GR: Επισκεφθείτε την πρεσβεία
       cs-CZ: Navštívit ambasádu
+      pl-PL: Odwiedź ambasadę
   photoReviewModal:
     time:
       justNow:
@@ -576,6 +633,7 @@ home:
         es-ES: Justo ahora
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
+        pl-PL: Przed chwilą
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -585,6 +643,7 @@ home:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       oneDayAgo:
         en-GB: 1 day ago
         de-DE: Vor 1 Tag
@@ -594,6 +653,7 @@ home:
         es-ES: Hace 1 día
         el-GR: 1 ημέρα Πριν
         cs-CZ: Před 1 dnem
+        pl-PL: 1 dzień temu
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -603,6 +663,7 @@ home:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -612,6 +673,7 @@ home:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
     noImages:
       en-GB: No images attached
       de-DE: Keine Bilder angehängt
@@ -621,6 +683,7 @@ home:
       es-ES: No se adjuntan imágenes
       el-GR: Δεν επισυνάπτονται εικόνες
       cs-CZ: Žádné obrázky nejsou připojeny
+      pl-PL: Brak załączonych obrazów
     zoomImage:
       en-GB: Zoom image
       de-DE: Zoombild
@@ -630,6 +693,7 @@ home:
       es-ES: Imagen ampliada
       el-GR: Μεγέθυνση εικόνας
       cs-CZ: Přiblížení obrazu
+      pl-PL: Obraz powiększany
     zoomPhoto:
       en-GB: Zoom photo {index} of {total}
       de-DE: Zoomfoto {index} von {total}
@@ -639,6 +703,7 @@ home:
       es-ES: Zoom foto {index} de {total}
       el-GR: Μεγέθυνση φωτογραφίας {index} {total}
       cs-CZ: Zoom fotografie {index} {total}
+      pl-PL: Zdjęcie {index} na Zoomie {total}
     reviewPhoto:
       en-GB: Review photo
       de-DE: Rezensionsfoto
@@ -648,6 +713,7 @@ home:
       es-ES: Foto de reseña
       el-GR: Φωτογραφία κριτικής
       cs-CZ: Recenzní fotografie
+      pl-PL: Zdjęcie recenzyjne
     close:
       en-GB: Close review
       de-DE: Genaue Rezension
@@ -657,6 +723,7 @@ home:
       es-ES: Revisión detallada
       el-GR: Κλείσιμο κριτικής
       cs-CZ: Důkladná recenze
+      pl-PL: Szczegółowa recenzja
     bySeller:
       en-GB: by {seller}
       de-DE: von {seller}
@@ -666,6 +733,7 @@ home:
       es-ES: por {seller}
       el-GR: από {seller}
       cs-CZ: od {seller}
+      pl-PL: "autor: {seller}"
     deliveryDays:
       en-GB: "{days}d"
       de-DE: "{days}d"
@@ -675,6 +743,7 @@ home:
       es-ES: "{days}d"
       el-GR: "{days}d"
       cs-CZ: "{days}d"
+      pl-PL: "{days}d"
     noText:
       en-GB: No written review text.
       de-DE: Kein schriftlicher Rezensionstext.
@@ -684,6 +753,7 @@ home:
       es-ES: No hay texto escrito de reseña.
       el-GR: Δεν υπάρχει γραπτό κείμενο κριτικής.
       cs-CZ: Žádný psaný recenzní text.
+      pl-PL: Brak pisemnego tekstu recenzji.
     openItem:
       en-GB: Open item
       de-DE: Offener Artikel
@@ -693,6 +763,7 @@ home:
       es-ES: Punto abierto
       el-GR: Άνοιγμα στοιχείου
       cs-CZ: Otevřená položka
+      pl-PL: Otwarty przedmiot
     viewOnLittleBiggy:
       en-GB: View on LittleBiggy
       de-DE: Blick auf LittleBiggy
@@ -702,6 +773,7 @@ home:
       es-ES: Ver en LittleBiggy
       el-GR: Προβολή στο LittleBiggy
       cs-CZ: Zobrazit LittleBiggy
+      pl-PL: Zobacz LittleBiggy
   hero:
     title:
       line1:
@@ -713,6 +785,7 @@ home:
         es-ES: Un índice para la
         el-GR: Ένας δείκτης για το
         cs-CZ: Index pro
+        pl-PL: Indeks dla
       highlight:
         en-GB: 420 marketplace
         de-DE: Marktplatz 420
@@ -722,6 +795,7 @@ home:
         es-ES: Mercado 420
         el-GR: 420 αγορά
         cs-CZ: Tržiště 420
+        pl-PL: Rynek 420
     subtitle:
       en-GB: Faster search, cleaner categories, and at-a-glance seller trust for the Little Biggy marketplace.
       de-DE: Schnellere Suche, übersichtlichere Kategorien und schnelles Vertrauen der Verkäufer für den Little Biggy Marktplatz.
@@ -731,6 +805,7 @@ home:
       es-ES: Búsqueda más rápida, categorías más limpias y confianza rápida en el mercado Little Biggy de los vendedores.
       el-GR: Ταχύτερη αναζήτηση, καθαρότερες κατηγορίες και εμπιστοσύνη πωλητών με μια ματιά για την αγορά Little Biggy.
       cs-CZ: Rychlejší vyhledávání, čistší kategorie a okamžitá důvěra prodejců pro Little Biggy trh.
+      pl-PL: Szybsze wyszukiwanie, czystsze kategorie i szybkie zaufanie sprzedawców na rynku Little Biggy.
     stats:
       itemsIndexed:
         en-GB: items indexed
@@ -741,6 +816,7 @@ home:
         es-ES: Elementos indexados
         el-GR: Στοιχεία που έχουν ευρετηριαστεί
         cs-CZ: Položky indexované
+        pl-PL: Przedmioty indeksowane
       activeSellers:
         en-GB: active sellers
         de-DE: Aktive Verkäufer
@@ -750,6 +826,7 @@ home:
         es-ES: Vendedores activos
         el-GR: Ενεργοί πωλητές
         cs-CZ: Aktivní prodejci
+        pl-PL: Aktywni sprzedawcy
     cta:
       en-GB: Browse Marketplace
       de-DE: Durchstöbern Sie Marktplatz
@@ -759,6 +836,7 @@ home:
       es-ES: Navegar por el Marketplace
       el-GR: Περιήγηση στο Marketplace
       cs-CZ: Procházet tržiště
+      pl-PL: Przeglądaj Marketplace
     markets:
       en-GB: Markets
       de-DE: Märkte
@@ -768,6 +846,7 @@ home:
       es-ES: Mercados
       el-GR: Αγορές
       cs-CZ: Trhy
+      pl-PL: Rynki
   quickStart:
     heading:
       en-GB: How It Works
@@ -778,6 +857,7 @@ home:
       es-ES: Cómo funciona
       el-GR: Πως δουλεύει
       cs-CZ: Jak to funguje
+      pl-PL: Jak to działa
     subheading:
       en-GB: New to Little Biggy? Here's a quick overview of the process from start to finish.
       de-DE: Neu bei Little Biggy? Hier ist ein kurzer Überblick über den Prozess von Anfang bis Ende.
@@ -787,6 +867,7 @@ home:
       es-ES: ¿Nuevo en Little Biggy? Aquí tienes un resumen rápido del proceso de principio a fin.
       el-GR: Είστε νέος στο Little Biggy; Ακολουθεί μια γρήγορη επισκόπηση της διαδικασίας από την αρχή μέχρι το τέλος.
       cs-CZ: Jste v Little Biggy noví? Tady je rychlý přehled celého procesu od začátku do konce.
+      pl-PL: Nowy w Little Biggy? Oto szybki przegląd całego procesu od początku do końca.
     steps:
       bitcoin:
         title:
@@ -798,6 +879,7 @@ home:
           es-ES: Consigue algo de Bitcoin
           el-GR: Πάρτε λίγο Bitcoin
           cs-CZ: Získejte nějaký Bitcoin
+          pl-PL: Kup trochę Bitcoina
         summary:
           en-GB: Grab some Bitcoin so you're ready to check out.
           de-DE: Schnapp dir etwas Bitcoin, damit du bereit bist, auszuchecken.
@@ -807,6 +889,7 @@ home:
           es-ES: Consigue algo de Bitcoin para estar listo para probarlo.
           el-GR: Πάρτε λίγο Bitcoin για να είστε έτοιμοι να το ελέγξετε.
           cs-CZ: Pořiďte si Bitcoin, abyste byli připraveni odejít.
+          pl-PL: Złap trochę Bitcoina, żeby być gotowym do zakupu.
         intro:
           en-GB: Little Biggy only accepts Bitcoin. You'll need to set up a way to buy some if you haven't already, so that you're ready to start ordering items.
           de-DE: Little Biggy akzeptiert nur Bitcoin. Du musst eine Möglichkeit einrichten, welche zu kaufen, falls du das noch nicht getan hast, damit du bereit bist, mit der Bestellung von Artikeln zu beginnen.
@@ -816,6 +899,7 @@ home:
           es-ES: Little Biggy solo acepta Bitcoin. Tendrás que configurar una forma de comprar algunos si aún no lo has hecho, para estar listo para empezar a pedir artículos.
           el-GR: Little Biggy δέχεται μόνο Bitcoin. Θα χρειαστεί να δημιουργήσετε έναν τρόπο για να αγοράσετε μερικά, αν δεν το έχετε κάνει ήδη, ώστε να είστε έτοιμοι να αρχίσετε να παραγγέλνετε αντικείμενα.
           cs-CZ: Little Biggy přijímá pouze Bitcoin. Pokud jste to ještě neudělali, budete si muset nastavit způsob, jak si nějaké koupit, abyste byli připraveni začít objednávat zboží.
+          pl-PL: Little Biggy akceptuje tylko Bitcoina. Będziesz musiał wymyślić sposób na zakup kilku produktów, jeśli jeszcze tego nie zrobiłeś, żeby być gotowym do zamawiania produktów.
         easiestWay:
           heading:
             en-GB: Easiest way
@@ -826,6 +910,7 @@ home:
             es-ES: La forma más fácil
             el-GR: Ο ευκολότερος τρόπος
             cs-CZ: Nejjednodušší způsob
+            pl-PL: Najprostszy sposób
           text:
             en-GB: Apps you may already use, such as Revolut or Monzo, let you purchase Bitcoin inside the banking app in a few taps.
             de-DE: Apps, die Sie bereits nutzen, wie Revolut oder Monzo, ermöglichen es Ihnen, Bitcoin innerhalb der Banking-App mit wenigen Klicks zu kaufen.
@@ -835,6 +920,7 @@ home:
             es-ES: Las aplicaciones que quizá ya uses, como Revolut o Monzo, te permiten comprar Bitcoin dentro de la app bancaria con unos pocos toques.
             el-GR: Οι εφαρμογές που μπορεί να χρησιμοποιείτε ήδη, όπως η Revolut ή η Monzo, σας επιτρέπουν να αγοράσετε Bitcoin μέσα στην τραπεζική εφαρμογή με λίγα αγγίγματα.
             cs-CZ: Aplikace, které už možná používáte, jako Revolut nebo Monzo, vám umožní nakupovat Bitcoin přímo v bankovní aplikaci několika kliknutími.
+            pl-PL: Aplikacje, których już używasz, takie jak Revolut czy Monzo, pozwalają kupić Bitcoina w aplikacji bankowej za pomocą kilku kliknięć.
         otherOptions:
           heading:
             en-GB: Other popular options
@@ -845,6 +931,7 @@ home:
             es-ES: Otras opciones populares
             el-GR: Άλλες δημοφιλείς επιλογές
             cs-CZ: Další oblíbené možnosti
+            pl-PL: Inne popularne opcje
           text:
             en-GB: A crypto exchange such as Coinbase or Kraken works just as well. They operate a bit like an online currency bureau.
             de-DE: Eine Krypto-Börse wie Coinbase oder Kraken funktioniert genauso gut. Sie funktionieren ein bisschen wie ein Online-Währungsbüro.
@@ -854,6 +941,7 @@ home:
             es-ES: Un exchange de criptomonedas como Coinbase o Kraken funciona igual de bien. Funcionan un poco como una agencia de divisas online.
             el-GR: Ένα ανταλλακτήριο κρυπτογράφησης όπως το Coinbase ή το Kraken λειτουργεί εξίσου καλά. Λειτουργούν λίγο σαν ένα διαδικτυακό γραφείο συναλλάγματος.
             cs-CZ: Kryptoměnová burza jako Coinbase nebo Kraken funguje stejně dobře. Fungují trochu jako online měnový úřad.
+            pl-PL: Giełda kryptowalut taka jak Coinbase czy Kraken sprawdza się równie dobrze. Działają trochę jak internetowe biuro walutowe.
         proTip:
           label:
             en-GB: "Pro tip:"
@@ -864,6 +952,7 @@ home:
             es-ES: "Consejo profesional:"
             el-GR: "Επαγγελματική συμβουλή:"
             cs-CZ: "Tip:"
+            pl-PL: "Porada profesjonalna:"
           text:
             en-GB: Buy a few pounds more than you need and round up. That extra buffer covers network fees or crypto volatility.
             de-DE: Kaufe ein paar Pfund mehr, als du brauchst, und runde auf. Dieser zusätzliche Puffer deckt Netzwerkgebühren oder Krypto-Volatilität ab.
@@ -873,6 +962,7 @@ home:
             es-ES: Compra unas pocas libras más de las que necesitas y redondea al alza. Ese colchón extra cubre las comisiones de la red o la volatilidad de las criptomonedas.
             el-GR: Αγοράστε μερικές λίρες παραπάνω από όσες χρειάζεστε και στρογγυλοποιήστε προς τα πάνω. Αυτό το επιπλέον buffer καλύπτει τα τέλη δικτύου ή τη μεταβλητότητα των κρυπτονομισμάτων.
             cs-CZ: Kupte si o pár liber víc, než potřebujete, a zaokrouhlete nahoru. Tato dodatečná rezerva pokrývá síťové poplatky nebo volatilitu kryptoměn.
+            pl-PL: Kup kilka funtów więcej niż potrzebujesz i zaokrąglij w górę. Ten dodatkowy bufor pokrywa opłaty sieciowe lub zmienność kryptowalut.
         peerToPeer:
           label:
             en-GB: Want to skip the exchange?
@@ -883,6 +973,7 @@ home:
             es-ES: ¿Quieres saltarte el intercambio?
             el-GR: Θέλετε να παραλείψετε την ανταλλαγή;
             cs-CZ: Chcete vynechat výměnu?
+            pl-PL: Chcesz pominąć wymianę?
           beforeLinks:
             en-GB: Peer-to-peer platforms such as
             de-DE: Peer-to-Peer-Plattformen wie
@@ -892,6 +983,7 @@ home:
             es-ES: Plataformas peer-to-peer como
             el-GR: Οι πλατφόρμες peer-to-peer, όπως
             cs-CZ: Peer-to-peer platformy jako
+            pl-PL: Platformy peer-to-peer, takie jak
           betweenLinks:
             en-GB: or
             de-DE: oder
@@ -901,6 +993,7 @@ home:
             es-ES: o
             el-GR: ή
             cs-CZ: nebo
+            pl-PL: lub
           afterLinks:
             en-GB: let you buy Bitcoin directly from another person - no exchange account, no KYC paperwork. It's more hands-on, but the coins land straight in a wallet you control.
             de-DE: es erlaubt dir, Bitcoin direkt von einer anderen Person zu kaufen – kein Börsenkonto, keine KYC-Unterlagen. Es ist praktischer, aber die Coins landen direkt in einer Wallet, die du kontrollierst.
@@ -910,6 +1003,7 @@ home:
             es-ES: "Te permite comprar Bitcoin directamente a otra persona: sin cuenta de intercambio, sin papeleo KYC. Es más práctico, pero las monedas caen directamente en una cartera que controlas."
             el-GR: σας επιτρέπει να αγοράσετε Bitcoin απευθείας από άλλο άτομο - χωρίς λογαριασμό ανταλλαγής, χωρίς έγγραφα KYC. Είναι πιο πρακτικό, αλλά τα νομίσματα προσγειώνονται κατευθείαν σε ένα πορτοφόλι που ελέγχετε.
             cs-CZ: umožňuje nakupovat Bitcoin přímo od jiné osoby – bez směnárního účtu, bez KYC papírování. Je to více praktické, ale mince dopadnou přímo do peněženky, kterou ovládáte.
+            pl-PL: pozwalało kupić Bitcoina bezpośrednio od innej osoby – bez konta giełdowego, bez dokumentów KYC. Jest bardziej praktyczna, ale monety lądują prosto w portfelu, którym sterujesz.
       browse:
         title:
           en-GB: Find Your Items
@@ -920,6 +1014,7 @@ home:
           es-ES: Encuentra tus objetos
           el-GR: Βρείτε τα αντικείμενά σας
           cs-CZ: Najděte své věci
+          pl-PL: Znajdź swoje przedmioty
         summary:
           en-GB: Browse the Little Biggy catalogue like you would on eBay.
           de-DE: Durchstöbern Sie den Little Biggy-Katalog wie auf eBay.
@@ -929,6 +1024,7 @@ home:
           es-ES: Explora el catálogo de Little Biggy como harías en eBay.
           el-GR: Περιηγηθείτε στον κατάλογο Little Biggy όπως θα κάνατε στο eBay.
           cs-CZ: Prohlédněte si katalog Little Biggy jako byste to dělali na eBay.
+          pl-PL: Przeglądaj katalog Little Biggy tak, jak na eBayu.
         intro:
           en-GB: Find items you want to buy - on Little Biggy itself or via the index. There's a huge selection, so have a good browse.
           de-DE: Finde die Artikel, die du kaufen möchtest – auf Little Biggy selbst oder über den Index. Es gibt eine riesige Auswahl, also stöbere gründlich.
@@ -938,6 +1034,7 @@ home:
           es-ES: Encuentra los artículos que quieras comprar, ya sea en Little Biggy o a través del índice. Hay una gran selección, así que échale un buen vistazo.
           el-GR: Βρείτε αντικείμενα που θέλετε να αγοράσετε - στο ίδιο Little Biggy ή μέσω του ευρετηρίου. Υπάρχει μια τεράστια ποικιλία, οπότε κάντε μια καλή περιήγηση.
           cs-CZ: Najděte věci, které chcete koupit – přímo na Little Biggy nebo přes index. Je tam obrovský výběr, tak si dobře prohlížejte.
+          pl-PL: Znajdź rzeczy, które chcesz kupić – na Little Biggy samym lub przez indeks. Wybór jest ogromny, więc dobrze się rozejrzyj.
         startBefore:
           en-GB: Click the
           de-DE: Klicken Sie auf die
@@ -947,6 +1044,7 @@ home:
           es-ES: Haz clic en
           el-GR: Κάντε κλικ στο κουμπί
           cs-CZ: Klikněte na
+          pl-PL: Kliknij
         browseButton:
           en-GB: Browse Items
           de-DE: Durchstöbern Sie Artikel
@@ -956,6 +1054,7 @@ home:
           es-ES: Explorar artículos
           el-GR: Αναζήτηση στοιχείων
           cs-CZ: Procházet položky
+          pl-PL: Przeglądaj przedmioty
         startAfter:
           en-GB: button below to start browsing.
           de-DE: Button unten, um mit dem Stöbern zu beginnen.
@@ -965,6 +1064,7 @@ home:
           es-ES: botón abajo para empezar a navegar.
           el-GR: κουμπί παρακάτω για να ξεκινήσετε την περιήγηση.
           cs-CZ: tlačítko níže pro začátek prohlížení.
+          pl-PL: przycisk poniżej, aby zacząć przeglądać.
         trustBefore:
           en-GB: Check product descriptions and reviews to spot trusted sellers. If unsure, Google the seller's name or look on
           de-DE: Überprüfen Sie Produktbeschreibungen und Bewertungen, um vertrauenswürdige Verkäufer zu erkennen. Wenn Sie unsicher sind, googeln Sie den Namen des Verkäufers oder suchen Sie weiter
@@ -974,6 +1074,7 @@ home:
           es-ES: Consulta las descripciones y opiniones de los productos para encontrar vendedores de confianza. Si no estás seguro, busca en Google el nombre del vendedor o busca
           el-GR: Ελέγξτε τις περιγραφές και τις κριτικές προϊόντων για να εντοπίσετε αξιόπιστους πωλητές. Εάν δεν είστε σίγουροι, αναζητήστε στο Google το όνομα του πωλητή ή κοιτάξτε
           cs-CZ: Zkontrolujte popisy produktů a recenze, abyste našli důvěryhodné prodejce. Pokud si nejste jisti, vyhledejte jméno prodejce na Googlu nebo se podívejte dál
+          pl-PL: Sprawdź opisy produktów i recenzje, aby rozpoznać zaufanych sprzedawców. Jeśli nie jesteś pewien, wpisz w Google nazwisko sprzedawcy lub poszukaj dalej
         trustAfter: .
         cart:
           en-GB: When ready, add what you want to your cart and enter your delivery details just like any other online store.
@@ -984,6 +1085,7 @@ home:
           es-ES: Cuando estés listo, añade lo que quieras a tu carrito e introduce tus datos de entrega como en cualquier otra tienda online.
           el-GR: Όταν είστε έτοιμοι, προσθέστε αυτό που θέλετε στο καλάθι σας και εισαγάγετε τα στοιχεία παράδοσης όπως κάθε άλλο ηλεκτρονικό κατάστημα.
           cs-CZ: Až budete připraveni, přidejte do košíku to, co chcete, a zadejte doručovací údaje stejně jako v každém jiném online obchodě.
+          pl-PL: Gdy będziesz gotowy, dodaj to, co chcesz, do koszyka i wprowadź dane dostawy, tak jak w każdym innym sklepie internetowym.
       checkout:
         title:
           en-GB: Checkout & Send Your Bitcoin
@@ -994,6 +1096,7 @@ home:
           es-ES: Paga y envía tu Bitcoin
           el-GR: Ολοκλήρωση αγοράς και αποστολή του Bitcoin σας
           cs-CZ: Vypůjčte si a pošlete svůj Bitcoin
+          pl-PL: Dokonaj płatności i wyślij swoje bitcoiny
         summary:
           en-GB: Copy the details, then send the payment from your phone or laptop.
           de-DE: Kopiere die Details und sende die Zahlung dann von deinem Handy oder Laptop aus.
@@ -1003,6 +1106,7 @@ home:
           es-ES: Copia los datos y luego envía el pago desde tu móvil o portátil.
           el-GR: Αντιγράψτε τα στοιχεία και, στη συνέχεια, στείλτε την πληρωμή από το τηλέφωνο ή τον φορητό υπολογιστή σας.
           cs-CZ: Zkopírujte údaje a pak pošlete platbu z telefonu nebo notebooku.
+          pl-PL: Skopiuj dane, a następnie wyślij płatność z telefonu lub laptopa.
         intro:
           en-GB: At checkout, Little Biggy shows a private order page with everything you need to pay safely, whether you're on one device or switching between phone and desktop.
           de-DE: An der Kasse zeigt Little Biggy eine private Bestellseite mit allem, was Sie brauchen, um sicher zu bezahlen, egal ob Sie auf einem Gerät sind oder zwischen Telefon und Desktop wechseln.
@@ -1012,6 +1116,7 @@ home:
           es-ES: En el momento de pagar, Little Biggy muestra una página de pedido privada con todo lo necesario para pagar de forma segura, ya sea que estés en un solo dispositivo o cambiando entre teléfono y ordenador.
           el-GR: Στο ταμείο, Little Biggy εμφανίζει μια ιδιωτική σελίδα παραγγελιών με όλα όσα χρειάζεστε για να πληρώσετε με ασφάλεια, είτε βρίσκεστε σε μία συσκευή είτε κάνετε εναλλαγή μεταξύ τηλεφώνου και επιτραπέζιου υπολογιστή.
           cs-CZ: Při placení Little Biggy zobrazí soukromou stránku objednávky se vším, co potřebujete k bezpečné placení, ať už jste na jednom zařízení nebo přepínáte mezi telefonem a počítačem.
+          pl-PL: Przy finalizacji Little Biggy wyświetla prywatną stronę zamówienia ze wszystkim, czego potrzebujesz, aby bezpiecznie zapłacić, niezależnie od tego, czy korzystasz z jednego urządzenia, czy przełączasz się między telefonem a komputerem.
         copyHeading:
           en-GB: Copy the two checkout details
           de-DE: Kopiere die beiden Kreditdetails
@@ -1021,6 +1126,7 @@ home:
           es-ES: Copia los dos datos de compra
           el-GR: Αντιγράψτε τα δύο στοιχεία δανεισμού
           cs-CZ: Zkopírovat dva údaje o pokladně
+          pl-PL: Skopiuj dwa dane do zamówienia
         amountLabel:
           en-GB: "The exact BTC amount:"
           de-DE: "Der genaue BTC-Betrag:"
@@ -1030,6 +1136,7 @@ home:
           es-ES: "La cantidad exacta de BTC:"
           el-GR: "Το ακριβές ποσό BTC:"
           cs-CZ: "Přesná částka BTC:"
+          pl-PL: "Dokładna kwota BTC:"
         amountBefore:
           en-GB: it looks like
           de-DE: Sieht so aus
@@ -1039,6 +1146,7 @@ home:
           es-ES: Parece que
           el-GR: Μοιάζει με
           cs-CZ: Vypadá to tak.
+          pl-PL: Wygląda na to, że
         amountAfter:
           en-GB: Copy it exactly so you do not underpay.
           de-DE: Kopieren Sie es genau, damit Sie nicht zu wenig bezahlen.
@@ -1048,6 +1156,7 @@ home:
           es-ES: Cópialo exactamente para no pagar menos.
           el-GR: Αντιγράψτε το ακριβώς για να μην πληρώσετε λιγότερο.
           cs-CZ: Opište to přesně, abyste nepodplatili.
+          pl-PL: Przepisuj to dokładnie, żeby nie zaniżyć pieniędzy.
         addressLabel:
           en-GB: "The Bitcoin address:"
           de-DE: "Die Bitcoin-Adresse:"
@@ -1057,6 +1166,7 @@ home:
           es-ES: "La dirección de Bitcoin:"
           el-GR: "Η διεύθυνση Bitcoin:"
           cs-CZ: "Bitcoinová adresa:"
+          pl-PL: "Adres Bitcoin:"
         addressBefore:
           en-GB: a long string such as
           de-DE: eine lange Schnur wie
@@ -1066,6 +1176,7 @@ home:
           es-ES: una cadena larga como
           el-GR: μια μακριά χορδή όπως
           cs-CZ: dlouhý provázek, například
+          pl-PL: długi sznur, taki jak
         addressAfter:
           en-GB: think of it as the account number for this order.
           de-DE: Stell es dir als die Kontonummer für diese Bestellung vor.
@@ -1075,6 +1186,7 @@ home:
           es-ES: Piénsalo como el número de cuenta de este pedido.
           el-GR: Σκεφτείτε το ως τον αριθμό λογαριασμού για αυτήν την παραγγελία.
           cs-CZ: Představte si to jako číslo účtu pro tuto objednávku.
+          pl-PL: Pomyśl o tym jako o numerze konta tego zamówienia.
         sendHeading:
           en-GB: Send the payment
           de-DE: Senden Sie die Zahlung
@@ -1084,6 +1196,7 @@ home:
           es-ES: Envía el pago
           el-GR: Αποστολή της πληρωμής
           cs-CZ: Pošlete platbu
+          pl-PL: Wyślij płatność
         sendSteps:
           openApp:
             en-GB: Open the app or exchange you used to buy Bitcoin (Revolut, Coinbase, Monzo, Kraken, etc.).
@@ -1094,6 +1207,7 @@ home:
             es-ES: Abre la app o el exchange que usaste para comprar Bitcoin (Revolut, Coinbase, Monzo, Kraken, etc.).
             el-GR: Ανοίξτε την εφαρμογή ή το ανταλλακτήριο που χρησιμοποιήσατε για να αγοράσετε Bitcoin (Revolut, Coinbase, Monzo, Kraken κ.λπ.).
             cs-CZ: Otevřete aplikaci nebo burzu, kterou jste použili k nákupu Bitcoinu (Revolut, Coinbase, Monzo, Kraken atd.).
+            pl-PL: Otwórz aplikację lub giełdę, której używałeś do zakupu Bitcoina (Revolut, Coinbase, Monzo, Kraken itd.).
           chooseSend:
             en-GB: Choose the option to send or withdraw Bitcoin.
             de-DE: Wählen Sie die Option, Bitcoin zu senden oder abzuheben.
@@ -1103,6 +1217,7 @@ home:
             es-ES: Elige la opción de enviar o retirar Bitcoin.
             el-GR: Επιλέξτε την επιλογή αποστολής ή ανάληψης Bitcoin.
             cs-CZ: Vyberte možnost poslat nebo vybrat Bitcoin.
+            pl-PL: Wybierz opcję wysłania lub wypłaty Bitcoina.
           pasteDetails:
             en-GB: Paste the Bitcoin address into the recipient field and the exact BTC amount into the amount field.
             de-DE: Füge die Bitcoin-Adresse in das Empfängerfeld ein und den genauen BTC-Betrag in das Betragsfeld.
@@ -1112,6 +1227,7 @@ home:
             es-ES: Pega la dirección de Bitcoin en el campo de destinatario y la cantidad exacta de BTC en el campo de la cantidad.
             el-GR: Επικολλήστε τη διεύθυνση Bitcoin στο πεδίο παραλήπτη και το ακριβές ποσό BTC στο πεδίο ποσού.
             cs-CZ: Vložte adresu Bitcoinu do pole příjemce a přesnou částku BTC do pole pro částku.
+            pl-PL: Wklej adres Bitcoin do pola odbiorcy i dokładną kwotę BTC do pola kwoty.
           confirm:
             en-GB: Confirm the transfer. Network confirmations usually land within a few minutes and your order page will update automatically.
             de-DE: Bestätigen Sie die Überweisung. Netzwerkbestätigungen landen normalerweise innerhalb weniger Minuten und Ihre Bestellseite aktualisiert sich automatisch.
@@ -1121,6 +1237,7 @@ home:
             es-ES: Confirma la transferencia. Las confirmaciones de la red suelen llegar en pocos minutos y tu página de pedido se actualizará automáticamente.
             el-GR: Επιβεβαιώστε τη μεταφορά. Οι επιβεβαιώσεις δικτύου συνήθως φτάνουν μέσα σε λίγα λεπτά και η σελίδα παραγγελίας σας θα ενημερωθεί αυτόματα.
             cs-CZ: Potvrďte převod. Potvrzení sítě obvykle přicházejí během několika minut a vaše objednávková stránka se automaticky aktualizuje.
+            pl-PL: Potwierdź transfer. Potwierdzenia sieci zwykle pojawiają się w ciągu kilku minut, a strona zamówienia aktualizuje się automatycznie.
       escrow:
         title:
           en-GB: Your Funds Are Safe (Escrow)
@@ -1131,6 +1248,7 @@ home:
           es-ES: Tus fondos están seguros (Depósito en garantía)
           el-GR: Τα χρήματά σας είναι ασφαλή (μεσεγγύηση)
           cs-CZ: Vaše prostředky jsou v bezpečí (escrow)
+          pl-PL: Twoje środki są bezpieczne (escrow)
         summary:
           en-GB: Transaxe holds the money until your order arrives.
           de-DE: Transaxe hält das Geld, bis deine Bestellung eintrifft.
@@ -1140,6 +1258,7 @@ home:
           es-ES: Transaxe retiene el dinero hasta que llegue tu pedido.
           el-GR: Η Transaxe κρατά τα χρήματα μέχρι να φτάσει η παραγγελία σας.
           cs-CZ: Transaxe drží peníze, dokud vaše objednávka nedorazí.
+          pl-PL: Transaxe przechowuje pieniądze do momentu przyjścia zamówienia.
         intro:
           en-GB: Your Bitcoin goes to Transaxe, Little Biggy's built-in escrow system. The seller can see the payment has arrived, but the funds are held securely.
           de-DE: Ihr Bitcoin geht an Transaxe, das integrierte Treuhandsystem Little Biggy. Der Verkäufer sieht, dass die Zahlung angekommen ist, aber die Gelder werden sicher aufbewahrt.
@@ -1149,6 +1268,7 @@ home:
           es-ES: Tu Bitcoin va a Transaxe, el sistema de depósito en garantía integrado de Little Biggy. El vendedor puede ver que el pago ha llegado, pero los fondos están retenidos de forma segura.
           el-GR: Το Bitcoin σας πηγαίνει στο Transaxe, το ενσωματωμένο σύστημα μεσεγγύησης της Little Biggy. Ο πωλητής μπορεί να δει ότι η πληρωμή έχει φτάσει, αλλά τα χρήματα φυλάσσονται με ασφάλεια.
           cs-CZ: Váš Bitcoin jde do Transaxe, vestavěného systému úschovy Little Biggy. Prodávající vidí, že platba dorazila, ale prostředky jsou bezpečně uloženy.
+          pl-PL: Twój Bitcoin trafia do Transaxe, wbudowanego systemu escrow Little Biggy. Sprzedawca widzi, że płatność dotarła, ale środki są bezpiecznie przechowywane.
         release:
           en-GB: The money is only released to the seller once the dispute window closes. This protects you as a buyer - if something goes wrong, you can open a dispute before the window ends.
           de-DE: Das Geld wird dem Verkäufer erst freigegeben, wenn das Streitfrist geschlossen ist. Das schützt Sie als Käufer – falls etwas schiefgeht, können Sie vor Ablauf des Zeitfensters einen Streitfall eröffnen.
@@ -1158,6 +1278,7 @@ home:
           es-ES: "El dinero solo se libera al vendedor una vez que se cierra la ventana de disputa. Esto te protege como comprador: si algo sale mal, puedes abrir una disputa antes de que termine la ventana."
           el-GR: Τα χρήματα αποδεσμεύονται στον πωλητή μόνο όταν κλείσει το παράθυρο διαφωνίας. Αυτό σας προστατεύει ως αγοραστή - εάν κάτι πάει στραβά, μπορείτε να ανοίξετε μια διαφωνία πριν λήξει το παράθυρο.
           cs-CZ: Peníze jsou prodávajícímu uvolněny až po uzavření okna pro spor. To vás chrání jako kupujícího – pokud se něco pokazí, můžete spor otevřít ještě před koncem tohoto období.
+          pl-PL: Pieniądze są sprzedające przekazywane dopiero po zamknięciu okna sporu. To chroni Cię jako kupującego – jeśli coś pójdzie nie tak, możesz otworzyć spór przed upływem okresu przewidywania.
         peaceHeading:
           en-GB: Peace of mind
           de-DE: Frieden im Kopf
@@ -1167,6 +1288,7 @@ home:
           es-ES: Tranquilidad
           el-GR: Ξεγνοιασιά
           cs-CZ: Klid na duši
+          pl-PL: Spokój ducha
         peaceText:
           en-GB: Escrow means the seller never touches your funds until the item is shipped and received. It is the safeguard that keeps Little Biggy honest.
           de-DE: Treuhandkonto bedeutet, dass der Verkäufer Ihre Gelder erst anrührt, wenn der Artikel verschickt und empfangen wurde. Es ist die Schutzmaßnahme, die Little Biggy ehrlich hält.
@@ -1176,6 +1298,7 @@ home:
           es-ES: El depósito en garantía significa que el vendedor nunca toca tus fondos hasta que el artículo sea enviado y recibido. Es la salvaguarda que Little Biggy mantiene honesto.
           el-GR: Μεσεγγύηση σημαίνει ότι ο πωλητής δεν αγγίζει ποτέ τα χρήματά σας μέχρι να αποσταλεί και να παραληφθεί το αντικείμενο. Είναι η προστασία που Little Biggy κρατά ειλικρινείς.
           cs-CZ: Escrow znamená, že prodejce nikdy nedotkne vašich prostředků, dokud není zboží odesláno a přijato. Je to ochrana, která Little Biggy udržuje poctivý.
+          pl-PL: Escrow oznacza, że sprzedawca nigdy nie dotyka Twoich środków, dopóki przedmiot nie zostanie wysłany i odbiór. To właśnie zabezpieczenie sprawia, że Little Biggy uczciwy.
       delivery:
         title:
           en-GB: Wait for the Postie
@@ -1186,6 +1309,7 @@ home:
           es-ES: Espera al cartero
           el-GR: Περιμένετε τον Postie
           cs-CZ: Počkej na pošťáka
+          pl-PL: Czekaj na listonosza
         summary:
           en-GB: Relax while it makes its way to you.
           de-DE: Entspann dich, während es zu dir kommt.
@@ -1195,6 +1319,7 @@ home:
           es-ES: Relájate mientras llega hasta ti.
           el-GR: Χαλαρώστε ενώ φτάνει προς εσάς.
           cs-CZ: Uvolněte se, zatímco se k vám dostane.
+          pl-PL: Zrelaksuj się, gdy to do ciebie dotrze.
         intro:
           en-GB: Sellers typically mark your order as shipped within one business day. Delivery times depend on the seller and your location, but most UK orders arrive within a few days.
           de-DE: Verkäufer markieren Ihre Bestellung in der Regel innerhalb eines Werktages als versandt. Die Lieferzeiten hängen vom Verkäufer und Ihrem Standort ab, aber die meisten Bestellungen im Vereinigten Königreich kommen innerhalb weniger Tage an.
@@ -1204,6 +1329,7 @@ home:
           es-ES: Los vendedores suelen marcar tu pedido como enviado en un día laborable. Los tiempos de entrega dependen del vendedor y de tu ubicación, pero la mayoría de los pedidos en el Reino Unido llegan en pocos días.
           el-GR: Οι πωλητές συνήθως επισημαίνουν την παραγγελία σας ως αποστολή εντός μίας εργάσιμης ημέρας. Οι χρόνοι παράδοσης εξαρτώνται από τον πωλητή και την τοποθεσία σας, αλλά οι περισσότερες παραγγελίες στο Ηνωμένο Βασίλειο φτάνουν εντός λίγων ημερών.
           cs-CZ: Prodejci obvykle označí vaši objednávku jako odeslánou do jednoho pracovního dne. Doba doručení závisí na prodejci a vaší lokalitě, ale většina objednávek ve Velké Británii dorazí během několika dnů.
+          pl-PL: Sprzedawcy zazwyczaj oznaczają zamówienie jako wysłane w ciągu jednego dnia roboczego. Czas dostawy zależy od sprzedawcy i lokalizacji, ale większość zamówień w Wielkiej Brytanii dociera w ciągu kilku dni.
         late:
           en-GB: If your order is late, contact the seller through Little Biggy first - most issues get resolved quickly. Only open a dispute as a last resort.
           de-DE: Wenn deine Bestellung verspätet ist, kontaktiere zuerst den Verkäufer über Little Biggy – die meisten Probleme werden schnell gelöst. Eröffne einen Streitfall nur als letztes Mittel.
@@ -1213,6 +1339,7 @@ home:
           es-ES: Si tu pedido llega tarde, contacta primero con el vendedor a través de Little Biggy; la mayoría de los problemas se resuelven rápido. Solo abre una disputa como último recurso.
           el-GR: Εάν η παραγγελία σας καθυστερήσει, επικοινωνήστε πρώτα με τον πωλητή μέσω Little Biggy - τα περισσότερα ζητήματα επιλύονται γρήγορα. Ανοίξτε μια διαφωνία μόνο ως έσχατη λύση.
           cs-CZ: Pokud je vaše objednávka opožděná, nejdříve kontaktujte prodejce přes Little Biggy – většina problémů se rychle vyřeší. Spor otevírejte jen jako poslední možnost.
+          pl-PL: Jeśli zamówienie jest spóźnione, najpierw skontaktuj się ze sprzedawcą przez Little Biggy – większość problemów szybko się rozwiązuje. Spór otwieraj tylko jako ostateczność.
   faq:
     eyebrow:
       en-GB: Frequently asked
@@ -1223,6 +1350,7 @@ home:
       es-ES: Preguntas frecuentes
       el-GR: Συχνές ερωτήσεις
       cs-CZ: Často se ptá
+      pl-PL: Często zadawane pytania
     heading:
       en-GB: FAQs for first-time visitors
       de-DE: FAQs für Erstbesucher
@@ -1232,6 +1360,7 @@ home:
       es-ES: Preguntas frecuentes para visitantes primerizos
       el-GR: Συχνές ερωτήσεις για επισκέπτες για πρώτη φορά
       cs-CZ: Často kladené otázky pro návštěvníky poprvé
+      pl-PL: Najczęściej zadawane pytania dla osób odwiedzających po raz pierwszy
     tabs:
       about:
         en-GB: About Biggy Index
@@ -1242,6 +1371,7 @@ home:
         es-ES: Sobre Biggy Index
         el-GR: Σχετικά με Biggy Index
         cs-CZ: O Biggy Index
+        pl-PL: O Biggy Index
       bitcoin:
         en-GB: Little Biggy & Bitcoin
         de-DE: Little Biggy & Bitcoin
@@ -1251,6 +1381,7 @@ home:
         es-ES: Little Biggy & Bitcoin
         el-GR: Little Biggy & Bitcoin
         cs-CZ: Little Biggy & Bitcoin
+        pl-PL: Little Biggy & Bitcoin
     about:
       items:
         whatIs:
@@ -1263,6 +1394,7 @@ home:
             es-ES: ¿Cuál es la Biggy Index?
             el-GR: Ποια είναι η Biggy Index;
             cs-CZ: Jaký je Biggy Index?
+            pl-PL: Jaki jest Biggy Index?
           a:
             en-GB: The Biggy Index provides an easier way to browse the Little Biggy marketplace, with item categorisation, additional sorting options, and other handy tools tailored for UK shoppers.
             de-DE: Der Biggy Index bietet eine einfachere Möglichkeit, den Little Biggy Marktplatz zu durchsuchen, mit Artikelkategorisierung, zusätzlichen Sortieroptionen und anderen praktischen Werkzeugen, die speziell für britische Käufer zugeschnitten sind.
@@ -1272,6 +1404,7 @@ home:
             es-ES: El Biggy Index ofrece una forma más sencilla de navegar por el mercado Little Biggy, con categorización de artículos, opciones adicionales de clasificación y otras herramientas útiles adaptadas a los compradores del Reino Unido.
             el-GR: Το Biggy Index παρέχει έναν ευκολότερο τρόπο περιήγησης στην αγορά Little Biggy, με κατηγοριοποίηση αντικειμένων, πρόσθετες επιλογές ταξινόμησης και άλλα εύχρηστα εργαλεία προσαρμοσμένα για τους αγοραστές του Ηνωμένου Βασιλείου.
             cs-CZ: Biggy Index poskytuje jednodušší způsob procházení Little Biggy tržiště, s kategorizací položek, dalšími možnostmi třídění a dalšími užitečnými nástroji přizpůsobenými britským zákazníkům.
+            pl-PL: Biggy Index ułatwia przeglądanie rynku Little Biggy, oferując kategoryzację produktów, dodatkowe opcje sortowania oraz inne przydatne narzędzia dostosowane do brytyjskich klientów.
         sellOrShip:
           q:
             en-GB: Do you sell or ship items?
@@ -1282,6 +1415,7 @@ home:
             es-ES: ¿Vendes o envías objetos?
             el-GR: Πουλάτε ή αποστέλλετε αντικείμενα;
             cs-CZ: Prodáváte nebo posíláte předměty?
+            pl-PL: Czy sprzedajecie czy wysyłacie przedmioty?
           a:
             en-GB: No. Biggy Index is read-only and sends you back to Little Biggy to complete your order.
             de-DE: Nein. Biggy Index ist schreibgeschützt und schickt dich zurück zu Little Biggy, um deine Bestellung abzuschließen.
@@ -1291,6 +1425,7 @@ home:
             es-ES: No. Biggy Index es de solo lectura y te envía de vuelta a Little Biggy para completar tu pedido.
             el-GR: Όχι. Biggy Index είναι μόνο για ανάγνωση και σας στέλνει πίσω στο Little Biggy για να ολοκληρώσετε την παραγγελία σας.
             cs-CZ: Ne. Biggy Index je pouze pro čtení a posílá vás zpět do Little Biggy, abyste dokončili objednávku.
+            pl-PL: Nie. Biggy Index jest tylko do odczytu i odsyła cię z powrotem do Little Biggy, aby dokończyć zamówienie.
         dataSource:
           q:
             en-GB: Where does the data come from?
@@ -1301,6 +1436,7 @@ home:
             es-ES: ¿De dónde provienen los datos?
             el-GR: Από πού προέρχονται τα δεδομένα;
             cs-CZ: Odkud data pocházejí?
+            pl-PL: Skąd pochodzą te dane?
           a:
             en-GB: The index fetches public Little Biggy data, normalising categories, pricing summaries, shipping info, reviews and images.
             de-DE: Der Index enthält öffentliche Little Biggy Daten, normalisiert Kategorien, Preisübersichten, Versandinformationen, Bewertungen und Bilder.
@@ -1310,6 +1446,7 @@ home:
             es-ES: El índice recopila datos de Little Biggy públicas, normalizando categorías, resúmenes de precios, información de envíos, opiniones e imágenes.
             el-GR: Το ευρετήριο ανακτά δεδομένα δημόσιας Little Biggy, κανονικοποίηση κατηγοριών, περιλήψεις τιμών, πληροφορίες αποστολής, κριτικές και εικόνες.
             cs-CZ: Index získává veřejná Little Biggy data, normalizuje kategorie, shrnutí cen, informace o dopravě, recenze a obrázky.
+            pl-PL: Indeks pobiera dane Little Biggy publiczne, normalizując kategorie, podsumowania cen, informacje o przesyłce, recenzje i obrazy.
         refreshRate:
           q:
             en-GB: How often is it refreshed?
@@ -1320,6 +1457,7 @@ home:
             es-ES: ¿Con qué frecuencia se renueva la actualización?
             el-GR: Πόσο συχνά ανανεώνεται;
             cs-CZ: Jak často se obnovuje?
+            pl-PL: Jak często jest odświeżany?
           a:
             en-GB: There are 3 components that refresh at different intervals. The main indexer runs every 30 minutes. The item and seller crawlers run every 4 hours, at separate times to be mindful of Little Biggy's server.
             de-DE: Es gibt 3 Komponenten, die in unterschiedlichen Abständen aktualisieren. Der Hauptindexer läuft alle 30 Minuten. Der Item- und Verkäufer-Crawler läuft alle 4 Stunden, zu unterschiedlichen Zeiten, um auf den Server von Little Biggy zu achten.
@@ -1329,6 +1467,7 @@ home:
             es-ES: Hay 3 componentes que se actualizan en diferentes intervalos. El indexador principal se ejecuta cada 30 minutos. El rastreador de objetos y vendedores se ejecuta cada 4 horas, en momentos distintos para tener en cuenta el servidor de Little Biggy.
             el-GR: Υπάρχουν 3 στοιχεία που ανανεώνονται σε διαφορετικά διαστήματα. Το κύριο ευρετήριο εκτελείται κάθε 30 λεπτά. Τα προγράμματα ανίχνευσης στοιχείων και πωλητών εκτελούνται κάθε 4 ώρες, σε ξεχωριστές ώρες για να έχουν υπόψη τους τον διακομιστή του Little Biggy.
             cs-CZ: Jsou zde 3 komponenty, které se obnovují v různých intervalech. Hlavní indexer běží každých 30 minut. Crawlery pro zboží a prodejce běží každé 4 hodiny, v oddělených časech, aby byly ohleduplné k serveru Little Biggy.
+            pl-PL: Są 3 komponenty, które odświeżają się w różnych odstępach czasu. Główny indeksator uruchamiany jest co 30 minut. Crawlery do przedmiotów i sprzedawców uruchamiają się co 4 godziny, w różnych godzinach, aby mieć na uwadze serwer Little Biggy.
         timestamps:
           q:
             en-GB: What does First Seen or Updated on items mean?
@@ -1339,6 +1478,7 @@ home:
             es-ES: ¿Qué significa Primero Visto o Actualizado en los artículos?
             el-GR: Τι σημαίνει Πρώτη εμφάνιση ή ενημέρωση σε αντικείμενα;
             cs-CZ: Co znamená První viděno nebo Aktualizováno předmětů?
+            pl-PL: Co oznacza Pierwszy raz zobaczony lub zaktualizowany o przedmiotach?
           a:
             en-GB: First seen/created means that it's the first time the item was indexed by the crawler. This can include items which were on LB before the indexer existed. Updated means that the item was edited by the seller, or that the crawler detected a change (e.g. price, variants, description).
             de-DE: Zuerst gesehen/erstellt bedeutet, dass der Artikel zum ersten Mal vom Crawler indexiert wurde. Dies kann auch Artikel umfassen, die bereits auf LB waren, bevor der Indexer existierte. Aktualisiert bedeutet, dass der Artikel vom Verkäufer bearbeitet wurde oder dass der Crawler eine Änderung erkannt hat (z. B. Preis, Varianten, Beschreibung).
@@ -1348,6 +1488,7 @@ home:
             es-ES: Primero visto/creado significa que es la primera vez que el objeto fue indexado por el rastreador. Esto puede incluir elementos que estaban en LB antes de que existiera el indexador. Actualizado significa que el artículo fue editado por el vendedor, o que el rastreador detectó un cambio (por ejemplo, precio, variantes, descripción).
             el-GR: Πρώτη εμφάνιση/δημιουργία σημαίνει ότι είναι η πρώτη φορά που το στοιχείο ευρετηριάστηκε από τον ανιχνευτή. Αυτό μπορεί να περιλαμβάνει στοιχεία που βρίσκονταν στο LB πριν από την ύπαρξη του ευρετηρίου. Ενημερώθηκε σημαίνει ότι το στοιχείο υποβλήθηκε σε επεξεργασία από τον πωλητή ή ότι ο ανιχνευτής εντόπισε μια αλλαγή (π.χ. τιμή, παραλλαγές, περιγραφή).
             cs-CZ: První viděn/vytvořený znamená, že je to poprvé, co byla položka indexována crawlerem. To může zahrnovat položky, které byly na LB před vznikem indexeru. Aktualizováno znamená, že položku upravil prodejce, nebo že crawler zaznamenal změnu (např. cena, varianty, popis).
+            pl-PL: Pierwszy raz, gdy przedmiot został zaindeksowany przez crawlera, oznacza, że pierwszy raz został zaindeksowany. Może to obejmować pozycje, które były na LB przed pojawieniem się indeksera. Aktualizacja oznacza, że produkt został edytowany przez sprzedawcę lub że crawler wykrył zmianę (np. cenę, warianty, opis).
         endorsements:
           q:
             en-GB: What are endorsements?
@@ -1358,6 +1499,7 @@ home:
             es-ES: ¿Qué son los endossos?
             el-GR: Τι είναι οι εγκρίσεις;
             cs-CZ: Co jsou to doporučení?
+            pl-PL: Czym są rekomendacje?
           a:
             en-GB: Community votes that highlight popular items without tracking you.
             de-DE: Community-Abstimmungen, die beliebte Artikel hervorheben, ohne dich zu verfolgen.
@@ -1367,6 +1509,7 @@ home:
             es-ES: Votaciones de la comunidad que destacan objetos populares sin rastrearte.
             el-GR: Ψήφοι κοινότητας που επισημαίνουν δημοφιλή στοιχεία χωρίς να σας παρακολουθούν.
             cs-CZ: Komunitní hlasování, která zdůrazňují oblíbené položky, aniž by vás museli sledovat.
+            pl-PL: Głosowania społeczności, które podkreślają popularne przedmioty bez śledzenia Ciebie.
     bitcoin:
       items:
         payments:
@@ -1379,6 +1522,7 @@ home:
             es-ES: ¿Qué pagos acepta Little Biggy?
             el-GR: Ποιες πληρωμές δέχεται Little Biggy;
             cs-CZ: Jaké platby Little Biggy přijímá?
+            pl-PL: Jakie płatności Little Biggy akceptuje?
           a:
             en-GB: Only Bitcoin - no cards, bank transfers or other cryptocurrencies.
             de-DE: Nur Bitcoin – keine Karten, Banküberweisungen oder andere Kryptowährungen.
@@ -1388,6 +1532,7 @@ home:
             es-ES: Solo Bitcoin, sin tarjetas, transferencias bancarias ni otras criptomonedas.
             el-GR: Μόνο Bitcoin - χωρίς κάρτες, τραπεζικά εμβάσματα ή άλλα κρυπτονομίσματα.
             cs-CZ: Pouze Bitcoin – žádné karty, bankovní převody ani jiné kryptoměny.
+            pl-PL: Tylko Bitcoin – żadnych kart, przelewów bankowych ani innych kryptowalut.
         buying:
           q:
             en-GB: How do I buy Bitcoin in the UK?
@@ -1398,6 +1543,7 @@ home:
             es-ES: ¿Cómo compro Bitcoin en el Reino Unido?
             el-GR: Πώς μπορώ να αγοράσω Bitcoin στο Ηνωμένο Βασίλειο;
             cs-CZ: Jak si mohu koupit Bitcoin ve Velké Británii?
+            pl-PL: Jak kupić Bitcoina w Wielkiej Brytanii?
           a:
             en-GB: Most buyers use Revolut, Monzo, Kraken, or Coinbase. Top up in pounds, purchase the amount of BTC shown at checkout, and allow a few pounds for network or exchanging fees.
             de-DE: Die meisten Käufer nutzen Revolut, Monzo, Kraken oder Coinbase. Laden Sie in Pfund auf, kaufen Sie den beim Checkout angezeigten BTC-Betrag und erlauben Sie einige Pfund für Netzwerk- oder Austauschgebühren.
@@ -1407,6 +1553,7 @@ home:
             es-ES: La mayoría de los compradores usan Revolut, Monzo, Kraken o Coinbase. Recarga en libras, compra la cantidad de BTC que aparece en el momento del pago y permite unas pocas libras para comisiones de red o de intercambio.
             el-GR: Οι περισσότεροι αγοραστές χρησιμοποιούν Revolut, Monzo, Kraken ή Coinbase. Συμπληρώστε σε λίρες, αγοράστε το ποσό BTC που εμφανίζεται στο ταμείο και επιτρέψτε μερικές λίρες για χρεώσεις δικτύου ή ανταλλαγής.
             cs-CZ: Většina kupujících používá Revolut, Monzo, Kraken nebo Coinbase. Dobíjejte v librách, kupte částku BTC zobrazenou při placení a vyhraďte několik liber na síťové nebo výměnné poplatky.
+            pl-PL: Większość kupujących korzysta z Revolut, Monzo, Kraken lub Coinbase. Dopełnij w funtach, kup ilość BTC pokazaną przy kasie, a kilka funtów przeznacz na opłaty sieciowe lub wymianowe.
         wallet:
           q:
             en-GB: Do I need my own wallet first?
@@ -1417,6 +1564,7 @@ home:
             es-ES: ¿Necesito primero mi propia cartera?
             el-GR: Χρειάζομαι πρώτα το δικό μου πορτοφόλι;
             cs-CZ: Potřebuji nejdřív vlastní peněženku?
+            pl-PL: Czy najpierw potrzebuję własnego portfela?
           a:
             en-GB: You can pay straight from the exchange, but many people move BTC into a private wallet like Cake Wallet or Trust Wallet for extra privacy. UK exchanges are required to ask where you're sending coins - so some buyers prefer routing via a personal wallet.
             de-DE: Man kann direkt von der Börse bezahlen, aber viele Leute übertragen BTC in eine private Wallet wie Cake Wallet oder Trust Wallet für zusätzliche Privatsphäre. Britische Börsen müssen fragen, wohin man Coins schickt – daher bevorzugen manche Käufer das Routing über eine persönliche Wallet.
@@ -1426,6 +1574,7 @@ home:
             es-ES: Puedes pagar directamente desde el exchange, pero mucha gente mueve BTC a una cartera privada como Cake Wallet o Trust Wallet para mayor privacidad. Los exchanges del Reino Unido están obligados a preguntar dónde envías monedas, por lo que algunos compradores prefieren enrutar a través de una cartera personal.
             el-GR: Μπορείτε να πληρώσετε απευθείας από το ανταλλακτήριο, αλλά πολλοί άνθρωποι μεταφέρουν BTC σε ένα ιδιωτικό πορτοφόλι όπως το Cake Wallet ή το Trust Wallet για επιπλέον προστασία της ιδιωτικής ζωής. Τα ανταλλακτήρια του Ηνωμένου Βασιλείου πρέπει να ρωτούν πού στέλνετε νομίσματα - έτσι ορισμένοι αγοραστές προτιμούν τη δρομολόγηση μέσω ενός προσωπικού πορτοφολιού.
             cs-CZ: Můžete platit přímo z burzy, ale mnoho lidí přesouvá BTC do soukromé peněženky jako Cake Wallet nebo Trust Wallet pro větší soukromí. Britské burzy se musí ptát, kam posíláte mince – proto někteří kupující preferují směrování přes osobní peněženku.
+            pl-PL: Możesz płacić bezpośrednio na giełdzie, ale wiele osób przenosi BTC do prywatnego portfela, takiego jak Cake Wallet lub Trust Wallet, dla większej prywatności. Giełdy w Wielkiej Brytanii muszą pytać, gdzie wysyłasz monety – dlatego niektórzy kupujący wolą trasowanie przez prywatny portfel.
         escrow:
           q:
             en-GB: How does Transaxe escrow protect me?
@@ -1436,6 +1585,7 @@ home:
             es-ES: ¿Cómo me protege Transaxe escrow?
             el-GR: Πώς με προστατεύει η μεσεγγύηση Transaxe;
             cs-CZ: Jak mě Transaxe chrání v úschově?
+            pl-PL: Jak Transaxe ma możliwość pochowania mnie chronić?
           a:
             en-GB: Your payment goes to a Transaxe escrow address. Sellers have about 80 hours to mark orders as shipped or the funds auto-refund. Disputes open after nine days if needed.
             de-DE: Deine Zahlung geht an eine Transaxe-Treuhandadresse. Verkäufer haben etwa 80 Stunden Zeit, Bestellungen als versandt zu markieren, sonst werden die Gelder automatisch erstattet. Streitigkeiten werden nach neun Tagen eröffnet, falls nötig.
@@ -1445,6 +1595,7 @@ home:
             es-ES: Tu pago va a una dirección de depósito en garantía de Transaxe. Los vendedores tienen unas 80 horas para marcar los pedidos como enviados o para que los fondos se reembolsen automáticamente. Las disputas se abren después de nueve días si es necesario.
             el-GR: Η πληρωμή σας πηγαίνει σε μια διεύθυνση μεσεγγύησης Transaxe. Οι πωλητές έχουν περίπου 80 ώρες για να επισημάνουν τις παραγγελίες ως απεσταλμένες ή να επιστρέψουν αυτόματα τα χρήματα. Οι διαφωνίες ανοίγουν μετά από εννέα ημέρες, εάν χρειαστεί.
             cs-CZ: Vaše platba jde na Transaxe escrow adresu. Prodávající mají asi 80 hodin na označení objednávek jako odeslaných, jinak se peníze automaticky vrátí. Spory se otevírají po devíti dnech, pokud je to potřeba.
+            pl-PL: Twoja płatność trafia na adres depozytu Transaxe. Sprzedawcy mają około 80 godzin na oznaczenie zamówień jako wysłanych lub automatyczne zwroty środków. Spory otwierają się po dziewięciu dniach, jeśli zajdzie taka potrzeba.
         mistakes:
           q:
             en-GB: Any tips to avoid mistakes?
@@ -1455,6 +1606,7 @@ home:
             es-ES: ¿Algún consejo para evitar errores?
             el-GR: Κάποιες συμβουλές για την αποφυγή λαθών;
             cs-CZ: Máte nějaké tipy, jak se vyhnout chybám?
+            pl-PL: Macie jakieś wskazówki, jak uniknąć błędów?
           a:
             en-GB: Copy-paste the BTC amount and address, add a buffer for fees, and keep screenshots until your parcel arrives. The blockchain cannot undo typos.
             de-DE: Kopiere und füge den BTC-Betrag und die Adresse ein, füge einen Puffer für Gebühren hinzu und bewahre Screenshots auf, bis dein Paket ankommt. Die Blockchain kann Tippfehler nicht rückgängig machen.
@@ -1464,6 +1616,7 @@ home:
             es-ES: Copia y pega la cantidad y dirección del BTC, añade un buffer para las comisiones y guarda capturas de pantalla hasta que llegue tu paquete. La blockchain no puede deshacer errores tipográficos.
             el-GR: Αντιγράψτε-επικολλήστε το ποσό και τη διεύθυνση BTC, προσθέστε ένα buffer για χρεώσεις και κρατήστε στιγμιότυπα οθόνης μέχρι να φτάσει το δέμα σας. Το blockchain δεν μπορεί να αναιρέσει τυπογραφικά λάθη.
             cs-CZ: Zkopírujte a vložte částku a adresu BTC, přidejte si rezervu pro poplatky a uchovejte si screenshoty, dokud vám balíček nedorazí. Blockchain nemůže napravit překlepy.
+            pl-PL: Skopiuj i wklej kwotę BTC i adres, dodaj bufor na opłaty i przechowuj zrzuty ekranu do momentu przybycia przesyłki. Blockchain nie może cofnąć literówek.
         clearnet:
           q:
             en-GB: Why not just use clearnet shops?
@@ -1474,6 +1627,7 @@ home:
             es-ES: ¿Por qué no usar simplemente tiendas de la net?
             el-GR: Γιατί να μην χρησιμοποιήσετε απλώς τα καταστήματα clearnet;
             cs-CZ: Proč prostě nevyužít clearnet obchody?
+            pl-PL: Dlaczego po prostu nie korzystać ze sklepów clearnet?
           a:
             en-GB: Competition on Little Biggy keeps quality high and prices fair. Clearnet resellers often charge heavy markups or ship questionable stock.
             de-DE: Der Wettbewerb auf Little Biggy hält die Qualität hoch und die Preise fair. Clearnet-Reseller verlangen oft hohe Aufschläge oder verschicken fragwürdige Bestände.
@@ -1483,6 +1637,7 @@ home:
             es-ES: La competencia en Little Biggy mantiene alta la calidad y los precios justos. Los distribuidores de clearnet suelen cobrar grandes sobrecargos o enviar stock cuestionable.
             el-GR: Ο ανταγωνισμός σε Little Biggy διατηρεί την ποιότητα υψηλή και τις τιμές δίκαιες. Οι μεταπωλητές Clearnet συχνά χρεώνουν μεγάλες προσαυξήσεις ή αποστέλλουν αμφισβητήσιμα αποθέματα.
             cs-CZ: Konkurence na Little Biggy udržuje vysokou kvalitu a ceny spravedlivé. Clearnet přeprodejci často účtují vysoké přirážky nebo posílají pochybný sortiment.
+            pl-PL: Konkurencja na Little Biggy utrzymuje wysoką jakość i uczciwe ceny. Sprzedawcy Clearnet często pobierają wysokie marże lub wysyłają wątpliwy towar.
         legality:
           q:
             en-GB: What about UK legality?
@@ -1493,6 +1648,7 @@ home:
             es-ES: ¿Y qué hay de la legalidad en el Reino Unido?
             el-GR: Τι γίνεται με τη νομιμότητα του Ηνωμένου Βασιλείου;
             cs-CZ: A co legálnost ve Velké Británii?
+            pl-PL: A co z legalnością w Wielkiej Brytanii?
           a:
             en-GB: Cannabis laws still apply. You are responsible for staying within local regulations and verifying every detail on Little Biggy.
             de-DE: Die Cannabisgesetze gelten weiterhin. Sie sind dafür verantwortlich, sich an die lokalen Vorschriften zu halten und jedes Detail Little Biggy zu überprüfen.
@@ -1502,6 +1658,7 @@ home:
             es-ES: Las leyes sobre cannabis siguen vigentes. Eres responsable de cumplir con la normativa local y verificar cada detalle de Little Biggy.
             el-GR: Οι νόμοι για την κάνναβη εξακολουθούν να ισχύουν. Είστε υπεύθυνοι για την τήρηση των τοπικών κανονισμών και την επαλήθευση κάθε λεπτομέρειας σχετικά με Little Biggy.
             cs-CZ: Zákony o konopí stále platí. Jste odpovědní za dodržování místních předpisů a ověřování každého detailu Little Biggy.
+            pl-PL: Przepisy dotyczące konopi nadal obowiązują. Jesteś odpowiedzialny za przestrzeganie lokalnych przepisów i weryfikację każdego szczegółu Little Biggy.
   whatsNewSection:
     eyebrow:
       en-GB: Fresh activity
@@ -1512,6 +1669,7 @@ home:
       es-ES: Actividad fresca
       el-GR: Φρέσκια δραστηριότητα
       cs-CZ: Nová aktivita
+      pl-PL: Świeża aktywność
     heading:
       en-GB: Recently indexed items
       de-DE: Kürzlich indexierte Einträge
@@ -1521,6 +1679,7 @@ home:
       es-ES: Elementos indexados recientemente
       el-GR: Πρόσφατα ευρετηριασμένα στοιχεία
       cs-CZ: Nedávno indexované položky
+      pl-PL: Ostatnio indeksowane pozycje
     description:
       en-GB: See the latest or most recently updated items on Little Biggy.
       de-DE: Sehen Sie sich die neuesten oder aktuellsten Artikel auf Little Biggy an.
@@ -1530,6 +1689,7 @@ home:
       es-ES: Consulta los artículos más recientes o actualizados en Little Biggy.
       el-GR: Δείτε τα πιο πρόσφατα ή πιο πρόσφατα ενημερωμένα στοιχεία στο Little Biggy.
       cs-CZ: Podívejte se na nejnovější nebo nejnovější aktualizované položky na Little Biggy.
+      pl-PL: Zobacz najnowsze lub najnowsze aktualizacje na Little Biggy.
     tabs:
       newest:
         en-GB: Recently added
@@ -1540,6 +1700,7 @@ home:
         es-ES: Añadido recientemente
         el-GR: Προστέθηκε πρόσφατα
         cs-CZ: Nedávno přidáno
+        pl-PL: Niedawno dodane
       updated:
         en-GB: Recently updated
         de-DE: Kürzlich aktualisiert
@@ -1549,6 +1710,7 @@ home:
         es-ES: Actualizado recientemente
         el-GR: Πρόσφατα ενημερωμένο
         cs-CZ: Nedávno aktualizováno
+        pl-PL: Niedawno zaktualizowano
     browseAll:
       en-GB: Browse all items
       de-DE: Durchstöbern Sie alle Artikel
@@ -1558,6 +1720,7 @@ home:
       es-ES: Explora todos los artículos
       el-GR: Περιήγηση σε όλα τα στοιχεία
       cs-CZ: Procházejte všechny položky
+      pl-PL: Przeglądaj wszystkie przedmioty
     scrollLeft:
       en-GB: Scroll left
       de-DE: Scroll nach links
@@ -1567,6 +1730,7 @@ home:
       es-ES: Desplego a la izquierda
       el-GR: Κύλιση προς τα αριστερά
       cs-CZ: Levý svitek
+      pl-PL: Zwój po lewej stronie
     scrollRight:
       en-GB: Scroll right
       de-DE: Nach rechts scrollen
@@ -1576,6 +1740,7 @@ home:
       es-ES: Desplázate a la derecha
       el-GR: Κύλιση προς τα δεξιά
       cs-CZ: Posuňte doprava
+      pl-PL: Przewiń w prawo
     priceUnavailable:
       en-GB: N/A
       de-DE: N/A
@@ -1585,6 +1750,7 @@ home:
       es-ES: N/A
       el-GR: Δ/Υ
       cs-CZ: N/A
+      pl-PL: Nie ma
     unknownSeller:
       en-GB: Unknown seller
       de-DE: Unbekannter Verkäufer
@@ -1594,6 +1760,7 @@ home:
       es-ES: Vendedor desconocido
       el-GR: Άγνωστος πωλητής
       cs-CZ: Neznámý prodejce
+      pl-PL: Nieznany sprzedawca
     viewSeller:
       en-GB: View seller {seller}
       de-DE: Verkäufer-{seller} ansehen
@@ -1603,6 +1770,7 @@ home:
       es-ES: Ver {seller} vendedor
       el-GR: Προβολή {seller} πωλητή
       cs-CZ: Zobrazit {seller} prodejce
+      pl-PL: Zobacz {seller} sprzedawcy
     alternateImageAlt:
       en-GB: "{item} alternate"
       de-DE: "{item} Ersatz"
@@ -1612,6 +1780,7 @@ home:
       es-ES: "{item} alternativa"
       el-GR: "{item} εναλλακτικό"
       cs-CZ: "{item} alternativa"
+      pl-PL: "{item} alternatywa"
     time:
       justNow:
         en-GB: Just now
@@ -1622,6 +1791,7 @@ home:
         es-ES: Justo ahora
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
+        pl-PL: Przed chwilą
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -1631,6 +1801,7 @@ home:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       oneDayAgo:
         en-GB: 1 day ago
         de-DE: Vor 1 Tag
@@ -1640,6 +1811,7 @@ home:
         es-ES: Hace 1 día
         el-GR: 1 ημέρα Πριν
         cs-CZ: Před 1 dnem
+        pl-PL: 1 dzień temu
       daysAgo:
         en-GB: "{count} days ago"
         de-DE: Vor {count} Tagen
@@ -1649,6 +1821,7 @@ home:
         es-ES: "{count} días"
         el-GR: "{count} μέρες πριν"
         cs-CZ: "{count} dny zpátky"
+        pl-PL: "{count} dni temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -1658,6 +1831,7 @@ home:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
   sellerTrust:
     eyebrow:
       en-GB: Community Trust
@@ -1668,6 +1842,7 @@ home:
       es-ES: Fideicomiso Comunitario
       el-GR: Κοινοτική εμπιστοσύνη
       cs-CZ: Komunitní trust
+      pl-PL: Community Trust
     heading:
       en-GB: Seller Trust Board
       de-DE: Verkäufer-Treuhandrat
@@ -1677,6 +1852,7 @@ home:
       es-ES: Junta de Fideicomiso del Vendedor
       el-GR: Συμβούλιο εμπιστοσύνης πωλητή
       cs-CZ: Správní rada prodejcových trustů
+      pl-PL: Rada Powiernicza Sprzedającego
     description:
       en-GB: Rankings drawn from community reviews. Hover an avatar for a preview, tap to open the seller's full profile.
       de-DE: Rankings stammen aus Community-Rezensionen. Halten Sie mit der Maus über einen Avatar für eine Vorschau, tippen Sie, um das vollständige Profil des Verkäufers zu öffnen.
@@ -1686,6 +1862,7 @@ home:
       es-ES: Clasificaciones extraídas de reseñas de la comunidad. Pasa el cursor a un avatar para ver una vista previa, toca para abrir el perfil completo del vendedor.
       el-GR: Κατατάξεις που προέρχονται από κριτικές κοινότητας. Τοποθετήστε το δείκτη του ποντικιού σε ένα avatar για μια προεπισκόπηση, πατήστε για να ανοίξετε το πλήρες προφίλ του πωλητή.
       cs-CZ: Žebříčky vycházejí z recenzí komunity. Přejděte myší na avatar pro náhled, klepněte pro otevření celého profilu prodejce.
+      pl-PL: Rankingi oparte na recenzjach społeczności. Najedź kursorem na awatara, aby zobaczyć podgląd, stuknij, aby otworzyć pełny profil sprzedawcy.
     panels:
       top:
         title:
@@ -1697,6 +1874,7 @@ home:
           es-ES: Mejor valorado
           el-GR: Κορυφαία βαθμολογία
           cs-CZ: Nejlépe hodnocené
+          pl-PL: Najwyższa ocena
         subtitle:
           en-GB: Highest positive-review ratio
           de-DE: Höchstes positives Bewertungsverhältnis
@@ -1706,6 +1884,7 @@ home:
           es-ES: Mayor ratio de valoraciones positivas
           el-GR: Υψηλότερη αναλογία θετικών κριτικών
           cs-CZ: Nejvyšší poměr pozitivních recenzí
+          pl-PL: Najwyższy wskaźnik pozytywnych recenzji
       caution:
         title:
           en-GB: Use Caution
@@ -1716,6 +1895,7 @@ home:
           es-ES: Usa precaución
           el-GR: Να είστε προσεκτικοί
           cs-CZ: Buďte opatrní
+          pl-PL: Zachowaj ostrożność
         subtitle:
           en-GB: Elevated negative feedback
           de-DE: Erhöhte negative Rückkopplung
@@ -1725,6 +1905,7 @@ home:
           es-ES: Retroalimentación negativa elevada
           el-GR: Αυξημένη αρνητική ανατροφοδότηση
           cs-CZ: Zvýšená negativní zpětná vazba
+          pl-PL: Podwyższone negatywne sprzężenie zwrotne
       reviewsLabel:
         en-GB: Reviews
         de-DE: Rezensionen
@@ -1734,6 +1915,7 @@ home:
         es-ES: Reseñas
         el-GR: Κριτικές
         cs-CZ: Recenze
+        pl-PL: Recenzje
     row:
       reviews:
         en-GB: "{count} reviews"
@@ -1744,6 +1926,7 @@ home:
         es-ES: "{count} reseñas"
         el-GR: "{count} κριτικές"
         cs-CZ: "{count} recenze"
+        pl-PL: "{count} recenzje"
       negative:
         en-GB: "{count} negative"
         de-DE: "{count} negativ"
@@ -1753,6 +1936,7 @@ home:
         es-ES: "{count} negativo"
         el-GR: "{count} αρνητικό"
         cs-CZ: "{count} negativní"
+        pl-PL: "{count} negatywne"
     recentlyJoined:
       title:
         en-GB: Recently Joined
@@ -1763,6 +1947,7 @@ home:
         es-ES: Recién incorporado
         el-GR: Πρόσφατα εντάχθηκε
         cs-CZ: Nedávno přišel
+        pl-PL: Niedawno dołączył
       subtitle:
         en-GB: New sellers - no track record yet
         de-DE: Neue Verkäufer – noch keine Erfolgsbilanz
@@ -1772,6 +1957,7 @@ home:
         es-ES: "Nuevos vendedores: aún no hay historial"
         el-GR: Νέοι πωλητές - δεν υπάρχει ακόμη ιστορικό
         cs-CZ: Noví prodejci – zatím žádná historie
+        pl-PL: Nowi sprzedawcy – na razie brak historii
     time:
       today:
         en-GB: today
@@ -1782,6 +1968,7 @@ home:
         es-ES: Hoy en día
         el-GR: Σήμερα
         cs-CZ: Dnes
+        pl-PL: Dziś
       yesterday:
         en-GB: yesterday
         de-DE: gestern
@@ -1791,6 +1978,7 @@ home:
         es-ES: ayer
         el-GR: χθες
         cs-CZ: Včera
+        pl-PL: wczoraj
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -1800,6 +1988,7 @@ home:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -1809,6 +1998,7 @@ home:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
       yearsAgo:
         en-GB: "{count}y ago"
         de-DE: Vor {count}y Jahren
@@ -1818,6 +2008,7 @@ home:
         es-ES: "{count}y"
         el-GR: "{count}y πριν"
         cs-CZ: "{count}y"
+        pl-PL: "{count}y temu"
       monthsActive:
         en-GB: "{count}mo active"
         de-DE: "{count}mo aktiv"
@@ -1827,6 +2018,7 @@ home:
         es-ES: "{count}mo activo"
         el-GR: "{count}mo ενεργός"
         cs-CZ: "{count}mo aktivní"
+        pl-PL: "{count}mo aktywny"
       yearsActive:
         en-GB: "{count}y active"
         de-DE: "{count}y aktiv"
@@ -1836,6 +2028,7 @@ home:
         es-ES: "{count}y activo"
         el-GR: "{count}y ενεργός"
         cs-CZ: "{count}y aktivní"
+        pl-PL: "{count}y aktywny"
   communityReviewsSection:
     eyebrow:
       en-GB: Buyer feedback
@@ -1846,6 +2039,7 @@ home:
       es-ES: Opiniones de los compradores
       el-GR: Σχόλια αγοραστών
       cs-CZ: Zpětná vazba od kupujících
+      pl-PL: Opinie kupujących
     heading:
       en-GB: Community Reviews
       de-DE: Community-Bewertungen
@@ -1855,6 +2049,7 @@ home:
       es-ES: Reseñas de la comunidad
       el-GR: Κριτικές κοινότητας
       cs-CZ: Recenze komunity
+      pl-PL: Recenzje społeczności
     subtitle:
       en-GB: Real feedback from real buyers
       de-DE: Echtes Feedback von echten Käufern
@@ -1864,6 +2059,7 @@ home:
       es-ES: Comentarios reales de compradores reales
       el-GR: Πραγματικά σχόλια από πραγματικούς αγοραστές
       cs-CZ: Skutečná zpětná vazba od skutečných kupujících
+      pl-PL: Prawdziwe opinie od prawdziwych kupujących
     seeAll:
       en-GB: See all reviews
       de-DE: Alle Rezensionen ansehen
@@ -1873,6 +2069,7 @@ home:
       es-ES: Ver todas las reseñas
       el-GR: Δείτε όλες τις κριτικές
       cs-CZ: Zobrazit všechny recenze
+      pl-PL: Zobacz wszystkie recenzje
     recentReviews:
       en-GB: Recent reviews
       de-DE: Aktuelle Rezensionen
@@ -1882,6 +2079,7 @@ home:
       es-ES: Críticas recientes
       el-GR: Πρόσφατες κριτικές
       cs-CZ: Nedávné recenze
+      pl-PL: Najnowsze recenzje
     photoReviews:
       en-GB: Photo reviews
       de-DE: Fotorezensionen
@@ -1891,6 +2089,7 @@ home:
       es-ES: Reseñas de fotos
       el-GR: Κριτικές φωτογραφιών
       cs-CZ: Recenze fotografií
+      pl-PL: Recenzje zdjęć
     fallback:
       seller:
         en-GB: Seller
@@ -1901,6 +2100,7 @@ home:
         es-ES: Vendedor
         el-GR: Πωλητής
         cs-CZ: Prodávající
+        pl-PL: Sprzedawca
       product:
         en-GB: Product
         de-DE: Produkt
@@ -1910,6 +2110,7 @@ home:
         es-ES: Producto
         el-GR: Προϊόν
         cs-CZ: Produkt
+        pl-PL: Produkt
       reviewPhoto:
         en-GB: Review photo
         de-DE: Rezensionsfoto
@@ -1919,6 +2120,7 @@ home:
         es-ES: Foto de reseña
         el-GR: Φωτογραφία κριτικής
         cs-CZ: Recenzní fotografie
+        pl-PL: Zdjęcie recenzyjne
     stats:
       avgDelivery:
         en-GB: Avg delivery
@@ -1929,6 +2131,7 @@ home:
         es-ES: Entrega media
         el-GR: Μέση παράδοση
         cs-CZ: Průměrné doručení
+        pl-PL: Średnia jakość dostarczania
       avgDeliveryValue:
         en-GB: ~{count} days
         de-DE: ~{count} Tage
@@ -1938,6 +2141,7 @@ home:
         es-ES: ~{count} días
         el-GR: ~{count} ημέρες
         cs-CZ: ~{count} dní
+        pl-PL: ~{count} dni
       basedOnRecentReviews:
         en-GB: based on recent reviews
         de-DE: Basierend auf aktuellen Rezensionen
@@ -1947,6 +2151,7 @@ home:
         es-ES: basado en reseñas recientes
         el-GR: με βάση πρόσφατες κριτικές
         cs-CZ: na základě nedávných recenzí
+        pl-PL: na podstawie najnowszych recenzji
       newReviews:
         en-GB: New reviews
         de-DE: Neue Rezensionen
@@ -1956,6 +2161,7 @@ home:
         es-ES: Nuevas críticas
         el-GR: Νέες κριτικές
         cs-CZ: Nové recenze
+        pl-PL: Nowe recenzje
       postedThisWeek:
         en-GB: posted this week
         de-DE: Diese Woche veröffentlicht
@@ -1965,6 +2171,7 @@ home:
         es-ES: Publicado esta semana
         el-GR: δημοσιεύτηκε αυτήν την εβδομάδα
         cs-CZ: Zveřejněno tento týden
+        pl-PL: opublikowano w tym tygodniu
       avgRating:
         en-GB: Avg rating
         de-DE: Durchschnittsbewertung
@@ -1974,6 +2181,7 @@ home:
         es-ES: Calificación media
         el-GR: Μέση βαθμολογία
         cs-CZ: Průměrné hodnocení
+        pl-PL: Średnia ocena
       avgRatingValue: "{rating} ★"
       fromReviews:
         en-GB: from {count} reviews
@@ -1984,6 +2192,7 @@ home:
         es-ES: De {count} reseñas
         el-GR: Βάσει {count} κριτικών
         cs-CZ: Z recenzí {count}
+        pl-PL: Z {count} recenzji
     deliveryDays:
       en-GB: "{count}d"
       de-DE: "{count}d"
@@ -1993,6 +2202,7 @@ home:
       es-ES: "{count}d"
       el-GR: "{count}d"
       cs-CZ: "{count}d"
+      pl-PL: "{count}d"
     time:
       justNow:
         en-GB: Just now
@@ -2003,6 +2213,7 @@ home:
         es-ES: Justo ahora
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
+        pl-PL: Przed chwilą
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -2012,6 +2223,7 @@ home:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       oneDayAgo:
         en-GB: 1 day ago
         de-DE: Vor 1 Tag
@@ -2021,6 +2233,7 @@ home:
         es-ES: Hace 1 día
         el-GR: 1 ημέρα Πριν
         cs-CZ: Před 1 dnem
+        pl-PL: 1 dzień temu
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -2030,6 +2243,7 @@ home:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -2039,6 +2253,7 @@ home:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
 
 lbGuide:
   title:
@@ -2051,6 +2266,7 @@ lbGuide:
     es-ES: Antes de ir a Little Biggy...
     el-GR: Πριν πάτε στο Little Biggy...
     cs-CZ: Než přejdete na Little Biggy...
+    pl-PL: Zanim pójdziesz do Little Biggy...
   subtitle:
     en-GB: Quick tips to help you get started on the marketplace.
     en-IE: Quick tips to help you get started on the marketplace.
@@ -2061,6 +2277,7 @@ lbGuide:
     es-ES: Consejos rápidos para empezar en el marketplace.
     el-GR: Γρήγορες συμβουλές για να ξεκινήσετε στην αγορά.
     cs-CZ: Rychlé tipy, které vám pomohou začít na tržišti.
+    pl-PL: Szybkie wskazówki, które pomogą Ci zacząć na rynku.
   close:
     en-GB: Close
     en-IE: Close
@@ -2071,6 +2288,7 @@ lbGuide:
     es-ES: Cerrar
     el-GR: Κλείσιμο
     cs-CZ: Zavřít
+    pl-PL: Zamknij
   steps:
     country:
       title:
@@ -2083,6 +2301,7 @@ lbGuide:
         es-ES: 1. Elige tu país
         el-GR: 1. Επιλέξτε τη χώρα σας
         cs-CZ: 1. Vyberte svou zemi
+        pl-PL: 1. Wybierz swój kraj
       text:
         en-GB: Little Biggy needs to know where you are before it can show product options. Select your country first — it saves a cookie so you only need to do this once.
         en-IE: Little Biggy needs to know where you are before it can show product options. Select your country first — it saves a cookie so you only need to do this once.
@@ -2093,6 +2312,7 @@ lbGuide:
         es-ES: Little Biggy necesita saber dónde estás antes de mostrar las opciones de producto. Selecciona primero tu país — se guarda una cookie para que solo tengas que hacerlo una vez.
         el-GR: Το Little Biggy πρέπει να γνωρίζει πού βρίσκεστε πριν εμφανίσει επιλογές προϊόντων. Επιλέξτε πρώτα τη χώρα σας — αποθηκεύει ένα cookie ώστε να χρειαστεί να το κάνετε μόνο μία φορά.
         cs-CZ: Little Biggy potřebuje vědět, kde jste, než zobrazí možnosti produktů. Nejprve vyberte svou zemi — uloží cookie, takže to stačí udělat jen jednou.
+        pl-PL: Little Biggy musi wiedzieć, gdzie się znajdujesz, zanim pokaże opcje produktów. Wybierz najpierw swój kraj — zapisuje się ciasteczko, więc wystarczy zrobić to tylko raz.
     buy:
       title:
         en-GB: 2. Browse & buy
@@ -2104,6 +2324,7 @@ lbGuide:
         es-ES: 2. Explorar y comprar
         el-GR: 2. Περιηγηθείτε και αγοράστε
         cs-CZ: 2. Procházejte a nakupujte
+        pl-PL: 2. Przeglądaj i kupuj
       text:
         en-GB: Once your country is set, each product shows a buy button next to every variant. Tap one and it goes straight to your cart.
         en-IE: Once your country is set, each product shows a buy button next to every variant. Tap one and it goes straight to your cart.
@@ -2114,6 +2335,7 @@ lbGuide:
         es-ES: Una vez configurado tu país, cada producto muestra un botón de compra junto a cada variante. Tócalo y va directamente a tu carrito.
         el-GR: Μόλις οριστεί η χώρα σας, κάθε προϊόν εμφανίζει ένα κουμπί αγοράς δίπλα σε κάθε παραλλαγή. Πατήστε ένα και πηγαίνει κατευθείαν στο καλάθι σας.
         cs-CZ: Jakmile je vaše země nastavena, každý produkt zobrazí tlačítko nákupu vedle každé varianty. Klepněte na něj a položka jde přímo do košíku.
+        pl-PL: Gdy Twój kraj jest ustawiony, każdy produkt wyświetla przycisk kup obok każdego wariantu. Stuknij jeden i trafia prosto do twojego koszyka.
     account:
       title:
         en-GB: 3. Create an account
@@ -2125,6 +2347,7 @@ lbGuide:
         es-ES: 3. Crear una cuenta
         el-GR: 3. Δημιουργήστε λογαριασμό
         cs-CZ: 3. Vytvořte si účet
+        pl-PL: 3. Załóż konto
       text:
         en-GB: "You can check out without an account, but signing up is recommended. Just click \"Login\" then \"Register\" — no email needed, just a username and password."
         en-IE: "You can check out without an account, but signing up is recommended. Just click \"Login\" then \"Register\" — no email needed, just a username and password."
@@ -2135,6 +2358,7 @@ lbGuide:
         es-ES: "Puedes pagar sin cuenta, pero registrarte es recomendable. Haz clic en \"Login\" y luego en \"Register\" — no necesitas e-mail, solo nombre de usuario y contraseña."
         el-GR: "Μπορείτε να κάνετε checkout χωρίς λογαριασμό, αλλά συνιστάται η εγγραφή. Απλώς κάντε κλικ στο \"Login\" και μετά στο \"Register\" — δεν χρειάζεται email, μόνο όνομα χρήστη και κωδικός."
         cs-CZ: "Můžete dokončit nákup bez účtu, ale registrace se doporučuje. Stačí kliknout na \"Login\" a potom \"Register\" — není potřeba e-mail, jen uživatelské jméno a heslo."
+        pl-PL: Możesz wypłacić bez konta, ale zaleca się rejestrację. Wystarczy kliknąć "Zaloguj się", a potem "Zarejestruj się" — nie potrzeba e-maila, wystarczy nazwa użytkownika i hasło.
     checkout:
       title:
         en-GB: 4. Pay with Bitcoin
@@ -2146,6 +2370,7 @@ lbGuide:
         es-ES: 4. Pagar con Bitcoin
         el-GR: 4. Πληρώστε με Bitcoin
         cs-CZ: 4. Zaplaťte Bitcoinem
+        pl-PL: 4. Płać Bitcoinem
       text:
         en-GB: Little Biggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to.
         en-IE: Little Biggy accepts Bitcoin only. At checkout you'll see an amount and a wallet address to send payment to.
@@ -2156,6 +2381,7 @@ lbGuide:
         es-ES: Little Biggy solo acepta Bitcoin. En el checkout verás un monto y una dirección de billetera para enviar el pago.
         el-GR: Το Little Biggy δέχεται μόνο Bitcoin. Στο checkout θα δείτε ένα ποσό και μια διεύθυνση πορτοφολιού για να στείλετε την πληρωμή.
         cs-CZ: Little Biggy přijímá pouze Bitcoin. Při placení uvidíte částku a adresu peněženky, kam poslat platbu.
+        pl-PL: Little Biggy akceptuje wyłącznie Bitcoina. Przy kacie zobaczysz kwotę i adres portfela, na który chcesz wysłać płatność.
   continueBtn:
     en-GB: Got it — take me to Little Biggy
     en-IE: Got it — take me to Little Biggy
@@ -2166,6 +2392,7 @@ lbGuide:
     es-ES: Entendido — ir a Little Biggy
     el-GR: Το κατάλαβα — μετάβαση στο Little Biggy
     cs-CZ: Rozumím — přejít na Little Biggy
+    pl-PL: Zrozumiałem — zabierz mnie do Little Biggy
   dontShowAgain:
     en-GB: Don't show this again
     en-IE: Don't show this again
@@ -2176,6 +2403,7 @@ lbGuide:
     es-ES: No mostrar de nuevo
     el-GR: Να μην εμφανιστεί ξανά
     cs-CZ: Znovu nezobrazovat
+    pl-PL: Nie pokazuj tego więcej
   guideLink:
     title:
       en-GB: Visit the embassy
@@ -2187,6 +2415,7 @@ lbGuide:
       es-ES: Visitar la embajada
       el-GR: Επισκεφθείτε την πρεσβεία
       cs-CZ: Navštívit ambasádu
+      pl-PL: Odwiedź ambasadę
     text:
       en-GB: Need help? Ask questions and get answers in your language.
       en-IE: Need help? Ask questions and get answers in your language.
@@ -2197,6 +2426,7 @@ lbGuide:
       es-ES: ¿Necesitas ayuda? Haz tus preguntas y recibe respuestas en español.
       el-GR: Χρειάζεστε βοήθεια; Κάντε ερωτήσεις και λάβετε απαντήσεις στη γλώσσα σας.
       cs-CZ: Potřebujete pomoc? Ptejte se a získejte odpovědi ve svém jazyce.
+      pl-PL: Potrzebujesz pomocy? Zadawaj pytania i otrzymuj odpowiedzi w swoim języku.
 
 browse:
   allCategories:
@@ -2208,6 +2438,7 @@ browse:
     es-ES: Todas las categorías
     el-GR: Όλες οι Κατηγορίες
     cs-CZ: Všechny kategorie
+    pl-PL: Wszystkie kategorie
   noResults:
     en-GB: No products match your filters
     de-DE: Keine Produkte passen zu Ihren Filtern
@@ -2217,6 +2448,7 @@ browse:
     es-ES: Ningún producto coincide con tus filtros
     el-GR: Κανένα προϊόν δεν ταιριάζει με τα φίλτρα σας
     cs-CZ: Žádné produkty neodpovídají vašim filtrům
+    pl-PL: Żaden produkt nie pasuje do Twoich filtrów
   clearFilters:
     en-GB: Clear filters
     de-DE: Durchsichtige Filter
@@ -2226,6 +2458,7 @@ browse:
     es-ES: Filtros claros
     el-GR: Καθαρισμός φίλτρων
     cs-CZ: Průhledné filtry
+    pl-PL: Przezroczyste filtry
   itemCount: "{count, plural, =0 {No products} one {1 product} other {# products}}"
   sortBy:
     en-GB: Sort by
@@ -2236,6 +2469,7 @@ browse:
     es-ES: Ordenar por
     el-GR: Ταξινόμηση ανά
     cs-CZ: Seřadit podle
+    pl-PL: Sortuj według
   search:
     en-GB: Search products...
     de-DE: Produkte suchen...
@@ -2245,6 +2479,7 @@ browse:
     es-ES: Buscar productos...
     el-GR: Αναζήτηση προϊόντων...
     cs-CZ: Vyhledávej produkty...
+    pl-PL: Wyszukaj produkty...
   noItemsFound:
     en-GB: No items found
     de-DE: Keine Gegenstände gefunden
@@ -2254,6 +2489,7 @@ browse:
     es-ES: No se han encontrado objetos
     el-GR: Δεν βρέθηκαν αντικείμενα
     cs-CZ: Žádné předměty nalezeny
+    pl-PL: Brak znalezionych przedmiotów
   adjustFilters:
     en-GB: Try adjusting your filters
     de-DE: Versuche, deine Filter anzupassen
@@ -2263,6 +2499,7 @@ browse:
     es-ES: Prueba a ajustar los filtros
     el-GR: Δοκιμάστε να προσαρμόσετε τα φίλτρα σας
     cs-CZ: Zkuste nastavit filtry
+    pl-PL: Spróbuj wyregulować filtry
   toolbar:
     removeFilter:
       en-GB: "Remove: {label}"
@@ -2273,6 +2510,7 @@ browse:
       es-ES: "Eliminar: {label}"
       el-GR: "Αφαίρεση: {label}"
       cs-CZ: "Odstranit: {label}"
+      pl-PL: "Usuń: {label}"
     fromFilter:
       en-GB: "From: {value}"
       de-DE: "Von: {value}"
@@ -2282,6 +2520,7 @@ browse:
       es-ES: "De: {value}"
       el-GR: "Από: {value}"
       cs-CZ: "Od: {value}"
+      pl-PL: "Od: {value}"
     notFilter:
       en-GB: "Not: {value}"
       de-DE: "Nicht: {value}"
@@ -2291,6 +2530,7 @@ browse:
       es-ES: "No: {value}"
       el-GR: "Δεν: {value}"
       cs-CZ: "Ne: {value}"
+      pl-PL: "Nie: {value}"
     priceRange:
       en-GB: Price range
       de-DE: Preisspanne
@@ -2300,6 +2540,7 @@ browse:
       es-ES: Rango de precios
       el-GR: Εύρος τιμών
       cs-CZ: Cenové rozpětí
+      pl-PL: Przedział cenowy
     bookmarksShowAll:
       en-GB: Show all items
       de-DE: Alle Artikel anzeigen
@@ -2309,6 +2550,7 @@ browse:
       es-ES: Mostrar todos los elementos
       el-GR: Εμφάνιση όλων των στοιχείων
       cs-CZ: Zobrazit všechny položky
+      pl-PL: Pokaż wszystkie przedmioty
     bookmarksOnly:
       en-GB: Show bookmarked only
       de-DE: Show nur als Lesezeichen gespeichert
@@ -2318,6 +2560,7 @@ browse:
       es-ES: Espectáculo solo guardado en favoritos
       el-GR: Εμφάνιση μόνο με σελιδοδείκτη
       cs-CZ: Pouze pro pořad uložené do záložek
+      pl-PL: Tylko do zakładek
     shippingIncluded:
       en-GB: Showing prices with shipping
       de-DE: Preise mit Versand anzeigen
@@ -2327,6 +2570,7 @@ browse:
       es-ES: Mostrar precios con envío
       el-GR: Προβολή τιμών με μεταφορικά
       cs-CZ: Zobrazení cen s dopravou
+      pl-PL: Pokazywanie cen z wysyłką
     addShipping:
       en-GB: Add shipping to prices
       de-DE: Fügen Sie den Versand zu den Preisen hinzu
@@ -2336,6 +2580,7 @@ browse:
       es-ES: Suma el envío a los precios
       el-GR: Προσθέστε τα μεταφορικά στις τιμές
       cs-CZ: Přidejte poštovné k cenám
+      pl-PL: Dodaj wysyłkę do cen
     shippingShort:
       en-GB: +Ship
       de-DE: +Schiff
@@ -2345,6 +2590,7 @@ browse:
       es-ES: +Nave
       el-GR: +Πλοίο
       cs-CZ: +Loď
+      pl-PL: +Statek
     itemsLabel: "{count, plural, one {item} other {items}}"
     freeShippingActive:
       en-GB: Showing free shipping only
@@ -2355,6 +2601,7 @@ browse:
       es-ES: Mostrando solo envío gratuito
       el-GR: Εμφάνιση δωρεάν αποστολής μόνο
       cs-CZ: Zobrazuje pouze dopravu zdarma
+      pl-PL: Pokazuje tylko darmową wysyłkę
     freeShippingInactive:
       en-GB: Filter to free shipping
       de-DE: Filtern Sie auf kostenlosen Versand
@@ -2364,6 +2611,7 @@ browse:
       es-ES: Filtrar a envío gratuito
       el-GR: Φιλτράρισμα για δωρεάν αποστολή
       cs-CZ: Filtrovat na bezplatné doručení
+      pl-PL: Filtruj do darmowej wysyłki
     freeShippingShort:
       en-GB: Free Ship
       de-DE: Freies Schiff
@@ -2373,6 +2621,7 @@ browse:
       es-ES: Nave libre
       el-GR: Δωρεάν αποστολή
       cs-CZ: Free Ship
+      pl-PL: Free Ship
     comfortableCards:
       en-GB: Switch to comfortable cards
       de-DE: Wechsel zu bequemen Karten
@@ -2382,6 +2631,7 @@ browse:
       es-ES: Cambiar a cartas cómodas
       el-GR: Μετάβαση σε άνετες κάρτες
       cs-CZ: Přejděte na pohodlné karty
+      pl-PL: Przejdź na wygodne karty
     compactCards:
       en-GB: Switch to compact cards
       de-DE: Wechsel zu kompakten Karten
@@ -2391,6 +2641,7 @@ browse:
       es-ES: Cambiar a tarjetas compactas
       el-GR: Μετάβαση σε συμπαγείς κάρτες
       cs-CZ: Přechod na kompaktní karty
+      pl-PL: Przejście na karty kompaktowe
     roomy:
       en-GB: Roomy
       de-DE: Geräumig
@@ -2400,6 +2651,7 @@ browse:
       es-ES: Espacioso
       el-GR: Ευρύχωρο
       cs-CZ: Prostorný
+      pl-PL: Przestronne
     compact:
       en-GB: Compact
       de-DE: Kompakt
@@ -2409,6 +2661,7 @@ browse:
       es-ES: Compacto
       el-GR: Συμπαγής
       cs-CZ: Kompaktní
+      pl-PL: Compact
     sort:
       hottest:
         en-GB: Hot
@@ -2419,6 +2672,7 @@ browse:
         es-ES: Caliente
         el-GR: Ζεστό
         cs-CZ: Horko
+        pl-PL: Gorąco
       newest:
         en-GB: Newest
         de-DE: Neueste
@@ -2428,6 +2682,7 @@ browse:
         es-ES: Más recientes
         el-GR: Νεότερο
         cs-CZ: Nejnovější
+        pl-PL: Najnowsze
       updated:
         en-GB: Updated
         de-DE: Aktualisiert
@@ -2437,6 +2692,7 @@ browse:
         es-ES: Actualizado
         el-GR: ΕΠΙΚΑΙΡΟΠΟΙΗΜΕΝΟ
         cs-CZ: Aktualizováno
+        pl-PL: Aktualizacja
       price:
         en-GB: Price
         de-DE: Preis
@@ -2446,6 +2702,7 @@ browse:
         es-ES: Precio
         el-GR: Τιμή
         cs-CZ: Cena
+        pl-PL: Cena
       pricePerGram: £/g
       name:
         en-GB: Name
@@ -2456,6 +2713,7 @@ browse:
         es-ES: Nombre
         el-GR: Όνομα
         cs-CZ: Jméno
+        pl-PL: Nazwa
       aria:
         en-GB: Sort by
         de-DE: Sortieren nach
@@ -2465,6 +2723,7 @@ browse:
         es-ES: Ordenar por
         el-GR: Ταξινόμηση ανά
         cs-CZ: Seřadit podle
+        pl-PL: Sortuj według
       ascending:
         en-GB: Sort ascending
         de-DE: Sortieren aufsteigend
@@ -2474,6 +2733,7 @@ browse:
         es-ES: Ordenar ascendente
         el-GR: Αύξουσα ταξινόμηση
         cs-CZ: Třídění vzestupně
+        pl-PL: Sortowanie rosnące
       descending:
         en-GB: Sort descending
         de-DE: Sortierung absteigend
@@ -2483,6 +2743,7 @@ browse:
         es-ES: Ordenamiento descendente
         el-GR: Φθίνουσα ταξινόμηση
         cs-CZ: Třídit sestupně
+        pl-PL: Sortowanie w dół
   filters:
     toggle:
       en-GB: Toggle filters
@@ -2493,6 +2754,7 @@ browse:
       es-ES: Filtros alternantes
       el-GR: Εναλλαγή φίλτρων
       cs-CZ: Přepínané filtry
+      pl-PL: Filtry przełączające
     label:
       en-GB: Filters
       de-DE: Filter
@@ -2502,6 +2764,7 @@ browse:
       es-ES: Filtros
       el-GR: Φίλτρα
       cs-CZ: Filtry
+      pl-PL: Filtry
     close:
       en-GB: Close filters
       de-DE: Filter schließen
@@ -2511,6 +2774,7 @@ browse:
       es-ES: Filtros cerrados
       el-GR: Κλείσιμο φίλτρων
       cs-CZ: Blízké filtry
+      pl-PL: Filtry zamknięte
     active:
       en-GB: "{count} active"
       de-DE: "{count} aktiv"
@@ -2520,6 +2784,7 @@ browse:
       es-ES: "{count} activo"
       el-GR: "{count} ενεργός"
       cs-CZ: "{count} aktivní"
+      pl-PL: "{count} aktywny"
     clearAll:
       en-GB: Clear all
       de-DE: Alles wegräumen
@@ -2529,6 +2794,7 @@ browse:
       es-ES: Limpiar todo
       el-GR: Καθαρισμός όλων
       cs-CZ: Vyjasnit vše
+      pl-PL: Usuń wszystko
     clearAllTitle:
       en-GB: Clear all non-pinned filters
       de-DE: Alle nicht gepinnten Filter entfernen
@@ -2538,6 +2804,7 @@ browse:
       es-ES: Borra todos los filtros que no estén clavados
       el-GR: Απαλοιφή όλων των μη καρφιτσωμένων φίλτρων
       cs-CZ: Vyčistěte všechny filtry, které nejsou připnuté
+      pl-PL: Usuń wszystkie filtry nieprzypięte
     searchItems:
       en-GB: Search items...
       de-DE: Durchsuche Gegenstände...
@@ -2547,6 +2814,7 @@ browse:
       es-ES: Registrar objetos...
       el-GR: Αναζήτηση αντικειμένων...
       cs-CZ: Hledejte předměty...
+      pl-PL: Przeszukaj przedmioty...
     clearSearch:
       en-GB: Clear search
       de-DE: Suche frei
@@ -2556,6 +2824,7 @@ browse:
       es-ES: Búsqueda limpia
       el-GR: Εκκαθάριση αναζήτησης
       cs-CZ: Čisté vyhledávání
+      pl-PL: Czyste wyszukiwanie
     categories:
       en-GB: Categories
       de-DE: Kategorien
@@ -2565,6 +2834,7 @@ browse:
       es-ES: Categorías
       el-GR: Κατηγορίες
       cs-CZ: Kategorie
+      pl-PL: Kategorie
     subcategories:
       en-GB: Subcategories
       de-DE: Unterkategorien
@@ -2574,6 +2844,7 @@ browse:
       es-ES: Subcategorías
       el-GR: Υποκατηγορίες
       cs-CZ: Podkategorie
+      pl-PL: Podkategorie
     sections:
       shipsFrom:
         en-GB: Ships From
@@ -2584,6 +2855,7 @@ browse:
         es-ES: Barcos de
         el-GR: Αποστολή από
         cs-CZ: Lodě z
+        pl-PL: Statki z
       weight:
         en-GB: Weight
         de-DE: Gewicht
@@ -2593,6 +2865,7 @@ browse:
         es-ES: Peso
         el-GR: Βάρος
         cs-CZ: Hmotnost
+        pl-PL: Waga
       price:
         en-GB: Price
         de-DE: Preis
@@ -2602,6 +2875,7 @@ browse:
         es-ES: Precio
         el-GR: Τιμή
         cs-CZ: Cena
+        pl-PL: Cena
       sellers:
         en-GB: Sellers
         de-DE: Verkäufer
@@ -2611,6 +2885,7 @@ browse:
         es-ES: Vendedores
         el-GR: Πωλητές
         cs-CZ: Prodejci
+        pl-PL: Sprzedawcy
     attrs:
       effect:
         en-GB: Effect
@@ -2621,6 +2896,7 @@ browse:
         es-ES: Efecto
         el-GR: Αποτέλεσμα
         cs-CZ: Dopad
+        pl-PL: Efekt
       micron:
         en-GB: Micron
         de-DE: Micron
@@ -2630,6 +2906,7 @@ browse:
         es-ES: Micron
         el-GR: Μικρον
         cs-CZ: Micron
+        pl-PL: Micron
       filtration:
         en-GB: Filtration
         de-DE: Filtration
@@ -2639,6 +2916,7 @@ browse:
         es-ES: Filtración
         el-GR: Διήθηση
         cs-CZ: Filtrace
+        pl-PL: Filtracja
       texture:
         en-GB: Texture
         de-DE: Textur
@@ -2648,6 +2926,7 @@ browse:
         es-ES: Textura
         el-GR: Υφή
         cs-CZ: Textura
+        pl-PL: Tekstura
       process:
         en-GB: Process
         de-DE: Ablauf
@@ -2657,6 +2936,7 @@ browse:
         es-ES: Proceso
         el-GR: Διαδικασία
         cs-CZ: Proces
+        pl-PL: Proces
       form:
         en-GB: Form
         de-DE: Form
@@ -2666,6 +2946,7 @@ browse:
         es-ES: Forma
         el-GR: Μορφή
         cs-CZ: Forma
+        pl-PL: Forma
       extract:
         en-GB: Extract
         de-DE: Auszug
@@ -2675,6 +2956,7 @@ browse:
         es-ES: Extracto
         el-GR: Εκχύλισμα
         cs-CZ: Výňatek
+        pl-PL: Fragment
       dietary:
         en-GB: Dietary
         de-DE: Ernährung
@@ -2684,6 +2966,7 @@ browse:
         es-ES: Dieta
         el-GR: Διαιτητικός
         cs-CZ: Strava
+        pl-PL: Dieta
       strength:
         en-GB: Strength
         de-DE: Stärke
@@ -2693,6 +2976,7 @@ browse:
         es-ES: Fuerza
         el-GR: Δύναμη
         cs-CZ: Síla
+        pl-PL: Siła
     pin:
       unpin:
         en-GB: Unpin - will clear with filters
@@ -2703,6 +2987,7 @@ browse:
         es-ES: Desenganchar - se limpiará con filtros
         el-GR: Ξεκαρφίτσωμα - θα καθαρίσει με φίλτρα
         cs-CZ: Odpinovat – filtry se vymažou
+        pl-PL: Odpinie – filtry się wyczyszczą
       pin:
         en-GB: Pin - keeps selection when clearing filters
         de-DE: Pin – behält die Auswahl beim Löschen von Filtern
@@ -2712,6 +2997,7 @@ browse:
         es-ES: Pin - mantiene la selección al borrar los filtros
         el-GR: Pin - διατηρεί την επιλογή κατά την εκκαθάριση των φίλτρων
         cs-CZ: Pin – zachovává výběr při vymazávání filtrů
+        pl-PL: Pin – zachowuje wybór podczas czyszczenia filtrów
     shipFromHelp:
       en-GB: "Click: include. Right-click: exclude"
       de-DE: "Klicken: hinzufügen. Rechtsklick: ausschließen"
@@ -2721,6 +3007,7 @@ browse:
       es-ES: "Haz clic: incluir. Haz clic derecho: excluir"
       el-GR: "Κλικ: συμπερίληψη. Δεξί κλικ: εξαίρεση"
       cs-CZ: "Kliknout: zahrnout. Pravé kliknutí: vyloučit"
+      pl-PL: "Klik: uwzględnij. Kliknij prawym przyciskiem myszy: wyklucz"
     searchSellers:
       en-GB: Search sellers...
       de-DE: Suche Verkäufer...
@@ -2730,6 +3017,7 @@ browse:
       es-ES: Vendedores de búsqueda...
       el-GR: Αναζήτηση πωλητών...
       cs-CZ: Hledejte prodejce...
+      pl-PL: Szukaj sprzedawców...
     sellerSortAlpha:
       en-GB: Sorted A-Z - click for most items first
       de-DE: Sortiert von A bis Z – zuerst für die meisten Artikel klicken
@@ -2739,6 +3027,7 @@ browse:
       es-ES: Ordenado de la A a la Z - haz clic primero para la mayoría de los elementos
       el-GR: Ταξινόμηση Α-Ω - κάντε κλικ πρώτα για τα περισσότερα στοιχεία
       cs-CZ: Seřazeno od A do Z – nejdřív klikněte pro většinu položek
+      pl-PL: Posortowane od A do Z – kliknij, aby najpierw zobaczyć większość przedmiotów
     sellerSortCount:
       en-GB: Sorted by item count - click for A-Z
       de-DE: Sortiert nach Item-Anzahl – klicken Sie für A-Z
@@ -2748,6 +3037,7 @@ browse:
       es-ES: Ordenado por recuento de elementos - haz clic para ver de la A a la Z
       el-GR: Ταξινόμηση κατά αριθμό αντικειμένων - κάντε κλικ για Α-Ω
       cs-CZ: Seřazeno podle počtu položek – klikněte pro A-Z
+      pl-PL: Posortowane według liczby przedmiotów – kliknij dla A-Z
     removeSeller:
       en-GB: Remove {seller}
       de-DE: Entfernen Sie {seller}
@@ -2757,6 +3047,7 @@ browse:
       es-ES: Elimina {seller}
       el-GR: Αφαιρέστε {seller}
       cs-CZ: Odstraňte {seller}
+      pl-PL: Usuń {seller}
     selectSeller:
       en-GB: Select {seller}
       de-DE: Wählen Sie {seller}
@@ -2766,6 +3057,7 @@ browse:
       es-ES: Seleccionar {seller}
       el-GR: Επιλέξτε {seller}
       cs-CZ: Vyberte {seller}
+      pl-PL: Wybierz {seller}
     unselectSeller:
       en-GB: Unselect {seller}
       de-DE: "{seller} deaktivieren"
@@ -2775,6 +3067,7 @@ browse:
       es-ES: Desseleccionar {seller}
       el-GR: Αποεπιλέξτε {seller}
       cs-CZ: Zrušit výběr {seller}
+      pl-PL: Odznacz {seller}
     hideSeller:
       en-GB: Hide {seller} - removes all their items from results
       de-DE: "{seller} ausblenden – entfernt alle ihre Elemente aus den Ergebnissen"
@@ -2784,6 +3077,7 @@ browse:
       es-ES: Ocultar {seller} - elimina todos sus elementos de los resultados
       el-GR: Απόκρυψη {seller} - αφαιρεί όλα τα στοιχεία τους από τα αποτελέσματα
       cs-CZ: Skrýt {seller} - odstraní všechny jejich předměty z výsledků
+      pl-PL: Ukryj {seller} – usuwa wszystkie ich przedmioty z wyników
     hideSellerAria:
       en-GB: Hide {seller}
       de-DE: Versteck {seller}
@@ -2793,6 +3087,7 @@ browse:
       es-ES: Esconde {seller}
       el-GR: Απόκρυψη {seller}
       cs-CZ: Schovej {seller}
+      pl-PL: Ukryj {seller}
     noSellersMatch:
       en-GB: No sellers match
       de-DE: Kein Verkäufer-Match
@@ -2802,6 +3097,7 @@ browse:
       es-ES: Sin igualación de vendedores
       el-GR: Δεν ταιριάζουν πωλητές
       cs-CZ: Žádný prodejci
+      pl-PL: Brak dopasowania ze sprzedawcami
     noSellersAvailable:
       en-GB: No sellers available
       de-DE: Keine Verkäufer verfügbar
@@ -2811,6 +3107,7 @@ browse:
       es-ES: No hay vendedores disponibles
       el-GR: Δεν υπάρχουν διαθέσιμοι πωλητές
       cs-CZ: Žádní prodejci nejsou k dispozici
+      pl-PL: Brak dostępnych sprzedawców
     showLess:
       en-GB: Show less
       de-DE: Weniger anzeigen
@@ -2820,6 +3117,7 @@ browse:
       es-ES: Mostrar menos
       el-GR: Εμφάνιση λιγότερων
       cs-CZ: Zobrazit méně
+      pl-PL: Pokazuj mniej
     showAll:
       en-GB: Show all {count}
       de-DE: Zeig alle {count}
@@ -2829,6 +3127,7 @@ browse:
       es-ES: Mostrar todos {count}
       el-GR: Εμφάνιση όλων {count}
       cs-CZ: Ukaž všechny {count}
+      pl-PL: Pokaż wszystkie {count}
     hiddenSellers: "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
   priceRange:
     title:
@@ -2840,6 +3139,7 @@ browse:
       es-ES: Precio
       el-GR: Τιμή
       cs-CZ: Cena
+      pl-PL: Cena
     reset:
       en-GB: Reset price filter
       de-DE: Preisfilter zurücksetzen
@@ -2849,6 +3149,7 @@ browse:
       es-ES: Restablecer filtro de precios
       el-GR: Επαναφορά φίλτρου τιμών
       cs-CZ: Resetovat cenový filtr
+      pl-PL: Zresetuj filtr cen
     minimum:
       en-GB: Minimum price
       de-DE: Mindestpreis
@@ -2858,6 +3159,7 @@ browse:
       es-ES: Precio mínimo
       el-GR: Ελάχιστη τιμή
       cs-CZ: Minimální cena
+      pl-PL: Cena minimalna
     maximum:
       en-GB: Maximum price
       de-DE: Maximalpreis
@@ -2867,6 +3169,7 @@ browse:
       es-ES: Precio máximo
       el-GR: Μέγιστη τιμή
       cs-CZ: Maximální cena
+      pl-PL: Cena maksymalna
   card:
     lowConfidence:
       en-GB: Uncertain category ({percent}% confidence)
@@ -2877,6 +3180,7 @@ browse:
       es-ES: Categoría incierta ({percent}% de confianza)
       el-GR: Αβέβαιη κατηγορία ({percent}% εμπιστοσύνης)
       cs-CZ: Nejistá kategorie ({percent}% jistota)
+      pl-PL: Kategoria niepewna ({percent}% pewności)
     lowConfidenceAria:
       en-GB: "Low categorization confidence: {percent}%"
       de-DE: "Niedriges Kategorisierungsvertrauen: {percent} %"
@@ -2886,6 +3190,7 @@ browse:
       es-ES: "Baja confianza en la categorización: {percent}%"
       el-GR: "Χαμηλή εμπιστοσύνη κατηγοριοποίησης: {percent}%"
       cs-CZ: "Nízká kategorizace sebevědomí: {percent} %"
+      pl-PL: "Niska pewność kategoryzacji: {percent}%"
     preview:
       en-GB: Preview {item}
       de-DE: Vorschau {item}
@@ -2895,6 +3200,7 @@ browse:
       es-ES: Vista previa {item}
       el-GR: Προεπισκόπηση {item}
       cs-CZ: Náhled {item}
+      pl-PL: Zapowiedź {item}
     removeBookmark:
       en-GB: Remove bookmark
       de-DE: Bookmark entfernen
@@ -2904,6 +3210,7 @@ browse:
       es-ES: Eliminar marcador
       el-GR: Κατάργηση σελιδοδείκτη
       cs-CZ: Odstraňte záložku
+      pl-PL: Usuń zakładkę
     bookmarkProduct:
       en-GB: Bookmark this product
       de-DE: Speichern Sie dieses Produkt als Lesezeichen
@@ -2913,6 +3220,7 @@ browse:
       es-ES: Guarda este producto en favoritos
       el-GR: Προσθήκη προϊόντος στους σελιδοδείκτες
       cs-CZ: Uložte si tento produkt do záložek
+      pl-PL: Dodaj ten produkt do zakładek
     bookmarkRemoved:
       en-GB: Bookmark removed
       de-DE: Lesezeichen entfernt
@@ -2922,6 +3230,7 @@ browse:
       es-ES: Marcador eliminado
       el-GR: Ο σελιδοδείκτης αφαιρέθηκε
       cs-CZ: Záložka odstraněna
+      pl-PL: Zakładka usunięta
     bookmarked:
       en-GB: Bookmarked
       de-DE: Lesezeichen gespeichert
@@ -2931,6 +3240,7 @@ browse:
       es-ES: Marcado
       el-GR: Σελιδοδείκτης
       cs-CZ: Uloženo do záložek
+      pl-PL: Zakładki
     viewOnLittleBiggy:
       en-GB: View {item} on LittleBiggy
       de-DE: Sehen Sie {item} auf LittleBiggy
@@ -2940,6 +3250,7 @@ browse:
       es-ES: Ver {item} en LittleBiggy
       el-GR: Δείτε {item} στο LittleBiggy
       cs-CZ: Zobrazit {item} na LittleBiggy
+      pl-PL: Zobacz {item} na LittleBiggy
     onlineToday:
       en-GB: Online today
       de-DE: Heute online
@@ -2949,6 +3260,7 @@ browse:
       es-ES: Hoy en línea
       el-GR: Online σήμερα
       cs-CZ: Online dnes
+      pl-PL: Online dziś
     freeShipping:
       en-GB: Free shipping
       de-DE: Kostenloser Versand
@@ -2958,6 +3270,7 @@ browse:
       es-ES: Envío gratuito
       el-GR: Δωρεάν αποστολή
       cs-CZ: Doprava zdarma
+      pl-PL: Darmowa wysyłka
     endorsed: "{count, plural, one {1 endorsed} other {# endorsed}}"
     shipsFrom:
       en-GB: Ships from
@@ -2968,6 +3281,7 @@ browse:
       es-ES: Barcos de
       el-GR: Πλοία από
       cs-CZ: Lodě z
+      pl-PL: Statki z
     shipsFromAria:
       en-GB: Ships from {country}
       de-DE: Schiffe aus {country}
@@ -2977,6 +3291,7 @@ browse:
       es-ES: Barcos de {country}
       el-GR: Πλοία από {country}
       cs-CZ: Lodě z {country}
+      pl-PL: Statki z {country}
     deliveryDays:
       en-GB: ~{count}d delivery
       de-DE: ~{count}d Lieferung
@@ -2986,6 +3301,7 @@ browse:
       es-ES: ~{count}d entrega
       el-GR: ~ {count}d παράδοση
       cs-CZ: ~{count}d doručení
+      pl-PL: ~{count}d dostawa
     showAllSellers:
       en-GB: Show all sellers
       de-DE: Alle Verkäufer anzeigen
@@ -2995,6 +3311,7 @@ browse:
       es-ES: Mostrar todos los vendedores
       el-GR: Εμφάνιση όλων των πωλητών
       cs-CZ: Zobrazit všechny prodejce
+      pl-PL: Pokaż wszystkich sprzedawców
     onlySeller:
       en-GB: Only {seller}
       de-DE: Nur {seller}
@@ -3004,6 +3321,7 @@ browse:
       es-ES: Solo {seller}
       el-GR: Μόνο {seller}
       cs-CZ: Jen {seller}
+      pl-PL: Tylko {seller}
     all:
       en-GB: All
       de-DE: Alle
@@ -3013,6 +3331,7 @@ browse:
       es-ES: Todos
       el-GR: Όλα
       cs-CZ: Všichni
+      pl-PL: Wszyscy
     only:
       en-GB: Only
       de-DE: Nur
@@ -3022,6 +3341,7 @@ browse:
       es-ES: Solo
       el-GR: Μόνο
       cs-CZ: Pouze
+      pl-PL: Tylko
     hideSeller:
       en-GB: Hide {seller}
       de-DE: Versteck {seller}
@@ -3031,6 +3351,7 @@ browse:
       es-ES: Esconde {seller}
       el-GR: Απόκρυψη {seller}
       cs-CZ: Schovej {seller}
+      pl-PL: Ukryj {seller}
     hide:
       en-GB: Hide
       de-DE: Versteck dich
@@ -3040,6 +3361,7 @@ browse:
       es-ES: Escóndete
       el-GR: Απόκρυψη
       cs-CZ: Schovej se
+      pl-PL: Ukryj się
     updated:
       en-GB: Updated {time}
       de-DE: Aktualisierte {time}
@@ -3049,6 +3371,7 @@ browse:
       es-ES: Actualizado {time}
       el-GR: Ενημερώθηκε {time}
       cs-CZ: Aktualizováno {time}
+      pl-PL: Zaktualizowano {time}
     listed:
       en-GB: Listed {time}
       de-DE: Gelistete {time}
@@ -3058,6 +3381,7 @@ browse:
       es-ES: Listados {time}
       el-GR: Αναφέρονται {time}
       cs-CZ: Uvedeno {time}
+      pl-PL: Wymienione {time}
     listedUnknown:
       en-GB: Listed -
       de-DE: Gelistet –
@@ -3067,6 +3391,7 @@ browse:
       es-ES: Listados -
       el-GR: Εισηγμένες -
       cs-CZ: Uvedeno -
+      pl-PL: Wymienione -
     time:
       minutesAgo:
         en-GB: "{count}m ago"
@@ -3077,6 +3402,7 @@ browse:
         es-ES: "{count}m"
         el-GR: "{count}m πριν"
         cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -3086,6 +3412,7 @@ browse:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -3095,6 +3422,7 @@ browse:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -3104,6 +3432,7 @@ browse:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
 
 sort:
   newest:
@@ -3115,6 +3444,7 @@ sort:
     es-ES: Más recientes
     el-GR: Νεότερο
     cs-CZ: Nejnovější
+    pl-PL: Najnowsze
   priceAsc:
     en-GB: "Price: Low → High"
     de-DE: "Preis: Niedrig → Hoch"
@@ -3124,6 +3454,7 @@ sort:
     es-ES: "Precio: Bajo → alto"
     el-GR: "Τιμή: Χαμηλή → Υψηλή"
     cs-CZ: "Cena: Nízká → Vysoká"
+    pl-PL: "Cena: Niska → Wysoka"
   priceDesc:
     en-GB: "Price: High → Low"
     de-DE: "Preis: Hoch → Niedrig"
@@ -3133,6 +3464,7 @@ sort:
     es-ES: "Precio: Alto → Bajo"
     el-GR: "Τιμή: Υψηλή → Χαμηλή"
     cs-CZ: "Cena: Vysoká → nízká"
+    pl-PL: "Cena: Wysoka → Niska"
   rating:
     en-GB: Top Rated
     de-DE: Topbewertet
@@ -3142,6 +3474,7 @@ sort:
     es-ES: Mejor valorado
     el-GR: Κορυφαία βαθμολογία
     cs-CZ: Nejlépe hodnocené
+    pl-PL: Najwyższa ocena
   hot:
     en-GB: Hottest
     de-DE: Am heißesten
@@ -3151,6 +3484,7 @@ sort:
     es-ES: El más caliente
     el-GR: Το πιο καυτό
     cs-CZ: Nejžhavější
+    pl-PL: Najgorętszy
 
 item:
   from:
@@ -3162,6 +3496,7 @@ item:
     es-ES: de
     el-GR: από
     cs-CZ: od
+    pl-PL: od
   perGram:
     en-GB: /g
     de-DE: /g
@@ -3171,6 +3506,7 @@ item:
     es-ES: /g
     el-GR: /γ
     cs-CZ: /g
+    pl-PL: /g
   variants: "{count, plural, one {1 variant} other {# variants}}"
   reviews: "{count, plural, one {1 review} other {# reviews}}"
   noReviews:
@@ -3182,6 +3518,7 @@ item:
     es-ES: Aún no hay reseñas
     el-GR: Δεν υπάρχουν ακόμη κριτικές
     cs-CZ: Recenze zatím nejsou
+    pl-PL: Jeszcze brak recenzji
   shipping:
     en-GB: Shipping
     de-DE: Schifffahrt
@@ -3191,6 +3528,7 @@ item:
     es-ES: Transporte marítimo
     el-GR: Αποστολή
     cs-CZ: Lodní doprava
+    pl-PL: Żegluga
   freeShipping:
     en-GB: Free shipping
     de-DE: Kostenloser Versand
@@ -3200,6 +3538,7 @@ item:
     es-ES: Envío gratuito
     el-GR: Δωρεάν αποστολή
     cs-CZ: Doprava zdarma
+    pl-PL: Darmowa wysyłka
   viewOnSeller:
     en-GB: View on {seller}
     de-DE: Blick auf {seller}
@@ -3209,6 +3548,7 @@ item:
     es-ES: Ver en {seller}
     el-GR: Προβολή στο {seller}
     cs-CZ: Zobrazit {seller}
+    pl-PL: Zobacz {seller}
   addToBasket:
     en-GB: Add to basket
     de-DE: In den Korb legen
@@ -3218,6 +3558,7 @@ item:
     es-ES: Añadir a la cesta
     el-GR: Προσθήκη στο καλάθι
     cs-CZ: Přidat do košíku
+    pl-PL: Dodaj do kosza
   firstSeen:
     en-GB: First seen
     de-DE: Zuerst gesehen
@@ -3227,6 +3568,7 @@ item:
     es-ES: Primera aparición
     el-GR: Πρώτη εμφάνιση
     cs-CZ: Poprvé spatřený
+    pl-PL: Pierwsze pokazanie
   lastUpdated:
     en-GB: Last updated
     de-DE: Zuletzt aktualisiert
@@ -3236,6 +3578,7 @@ item:
     es-ES: Última actualización
     el-GR: Τελευταία ενημέρωση
     cs-CZ: Poslední aktualizace
+    pl-PL: Ostatnia aktualizacja
   detail:
     close:
       en-GB: Close
@@ -3246,6 +3589,7 @@ item:
       es-ES: Cierre
       el-GR: Κλείσιμο
       cs-CZ: Zavřít
+      pl-PL: Zamknij
     previousItem:
       en-GB: Previous item
       de-DE: Vorheriger Beitrag
@@ -3255,6 +3599,7 @@ item:
       es-ES: Ítem anterior
       el-GR: Προηγούμενο στοιχείο
       cs-CZ: Předchozí položka
+      pl-PL: Poprzedni punkt
     nextItem:
       en-GB: Next item
       de-DE: Nächster Punkt
@@ -3264,6 +3609,7 @@ item:
       es-ES: Siguiente punto
       el-GR: Επόμενο στοιχείο
       cs-CZ: Další bod
+      pl-PL: Następny punkt
     prev:
       en-GB: Prev
       de-DE: Früher
@@ -3273,6 +3619,7 @@ item:
       es-ES: Anterior
       el-GR: Προηγ
       cs-CZ: Předchozí
+      pl-PL: Poprzedni
     next:
       en-GB: Next
       de-DE: Als Nächstes
@@ -3282,6 +3629,7 @@ item:
       es-ES: Siguiente
       el-GR: Επόμενο
       cs-CZ: Další
+      pl-PL: Następny
     by:
       en-GB: by
       de-DE: von
@@ -3291,6 +3639,7 @@ item:
       es-ES: por
       el-GR: από τον
       cs-CZ: autor
+      pl-PL: "autor:"
     wasPrice:
       en-GB: was {price}
       de-DE: war {price}
@@ -3300,6 +3649,7 @@ item:
       es-ES: fue {price}
       el-GR: ήταν {price}
       cs-CZ: byl {price}
+      pl-PL: było {price}
     viewOnLittleBiggy:
       en-GB: View on Little Biggy
       de-DE: Blick auf Little Biggy
@@ -3309,6 +3659,7 @@ item:
       es-ES: Ver en Little Biggy
       el-GR: Προβολή στο Little Biggy
       cs-CZ: Zobrazit Little Biggy
+      pl-PL: Zobacz Little Biggy
     itemNotFound:
       en-GB: Item not found.
       de-DE: Gegenstand nicht gefunden.
@@ -3318,6 +3669,7 @@ item:
       es-ES: Artículo no encontrado.
       el-GR: Το αντικείμενο δεν βρέθηκε.
       cs-CZ: Položka nenalezena.
+      pl-PL: Przedmiot nie znaleziony.
     tabs:
       prices:
         en-GB: Prices
@@ -3328,6 +3680,7 @@ item:
         es-ES: Precios
         el-GR: Τιμές
         cs-CZ: Ceny
+        pl-PL: Ceny
       description:
         en-GB: Description
         de-DE: Beschreibung
@@ -3337,6 +3690,7 @@ item:
         es-ES: Descripción
         el-GR: Περιγραφή
         cs-CZ: Popis
+        pl-PL: Opis
       reviews:
         en-GB: Reviews
         de-DE: Rezensionen
@@ -3346,6 +3700,7 @@ item:
         es-ES: Reseñas
         el-GR: Κριτικές
         cs-CZ: Recenze
+        pl-PL: Recenzje
     reviews:
       heading:
         en-GB: Reviews
@@ -3356,6 +3711,7 @@ item:
         es-ES: Reseñas
         el-GR: Κριτικές
         cs-CZ: Recenze
+        pl-PL: Recenzje
       noneAvailable:
         en-GB: No reviews available
         de-DE: Keine Bewertungen verfügbar
@@ -3365,6 +3721,7 @@ item:
         es-ES: No hay reseñas disponibles
         el-GR: Δεν υπάρχουν διαθέσιμες κριτικές
         cs-CZ: Recenze nejsou k dispozici
+        pl-PL: Brak dostępnych recenzji
       readMoreAt:
         en-GB: "Read more reviews at:"
         de-DE: "Lesen Sie weitere Rezensionen unter:"
@@ -3374,6 +3731,7 @@ item:
         es-ES: "Lee más reseñas en:"
         el-GR: "Διαβάστε περισσότερες κριτικές στο:"
         cs-CZ: "Další recenze si můžete přečíst na:"
+        pl-PL: "Więcej recenzji przeczytaj na:"
       filter:
         all:
           en-GB: "All ({count})"
@@ -3384,6 +3742,7 @@ item:
           es-ES: "Todas ({count})"
           el-GR: "Όλες ({count})"
           cs-CZ: "Vše ({count})"
+          pl-PL: Wszystkie ({count})
         withText:
           en-GB: "With text ({count})"
           de-DE: "Mit Text ({count})"
@@ -3393,6 +3752,7 @@ item:
           es-ES: "Con texto ({count})"
           el-GR: "Με κείμενο ({count})"
           cs-CZ: "S textem ({count})"
+          pl-PL: Z tekstem ({count})
     variants:
       heading:
         en-GB: Variants
@@ -3403,6 +3763,7 @@ item:
         es-ES: Variantes
         el-GR: Παραλλαγές
         cs-CZ: Varianty
+        pl-PL: Warianty
       size:
         en-GB: Size
         de-DE: Größe
@@ -3412,6 +3773,7 @@ item:
         es-ES: Tamaño
         el-GR: Μέγεθος
         cs-CZ: Velikost
+        pl-PL: Rozmiar
       price:
         en-GB: Price
         de-DE: Preis
@@ -3421,6 +3783,7 @@ item:
         es-ES: Precio
         el-GR: Τιμή
         cs-CZ: Cena
+        pl-PL: Cena
       variant:
         en-GB: Variant
         de-DE: Variante
@@ -3430,6 +3793,7 @@ item:
         es-ES: Variante
         el-GR: Παραλλαγή
         cs-CZ: Varianta
+        pl-PL: Wariant
       add:
         en-GB: Add
         de-DE: Hinzufügen
@@ -3439,6 +3803,7 @@ item:
         es-ES: Añadir
         el-GR: Προσθήκη
         cs-CZ: Přidat
+        pl-PL: Dodaj
       addToBasket:
         en-GB: Add to basket
         de-DE: In den Korb legen
@@ -3448,6 +3813,7 @@ item:
         es-ES: Añadir a la cesta
         el-GR: Προσθήκη στο καλάθι
         cs-CZ: Přidat do košíku
+        pl-PL: Dodaj do kosza
       addedToBasket:
         en-GB: Added {variant} to basket
         de-DE: Habe {variant} zum Korb hinzugefügt
@@ -3457,6 +3823,7 @@ item:
         es-ES: Añadido {variant} a la cesta
         el-GR: Προστέθηκε {variant} στο καλάθι
         cs-CZ: Přidal {variant} do košíku
+        pl-PL: Dodałem {variant} do kosza
       bestValue:
         en-GB: Best value
         de-DE: Bestes Preis-Leistungs-Verhältnis
@@ -3466,6 +3833,7 @@ item:
         es-ES: Mejor relación calidad-precio
         el-GR: Η καλύτερη αξία
         cs-CZ: Nejlepší poměr cena/výkon
+        pl-PL: Najlepsza wartość
       pricePerUnit:
         en-GB: Price per {unit}
         de-DE: Preis pro {unit}
@@ -3475,6 +3843,7 @@ item:
         es-ES: Precio por {unit}
         el-GR: Τιμή ανά {unit}
         cs-CZ: Cena za {unit}
+        pl-PL: Cena za {unit}
       unit:
         en-GB: unit
         de-DE: Einheit
@@ -3484,6 +3853,7 @@ item:
         es-ES: Unidad
         el-GR: μονάδα
         cs-CZ: Jednotka
+        pl-PL: Jednostka
     meta:
       rating:
         en-GB: Rating
@@ -3494,6 +3864,7 @@ item:
         es-ES: Clasificación
         el-GR: Εκτίμηση
         cs-CZ: Hodnocení
+        pl-PL: Ocena
       avgDelivery:
         en-GB: Avg delivery
         de-DE: Durchschnittliche Lieferung
@@ -3503,6 +3874,7 @@ item:
         es-ES: Entrega media
         el-GR: Μέση παράδοση
         cs-CZ: Průměrné doručení
+        pl-PL: Średnia jakość dostarczania
       listed:
         en-GB: Listed
         de-DE: Gelistet
@@ -3512,6 +3884,7 @@ item:
         es-ES: Listados
         el-GR: Εισηγμένες
         cs-CZ: Seznam
+        pl-PL: Wpisane na listę
       updated:
         en-GB: Updated
         de-DE: Aktualisiert
@@ -3521,6 +3894,7 @@ item:
         es-ES: Actualizado
         el-GR: ΕΠΙΚΑΙΡΟΠΟΙΗΜΕΝΟ
         cs-CZ: Aktualizováno
+        pl-PL: Aktualizacja
     description:
       heading:
         en-GB: Description
@@ -3531,6 +3905,7 @@ item:
         es-ES: Descripción
         el-GR: Περιγραφή
         cs-CZ: Popis
+        pl-PL: Opis
       noneProvided:
         en-GB: No description provided.
         de-DE: Keine Beschreibung angegeben.
@@ -3540,6 +3915,7 @@ item:
         es-ES: No se ha proporcionado ninguna descripción.
         el-GR: Δεν παρέχεται περιγραφή.
         cs-CZ: Popis nebyl poskytnut.
+        pl-PL: Brak opisu.
     attributes:
       heading:
         en-GB: Attributes
@@ -3550,6 +3926,7 @@ item:
         es-ES: Atributos
         el-GR: Χαρακτηριστικά
         cs-CZ: Atributy
+        pl-PL: Atrybuty
       labels:
         effect:
           en-GB: Effect
@@ -3560,6 +3937,7 @@ item:
           es-ES: Efecto
           el-GR: Αποτέλεσμα
           cs-CZ: Dopad
+          pl-PL: Efekt
         cbd:
           en-GB: CBD
           de-DE: CBD
@@ -3569,6 +3947,7 @@ item:
           es-ES: CBD
           el-GR: CBD
           cs-CZ: CBD
+          pl-PL: CBD
         grow:
           en-GB: Grow
           de-DE: Wachsen
@@ -3578,6 +3957,7 @@ item:
           es-ES: Crecer
           el-GR: Καλλιεργώ
           cs-CZ: Rost
+          pl-PL: Grow
         imported:
           en-GB: Imported
           de-DE: Importiert
@@ -3587,6 +3967,7 @@ item:
           es-ES: Importados
           el-GR: Εισαγόμενος
           cs-CZ: Dovezený
+          pl-PL: Importowany
         micron:
           en-GB: Micron
           de-DE: Micron
@@ -3596,6 +3977,7 @@ item:
           es-ES: Micron
           el-GR: Μικρον
           cs-CZ: Micron
+          pl-PL: Micron
         origin:
           en-GB: Origin
           de-DE: Ursprung
@@ -3605,6 +3987,7 @@ item:
           es-ES: Origen
           el-GR: Προέλευση
           cs-CZ: Původ
+          pl-PL: Pochodzenie
         fullMelt:
           en-GB: Full Melt
           de-DE: Full Melt
@@ -3614,6 +3997,7 @@ item:
           es-ES: Full Melt
           el-GR: Πλήρης τήξη
           cs-CZ: Full Melt
+          pl-PL: Full Melt
         mg:
           en-GB: Potency
           de-DE: Potenz
@@ -3623,6 +4007,7 @@ item:
           es-ES: Potencia
           el-GR: Ισχύς
           cs-CZ: Síla
+          pl-PL: Moc
         vegan:
           en-GB: Vegan
           de-DE: Vegan
@@ -3632,6 +4017,7 @@ item:
           es-ES: Vegano
           el-GR: Χορτοφάγος
           cs-CZ: Vegan
+          pl-PL: Wegańska
         mlSize:
           en-GB: Size
           de-DE: Größe
@@ -3641,6 +4027,7 @@ item:
           es-ES: Tamaño
           el-GR: Μέγεθος
           cs-CZ: Velikost
+          pl-PL: Rozmiar
         purity:
           en-GB: Purity
           de-DE: Reinheit
@@ -3650,6 +4037,7 @@ item:
           es-ES: Pureza
           el-GR: Καθαρότητα
           cs-CZ: Čistota
+          pl-PL: Czystość
         delta:
           en-GB: Type
           de-DE: Typ
@@ -3659,6 +4047,7 @@ item:
           es-ES: Tipo
           el-GR: Τύπος
           cs-CZ: Typ
+          pl-PL: Typ
         terped:
           en-GB: Terped
           de-DE: Terped
@@ -3668,6 +4057,7 @@ item:
           es-ES: Terpedo
           el-GR: Τερμπέν
           cs-CZ: Terped
+          pl-PL: Terped
         species:
           en-GB: Species
           de-DE: Arten
@@ -3677,6 +4067,7 @@ item:
           es-ES: Especies
           el-GR: Είδος
           cs-CZ: Druhy
+          pl-PL: Gatunki
     priceHistory:
       heading:
         en-GB: Price History
@@ -3687,6 +4078,7 @@ item:
         es-ES: Historial de precios
         el-GR: Ιστορικό τιμών
         cs-CZ: Historie cen
+        pl-PL: Historia cen
       firstTracked:
         en-GB: First tracked
         de-DE: Erste Aufnahme
@@ -3696,6 +4088,7 @@ item:
         es-ES: Primera pista
         el-GR: Πρώτη παρακολούθηση
         cs-CZ: První stopa
+        pl-PL: Pierwszy ślad
     shipping:
       label:
         en-GB: Shipping
@@ -3706,6 +4099,7 @@ item:
         es-ES: Transporte marítimo
         el-GR: Αποστολή
         cs-CZ: Lodní doprava
+        pl-PL: Żegluga
       noShipping:
         en-GB: No shipping
         de-DE: Kein Versand
@@ -3715,6 +4109,7 @@ item:
         es-ES: No se permite enviar
         el-GR: Χωρίς αποστολή
         cs-CZ: Žádná doprava
+        pl-PL: Brak wysyłki
       freeShipping:
         en-GB: Free shipping
         de-DE: Kostenloser Versand
@@ -3724,6 +4119,7 @@ item:
         es-ES: Envío gratuito
         el-GR: Δωρεάν αποστολή
         cs-CZ: Doprava zdarma
+        pl-PL: Darmowa wysyłka
       cheapest:
         en-GB: Cheapest
         de-DE: Günstigster
@@ -3733,6 +4129,7 @@ item:
         es-ES: El más barato
         el-GR: Το φθηνότερο
         cs-CZ: Nejlevnější
+        pl-PL: Najtańsze
       highest:
         en-GB: Highest
         de-DE: Höchster
@@ -3742,6 +4139,7 @@ item:
         es-ES: Más alto
         el-GR: Υψηλότερη
         cs-CZ: Nejvyšší
+        pl-PL: Najwyższe
       shipping:
         en-GB: Shipping
         de-DE: Schifffahrt
@@ -3751,6 +4149,7 @@ item:
         es-ES: Transporte marítimo
         el-GR: Αποστολή
         cs-CZ: Lodní doprava
+        pl-PL: Żegluga
       free:
         en-GB: Free
         de-DE: Kostenlos
@@ -3760,6 +4159,7 @@ item:
         es-ES: Gratis
         el-GR: Δωρεάν
         cs-CZ: Zdarma
+        pl-PL: Wolne
     time:
       minutesAgo:
         en-GB: "{count}m ago"
@@ -3770,6 +4170,7 @@ item:
         es-ES: "{count}m"
         el-GR: "{count}m πριν"
         cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -3779,6 +4180,7 @@ item:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -3788,6 +4190,7 @@ item:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -3797,6 +4200,7 @@ item:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
   page:
     browseIndex:
       en-GB: Browse the Index
@@ -3807,6 +4211,7 @@ item:
       es-ES: Consulta el índice
       el-GR: Περιηγηθείτε στο ευρετήριο
       cs-CZ: Procházejte rejstřík
+      pl-PL: Przeglądaj indeks
     breadcrumb:
       en-GB: Breadcrumb
       de-DE: Brotkrumen
@@ -3816,6 +4221,7 @@ item:
       es-ES: Miga de pan
       el-GR: Τριμμένη φρυγανιά
       cs-CZ: Drobeček
+      pl-PL: Okruszek chleba
     notFoundTitle:
       en-GB: Item not found
       de-DE: Gegenstand nicht gefunden
@@ -3825,6 +4231,7 @@ item:
       es-ES: Elemento no encontrado
       el-GR: Το προϊόν δεν βρέθηκε
       cs-CZ: Položka nenalezena
+      pl-PL: Przedmiot nie znaleziony
     notFoundDescription:
       en-GB: The item "{ref}" doesn't exist or has been removed.
       de-DE: Der Artikel "{ref}" existiert nicht oder wurde entfernt.
@@ -3834,6 +4241,7 @@ item:
       es-ES: El elemento "{ref}" no existe o ha sido eliminado.
       el-GR: Το στοιχείο "{ref}" δεν υπάρχει ή έχει αφαιρεθεί.
       cs-CZ: Položka "{ref}" neexistuje nebo byla odstraněna.
+      pl-PL: Pozycja "{ref}" nie istnieje lub została usunięta.
     backToIndex:
       en-GB: Back to index
       de-DE: Zurück zum Index
@@ -3843,6 +4251,7 @@ item:
       es-ES: Volver al índice
       el-GR: Επιστροφή στο ευρετήριο
       cs-CZ: Zpět na index
+      pl-PL: Powrót do indeksu
     imageAlt:
       en-GB: "{item} image {index}"
       de-DE: "{item} Bild {index}"
@@ -3852,6 +4261,7 @@ item:
       es-ES: "{item} imagen {index}"
       el-GR: "{item} εικόνα {index}"
       cs-CZ: "{item} obrázek {index}"
+      pl-PL: "{item} {index}"
     by:
       en-GB: by
       de-DE: von
@@ -3861,6 +4271,7 @@ item:
       es-ES: por
       el-GR: από τον
       cs-CZ: autor
+      pl-PL: "autor:"
     shipsFrom:
       en-GB: Ships from {country}
       de-DE: Schiffe aus {country}
@@ -3870,6 +4281,7 @@ item:
       es-ES: Barcos de {country}
       el-GR: Πλοία από {country}
       cs-CZ: Lodě z {country}
+      pl-PL: Statki z {country}
     unavailable:
       en-GB: N/A
       de-DE: N/A
@@ -3879,6 +4291,7 @@ item:
       es-ES: N/A
       el-GR: Δ/Υ
       cs-CZ: N/A
+      pl-PL: Nie ma
     reviewsCount: "{count, plural, one {1 review} other {# reviews}}"
     deliveryShort:
       en-GB: ~{count}d delivery
@@ -3889,6 +4302,7 @@ item:
       es-ES: ~{count}d entrega
       el-GR: ~ {count}d παράδοση
       cs-CZ: ~{count}d doručení
+      pl-PL: ~{count}d dostawa
     avgDelivery:
       en-GB: "{days} days avg delivery"
       de-DE: "{days} Tage durchschnittliche Lieferung"
@@ -3898,6 +4312,7 @@ item:
       es-ES: "{days} días de media de entrega"
       el-GR: "{days} ημέρες μέση παράδοση"
       cs-CZ: "{days} dní průměrné doručení"
+      pl-PL: "{days} dni średnia dostawa"
     attributes:
       en-GB: Attributes
       de-DE: Eigenschaften
@@ -3907,6 +4322,7 @@ item:
       es-ES: Atributos
       el-GR: Χαρακτηριστικά
       cs-CZ: Atributy
+      pl-PL: Atrybuty
     variants:
       en-GB: Variants
       de-DE: Varianten
@@ -3916,6 +4332,7 @@ item:
       es-ES: Variantes
       el-GR: Παραλλαγές
       cs-CZ: Varianty
+      pl-PL: Warianty
     bestValue:
       en-GB: Best value
       de-DE: Bestes Preis-Leistungs-Verhältnis
@@ -3925,6 +4342,7 @@ item:
       es-ES: Mejor relación calidad-precio
       el-GR: Η καλύτερη αξία
       cs-CZ: Nejlepší poměr cena/výkon
+      pl-PL: Najlepsza wartość
     shipping:
       en-GB: Shipping
       de-DE: Schifffahrt
@@ -3934,6 +4352,7 @@ item:
       es-ES: Transporte marítimo
       el-GR: Αποστολή
       cs-CZ: Lodní doprava
+      pl-PL: Żegluga
     free:
       en-GB: Free
       de-DE: Kostenlos
@@ -3943,6 +4362,7 @@ item:
       es-ES: Gratis
       el-GR: Δωρεάν
       cs-CZ: Zdarma
+      pl-PL: Wolne
     viewOnLittleBiggy:
       en-GB: View on LittleBiggy
       de-DE: Blick auf LittleBiggy
@@ -3952,6 +4372,7 @@ item:
       es-ES: Ver en LittleBiggy
       el-GR: Προβολή στο LittleBiggy
       cs-CZ: Zobrazit LittleBiggy
+      pl-PL: Zobacz LittleBiggy
     firstSeen:
       en-GB: "First seen: {date}"
       de-DE: "Zuerst gesehen: {date}"
@@ -3961,6 +4382,7 @@ item:
       es-ES: "Primera vez visto: {date}"
       el-GR: "Πρώτη εμφάνιση: {date}"
       cs-CZ: "Poprvé viděn: {date}"
+      pl-PL: "Pierwszy raz widziany: {date}"
     updated:
       en-GB: "Updated: {date}"
       de-DE: "Aktualisiert: {date}"
@@ -3970,6 +4392,7 @@ item:
       es-ES: "Actualizado: {date}"
       el-GR: "Ανανεώθηκε: {date}"
       cs-CZ: "Aktualizováno: {date}"
+      pl-PL: "Aktualizacja: {date}"
     priceHistory:
       en-GB: Price History
       de-DE: Preisgeschichte
@@ -3979,6 +4402,7 @@ item:
       es-ES: Historial de precios
       el-GR: Ιστορικό τιμών
       cs-CZ: Historie cen
+      pl-PL: Historia cen
     reviews:
       en-GB: Reviews
       de-DE: Rezensionen
@@ -3988,6 +4412,7 @@ item:
       es-ES: Reseñas
       el-GR: Κριτικές
       cs-CZ: Recenze
+      pl-PL: Recenzje
   legacyModal:
     close:
       en-GB: Close
@@ -3998,6 +4423,7 @@ item:
       es-ES: Cierre
       el-GR: Κλείσιμο
       cs-CZ: Zavřít
+      pl-PL: Zamknij
     itemNotFound:
       en-GB: Item not found.
       de-DE: Gegenstand nicht gefunden.
@@ -4007,6 +4433,7 @@ item:
       es-ES: Artículo no encontrado.
       el-GR: Το αντικείμενο δεν βρέθηκε.
       cs-CZ: Položka nenalezena.
+      pl-PL: Przedmiot nie znaleziony.
     by:
       en-GB: by
       de-DE: von
@@ -4016,6 +4443,7 @@ item:
       es-ES: por
       el-GR: από τον
       cs-CZ: autor
+      pl-PL: "autor:"
     unavailable:
       en-GB: N/A
       de-DE: N/A
@@ -4025,6 +4453,7 @@ item:
       es-ES: N/A
       el-GR: Δ/Υ
       cs-CZ: N/A
+      pl-PL: Nie ma
     variants:
       en-GB: Variants
       de-DE: Varianten
@@ -4034,6 +4463,7 @@ item:
       es-ES: Variantes
       el-GR: Παραλλαγές
       cs-CZ: Varianty
+      pl-PL: Warianty
     attributes:
       en-GB: Attributes
       de-DE: Eigenschaften
@@ -4043,6 +4473,7 @@ item:
       es-ES: Atributos
       el-GR: Χαρακτηριστικά
       cs-CZ: Atributy
+      pl-PL: Atrybuty
     reviewsCount: "{count, plural, one {1 review} other {# reviews}}"
     avgDelivery:
       en-GB: "{days} days avg delivery"
@@ -4053,6 +4484,7 @@ item:
       es-ES: "{days} días de media de entrega"
       el-GR: "{days} ημέρες μέση παράδοση"
       cs-CZ: "{days} dní průměrné doručení"
+      pl-PL: "{days} dni średnia dostawa"
     shipping:
       en-GB: Shipping
       de-DE: Schifffahrt
@@ -4062,6 +4494,7 @@ item:
       es-ES: Transporte marítimo
       el-GR: Αποστολή
       cs-CZ: Lodní doprava
+      pl-PL: Żegluga
     freeAvailable:
       en-GB: Free available
       de-DE: Kostenlos verfügbar
@@ -4071,6 +4504,7 @@ item:
       es-ES: Disponible gratis
       el-GR: Δωρεάν διαθέσιμο
       cs-CZ: Zdarma dostupné
+      pl-PL: Dostępne za darmo
     firstSeen:
       en-GB: "First seen: {date}"
       de-DE: "Zuerst gesehen: {date}"
@@ -4080,6 +4514,7 @@ item:
       es-ES: "Primera vez visto: {date}"
       el-GR: "Πρώτη εμφάνιση: {date}"
       cs-CZ: "Poprvé viděn: {date}"
+      pl-PL: "Pierwszy raz widziany: {date}"
     updated:
       en-GB: "Updated: {date}"
       de-DE: "Aktualisiert: {date}"
@@ -4089,6 +4524,7 @@ item:
       es-ES: "Actualizado: {date}"
       el-GR: "Ανανεώθηκε: {date}"
       cs-CZ: "Aktualizováno: {date}"
+      pl-PL: "Aktualizacja: {date}"
     viewOnLittleBiggy:
       en-GB: View on LittleBiggy
       de-DE: Blick auf LittleBiggy
@@ -4098,6 +4534,7 @@ item:
       es-ES: Ver en LittleBiggy
       el-GR: Προβολή στο LittleBiggy
       cs-CZ: Zobrazit LittleBiggy
+      pl-PL: Zobacz LittleBiggy
     fullPage:
       en-GB: Full page
       de-DE: Ganzseitige Seite
@@ -4107,6 +4544,7 @@ item:
       es-ES: Página completa
       el-GR: Ολοσέλιδο
       cs-CZ: Celá stránka
+      pl-PL: Cała strona
 
 seller:
   products: "{count, plural, one {1 product} other {# products}}"
@@ -4119,6 +4557,7 @@ seller:
     es-ES: Clasificación
     el-GR: Εκτίμηση
     cs-CZ: Hodnocení
+    pl-PL: Ocena
   visitStore:
     en-GB: Visit store
     de-DE: Besuche den Shop
@@ -4128,6 +4567,7 @@ seller:
     es-ES: Visitar tienda
     el-GR: Επισκεφθείτε το κατάστημα
     cs-CZ: Navštivte obchod
+    pl-PL: Odwiedź sklep
   page:
     metadataTitle:
       en-GB: Sellers - BiggyIndex
@@ -4138,6 +4578,7 @@ seller:
       es-ES: Vendedores - BiggyIndex
       el-GR: Πωλητές - BiggyIndex
       cs-CZ: Prodejci - BiggyIndex
+      pl-PL: Sprzedawcy - BiggyIndex
     metadataDescription:
       en-GB: Browse all Little Biggy sellers with trust scores, review counts, and community ratings.
       de-DE: Durchstöbern Sie alle Little Biggy Verkäufer mit Vertrauenswertungen, Bewertungszahlen und Community-Bewertungen.
@@ -4147,6 +4588,7 @@ seller:
       es-ES: Explora todos los vendedores Little Biggy con puntuaciones de confianza, recuentos de reseñas y valoraciones de la comunidad.
       el-GR: Περιηγηθείτε σε όλους τους πωλητές Little Biggy με βαθμολογίες εμπιστοσύνης, πλήθος κριτικών και αξιολογήσεις κοινότητας.
       cs-CZ: Prohlédněte si všechny Little Biggy prodejce s důvěryhodnými skóre, počtem recenzí a hodnoceními komunity.
+      pl-PL: Przeglądaj wszystkich Little Biggy sprzedawców z ocenami zaufania, liczbą recenzji i ocenami społeczności.
     title:
       en-GB: Sellers
       de-DE: Verkäufer
@@ -4156,6 +4598,7 @@ seller:
       es-ES: Vendedores
       el-GR: Πωλητές
       cs-CZ: Prodejci
+      pl-PL: Sprzedawcy
     activeSellers: "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}"
     leaderboard:
       title:
@@ -4167,6 +4610,7 @@ seller:
         es-ES: Tabla de Clasificación de Trust
         el-GR: Πίνακας κατάταξης εμπιστοσύνης
         cs-CZ: Žebříček Trust
+        pl-PL: Ranking Trustu
       allTime:
         en-GB: All time
         de-DE: Allzeit-Zeiten
@@ -4176,6 +4620,7 @@ seller:
         es-ES: Todos los tiempos
         el-GR: Ολη την ώρα
         cs-CZ: Všech dob
+        pl-PL: Cały czas
       thisWeek:
         en-GB: This week
         de-DE: Diese Woche
@@ -4185,6 +4630,7 @@ seller:
         es-ES: Esta semana
         el-GR: Αυτή την εβδομάδα
         cs-CZ: Tento týden
+        pl-PL: W tym tygodniu
       topRated:
         en-GB: Top Rated
         de-DE: Topbewertet
@@ -4194,6 +4640,7 @@ seller:
         es-ES: Mejor valorado
         el-GR: Κορυφαία βαθμολογία
         cs-CZ: Nejlépe hodnocené
+        pl-PL: Najwyższa ocena
       topRatedSubtitle:
         en-GB: Highest positive-review ratio
         de-DE: Höchstes positives Bewertungsverhältnis
@@ -4203,6 +4650,7 @@ seller:
         es-ES: Mayor ratio de valoraciones positivas
         el-GR: Υψηλότερη αναλογία θετικών κριτικών
         cs-CZ: Nejvyšší poměr pozitivních recenzí
+        pl-PL: Najwyższy wskaźnik pozytywnych recenzji
       useCaution:
         en-GB: Use Caution
         de-DE: Seien Sie vorsichtig
@@ -4212,6 +4660,7 @@ seller:
         es-ES: Usa precaución
         el-GR: Να είστε προσεκτικοί
         cs-CZ: Buďte opatrní
+        pl-PL: Zachowaj ostrożność
       useCautionSubtitle:
         en-GB: Elevated negative feedback
         de-DE: Erhöhte negative Rückkopplung
@@ -4221,6 +4670,7 @@ seller:
         es-ES: Retroalimentación negativa elevada
         el-GR: Αυξημένη αρνητική ανατροφοδότηση
         cs-CZ: Zvýšená negativní zpětná vazba
+        pl-PL: Podwyższone negatywne sprzężenie zwrotne
       reviews:
         en-GB: Reviews
         de-DE: Rezensionen
@@ -4230,6 +4680,7 @@ seller:
         es-ES: Reseñas
         el-GR: Κριτικές
         cs-CZ: Recenze
+        pl-PL: Recenzje
       reviewCount: "{count, plural, one {1 review} other {# reviews}}"
       negativeCount: "{count, plural, one {1 negative} other {# negative}}"
     allSellers:
@@ -4241,6 +4692,7 @@ seller:
       es-ES: Todos los vendedores
       el-GR: Όλοι οι πωλητές
       cs-CZ: Všichni prodejci
+      pl-PL: Wszyscy sprzedający
     search:
       en-GB: Search...
       de-DE: Suche...
@@ -4250,6 +4702,7 @@ seller:
       es-ES: Buscar...
       el-GR: Αναζήτηση...
       cs-CZ: Hledat...
+      pl-PL: Szukaj...
     table:
       seller:
         en-GB: Seller
@@ -4260,6 +4713,7 @@ seller:
         es-ES: Vendedor
         el-GR: Πωλητής
         cs-CZ: Prodávající
+        pl-PL: Sprzedawca
       total:
         en-GB: Total
         de-DE: Gesamt
@@ -4269,6 +4723,7 @@ seller:
         es-ES: Total
         el-GR: Σύνολο
         cs-CZ: Celkem
+        pl-PL: Razem
       seen:
         en-GB: Seen
         de-DE: Gesehen
@@ -4278,6 +4733,7 @@ seller:
         es-ES: Visto
         el-GR: Προβλήθηκε
         cs-CZ: Viděno
+        pl-PL: Widziane
       positive:
         en-GB: Positive
         de-DE: Positiv
@@ -4287,6 +4743,7 @@ seller:
         es-ES: Positivo
         el-GR: Θετικό
         cs-CZ: Pozitivní
+        pl-PL: Pozytywnie
       negatives:
         en-GB: Negs
         de-DE: Negs
@@ -4296,6 +4753,7 @@ seller:
         es-ES: Negs
         el-GR: Αρνήσεις
         cs-CZ: Negativci
+        pl-PL: Negs
       perfect:
         en-GB: 10/10
         de-DE: 10/10
@@ -4305,6 +4763,7 @@ seller:
         es-ES: 10/10
         el-GR: 10/10
         cs-CZ: 10/10
+        pl-PL: 10/10
       rating:
         en-GB: Rating
         de-DE: Bewertung
@@ -4314,6 +4773,7 @@ seller:
         es-ES: Clasificación
         el-GR: Εκτίμηση
         cs-CZ: Hodnocení
+        pl-PL: Ocena
       days:
         en-GB: Days
         de-DE: Tage
@@ -4323,6 +4783,7 @@ seller:
         es-ES: Días
         el-GR: Ημέρες
         cs-CZ: Dny
+        pl-PL: Dni
       items:
         en-GB: Items
         de-DE: Artikel
@@ -4332,6 +4793,7 @@ seller:
         es-ES: Elementos
         el-GR: Αντικείμενα
         cs-CZ: Předměty
+        pl-PL: Przedmioty
       totalTitle:
         en-GB: Total reviews reported by Little Biggy
         de-DE: Gesamtzahl der von Little Biggy gemeldeten Bewertungen
@@ -4341,6 +4803,7 @@ seller:
         es-ES: Total de reseñas reportadas por Little Biggy
         el-GR: Συνολικές κριτικές που αναφέρθηκαν από Little Biggy
         cs-CZ: Celkový počet recenzí nahlášených Little Biggy
+        pl-PL: Łączna liczba recenzji zgłoszonych przez Little Biggy
       seenTitle:
         en-GB: Reviews ingested by the BiggyIndex crawler
         de-DE: Rezensionen, die vom BiggyIndex Crawler aufgenommen wurden,
@@ -4350,6 +4813,7 @@ seller:
         es-ES: Reseñas ingeridas por el BiggyIndex crawler
         el-GR: Κριτικές που απορροφήθηκαν από τον ανιχνευτή BiggyIndex
         cs-CZ: Recenze pohlcené BiggyIndex crawlerem
+        pl-PL: Recenzje pobrane przez BiggyIndex crawler
     noSellersFound:
       en-GB: No sellers found
       de-DE: Keine Verkäufer gefunden
@@ -4359,6 +4823,31 @@ seller:
       es-ES: No se han encontrado vendedores
       el-GR: Δεν βρέθηκαν πωλητές
       cs-CZ: Žádní prodejci nalezeni
+      pl-PL: Nie znaleziono sprzedawców
+  detail:
+    metadataTitle: "{seller} | BiggyIndex"
+    notFoundTitle:
+      en-GB: Seller not found | BiggyIndex
+      pl-PL: Sprzedawca nie znaleziony | BiggyIndex
+    backToSellers:
+      en-GB: Sellers
+      pl-PL: Sprzedawcy
+    breadcrumb:
+      en-GB: Seller page
+      pl-PL: Strona sprzedawcy
+    currentListings:
+      en-GB: Current listings
+      pl-PL: Aktualne listy
+    listingCount: "{count, plural, =0 {No active listings in this market} one {1 active listing in this market} other {# active listings in this market}}"
+    viewAllListings:
+      en-GB: View all listings
+      pl-PL: Zobacz wszystkie oferty
+    noListings:
+      en-GB: No current listings for this seller in this market.
+      pl-PL: Obecnie nie ma ofert tego sprzedawcy na tym rynku.
+    openItem:
+      en-GB: Open {item}
+      pl-PL: Otwórz {item}
   modal:
     fallbackName:
       en-GB: Seller
@@ -4369,6 +4858,7 @@ seller:
       es-ES: Vendedor
       el-GR: Πωλητής
       cs-CZ: Prodávající
+      pl-PL: Sprzedawca
     close:
       en-GB: Close
       de-DE: Schließen
@@ -4378,6 +4868,7 @@ seller:
       es-ES: Cierre
       el-GR: Κλείσιμο
       cs-CZ: Zavřít
+      pl-PL: Zamknij
     zoomProfileImage:
       en-GB: Zoom {seller}'s profile image
       de-DE: Zoomen Sie das Profilbild von {seller}
@@ -4387,6 +4878,7 @@ seller:
       es-ES: Ampliar la imagen de perfil de {seller}
       el-GR: Εικόνα προφίλ του Zoom {seller}
       cs-CZ: Profilový obrázek Zoom {seller}
+      pl-PL: Zdjęcie profilowe Zoom {seller}
     onlineToday:
       en-GB: Online today
       de-DE: Heute online
@@ -4396,6 +4888,7 @@ seller:
       es-ES: Hoy en línea
       el-GR: Online σήμερα
       cs-CZ: Online dnes
+      pl-PL: Online dziś
     lastSeen:
       en-GB: Last seen {time}
       de-DE: Zuletzt gesehen {time}
@@ -4405,6 +4898,7 @@ seller:
       es-ES: Última vez que se ve {time}
       el-GR: Εθεάθη τελευταία φορά {time}
       cs-CZ: Naposledy viděný {time}
+      pl-PL: Ostatni raz widziana {time}
     joined:
       en-GB: Joined {date}
       de-DE: Beigetreten {date}
@@ -4414,6 +4908,7 @@ seller:
       es-ES: Me he unido a {date}
       el-GR: Έγινε μέλος {date}
       cs-CZ: Připojil se k {date}
+      pl-PL: Dołączył do {date}
     itemCount: "{count, plural, one {1 item} other {# items}}"
     reviewCount: "{count, plural, one {1 review} other {# reviews}}"
     deliveryShort:
@@ -4425,6 +4920,7 @@ seller:
       es-ES: ~{days}d entrega
       el-GR: ~ {days}d παράδοση
       cs-CZ: ~{days}d doručení
+      pl-PL: ~{days}d dostawa
     about:
       en-GB: About
       de-DE: Über uns
@@ -4434,6 +4930,7 @@ seller:
       es-ES: Acerca de
       el-GR: Σχετικά με
       cs-CZ: O nás
+      pl-PL: O nas
     noDescription:
       en-GB: No description available
       de-DE: Keine Beschreibung verfügbar
@@ -4443,11 +4940,16 @@ seller:
       es-ES: No hay descripción disponible
       el-GR: Δεν υπάρχει διαθέσιμη περιγραφή
       cs-CZ: Popis není k dispozici
+      pl-PL: Brak dostępnego opisu
     feedback:
-      summaryHeading: Community feedback
+      summaryHeading:
+        en-GB: Community feedback
+        pl-PL: Opinie społeczności
       endorsementCount: "{count, plural, one {1 community endorsement} other {# community endorsements}}"
       reportCount: "{count, plural, one {1 reviewed report} other {# reviewed reports}}"
-      reviewedNote: Moderator-reviewed report
+      reviewedNote:
+        en-GB: Moderator-reviewed report
+        pl-PL: Raport recenzowany przez moderatora
       similarReports: "{count, plural, one {1 similar report} other {# similar reports}}"
       endpointMissing:
         en-GB: Feedback endpoint not configured.
@@ -4458,6 +4960,7 @@ seller:
         es-ES: Endpoint de retroalimentación no configurado.
         el-GR: Το τελικό σημείο σχολίων δεν έχει ρυθμιστεί.
         cs-CZ: Endpoint zpětné vazby není nastaven.
+        pl-PL: Punkt końcowy informacji zwrotnej nie skonfigurowany.
       hourlyLimit:
         en-GB: You've hit the hourly limit (20 per hour). Try again later.
         de-DE: Du hast das Stundenlimit (20 pro Stunde) erreicht. Versuche es später noch einmal.
@@ -4467,6 +4970,7 @@ seller:
         es-ES: Has alcanzado el límite horario (20 por hora). Inténtalo de nuevo más tarde.
         el-GR: Έχετε συμπληρώσει το ωριαίο όριο (20 ανά ώρα). Δοκιμάστε ξανά αργότερα.
         cs-CZ: Dosáhl jsi hodinového limitu (20 za hodinu). Zkus to později znovu.
+        pl-PL: Osiągnąłeś limit godzinowy (20 na godzinę). Spróbuj później ponownie.
       duplicateThanks:
         en-GB: Thanks - your vote was added to an existing report.
         de-DE: Danke – deine Stimme wurde zu einem bestehenden Bericht hinzugefügt.
@@ -4476,6 +4980,7 @@ seller:
         es-ES: Gracias, tu voto se añadió a un informe existente.
         el-GR: Ευχαριστώ - η ψήφος σας προστέθηκε σε μια υπάρχουσα έκθεση.
         cs-CZ: Díky – váš hlas byl přidán do existující zprávy.
+        pl-PL: Dzięki – Twój głos został dodany do istniejącego raportu.
       reviewThanks:
         en-GB: Thanks - a moderator will review.
         de-DE: Danke – ein Moderator wird das überprüfen.
@@ -4485,6 +4990,7 @@ seller:
         es-ES: Gracias, un moderador hará una reseña.
         el-GR: Ευχαριστώ - ένας συντονιστής θα ελέγξει.
         cs-CZ: Díky – moderátor to zkontroluje.
+        pl-PL: Dzięki – moderator to przejrzy.
       networkError:
         en-GB: Network error
         de-DE: Netzwerkfehler
@@ -4494,6 +5000,7 @@ seller:
         es-ES: Error de red
         el-GR: Σφάλμα δικτύου
         cs-CZ: Chyba sítě
+        pl-PL: Błąd sieci
       endorsed:
         en-GB: Endorsed
         de-DE: Befürwortet
@@ -4503,6 +5010,7 @@ seller:
         es-ES: Respaldado
         el-GR: Εγκρίθηκε
         cs-CZ: Schváleno
+        pl-PL: Zatwierdzone
       submitting:
         en-GB: Submitting...
         de-DE: Untergeben...
@@ -4512,6 +5020,7 @@ seller:
         es-ES: Entregando...
         el-GR: Υποβολή...
         cs-CZ: Podevzdání...
+        pl-PL: Poddanie się...
       endorseSeller:
         en-GB: Endorse seller
         de-DE: Werbeverkäufer
@@ -4521,6 +5030,7 @@ seller:
         es-ES: Vendedor endosado
         el-GR: Εγκρίνετε τον πωλητή
         cs-CZ: Doporučit prodejce
+        pl-PL: Polecam sprzedawcę
       reported:
         en-GB: Reported
         de-DE: Berichtet
@@ -4530,6 +5040,7 @@ seller:
         es-ES: Reportado
         el-GR: Εχουν αναφερθεί
         cs-CZ: Hlášeno
+        pl-PL: Raport
       reportSeller:
         en-GB: Report seller
         de-DE: Meldeverkäufer
@@ -4539,6 +5050,7 @@ seller:
         es-ES: Reportar vendedor
         el-GR: Αναφορά πωλητή
         cs-CZ: Nahlásit prodejce
+        pl-PL: Zgłoś sprzedawcę
       reasonOptional:
         en-GB: Reason (optional)
         de-DE: Grund (optional)
@@ -4548,6 +5060,7 @@ seller:
         es-ES: Motivo (opcional)
         el-GR: Αιτιολογία (προαιρετικό)
         cs-CZ: Důvod (volitelné)
+        pl-PL: Powód (opcjonalnie)
       reasonPlaceholder:
         en-GB: What did you notice? (scam, fake reviews, shipping issue...)
         de-DE: Was ist dir aufgefallen? (Betrug, gefälschte Bewertungen, Versandproblem...)
@@ -4557,6 +5070,7 @@ seller:
         es-ES: ¿Qué has notado? (estafa, reseñas falsas, problema de envío...)
         el-GR: Τι παρατηρήσατε; (απάτη, ψεύτικες κριτικές, πρόβλημα αποστολής...)
         cs-CZ: Čeho jste si všimli? (podvod, falešné recenze, problém s doručením...)
+        pl-PL: Co zauważyłeś? (oszustwo, fałszywe recenzje, problem z wysyłką...)
       cancel:
         en-GB: Cancel
         de-DE: Stornieren
@@ -4566,6 +5080,7 @@ seller:
         es-ES: Cancelar
         el-GR: Ακύρωση
         cs-CZ: Zrušit
+        pl-PL: Anuluj
       submitReport:
         en-GB: Submit report
         de-DE: Bericht einreichen
@@ -4575,6 +5090,7 @@ seller:
         es-ES: Enviar informe
         el-GR: Υποβολή αναφοράς
         cs-CZ: Odevzdat zprávu
+        pl-PL: Prześlij raport
     reviews:
       heading:
         en-GB: Reviews
@@ -4585,6 +5101,7 @@ seller:
         es-ES: Reseñas
         el-GR: Κριτικές
         cs-CZ: Recenze
+        pl-PL: Recenzje
       loading:
         en-GB: Loading...
         de-DE: Lädt...
@@ -4594,6 +5111,7 @@ seller:
         es-ES: Cargando...
         el-GR: Φόρτωση...
         cs-CZ: Načítám...
+        pl-PL: Ładowanie...
       recentTotal:
         en-GB: "{recent} recent ({total} total)"
         de-DE: "{recent} kürzlich (insgesamt {total})"
@@ -4603,6 +5121,7 @@ seller:
         es-ES: "{recent} reciente ({total} total)"
         el-GR: "{recent} πρόσφατα ({total} σύνολο)"
         cs-CZ: "{recent} nedávné ({total} celkem)"
+        pl-PL: "{recent} ostatnie ({total} łącznie)"
       recentCount:
         en-GB: "{count} recent"
         de-DE: "{count} jüngste"
@@ -4612,6 +5131,7 @@ seller:
         es-ES: "{count} reciente"
         el-GR: "{count} πρόσφατα"
         cs-CZ: "{count} nedávné"
+        pl-PL: "{count} ostatnie"
       avgDelivery:
         en-GB: ~{days}d avg delivery
         de-DE: ~{days}d durchschnittliche Lieferung
@@ -4621,6 +5141,7 @@ seller:
         es-ES: ~{days}d Entrega media
         el-GR: ~{days}d Μέση παράδοση
         cs-CZ: ~{days}d průměrné doručení
+        pl-PL: ~{days}d średnia dostawa
       removeFilter:
         en-GB: Remove filter
         de-DE: Filter entfernen
@@ -4630,6 +5151,7 @@ seller:
         es-ES: Quitar el filtro
         el-GR: Αφαιρέστε το φίλτρο
         cs-CZ: Odstraňte filtr
+        pl-PL: Usuń filtr
       filter:
         en-GB: Filter
         de-DE: Filter
@@ -4639,6 +5161,7 @@ seller:
         es-ES: Filtro
         el-GR: Φίλτρο
         cs-CZ: Filtr
+        pl-PL: Filtr
       removeLowRatingFilterTitle: "Remove low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}"
       applyLowRatingFilterTitle: "Apply low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}"
       lowRating: "{count, plural, one {1 low rating} other {# low ratings}}"
@@ -4652,6 +5175,7 @@ seller:
         es-ES: Aún no hay reseñas
         el-GR: Δεν υπάρχουν ακόμη κριτικές
         cs-CZ: Recenze zatím nejsou
+        pl-PL: Jeszcze brak recenzji
       lowRated:
         en-GB: low-rated
         de-DE: Niedrig bewertet
@@ -4661,6 +5185,7 @@ seller:
         es-ES: De baja calificación
         el-GR: χαμηλής βαθμολογίας
         cs-CZ: Nízké hodnocení
+        pl-PL: Nisko oceniana
       noFilteredReviews:
         en-GB: No {filter} reviews
         de-DE: Keine {filter} Bewertungen
@@ -4670,6 +5195,7 @@ seller:
         es-ES: No {filter} reseñas
         el-GR: Δεν υπάρχουν {filter} κριτικές
         cs-CZ: Recenze bez {filter}
+        pl-PL: Brak {filter} recenzji
       readMoreAt:
         en-GB: "Read more reviews at:"
         de-DE: "Lesen Sie weitere Rezensionen unter:"
@@ -4679,6 +5205,7 @@ seller:
         es-ES: "Lee más reseñas en:"
         el-GR: "Διαβάστε περισσότερες κριτικές στο:"
         cs-CZ: "Další recenze si můžete přečíst na:"
+        pl-PL: "Więcej recenzji przeczytaj na:"
     visitAria:
       en-GB: Visit {seller} on LittleBiggy
       de-DE: Besuchen Sie {seller} am LittleBiggy
@@ -4688,6 +5215,7 @@ seller:
       es-ES: Visita {seller} en LittleBiggy
       el-GR: Επισκεφθείτε {seller} στο LittleBiggy
       cs-CZ: Navštivte {seller} na LittleBiggy
+      pl-PL: Odwiedź {seller} na LittleBiggy
     visit:
       en-GB: Visit {seller}
       de-DE: Besuchen Sie {seller}
@@ -4697,6 +5225,7 @@ seller:
       es-ES: Visita {seller}
       el-GR: Επισκεφθείτε {seller}
       cs-CZ: Navštivte {seller}
+      pl-PL: Odwiedź {seller}
   error:
     title:
       en-GB: Failed to load sellers
@@ -4707,6 +5236,7 @@ seller:
       es-ES: No se cargaron los vendedores
       el-GR: Αποτυχία φόρτωσης πωλητών
       cs-CZ: Nepodařilo se načíst prodejce
+      pl-PL: Nie załadowano sprzedawców
     description:
       en-GB: We couldn't load the sellers page. This is usually temporary.
       de-DE: Wir konnten die Seite des Verkäufers nicht laden. Das ist normalerweise nur vorübergehend.
@@ -4716,6 +5246,7 @@ seller:
       es-ES: No pudimos cargar la página del vendedor. Esto suele ser temporal.
       el-GR: Δεν ήταν δυνατή η φόρτωση της σελίδας πωλητών. Αυτό είναι συνήθως προσωρινό.
       cs-CZ: Nemohli jsme načíst stránku prodejců. Obvykle je to jen dočasné.
+      pl-PL: Nie mogliśmy załadować strony sprzedawców. Zazwyczaj jest to tymczasowe.
     retry:
       en-GB: Retry
       de-DE: Wiederholungsversuch
@@ -4725,6 +5256,7 @@ seller:
       es-ES: Reintento
       el-GR: Επανάληψη
       cs-CZ: Opakování
+      pl-PL: Próba ponowna
 
 reviews:
   page:
@@ -4737,6 +5269,7 @@ reviews:
       es-ES: Reseñas - BiggyIndex
       el-GR: Αξιολογήσεις - BiggyIndex
       cs-CZ: Recenze - BiggyIndex
+      pl-PL: Recenzje - BiggyIndex
     metadataDescription:
       en-GB: Latest community reviews from Little Biggy buyers with images, ratings, and delivery times.
       de-DE: Neueste Community-Bewertungen von Little Biggy Käufern mit Bildern, Bewertungen und Lieferzeiten.
@@ -4746,6 +5279,7 @@ reviews:
       es-ES: Últimas opiniones de la comunidad de compradores Little Biggy con imágenes, valoraciones y plazos de entrega.
       el-GR: Οι τελευταίες κριτικές κοινότητας από Little Biggy αγοραστές με εικόνες, αξιολογήσεις και χρόνους παράδοσης.
       cs-CZ: Nejnovější recenze komunity od Little Biggy kupujících s obrázky, hodnoceními a časy doručení.
+      pl-PL: Najnowsze recenzje społeczności od Little Biggy kupujących ze zdjęciami, ocenami i terminami dostawy.
     title:
       en-GB: Community Reviews
       de-DE: Community-Bewertungen
@@ -4755,6 +5289,7 @@ reviews:
       es-ES: Reseñas de la comunidad
       el-GR: Κριτικές κοινότητας
       cs-CZ: Recenze komunity
+      pl-PL: Recenzje społeczności
     subtitle: "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}"
     filters:
       all:
@@ -4766,6 +5301,7 @@ reviews:
         es-ES: Todos
         el-GR: Όλα
         cs-CZ: Všichni
+        pl-PL: Wszyscy
       withPhotos:
         en-GB: With photos
         de-DE: Mit Fotos
@@ -4775,6 +5311,7 @@ reviews:
         es-ES: Con fotos
         el-GR: Με φωτογραφίες
         cs-CZ: S fotografiemi
+        pl-PL: Ze zdjęciami
       withComments:
         en-GB: With comments
         de-DE: Mit Kommentaren
@@ -4784,6 +5321,7 @@ reviews:
         es-ES: Con comentarios
         el-GR: Με σχόλια
         cs-CZ: S komentáři
+        pl-PL: Z komentarzami
     noMatches:
       en-GB: No reviews match this filter
       de-DE: Keine Bewertungen passen zu diesem Filter
@@ -4793,6 +5331,7 @@ reviews:
       es-ES: Ninguna reseña coincide con este filtro
       el-GR: Δεν υπάρχουν κριτικές που να ταιριάζουν με αυτό το φίλτρο
       cs-CZ: Žádné recenze s tímto filtrem nesouhlasí
+      pl-PL: Żadne recenzje nie pasują do tego filtra
     row:
       justNow:
         en-GB: Just now
@@ -4803,6 +5342,7 @@ reviews:
         es-ES: Justo ahora
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
+        pl-PL: Przed chwilą
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -4812,6 +5352,7 @@ reviews:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       oneDayAgo:
         en-GB: 1 day ago
         de-DE: Vor 1 Tag
@@ -4821,6 +5362,7 @@ reviews:
         es-ES: Hace 1 día
         el-GR: 1 ημέρα Πριν
         cs-CZ: Před 1 dnem
+        pl-PL: 1 dzień temu
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -4830,6 +5372,7 @@ reviews:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -4839,6 +5382,7 @@ reviews:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
       sameDay:
         en-GB: same day
         de-DE: Am selben Tag
@@ -4848,6 +5392,7 @@ reviews:
         es-ES: Mismo día
         el-GR: αυθημερόν
         cs-CZ: Stejný den
+        pl-PL: tego samego dnia
       oneDay:
         en-GB: 1 day
         de-DE: 1 Tag
@@ -4857,6 +5402,7 @@ reviews:
         es-ES: 1 día
         el-GR: 1 ημέρα
         cs-CZ: 1 den
+        pl-PL: 1 dzień
       days:
         en-GB: "{count} days"
         de-DE: "{count} Tage"
@@ -4866,6 +5412,7 @@ reviews:
         es-ES: "{count} días"
         el-GR: "{count} ημέρες"
         cs-CZ: "{count} dní"
+        pl-PL: "{count} dni"
       reviewPhoto:
         en-GB: Review photo {index}
         de-DE: Rezensionsfoto {index}
@@ -4875,6 +5422,7 @@ reviews:
         es-ES: Foto de reseña {index}
         el-GR: Ανασκόπηση φωτογραφιών {index}
         cs-CZ: Recenzní foto {index}
+        pl-PL: Recenzja zdjęcia {index}
     error:
       title:
         en-GB: Failed to load reviews
@@ -4885,6 +5433,7 @@ reviews:
         es-ES: No se han cargado las reseñas
         el-GR: Αποτυχία φόρτωσης κριτικών
         cs-CZ: Nepodařilo se načíst recenze
+        pl-PL: Nie udało się załadować recenzji
       description:
         en-GB: We couldn't load the reviews page. This is usually temporary.
         de-DE: Wir konnten die Bewertungsseite nicht laden. Das ist normalerweise nur vorübergehend.
@@ -4894,6 +5443,7 @@ reviews:
         es-ES: No pudimos cargar la página de reseñas. Esto suele ser temporal.
         el-GR: Δεν ήταν δυνατή η φόρτωση της σελίδας κριτικών. Αυτό είναι συνήθως προσωρινό.
         cs-CZ: Nemohli jsme načíst stránku s recenzemi. To je obvykle dočasné.
+        pl-PL: Nie mogliśmy załadować strony z recenzjami. Zazwyczaj jest to tymczasowe.
       retry:
         en-GB: Retry
         de-DE: Wiederholungsversuch
@@ -4903,6 +5453,7 @@ reviews:
         es-ES: Reintento
         el-GR: Επανάληψη
         cs-CZ: Opakování
+        pl-PL: Próba ponowna
   card:
     time:
       minutesAgo:
@@ -4914,6 +5465,7 @@ reviews:
         es-ES: "{count}m"
         el-GR: "{count}m πριν"
         cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -4923,6 +5475,7 @@ reviews:
         es-ES: Hace {count}h
         el-GR: "{count}h πριν"
         cs-CZ: "{count}h"
+        pl-PL: "{count}h temu"
       daysAgo:
         en-GB: "{count}d ago"
         de-DE: Vor {count}d
@@ -4932,6 +5485,7 @@ reviews:
         es-ES: "{count}d"
         el-GR: "{count}d πριν"
         cs-CZ: "{count}d"
+        pl-PL: "{count}d temu"
       monthsAgo:
         en-GB: "{count}mo ago"
         de-DE: Vor {count}mo
@@ -4941,6 +5495,7 @@ reviews:
         es-ES: "{count}mo"
         el-GR: "{count}mo πριν"
         cs-CZ: "{count}mo"
+        pl-PL: "{count}mo temu"
     imageAlt:
       en-GB: Review image {index}
       de-DE: Rezensionsbild {index}
@@ -4950,6 +5505,7 @@ reviews:
       es-ES: Imagen de la reseña {index}
       el-GR: Ελέγξτε την εικόνα {index}
       cs-CZ: Recenze obrázku {index}
+      pl-PL: Recenzuj {index} obrazów
     stats:
       average:
         en-GB: "{rating}/10 avg"
@@ -4960,6 +5516,7 @@ reviews:
         es-ES: "{rating}/10 de media"
         el-GR: "{rating}/10 μ.ο."
         cs-CZ: "{rating}/10 průměr"
+        pl-PL: "{rating}/10 średnia"
       recentTotal:
         en-GB: "{recent} recent ({total} total)"
         de-DE: "{recent} kürzlich (insgesamt {total})"
@@ -4969,6 +5526,7 @@ reviews:
         es-ES: "{recent} reciente ({total} total)"
         el-GR: "{recent} πρόσφατα ({total} σύνολο)"
         cs-CZ: "{recent} nedávné ({total} celkem)"
+        pl-PL: "{recent} ostatnie ({total} łącznie)"
       reviewCount: "{count, plural, one {1 review} other {# reviews}}"
       avgDelivery:
         en-GB: ~{days}d avg delivery
@@ -4979,6 +5537,7 @@ reviews:
         es-ES: ~{days}d Entrega media
         el-GR: ~{days}d Μέση παράδοση
         cs-CZ: ~{days}d průměrné doručení
+        pl-PL: ~{days}d średnia dostawa
 
 suggest:
   link:
@@ -4991,6 +5550,7 @@ suggest:
       es-ES: Sugiero corrección
       el-GR: Προτείνετε διόρθωση
       cs-CZ: Navrhněte opravu
+      pl-PL: Proponuj korektę
     title:
       en-GB: Suggest a correction
       de-DE: Schlage eine Korrektur vor
@@ -5000,6 +5560,7 @@ suggest:
       es-ES: Sugiere una corrección
       el-GR: Προτείνετε μια διόρθωση
       cs-CZ: Navrhněte opravu
+      pl-PL: Zaproponuj korektę
   page:
     itemNotFound:
       en-GB: Item not found
@@ -5010,6 +5571,7 @@ suggest:
       es-ES: Elemento no encontrado
       el-GR: Το προϊόν δεν βρέθηκε
       cs-CZ: Položka nenalezena
+      pl-PL: Przedmiot nie znaleziony
     notFoundDescription:
       en-GB: Can't submit a correction for an item that doesn't exist.
       de-DE: Ich kann keine Korrektur für einen Artikel einreichen, der nicht existiert.
@@ -5019,6 +5581,7 @@ suggest:
       es-ES: No puedo enviar una corrección por un elemento que no existe.
       el-GR: Δεν είναι δυνατή η υποβολή διόρθωσης για ένα στοιχείο που δεν υπάρχει.
       cs-CZ: Nemohu odeslat opravu pro položku, která neexistuje.
+      pl-PL: Nie mogę zgłosić korekty dla produktu, który nie istnieje.
     backToIndex:
       en-GB: Back to index
       de-DE: Zurück zum Index
@@ -5028,6 +5591,7 @@ suggest:
       es-ES: Volver al índice
       el-GR: Επιστροφή στο ευρετήριο
       cs-CZ: Zpět na index
+      pl-PL: Powrót do indeksu
     backToItem:
       en-GB: Back to item
       de-DE: Zurück zum Artikel
@@ -5037,6 +5601,7 @@ suggest:
       es-ES: Volver al ítem
       el-GR: Επιστροφή στο στοιχείο
       cs-CZ: Zpět k tématu
+      pl-PL: Powrót do punktu
     title:
       en-GB: Suggest a correction
       de-DE: Schlage eine Korrektur vor
@@ -5046,6 +5611,7 @@ suggest:
       es-ES: Sugiere una corrección
       el-GR: Προτείνετε μια διόρθωση
       cs-CZ: Navrhněte opravu
+      pl-PL: Zaproponuj korektę
     intro:
       en-GB: Help us fix misclassified items. Suggestions go to a moderator before they're applied - no account needed.
       de-DE: Hilf uns, falsch klassifizierte Items zu korrigieren. Vorschläge gehen an einen Moderator, bevor sie angewendet werden – kein Konto nötig.
@@ -5055,6 +5621,7 @@ suggest:
       es-ES: Ayúdanos a corregir elementos mal clasificados. Las sugerencias van a un moderador antes de aplicarlas, no hace falta cuenta.
       el-GR: Βοηθήστε μας να διορθώσουμε στοιχεία που δεν έχουν ταξινομηθεί σωστά. Οι προτάσεις αποστέλλονται σε έναν επόπτη πριν εφαρμοστούν - δεν απαιτείται λογαριασμός.
       cs-CZ: Pomozte nám opravit špatně klasifikované položky. Návrhy jdou moderátorovi ještě před jejich aplikací – účet není potřeba.
+      pl-PL: Pomóż nam naprawić błędnie sklasyfikowane przedmioty. Sugestie trafiają do moderatora przed ich zastosowaniem – nie jest potrzebne konto.
     itemLabel:
       en-GB: Item
       de-DE: Gegenstand
@@ -5064,6 +5631,7 @@ suggest:
       es-ES: Punto
       el-GR: Είδος
       cs-CZ: Položka
+      pl-PL: Przedmiot
     bySeller:
       en-GB: by {seller}
       de-DE: von {seller}
@@ -5073,6 +5641,7 @@ suggest:
       es-ES: por {seller}
       el-GR: από {seller}
       cs-CZ: od {seller}
+      pl-PL: "autor: {seller}"
     error:
       title:
         en-GB: Couldn't load suggestion form
@@ -5083,6 +5652,7 @@ suggest:
         es-ES: No pude cargar el formulario de sugerencias
         el-GR: Δεν ήταν δυνατή η φόρτωση της φόρμας προτάσεων
         cs-CZ: Nepodařilo se načíst formulář pro návrhy
+        pl-PL: Nie udało się załadować formularza sugestii
       retry:
         en-GB: Retry
         de-DE: Wiederholungsversuch
@@ -5092,6 +5662,7 @@ suggest:
         es-ES: Reintento
         el-GR: Επανάληψη
         cs-CZ: Opakování
+        pl-PL: Próba ponowna
   form:
     stagedEdits:
       en-GB: Your edits ({count})
@@ -5102,6 +5673,7 @@ suggest:
       es-ES: Tus ediciones ({count})
       el-GR: Οι επεξεργασίες σας ({count})
       cs-CZ: Vaše úpravy ({count})
+      pl-PL: Twoje edycje ({count})
     removeEdit:
       en-GB: Remove this edit
       de-DE: Entfernen Sie diesen Edit
@@ -5111,6 +5683,7 @@ suggest:
       es-ES: Elimina esta edición
       el-GR: Αφαίρεση αυτής της επεξεργασίας
       cs-CZ: Odstraňte tuto úpravu
+      pl-PL: Usuń tę edycję
     addAnotherCorrection:
       en-GB: Add another correction
       de-DE: Fügen Sie eine weitere Korrektur hinzu
@@ -5120,6 +5693,7 @@ suggest:
       es-ES: Añadir otra corrección
       el-GR: Προσθήκη άλλης διόρθωσης
       cs-CZ: Přidat další opravu
+      pl-PL: Dodaj kolejną poprawkę
     whatNeedsFixing:
       en-GB: What needs fixing?
       de-DE: Was muss repariert werden?
@@ -5129,6 +5703,7 @@ suggest:
       es-ES: ¿Qué necesita arreglar?
       el-GR: Τι χρειάζεται διόρθωση;
       cs-CZ: Co je potřeba opravit?
+      pl-PL: Co trzeba naprawić?
     wrongProductHint:
       en-GB: This isn't a valid product
       de-DE: Das ist kein gültiges Produkt
@@ -5138,6 +5713,7 @@ suggest:
       es-ES: Este no es un producto válido
       el-GR: Αυτό δεν είναι έγκυρο προϊόν
       cs-CZ: Tohle není platný produkt
+      pl-PL: To nie jest ważny produkt
     currently:
       en-GB: "Currently:"
       de-DE: "Aktuell:"
@@ -5147,6 +5723,7 @@ suggest:
       es-ES: "Actualmente:"
       el-GR: "Επί του παρόντος:"
       cs-CZ: "V současnosti:"
+      pl-PL: "Obecnie:"
     notSet:
       en-GB: not set
       de-DE: nicht festgelegt
@@ -5156,6 +5733,7 @@ suggest:
       es-ES: no fijado
       el-GR: δεν έχει οριστεί
       cs-CZ: Není nastaveno
+      pl-PL: Nie ustawione
     shouldBe:
       en-GB: "Should be:"
       de-DE: "Sollte sein:"
@@ -5165,6 +5743,7 @@ suggest:
       es-ES: "Debería ser:"
       el-GR: "Θα πρέπει να είναι:"
       cs-CZ: "Mělo by to být:"
+      pl-PL: "Powinny być:"
     wrongProductDescription:
       en-GB: Flag this product for review. It may be miscategorised or not belong on this site.
       de-DE: Markiere dieses Produkt zur Rezension. Es kann falsch kategorisiert sein oder nicht auf diese Seite gehören.
@@ -5174,6 +5753,7 @@ suggest:
       es-ES: Marca este producto para su reseña. Puede estar mal categorizado o no pertenecer a este sitio.
       el-GR: Επισημάνετε αυτό το προϊόν για αξιολόγηση. Μπορεί να έχει κατηγοριοποιηθεί εσφαλμένα ή να μην ανήκει σε αυτόν τον ιστότοπο.
       cs-CZ: Označte tento produkt k recenzi. Může být nesprávně zařazen nebo na tento web nepatřit.
+      pl-PL: Oznacz ten produkt do recenzji. Może być błędnie sklasyfikowana lub nie należy do tej strony.
     addThisEdit:
       en-GB: + Add this edit
       de-DE: + Fügen Sie diese Bearbeitung hinzu
@@ -5183,6 +5763,7 @@ suggest:
       es-ES: + Añadir esta edición
       el-GR: + Προσθέστε αυτήν την επεξεργασία
       cs-CZ: + Přidat tuto úpravu
+      pl-PL: + Dodaj tę edycję
     addEdit:
       en-GB: + Add edit
       de-DE: + Hinzufügen Bearbeiten
@@ -5192,6 +5773,7 @@ suggest:
       es-ES: + Añadir edición
       el-GR: + Προσθήκη επεξεργασίας
       cs-CZ: + Přidat upravit
+      pl-PL: + Dodaj edycję
     submitting:
       en-GB: Submitting...
       de-DE: Untergeben...
@@ -5201,6 +5783,7 @@ suggest:
       es-ES: Entregando...
       el-GR: Υποβολή...
       cs-CZ: Podevzdání...
+      pl-PL: Poddanie się...
     submitSuggestion:
       en-GB: Submit suggestion
       de-DE: Vorschlag einreichen
@@ -5210,6 +5793,7 @@ suggest:
       es-ES: Enviar sugerencia
       el-GR: Υποβολή πρότασης
       cs-CZ: Pošlete návrh
+      pl-PL: Prześlij sugestię
     submitSuggestions:
       en-GB: Submit {count} suggestions
       de-DE: Reichen Sie {count} Vorschläge ein
@@ -5219,6 +5803,7 @@ suggest:
       es-ES: Envía {count} sugerencias
       el-GR: Υποβολή {count} προτάσεων
       cs-CZ: Pošlete {count} návrhy
+      pl-PL: Prześlij {count} propozycje
     suggestionSubmitted:
       en-GB: Suggestion submitted!
       de-DE: Vorschlag eingereicht!
@@ -5228,6 +5813,7 @@ suggest:
       es-ES: ¡Sugerencia enviada!
       el-GR: Η πρόταση υποβλήθηκε!
       cs-CZ: Návrh podán!
+      pl-PL: Sugestia złożona!
     allSubmitted:
       en-GB: All {count} suggestions submitted!
       de-DE: Alle {count} Vorschläge eingereicht!
@@ -5237,6 +5823,7 @@ suggest:
       es-ES: ¡Todas {count} sugerencias enviadas!
       el-GR: Υποβλήθηκαν όλες οι προτάσεις {count}!
       cs-CZ: Všechny {count} návrhy zaslany!
+      pl-PL: Wszystkie {count} sugestie przesłane!
     partialSubmitted:
       en-GB: "{successCount} of {totalCount} submitted. {error}"
       de-DE: "{successCount} {totalCount} eingereicht. {error}"
@@ -5246,6 +5833,7 @@ suggest:
       es-ES: "{successCount} de {totalCount} presentado. {error}"
       el-GR: "{successCount} των {totalCount} που υποβλήθηκαν. {error}"
       cs-CZ: "{successCount} {totalCount} odevzdal. {error}"
+      pl-PL: "{successCount} {totalCount} złożone. {error}"
     somethingWentWrong:
       en-GB: Something went wrong
       de-DE: Etwas ist schiefgelaufen
@@ -5255,6 +5843,7 @@ suggest:
       es-ES: Algo salió mal
       el-GR: Κάτι πήγε στραβά
       cs-CZ: Něco se pokazilo
+      pl-PL: Coś poszło nie tak
     networkError:
       en-GB: Network error
       de-DE: Netzwerkfehler
@@ -5264,6 +5853,7 @@ suggest:
       es-ES: Error de red
       el-GR: Σφάλμα δικτύου
       cs-CZ: Chyba sítě
+      pl-PL: Błąd sieci
     suggestMoreEdits:
       en-GB: Suggest more edits
       de-DE: Schlage weitere Änderungen vor
@@ -5273,6 +5863,7 @@ suggest:
       es-ES: Sugiere más ediciones
       el-GR: Προτείνετε περισσότερες αλλαγές
       cs-CZ: Navrhněte další úpravy
+      pl-PL: Proszę zasugerować więcej edycji
     pendingSuggestions:
       en-GB: Pending suggestions ({count})
       de-DE: Ausstehende Vorschläge ({count})
@@ -5282,6 +5873,7 @@ suggest:
       es-ES: Sugerencias pendientes ({count})
       el-GR: Εκκρεμείς προτάσεις ({count})
       cs-CZ: Čekám na doporučení ({count})
+      pl-PL: Oczekujące sugestie ({count})
     alreadyVoted:
       en-GB: Already voted
       de-DE: Bereits abgestimmt
@@ -5291,6 +5883,7 @@ suggest:
       es-ES: Ya votado
       el-GR: Έχει ήδη ψηφιστεί
       cs-CZ: Už hlasováno
+      pl-PL: Już zagłosowano
     upvoteSuggestion:
       en-GB: Upvote this suggestion
       de-DE: Upvote diesen Vorschlag
@@ -5300,6 +5893,7 @@ suggest:
       es-ES: ¡Vota a favor de esta sugerencia
       el-GR: Υπερψηφίστε αυτήν την πρόταση
       cs-CZ: Hlasujte pro tento návrh
+      pl-PL: Zagłosuj na tę sugestię
     fields:
       category:
         en-GB: Category
@@ -5310,6 +5904,7 @@ suggest:
         es-ES: Categoría
         el-GR: Κατηγορία
         cs-CZ: Kategorie
+        pl-PL: Kategoria
       subcategories:
         en-GB: Subcategories
         de-DE: Unterkategorien
@@ -5319,6 +5914,7 @@ suggest:
         es-ES: Subcategorías
         el-GR: Υποκατηγορίες
         cs-CZ: Podkategorie
+        pl-PL: Podkategorie
       micron:
         en-GB: Micron Size
         de-DE: Mikrongröße
@@ -5328,6 +5924,7 @@ suggest:
         es-ES: Tamaño de micras
         el-GR: Μέγεθος Micron
         cs-CZ: Velikost mikronu
+        pl-PL: Rozmiar mikrona
       wrongProduct:
         en-GB: Wrong Product
         de-DE: Falsches Produkt
@@ -5337,6 +5934,7 @@ suggest:
         es-ES: Producto equivocado
         el-GR: Λάθος προϊόν
         cs-CZ: Špatný produkt
+        pl-PL: Niewłaściwy produkt
 
 basket:
   label:
@@ -5348,6 +5946,7 @@ basket:
     es-ES: Cesta
     el-GR: Καλάθι
     cs-CZ: Koš
+    pl-PL: Koszyk
   clearAll:
     en-GB: Clear all
     de-DE: Alles wegräumen
@@ -5357,6 +5956,7 @@ basket:
     es-ES: Limpiar todo
     el-GR: Καθαρισμός όλων
     cs-CZ: Vyjasnit vše
+    pl-PL: Usuń wszystko
   close:
     en-GB: Close basket
     de-DE: Korb schließen
@@ -5366,6 +5966,7 @@ basket:
     es-ES: Cesta cerrada
     el-GR: Κλείσιμο καλαθιού
     cs-CZ: Zavřený košík
+    pl-PL: Zamknięty kosz
   empty:
     en-GB: Your basket is empty.
     de-DE: Dein Korb ist leer.
@@ -5375,6 +5976,7 @@ basket:
     es-ES: Tu cesta está vacía.
     el-GR: Το καλάθι σας είναι άδειο.
     cs-CZ: Váš košík je prázdný.
+    pl-PL: Twój koszyk jest pusty.
   sellerItemCount: "{count, plural, one {1 item} other {# items}}"
   shipping:
     en-GB: Shipping
@@ -5385,6 +5987,7 @@ basket:
     es-ES: Transporte marítimo
     el-GR: Αποστολή
     cs-CZ: Lodní doprava
+    pl-PL: Żegluga
   noShipping:
     en-GB: No shipping
     de-DE: Kein Versand
@@ -5394,6 +5997,7 @@ basket:
     es-ES: No se permite enviar
     el-GR: Χωρίς αποστολή
     cs-CZ: Žádná doprava
+    pl-PL: Brak wysyłki
   items:
     en-GB: Items
     de-DE: Artikel
@@ -5403,6 +6007,7 @@ basket:
     es-ES: Elementos
     el-GR: Αντικείμενα
     cs-CZ: Předměty
+    pl-PL: Przedmioty
   total:
     en-GB: Total
     de-DE: Gesamt
@@ -5412,6 +6017,7 @@ basket:
     es-ES: Total
     el-GR: Σύνολο
     cs-CZ: Celkem
+    pl-PL: Razem
   each:
     en-GB: each
     de-DE: Jeder
@@ -5421,6 +6027,7 @@ basket:
     es-ES: cada uno
     el-GR: κάθε
     cs-CZ: každý
+    pl-PL: każdy
   virtualNotice:
     en-GB: This is a virtual basket for price comparison - no checkout.
     de-DE: Dies ist ein virtueller Korb zum Preisvergleich – kein Checkout.
@@ -5430,6 +6037,7 @@ basket:
     es-ES: Esta es una cesta virtual para comparar precios, sin pagar.
     el-GR: Αυτό είναι ένα εικονικό καλάθι για σύγκριση τιμών - χωρίς ταμείο.
     cs-CZ: Toto je virtuální košík pro srovnání cen – bez placení.
+    pl-PL: To jest wirtualny koszyk do porównania cen – bez konieczności dokonywania kasy.
   viewItem:
     en-GB: View {item}
     de-DE: Sehen Sie {item}
@@ -5439,6 +6047,7 @@ basket:
     es-ES: Ver {item}
     el-GR: Προβολή {item}
     cs-CZ: Zobrazit {item}
+    pl-PL: Zobacz {item}
   decreaseQty:
     en-GB: Decrease quantity for {item}
     de-DE: Reduzieren Sie die Menge für {item}
@@ -5448,6 +6057,7 @@ basket:
     es-ES: Reduce la cantidad para {item}
     el-GR: Μείωση ποσότητας για {item}
     cs-CZ: Snižte množství pro {item}
+    pl-PL: Zmniejsz ilość dla {item}
   removeItem:
     en-GB: Remove {item}
     de-DE: Entfernen Sie {item}
@@ -5457,6 +6067,7 @@ basket:
     es-ES: Elimina {item}
     el-GR: Αφαιρέστε {item}
     cs-CZ: Odstraňte {item}
+    pl-PL: Usuń {item}
   increaseQty:
     en-GB: Increase quantity for {item}
     de-DE: Erhöhe die Menge für {item}
@@ -5466,6 +6077,7 @@ basket:
     es-ES: Aumenta la cantidad para {item}
     el-GR: Αύξηση ποσότητας για {item}
     cs-CZ: Zvyšte množství pro {item}
+    pl-PL: Zwiększ ilość {item}
 
 settings:
   theme:
@@ -5478,6 +6090,7 @@ settings:
       es-ES: Cambiar a modo ligero
       el-GR: Μετάβαση σε λειτουργία φωτισμού
       cs-CZ: Přepnout na režim světla
+      pl-PL: Przełącz na tryb światła
     switchToDark:
       en-GB: Switch to dark mode
       de-DE: Wechsel in den Dunkelmodus
@@ -5487,6 +6100,7 @@ settings:
       es-ES: Cambiar a modo oscuro
       el-GR: Μετάβαση σε σκοτεινή λειτουργία
       cs-CZ: Přepnout na tmavý režim
+      pl-PL: Przełącz na tryb ciemny
   modal:
     label:
       en-GB: Settings
@@ -5497,6 +6111,7 @@ settings:
       es-ES: Escenarios
       el-GR: Ρυθμίσεις
       cs-CZ: Prostředí
+      pl-PL: Ustawienia
     close:
       en-GB: Close settings
       de-DE: Geschlossene Umgebungen
@@ -5506,6 +6121,7 @@ settings:
       es-ES: Ajustes cercanos
       el-GR: Κλείσιμο ρυθμίσεων
       cs-CZ: Uzavřená prostředí
+      pl-PL: Zamknięte ustawienia
     highResImages:
       en-GB: High-res images
       de-DE: Hochauflösende Bilder
@@ -5515,6 +6131,7 @@ settings:
       es-ES: Imágenes de alta resolución
       el-GR: Εικόνες υψηλής ανάλυσης
       cs-CZ: Obrázky ve vysokém rozlišení
+      pl-PL: Obrazy wysokiej rozdzielczości
     highResDescription:
       en-GB: Use full-resolution product images. Uses more data but looks sharper.
       de-DE: Verwenden Sie Produktbilder in voller Auflösung. Verwendet mehr Daten, sieht aber schärfer aus.
@@ -5524,6 +6141,7 @@ settings:
       es-ES: Usa imágenes de producto a resolución completa. Usa más datos pero se ve más nítido.
       el-GR: Χρησιμοποιήστε εικόνες προϊόντων πλήρους ανάλυσης. Χρησιμοποιεί περισσότερα δεδομένα, αλλά φαίνεται πιο ευκρινής.
       cs-CZ: Používejte produkty v plném rozlišení. Spotřebovává více dat, ale vypadá ostřejší.
+      pl-PL: Używaj obrazów produktów w pełnej rozdzielczości. Zużywa więcej danych, ale wygląda ostrzej.
     pauseGifs:
       en-GB: Pause GIFs
       de-DE: Pausen-GIFs
@@ -5533,6 +6151,7 @@ settings:
       es-ES: Pausa GIFs
       el-GR: Παύση GIF
       cs-CZ: GIFy na pauzu
+      pl-PL: GIF-y do pauzy
     pauseGifsDescription:
       en-GB: Show static thumbnails for animated images. Reduces distraction and saves battery.
       de-DE: Zeigen Sie statische Vorschaubilder für animierte Bilder. Reduziert Ablenkung und spart Akku.
@@ -5542,6 +6161,7 @@ settings:
       es-ES: Muestra miniaturas estáticas para imágenes animadas. Reduce la distracción y ahorra batería.
       el-GR: Εμφάνιση στατικών μικρογραφιών για κινούμενες εικόνες. Μειώνει την απόσπαση της προσοχής και εξοικονομεί μπαταρία.
       cs-CZ: Zobrazit statické náhledy animovaných obrázků. Snižuje rušivé vlivy a šetří baterii.
+      pl-PL: Pokazuj statyczne miniatury animowanych obrazów. Zmniejsza rozpraszanie i oszczędza baterię.
     showInEnglish:
       en-GB: Show in English
       de-DE: Auf Englisch anzeigen
@@ -5551,6 +6171,7 @@ settings:
       es-ES: Mostrar en inglés
       el-GR: Εμφάνιση στα Αγγλικά
       cs-CZ: Zobrazit v angličtině
+      pl-PL: Serial w języku angielskim
     showInEnglishDescription:
       en-GB: Use English UI copy and original product names/descriptions where available.
       de-DE: Englischen UI-Text und originale Produktnamen/-beschreibungen verwenden, wenn verfügbar.
@@ -5560,6 +6181,7 @@ settings:
       es-ES: Usa el texto en inglés y los nombres/descripciones originales del producto cuando estén disponibles.
       el-GR: Χρήση κειμένου στα Αγγλικά και πρωτότυπων ονομάτων/περιγραφών προϊόντων όταν είναι διαθέσιμα.
       cs-CZ: Použít anglický text a původní názvy a popisy produktů, pokud jsou k dispozici.
+      pl-PL: Używaj angielskiej kopii interfejsu oraz oryginalnych nazw/opisów produktów, jeśli są dostępne.
     skipGuides:
       en-GB: Skip help guides
       de-DE: Hilfe-Tipps überspringen
@@ -5569,6 +6191,7 @@ settings:
       es-ES: Omitir guías de ayuda
       el-GR: Παράλειψη οδηγών βοήθειας
       cs-CZ: Přeskočit nápovědu
+      pl-PL: Pomiń poradniki pomocy
     skipGuidesDesc:
       en-GB: Hide the quick tips shown before opening Little Biggy. Switch off to see them again.
       de-DE: Tipps ausblenden, die vor dem Öffnen von Little Biggy angezeigt werden. Ausschalten, um sie wieder zu sehen.
@@ -5578,6 +6201,7 @@ settings:
       es-ES: Oculta los consejos rápidos que se muestran antes de abrir Little Biggy. Desactívalo para volver a verlos.
       el-GR: Απόκρυψη των γρήγορων συμβουλών πριν ανοίξει το Little Biggy. Απενεργοποιήστε για να τις δείτε ξανά.
       cs-CZ: Skrýt rychlé tipy zobrazené před otevřením Little Biggy. Vypnutím je znovu zobrazíte.
+      pl-PL: Ukryj szybkie wskazówki pokazane przed otwarciem Little Biggy. Wyłącz się, żeby zobaczyć ich ponownie.
     thumbnailShape:
       en-GB: Thumbnail shape
       de-DE: Daumennagelform
@@ -5587,6 +6211,7 @@ settings:
       es-ES: Forma de la miniatura
       el-GR: Σχήμα μικρογραφίας
       cs-CZ: Tvar náhledu
+      pl-PL: Kształt paznokcia miniaturowego
     thumbnailDescription:
       en-GB: Change the crop ratio of product images on cards.
       de-DE: Ändern Sie das Beschnittsverhältnis von Produktbildern auf Karten.
@@ -5596,6 +6221,7 @@ settings:
       es-ES: Cambia la proporción de recortes de las imágenes de productos en las tarjetas.
       el-GR: Αλλάξτε την αναλογία περικοπής των εικόνων προϊόντων στις κάρτες.
       cs-CZ: Změňte poměr ořezů obrázků produktů na kartách.
+      pl-PL: Zmień współczynnik kadrowania obrazów produktów na kartach.
     aspect:
       square:
         en-GB: Square
@@ -5606,6 +6232,7 @@ settings:
         es-ES: Plaza
         el-GR: τετράγωνο
         cs-CZ: Square
+        pl-PL: Kwadrat
       fourThree:
         en-GB: 4:3
         de-DE: 4:3
@@ -5615,6 +6242,7 @@ settings:
         es-ES: 4:3
         el-GR: 4:3
         cs-CZ: 4:3
+        pl-PL: 4:3
       threeTwo:
         en-GB: 3:2
         de-DE: 3:2
@@ -5624,6 +6252,7 @@ settings:
         es-ES: 3:2
         el-GR: 3:2
         cs-CZ: 3:2
+        pl-PL: 3:2
     accentColour:
       en-GB: Accent colour
       de-DE: Akzentfarbe
@@ -5633,6 +6262,7 @@ settings:
       es-ES: Color de acento
       el-GR: Χρώμα έμφασης
       cs-CZ: Akcentní barva
+      pl-PL: Kolor akcentowy
     swatches:
       forest:
         en-GB: Forest
@@ -5643,6 +6273,7 @@ settings:
         es-ES: Bosque
         el-GR: Δάσος
         cs-CZ: Les
+        pl-PL: Las
       ocean:
         en-GB: Ocean
         de-DE: Ozean
@@ -5652,6 +6283,7 @@ settings:
         es-ES: Océano
         el-GR: Ωκεανός
         cs-CZ: Oceán
+        pl-PL: Ocean
       haze:
         en-GB: Haze
         de-DE: Nebel
@@ -5661,6 +6293,7 @@ settings:
         es-ES: Haze
         el-GR: Ομίχλη
         cs-CZ: Mlha
+        pl-PL: Mgła
       sunset:
         en-GB: Sunset
         de-DE: Sonnenuntergang
@@ -5670,6 +6303,7 @@ settings:
         es-ES: Atardecer
         el-GR: Ηλιοβασίλεμα
         cs-CZ: Západ slunce
+        pl-PL: Zachód słońca
       cherry:
         en-GB: Cherry
         de-DE: Cherry
@@ -5679,6 +6313,7 @@ settings:
         es-ES: Cherry
         el-GR: Κεράσι
         cs-CZ: Cherry
+        pl-PL: Cherry
       custom:
         en-GB: Custom
         de-DE: Gepflogenheit
@@ -5688,6 +6323,7 @@ settings:
         es-ES: Costumbres
         el-GR: Εθιμο
         cs-CZ: Zvyk
+        pl-PL: Zwyczaj
       customValue:
         en-GB: Custom {value}
         de-DE: Individuelle {value}
@@ -5697,6 +6333,7 @@ settings:
         es-ES: Personalizados {value}
         el-GR: Προσαρμοσμένο {value}
         cs-CZ: Zakázkové {value}
+        pl-PL: Niestandardowe {value}
       default:
         en-GB: Default
         de-DE: Default
@@ -5706,6 +6343,7 @@ settings:
         es-ES: Default
         el-GR: Προεπιλογή
         cs-CZ: Výchozí stav
+        pl-PL: Domyślność
     hiddenSellers:
       en-GB: Hidden sellers
       de-DE: Versteckte Verkäufer
@@ -5715,6 +6353,7 @@ settings:
       es-ES: Vendedores ocultos
       el-GR: Κρυφοί πωλητές
       cs-CZ: Skrytí prodejci
+      pl-PL: Ukryci sprzedawcy
     hiddenDescription:
       en-GB: Items from hidden sellers won't appear anywhere. This persists across sessions and isn't cleared by "Clear filters".
       de-DE: Artikel von versteckten Verkäufern erscheinen nirgends. Dies bleibt über Sitzungen hinweg bestehen und wird nicht durch "Filter löschen" gelöscht.
@@ -5724,6 +6363,7 @@ settings:
       es-ES: Los artículos de vendedores ocultos no aparecerán en ningún sitio. Esto persiste durante las sesiones y no se elimina mediante "Borrar filtros".
       el-GR: Τα στοιχεία από κρυφούς πωλητές δεν θα εμφανίζονται πουθενά. Αυτό παραμένει σε όλες τις περιόδους σύνδεσης και δεν διαγράφεται από την επιλογή "Διαγραφή φίλτρων".
       cs-CZ: Položky od skrytých prodejců se nikde nezobrazí. Toto přetrvává napříč relacemi a není vymazáno "Vymazat filtry".
+      pl-PL: Przedmioty od ukrytych sprzedawców nigdzie się nie pojawią. To utrzymuje się w każdej sesji i nie jest usuwane przez "Usuń filtry".
     searchSellers:
       en-GB: Search sellers to hide...
       de-DE: Durchsuche Verkäufer, um sie zu verstecken...
@@ -5733,6 +6373,7 @@ settings:
       es-ES: Buscar vendedores para ocultar...
       el-GR: Αναζήτηση πωλητών για απόκρυψη...
       cs-CZ: Prohledejte prodejce, abyste se skryli...
+      pl-PL: Przeszukaj sprzedawców, żeby się ukryć...
     sellerItemCount: "{count, plural, one {1 item} other {# items}}"
     unhideSeller:
       en-GB: Click to unhide {seller}
@@ -5743,6 +6384,7 @@ settings:
       es-ES: Haz clic para mostrar {seller}
       el-GR: Κάντε κλικ για επανεμφάνιση {seller}
       cs-CZ: Klikněte pro odkrytí {seller}
+      pl-PL: Kliknij, aby odkryć {seller}
     noSellersHidden:
       en-GB: No sellers hidden
       de-DE: Keine versteckten Verkäufer
@@ -5752,6 +6394,7 @@ settings:
       es-ES: No hay vendedores ocultos
       el-GR: Δεν κρύβονται πωλητές
       cs-CZ: Žádní prodejci nejsou skryti
+      pl-PL: Brak ukrytych sprzedawców
 
 errors:
   global:
@@ -5764,6 +6407,7 @@ errors:
       es-ES: Algo salió mal
       el-GR: Κάτι πήγε στραβά
       cs-CZ: Něco se pokazilo
+      pl-PL: Coś poszło nie tak
     description:
       en-GB: An unexpected error occurred. This has been logged automatically.
       de-DE: Ein unerwarteter Fehler ist aufgetreten. Dies wurde automatisch protokolliert.
@@ -5773,6 +6417,7 @@ errors:
       es-ES: Ha ocurrido un error inesperado. Esto se ha registrado automáticamente.
       el-GR: Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα. Αυτό έχει καταγραφεί αυτόματα.
       cs-CZ: Došlo k neočekávané chybě. To bylo zaznamenáno automaticky.
+      pl-PL: Wystąpił nieoczekiwany błąd. Zostało to zarejestrowane automatycznie.
     retry:
       en-GB: Try again
       de-DE: Versuchen Sie es nochmal
@@ -5782,6 +6427,7 @@ errors:
       es-ES: Inténtalo de nuevo
       el-GR: Προσπάθησε ξανά
       cs-CZ: Zkus to znovu
+      pl-PL: Spróbuj jeszcze raz
   browse:
     title:
       en-GB: Failed to load items
@@ -5792,6 +6438,7 @@ errors:
       es-ES: No se han cargado los objetos
       el-GR: Αποτυχία φόρτωσης στοιχείων
       cs-CZ: Nepodařilo se načíst položky
+      pl-PL: Nie udało się załadować przedmiotów
     description:
       en-GB: We couldn't load the browse page. This is usually temporary.
       de-DE: Wir konnten die Browse-Seite nicht laden. Das ist meistens nur vorübergehend.
@@ -5801,6 +6448,7 @@ errors:
       es-ES: No pudimos cargar la página de navegación. Esto suele ser temporal.
       el-GR: Δεν ήταν δυνατή η φόρτωση της σελίδας περιήγησης. Αυτό είναι συνήθως προσωρινό.
       cs-CZ: Nemohli jsme načíst stránku prohlížení. Obvykle je to dočasné.
+      pl-PL: Nie mogliśmy załadować strony przeglądania. Zazwyczaj jest to tymczasowe.
     retry:
       en-GB: Retry
       de-DE: Wiederholungsversuch
@@ -5810,6 +6458,7 @@ errors:
       es-ES: Reintento
       el-GR: Επανάληψη
       cs-CZ: Opakování
+      pl-PL: Próba ponowna
   item:
     title:
       en-GB: Item not available
@@ -5820,6 +6469,7 @@ errors:
       es-ES: Artículo no disponible
       el-GR: Το προϊόν δεν είναι διαθέσιμο
       cs-CZ: Položka není dostupná
+      pl-PL: Przedmiot niedostępny
     description:
       en-GB: We couldn't load this item. It may have been removed or there was a temporary error.
       de-DE: Wir konnten diesen Artikel nicht laden. Es könnte entfernt worden sein oder es gab einen vorübergehenden Fehler.
@@ -5829,6 +6479,7 @@ errors:
       es-ES: No pudimos cargar este artículo. Puede que se haya retirado o que haya habido un error temporal.
       el-GR: Δεν ήταν δυνατή η φόρτωση αυτού του στοιχείου. Μπορεί να έχει αφαιρεθεί ή να υπήρξε προσωρινό σφάλμα.
       cs-CZ: Nemohli jsme tuto položku načíst. Možná byla odstraněna nebo došlo k dočasné chybě.
+      pl-PL: Nie mogliśmy załadować tego przedmiotu. Mogła zostać usunięta lub wystąpił tymczasowy błąd.
     retry:
       en-GB: Retry
       de-DE: Wiederholungsversuch
@@ -5838,6 +6489,7 @@ errors:
       es-ES: Reintento
       el-GR: Επανάληψη
       cs-CZ: Opakování
+      pl-PL: Próba ponowna
     browseItems:
       en-GB: Browse items
       de-DE: Durchstöbern Sie Artikel
@@ -5847,6 +6499,7 @@ errors:
       es-ES: Explorar los artículos
       el-GR: Αναζήτηση στοιχείων
       cs-CZ: Prohlížení položek
+      pl-PL: Przeglądaj przedmioty
   notFound:
     title:
       en-GB: Page not found
@@ -5857,6 +6510,7 @@ errors:
       es-ES: Página no encontrada
       el-GR: Η σελίδα δεν βρέθηκε
       cs-CZ: Stránka nenalezena
+      pl-PL: Strona nie znaleziona
     description:
       en-GB: The page you're looking for doesn't exist or has been moved.
       de-DE: Die Seite, nach der du suchst, existiert nicht oder wurde verschoben.
@@ -5866,6 +6520,7 @@ errors:
       es-ES: La página que buscas no existe o ha sido movida.
       el-GR: Η σελίδα που αναζητάτε δεν υπάρχει ή έχει μετακινηθεί.
       cs-CZ: Stránka, kterou hledáte, neexistuje nebo byla přesunuta.
+      pl-PL: Strona, której szukasz, nie istnieje lub została przeniesiona.
     browseItems:
       en-GB: Browse items
       de-DE: Durchstöbern Sie Artikel
@@ -5875,6 +6530,7 @@ errors:
       es-ES: Explorar los artículos
       el-GR: Αναζήτηση στοιχείων
       cs-CZ: Prohlížení položek
+      pl-PL: Przeglądaj przedmioty
 
 common:
   loading:
@@ -5886,6 +6542,7 @@ common:
     es-ES: Cargando...
     el-GR: Φόρτωση...
     cs-CZ: Načítám...
+    pl-PL: Ładowanie...
   error:
     en-GB: Something went wrong
     de-DE: Etwas ist schiefgelaufen
@@ -5895,6 +6552,7 @@ common:
     es-ES: Algo salió mal
     el-GR: Κάτι πήγε στραβά
     cs-CZ: Něco se pokazilo
+    pl-PL: Coś poszło nie tak
   retry:
     en-GB: Try again
     de-DE: Versuchen Sie es nochmal
@@ -5904,6 +6562,7 @@ common:
     es-ES: Inténtalo de nuevo
     el-GR: Προσπάθησε ξανά
     cs-CZ: Zkus to znovu
+    pl-PL: Spróbuj jeszcze raz
   close:
     en-GB: Close
     de-DE: Schließen
@@ -5913,6 +6572,7 @@ common:
     es-ES: Cierre
     el-GR: Κλείσιμο
     cs-CZ: Zavřít
+    pl-PL: Zamknij
   backToTop:
     en-GB: Back to top
     de-DE: Nach oben
@@ -5922,6 +6582,7 @@ common:
     es-ES: Volver arriba
     el-GR: Επιστροφή στην αρχή
     cs-CZ: Zpět nahoru
+    pl-PL: Powrót na górę
   back:
     en-GB: Back
     de-DE: Zurück
@@ -5931,3 +6592,4 @@ common:
     es-ES: Atrás
     el-GR: Πίσω
     cs-CZ: Zpět
+    pl-PL: Z powrotem

@@ -15,6 +15,8 @@ import { exchangeRatesAtom } from "@/store/atoms";
 const FALLBACK_RATES: Record<string, number> = {
   GBP: 0.79,
   EUR: 0.92,
+  CZK: 23,
+  PLN: 4,
   USD: 1,
 };
 

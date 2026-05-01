@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom, useAtomValue } from "jotai";
-import { Flag, Star, ThumbsUp, X } from "lucide-react";
+import { Star, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -16,12 +16,17 @@ import {
 import { type Review, ReviewCard } from "@/components/ReviewCard";
 
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import {
+  SellerCommunityFeedbackBlock,
+  SellerFeedbackActions,
+} from "@/components/SellerCommunityFeedback";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import historyManager from "@/lib/historyManager";
 import { getSellerImageUrl } from "@/lib/images";
 import { marketToLocale } from "@/lib/market/market";
+import type { SellerDetail } from "@/lib/types";
 import {
   extractLittleBiggyId,
   normalizeLittleBiggyUrl,
@@ -38,66 +43,6 @@ import {
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
-/* ── Seller detail shape from R2 shared/sellers/{id}.json ── */
-interface SellerReview {
-  id: number;
-  created: number;
-  rating: number;
-  daysToArrive: number | null;
-  segments: { type: string; value: string }[];
-  item: { refNum: string; name: string; id: number; imageUrl?: string };
-  itemImage?: string;
-}
-
-/**
- * Per-locale translations of the manifesto, written by
- * `dashboard/scripts/unified-crawler/stages/translate/sellers.ts`. Keyed
- * by full locale ("de-DE", "fr-FR", ...). Original (English-ish source)
- * stays on `manifesto`.
- */
-interface SellerTranslations {
-  sourceHash?: string;
-  updatedAt?: string;
-  locales?: Record<string, { manifesto?: string }>;
-}
-
-interface SellerCommunityReport {
-  id: string;
-  reason: string;
-  votes: number;
-  createdAt?: string;
-  acceptedAt?: string;
-}
-
-interface SellerCommunityFeedback {
-  endorseCount?: number | null;
-  reportCount?: number | null;
-  reports?: SellerCommunityReport[] | null;
-  updatedAt?: string | null;
-}
-
-interface SellerDetail {
-  sellerId: string;
-  sellerName: string;
-  sellerUrl: string;
-  imageUrl: string | null;
-  sellerImageUrl: string | null;
-  online: string | null;
-  sellerOnline: string | null;
-  sellerJoined: string | null;
-  manifesto: string | null;
-  share: string | null;
-  overview: {
-    itemsCount?: number;
-    numberOfReviews?: number;
-    averageDaysToArrive?: number;
-  } | null;
-  reviews: SellerReview[];
-  reviewsMeta: { fetched: number; updatedAt?: string } | null;
-  translations?: SellerTranslations;
-  communityFeedback?: SellerCommunityFeedback | null;
-}
-
 /** Rating-based badge color (matches old biggyindex review-panel-N pattern) */
 function ratingBucketClass(rating: number): string {
   if (rating <= 2)
@@ -111,243 +56,6 @@ function ratingBucketClass(rating: number): string {
   if (rating <= 8)
     return "border-emerald-400/40 bg-emerald-500/10 dark:border-emerald-500/30 dark:bg-emerald-500/15";
   return "border-sky-400/40 bg-sky-500/10 dark:border-sky-500/30 dark:bg-sky-500/15";
-}
-
-/* ── Helpers ── */
-
-function positiveCount(value: unknown): number {
-  const count = Number(value);
-  return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
-}
-
-function SellerCommunityFeedbackBlock({
-  feedback,
-  indexSeller,
-}: {
-  feedback?: SellerCommunityFeedback | null;
-  indexSeller?: {
-    communityEndorsements?: number | null;
-    communityReportCount?: number | null;
-  };
-}) {
-  const t = useTranslations("seller.modal.feedback");
-  const endorseCount = positiveCount(
-    feedback?.endorseCount ?? indexSeller?.communityEndorsements,
-  );
-  const reportCount = positiveCount(
-    feedback?.reportCount ?? indexSeller?.communityReportCount,
-  );
-  const reports = (feedback?.reports ?? [])
-    .filter(
-      (report): report is SellerCommunityReport =>
-        typeof report?.reason === "string" && report.reason.trim().length > 0,
-    )
-    .slice(0, 5);
-
-  if (endorseCount === 0 && reportCount === 0 && reports.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="mt-5 border-t border-border pt-4">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {t("summaryHeading")}
-      </h3>
-      <div className="flex flex-wrap gap-2 text-xs">
-        {endorseCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 font-medium text-emerald-700 dark:text-emerald-200">
-            <ThumbsUp size={12} />
-            {t("endorsementCount", { count: endorseCount })}
-          </span>
-        )}
-        {reportCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-1 font-medium text-amber-700 dark:text-amber-200">
-            <Flag size={12} />
-            {t("reportCount", { count: reportCount })}
-          </span>
-        )}
-      </div>
-
-      {reports.length > 0 && (
-        <div className="mt-3 space-y-2">
-          {reports.map((report) => (
-            <div
-              key={report.id}
-              className="rounded-md border border-border bg-surface p-3"
-            >
-              <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted">
-                <span className="inline-flex items-center gap-1">
-                  <Flag size={11} />
-                  {t("reviewedNote")}
-                </span>
-                {positiveCount(report.votes) > 1 && (
-                  <span>
-                    {t("similarReports", {
-                      count: positiveCount(report.votes),
-                    })}
-                  </span>
-                )}
-              </div>
-              <p className="text-sm leading-relaxed text-foreground">
-                {report.reason}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Community feedback actions ── */
-const FEEDBACK_API = process.env.NEXT_PUBLIC_SUGGESTIONS_API ?? "";
-type FeedbackKind = "endorse" | "report";
-
-function SellerFeedbackActions({
-  sellerId,
-  sellerName,
-}: {
-  sellerId: string;
-  sellerName: string;
-}) {
-  const t = useTranslations("seller.modal.feedback");
-  const [submitted, setSubmitted] = useState<Record<FeedbackKind, boolean>>({
-    endorse: false,
-    report: false,
-  });
-  const [busy, setBusy] = useState<FeedbackKind | null>(null);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [reason, setReason] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      setSubmitted({
-        endorse: !!localStorage.getItem(`bi:sf:endorse:${sellerId}`),
-        report: !!localStorage.getItem(`bi:sf:report:${sellerId}`),
-      });
-    } catch {
-      /* ignore */
-    }
-    setReportOpen(false);
-    setReason("");
-    setMessage(null);
-  }, [sellerId]);
-
-  const submit = useCallback(
-    async (kind: FeedbackKind, reasonText?: string) => {
-      if (!FEEDBACK_API) {
-        setMessage(t("endpointMissing"));
-        return;
-      }
-      setBusy(kind);
-      setMessage(null);
-      try {
-        const res = await fetch(`${FEEDBACK_API}/seller-feedback`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sellerId,
-            sellerName,
-            kind,
-            reason: reasonText || undefined,
-          }),
-        });
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-          duplicate?: boolean;
-        };
-        if (!res.ok) {
-          if (res.status === 429) {
-            setMessage(t("hourlyLimit"));
-          } else {
-            setMessage(data.error ?? `HTTP ${res.status}`);
-          }
-        } else {
-          try {
-            localStorage.setItem(
-              `bi:sf:${kind}:${sellerId}`,
-              String(Date.now()),
-            );
-          } catch {
-            /* ignore */
-          }
-          setSubmitted((s) => ({ ...s, [kind]: true }));
-          setMessage(data.duplicate ? t("duplicateThanks") : t("reviewThanks"));
-          if (kind === "report") setReportOpen(false);
-        }
-      } catch (e) {
-        setMessage(e instanceof Error ? e.message : t("networkError"));
-      } finally {
-        setBusy(null);
-      }
-    },
-    [sellerId, sellerName, t],
-  );
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={submitted.endorse || busy !== null}
-          onClick={() => submit("endorse")}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-muted hover:text-emerald-500 hover:border-emerald-500/40 disabled:opacity-60 disabled:cursor-default transition-colors"
-        >
-          <ThumbsUp size={12} />
-          {submitted.endorse
-            ? t("endorsed")
-            : busy === "endorse"
-              ? t("submitting")
-              : t("endorseSeller")}
-        </button>
-        <button
-          type="button"
-          disabled={submitted.report || busy !== null}
-          onClick={() => setReportOpen((o) => !o)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-muted hover:text-red-500 hover:border-red-500/40 disabled:opacity-60 disabled:cursor-default transition-colors"
-        >
-          <Flag size={12} />
-          {submitted.report ? t("reported") : t("reportSeller")}
-        </button>
-      </div>
-
-      {reportOpen && !submitted.report && (
-        <div className="space-y-2 rounded-md border border-[var(--border)] bg-[var(--surface)] p-3">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-muted">
-            {t("reasonOptional")}
-          </label>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value.slice(0, 300))}
-            rows={3}
-            placeholder={t("reasonPlaceholder")}
-            className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] p-2 text-xs text-foreground outline-none focus:border-primary/40"
-          />
-          <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setReportOpen(false)}
-              className="text-xs text-muted hover:text-foreground"
-            >
-              {t("cancel")}
-            </button>
-            <button
-              type="button"
-              disabled={busy !== null}
-              onClick={() => submit("report", reason.trim())}
-              className="rounded-md bg-red-500/90 px-3 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-60"
-            >
-              {busy === "report" ? t("submitting") : t("submitReport")}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {message && <p className="text-xs text-muted">{message}</p>}
-    </div>
-  );
 }
 
 /* ── Component ── */
@@ -577,7 +285,7 @@ export function SellerModal() {
 
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full">
           {/* ── Left column: seller info ── */}
-          <div className="min-w-0 p-5 md:overflow-y-auto md:border-r border-[var(--border)]">
+          <div className="min-w-0 p-5 md:overflow-y-auto md:border-r border-border">
             {/* Identity */}
             <div className="flex items-start gap-4">
               <div className="shrink-0">
@@ -595,7 +303,7 @@ export function SellerModal() {
                     aria-label={
                       img ? t("zoomProfileImage", { seller: name }) : undefined
                     }
-                    className={`w-20 h-20 rounded-xl overflow-hidden bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center transition-shadow ${
+                    className={`w-20 h-20 rounded-xl overflow-hidden bg-surface border border-border flex items-center justify-center transition-shadow ${
                       img
                         ? "cursor-zoom-in hover:shadow-md hover:border-primary/40"
                         : "cursor-default"
@@ -610,7 +318,7 @@ export function SellerModal() {
                         loading="eager"
                       />
                     ) : loading ? (
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--muted)] border-t-[var(--primary)]" />
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
                     ) : (
                       <span className="text-2xl font-bold text-muted">
                         {initial}
@@ -687,9 +395,9 @@ export function SellerModal() {
               </h3>
               {loading && !detail ? (
                 <div className="space-y-2 animate-pulse">
-                  <div className="h-3 bg-[var(--surface)] rounded w-5/6" />
-                  <div className="h-3 bg-[var(--surface)] rounded w-3/4" />
-                  <div className="h-3 bg-[var(--surface)] rounded w-2/3" />
+                  <div className="h-3 bg-surface rounded w-5/6" />
+                  <div className="h-3 bg-surface rounded w-3/4" />
+                  <div className="h-3 bg-surface rounded w-2/3" />
                 </div>
               ) : detail?.manifesto ? (
                 (() => {
@@ -724,7 +432,7 @@ export function SellerModal() {
 
             {/* Community feedback */}
             {sellerId && (
-              <div className="mt-5 border-t border-[var(--border)] pt-4">
+              <div className="mt-5 border-t border-border pt-4">
                 <SellerFeedbackActions
                   sellerId={String(sellerId)}
                   sellerName={name}
@@ -741,7 +449,7 @@ export function SellerModal() {
               own scroll alongside the seller info. */}
           <div className="min-w-0 flex flex-col md:min-h-0 md:overflow-hidden relative">
             {/* Reviews header (pr-14 reserves space for the close X) */}
-            <div className="sticky top-0 z-10 bg-[var(--card)] border-b border-[var(--border)] px-5 py-3 pr-14">
+            <div className="sticky top-0 z-10 bg-card border-b border-border px-5 py-3 pr-14">
               <h3 className="text-sm font-semibold text-foreground">
                 {t("reviews.heading")}
               </h3>
@@ -836,8 +544,8 @@ export function SellerModal() {
                 <div className="space-y-4 animate-pulse">
                   {Array.from({ length: 5 }, (_, i) => (
                     <div key={`review-skeleton-${i}`} className="space-y-2">
-                      <div className="h-3 bg-[var(--surface)] rounded w-1/4" />
-                      <div className="h-3 bg-[var(--surface)] rounded w-3/4" />
+                      <div className="h-3 bg-surface rounded w-1/4" />
+                      <div className="h-3 bg-surface rounded w-3/4" />
                     </div>
                   ))}
                 </div>

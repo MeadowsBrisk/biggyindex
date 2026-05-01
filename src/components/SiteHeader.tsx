@@ -43,12 +43,14 @@ const CURRENCY_LABELS: Record<DisplayCurrency, string> = {
   EUR: "€ EUR",
   USD: "$ USD",
   CZK: "Kč CZK",
+  PLN: "zł PLN",
 };
 
 /** Map a market code to its native currency for the dropdown header. */
 function nativeCurrencyForMarket(market: string): DisplayCurrency {
   if (market === "GB") return "GBP";
   if (market === "CZ") return "CZK";
+  if (market === "PL") return "PLN";
   return "EUR"; // IE, DE, FR, PT, IT, ES, GR
 }
 

@@ -349,7 +349,7 @@ export const currencySymbolAtom = atom<string>("£");
 // ─── Display currency ───────────────────────────────────────────
 
 /** All currency codes the UI can render in. */
-export type DisplayCurrency = "GBP" | "USD" | "EUR" | "CZK";
+export type DisplayCurrency = "GBP" | "USD" | "EUR" | "CZK" | "PLN";
 
 /**
  * User's *explicit* display-currency override. `null` means "no choice
@@ -380,6 +380,8 @@ function marketNativeCurrency(market: string): DisplayCurrency {
       return "GBP";
     case "CZ":
       return "CZK";
+    case "PL":
+      return "PLN";
     case "IE":
     case "DE":
     case "FR":
@@ -393,7 +395,7 @@ function marketNativeCurrency(market: string): DisplayCurrency {
   }
 }
 
-/** Live exchange rates: { GBP: 0.79, EUR: 0.92, CZK: 22.5, ... } keyed from USD base */
+/** Live exchange rates: { GBP: 0.79, EUR: 0.92, CZK: 22.5, PLN: 4.0, ... } keyed from USD base */
 export const exchangeRatesAtom = atom<Record<string, number>>({});
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -401,6 +403,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   GBP: "£",
   EUR: "€",
   CZK: "Kč",
+  PLN: "zł",
 };
 
 /**
