@@ -5,6 +5,7 @@
  *
  * URL params:
  *   sort=hottest  dir=asc  q=flower  cat=Flower  sub=Kush
+ *   Default sort is hottest desc; explicit sort params override it.
  *   sellers=4772053  pmin=20  pmax=200
  */
 

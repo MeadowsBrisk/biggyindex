@@ -317,6 +317,16 @@ markets:
     el-GR: Δημοκρατία της Τσεχίας
     cs-CZ: Česká republika
     pl-PL: Czechy
+  PL:
+    en-GB: Poland
+    de-DE: Polen
+    fr-FR: Pologne
+    pt-PT: Polónia
+    it-IT: Polonia
+    es-ES: Polonia
+    el-GR: Πολωνία
+    cs-CZ: Polsko
+    pl-PL: Polska
 
 header:
   basket:

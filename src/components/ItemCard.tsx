@@ -10,7 +10,7 @@ import {
   ThumbsUp,
   Truck,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   lazy,
   memo,
@@ -36,7 +36,7 @@ import {
   getItemPrimaryImage,
   getSellerImageUrl,
 } from "@/lib/images";
-import { formatShipFrom, shipFromCode } from "@/lib/shipFrom";
+import { formatShipFrom, shipFromCode, shipFromLabel } from "@/lib/shipFrom";
 import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, Seller } from "@/lib/types";
 import {
@@ -297,6 +297,7 @@ function ItemCardInner({
   const setSelectedSellers = useSetAtom(selectedSellersAtom);
   const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
   const t = useTranslations("browse.card");
+  const locale = useLocale();
   const seller =
     item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
   const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
@@ -1049,7 +1050,9 @@ function ItemCardInner({
                       !domestic &&
                       (() => {
                         const code = shipFromCode(item.sf);
-                        const full = formatShipFrom(item.sf);
+                        const full = code
+                          ? shipFromLabel(code, locale)
+                          : formatShipFrom(item.sf);
                         return (
                           <Tooltip content={full}>
                             <span

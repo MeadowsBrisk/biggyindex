@@ -10,13 +10,14 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { MouseEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
 import { CATEGORIES } from "@/lib/constants";
+import { shipFromLabel } from "@/lib/shipFrom";
 import {
   activeFiltersCountAtom,
   attrFiltersAtom,
@@ -143,6 +144,7 @@ export function FilterPanelContent({
   const filterCount = useAtomValue(activeFiltersCountAtom);
   const t = useTranslations("browse.filters");
   const tCategories = useTranslations("categories");
+  const locale = useLocale();
 
   const [sellerQuery, setSellerQuery] = useState("");
   const [showAllSellers, setShowAllSellers] = useState(false);
@@ -445,6 +447,7 @@ export function FilterPanelContent({
               {shipFromOptions.map((shipFrom) => {
                 const isIncluded = shipInclude.includes(shipFrom.value);
                 const isExcluded = shipExclude.includes(shipFrom.value);
+                const label = shipFromLabel(shipFrom.value, locale);
                 return (
                   <button
                     key={shipFrom.value}
@@ -478,8 +481,7 @@ export function FilterPanelContent({
                         item-index.ts. CountryFlag renders synthetic
                         codes (multi → globe, unknown → ?) too. */}
                     <CountryFlag code={shipFrom.value} size={12} />
-                    {shipFrom.label}{" "}
-                    <span className="opacity-60">{shipFrom.count}</span>
+                    {label} <span className="opacity-60">{shipFrom.count}</span>
                   </button>
                 );
               })}

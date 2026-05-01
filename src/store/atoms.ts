@@ -24,6 +24,7 @@ import type {
   SortDir,
   SortKey,
 } from "@/lib/types";
+import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "@/lib/urlFilters";
 
 export { bucketGrams } from "@/lib/browse/item-index";
 
@@ -280,8 +281,14 @@ export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
 
 // ─── Sort ───────────────────────────────────────────────────────
 
-export const sortKeyAtom = atomWithStorage<SortKey>("sortKey", "hottest");
-export const sortDirAtom = atomWithStorage<SortDir>("sortDir", "desc");
+export const sortKeyAtom = atomWithStorage<SortKey>(
+  "sortKey",
+  DEFAULT_SORT_KEY,
+);
+export const sortDirAtom = atomWithStorage<SortDir>(
+  "sortDir",
+  DEFAULT_SORT_DIR,
+);
 
 // ─── Layout ─────────────────────────────────────────────────────
 

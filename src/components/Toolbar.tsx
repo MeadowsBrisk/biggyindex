@@ -12,7 +12,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   useEffect,
   useMemo,
@@ -21,7 +21,9 @@ import {
   useTransition,
 } from "react";
 import { FilterToggle } from "@/components/FilterPanel";
+import { shipFromLabel } from "@/lib/shipFrom";
 import type { SortKey } from "@/lib/types";
+import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "@/lib/urlFilters";
 import {
   attrFiltersAtom,
   availableSellersAtom,
@@ -116,6 +118,7 @@ export function Toolbar() {
 
 function ActivePills() {
   const t = useTranslations("browse.toolbar");
+  const locale = useLocale();
   const search = useAtomValue(searchQueryAtom);
   const setSearch = useSetAtom(searchQueryAtom);
   const category = useAtomValue(categoryAtom);
@@ -135,8 +138,6 @@ function ActivePills() {
   const setAttrs = useSetAtom(attrFiltersAtom);
   const priceRange = useAtomValue(priceRangeAtom);
   const setPriceRange = useSetAtom(priceRangeAtom);
-  const freeOnly = useAtomValue(freeShippingOnlyAtom);
-  const setFreeOnly = useSetAtom(freeShippingOnlyAtom);
   const [, startTransition] = useTransition();
 
   const sellerMap = useMemo(() => {
@@ -146,16 +147,18 @@ function ActivePills() {
   }, [allSellers]);
 
   const pills = useMemo(() => {
-    const p: { label: string; clear: () => void }[] = [];
+    const p: { key: string; label: string; clear: () => void }[] = [];
 
     if (search.trim()) {
       p.push({
+        key: "search",
         label: `"${search}"`,
         clear: () => startTransition(() => setSearch("")),
       });
     }
     if (category !== "All") {
       p.push({
+        key: "category",
         label: category,
         clear: () =>
           startTransition(() => {
@@ -166,6 +169,7 @@ function ActivePills() {
     }
     for (const sc of subcategory) {
       p.push({
+        key: `subcategory:${sc}`,
         label: sc,
         clear: () =>
           startTransition(() =>
@@ -176,6 +180,7 @@ function ActivePills() {
     for (const sid of sellers) {
       const name = sellerMap.get(sid) ?? `#${sid}`;
       p.push({
+        key: `seller:${sid}`,
         label: name,
         clear: () =>
           startTransition(() =>
@@ -185,7 +190,8 @@ function ActivePills() {
     }
     for (const sf of shipInclude) {
       p.push({
-        label: t("fromFilter", { value: sf }),
+        key: `ship-include:${sf}`,
+        label: t("fromFilter", { value: shipFromLabel(sf, locale) }),
         clear: () =>
           startTransition(() =>
             setShipInclude((prev) => prev.filter((v) => v !== sf)),
@@ -194,7 +200,8 @@ function ActivePills() {
     }
     for (const sf of shipExclude) {
       p.push({
-        label: t("notFilter", { value: sf }),
+        key: `ship-exclude:${sf}`,
+        label: t("notFilter", { value: shipFromLabel(sf, locale) }),
         clear: () =>
           startTransition(() =>
             setShipExclude((prev) => prev.filter((v) => v !== sf)),
@@ -204,6 +211,7 @@ function ActivePills() {
     // Free shipping pill omitted — already visible as toolbar toggle
     for (const w of weights) {
       p.push({
+        key: `weight:${w}`,
         label: `${w}g`,
         clear: () =>
           startTransition(() =>
@@ -213,6 +221,7 @@ function ActivePills() {
     }
     if (priceRange.min > 0 || priceRange.max < Infinity) {
       p.push({
+        key: "price-range",
         label: t("priceRange"),
         clear: () =>
           startTransition(() => setPriceRange({ min: 0, max: Infinity })),
@@ -221,6 +230,7 @@ function ActivePills() {
     for (const [key, vals] of Object.entries(attrs)) {
       for (const val of vals) {
         p.push({
+          key: `attr:${key}:${val}`,
           label: val,
           clear: () =>
             startTransition(() =>
@@ -239,20 +249,18 @@ function ActivePills() {
     subcategory,
     sellers,
     sellerMap,
+    locale,
     shipInclude,
     shipExclude,
-    freeOnly,
     weights,
     priceRange,
     attrs,
-    startTransition,
     setSearch,
     setCategory,
     setSubcategory,
     setSellers,
     setShipInclude,
     setShipExclude,
-    setFreeOnly,
     setWeights,
     setPriceRange,
     setAttrs,
@@ -263,9 +271,9 @@ function ActivePills() {
 
   return (
     <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-      {pills.map((pill, i) => (
+      {pills.map((pill) => (
         <button
-          key={`${pill.label}-${i}`}
+          key={pill.key}
           type="button"
           onClick={pill.clear}
           className="group flex shrink-0 items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors cursor-pointer"
@@ -392,8 +400,8 @@ function SortPills() {
   const mounted = useIsClient();
   const [, startTransition] = useTransition();
 
-  const effectiveSortKey: SortKey = mounted ? sortKey : "hottest";
-  const effectiveSortDir = mounted ? sortDir : "desc";
+  const effectiveSortKey: SortKey = mounted ? sortKey : DEFAULT_SORT_KEY;
+  const effectiveSortDir = mounted ? sortDir : DEFAULT_SORT_DIR;
 
   const handleSortChange = (key: SortKey) => {
     startTransition(() => {
@@ -481,8 +489,8 @@ function SortSelect() {
   const mounted = useIsClient();
   const [, startTransition] = useTransition();
 
-  const effectiveSortKey: SortKey = mounted ? sortKey : "hottest";
-  const effectiveSortDir = mounted ? sortDir : "desc";
+  const effectiveSortKey: SortKey = mounted ? sortKey : DEFAULT_SORT_KEY;
+  const effectiveSortDir = mounted ? sortDir : DEFAULT_SORT_DIR;
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const key = e.target.value as SortKey;

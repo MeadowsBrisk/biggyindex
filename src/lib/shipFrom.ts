@@ -75,14 +75,73 @@ export const SHIP_FROM_LABELS: Record<string, string> = {
   unknown: "Unknown",
 };
 
+const SYNTHETIC_LABELS: Record<string, Record<string, string>> = {
+  multi: {
+    en: "Multiple",
+    de: "Mehrere",
+    fr: "Multiple",
+    pt: "Vários",
+    it: "Multipli",
+    es: "Varios",
+    el: "Πολλαπλές",
+    cs: "Více zemí",
+    pl: "Wiele krajów",
+  },
+  unknown: {
+    en: "Unknown",
+    de: "Unbekannt",
+    fr: "Inconnu",
+    pt: "Desconhecido",
+    it: "Sconosciuto",
+    es: "Desconocido",
+    el: "Άγνωστο",
+    cs: "Neznámé",
+    pl: "Nieznane",
+  },
+};
+
+type RegionDisplayNames = {
+  of(code: string): string | undefined;
+};
+
+type RegionDisplayNamesConstructor = new (
+  locales: string | string[],
+  options: { type: "region" },
+) => RegionDisplayNames;
+
+function displayRegionName(code: string, locale?: string): string | null {
+  if (!locale || !/^[a-z]{2}$/i.test(code)) return null;
+  const DisplayNames = (
+    Intl as typeof Intl & { DisplayNames?: RegionDisplayNamesConstructor }
+  ).DisplayNames;
+  if (!DisplayNames) return null;
+
+  try {
+    return (
+      new DisplayNames([locale], { type: "region" }).of(code.toUpperCase()) ??
+      null
+    );
+  } catch {
+    return null;
+  }
+}
+
+function syntheticShipFromLabel(code: string, locale?: string): string | null {
+  const language = locale?.toLowerCase().split("-")[0] ?? "en";
+  return SYNTHETIC_LABELS[code]?.[language] ?? null;
+}
+
 /**
  * Display name for a ship-from code (the value returned by `shipFromCode`).
  * Falls back to title-casing the code itself for genuinely unmapped values.
  */
-export function shipFromLabel(code: string): string {
+export function shipFromLabel(code: string, locale?: string): string {
+  const normalized = code.trim().toLowerCase();
   return (
-    SHIP_FROM_LABELS[code] ??
-    code.replace(/\b\w/g, (letter) => letter.toUpperCase())
+    syntheticShipFromLabel(normalized, locale) ??
+    displayRegionName(normalized, locale) ??
+    SHIP_FROM_LABELS[normalized] ??
+    normalized.replace(/\b\w/g, (letter) => letter.toUpperCase())
   );
 }
 
