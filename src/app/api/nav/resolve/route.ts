@@ -10,11 +10,10 @@ import type { OutboundEvent } from "@/lib/tracking/outbound";
  *
  * Named "nav/resolve" to avoid ad-blocker heuristics.
  *
- * Each event is written as its own R2 key — no read-modify-write,
- * so concurrent requests cannot race. The summary endpoint
- * consolidates individual events into daily arrays periodically.
+ * Each event is written as its own R2 key, so concurrent requests cannot race.
+ * The summary endpoint drains pending events into daily archives periodically.
  *
- * Key format: outbound/events/{YYYY-MM-DD}/{uid}.json
+ * Key format: outbound/pending/{YYYY-MM-DD}/{uid}.json
  */
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Unique key per event — no read needed, no race possible
     const dateStr = new Date().toISOString().slice(0, 10);
     const uid = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-    const key = `outbound/events/${dateStr}/${uid}.json`;
+    const key = `outbound/pending/${dateStr}/${uid}.json`;
 
     await writeR2JSON(key, event);
 

@@ -808,6 +808,16 @@
   }
 }
 
+.seller-card__badge--endorsement {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+
+  @variant dark {
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, 0.14);
+  }
+}
+
 .seller-card__badge--item-rating {
   color: #7c3aed;
   background: rgba(124, 58, 237, 0.1);

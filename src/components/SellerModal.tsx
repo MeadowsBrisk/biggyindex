@@ -61,6 +61,21 @@ interface SellerTranslations {
   locales?: Record<string, { manifesto?: string }>;
 }
 
+interface SellerCommunityReport {
+  id: string;
+  reason: string;
+  votes: number;
+  createdAt?: string;
+  acceptedAt?: string;
+}
+
+interface SellerCommunityFeedback {
+  endorseCount?: number | null;
+  reportCount?: number | null;
+  reports?: SellerCommunityReport[] | null;
+  updatedAt?: string | null;
+}
+
 interface SellerDetail {
   sellerId: string;
   sellerName: string;
@@ -80,6 +95,7 @@ interface SellerDetail {
   reviews: SellerReview[];
   reviewsMeta: { fetched: number; updatedAt?: string } | null;
   translations?: SellerTranslations;
+  communityFeedback?: SellerCommunityFeedback | null;
 }
 
 /** Rating-based badge color (matches old biggyindex review-panel-N pattern) */
@@ -98,6 +114,90 @@ function ratingBucketClass(rating: number): string {
 }
 
 /* ── Helpers ── */
+
+function positiveCount(value: unknown): number {
+  const count = Number(value);
+  return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+}
+
+function SellerCommunityFeedbackBlock({
+  feedback,
+  indexSeller,
+}: {
+  feedback?: SellerCommunityFeedback | null;
+  indexSeller?: {
+    communityEndorsements?: number | null;
+    communityReportCount?: number | null;
+  };
+}) {
+  const t = useTranslations("seller.modal.feedback");
+  const endorseCount = positiveCount(
+    feedback?.endorseCount ?? indexSeller?.communityEndorsements,
+  );
+  const reportCount = positiveCount(
+    feedback?.reportCount ?? indexSeller?.communityReportCount,
+  );
+  const reports = (feedback?.reports ?? [])
+    .filter(
+      (report): report is SellerCommunityReport =>
+        typeof report?.reason === "string" && report.reason.trim().length > 0,
+    )
+    .slice(0, 5);
+
+  if (endorseCount === 0 && reportCount === 0 && reports.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-5 border-t border-border pt-4">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {t("summaryHeading")}
+      </h3>
+      <div className="flex flex-wrap gap-2 text-xs">
+        {endorseCount > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 font-medium text-emerald-700 dark:text-emerald-200">
+            <ThumbsUp size={12} />
+            {t("endorsementCount", { count: endorseCount })}
+          </span>
+        )}
+        {reportCount > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-1 font-medium text-amber-700 dark:text-amber-200">
+            <Flag size={12} />
+            {t("reportCount", { count: reportCount })}
+          </span>
+        )}
+      </div>
+
+      {reports.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {reports.map((report) => (
+            <div
+              key={report.id}
+              className="rounded-md border border-border bg-surface p-3"
+            >
+              <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted">
+                <span className="inline-flex items-center gap-1">
+                  <Flag size={11} />
+                  {t("reviewedNote")}
+                </span>
+                {positiveCount(report.votes) > 1 && (
+                  <span>
+                    {t("similarReports", {
+                      count: positiveCount(report.votes),
+                    })}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm leading-relaxed text-foreground">
+                {report.reason}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ── Community feedback actions ── */
 const FEEDBACK_API = process.env.NEXT_PUBLIC_SUGGESTIONS_API ?? "";
@@ -612,6 +712,11 @@ export function SellerModal() {
                 </p>
               )}
             </div>
+
+            <SellerCommunityFeedbackBlock
+              feedback={detail?.communityFeedback ?? null}
+              indexSeller={indexSeller}
+            />
 
             {/* Community feedback */}
             {sellerId && (

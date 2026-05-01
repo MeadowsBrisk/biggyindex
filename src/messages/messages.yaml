@@ -2958,6 +2958,7 @@ browse:
       es-ES: Envío gratuito
       el-GR: Δωρεάν αποστολή
       cs-CZ: Doprava zdarma
+    endorsed: "{count, plural, one {1 endorsed} other {# endorsed}}"
     shipsFrom:
       en-GB: Ships from
       de-DE: Schiffe von
@@ -4443,6 +4444,11 @@ seller:
       el-GR: Δεν υπάρχει διαθέσιμη περιγραφή
       cs-CZ: Popis není k dispozici
     feedback:
+      summaryHeading: Community feedback
+      endorsementCount: "{count, plural, one {1 community endorsement} other {# community endorsements}}"
+      reportCount: "{count, plural, one {1 reviewed report} other {# reviewed reports}}"
+      reviewedNote: Moderator-reviewed report
+      similarReports: "{count, plural, one {1 similar report} other {# similar reports}}"
       endpointMissing:
         en-GB: Feedback endpoint not configured.
         de-DE: Feedback-Endpunkt nicht konfiguriert.

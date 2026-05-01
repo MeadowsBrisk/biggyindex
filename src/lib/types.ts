@@ -200,6 +200,10 @@ export interface Seller {
   numberOfReviews: number;
   /** Seller avatar/logo URL — enriched from leaderboard data */
   imageUrl?: string | null;
+  /** Accepted community endorsements from BiggyIndex users */
+  communityEndorsements?: number | null;
+  /** Accepted community reports from BiggyIndex users */
+  communityReportCount?: number | null;
 }
 
 /** Market definition */

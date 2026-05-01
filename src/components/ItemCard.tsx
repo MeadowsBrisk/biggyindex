@@ -1,7 +1,15 @@
 "use client";
 
 import { useAtomValue, useSetAtom } from "jotai";
-import { EyeOff, Filter, Heart, Package, Star, Truck } from "lucide-react";
+import {
+  EyeOff,
+  Filter,
+  Heart,
+  Package,
+  Star,
+  ThumbsUp,
+  Truck,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   lazy,
@@ -292,6 +300,10 @@ function ItemCardInner({
   const seller =
     item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
   const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
+  const communityEndorsements =
+    seller?.communityEndorsements != null && seller.communityEndorsements > 0
+      ? seller.communityEndorsements
+      : 0;
 
   // Bookmarks
   const toggleBookmark = useSetAtom(toggleBookmarkAtom);
@@ -1012,6 +1024,12 @@ function ItemCardInner({
                       <span className="seller-card__badge seller-card__badge--rating">
                         <Star size={9} className="fill-current" />{" "}
                         {seller.averageRating.toFixed(1)}
+                      </span>
+                    )}
+                    {communityEndorsements > 0 && (
+                      <span className="seller-card__badge seller-card__badge--endorsement">
+                        <ThumbsUp size={9} />
+                        {t("endorsed", { count: communityEndorsements })}
                       </span>
                     )}
                     {shippingIsFree ? (
