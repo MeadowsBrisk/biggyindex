@@ -855,8 +855,8 @@
       "pauseGifsDescription": "Affichez des vignettes statiques pour les images animées. Réduit les distractions et économise de la batterie.",
       "showInEnglish": "Afficher en anglais",
       "showInEnglishDescription": "Utiliser le texte anglais et les noms/descriptions d’origine des produits lorsque disponibles.",
-      "skipGuides": "Skip help guides",
-      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
+      "skipGuides": "Ignorer les guides d'aide",
+      "skipGuidesDesc": "Masquer les conseils rapides affichés avant d'ouvrir Little Biggy. Désactiver pour les afficher à nouveau.",
       "thumbnailShape": "Forme de l’ongle",
       "thumbnailDescription": "Changez le ratio de recadrage des images des produits sur les cartes.",
       "aspect": {

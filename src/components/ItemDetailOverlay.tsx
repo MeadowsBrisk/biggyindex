@@ -1,16 +1,6 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useTranslations } from "next-intl";
-import {
-  Fragment,
-  type MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 import {
   Award,
   Calendar,
@@ -23,6 +13,16 @@ import {
   Truck,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import {
+  Fragment,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ItemDetailGallery } from "@/components/ItemDetailGallery";
 import { ItemDetailTabs } from "@/components/ItemDetailTabs";
 import {
@@ -71,12 +71,13 @@ import {
 
 /* ── Helpers ── */
 
-/* Human-friendly labels + value formatters for item attributes (`at` field). */
+/* Human-friendly labels + value formatters for item attributes (`at` field).
+   `cbd` and `imported` were dropped — too many false positives, and "imported"
+   is implicit for non-domestic items (already conveyed by the ships-from
+   flag). The crawler's pipeline.ts also drops these at index time. */
 const ATTR_LABEL_KEYS = new Set<string>([
   "effect",
-  "cbd",
   "grow",
-  "imported",
   "micron",
   "origin",
   "fullMelt",
@@ -557,10 +558,18 @@ export function ItemDetailOverlay() {
                         ))}
                       </div>
 
-                      {/* Name */}
-                      <h2 className="text-xl font-bold text-foreground">
-                        {name}
-                      </h2>
+                      {/* Name + global Show-in-English toggle. The
+                          toggle lives next to the name (top of the panel)
+                          rather than in the description heading because
+                          it now affects the WHOLE site (item card names,
+                          card descriptions, variant labels, etc.) — not
+                          just this overlay's description. */}
+                      <div className="flex items-start justify-between gap-3">
+                        <h2 className="text-xl font-bold text-foreground flex-1 min-w-0">
+                          {name}
+                        </h2>
+                        <ShowOriginalToggle className="mt-1 shrink-0" />
+                      </div>
 
                       {/* Seller */}
                       {displayItem.sn &&
@@ -952,6 +961,16 @@ export function ItemDetailOverlay() {
                                       : null;
                                   })()}
                                 </span>
+                                {/* Last-update reason from the crawler
+                                    (e.g. "Images changed, -3 variants").
+                                    Stamped on the item's index entry as
+                                    `lur` whenever the diff detector
+                                    catches a meaningful change. */}
+                                {displayItem.lur && (
+                                  <span className="ido-meta-cell__sub text-xs text-muted">
+                                    {displayItem.lur}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           )}
@@ -969,7 +988,10 @@ export function ItemDetailOverlay() {
                             <h3 className="ido-card__title">
                               {t("description.heading")}
                             </h3>
-                            <ShowOriginalToggle />
+                            {/* ShowOriginalToggle moved to top of overlay
+                                (next to item name) — it's a global toggle
+                                now, not just for description, so the new
+                                placement is more discoverable. */}
                           </div>
                           <div className="ido-card__body">
                             {(() => {
@@ -1295,7 +1317,6 @@ export function ItemDetailOverlay() {
           </div>
         </div>
       </div>
-
     </>
   );
 }

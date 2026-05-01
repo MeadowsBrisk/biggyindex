@@ -1,3 +1,4 @@
+import { shipFromCode } from "@/lib/shipFrom";
 import type { Item } from "@/lib/types";
 import {
   groupByQuantity,
@@ -99,7 +100,11 @@ function buildItemBrowseMeta(item: Item): ItemBrowseMeta {
     bookmarkKey: item.refNum ? String(item.refNum) : String(item.id),
     searchText: `${item.n} ${item.d ?? ""} ${item.sn ?? ""}`.toLowerCase(),
     sellerId: item.sid != null ? String(item.sid) : "",
-    shipFrom: (item.sf ?? "").toLowerCase(),
+    // Normalize via shipFromCode so the filter facet buckets are flag
+    // codes (gb, nl, multi, unknown) — same key the card flag uses, so
+    // selections stay consistent across UI surfaces. Falls back to the
+    // raw lowercase value for genuinely unrecognised strings.
+    shipFrom: shipFromCode(item.sf) ?? (item.sf ?? "").toLowerCase(),
     weightBuckets,
     ppgVariants,
     weightGroups,

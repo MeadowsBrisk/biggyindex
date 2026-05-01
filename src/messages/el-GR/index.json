@@ -855,8 +855,8 @@
       "pauseGifsDescription": "Εμφάνιση στατικών μικρογραφιών για κινούμενες εικόνες. Μειώνει την απόσπαση της προσοχής και εξοικονομεί μπαταρία.",
       "showInEnglish": "Εμφάνιση στα Αγγλικά",
       "showInEnglishDescription": "Χρήση κειμένου στα Αγγλικά και πρωτότυπων ονομάτων/περιγραφών προϊόντων όταν είναι διαθέσιμα.",
-      "skipGuides": "Skip help guides",
-      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
+      "skipGuides": "Παράλειψη οδηγών βοήθειας",
+      "skipGuidesDesc": "Απόκρυψη των γρήγορων συμβουλών πριν ανοίξει το Little Biggy. Απενεργοποιήστε για να τις δείτε ξανά.",
       "thumbnailShape": "Σχήμα μικρογραφίας",
       "thumbnailDescription": "Αλλάξτε την αναλογία περικοπής των εικόνων προϊόντων στις κάρτες.",
       "aspect": {

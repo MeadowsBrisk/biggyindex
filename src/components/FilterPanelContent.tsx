@@ -17,7 +17,6 @@ import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
 import { CATEGORIES } from "@/lib/constants";
-import { SHIP_FROM_CODES } from "@/lib/shipFrom";
 import {
   activeFiltersCountAtom,
   attrFiltersAtom,
@@ -212,17 +211,23 @@ export function FilterPanelContent({
     [setSelectedSellers],
   );
 
+  // Left-click toggles INCLUDE. Right-click (desktop) handler below
+  // toggles EXCLUDE. Previous behaviour was a 3-state cycle on every
+  // click — confusing on desktop (right-click already exists for the
+  // exclude action) and easy to overshoot.
   const cycleShipFrom = useCallback(
     (value: string, event: MouseEvent) => {
       event.preventDefault();
       const isIncluded = shipInclude.includes(value);
       const isExcluded = shipExclude.includes(value);
 
-      if (isIncluded) {
-        setShipInclude((prev) => prev.filter((entry) => entry !== value));
-        setShipExclude((prev) => [...prev, value]);
-      } else if (isExcluded) {
+      // Clicking an excluded chip clears the exclusion (back to neutral).
+      // Clicking a neutral chip includes it. Clicking an included chip
+      // clears it back to neutral.
+      if (isExcluded) {
         setShipExclude((prev) => prev.filter((entry) => entry !== value));
+      } else if (isIncluded) {
+        setShipInclude((prev) => prev.filter((entry) => entry !== value));
       } else {
         setShipInclude((prev) => [...prev, value]);
       }
@@ -468,12 +473,11 @@ export function FilterPanelContent({
                           : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
                     }`}
                   >
-                    {SHIP_FROM_CODES[shipFrom.value] && (
-                      <CountryFlag
-                        code={SHIP_FROM_CODES[shipFrom.value]}
-                        size={12}
-                      />
-                    )}
+                    {/* shipFrom.value is already a normalized code
+                        (gb / nl / multi / unknown) coming from
+                        item-index.ts. CountryFlag renders synthetic
+                        codes (multi → globe, unknown → ?) too. */}
+                    <CountryFlag code={shipFrom.value} size={12} />
                     {shipFrom.label}{" "}
                     <span className="opacity-60">{shipFrom.count}</span>
                   </button>

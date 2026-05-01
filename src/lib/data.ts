@@ -31,11 +31,29 @@ function truncateDesc(text: string, max = 260): string {
  * Raw `i`/`is` may still be present for items whose optimized images are not
  * confirmed yet, so the loader leaves those fallback fields untouched.
  */
-function stripBrowseFields(items: Item[]): Item[] {
+/**
+ * @param market lowercase market code. On English markets (GB, IE) the
+ *   English original (`nEn`/`dEn`) duplicates `n`/`d`, so strip them.
+ *   On translated markets we KEEP them so the global "Show in English"
+ *   toggle (`forceEnglishAtom`) can swap to originals on browse cards
+ *   without re-fetching. Strips on `dEn` truncation match `d`.
+ */
+function stripBrowseFields(items: Item[], market: string): Item[] {
+  const isEnglishMarket = market === "gb" || market === "ie";
   for (const item of items) {
     if (item.d) item.d = truncateDesc(item.d);
-    delete item.dEn;
-    delete item.nEn;
+    if (isEnglishMarket) {
+      delete item.dEn;
+      delete item.nEn;
+    } else {
+      // Truncate the English description to the same length as the
+      // translated one — the toggle should swap "the same length of text"
+      // not surprise users with a much longer / shorter blurb.
+      if (item.dEn) item.dEn = truncateDesc(item.dEn);
+      // Drop nEn if it's identical to n (untranslated item) — keeps the
+      // payload small for items where translation didn't add anything.
+      if (item.nEn && item.nEn === item.n) delete item.nEn;
+    }
     // Normalize legacy .net share links to .org (canonical domain). Belt-and-braces
     // with the R2 fix-net-to-org script — covers any items that slip through.
     if (item.sl && item.sl.includes("littlebiggy.net")) {
@@ -65,7 +83,7 @@ function stripSellerFields(sellers: Seller[]): Seller[] {
 /** Load all items for a market (browse-optimised). */
 export async function loadItems(market = "gb"): Promise<Item[]> {
   const items = await readR2JSON<Item[]>(R2Keys.items(market));
-  return items ? stripBrowseFields(items) : [];
+  return items ? stripBrowseFields(items, market) : [];
 }
 
 /** Load sellers for a market. */

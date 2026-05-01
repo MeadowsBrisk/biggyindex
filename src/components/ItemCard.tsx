@@ -1,6 +1,6 @@
 "use client";
 
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { EyeOff, Filter, Heart, Package, Star, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -44,6 +44,7 @@ import {
 import {
   bucketGrams,
   expandedRefNumAtom,
+  forceEnglishAtom,
   selectedSellersAtom,
   sellerModalIdAtom,
   toggleBookmarkAtom,
@@ -61,6 +62,10 @@ export interface CardConfig {
   includeShipping: boolean;
   pauseGifs: boolean;
   thumbAspect: string;
+  /** When true, cards use the "full" image variant instead of "thumb"
+   *  for sharper rendering on hi-DPI displays. Backed by
+   *  `highResImagesAtom` (Settings → "High-res images"). */
+  highRes: boolean;
   activeCategory: string;
   itemIndex: ItemIndex;
   clientNow: number | null;
@@ -168,8 +173,13 @@ function isDomestic(
   return sf.toLowerCase() === market.name.toLowerCase();
 }
 
-function variantDisplayLabel(variant: NonNullable<Item["v"]>[number]): string {
-  return variant.d || variant.dEn || "";
+function variantDisplayLabel(
+  variant: NonNullable<Item["v"]>[number],
+  forceEnglish: boolean,
+): string {
+  return forceEnglish
+    ? variant.dEn || variant.d || ""
+    : variant.d || variant.dEn || "";
 }
 
 /**
@@ -269,6 +279,7 @@ function ItemCardInner({
     includeShipping,
     pauseGifs,
     thumbAspect,
+    highRes,
     activeCategory,
     itemIndex,
     clientNow,
@@ -285,6 +296,14 @@ function ItemCardInner({
   // Bookmarks
   const toggleBookmark = useSetAtom(toggleBookmarkAtom);
   const addToast = useAddToast();
+
+  // Global "Show in English" toggle. On translated markets the loader
+  // (lib/data.ts) keeps `nEn` / `dEn` so we can swap to the original
+  // without re-fetching. Falls back gracefully when fields are missing
+  // (English markets, untranslated items).
+  const forceEnglish = useAtomValue(forceEnglishAtom);
+  const displayName = forceEnglish && item.nEn ? item.nEn : item.n;
+  const displayDesc = forceEnglish && item.dEn ? item.dEn : item.d;
   const itemMeta = useMemo(
     () => getItemBrowseMeta(itemIndex, item),
     [itemIndex, item],
@@ -374,12 +393,15 @@ function ItemCardInner({
 
   // CDN image URLs — hash raw URLs to R2 CDN paths.
   // Animated GIFs use anim.webp unless the user has paused GIFs.
-  const thumbSrc = getItemPrimaryImage(item, "thumb", {
+  // `highRes` (Settings → "High-res images") swaps "thumb" for "full"
+  // — sharper on hi-DPI screens at the cost of bigger transfers.
+  const cardImageSize = highRes ? "full" : "thumb";
+  const thumbSrc = getItemPrimaryImage(item, cardImageSize, {
     forceStatic: pauseGifs,
   });
   const galleryThumbs = useMemo(
-    () => getItemGalleryImages(item, "thumb", { forceStatic: pauseGifs }),
-    [item, pauseGifs],
+    () => getItemGalleryImages(item, cardImageSize, { forceStatic: pauseGifs }),
+    [item, cardImageSize, pauseGifs],
   );
   const hoverSrc = galleryThumbs[1] ?? null;
 
@@ -536,17 +558,42 @@ function ItemCardInner({
   // Clear weight selection if strain makes it unavailable
   // (done in handleStrainClick instead of useEffect to avoid cascading renders)
 
-  // Display price: show range until a weight or quantity is selected
+  // Display price: show range until a weight or quantity is selected.
+  //
+  // When nothing is selected we previously used `item.uMin` / `item.uMax`
+  // (computed by the crawler across ALL variants). That can include
+  // sample/promo variants without a parsed weight — which then never
+  // show up in the weight pills, so the visible range disagreed with
+  // every pickable option ("cheapest 3.5g is £111, range says £74…").
+  //
+  // Now: if the item has weight or quantity groups, derive the range
+  // from THOSE so the headline matches the pills exactly. Fall back to
+  // uMin/uMax only for single-variant or otherwise un-grouped items.
+  const groupRange = useMemo(() => {
+    const groups = weightGroups ?? quantityGroups;
+    if (!groups || groups.length === 0) return null;
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const g of groups) {
+      if (g.price != null && g.price < lo) lo = g.price;
+      const top = g.priceMax ?? g.price;
+      if (top != null && top > hi) hi = top;
+    }
+    return Number.isFinite(lo) && Number.isFinite(hi)
+      ? { min: lo, max: hi === lo ? null : hi }
+      : null;
+  }, [weightGroups, quantityGroups]);
+
   const displayPrice = activeGroup
     ? activeGroup.price
     : activeQtyGroup
       ? activeQtyGroup.price
-      : item.uMin;
+      : (groupRange?.min ?? item.uMin);
   const displayPriceMax = activeGroup
     ? activeGroup.priceMax
     : activeQtyGroup
       ? activeQtyGroup.priceMax
-      : item.uMax;
+      : (groupRange?.max ?? item.uMax);
 
   // If strain is also selected, find exact price via parseVariant matching
   const exactPrice = useMemo(() => {
@@ -765,14 +812,14 @@ function ItemCardInner({
             type="button"
             onClick={openZoom}
             className="block h-full w-full cursor-zoom-in"
-            aria-label={t("preview", { item: decodeEntities(item.n) })}
+            aria-label={t("preview", { item: decodeEntities(displayName) })}
           >
             {hasImage ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thumbSrc}
-                  alt={decodeEntities(item.n)}
+                  alt={decodeEntities(displayName)}
                   loading={priority ? "eager" : "lazy"}
                   fetchPriority={priority ? "high" : undefined}
                   sizes="(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
@@ -805,7 +852,7 @@ function ItemCardInner({
                   forceStatic: pauseGifs,
                 })}
                 imageUrls={zoomImages.length > 0 ? zoomImages : undefined}
-                alt={decodeEntities(item.n)}
+                alt={decodeEntities(displayName)}
                 openSignal={zoomSignal}
               />
             </Suspense>
@@ -859,7 +906,7 @@ function ItemCardInner({
               rel="noopener noreferrer"
               onClick={handleLittleBiggyClick}
               aria-label={t("viewOnLittleBiggy", {
-                item: decodeEntities(item.n),
+                item: decodeEntities(displayName),
               })}
               className="card-lb-btn"
             >
@@ -891,9 +938,9 @@ function ItemCardInner({
                   <span className="card-content__title-row">
                     <h3
                       className="card-content__title"
-                      title={decodeEntities(item.n)}
+                      title={decodeEntities(displayName)}
                     >
-                      {decodeEntities(item.n)}
+                      {decodeEntities(displayName)}
                     </h3>
                     {item.rs?.avg != null && item.rs.avg > 0 && (
                       <span
@@ -912,9 +959,9 @@ function ItemCardInner({
                   <ExpandArrow />
                 </div>
                 <p
-                  className={`card-content__description mt-3${item.d ? "" : " empty"}`}
+                  className={`card-content__description mt-3${displayDesc ? "" : " empty"}`}
                 >
-                  {item.d ? decodeEntities(item.d) : ""}
+                  {displayDesc ? decodeEntities(displayDesc) : ""}
                 </p>
               </div>
             </a>
@@ -1225,7 +1272,7 @@ function ItemCardInner({
                   const pv = singleVariantParsed;
                   const rawSizeLabel = pv
                     ? pv.originalLabel || pv.weightLabel
-                    : variantDisplayLabel(item.v[0]);
+                    : variantDisplayLabel(item.v[0], forceEnglish);
                   const sizeLabel = rawSizeLabel
                     ? decodeEntities(rawSizeLabel)
                     : rawSizeLabel;

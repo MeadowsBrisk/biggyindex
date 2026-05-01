@@ -12,6 +12,7 @@ import {
   categoryAtom,
   currencyDisplayAtom,
   gateCompleteAtom,
+  highResImagesAtom,
   includeShippingAtom,
   isLoadingAtom,
   itemIndexAtom,
@@ -176,6 +177,7 @@ export function ItemGrid({
   const includeShipping = useAtomValue(includeShippingAtom);
   const pauseGifs = useAtomValue(pauseGifsAtom);
   const thumbAspect = useAtomValue(thumbnailAspectAtom);
+  const highRes = useAtomValue(highResImagesAtom);
   const activeCategory = useAtomValue(categoryAtom);
   const viewMode = useAtomValue(viewModeAtom);
   const itemIndex = useAtomValue(itemIndexAtom);
@@ -226,6 +228,7 @@ export function ItemGrid({
       includeShipping,
       pauseGifs,
       thumbAspect,
+      highRes,
       activeCategory,
       itemIndex,
       clientNow,
@@ -240,6 +243,7 @@ export function ItemGrid({
       includeShipping,
       pauseGifs,
       thumbAspect,
+      highRes,
       activeCategory,
       itemIndex,
       clientNow,

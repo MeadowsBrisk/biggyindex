@@ -855,8 +855,8 @@
       "pauseGifsDescription": "Zeigen Sie statische Vorschaubilder für animierte Bilder. Reduziert Ablenkung und spart Akku.",
       "showInEnglish": "Auf Englisch anzeigen",
       "showInEnglishDescription": "Englischen UI-Text und originale Produktnamen/-beschreibungen verwenden, wenn verfügbar.",
-      "skipGuides": "Skip help guides",
-      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
+      "skipGuides": "Hilfe-Tipps überspringen",
+      "skipGuidesDesc": "Tipps ausblenden, die vor dem Öffnen von Little Biggy angezeigt werden. Ausschalten, um sie wieder zu sehen.",
       "thumbnailShape": "Daumennagelform",
       "thumbnailDescription": "Ändern Sie das Beschnittsverhältnis von Produktbildern auf Karten.",
       "aspect": {

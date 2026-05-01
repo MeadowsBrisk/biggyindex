@@ -855,8 +855,8 @@
       "pauseGifsDescription": "Mostrar miniaturas estáticas para imagens animadas. Reduz distrações e poupa bateria.",
       "showInEnglish": "Mostrar em inglês",
       "showInEnglishDescription": "Utiliza o texto em inglês e os nomes/descrições originais dos produtos, quando disponíveis.",
-      "skipGuides": "Skip help guides",
-      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
+      "skipGuides": "Saltar guias de ajuda",
+      "skipGuidesDesc": "Ocultar as dicas rápidas antes de abrir o Little Biggy. Desativa para vê-las novamente.",
       "thumbnailShape": "Forma da unha do polegar",
       "thumbnailDescription": "Mude a proporção de cortes das imagens dos produtos nas cartas.",
       "aspect": {

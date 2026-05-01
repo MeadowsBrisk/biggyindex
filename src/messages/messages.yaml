@@ -5554,8 +5554,24 @@ settings:
       es-ES: Usa el texto en inglés y los nombres/descripciones originales del producto cuando estén disponibles.
       el-GR: Χρήση κειμένου στα Αγγλικά και πρωτότυπων ονομάτων/περιγραφών προϊόντων όταν είναι διαθέσιμα.
       cs-CZ: Použít anglický text a původní názvy a popisy produktů, pokud jsou k dispozici.
-    skipGuides: Skip help guides
-    skipGuidesDesc: Hide the quick tips shown before opening Little Biggy. Switch off to see them again.
+    skipGuides:
+      en-GB: Skip help guides
+      de-DE: Hilfe-Tipps überspringen
+      fr-FR: Ignorer les guides d'aide
+      pt-PT: Saltar guias de ajuda
+      it-IT: Salta le guide di aiuto
+      es-ES: Omitir guías de ayuda
+      el-GR: Παράλειψη οδηγών βοήθειας
+      cs-CZ: Přeskočit nápovědu
+    skipGuidesDesc:
+      en-GB: Hide the quick tips shown before opening Little Biggy. Switch off to see them again.
+      de-DE: Tipps ausblenden, die vor dem Öffnen von Little Biggy angezeigt werden. Ausschalten, um sie wieder zu sehen.
+      fr-FR: Masquer les conseils rapides affichés avant d'ouvrir Little Biggy. Désactiver pour les afficher à nouveau.
+      pt-PT: Ocultar as dicas rápidas antes de abrir o Little Biggy. Desativa para vê-las novamente.
+      it-IT: Nascondi i consigli rapidi mostrati prima di aprire Little Biggy. Disattiva per rivederli.
+      es-ES: Oculta los consejos rápidos que se muestran antes de abrir Little Biggy. Desactívalo para volver a verlos.
+      el-GR: Απόκρυψη των γρήγορων συμβουλών πριν ανοίξει το Little Biggy. Απενεργοποιήστε για να τις δείτε ξανά.
+      cs-CZ: Skrýt rychlé tipy zobrazené před otevřením Little Biggy. Vypnutím je znovu zobrazíte.
     thumbnailShape:
       en-GB: Thumbnail shape
       de-DE: Daumennagelform

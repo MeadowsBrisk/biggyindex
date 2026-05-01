@@ -179,6 +179,52 @@ interface CountryFlagProps {
 
 export function CountryFlag({ code, size = 16 }: CountryFlagProps) {
   const lc = code.toLowerCase();
+
+  // Synthetic codes for ship-from values that aren't a single country.
+  // Rendered as glyphs in a circle so they sit flush next to real flags
+  // in the same UI row (cards, filters).
+  if (lc === "multi") {
+    // Globe — "ships from multiple countries"
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
+        role="img"
+        aria-label="Multiple countries"
+        className="shrink-0"
+        style={{ borderRadius: "50%", overflow: "hidden" }}
+      >
+        <circle cx={50} cy={50} r={50} fill="#3b82f6" />
+        {/* Simplified globe: equator + meridian + secondary meridians */}
+        <g stroke="#fff" strokeWidth={5} fill="none" strokeLinecap="round">
+          <ellipse cx={50} cy={50} rx={42} ry={42} />
+          <line x1={8} y1={50} x2={92} y2={50} />
+          <ellipse cx={50} cy={50} rx={20} ry={42} />
+          <line x1={50} y1={8} x2={50} y2={92} />
+        </g>
+      </svg>
+    );
+  }
+  if (lc === "unknown") {
+    // Question mark — "ships-from undeclared"
+    return (
+      <span
+        className="inline-flex items-center justify-center rounded-full bg-muted-foreground/30 text-foreground font-bold shrink-0"
+        style={{
+          width: size,
+          height: size,
+          fontSize: size * 0.65,
+          lineHeight: 1,
+        }}
+        role="img"
+        aria-label="Unknown origin"
+      >
+        ?
+      </span>
+    );
+  }
+
   const def = FLAGS[lc];
 
   if (!def) {

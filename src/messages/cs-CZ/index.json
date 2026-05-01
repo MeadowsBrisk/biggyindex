@@ -855,8 +855,8 @@
       "pauseGifsDescription": "Zobrazit statické náhledy animovaných obrázků. Snižuje rušivé vlivy a šetří baterii.",
       "showInEnglish": "Zobrazit v angličtině",
       "showInEnglishDescription": "Použít anglický text a původní názvy a popisy produktů, pokud jsou k dispozici.",
-      "skipGuides": "Skip help guides",
-      "skipGuidesDesc": "Hide the quick tips shown before opening Little Biggy. Switch off to see them again.",
+      "skipGuides": "Přeskočit nápovědu",
+      "skipGuidesDesc": "Skrýt rychlé tipy zobrazené před otevřením Little Biggy. Vypnutím je znovu zobrazíte.",
       "thumbnailShape": "Tvar náhledu",
       "thumbnailDescription": "Změňte poměr ořezů obrázků produktů na kartách.",
       "aspect": {

@@ -16,10 +16,12 @@ import {
 import { type Review, ReviewCard } from "@/components/ReviewCard";
 
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import historyManager from "@/lib/historyManager";
 import { getSellerImageUrl } from "@/lib/images";
+import { marketToLocale } from "@/lib/market/market";
 import {
   extractLittleBiggyId,
   normalizeLittleBiggyUrl,
@@ -27,6 +29,7 @@ import {
 import {
   categoryAtom,
   expandedRefNumAtom,
+  forceEnglishAtom,
   marketAtom,
   selectedSellersAtom,
   sellerModalIdAtom,
@@ -44,6 +47,18 @@ interface SellerReview {
   segments: { type: string; value: string }[];
   item: { refNum: string; name: string; id: number; imageUrl?: string };
   itemImage?: string;
+}
+
+/**
+ * Per-locale translations of the manifesto, written by
+ * `dashboard/scripts/unified-crawler/stages/translate/sellers.ts`. Keyed
+ * by full locale ("de-DE", "fr-FR", ...). Original (English-ish source)
+ * stays on `manifesto`.
+ */
+interface SellerTranslations {
+  sourceHash?: string;
+  updatedAt?: string;
+  locales?: Record<string, { manifesto?: string }>;
 }
 
 interface SellerDetail {
@@ -64,6 +79,7 @@ interface SellerDetail {
   } | null;
   reviews: SellerReview[];
   reviewsMeta: { fetched: number; updatedAt?: string } | null;
+  translations?: SellerTranslations;
 }
 
 /** Rating-based badge color (matches old biggyindex review-panel-N pattern) */
@@ -240,6 +256,7 @@ export function SellerModal() {
   const [sellerId, setSellerId] = useAtom(sellerModalIdAtom);
   const sellersMap = useAtomValue(sellersMapAtom);
   const market = useAtomValue(marketAtom);
+  const forceEnglish = useAtomValue(forceEnglishAtom);
   const [, setRefNum] = useAtom(expandedRefNumAtom);
   const [, setSelectedSellers] = useAtom(selectedSellersAtom);
   const [, setCategory] = useAtom(categoryAtom);
@@ -323,14 +340,14 @@ export function SellerModal() {
     return () => document.removeEventListener("keydown", onKey);
   }, [sellerId, closeViaHistory]);
 
-  // Lock body scroll
-  useEffect(() => {
-    if (!sellerId) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [sellerId]);
+  // Lock body scroll via the ref-counted hook so stacking with another
+  // open modal (typically ItemDetailOverlay opened first → SellerModal
+  // opened on top from a card click) doesn't fight on `body.style.overflow`.
+  // Previously this was a hand-rolled effect on `document.body.style.overflow`
+  // — which clashed with ItemDetailOverlay's `useBodyScrollLock`-driven
+  // lock on `<html>` and was a likely culprit for the "header disappears
+  // when nested" visual glitch.
+  useBodyScrollLock(!!sellerId);
 
   // Image from detail — optimized via CDN
   const rawImg = detail?.sellerImageUrl ?? detail?.imageUrl ?? null;
@@ -571,9 +588,24 @@ export function SellerModal() {
                   <div className="h-3 bg-[var(--surface)] rounded w-2/3" />
                 </div>
               ) : detail?.manifesto ? (
-                <p className="text-sm text-muted leading-relaxed whitespace-pre-line">
-                  {detail.manifesto}
-                </p>
+                (() => {
+                  // Crawler's translate stage stores per-locale manifesto
+                  // translations at `detail.translations.locales[<locale>].manifesto`.
+                  // Default to translated (matches surrounding UI), switch to
+                  // original via the global Show-in-English toggle.
+                  const targetLocale = marketToLocale(
+                    market as Parameters<typeof marketToLocale>[0],
+                  );
+                  const translated =
+                    detail.translations?.locales?.[targetLocale]?.manifesto;
+                  const text =
+                    forceEnglish || !translated ? detail.manifesto : translated;
+                  return (
+                    <p className="text-sm text-muted leading-relaxed whitespace-pre-line">
+                      {text}
+                    </p>
+                  );
+                })()
               ) : (
                 <p className="text-xs italic text-muted">
                   {t("noDescription")}
