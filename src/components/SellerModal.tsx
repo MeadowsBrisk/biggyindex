@@ -554,10 +554,14 @@ export function SellerModal() {
       }}
     >
       <div
-        className={`modal-panel modal-panel--xl${closing ? " modal-panel--closing" : ""}`}
+        className={`modal-panel modal-panel--xl md:h-[min(90vh,800px)]${closing ? " modal-panel--closing" : ""}`}
         style={{
-          height: "min(90vh, 800px)",
-          maxHeight: "calc(100dvh - 2rem)",
+          /* On mobile: natural height + overall panel scroll (matches the
+             v1 SellerOverlay pattern). Both columns stack and the panel
+             itself scrolls so reviews aren't squished into a tiny inner
+             container. On desktop we go back to the fixed 2-col layout
+             where each column scrolls independently. */
+          maxHeight: "calc(100dvh - 1rem)",
           padding: 0,
         }}
         onClick={(e) => e.stopPropagation()}
@@ -571,7 +575,7 @@ export function SellerModal() {
           <X size={16} />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full">
           {/* ── Left column: seller info ── */}
           <div className="min-w-0 p-5 md:overflow-y-auto md:border-r border-[var(--border)]">
             {/* Identity */}
@@ -729,8 +733,13 @@ export function SellerModal() {
             )}
           </div>
 
-          {/* ── Right column: reviews ── */}
-          <div className="min-w-0 flex flex-col min-h-0 overflow-hidden relative">
+          {/* ── Right column: reviews ──
+              On mobile: just stacks below the seller-info column and
+              flows naturally inside the panel's outer scroll.
+              On desktop: independent overflow column (md:min-h-0
+              md:overflow-hidden) so the inner reviews list owns its
+              own scroll alongside the seller info. */}
+          <div className="min-w-0 flex flex-col md:min-h-0 md:overflow-hidden relative">
             {/* Reviews header (pr-14 reserves space for the close X) */}
             <div className="sticky top-0 z-10 bg-[var(--card)] border-b border-[var(--border)] px-5 py-3 pr-14">
               <h3 className="text-sm font-semibold text-foreground">
@@ -819,8 +828,10 @@ export function SellerModal() {
               )}
             </div>
 
-            {/* Reviews list */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 space-y-3">
+            {/* Reviews list — mobile: natural flow inside the panel
+                scroll (no inner scroller). Desktop: own scrollable area
+                so it doesn't drag the seller-info column with it. */}
+            <div className="overflow-x-hidden px-5 py-3 space-y-3 md:flex-1 md:overflow-y-auto">
               {loading && reviews.length === 0 ? (
                 <div className="space-y-4 animate-pulse">
                   {Array.from({ length: 5 }, (_, i) => (

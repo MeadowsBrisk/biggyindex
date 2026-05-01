@@ -1,5 +1,6 @@
 import type { ItemIndex } from "@/lib/browse/item-index";
 import { bucketGrams, getItemBrowseMeta } from "@/lib/browse/item-index";
+import { shipFromLabel } from "@/lib/shipFrom";
 import type { Item, SortDir, SortKey } from "@/lib/types";
 
 export interface BrowseFilters {
@@ -459,18 +460,6 @@ function buildAvailableShipFrom(
       count,
     }))
     .sort((first, second) => second.count - first.count);
-}
-
-/**
- * Render label for a ship-from filter chip. ISO-3166 alpha-2 codes get
- * uppercased ("gb" → "GB"). The two synthetic codes get readable text.
- * Anything else (genuinely unmapped raw strings) falls back to title case.
- */
-function shipFromLabel(value: string): string {
-  if (value === "multi") return "Multiple";
-  if (value === "unknown") return "Unknown";
-  if (/^[a-z]{2}$/.test(value)) return value.toUpperCase();
-  return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function buildAvailableWeights(

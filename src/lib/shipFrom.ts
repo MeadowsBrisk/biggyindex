@@ -47,6 +47,45 @@ export function formatShipFrom(sf: string): string {
 export const SHIP_FROM_MULTI = "multi" as const;
 export const SHIP_FROM_UNKNOWN = "unknown" as const;
 
+/**
+ * Display names keyed by alpha-2 / synthetic code. Used by filter chips
+ * and any UI that wants to show "United Kingdom" rather than "GB".
+ */
+export const SHIP_FROM_LABELS: Record<string, string> = {
+  gb: "United Kingdom",
+  es: "Spain",
+  nl: "Netherlands",
+  de: "Germany",
+  fr: "France",
+  it: "Italy",
+  pt: "Portugal",
+  be: "Belgium",
+  cz: "Czech Republic",
+  at: "Austria",
+  ch: "Switzerland",
+  pl: "Poland",
+  dk: "Denmark",
+  se: "Sweden",
+  ie: "Ireland",
+  us: "United States",
+  ca: "Canada",
+  th: "Thailand",
+  ma: "Morocco",
+  multi: "Multiple",
+  unknown: "Unknown",
+};
+
+/**
+ * Display name for a ship-from code (the value returned by `shipFromCode`).
+ * Falls back to title-casing the code itself for genuinely unmapped values.
+ */
+export function shipFromLabel(code: string): string {
+  return (
+    SHIP_FROM_LABELS[code] ??
+    code.replace(/\b\w/g, (letter) => letter.toUpperCase())
+  );
+}
+
 /** ship-from values that mean "ships from several countries". */
 const MULTI_VALUES = new Set([
   "multiple countries",
