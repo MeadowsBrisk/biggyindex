@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   ArrowRight,
@@ -473,41 +473,78 @@ export function WhatsNewSection({
 
       {/* Card carousel - Swiper */}
       <div className="overflow-hidden">
-        <Swiper
-          modules={[Navigation]}
-          navigation={{
-            nextEl: ".whats-new-next",
-            prevEl: ".whats-new-prev",
-          }}
-          slidesPerView={1.4}
-          centeredSlides
-          spaceBetween={12}
-          breakpoints={{
-            480: {
-              slidesPerView: 2.2,
-              centeredSlides: false,
-              spaceBetween: 12,
-            },
-            640: { slidesPerView: 3, centeredSlides: false, spaceBetween: 12 },
-            900: { slidesPerView: 4, centeredSlides: false, spaceBetween: 14 },
-            1200: { slidesPerView: 5, centeredSlides: false, spaceBetween: 16 },
-            1600: { slidesPerView: 6, centeredSlides: false, spaceBetween: 16 },
-            2200: { slidesPerView: 8, centeredSlides: false, spaceBetween: 16 },
-          }}
-          style={{ overflow: "visible", padding: "0 1rem" }}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
         >
-          {items.map((item) => (
-            <SwiperSlide key={`${activeTab}-${item.id}`}>
-              <HomeItemCard
-                item={item}
-                currencySymbol={currencySymbol}
-                exchangeRate={exchangeRate}
-                copy={itemCardCopy}
-                now={now}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: "easeOut" }}
+            >
+              <Swiper
+                modules={[Navigation]}
+                navigation={{
+                  nextEl: ".whats-new-next",
+                  prevEl: ".whats-new-prev",
+                }}
+                slidesPerView={1.4}
+                centeredSlides
+                spaceBetween={12}
+                breakpoints={{
+                  480: {
+                    slidesPerView: 2.2,
+                    centeredSlides: false,
+                    spaceBetween: 12,
+                  },
+                  640: {
+                    slidesPerView: 3,
+                    centeredSlides: false,
+                    spaceBetween: 12,
+                  },
+                  900: {
+                    slidesPerView: 4,
+                    centeredSlides: false,
+                    spaceBetween: 14,
+                  },
+                  1200: {
+                    slidesPerView: 5,
+                    centeredSlides: false,
+                    spaceBetween: 16,
+                  },
+                  1600: {
+                    slidesPerView: 6,
+                    centeredSlides: false,
+                    spaceBetween: 16,
+                  },
+                  2200: {
+                    slidesPerView: 8,
+                    centeredSlides: false,
+                    spaceBetween: 16,
+                  },
+                }}
+                style={{ overflow: "visible", padding: "0 1rem" }}
+              >
+                {items.map((item) => (
+                  <SwiperSlide key={`${activeTab}-${item.id}`}>
+                    <HomeItemCard
+                      item={item}
+                      currencySymbol={currencySymbol}
+                      exchangeRate={exchangeRate}
+                      copy={itemCardCopy}
+                      now={now}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Browse CTA */}

@@ -189,7 +189,7 @@ export function HeroSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.75 }}
-          className="mt-10 flex items-center gap-4"
+          className="mt-12 flex items-center gap-4"
         >
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
             {t("markets")}

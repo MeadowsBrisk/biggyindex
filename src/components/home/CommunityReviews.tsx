@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useSetAtom } from "jotai";
 import {
   ArrowRight,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { expandedRefNumAtom, photoReviewModalAtom } from "@/store/atoms";
 
@@ -155,8 +155,30 @@ function PhotoReviewCard({
   now: number;
 }) {
   const openModal = useSetAtom(photoReviewModalAtom);
-  const imageUrl = review.images?.[0] ?? undefined;
-  const [imgError, setImgError] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const images = useMemo(
+    () => (review.images ?? []).filter((src) => src.trim().length > 0),
+    [review.images],
+  );
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [failedImages, setFailedImages] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const visibleImages = useMemo(
+    () => images.filter((src) => !failedImages.has(src)),
+    [images, failedImages],
+  );
+
+  useEffect(() => {
+    if (reduceMotion || visibleImages.length <= 1) return;
+    const intervalId = window.setInterval(() => {
+      setActiveImageIndex((current) => (current + 1) % visibleImages.length);
+    }, 3500);
+    return () => window.clearInterval(intervalId);
+  }, [reduceMotion, visibleImages.length]);
+
+  const activeIndex =
+    visibleImages.length > 0 ? activeImageIndex % visibleImages.length : 0;
 
   return (
     <button
@@ -165,15 +187,24 @@ function PhotoReviewCard({
       className="group relative w-full overflow-hidden rounded-xl break-inside-avoid mb-4 cursor-pointer"
       style={{ height }}
     >
-      {imageUrl && !imgError ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={imageUrl}
-          alt={review.itemName ?? copy.fallbackReviewPhoto}
-          loading="lazy"
-          onError={() => setImgError(true)}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-        />
+      {visibleImages.length > 0 ? (
+        <div className="absolute inset-0">
+          {visibleImages.map((src, imageIndex) => (
+            // biome-ignore lint/performance/noImgElement: review images are arbitrary marketplace URLs
+            <img
+              key={src}
+              src={src}
+              alt={review.itemName ?? copy.fallbackReviewPhoto}
+              loading="lazy"
+              onError={() => {
+                setFailedImages((current) => new Set(current).add(src));
+              }}
+              className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-[1.03] motion-reduce:transition-none ${
+                imageIndex === activeIndex ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
+        </div>
       ) : (
         <div className="absolute inset-0 bg-linear-to-br from-emerald-900/40 via-emerald-950/60 to-black/70 flex items-center justify-center">
           <ImageOff size={28} className="text-white/20" />
