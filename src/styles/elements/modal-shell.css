@@ -57,6 +57,9 @@
 
 @media (min-width: 48rem) {
   .modal-panel--seller {
+    display: flex;
+    height: min(90vh, 800px);
+    min-height: 0;
     overflow: hidden;
   }
 }

@@ -265,7 +265,7 @@ export function SellerModal() {
     >
       <div
         role="presentation"
-        className={`modal-panel modal-panel--xl modal-panel--seller md:h-[min(90vh,800px)]${closing ? " modal-panel--closing" : ""}`}
+        className={`modal-panel modal-panel--xl modal-panel--seller${closing ? " modal-panel--closing" : ""}`}
         style={{
           /* On mobile: natural height + overall panel scroll (matches the
              v1 SellerOverlay pattern). Both columns stack and the panel
@@ -287,7 +287,7 @@ export function SellerModal() {
           <X size={16} />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full md:min-h-0">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full md:min-h-0 md:flex-1">
           {/* ── Left column: seller info ── */}
           <div className="min-w-0 p-5 md:min-h-0 md:overflow-hidden md:border-r border-border">
             {/* Identity */}
@@ -543,7 +543,7 @@ export function SellerModal() {
             {/* Reviews list — mobile: natural flow inside the panel
                 scroll (no inner scroller). Desktop: own scrollable area
                 so it doesn't drag the seller-info column with it. */}
-            <div className="overflow-x-hidden px-5 py-3 space-y-3 md:flex-1 md:overflow-y-auto">
+            <div className="overflow-x-hidden px-5 py-3 space-y-3 md:flex-1 md:min-h-0 md:overflow-y-auto">
               {loading && reviews.length === 0 ? (
                 <div className="space-y-4 animate-pulse">
                   {REVIEW_SKELETON_KEYS.map((key) => (
