@@ -16,6 +16,7 @@ import type { HomeFeedItemCard } from "@/lib/types";
 /** Map a pre-shaped item card to the WhatsNewSection's NewItem shape */
 function toNewItem(item: HomeFeedItemCard, dateField: "fsa" | "lua") {
   const gallery = getItemGalleryImages(item, "thumb", { forceStatic: true });
+  const date = dateField === "lua" ? (item.lua ?? item.fsa) : item.fsa;
   return {
     id: item.id,
     refNum: item.refNum,
@@ -28,7 +29,7 @@ function toNewItem(item: HomeFeedItemCard, dateField: "fsa" | "lua") {
     sellerId: item.sid ?? null,
     sellerImageUrl: getSellerImageUrl(item.si) ?? null,
     category: item.c ?? null,
-    date: item[dateField] ?? "",
+    date: date ?? "",
     reviewStats: item.rs ?? null,
     shipsFrom: item.sf ?? null,
   };

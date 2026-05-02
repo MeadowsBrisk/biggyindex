@@ -250,7 +250,9 @@ function sortItems(
         comparison = (first.fsa ?? "").localeCompare(second.fsa ?? "");
         break;
       case "updated":
-        comparison = (first.lua ?? "").localeCompare(second.lua ?? "");
+        comparison = latestActivityAt(first).localeCompare(
+          latestActivityAt(second),
+        );
         break;
       case "price":
         comparison =
@@ -291,6 +293,12 @@ function sortItems(
 
     return sortDir === "desc" ? -comparison : comparison;
   });
+}
+
+function latestActivityAt(item: Item): string {
+  if (!item.lua) return item.fsa ?? "";
+  if (!item.fsa) return item.lua;
+  return item.lua > item.fsa ? item.lua : item.fsa;
 }
 
 function cheapestPpg(

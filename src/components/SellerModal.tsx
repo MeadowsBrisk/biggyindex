@@ -26,11 +26,11 @@ import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import historyManager from "@/lib/historyManager";
 import { getSellerImageUrl } from "@/lib/images";
 import { marketToLocale } from "@/lib/market/market";
-import type { SellerDetail } from "@/lib/types";
 import {
   extractLittleBiggyId,
   normalizeLittleBiggyUrl,
 } from "@/lib/tracking/littlebiggy";
+import type { SellerDetail } from "@/lib/types";
 import {
   categoryAtom,
   expandedRefNumAtom,
@@ -42,6 +42,7 @@ import {
 } from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
+const REVIEW_SKELETON_KEYS = ["first", "second", "third", "fourth", "fifth"];
 
 /** Rating-based badge color (matches old biggyindex review-panel-N pattern) */
 function ratingBucketClass(rating: number): string {
@@ -255,6 +256,7 @@ export function SellerModal() {
   return (
     <div
       ref={backdropRef}
+      role="presentation"
       className={`modal-backdrop${closing ? " modal-backdrop--closing" : ""}`}
       style={{ zIndex: 210 }}
       onMouseDown={(e) => {
@@ -262,20 +264,22 @@ export function SellerModal() {
       }}
     >
       <div
-        className={`modal-panel modal-panel--xl md:h-[min(90vh,800px)]${closing ? " modal-panel--closing" : ""}`}
+        role="presentation"
+        className={`modal-panel modal-panel--xl modal-panel--seller md:h-[min(90vh,800px)]${closing ? " modal-panel--closing" : ""}`}
         style={{
           /* On mobile: natural height + overall panel scroll (matches the
              v1 SellerOverlay pattern). Both columns stack and the panel
              itself scrolls so reviews aren't squished into a tiny inner
-             container. On desktop we go back to the fixed 2-col layout
-             where each column scrolls independently. */
+             container. On desktop the seller summary stays fixed while the
+             reviews list owns the scroll. */
           maxHeight: "calc(100dvh - 1rem)",
           padding: 0,
         }}
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
+          type="button"
           onClick={closeViaHistory}
           className="ido-close"
           aria-label={t("close")}
@@ -283,9 +287,9 @@ export function SellerModal() {
           <X size={16} />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full md:min-h-0">
           {/* ── Left column: seller info ── */}
-          <div className="min-w-0 p-5 md:overflow-y-auto md:border-r border-border">
+          <div className="min-w-0 p-5 md:min-h-0 md:overflow-hidden md:border-r border-border">
             {/* Identity */}
             <div className="flex items-start gap-4">
               <div className="shrink-0">
@@ -542,8 +546,8 @@ export function SellerModal() {
             <div className="overflow-x-hidden px-5 py-3 space-y-3 md:flex-1 md:overflow-y-auto">
               {loading && reviews.length === 0 ? (
                 <div className="space-y-4 animate-pulse">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <div key={`review-skeleton-${i}`} className="space-y-2">
+                  {REVIEW_SKELETON_KEYS.map((key) => (
+                    <div key={`review-skeleton-${key}`} className="space-y-2">
                       <div className="h-3 bg-surface rounded w-1/4" />
                       <div className="h-3 bg-surface rounded w-3/4" />
                     </div>

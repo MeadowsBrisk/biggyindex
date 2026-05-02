@@ -55,6 +55,12 @@
   max-width: 55.625rem;
 }
 
+@media (min-width: 48rem) {
+  .modal-panel--seller {
+    overflow: hidden;
+  }
+}
+
 /* ── Close button —
    ALL modals use .ido-close (defined in item-detail-overlay.css). It's a single
    shared round-button component — do not duplicate rules here. In modals we
