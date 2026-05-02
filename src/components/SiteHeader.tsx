@@ -297,7 +297,7 @@ function MarketDropdown() {
       // prefix and replace with the target one.
       const targetLocale = marketToLocale(code as MarketCode);
       const stripped = path.replace(
-        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ)(?=\/|$)/,
+        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)(?=\/|$)/,
         "",
       );
       const nextPath =

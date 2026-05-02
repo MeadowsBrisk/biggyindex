@@ -3,12 +3,18 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Cannabis } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MARKETS } from "@/lib/constants";
+import {
+  localeToMarket,
+  type MarketCode,
+  marketToHost,
+  marketToLocale,
+} from "@/lib/market/market";
 
 interface CategoryStat {
   name: string;
@@ -28,6 +34,8 @@ export function HeroSection({
   categoryCounts,
 }: HeroSectionProps) {
   const t = useTranslations("home.hero");
+  const locale = useLocale();
+  const currentMarket = localeToMarket(locale);
   const [scrolledPast, setScrolledPast] = useState(false);
 
   useEffect(() => {
@@ -116,9 +124,9 @@ export function HeroSection({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 w-full max-w-4xl"
+          className="mt-10 w-full max-w-5xl"
         >
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5">
             {categoryCounts.map((cat) => {
               const meta = getCategoryMeta(cat.name);
               const Icon = meta.icon;
@@ -127,12 +135,12 @@ export function HeroSection({
                   key={cat.name}
                   href={`/browse?cat=${encodeURIComponent(cat.name)}`}
                   prefetch={false}
-                  className="group flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-[var(--surface-hover)] hover:-translate-y-0.5 min-w-[10rem] basis-[calc(50%-0.25rem)] sm:basis-[calc(33.333%-0.375rem)] md:basis-[calc(25%-0.375rem)] lg:basis-[12rem] lg:flex-none"
+                  className="group flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-[var(--surface-hover)] hover:-translate-y-0.5 min-w-[8.75rem] basis-[calc(50%-0.25rem)] sm:basis-[calc(33.333%-0.375rem)] md:basis-[calc(25%-0.375rem)] lg:basis-[9.25rem] lg:flex-none"
                 >
                   <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${meta.tintClass}`}
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${meta.tintClass}`}
                   >
-                    <Icon size={16} strokeWidth={2.25} />
+                    <Icon size={15} strokeWidth={2.25} />
                   </span>
                   <span className="flex-1 truncate text-left">
                     {meta.label}
@@ -181,30 +189,41 @@ export function HeroSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.75 }}
-          className="mt-16 flex items-center gap-4"
+          className="mt-10 flex items-center gap-4"
         >
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
             {t("markets")}
           </span>
           <div className="flex items-center gap-3">
-            {MARKETS.map((m) => (
-              <Link
-                key={m.code}
-                href={m.code === "GB" ? "/" : `/${m.code.toLowerCase()}`}
-                prefetch={false}
-                className={`flex items-center gap-1.5 transition-colors ${
-                  m.code === "GB"
-                    ? "text-foreground ring-1 ring-primary/40 rounded-full px-2 py-0.5"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                title={m.name}
-              >
-                <CountryFlag code={m.code} size={20} />
-                <span className="text-xs font-medium hidden sm:inline">
-                  {m.code}
-                </span>
-              </Link>
-            ))}
+            {MARKETS.map((m) => {
+              const marketCode = m.code as MarketCode;
+              const active = marketCode === currentMarket;
+              const href =
+                process.env.NODE_ENV === "production"
+                  ? `https://${marketToHost(marketCode)}/`
+                  : marketCode === "GB"
+                    ? "/"
+                    : `/${marketToLocale(marketCode)}`;
+
+              return (
+                <Link
+                  key={m.code}
+                  href={href}
+                  prefetch={false}
+                  className={`flex items-center gap-1.5 transition-colors ${
+                    active
+                      ? "text-foreground ring-1 ring-primary/40 rounded-full px-2 py-0.5"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  title={m.name}
+                >
+                  <CountryFlag code={m.code} size={20} />
+                  <span className="text-xs font-medium hidden sm:inline">
+                    {m.code}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </motion.div>
       </div>
