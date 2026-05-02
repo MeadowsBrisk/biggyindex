@@ -207,7 +207,9 @@
     box-shadow:
       0 25px 60px rgba(0, 0, 0, 0.2),
       0 4px 16px rgba(0, 0, 0, 0.1);
-    height: min(52rem, calc(100dvh - 4rem));
+    /* height: min(52rem, calc(100dvh - 4rem)); */
+
+    height: min(54rem, calc(100dvh - 4rem));
     max-height: calc(100dvh - 4rem);
     overflow: hidden;
   }
