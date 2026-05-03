@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Πρόγραμμα περιήγησης Cannabis Marketplace",
-    "description": "Περιηγηθείτε και συγκρίνετε προϊόντα κάνναβης σε όλες τις αγορές. Τιμές, στελέχη, κριτικές και πολλά άλλα."
+    "tagline": "Περιηγητής Little Biggy",
+    "description": "Περιηγηθείτε στις καταχωρίσεις Little Biggy ανά προϊόν, πωλητή, τιμή, κριτικές, αποστολή και αγορά."
   },
   "nav": {
     "browse": "Περιήγηση",
@@ -370,6 +370,10 @@
     }
   },
   "browse": {
+    "page": {
+      "metadataTitle": "Καταχωρίσεις Little Biggy | BiggyIndex",
+      "metadataDescription": "Αναζητήστε και φιλτράρετε καταχωρίσεις Little Biggy ανά κατηγορία, τιμή, πωλητή, αποστολή, κριτικές και αγορά."
+    },
     "allCategories": "Όλες οι Κατηγορίες",
     "noResults": "Κανένα προϊόν δεν ταιριάζει με τα φίλτρα σας",
     "clearFilters": "Καθαρισμός φίλτρων",
@@ -643,7 +647,7 @@
     "rating": "Εκτίμηση",
     "visitStore": "Επισκεφθείτε το κατάστημα",
     "page": {
-      "metadataTitle": "Πωλητές - BiggyIndex",
+      "metadataTitle": "Πωλητές Little Biggy | BiggyIndex",
       "metadataDescription": "Περιηγηθείτε σε όλους τους πωλητές Little Biggy με βαθμολογίες εμπιστοσύνης, πλήθος κριτικών και αξιολογήσεις κοινότητας.",
       "title": "Πωλητές",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
@@ -748,7 +752,7 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Αξιολογήσεις - BiggyIndex",
+      "metadataTitle": "Κριτικές Little Biggy | BiggyIndex",
       "metadataDescription": "Οι τελευταίες κριτικές κοινότητας από Little Biggy αγοραστές με εικόνες, αξιολογήσεις και χρόνους παράδοσης.",
       "title": "Κριτικές κοινότητας",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",

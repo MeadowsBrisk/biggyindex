@@ -1,42 +1,16 @@
 import type { MetadataRoute } from "next";
-import { CATEGORIES } from "@/lib/constants";
-import {
-  ALL_MARKETS,
-  type MarketCode,
-  marketToHost,
-} from "@/lib/market/market";
+import { ALL_MARKETS, type MarketCode } from "@/lib/market/market";
 import { R2Keys, readR2JSON } from "@/lib/r2";
+import { alternateLanguagesForPath, marketBaseUrl } from "@/lib/seo/metadata";
 import type { Item, Seller } from "@/lib/types";
 
-export const SITEMAP_IDS = [
-  "static",
-  "categories",
-  "items",
-  "sellers",
-] as const;
+export const SITEMAP_IDS = ["static", "items", "sellers"] as const;
 
 export type SitemapId = (typeof SITEMAP_IDS)[number];
-
-const LOCALE_FOR: Record<MarketCode, string> = {
-  GB: "en",
-  IE: "en-IE",
-  DE: "de",
-  FR: "fr",
-  PT: "pt",
-  IT: "it",
-  ES: "es",
-  GR: "el",
-  CZ: "cs",
-  PL: "pl",
-};
 
 export function normalizeSitemapId(rawId: string): SitemapId | null {
   const id = rawId.endsWith(".xml") ? rawId.slice(0, -4) : rawId;
   return SITEMAP_IDS.includes(id as SitemapId) ? (id as SitemapId) : null;
-}
-
-export function marketBaseUrl(market: MarketCode): string {
-  return `https://${marketToHost(market)}`;
 }
 
 function escapeXml(value: string): string {
@@ -46,20 +20,6 @@ function escapeXml(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
-}
-
-function altLanguagesForPath(
-  path: string,
-  markets: MarketCode[],
-): Record<string, string> {
-  const alts: Record<string, string> = {};
-  for (const market of markets) {
-    alts[LOCALE_FOR[market]] = `${marketBaseUrl(market)}${path}`;
-  }
-  if (markets.includes("GB")) {
-    alts["x-default"] = `${marketBaseUrl("GB")}${path}`;
-  }
-  return alts;
 }
 
 export function sitemapIndexXml(market: MarketCode): string {
@@ -108,8 +68,6 @@ export async function getSitemapEntries(
   switch (id) {
     case "static":
       return staticSitemap(baseUrl);
-    case "categories":
-      return categorySitemap(baseUrl);
     case "items":
       return itemsSitemap(market, baseUrl);
     case "sellers":
@@ -126,25 +84,9 @@ function staticSitemap(baseUrl: string): MetadataRoute.Sitemap {
     changeFrequency: path === "/" ? "daily" : "weekly",
     priority: path === "/" ? 1.0 : path === "/browse" ? 0.9 : 0.7,
     alternates: {
-      languages: altLanguagesForPath(path, ALL_MARKETS),
+      languages: alternateLanguagesForPath(path, ALL_MARKETS),
     },
   }));
-}
-
-function categorySitemap(baseUrl: string): MetadataRoute.Sitemap {
-  return CATEGORIES.map((cat) => {
-    const path = `/browse?cat=${encodeURIComponent(cat)}`;
-
-    return {
-      url: `${baseUrl}${path}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-      alternates: {
-        languages: altLanguagesForPath(path, ALL_MARKETS),
-      },
-    };
-  });
 }
 
 async function itemsSitemap(
@@ -188,7 +130,7 @@ async function itemsSitemap(
       changeFrequency: "daily" as const,
       priority: 0.6,
       alternates: {
-        languages: altLanguagesForPath(path, [...itemMarkets]),
+        languages: alternateLanguagesForPath(path, [...itemMarkets]),
       },
     };
   });
@@ -237,7 +179,7 @@ async function sellersSitemap(
         changeFrequency: "weekly" as const,
         priority: 0.5,
         alternates: {
-          languages: altLanguagesForPath(path, [...sellerMarkets]),
+          languages: alternateLanguagesForPath(path, [...sellerMarkets]),
         },
       },
     ];

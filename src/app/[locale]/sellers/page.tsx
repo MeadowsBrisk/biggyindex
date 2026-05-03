@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -7,20 +8,24 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { SellersPageClient } from "./SellersPageClient";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
-}) {
+}): Promise<Metadata> {
   const { locale } = await params;
+  const market = localeToMarket(locale);
   const t = await getTranslations({ locale, namespace: "seller.page" });
 
-  return {
+  return pageMetadata({
+    market,
+    path: "/sellers",
     title: t("metadataTitle"),
     description: t("metadataDescription"),
-  };
+  });
 }
 
 interface LeaderboardEntry {

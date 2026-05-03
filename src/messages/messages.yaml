@@ -42,25 +42,25 @@ $locales:
 site:
   title: BiggyIndex
   tagline:
-    en-GB: Cannabis Marketplace Browser
-    de-DE: Browser des Cannabis-Marktplatzes
-    fr-FR: Navigateur de marché du cannabis
-    pt-PT: Navegador do Mercado de Canábis
-    it-IT: Cannabis Marketplace Browser
-    es-ES: Navegador de mercado de cannabis
-    el-GR: Πρόγραμμα περιήγησης Cannabis Marketplace
-    cs-CZ: Prohlížeč Cannabis Marketplace
-    pl-PL: Przeglądarka Cannabis Marketplace
+    en-GB: Little Biggy Browser
+    de-DE: Little Biggy-Browser
+    fr-FR: Navigateur Little Biggy
+    pt-PT: Navegador Little Biggy
+    it-IT: Browser Little Biggy
+    es-ES: Navegador Little Biggy
+    el-GR: Περιηγητής Little Biggy
+    cs-CZ: Prohlížeč Little Biggy
+    pl-PL: Przeglądarka Little Biggy
   description:
-    en-GB: Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more.
-    de-DE: Durchstöbern und vergleichen Sie Cannabisprodukte auf Marktplätzen. Preise, Sorten, Bewertungen und mehr.
-    fr-FR: Parcourez et comparez les produits à base de cannabis sur les différents marchés. Prix, variétés, avis, et plus encore.
-    pt-PT: Navegue e compare produtos de canábis em diferentes mercados. Preços, variedades, avaliações e muito mais.
-    it-IT: Sfoglia e confronta i prodotti a base di cannabis tra i mercati. Prezzi, varietà, recensioni e altro ancora.
-    es-ES: Explora y compara productos de cannabis en diferentes marketplaces. Precios, variedades, opiniones y más.
-    el-GR: Περιηγηθείτε και συγκρίνετε προϊόντα κάνναβης σε όλες τις αγορές. Τιμές, στελέχη, κριτικές και πολλά άλλα.
-    cs-CZ: Prohlížejte a porovnávejte konopné produkty napříč tržišti. Ceny, odrůdy, recenze a další.
-    pl-PL: Przeglądaj i porównuj produkty konopne na różnych rynkach. Ceny, odmiany, recenzje i więcej.
+    en-GB: Browse Little Biggy listings by product, seller, price, reviews, shipping, and market.
+    de-DE: Durchsuchen Sie Little Biggy-Angebote nach Produkt, Verkäufer, Preis, Bewertungen, Versand und Markt.
+    fr-FR: Parcourez les annonces Little Biggy par produit, vendeur, prix, avis, livraison et marché.
+    pt-PT: Navegue pelas listagens Little Biggy por produto, vendedor, preço, avaliações, envio e mercado.
+    it-IT: Sfoglia le inserzioni Little Biggy per prodotto, venditore, prezzo, recensioni, spedizione e mercato.
+    es-ES: Explora los anuncios de Little Biggy por producto, vendedor, precio, reseñas, envío y mercado.
+    el-GR: Περιηγηθείτε στις καταχωρίσεις Little Biggy ανά προϊόν, πωλητή, τιμή, κριτικές, αποστολή και αγορά.
+    cs-CZ: Procházejte nabídky Little Biggy podle produktu, prodejce, ceny, recenzí, dopravy a trhu.
+    pl-PL: Przeglądaj oferty Little Biggy według produktu, sprzedawcy, ceny, recenzji, wysyłki i rynku.
 
 nav:
   browse:
@@ -2439,6 +2439,27 @@ lbGuide:
       pl-PL: Potrzebujesz pomocy? Zadawaj pytania i otrzymuj odpowiedzi w swoim języku.
 
 browse:
+  page:
+    metadataTitle:
+      en-GB: Little Biggy Listings | BiggyIndex
+      de-DE: Little Biggy-Angebote | BiggyIndex
+      fr-FR: Annonces Little Biggy | BiggyIndex
+      pt-PT: Listagens Little Biggy | BiggyIndex
+      it-IT: Inserzioni Little Biggy | BiggyIndex
+      es-ES: Anuncios Little Biggy | BiggyIndex
+      el-GR: Καταχωρίσεις Little Biggy | BiggyIndex
+      cs-CZ: Nabídky Little Biggy | BiggyIndex
+      pl-PL: Oferty Little Biggy | BiggyIndex
+    metadataDescription:
+      en-GB: Search and filter Little Biggy listings by category, price, seller, shipping, reviews, and market.
+      de-DE: Suchen und filtern Sie Little Biggy-Angebote nach Kategorie, Preis, Verkäufer, Versand, Bewertungen und Markt.
+      fr-FR: Recherchez et filtrez les annonces Little Biggy par catégorie, prix, vendeur, livraison, avis et marché.
+      pt-PT: Pesquise e filtre as listagens Little Biggy por categoria, preço, vendedor, envio, avaliações e mercado.
+      it-IT: Cerca e filtra le inserzioni Little Biggy per categoria, prezzo, venditore, spedizione, recensioni e mercato.
+      es-ES: Busca y filtra anuncios de Little Biggy por categoría, precio, vendedor, envío, reseñas y mercado.
+      el-GR: Αναζητήστε και φιλτράρετε καταχωρίσεις Little Biggy ανά κατηγορία, τιμή, πωλητή, αποστολή, κριτικές και αγορά.
+      cs-CZ: Vyhledávejte a filtrujte nabídky Little Biggy podle kategorie, ceny, prodejce, dopravy, recenzí a trhu.
+      pl-PL: Wyszukuj i filtruj oferty Little Biggy według kategorii, ceny, sprzedawcy, wysyłki, recenzji i rynku.
   allCategories:
     en-GB: All Categories
     de-DE: Alle Kategorien
@@ -4580,15 +4601,15 @@ seller:
     pl-PL: Odwiedź sklep
   page:
     metadataTitle:
-      en-GB: Sellers - BiggyIndex
-      de-DE: Verkäufer – BiggyIndex
-      fr-FR: Vendeurs - BiggyIndex
-      pt-PT: Vendedores - BiggyIndex
-      it-IT: Venditori - BiggyIndex
-      es-ES: Vendedores - BiggyIndex
-      el-GR: Πωλητές - BiggyIndex
-      cs-CZ: Prodejci - BiggyIndex
-      pl-PL: Sprzedawcy - BiggyIndex
+      en-GB: Little Biggy Sellers | BiggyIndex
+      de-DE: Little Biggy-Verkäufer | BiggyIndex
+      fr-FR: Vendeurs Little Biggy | BiggyIndex
+      pt-PT: Vendedores Little Biggy | BiggyIndex
+      it-IT: Venditori Little Biggy | BiggyIndex
+      es-ES: Vendedores Little Biggy | BiggyIndex
+      el-GR: Πωλητές Little Biggy | BiggyIndex
+      cs-CZ: Prodejci Little Biggy | BiggyIndex
+      pl-PL: Sprzedawcy Little Biggy | BiggyIndex
     metadataDescription:
       en-GB: Browse all Little Biggy sellers with trust scores, review counts, and community ratings.
       de-DE: Durchstöbern Sie alle Little Biggy Verkäufer mit Vertrauenswertungen, Bewertungszahlen und Community-Bewertungen.
@@ -5271,15 +5292,15 @@ seller:
 reviews:
   page:
     metadataTitle:
-      en-GB: Reviews - BiggyIndex
-      de-DE: Bewertungen – BiggyIndex
-      fr-FR: Critiques - BiggyIndex
-      pt-PT: Críticas - BiggyIndex
-      it-IT: Recensioni - BiggyIndex
-      es-ES: Reseñas - BiggyIndex
-      el-GR: Αξιολογήσεις - BiggyIndex
-      cs-CZ: Recenze - BiggyIndex
-      pl-PL: Recenzje - BiggyIndex
+      en-GB: Little Biggy Reviews | BiggyIndex
+      de-DE: Little Biggy-Bewertungen | BiggyIndex
+      fr-FR: Avis Little Biggy | BiggyIndex
+      pt-PT: Avaliações Little Biggy | BiggyIndex
+      it-IT: Recensioni Little Biggy | BiggyIndex
+      es-ES: Reseñas Little Biggy | BiggyIndex
+      el-GR: Κριτικές Little Biggy | BiggyIndex
+      cs-CZ: Recenze Little Biggy | BiggyIndex
+      pl-PL: Recenzje Little Biggy | BiggyIndex
     metadataDescription:
       en-GB: Latest community reviews from Little Biggy buyers with images, ratings, and delivery times.
       de-DE: Neueste Community-Bewertungen von Little Biggy Käufern mit Bildern, Bewertungen und Lieferzeiten.

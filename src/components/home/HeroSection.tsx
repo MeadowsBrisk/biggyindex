@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { MARKETS } from "@/lib/constants";
+import { CATEGORIES, type Category, MARKETS } from "@/lib/constants";
 import {
   localeToMarket,
   type MarketCode,
@@ -34,6 +34,7 @@ export function HeroSection({
   categoryCounts,
 }: HeroSectionProps) {
   const t = useTranslations("home.hero");
+  const tCategories = useTranslations("categories");
   const locale = useLocale();
   const currentMarket = localeToMarket(locale);
   const [scrolledPast, setScrolledPast] = useState(false);
@@ -130,21 +131,23 @@ export function HeroSection({
             {categoryCounts.map((cat) => {
               const meta = getCategoryMeta(cat.name);
               const Icon = meta.icon;
+              const categoryName = cat.name as Category;
+              const label = CATEGORIES.includes(categoryName)
+                ? tCategories(categoryName)
+                : meta.label;
               return (
                 <Link
                   key={cat.name}
                   href={`/browse?cat=${encodeURIComponent(cat.name)}`}
                   prefetch={false}
-                  className="group flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-[var(--surface-hover)] hover:-translate-y-0.5 min-w-[8.75rem] basis-[calc(50%-0.25rem)] sm:basis-[calc(33.333%-0.375rem)] md:basis-[calc(25%-0.375rem)] lg:basis-[9.25rem] lg:flex-none"
+                  className="group inline-flex max-w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-[var(--surface-hover)] hover:-translate-y-0.5"
                 >
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${meta.tintClass}`}
                   >
                     <Icon size={15} strokeWidth={2.25} />
                   </span>
-                  <span className="flex-1 truncate text-left">
-                    {meta.label}
-                  </span>
+                  <span className="min-w-0 text-left">{label}</span>
                   <span className="text-xs font-semibold tabular-nums text-muted-foreground group-hover:text-primary transition-colors">
                     {cat.count}
                   </span>

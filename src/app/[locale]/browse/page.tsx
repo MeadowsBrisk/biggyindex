@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { DataLoader } from "@/components/DataLoader";
 import { FilterPanel } from "@/components/FilterPanel";
@@ -11,12 +12,24 @@ import { Toolbar } from "@/components/Toolbar";
 import { loadItems, loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { buildSeedItems } from "@/lib/seed";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Browse Cannabis Listings, Prices & Seller Reviews - BiggyIndex",
-  description:
-    "Search and filter Little Biggy cannabis listings by category, price, seller, shipping, reviews, and market.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const market = localeToMarket(locale);
+  const t = await getTranslations({ locale, namespace: "browse.page" });
+
+  return pageMetadata({
+    market,
+    path: "/browse",
+    title: t("metadataTitle"),
+    description: t("metadataDescription"),
+  });
+}
 
 export default async function BrowsePage({
   params,

@@ -29,6 +29,7 @@ import {
   type ItemReview,
   ItemReviewsBlock,
 } from "@/components/ItemReviewsBlock";
+import { LinkedText } from "@/components/LinkedText";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
@@ -1003,7 +1004,7 @@ export function ItemDetailOverlay() {
                                 : mergedDetail?.d || displayItem.d;
                               return desc ? (
                                 <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">
-                                  {decodeEntities(desc)}
+                                  <LinkedText text={desc} />
                                 </p>
                               ) : (
                                 <p className="text-sm text-muted italic">

@@ -13,8 +13,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { LinkedText } from "@/components/LinkedText";
 import { type Review, ReviewCard } from "@/components/ReviewCard";
-
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import {
   SellerCommunityFeedbackBlock,
@@ -93,6 +93,7 @@ export function SellerModal() {
 
   // Fetch detail on open
   useEffect(() => {
+    setAvatarZoomSignal(null);
     if (!sellerId) {
       setDetail(null);
       setRatingFilter(null);
@@ -418,7 +419,7 @@ export function SellerModal() {
                     forceEnglish || !translated ? detail.manifesto : translated;
                   return (
                     <p className="text-sm text-muted leading-relaxed whitespace-pre-line">
-                      {text}
+                      <LinkedText text={text} />
                     </p>
                   );
                 })()

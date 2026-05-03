@@ -4,6 +4,7 @@
  * suggestions worker. See workers/suggestions-api/ for the backend.
  */
 
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -13,6 +14,17 @@ import { loadItemByRef } from "@/lib/data";
 
 interface Props {
   params: Promise<{ locale: string; ref: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "suggest.page" });
+
+  return {
+    title: `${t("title")} | BiggyIndex`,
+    description: t("intro"),
+    robots: { index: false, follow: false },
+  };
 }
 
 async function SuggestContent({ params }: Props) {

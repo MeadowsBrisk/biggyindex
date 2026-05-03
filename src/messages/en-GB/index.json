@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Cannabis Marketplace Browser",
-    "description": "Browse and compare cannabis products across marketplaces. Prices, strains, reviews, and more."
+    "tagline": "Little Biggy Browser",
+    "description": "Browse Little Biggy listings by product, seller, price, reviews, shipping, and market."
   },
   "nav": {
     "browse": "Browse",
@@ -370,6 +370,10 @@
     }
   },
   "browse": {
+    "page": {
+      "metadataTitle": "Little Biggy Listings | BiggyIndex",
+      "metadataDescription": "Search and filter Little Biggy listings by category, price, seller, shipping, reviews, and market."
+    },
     "allCategories": "All Categories",
     "noResults": "No products match your filters",
     "clearFilters": "Clear filters",
@@ -643,7 +647,7 @@
     "rating": "Rating",
     "visitStore": "Visit store",
     "page": {
-      "metadataTitle": "Sellers - BiggyIndex",
+      "metadataTitle": "Little Biggy Sellers | BiggyIndex",
       "metadataDescription": "Browse all Little Biggy sellers with trust scores, review counts, and community ratings.",
       "title": "Sellers",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
@@ -748,7 +752,7 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Reviews - BiggyIndex",
+      "metadataTitle": "Little Biggy Reviews | BiggyIndex",
       "metadataDescription": "Latest community reviews from Little Biggy buyers with images, ratings, and delivery times.",
       "title": "Community Reviews",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",

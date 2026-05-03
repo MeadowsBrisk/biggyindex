@@ -9,6 +9,7 @@
  * for a complete item view with a sticky "Browse the Index" top bar.
  */
 
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -28,6 +29,7 @@ import { loadMergedDetail } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import { getItemGalleryImages } from "@/lib/images";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import { compactMetaDescription, pageMetadata } from "@/lib/seo/metadata";
 import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
 import {
   itemVariantContext,
@@ -188,6 +190,61 @@ function itemReviewsFromDetail(
   });
 }
 
+function itemMetadataDescription(item: MergedDetailBlob): string {
+  const seller = item.sn ? decodeEntities(item.sn) : null;
+  const description = decodeEntities(item.d ?? item.dEn ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (description) {
+    return compactMetaDescription(
+      `${description}${seller ? ` Sold by ${seller} on Little Biggy.` : ""}`,
+    );
+  }
+
+  const name = decodeEntities(item.n);
+  const facts = [
+    item.c ? `${item.c} listing` : null,
+    item.rs?.cnt ? `${item.rs.cnt} reviews` : null,
+    item.rs?.avg ? `${item.rs.avg.toFixed(1)}/10 rating` : null,
+  ].filter(Boolean);
+
+  return compactMetaDescription(
+    `Browse ${name}${seller ? ` from ${seller}` : ""} on Little Biggy. ${facts.join(". ")}`,
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: ItemPageProps): Promise<Metadata> {
+  const { ref, locale } = await params;
+  const t = await getTranslations({ locale, namespace: "item.page" });
+  const market = localeToMarket(locale);
+  const item = await loadMergedDetail(ref, market.toLowerCase());
+
+  if (!item) {
+    return {
+      title: t("notFoundTitle"),
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const name = decodeEntities(item.n);
+  const seller = item.sn ? decodeEntities(item.sn) : null;
+  const image = getItemGalleryImages(item, "full", { forceStatic: true })[0];
+
+  return pageMetadata({
+    market,
+    path: `/item/${encodeURIComponent(ref)}`,
+    title: seller
+      ? `${name} by ${seller} | BiggyIndex`
+      : `${name} | BiggyIndex`,
+    description: itemMetadataDescription(item),
+    alternateMarkets: [market],
+    images: image ? [{ url: image, alt: name }] : undefined,
+  });
+}
+
 async function ItemContent({ params }: ItemPageProps) {
   "use cache";
   cacheLife("item-detail");
@@ -324,7 +381,7 @@ async function ItemContent({ params }: ItemPageProps) {
                 {item.sn && (
                   <div className="flex items-center gap-2 text-sm text-muted">
                     <span>
-                      {t("by")} {" "}
+                      {t("by")}{" "}
                       <span className="font-medium text-foreground">
                         {item.sn}
                       </span>
@@ -398,7 +455,8 @@ async function ItemContent({ params }: ItemPageProps) {
                                 {variant.price.toFixed(2)}
                               </td>
                               <td className="ido-table__ppu">
-                                {variant.ppu != null && variant.unitLabel != null
+                                {variant.ppu != null &&
+                                variant.unitLabel != null
                                   ? `${cSym}${variant.ppu.toFixed(2)}/${variant.unitLabel}`
                                   : "-"}
                               </td>
@@ -543,9 +601,7 @@ async function ItemContent({ params }: ItemPageProps) {
                         <dl className="ido-attr-grid">
                           {attrs.map(({ key, label, values }) => (
                             <Fragment key={key}>
-                              <dt className="ido-attr-grid__label">
-                                {label}
-                              </dt>
+                              <dt className="ido-attr-grid__label">{label}</dt>
                               <dd className="ido-attr-grid__values">
                                 {values.map((value) => (
                                   <span key={value} className="ido-attr-val">
@@ -563,9 +619,7 @@ async function ItemContent({ params }: ItemPageProps) {
                   {priceHistory.length > 1 && (
                     <div className="ido-card">
                       <div className="ido-card__head">
-                        <h2 className="ido-card__title">
-                          {t("priceHistory")}
-                        </h2>
+                        <h2 className="ido-card__title">{t("priceHistory")}</h2>
                         <span className="ido-card__count">
                           {priceHistory.length}
                         </span>
@@ -592,7 +646,8 @@ async function ItemContent({ params }: ItemPageProps) {
                                     {snapshot.min.toFixed(2)}
                                     {snapshot.max !== snapshot.min && (
                                       <span className="ido-price-history__range">
-                                        {" "}- {cSym}
+                                        {" "}
+                                        - {cSym}
                                         {snapshot.max.toFixed(2)}
                                       </span>
                                     )}

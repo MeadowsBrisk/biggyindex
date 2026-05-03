@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Prohlížeč Cannabis Marketplace",
-    "description": "Prohlížejte a porovnávejte konopné produkty napříč tržišti. Ceny, odrůdy, recenze a další."
+    "tagline": "Prohlížeč Little Biggy",
+    "description": "Procházejte nabídky Little Biggy podle produktu, prodejce, ceny, recenzí, dopravy a trhu."
   },
   "nav": {
     "browse": "Procházet",
@@ -370,6 +370,10 @@
     }
   },
   "browse": {
+    "page": {
+      "metadataTitle": "Nabídky Little Biggy | BiggyIndex",
+      "metadataDescription": "Vyhledávejte a filtrujte nabídky Little Biggy podle kategorie, ceny, prodejce, dopravy, recenzí a trhu."
+    },
     "allCategories": "Všechny kategorie",
     "noResults": "Žádné produkty neodpovídají vašim filtrům",
     "clearFilters": "Průhledné filtry",
@@ -643,7 +647,7 @@
     "rating": "Hodnocení",
     "visitStore": "Navštivte obchod",
     "page": {
-      "metadataTitle": "Prodejci - BiggyIndex",
+      "metadataTitle": "Prodejci Little Biggy | BiggyIndex",
       "metadataDescription": "Prohlédněte si všechny Little Biggy prodejce s důvěryhodnými skóre, počtem recenzí a hodnoceními komunity.",
       "title": "Prodejci",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
@@ -748,7 +752,7 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Recenze - BiggyIndex",
+      "metadataTitle": "Recenze Little Biggy | BiggyIndex",
       "metadataDescription": "Nejnovější recenze komunity od Little Biggy kupujících s obrázky, hodnoceními a časy doručení.",
       "title": "Recenze komunity",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",

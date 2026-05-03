@@ -16,6 +16,7 @@ import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
 import { type Locale, routing } from "@/i18n/routing";
 import { localeToMarket } from "@/lib/market/market";
+import { marketBaseUrl } from "@/lib/seo/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,9 +43,12 @@ export async function generateMetadata({
 
   const messages = await loadMessages(locale as Locale);
   const site = messages.site;
+  const market = localeToMarket(locale);
 
   return {
-    title: `${site.title} — ${site.tagline}`,
+    metadataBase: new URL(marketBaseUrl(market)),
+    applicationName: site.title,
+    title: `${site.title} | ${site.tagline}`,
     description: site.description,
   };
 }

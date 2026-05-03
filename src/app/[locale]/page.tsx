@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { CommunityReviews } from "@/components/home/CommunityReviews";
 import { EmbassySection } from "@/components/home/EmbassySection";
@@ -11,7 +13,25 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { loadHomeFeed } from "@/lib/data";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { localeToMarket } from "@/lib/market/market";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { HomeFeedItemCard } from "@/lib/types";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const market = localeToMarket(locale);
+  const t = await getTranslations({ locale, namespace: "site" });
+
+  return pageMetadata({
+    market,
+    path: "/",
+    title: `BiggyIndex | ${t("tagline")}`,
+    description: t("description"),
+  });
+}
 
 /** Map a pre-shaped item card to the WhatsNewSection's NewItem shape */
 function toNewItem(item: HomeFeedItemCard, dateField: "fsa" | "lua") {

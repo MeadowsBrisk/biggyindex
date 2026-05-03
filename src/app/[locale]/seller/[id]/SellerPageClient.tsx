@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { lazy, Suspense, useMemo, useState } from "react";
+import { LinkedText } from "@/components/LinkedText";
 import { OutboundLink } from "@/components/OutboundLink";
 import { type Review, ReviewCard } from "@/components/ReviewCard";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
@@ -333,7 +334,7 @@ export function SellerPageClient({
                 </h2>
                 {manifesto ? (
                   <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
-                    {manifesto}
+                    <LinkedText text={manifesto} />
                   </p>
                 ) : (
                   <p className="text-sm italic text-muted">

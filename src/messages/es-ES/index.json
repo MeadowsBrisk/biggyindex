@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Navegador de mercado de cannabis",
-    "description": "Explora y compara productos de cannabis en diferentes marketplaces. Precios, variedades, opiniones y más."
+    "tagline": "Navegador Little Biggy",
+    "description": "Explora los anuncios de Little Biggy por producto, vendedor, precio, reseñas, envío y mercado."
   },
   "nav": {
     "browse": "Explorar",
@@ -370,6 +370,10 @@
     }
   },
   "browse": {
+    "page": {
+      "metadataTitle": "Anuncios Little Biggy | BiggyIndex",
+      "metadataDescription": "Busca y filtra anuncios de Little Biggy por categoría, precio, vendedor, envío, reseñas y mercado."
+    },
     "allCategories": "Todas las categorías",
     "noResults": "Ningún producto coincide con tus filtros",
     "clearFilters": "Filtros claros",
@@ -643,7 +647,7 @@
     "rating": "Clasificación",
     "visitStore": "Visitar tienda",
     "page": {
-      "metadataTitle": "Vendedores - BiggyIndex",
+      "metadataTitle": "Vendedores Little Biggy | BiggyIndex",
       "metadataDescription": "Explora todos los vendedores Little Biggy con puntuaciones de confianza, recuentos de reseñas y valoraciones de la comunidad.",
       "title": "Vendedores",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
@@ -748,7 +752,7 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Reseñas - BiggyIndex",
+      "metadataTitle": "Reseñas Little Biggy | BiggyIndex",
       "metadataDescription": "Últimas opiniones de la comunidad de compradores Little Biggy con imágenes, valoraciones y plazos de entrega.",
       "title": "Reseñas de la comunidad",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
