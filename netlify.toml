@@ -70,8 +70,8 @@
 
 
 
-# Lightweight index-only function for all markets (replaces 5 separate market schedules)
-# Does NOT run items/sellers/pruning - those have separate schedules
+# Lightweight legacy index-only function.
+# Currently runs hourly for GB only and does not fast-enrich.
 [functions."index-all-markets-background"]
   # Previous schedule for quick revert:
   # Run every 30 minutes (was every 20 min - reduced to save function requests)

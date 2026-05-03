@@ -1,6 +1,5 @@
-// Unified background function: indexes all markets, then fast-enriches any
-// new/changed items (description, reviews, shipping, R2 images) within the
-// same invocation. This reduces new-item latency from hours to minutes.
+// Unified background function: indexes the configured markets, then can
+// optionally fast-enrich any new/changed items within the same invocation.
 //
 // Markets are processed in concurrency-bounded batches. Each market's
 // `runIndexMarket` is invoked with `deferSharedFlush: true` so the per-market
@@ -16,7 +15,7 @@ import { flushSharedIndexMeta } from "../../scripts/unified-crawler/stages/index
 import { appendRunMeta } from "../../scripts/unified-crawler/shared/persistence/runMeta";
 import { Keys } from "../../scripts/unified-crawler/shared/persistence/keys";
 import { getBlobClient } from "../../scripts/unified-crawler/shared/persistence/blobs";
-import { tryRevalidateAllMarkets } from "../../scripts/unified-crawler/shared/revalidation/revalidate";
+import { tryRevalidateMarkets } from "../../scripts/unified-crawler/shared/revalidation/revalidate";
 import { computeIndexDiff, mergeMarketDiffs, type IndexSnapshot } from "../../scripts/unified-crawler/shared/logic/indexDiff";
 import type { MarketCode } from "../../scripts/unified-crawler/shared/env/loadEnv";
 import type { IndexMetaEntry } from "../../scripts/unified-crawler/shared/logic/indexMetaStore";
@@ -44,6 +43,8 @@ export const handler: Handler = async (event) => {
 
     // Ensure persistence defaults for Netlify runtime
     if (!process.env.CRAWLER_PERSIST) process.env.CRAWLER_PERSIST = "r2";
+    if (!process.env.MARKETS) process.env.MARKETS = "GB";
+    if (!process.env.SKIP_FAST_ENRICH) process.env.SKIP_FAST_ENRICH = "1";
 
     const env = loadEnv();
     const markets = listMarkets(env.markets); // e.g., ["GB","DE","FR","IT","PT"]
@@ -209,10 +210,10 @@ export const handler: Handler = async (event) => {
       log('fast-enrich skipped (SKIP_FAST_ENRICH=1)');
     }
 
-    // Trigger on-demand ISR revalidation for all markets after successful indexing
-    log("triggering ISR revalidation for all markets");
+    // Trigger on-demand ISR revalidation only for the markets indexed in this run.
+    log(`triggering ISR revalidation for markets=${markets.join(",")}`);
     const tRevalidate = Date.now();
-    await tryRevalidateAllMarkets();
+    await tryRevalidateMarkets(markets);
     log(`revalidation complete elapsed=${since(tRevalidate)}s`);
 
     return {
