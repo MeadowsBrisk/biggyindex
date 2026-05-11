@@ -114,6 +114,16 @@ export function ItemDetailTabs({
       manualRef.current = false;
       updateActive();
     }, 800);
+    const root = scrollRef?.current;
+    if (root) {
+      const rootTop = root.getBoundingClientRect().top;
+      const targetTop = target.getBoundingClientRect().top;
+      root.scrollTo({
+        top: root.scrollTop + targetTop - rootTop - topOffset,
+        behavior: "smooth",
+      });
+      return;
+    }
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 

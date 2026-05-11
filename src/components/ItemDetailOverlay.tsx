@@ -381,6 +381,14 @@ export function ItemDetailOverlay() {
     (forceEnglish && mergedDetail?.shOptsEn?.length
       ? mergedDetail.shOptsEn
       : mergedDetail?.shOpts) ?? [];
+  const hasSelectableShipping =
+    shipOptions.length > 0 ||
+    !!(
+      displayItem?.sh &&
+      (displayItem.sh.free ||
+        (displayItem.sh.min != null && displayItem.sh.min > 0) ||
+        (displayItem.sh.max != null && displayItem.sh.max > 0))
+    );
   const priceHistory = useMemo(
     () => mergedDetail?.ph ?? [],
     [mergedDetail?.ph],
@@ -799,12 +807,11 @@ export function ItemDetailOverlay() {
                                                   qty: 1,
                                                   priceUSD: row.price,
                                                   shippingUsd:
-                                                    selectedShipCost > 0
+                                                    hasSelectableShipping
                                                       ? selectedShipCost
-                                                      : (shipOptions[0]?.cost ??
-                                                        null),
+                                                      : null,
                                                   includeShip:
-                                                    selectedShipCost > 0,
+                                                    hasSelectableShipping,
                                                   shOpts:
                                                     shipOptions.length > 0
                                                       ? shipOptions
@@ -855,6 +862,7 @@ export function ItemDetailOverlay() {
 
                                 {/* Shipping options — selectable */}
                                 <ShippingOptions
+                                  key={refNum}
                                   sh={displayItem.sh}
                                   shipOptions={shipOptions}
                                   cSym={cSym}
@@ -1337,25 +1345,19 @@ function ShippingOptions({
   setSelectedShipCost: (v: number) => void;
 }) {
   const t = useTranslations("item.detail.shipping");
-  // Build display options. Real R2 labels (deduped) are preserved exactly
-  // as the seller provided them — this is what the user cares about.
-  // A synthetic "No shipping" chip is prepended (selected by default) so
-  // users can see the base product price without shipping baked in. If
-  // every real option is free (or sh.free with no real labels), the
-  // "No shipping" chip is omitted since it's redundant.
+  // Build display options from real R2 labels or aggregate fallbacks. The
+  // cheapest real option is first and selected by default, matching the basket.
   const options = useMemo(() => {
-    const result: { label: string; value: number; isNone?: boolean }[] = [];
+    const result: { label: string; value: number }[] = [];
 
     if (shipOptions.length > 0) {
-      const deduped: { label: string; value: number; isNone?: boolean }[] = [];
+      const deduped: { label: string; value: number }[] = [];
       for (const opt of shipOptions) {
         const cost = opt.cost ?? 0;
         if (deduped.some((r) => r.label === opt.label)) continue;
         deduped.push({ label: opt.label, value: cost });
       }
-      const allFree = deduped.every((o) => o.value === 0);
-      if (!allFree)
-        result.push({ label: t("noShipping"), value: 0, isNone: true });
+      deduped.sort((a, b) => a.value - b.value);
       result.push(...deduped);
       return result;
     }
@@ -1368,8 +1370,6 @@ function ShippingOptions({
     }
     const hasMin = sh.min != null && sh.min > 0;
     const hasMax = sh.max != null && sh.max > 0;
-    if (hasMin || hasMax)
-      result.push({ label: t("noShipping"), value: 0, isNone: true });
     if (hasMin && hasMax && sh.max !== sh.min) {
       result.push({ label: t("cheapest"), value: sh.min! });
       result.push({ label: t("highest"), value: sh.max! });
@@ -1381,7 +1381,7 @@ function ShippingOptions({
     return result;
   }, [sh, shipOptions, t]);
 
-  // Selected index — default 0 ("No shipping" when present, else cheapest)
+  // Selected index — default 0 (cheapest real shipping option when present)
   const [selectedIdx, setSelectedIdx] = useState(0);
 
   // Notify parent of the selected cost whenever options change or idx changes
@@ -1405,23 +1405,20 @@ function ShippingOptions({
       <div className="ido-ship__chips">
         {options.map((opt, idx) => {
           const isSelected = selectedIdx === idx;
-          const isNone = opt.isNone === true;
-          const isFree = !isNone && opt.value === 0;
-          const isPaid = !isNone && !isFree;
+          const isFree = opt.value === 0;
+          const isPaid = !isFree;
           return (
             <button
               key={`${opt.label}-${idx}`}
               type="button"
               onClick={() => setSelectedIdx(idx)}
-              className={`ido-ship__chip${isSelected ? " ido-ship__chip--selected" : ""}${isNone ? " ido-ship__chip--none" : ""}${isFree ? " ido-ship__chip--free" : ""}${isPaid ? " ido-ship__chip--paid" : ""}`}
+              className={`ido-ship__chip${isSelected ? " ido-ship__chip--selected" : ""}${isFree ? " ido-ship__chip--free" : ""}${isPaid ? " ido-ship__chip--paid" : ""}`}
               title={opt.label}
             >
               <span className="ido-ship__chip-label">{opt.label}</span>
-              {!isNone && (
-                <span className="ido-ship__chip-cost">
-                  {isFree ? t("free") : fmtPrice(opt.value, cSym, cRate)}
-                </span>
-              )}
+              <span className="ido-ship__chip-cost">
+                {isFree ? t("free") : fmtPrice(opt.value, cSym, cRate)}
+              </span>
             </button>
           );
         })}

@@ -668,6 +668,49 @@ export const setBasketQtyAtom = atom<
   set(basketAtom, items);
 });
 
+/** Change the variant for an existing basket entry, merging duplicates. */
+export const changeBasketVariantAtom = atom<
+  null,
+  [
+    {
+      refNum: string;
+      variantId: string;
+      next: { variantId: string; variantDesc: string; priceUSD: number };
+    },
+  ],
+  void
+>(null, (get, set, { refNum, variantId, next }) => {
+  const items = [...get(basketAtom)];
+  const currentIndex = items.findIndex(
+    (it) => it.refNum === refNum && it.variantId === variantId,
+  );
+  if (currentIndex < 0) return;
+
+  const existingIndex = items.findIndex(
+    (it, index) =>
+      index !== currentIndex &&
+      it.refNum === refNum &&
+      it.variantId === next.variantId,
+  );
+
+  if (existingIndex >= 0) {
+    items[existingIndex] = {
+      ...items[existingIndex],
+      qty: items[existingIndex].qty + items[currentIndex].qty,
+    };
+    items.splice(currentIndex, 1);
+  } else {
+    items[currentIndex] = {
+      ...items[currentIndex],
+      variantId: next.variantId,
+      variantDesc: next.variantDesc,
+      priceUSD: next.priceUSD,
+    };
+  }
+
+  set(basketAtom, items);
+});
+
 /** Clear all basket entries */
 export const clearBasketAtom = atom<null, [], void>(null, (_get, set) =>
   set(basketAtom, []),

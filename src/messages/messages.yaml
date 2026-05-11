@@ -6029,6 +6029,36 @@ basket:
     el-GR: Χωρίς αποστολή
     cs-CZ: Žádná doprava
     pl-PL: Brak wysyłki
+  viewOnLittleBiggy:
+    en-GB: View {item} on LittleBiggy
+    de-DE: Sehen Sie {item} auf LittleBiggy
+    fr-FR: Voir {item} sur LittleBiggy
+    pt-PT: Ver {item} no LittleBiggy
+    it-IT: Visualizza {item} su LittleBiggy
+    es-ES: Ver {item} en LittleBiggy
+    el-GR: Δείτε {item} στο LittleBiggy
+    cs-CZ: Zobrazit {item} na LittleBiggy
+    pl-PL: Zobacz {item} na LittleBiggy
+  changeVariant:
+    en-GB: Change variant for {item}
+    de-DE: Variante für {item} ändern
+    fr-FR: Modifier la variante de {item}
+    pt-PT: Alterar variante de {item}
+    it-IT: Cambia variante per {item}
+    es-ES: Cambiar variante de {item}
+    el-GR: Αλλαγή παραλλαγής για {item}
+    cs-CZ: Změnit variantu pro {item}
+    pl-PL: Zmień wariant dla {item}
+  variant:
+    en-GB: Variant
+    de-DE: Variante
+    fr-FR: Variante
+    pt-PT: Variante
+    it-IT: Variante
+    es-ES: Variante
+    el-GR: Παραλλαγή
+    cs-CZ: Varianta
+    pl-PL: Wariant
   items:
     en-GB: Items
     de-DE: Artikel

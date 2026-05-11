@@ -1,21 +1,32 @@
 "use client";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import {
+  ExternalLink,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Trash2,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "@/lib/cn";
 import { fmtPrice } from "@/lib/format";
+import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import type { Item } from "@/lib/types";
 import {
   type BasketEntry,
   basketAtom,
   basketCountAtom,
   basketOpenAtom,
   basketShipSelectionAtom,
+  changeBasketVariantAtom,
   clearBasketAtom,
   currencyDisplayAtom,
   expandedRefNumAtom,
+  itemsAtom,
   removeFromBasketAtom,
   setBasketQtyAtom,
 } from "@/store/atoms";
@@ -36,8 +47,10 @@ export function Basket() {
   const count = useAtomValue(basketCountAtom);
   const removeItem = useSetAtom(removeFromBasketAtom);
   const setQty = useSetAtom(setBasketQtyAtom);
+  const changeVariant = useSetAtom(changeBasketVariantAtom);
   const clear = useSetAtom(clearBasketAtom);
   const setRefNum = useSetAtom(expandedRefNumAtom);
+  const browseItems = useAtomValue(itemsAtom);
   const [shipSelection, setShipSelection] = useAtom(basketShipSelectionAtom);
   const { symbol: cSym, rate: cRate } = useAtomValue(currencyDisplayAtom);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -96,33 +109,44 @@ export function Basket() {
             g.shOpts.push(o);
           }
         }
+      } else if (it.includeShip && it.shippingUsd != null) {
+        const fallbackLabel = t("shipping");
+        if (!g.shOpts.some((o) => o.label === fallbackLabel)) {
+          g.shOpts.push({ label: fallbackLabel, cost: it.shippingUsd });
+        }
       }
     }
     // Sort options cheapest-first for nicer UX
     for (const g of map.values()) g.shOpts.sort((a, b) => a.cost - b.cost);
     return Array.from(map.values());
-  }, [items]);
+  }, [items, t]);
+
+  const itemByRef = useMemo(() => {
+    const map = new Map<string, Item>();
+    for (const item of browseItems) {
+      map.set(String(item.refNum ?? item.id), item);
+    }
+    return map;
+  }, [browseItems]);
 
   // Resolve the selected shipping cost for a given group.
-  // Selection is stored by label; unknown/missing → no shipping ($0).
+  // Selection is stored by label; unknown/missing defaults to cheapest real shipping.
   const resolveShipCost = useCallback(
     (g: SellerGroup): { label: string | null; cost: number } => {
+      if (g.shOpts.length === 0) return { label: null, cost: 0 };
       const sel = shipSelection[g.key];
-      if (!sel) return { label: null, cost: 0 };
+      if (!sel) return { label: g.shOpts[0].label, cost: g.shOpts[0].cost };
       const match = g.shOpts.find((o) => o.label === sel);
-      if (!match) return { label: null, cost: 0 };
+      if (!match) return { label: g.shOpts[0].label, cost: g.shOpts[0].cost };
       return { label: match.label, cost: match.cost };
     },
     [shipSelection],
   );
 
   const setShipForGroup = useCallback(
-    (key: string, label: string | null) => {
+    (key: string, label: string) => {
       setShipSelection((prev) => {
-        const next = { ...prev };
-        if (label == null) delete next[key];
-        else next[key] = label;
-        return next;
+        return { ...prev, [key]: label };
       });
     },
     [setShipSelection],
@@ -226,7 +250,9 @@ export function Basket() {
                           entry={entry}
                           cSym={cSym}
                           cRate={cRate}
+                          item={itemByRef.get(entry.refNum) ?? null}
                           setQty={setQty}
+                          changeVariant={changeVariant}
                           removeItem={removeItem}
                           onItemClick={() => {
                             close();
@@ -245,15 +271,14 @@ export function Basket() {
                           </label>
                           <select
                             id={shippingSelectId}
-                            value={selectedLabel ?? ""}
+                            value={
+                              selectedLabel ?? group.shOpts[0]?.label ?? ""
+                            }
                             onChange={(e) =>
-                              setShipForGroup(group.key, e.target.value || null)
+                              setShipForGroup(group.key, e.target.value)
                             }
                             className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none cursor-pointer"
                           >
-                            <option value="">
-                              {t("noShipping")} — {fmtPrice(0, cSym, cRate)}
-                            </option>
                             {group.shOpts.map((o) => (
                               <option key={o.label} value={o.label}>
                                 {o.label} — {fmtPrice(o.cost, cSym, cRate)}
@@ -321,7 +346,13 @@ interface BasketLineProps {
   entry: BasketEntry;
   cSym: string;
   cRate: number;
+  item: Item | null;
   setQty: (p: { refNum: string; variantId: string; qty: number }) => void;
+  changeVariant: (p: {
+    refNum: string;
+    variantId: string;
+    next: { variantId: string; variantDesc: string; priceUSD: number };
+  }) => void;
   removeItem: (p: { refNum: string; variantId: string }) => void;
   onItemClick: () => void;
 }
@@ -330,12 +361,19 @@ function BasketLine({
   entry,
   cSym,
   cRate,
+  item,
   setQty,
+  changeVariant,
   removeItem,
   onItemClick,
 }: BasketLineProps) {
   const t = useTranslations("basket");
   const lineTotal = entry.priceUSD * entry.qty;
+  const littleBiggyUrl = entry.sl ? normalizeLittleBiggyUrl(entry.sl) : null;
+  const variants = useMemo(
+    () => (item?.v ?? []).filter((variant) => variant.usd > 0),
+    [item],
+  );
 
   return (
     <div className="flex gap-3 rounded-lg border border-border p-3">
@@ -359,15 +397,68 @@ function BasketLine({
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <button
-          type="button"
-          onClick={onItemClick}
-          aria-label={t("viewItem", { item: entry.name })}
-          className="text-sm font-medium text-foreground hover:text-primary truncate block w-full text-left cursor-pointer"
-        >
-          {entry.name}
-        </button>
-        <div className="text-xs text-muted truncate">{entry.variantDesc}</div>
+        <div className="flex items-start gap-1.5">
+          {littleBiggyUrl ? (
+            <a
+              href={littleBiggyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("viewOnLittleBiggy", { item: entry.name })}
+              className="group inline-flex min-w-0 items-center gap-1 text-sm font-medium text-foreground hover:text-primary"
+            >
+              <span className="truncate">{entry.name}</span>
+              <ExternalLink
+                size={12}
+                className="shrink-0 opacity-55 transition-opacity group-hover:opacity-100"
+              />
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={onItemClick}
+              aria-label={t("viewItem", { item: entry.name })}
+              className="text-sm font-medium text-foreground hover:text-primary truncate block w-full text-left cursor-pointer"
+            >
+              {entry.name}
+            </button>
+          )}
+        </div>
+        <div className="mt-1 flex items-center gap-2 min-w-0">
+          <div className="text-xs text-muted truncate">{entry.variantDesc}</div>
+          {variants.length > 1 && (
+            <select
+              value={entry.variantId}
+              aria-label={t("changeVariant", { item: entry.name })}
+              onChange={(event) => {
+                const variant = variants.find(
+                  (candidate, index) =>
+                    String(candidate.vid ?? index) === event.target.value,
+                );
+                if (!variant) return;
+                changeVariant({
+                  refNum: entry.refNum,
+                  variantId: entry.variantId,
+                  next: {
+                    variantId: event.target.value,
+                    variantDesc: variant.d || variant.dEn || t("variant"),
+                    priceUSD: variant.usd,
+                  },
+                });
+              }}
+              className="max-w-24 shrink-0 rounded border border-border bg-card px-1.5 py-0.5 text-[11px] text-muted hover:text-foreground focus:border-primary focus:outline-none cursor-pointer"
+            >
+              {variants.map((variant, index) => {
+                const variantId = String(variant.vid ?? index);
+                return (
+                  <option key={variantId} value={variantId}>
+                    {variant.d || variant.dEn || t("variant")} -{" "}
+                    {fmtPrice(variant.usd, cSym, cRate)}
+                  </option>
+                );
+              })}
+            </select>
+          )}
+        </div>
         <div className="mt-1 text-xs font-medium text-primary">
           {fmtPrice(entry.priceUSD, cSym, cRate)} {t("each")}
         </div>
