@@ -856,6 +856,7 @@
     "noShipping": "Sem transporte marítimo",
     "viewOnLittleBiggy": "Ver {item} no LittleBiggy",
     "changeVariant": "Alterar variante de {item}",
+    "change": "Alterar",
     "variant": "Variante",
     "items": "Itens",
     "total": "Total",

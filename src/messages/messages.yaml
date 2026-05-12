@@ -6049,6 +6049,16 @@ basket:
     el-GR: Αλλαγή παραλλαγής για {item}
     cs-CZ: Změnit variantu pro {item}
     pl-PL: Zmień wariant dla {item}
+  change:
+    en-GB: Change
+    de-DE: Ändern
+    fr-FR: Modifier
+    pt-PT: Alterar
+    it-IT: Cambia
+    es-ES: Cambiar
+    el-GR: Αλλαγή
+    cs-CZ: Změnit
+    pl-PL: Zmień
   variant:
     en-GB: Variant
     de-DE: Variante

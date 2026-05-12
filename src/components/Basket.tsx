@@ -2,7 +2,9 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
+  Check,
   ExternalLink,
+  Eye,
   Minus,
   Plus,
   ShoppingCart,
@@ -12,6 +14,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cx } from "@/lib/cn";
 import { fmtPrice } from "@/lib/format";
 import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
@@ -243,7 +246,7 @@ export function Basket() {
                         {t("sellerItemCount", { count: group.items.length })}
                       </span>
                     </div>
-                    <div className="px-4 pb-3 pt-2 space-y-2">
+                    <div className="px-4 pb-4 pt-3 space-y-3">
                       {group.items.map((entry) => (
                         <BasketLine
                           key={`${entry.refNum}-${entry.variantId}`}
@@ -368,148 +371,275 @@ function BasketLine({
   onItemClick,
 }: BasketLineProps) {
   const t = useTranslations("basket");
+  const [variantSelectorOpen, setVariantSelectorOpen] = useState(false);
+  const [variantMenuPosition, setVariantMenuPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 300,
+  });
+  const [mounted, setMounted] = useState(false);
+  const variantSelectorRef = useRef<HTMLDivElement | null>(null);
+  const variantDropdownRef = useRef<HTMLDivElement | null>(null);
   const lineTotal = entry.priceUSD * entry.qty;
   const littleBiggyUrl = entry.sl ? normalizeLittleBiggyUrl(entry.sl) : null;
   const variants = useMemo(
     () => (item?.v ?? []).filter((variant) => variant.usd > 0),
     [item],
   );
+  const variantOptions = useMemo(
+    () =>
+      variants.map((variant, index) => ({
+        id: String(variant.vid ?? index),
+        label: variant.d || variant.dEn || t("variant"),
+        priceUSD: variant.usd,
+      })),
+    [variants, t],
+  );
+  const activeVariantLabel = entry.variantDesc || t("variant");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateVariantMenuPosition = useCallback(() => {
+    const trigger = variantSelectorRef.current;
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    const width = Math.min(320, window.innerWidth - 16);
+    const left = Math.max(
+      8,
+      Math.min(rect.left, window.innerWidth - width - 8),
+    );
+    const menuHeight = 256;
+    const hasRoomBelow = rect.bottom + menuHeight + 8 <= window.innerHeight;
+    const top = hasRoomBelow
+      ? rect.bottom + 6
+      : Math.max(8, rect.top - menuHeight - 6);
+    setVariantMenuPosition({ top, left, width });
+  }, []);
+
+  useEffect(() => {
+    if (!variantSelectorOpen) return;
+    updateVariantMenuPosition();
+
+    const onDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (variantSelectorRef.current?.contains(target)) return;
+      if (variantDropdownRef.current?.contains(target)) return;
+      setVariantSelectorOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setVariantSelectorOpen(false);
+    };
+
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown, { passive: true });
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("resize", updateVariantMenuPosition);
+    window.addEventListener("scroll", updateVariantMenuPosition, true);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", updateVariantMenuPosition);
+      window.removeEventListener("scroll", updateVariantMenuPosition, true);
+    };
+  }, [variantSelectorOpen, updateVariantMenuPosition]);
 
   return (
-    <div className="flex gap-3 rounded-lg border border-border p-3">
-      {/* Image */}
-      {entry.imageUrl && (
+    <>
+      <div className="flex items-start gap-4 rounded-xl border border-border bg-card/70 p-4 shadow-sm transition-shadow hover:shadow-md">
+        {entry.imageUrl ? (
+          <button
+            type="button"
+            onClick={onItemClick}
+            aria-label={t("viewItem", { item: entry.name })}
+            className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-surface cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+          >
+            <Image
+              src={entry.imageUrl}
+              alt={entry.name}
+              width={80}
+              height={80}
+              className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+            />
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/25 group-focus-visible:bg-black/25">
+              <Eye className="size-5 text-white opacity-0 drop-shadow transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+            </span>
+          </button>
+        ) : (
+          <div className="h-20 w-20 shrink-0 rounded-lg border border-border bg-surface" />
+        )}
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-start gap-1.5">
+            {littleBiggyUrl ? (
+              <a
+                href={littleBiggyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={t("viewOnLittleBiggy", { item: entry.name })}
+                className="group inline-flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground transition-colors hover:text-primary"
+              >
+                <span className="truncate">{entry.name}</span>
+                <ExternalLink
+                  size={13}
+                  className="shrink-0 opacity-55 transition-opacity group-hover:opacity-100"
+                />
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={onItemClick}
+                aria-label={t("viewItem", { item: entry.name })}
+                className="block w-full truncate text-left text-sm font-semibold text-foreground transition-colors hover:text-primary cursor-pointer"
+              >
+                {entry.name}
+              </button>
+            )}
+          </div>
+
+          <div className="mb-3 flex min-w-0 flex-wrap items-center gap-2">
+            <span
+              className="max-w-full truncate rounded-md bg-surface px-2 py-1 text-xs text-muted"
+              title={activeVariantLabel}
+            >
+              {activeVariantLabel}
+            </span>
+            {variantOptions.length > 1 && (
+              <div className="relative shrink-0" ref={variantSelectorRef}>
+                <button
+                  type="button"
+                  aria-label={t("changeVariant", { item: entry.name })}
+                  aria-expanded={variantSelectorOpen}
+                  onClick={() => {
+                    if (!variantSelectorOpen) updateVariantMenuPosition();
+                    setVariantSelectorOpen((value) => !value);
+                  }}
+                  className="inline-flex h-7 items-center rounded-md border border-border bg-surface px-2.5 text-xs font-semibold text-primary transition-colors hover:border-primary/40 hover:bg-surface-hover cursor-pointer"
+                >
+                  {t("change")}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="text-xs font-medium text-primary">
+              {fmtPrice(entry.priceUSD, cSym, cRate)} {t("each")}
+            </div>
+            <div className="ml-auto flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    entry.qty <= 1
+                      ? removeItem({
+                          refNum: entry.refNum,
+                          variantId: entry.variantId,
+                        })
+                      : setQty({
+                          refNum: entry.refNum,
+                          variantId: entry.variantId,
+                          qty: entry.qty - 1,
+                        })
+                  }
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer"
+                  aria-label={t(
+                    entry.qty <= 1 ? "removeItem" : "decreaseQty",
+                    { item: entry.name },
+                  )}
+                >
+                  {entry.qty <= 1 ? <Trash2 size={13} /> : <Minus size={13} />}
+                </button>
+                <span className="w-7 text-center text-sm font-semibold tabular-nums text-foreground">
+                  {entry.qty}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setQty({
+                      refNum: entry.refNum,
+                      variantId: entry.variantId,
+                      qty: entry.qty + 1,
+                    })
+                  }
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer"
+                  aria-label={t("increaseQty", { item: entry.name })}
+                >
+                  <Plus size={13} />
+                </button>
+              </div>
+              <div className="min-w-20 text-right text-base font-bold tabular-nums text-foreground">
+                {fmtPrice(lineTotal, cSym, cRate)}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <button
           type="button"
-          onClick={onItemClick}
-          aria-label={t("viewItem", { item: entry.name })}
-          className="shrink-0 w-14 h-14 rounded-md overflow-hidden bg-surface cursor-pointer"
+          onClick={() =>
+            removeItem({ refNum: entry.refNum, variantId: entry.variantId })
+          }
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-500 cursor-pointer"
+          aria-label={t("removeItem", { item: entry.name })}
         >
-          <Image
-            src={entry.imageUrl}
-            alt={entry.name}
-            width={56}
-            height={56}
-            className="w-full h-full object-cover"
-          />
+          <X size={15} />
         </button>
-      )}
+      </div>
 
-      {/* Details */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start gap-1.5">
-          {littleBiggyUrl ? (
-            <a
-              href={littleBiggyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={t("viewOnLittleBiggy", { item: entry.name })}
-              className="group inline-flex min-w-0 items-center gap-1 text-sm font-medium text-foreground hover:text-primary"
-            >
-              <span className="truncate">{entry.name}</span>
-              <ExternalLink
-                size={12}
-                className="shrink-0 opacity-55 transition-opacity group-hover:opacity-100"
-              />
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={onItemClick}
-              aria-label={t("viewItem", { item: entry.name })}
-              className="text-sm font-medium text-foreground hover:text-primary truncate block w-full text-left cursor-pointer"
-            >
-              {entry.name}
-            </button>
-          )}
-        </div>
-        <div className="mt-1 flex items-center gap-2 min-w-0">
-          <div className="text-xs text-muted truncate">{entry.variantDesc}</div>
-          {variants.length > 1 && (
-            <select
-              value={entry.variantId}
-              aria-label={t("changeVariant", { item: entry.name })}
-              onChange={(event) => {
-                const variant = variants.find(
-                  (candidate, index) =>
-                    String(candidate.vid ?? index) === event.target.value,
-                );
-                if (!variant) return;
-                changeVariant({
-                  refNum: entry.refNum,
-                  variantId: entry.variantId,
-                  next: {
-                    variantId: event.target.value,
-                    variantDesc: variant.d || variant.dEn || t("variant"),
-                    priceUSD: variant.usd,
-                  },
-                });
-              }}
-              className="max-w-24 shrink-0 rounded border border-border bg-card px-1.5 py-0.5 text-[11px] text-muted hover:text-foreground focus:border-primary focus:outline-none cursor-pointer"
-            >
-              {variants.map((variant, index) => {
-                const variantId = String(variant.vid ?? index);
+      {mounted &&
+        variantSelectorOpen &&
+        createPortal(
+          <div
+            ref={variantDropdownRef}
+            className="fixed z-320 max-h-64 overflow-auto rounded-lg border border-border bg-card/98 p-1.5 shadow-2xl backdrop-blur-xl"
+            style={variantMenuPosition}
+          >
+            <ul className="divide-y divide-border/70">
+              {variantOptions.map((option) => {
+                const isActive = option.id === String(entry.variantId);
                 return (
-                  <option key={variantId} value={variantId}>
-                    {variant.d || variant.dEn || t("variant")} -{" "}
-                    {fmtPrice(variant.usd, cSym, cRate)}
-                  </option>
+                  <li key={option.id}>
+                    <button
+                      type="button"
+                      disabled={isActive}
+                      title={option.label}
+                      onClick={() => {
+                        changeVariant({
+                          refNum: entry.refNum,
+                          variantId: entry.variantId,
+                          next: {
+                            variantId: option.id,
+                            variantDesc: option.label,
+                            priceUSD: option.priceUSD,
+                          },
+                        });
+                        setVariantSelectorOpen(false);
+                      }}
+                      className={cx(
+                        "flex w-full items-start justify-between gap-3 rounded-md px-2.5 py-2 text-left text-xs transition-colors",
+                        isActive
+                          ? "cursor-default bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-surface-hover cursor-pointer",
+                      )}
+                    >
+                      <span className="min-w-0 flex-1 whitespace-normal wrap-break-word leading-snug">
+                        {option.label}
+                      </span>
+                      <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold tabular-nums text-muted">
+                        {fmtPrice(option.priceUSD, cSym, cRate)}
+                        {isActive && <Check size={14} className="text-primary" />}
+                      </span>
+                    </button>
+                  </li>
                 );
               })}
-            </select>
-          )}
-        </div>
-        <div className="mt-1 text-xs font-medium text-primary">
-          {fmtPrice(entry.priceUSD, cSym, cRate)} {t("each")}
-        </div>
-      </div>
-
-      {/* Qty + total */}
-      <div className="flex flex-col items-end gap-1">
-        <div className="text-sm font-semibold text-foreground">
-          {fmtPrice(lineTotal, cSym, cRate)}
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() =>
-              entry.qty <= 1
-                ? removeItem({
-                    refNum: entry.refNum,
-                    variantId: entry.variantId,
-                  })
-                : setQty({
-                    refNum: entry.refNum,
-                    variantId: entry.variantId,
-                    qty: entry.qty - 1,
-                  })
-            }
-            className="inline-flex h-6 w-6 items-center justify-center rounded border border-border text-muted hover:bg-surface cursor-pointer"
-            aria-label={t(entry.qty <= 1 ? "removeItem" : "decreaseQty", {
-              item: entry.name,
-            })}
-          >
-            {entry.qty <= 1 ? <Trash2 size={12} /> : <Minus size={12} />}
-          </button>
-          <span className="w-6 text-center text-xs font-medium text-foreground">
-            {entry.qty}
-          </span>
-          <button
-            type="button"
-            onClick={() =>
-              setQty({
-                refNum: entry.refNum,
-                variantId: entry.variantId,
-                qty: entry.qty + 1,
-              })
-            }
-            className="inline-flex h-6 w-6 items-center justify-center rounded border border-border text-muted hover:bg-surface cursor-pointer"
-            aria-label={t("increaseQty", { item: entry.name })}
-          >
-            <Plus size={12} />
-          </button>
-        </div>
-      </div>
-    </div>
+            </ul>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }

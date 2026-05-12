@@ -856,6 +856,7 @@
     "noShipping": "No se permite enviar",
     "viewOnLittleBiggy": "Ver {item} en LittleBiggy",
     "changeVariant": "Cambiar variante de {item}",
+    "change": "Cambiar",
     "variant": "Variante",
     "items": "Elementos",
     "total": "Total",

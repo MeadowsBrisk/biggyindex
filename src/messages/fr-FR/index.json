@@ -856,6 +856,7 @@
     "noShipping": "Pas de transport",
     "viewOnLittleBiggy": "Voir {item} sur LittleBiggy",
     "changeVariant": "Modifier la variante de {item}",
+    "change": "Modifier",
     "variant": "Variante",
     "items": "Objets",
     "total": "Total",

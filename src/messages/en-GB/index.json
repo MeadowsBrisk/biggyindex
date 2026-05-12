@@ -856,6 +856,7 @@
     "noShipping": "No shipping",
     "viewOnLittleBiggy": "View {item} on LittleBiggy",
     "changeVariant": "Change variant for {item}",
+    "change": "Change",
     "variant": "Variant",
     "items": "Items",
     "total": "Total",
