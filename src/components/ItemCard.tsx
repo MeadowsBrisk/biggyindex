@@ -165,7 +165,7 @@ function fmtPrice(
 ): string {
   if (min == null) return "N/A";
   if (max != null && max !== min) {
-    return `${sym}${(min * rate).toFixed(1)} – ${sym}${(max * rate).toFixed(1)}`;
+    return `${sym}${Math.round(min * rate)} – ${sym}${Math.round(max * rate)}`;
   }
   return `${sym}${(min * rate).toFixed(2)}`;
 }
