@@ -164,10 +164,10 @@ function fmtPrice(
   rate: number,
 ): string {
   if (min == null) return "N/A";
-  const lo = `${sym}${(min * rate).toFixed(2)}`;
-  if (max != null && max !== min)
-    return `${lo} – ${sym}${(max * rate).toFixed(2)}`;
-  return lo;
+  if (max != null && max !== min) {
+    return `${sym}${(min * rate).toFixed(1)} – ${sym}${(max * rate).toFixed(1)}`;
+  }
+  return `${sym}${(min * rate).toFixed(2)}`;
 }
 
 /* ── Check if shipping origin is domestic ── */

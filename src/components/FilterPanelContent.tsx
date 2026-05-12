@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { MouseEvent, ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
@@ -149,6 +149,7 @@ export function FilterPanelContent({
   const [sellerQuery, setSellerQuery] = useState("");
   const [showAllSellers, setShowAllSellers] = useState(false);
   const [sellerSort, setSellerSort] = useState<"alpha" | "count">("alpha");
+  const sellerSearchInputRef = useRef<HTMLInputElement>(null);
   const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
 
   useEffect(() => {
@@ -212,6 +213,11 @@ export function FilterPanelContent({
     },
     [setSelectedSellers],
   );
+
+  const clearSellerQuery = useCallback(() => {
+    setSellerQuery("");
+    window.requestAnimationFrame(() => sellerSearchInputRef.current?.focus());
+  }, []);
 
   // Left-click toggles INCLUDE. Right-click (desktop) handler below
   // toggles EXCLUDE. Previous behaviour was a 3-state cycle on every
@@ -554,12 +560,24 @@ export function FilterPanelContent({
                   className="absolute left-2 top-1/2 -translate-y-1/2 text-muted"
                 />
                 <input
+                  ref={sellerSearchInputRef}
                   type="text"
                   placeholder={t("searchSellers")}
                   value={sellerQuery}
                   onChange={(event) => setSellerQuery(event.target.value)}
-                  className="w-full rounded-md border border-border bg-surface py-1.5 pl-7 pr-3 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
+                  className="w-full rounded-md border border-border bg-surface py-1.5 pl-7 pr-7 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
                 />
+                {sellerQuery && (
+                  <button
+                    type="button"
+                    onClick={clearSellerQuery}
+                    title={t("clearSearch")}
+                    aria-label={t("clearSearch")}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
               </div>
               <button
                 type="button"
@@ -630,7 +648,13 @@ export function FilterPanelContent({
                       >
                         <button
                           type="button"
-                          onClick={() => toggleSeller(seller.id)}
+                          onClick={() => {
+                            toggleSeller(seller.id);
+                            if (sellerQuery.trim()) {
+                              setSellerQuery("");
+                              setShowAllSellers(false);
+                            }
+                          }}
                           className="flex flex-1 items-center gap-1.5 px-2 py-1.5 text-left cursor-pointer min-w-0"
                           title={
                             isSelected

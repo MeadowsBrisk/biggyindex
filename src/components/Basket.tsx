@@ -20,6 +20,12 @@ import { fmtPrice } from "@/lib/format";
 import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
 import type { Item } from "@/lib/types";
 import {
+  itemVariantContext,
+  parseVariant,
+  pricePerUnit,
+  UNIT_DISPLAY_LABEL,
+} from "@/lib/variants";
+import {
   type BasketEntry,
   basketAtom,
   basketCountAtom,
@@ -386,14 +392,26 @@ function BasketLine({
     () => (item?.v ?? []).filter((variant) => variant.usd > 0),
     [item],
   );
+  const variantContext = useMemo(
+    () => (item ? itemVariantContext(item) : entry.name),
+    [entry.name, item],
+  );
   const variantOptions = useMemo(
     () =>
-      variants.map((variant, index) => ({
-        id: String(variant.vid ?? index),
-        label: variant.d || variant.dEn || t("variant"),
-        priceUSD: variant.usd,
-      })),
-    [variants, t],
+      variants.map((variant, index) => {
+        const parsed = parseVariant(variant, variantContext);
+        const ppu = pricePerUnit(variant.usd, parsed);
+        return {
+          id: String(variant.vid ?? index),
+          label: variant.d || variant.dEn || t("variant"),
+          priceUSD: variant.usd,
+          ppuLabel:
+            ppu != null && parsed
+              ? `${fmtPrice(ppu, cSym, cRate)}/${UNIT_DISPLAY_LABEL[parsed.unit] ?? parsed.unit}`
+              : null,
+        };
+      }),
+    [cRate, cSym, variantContext, variants, t],
   );
   const activeVariantLabel = entry.variantDesc || t("variant");
 
@@ -545,10 +563,9 @@ function BasketLine({
                         })
                   }
                   className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer"
-                  aria-label={t(
-                    entry.qty <= 1 ? "removeItem" : "decreaseQty",
-                    { item: entry.name },
-                  )}
+                  aria-label={t(entry.qty <= 1 ? "removeItem" : "decreaseQty", {
+                    item: entry.name,
+                  })}
                 >
                   {entry.qty <= 1 ? <Trash2 size={13} /> : <Minus size={13} />}
                 </button>
@@ -628,9 +645,20 @@ function BasketLine({
                       <span className="min-w-0 flex-1 whitespace-normal wrap-break-word leading-snug">
                         {option.label}
                       </span>
-                      <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold tabular-nums text-muted">
-                        {fmtPrice(option.priceUSD, cSym, cRate)}
-                        {isActive && <Check size={14} className="text-primary" />}
+                      <span className="flex shrink-0 items-start gap-1.5 text-right tabular-nums">
+                        <span className="flex flex-col items-end">
+                          <span className="text-[11px] font-semibold text-muted">
+                            {fmtPrice(option.priceUSD, cSym, cRate)}
+                          </span>
+                          {option.ppuLabel && (
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              {option.ppuLabel}
+                            </span>
+                          )}
+                        </span>
+                        {isActive && (
+                          <Check size={14} className="mt-0.5 text-primary" />
+                        )}
                       </span>
                     </button>
                   </li>
