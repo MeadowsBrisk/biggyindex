@@ -42,14 +42,15 @@ import {
   decodeEntities,
   fmtPrice,
   formatDateTime,
-  formatPriceChange,
+  formatPriceRangeChange,
+  formatPriceRangeValue,
 } from "@/lib/format";
 import {
   getItemGalleryImages,
   getItemPrimaryImage,
   getSellerImageUrl,
 } from "@/lib/images";
-import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, MergedDetailBlob } from "@/lib/types";
 import {
   itemVariantContext,
@@ -330,10 +331,7 @@ export function ItemDetailOverlay() {
 
   // Treat as loading if refNum is set but neither source resolved yet (avoids flash of "not found")
   const isLoading = detailLoading || (!!refNum && !item && !mergedDetail);
-  const littleBiggyUrl = useMemo(
-    () => (displayItem?.sl ? normalizeLittleBiggyUrl(displayItem.sl) : null),
-    [displayItem],
-  );
+  const littleBiggyUrl = displayItem ? getLittleBiggyItemUrl(displayItem) : null;
   const littleBiggyEvent = useMemo(() => {
     if (!displayItem || !littleBiggyUrl) return null;
     return {
@@ -394,10 +392,10 @@ export function ItemDetailOverlay() {
     [mergedDetail?.ph],
   );
 
-  // Derive last price from price history (replaces lp field)
-  const lastPrice = useMemo(() => {
+  // Derive previous tracked range from price history (replaces lp field)
+  const previousPriceSnapshot = useMemo(() => {
     if (priceHistory.length >= 2) {
-      return priceHistory[priceHistory.length - 2].min;
+      return priceHistory[priceHistory.length - 2];
     }
     return null;
   }, [priceHistory]);
@@ -663,12 +661,15 @@ export function ItemDetailOverlay() {
                               />
                             )}
                           </span>
-                          {lastPrice != null &&
+                          {previousPriceSnapshot &&
                             displayItem.uMin != null &&
                             (() => {
-                              const change = formatPriceChange(
-                                lastPrice,
-                                displayItem.uMin,
+                              const change = formatPriceRangeChange(
+                                previousPriceSnapshot,
+                                {
+                                  min: displayItem.uMin,
+                                  max: displayItem.uMax ?? displayItem.uMin,
+                                },
                               );
                               if (!change) return null;
                               const isDown = change.startsWith("\u2193");
@@ -679,7 +680,11 @@ export function ItemDetailOverlay() {
                                   {change}
                                   <span className="ido-price-badge__was">
                                     {t("wasPrice", {
-                                      price: fmtPrice(lastPrice, cSym, cRate),
+                                      price: formatPriceRangeValue(
+                                        previousPriceSnapshot,
+                                        cSym,
+                                        cRate,
+                                      ),
                                     })}
                                   </span>
                                 </span>
@@ -1132,7 +1137,7 @@ export function ItemDetailOverlay() {
                                   .map((snap, idx, arr) => {
                                     const prev = arr[idx + 1];
                                     const change = prev
-                                      ? formatPriceChange(prev.min, snap.min)
+                                      ? formatPriceRangeChange(prev, snap)
                                       : null;
                                     return (
                                       <li
@@ -1165,7 +1170,7 @@ export function ItemDetailOverlay() {
                                           >
                                             {change}
                                           </span>
-                                        ) : (
+                                        ) : prev ? null : (
                                           <span className="ido-price-history__change ido-price-history__change--first">
                                             {t("priceHistory.firstTracked")}
                                           </span>

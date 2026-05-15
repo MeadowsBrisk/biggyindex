@@ -19,6 +19,31 @@ export function formatPriceChange(
   return newPrice < oldPrice ? `↓ ${pct}%` : `↑ ${pct}%`;
 }
 
+export interface PriceRangeValue {
+  min: number;
+  max: number;
+}
+
+export function formatPriceRangeValue(
+  range: PriceRangeValue,
+  sym: string,
+  rate: number,
+): string {
+  const min = fmtPrice(range.min, sym, rate);
+  if (range.max === range.min) return min;
+  return `${min} – ${fmtPrice(range.max, sym, rate)}`;
+}
+
+export function formatPriceRangeChange(
+  oldRange: PriceRangeValue,
+  newRange: PriceRangeValue,
+): string | null {
+  return (
+    formatPriceChange(oldRange.min, newRange.min) ??
+    formatPriceChange(oldRange.max, newRange.max)
+  );
+}
+
 /** Format ISO string as "17 Feb 2026, 14:30" (en-GB). */
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", {

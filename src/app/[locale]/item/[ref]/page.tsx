@@ -26,10 +26,11 @@ import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { loadMergedDetail } from "@/lib/data";
-import { decodeEntities } from "@/lib/format";
+import { decodeEntities, formatPriceRangeChange } from "@/lib/format";
 import { getItemGalleryImages } from "@/lib/images";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { compactMetaDescription, pageMetadata } from "@/lib/seo/metadata";
+import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
 import {
   itemVariantContext,
@@ -292,7 +293,7 @@ async function ItemContent({ params }: ItemPageProps) {
   const reviews = itemReviewsFromDetail(item.reviews, item);
   const priceHistory = (item as MergedDetailBlob).ph ?? [];
   const shipOptions = (item as MergedDetailBlob).shOpts ?? [];
-  const shareLink = item.sl;
+  const shareLink = getLittleBiggyItemUrl(item);
   const attrs = attributeRows(item.at);
   const variantContext = itemVariantContext(item);
 
@@ -652,11 +653,8 @@ async function ItemContent({ params }: ItemPageProps) {
                                       </span>
                                     )}
                                   </span>
-                                  {previous && previous.min !== snapshot.min ? (
-                                    <PriceDir
-                                      prev={previous.min}
-                                      curr={snapshot.min}
-                                    />
+                                  {previous ? (
+                                    <PriceDir prev={previous} curr={snapshot} />
                                   ) : null}
                                 </li>
                               );
@@ -810,30 +808,36 @@ function ItemPageBar({
   );
 }
 
-function PriceDir({ prev, curr }: { prev: number; curr: number }) {
-  const pct = Math.round(Math.abs(((curr - prev) / prev) * 100));
-  if (pct === 0) return null;
-  const down = curr < prev;
+function PriceDir({
+  prev,
+  curr,
+}: {
+  prev: PriceSnapshot;
+  curr: PriceSnapshot;
+}) {
+  const change = formatPriceRangeChange(prev, curr);
+  if (!change) return null;
+  const down = change.startsWith("↓");
   return (
     <span
       className={`ido-price-history__change ${down ? "ido-price-history__change--down" : "ido-price-history__change--up"}`}
     >
-      {down ? "down" : "up"} {pct}%
+      {change}
     </span>
   );
 }
 
 function PriceChangeBadge({ history }: { history: PriceSnapshot[] }) {
-  const prev = history[history.length - 2].min;
-  const curr = history[history.length - 1].min;
-  const pct = Math.round(Math.abs(((curr - prev) / prev) * 100));
-  if (pct === 0) return null;
-  const down = curr < prev;
+  const prev = history[history.length - 2];
+  const curr = history[history.length - 1];
+  const change = formatPriceRangeChange(prev, curr);
+  if (!change) return null;
+  const down = change.startsWith("↓");
   return (
     <span
       className={`ido-price-badge ${down ? "ido-price-badge--down" : "ido-price-badge--up"}`}
     >
-      {down ? "down" : "up"} {pct}%
+      {change}
     </span>
   );
 }

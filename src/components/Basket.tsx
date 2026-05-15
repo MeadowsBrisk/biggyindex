@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cx } from "@/lib/cn";
 import { fmtPrice } from "@/lib/format";
-import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import type { Item } from "@/lib/types";
 import {
   itemVariantContext,
@@ -387,7 +387,7 @@ function BasketLine({
   const variantSelectorRef = useRef<HTMLDivElement | null>(null);
   const variantDropdownRef = useRef<HTMLDivElement | null>(null);
   const lineTotal = entry.priceUSD * entry.qty;
-  const littleBiggyUrl = entry.sl ? normalizeLittleBiggyUrl(entry.sl) : null;
+  const littleBiggyUrl = getLittleBiggyItemUrl(entry);
   const variants = useMemo(
     () => (item?.v ?? []).filter((variant) => variant.usd > 0),
     [item],

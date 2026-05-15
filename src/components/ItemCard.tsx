@@ -37,7 +37,7 @@ import {
   getSellerImageUrl,
 } from "@/lib/images";
 import { formatShipFrom, shipFromCode, shipFromLabel } from "@/lib/shipFrom";
-import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, Seller } from "@/lib/types";
 import {
   cheapestPpu,
@@ -324,8 +324,13 @@ function ItemCardInner({
   const variantContext = useMemo(() => itemVariantContext(item), [item]);
   const itemKey = itemMeta.bookmarkKey;
   const littleBiggyUrl = useMemo(
-    () => (item.sl ? normalizeLittleBiggyUrl(item.sl) : null),
-    [item.sl],
+    () =>
+      getLittleBiggyItemUrl({
+        sl: item.sl,
+        refNum: item.refNum,
+        id: item.id,
+      }),
+    [item.sl, item.refNum, item.id],
   );
   const littleBiggyEvent = useMemo(() => {
     if (!littleBiggyUrl) return null;

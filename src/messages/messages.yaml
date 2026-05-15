@@ -1897,25 +1897,25 @@ home:
           pl-PL: Najwyższy wskaźnik pozytywnych recenzji
       caution:
         title:
-          en-GB: Use Caution
-          de-DE: Seien Sie vorsichtig
-          fr-FR: Soyez prudent
-          pt-PT: Use Cautela
-          it-IT: Usa cautela
-          es-ES: Usa precaución
-          el-GR: Να είστε προσεκτικοί
-          cs-CZ: Buďte opatrní
-          pl-PL: Zachowaj ostrożność
+          en-GB: Needs Review
+          de-DE: Zu prüfen
+          fr-FR: À vérifier
+          pt-PT: A rever
+          it-IT: Da verificare
+          es-ES: Para revisar
+          el-GR: Χρειάζεται έλεγχο
+          cs-CZ: Ke kontrole
+          pl-PL: Do sprawdzenia
         subtitle:
-          en-GB: Elevated negative feedback
-          de-DE: Erhöhte negative Rückkopplung
-          fr-FR: Rétroaction négative élevée
-          pt-PT: Feedback negativo elevado
-          it-IT: Feedback negativo elevato
-          es-ES: Retroalimentación negativa elevada
-          el-GR: Αυξημένη αρνητική ανατροφοδότηση
-          cs-CZ: Zvýšená negativní zpětná vazba
-          pl-PL: Podwyższone negatywne sprzężenie zwrotne
+          en-GB: Higher negative-review rate
+          de-DE: Höhere negative Bewertungsrate
+          fr-FR: Taux d'avis négatifs plus élevé
+          pt-PT: Taxa mais alta de avaliações negativas
+          it-IT: Tasso più alto di recensioni negative
+          es-ES: Mayor tasa de reseñas negativas
+          el-GR: Υψηλότερο ποσοστό αρνητικών κριτικών
+          cs-CZ: Vyšší podíl negativních recenzí
+          pl-PL: Wyższy odsetek negatywnych recenzji
       reviewsLabel:
         en-GB: Reviews
         de-DE: Rezensionen
@@ -4683,25 +4683,25 @@ seller:
         cs-CZ: Nejvyšší poměr pozitivních recenzí
         pl-PL: Najwyższy wskaźnik pozytywnych recenzji
       useCaution:
-        en-GB: Use Caution
-        de-DE: Seien Sie vorsichtig
-        fr-FR: Soyez prudent
-        pt-PT: Use Cautela
-        it-IT: Usa cautela
-        es-ES: Usa precaución
-        el-GR: Να είστε προσεκτικοί
-        cs-CZ: Buďte opatrní
-        pl-PL: Zachowaj ostrożność
+        en-GB: Needs Review
+        de-DE: Zu prüfen
+        fr-FR: À vérifier
+        pt-PT: A rever
+        it-IT: Da verificare
+        es-ES: Para revisar
+        el-GR: Χρειάζεται έλεγχο
+        cs-CZ: Ke kontrole
+        pl-PL: Do sprawdzenia
       useCautionSubtitle:
-        en-GB: Elevated negative feedback
-        de-DE: Erhöhte negative Rückkopplung
-        fr-FR: Rétroaction négative élevée
-        pt-PT: Feedback negativo elevado
-        it-IT: Feedback negativo elevato
-        es-ES: Retroalimentación negativa elevada
-        el-GR: Αυξημένη αρνητική ανατροφοδότηση
-        cs-CZ: Zvýšená negativní zpětná vazba
-        pl-PL: Podwyższone negatywne sprzężenie zwrotne
+        en-GB: Higher negative-review rate
+        de-DE: Höhere negative Bewertungsrate
+        fr-FR: Taux d'avis négatifs plus élevé
+        pt-PT: Taxa mais alta de avaliações negativas
+        it-IT: Tasso più alto di recensioni negative
+        es-ES: Mayor tasa de reseñas negativas
+        el-GR: Υψηλότερο ποσοστό αρνητικών κριτικών
+        cs-CZ: Vyšší podíl negativních recenzí
+        pl-PL: Wyższy odsetek negatywnych recenzji
       reviews:
         en-GB: Reviews
         de-DE: Rezensionen

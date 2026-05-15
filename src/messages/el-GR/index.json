@@ -285,8 +285,8 @@
           "subtitle": "Υψηλότερη αναλογία θετικών κριτικών"
         },
         "caution": {
-          "title": "Να είστε προσεκτικοί",
-          "subtitle": "Αυξημένη αρνητική ανατροφοδότηση"
+          "title": "Χρειάζεται έλεγχο",
+          "subtitle": "Υψηλότερο ποσοστό αρνητικών κριτικών"
         },
         "reviewsLabel": "Κριτικές"
       },
@@ -657,8 +657,8 @@
         "thisWeek": "Αυτή την εβδομάδα",
         "topRated": "Κορυφαία βαθμολογία",
         "topRatedSubtitle": "Υψηλότερη αναλογία θετικών κριτικών",
-        "useCaution": "Να είστε προσεκτικοί",
-        "useCautionSubtitle": "Αυξημένη αρνητική ανατροφοδότηση",
+        "useCaution": "Χρειάζεται έλεγχο",
+        "useCautionSubtitle": "Υψηλότερο ποσοστό αρνητικών κριτικών",
         "reviews": "Κριτικές",
         "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
         "negativeCount": "{count, plural, one {1 negative} other {# negative}}"

@@ -29,7 +29,7 @@ import { useHistoryState } from "@/hooks/useHistoryState";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
-import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import {
   expandedRefNumAtom,
   focusReviewIdAtom,
@@ -104,31 +104,29 @@ export function PhotoReviewModal() {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  // Look up the item's LittleBiggy share link by refNum. We don't store it on
-  // the review payload itself (home-feed reviews are intentionally slim), and
-  // we can't guess the URL pattern, so we fall back to no "View on LB" link
-  // when the item isn't in the client's items list for any reason.
+  // Look up the item's LittleBiggy share link by refNum. If the share link is
+  // missing, fall back to the direct LittleBiggy item URL.
   const shareItem = useMemo(() => {
     if (!review?.refNum) return null;
     return items.find((i) => i.refNum === review.refNum) ?? null;
   }, [items, review?.refNum]);
 
   const shareLink = useMemo(
-    () => (shareItem?.sl ? normalizeLittleBiggyUrl(shareItem.sl) : null),
-    [shareItem?.sl],
+    () => getLittleBiggyItemUrl(shareItem ?? { refNum: review?.refNum }),
+    [shareItem, review?.refNum],
   );
   const outboundEvent = useMemo(() => {
-    if (!shareItem || !shareLink) return null;
+    if (!review?.refNum || !shareLink) return null;
     return {
-      id: String(shareItem.refNum ?? shareItem.id),
+      id: String(shareItem?.refNum ?? review.refNum),
       url: shareLink,
-      n: decodeEntities(shareItem.n),
-      sid: shareItem.sid != null ? String(shareItem.sid) : undefined,
-      sn: shareItem.sn ?? undefined,
-      c: shareItem.c ?? undefined,
+      n: decodeEntities(shareItem?.n ?? review.itemName ?? ""),
+      sid: shareItem?.sid != null ? String(shareItem.sid) : undefined,
+      sn: shareItem?.sn ?? undefined,
+      c: shareItem?.c ?? undefined,
       mkt: market,
     };
-  }, [market, shareItem, shareLink]);
+  }, [market, review?.itemName, review?.refNum, shareItem, shareLink]);
   const handleLittleBiggyClick = useLBGuideGate(outboundEvent);
 
   const handleClose = () => setReview(null);

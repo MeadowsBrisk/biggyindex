@@ -10,7 +10,7 @@ import { useEffect, useMemo } from "react";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage } from "@/lib/images";
-import { normalizeLittleBiggyUrl } from "@/lib/tracking/littlebiggy";
+import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import { itemsAtom, marketAtom } from "@/store/atoms";
 
 function formatDate(iso: string): string {
@@ -33,10 +33,7 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
       items.find((i) => String(i.refNum) === refNum || String(i.id) === refNum),
     [items, refNum],
   );
-  const littleBiggyUrl = useMemo(
-    () => (item?.sl ? normalizeLittleBiggyUrl(item.sl) : null),
-    [item?.sl],
-  );
+  const littleBiggyUrl = item ? getLittleBiggyItemUrl(item) : null;
   const littleBiggyEvent = useMemo(() => {
     if (!item || !littleBiggyUrl) return null;
     return {
