@@ -796,6 +796,26 @@
   font-size: 0.75rem;
 }
 
+/* Full-width update-reason row beneath the meta grid. Kept out of the
+   "Updated" cell so the four cells stay uniform height; here the reason
+   (which can be long and is vital) wraps freely and is shown in full. */
+.ido-meta-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.ido-meta-reason__icon {
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+  color: var(--muted);
+}
+
 /* ── Attribute chips (key + value, two-tone pill) ── */
 .ido-attr-chip {
   display: inline-flex;

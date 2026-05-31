@@ -417,8 +417,14 @@ async function ItemContent({ params }: ItemPageProps) {
                         item.uMax !== item.uMin &&
                         ` - ${cSym}${item.uMax.toFixed(2)}`}
                     </span>
-                    {priceHistory.length >= 2 && (
-                      <PriceChangeBadge history={priceHistory} />
+                    {priceHistory.length >= 2 && item.uMin != null && (
+                      <PriceChangeBadge
+                        history={priceHistory}
+                        current={{
+                          min: item.uMin,
+                          max: item.uMax ?? item.uMin,
+                        }}
+                      />
                     )}
                   </div>
 
@@ -827,9 +833,16 @@ function PriceDir({
   );
 }
 
-function PriceChangeBadge({ history }: { history: PriceSnapshot[] }) {
+function PriceChangeBadge({
+  history,
+  current,
+}: {
+  history: PriceSnapshot[];
+  current: { min: number; max: number };
+}) {
   const prev = history[history.length - 2];
   const curr = history[history.length - 1];
+  if (curr.min !== current.min || curr.max !== current.max) return null;
   const change = formatPriceRangeChange(prev, curr);
   if (!change) return null;
   const down = change.startsWith("↓");

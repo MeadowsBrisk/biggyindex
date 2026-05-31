@@ -43,6 +43,24 @@ export function ItemDetailTabs({
     if (sections.length === 0) return;
 
     const root = scrollRef?.current;
+
+    // When scrolled to (or within a few px of) the bottom, the final
+    // section's heading may never reach the offset line — activate the
+    // last section directly so the tab reflects what's actually in view.
+    const scroller: Element | null =
+      root ?? document.scrollingElement ?? document.documentElement;
+    if (scroller) {
+      const atBottom =
+        scroller.scrollTop + scroller.clientHeight >=
+        scroller.scrollHeight - 4;
+      if (atBottom) {
+        const last = sections[sections.length - 1].dataset
+          .sectionId as SectionId;
+        setActive(last);
+        return;
+      }
+    }
+
     const rootTop = root?.getBoundingClientRect().top ?? 0;
     let best: SectionId | null = null;
     let bestTop = -Infinity;

@@ -331,7 +331,9 @@ export function ItemDetailOverlay() {
 
   // Treat as loading if refNum is set but neither source resolved yet (avoids flash of "not found")
   const isLoading = detailLoading || (!!refNum && !item && !mergedDetail);
-  const littleBiggyUrl = displayItem ? getLittleBiggyItemUrl(displayItem) : null;
+  const littleBiggyUrl = displayItem
+    ? getLittleBiggyItemUrl(displayItem)
+    : null;
   const littleBiggyEvent = useMemo(() => {
     if (!displayItem || !littleBiggyUrl) return null;
     return {
@@ -392,13 +394,18 @@ export function ItemDetailOverlay() {
     [mergedDetail?.ph],
   );
 
-  // Derive previous tracked range from price history (replaces lp field)
-  const previousPriceSnapshot = useMemo(() => {
-    if (priceHistory.length >= 2) {
-      return priceHistory[priceHistory.length - 2];
-    }
-    return null;
-  }, [priceHistory]);
+  const latestPriceChange = (() => {
+    if (priceHistory.length < 2 || displayItem?.uMin == null) return null;
+
+    const previous = priceHistory[priceHistory.length - 2];
+    const latest = priceHistory[priceHistory.length - 1];
+    const currentMax = displayItem.uMax ?? displayItem.uMin;
+    if (latest.min !== displayItem.uMin || latest.max !== currentMax)
+      return null;
+
+    const change = formatPriceRangeChange(previous, latest);
+    return change ? { previous, change } : null;
+  })();
 
   // ── Reviews from merged detail blob ──
   const itemReviews: ItemReview[] = useMemo(
@@ -661,27 +668,19 @@ export function ItemDetailOverlay() {
                               />
                             )}
                           </span>
-                          {previousPriceSnapshot &&
-                            displayItem.uMin != null &&
+                          {latestPriceChange &&
                             (() => {
-                              const change = formatPriceRangeChange(
-                                previousPriceSnapshot,
-                                {
-                                  min: displayItem.uMin,
-                                  max: displayItem.uMax ?? displayItem.uMin,
-                                },
-                              );
-                              if (!change) return null;
-                              const isDown = change.startsWith("\u2193");
+                              const isDown =
+                                latestPriceChange.change.startsWith("\u2193");
                               return (
                                 <span
                                   className={`ido-price-badge ${isDown ? "ido-price-badge--down" : "ido-price-badge--up"}`}
                                 >
-                                  {change}
+                                  {latestPriceChange.change}
                                   <span className="ido-price-badge__was">
                                     {t("wasPrice", {
                                       price: formatPriceRangeValue(
-                                        previousPriceSnapshot,
+                                        latestPriceChange.previous,
                                         cSym,
                                         cRate,
                                       ),
@@ -975,20 +974,27 @@ export function ItemDetailOverlay() {
                                       : null;
                                   })()}
                                 </span>
-                                {/* Last-update reason from the crawler
-                                    (e.g. "Images changed, -3 variants").
-                                    Stamped on the item's index entry as
-                                    `lur` whenever the diff detector
-                                    catches a meaningful change. */}
-                                {displayItem.lur && (
-                                  <span className="ido-meta-cell__sub text-xs text-muted">
-                                    {displayItem.lur}
-                                  </span>
-                                )}
                               </div>
                             </div>
                           )}
                         </div>
+                        {/* Last-update reason from the crawler
+                            (e.g. "Images changed, -3 variants"). Stamped on
+                            the item's index entry as `lur` whenever the diff
+                            detector catches a meaningful change. Rendered as
+                            its own full-width row below the grid so the four
+                            meta cells stay uniform and the reason — which can
+                            be long and is vital info — wraps freely without
+                            being clipped. */}
+                        {displayItem.lua && displayItem.lur && (
+                          <p className="ido-meta-reason">
+                            <RefreshCw
+                              size={12}
+                              className="ido-meta-reason__icon"
+                            />
+                            <span>{displayItem.lur}</span>
+                          </p>
+                        )}
                       </section>
 
                       {/* ── Description section ── */}
