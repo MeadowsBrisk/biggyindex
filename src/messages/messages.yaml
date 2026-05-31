@@ -2919,15 +2919,15 @@ browse:
         pl-PL: Sprzedawcy
     attrs:
       effect:
-        en-GB: Effect
-        de-DE: Wirkung
-        fr-FR: Effet
-        pt-PT: Efeito
-        it-IT: Effetto
-        es-ES: Efecto
-        el-GR: Αποτέλεσμα
-        cs-CZ: Dopad
-        pl-PL: Efekt
+        en-GB: Type
+        de-DE: Typ
+        fr-FR: Type
+        pt-PT: Tipo
+        it-IT: Tipo
+        es-ES: Tipo
+        el-GR: Τύπος
+        cs-CZ: Typ
+        pl-PL: Typ
       micron:
         en-GB: Micron
         de-DE: Micron
@@ -3960,15 +3960,15 @@ item:
         pl-PL: Atrybuty
       labels:
         effect:
-          en-GB: Effect
-          de-DE: Wirkung
-          fr-FR: Effet
-          pt-PT: Efeito
-          it-IT: Effetto
-          es-ES: Efecto
-          el-GR: Αποτέλεσμα
-          cs-CZ: Dopad
-          pl-PL: Efekt
+          en-GB: Type
+          de-DE: Typ
+          fr-FR: Type
+          pt-PT: Tipo
+          it-IT: Tipo
+          es-ES: Tipo
+          el-GR: Τύπος
+          cs-CZ: Typ
+          pl-PL: Typ
         cbd:
           en-GB: CBD
           de-DE: CBD

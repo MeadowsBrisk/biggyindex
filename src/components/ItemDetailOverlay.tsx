@@ -883,7 +883,8 @@ export function ItemDetailOverlay() {
                         icon, a small label, and a bold primary value so the
                         grouping reads cleanly regardless of column count. */}
                         <div className="ido-meta-strip">
-                          {displayItem.rs?.avg != null && (
+                          <div className="ido-meta-cells">
+                            {displayItem.rs?.avg != null && (
                             <div className="ido-meta-cell">
                               <Star
                                 size={14}
@@ -977,24 +978,25 @@ export function ItemDetailOverlay() {
                               </div>
                             </div>
                           )}
+                          </div>
+                          {/* Last-update reason from the crawler
+                              (e.g. "Images changed, -3 variants"). Stamped on
+                              the item's index entry as `lur` whenever the diff
+                              detector catches a meaningful change. Rendered as
+                              a full-width note inside the card, divided from
+                              the stat cells, so it always shows in full (vital
+                              info) and wraps freely without distorting the
+                              flexible stat cells above. */}
+                          {displayItem.lua && displayItem.lur && (
+                            <p className="ido-meta-reason">
+                              <RefreshCw
+                                size={12}
+                                className="ido-meta-reason__icon"
+                              />
+                              <span>{displayItem.lur}</span>
+                            </p>
+                          )}
                         </div>
-                        {/* Last-update reason from the crawler
-                            (e.g. "Images changed, -3 variants"). Stamped on
-                            the item's index entry as `lur` whenever the diff
-                            detector catches a meaningful change. Rendered as
-                            its own full-width row below the grid so the four
-                            meta cells stay uniform and the reason — which can
-                            be long and is vital info — wraps freely without
-                            being clipped. */}
-                        {displayItem.lua && displayItem.lur && (
-                          <p className="ido-meta-reason">
-                            <RefreshCw
-                              size={12}
-                              className="ido-meta-reason__icon"
-                            />
-                            <span>{displayItem.lur}</span>
-                          </p>
-                        )}
                       </section>
 
                       {/* ── Description section ── */}

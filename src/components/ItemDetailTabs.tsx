@@ -9,6 +9,30 @@ type SectionId = "prices" | "description" | "reviews";
 
 const SECTION_IDS: SectionId[] = ["prices", "description", "reviews"];
 
+/** Walk up from `el` to find the nearest actually-scrollable ancestor.
+ *
+ * The detail overlay swaps its scroll container by breakpoint: on mobile the
+ * `.ido-panel` scrolls while `.ido-center` is static; on desktop `.ido-center`
+ * scrolls. Listening on a fixed element therefore misses scroll events on the
+ * breakpoint where that element doesn't scroll, which left the scroll-spy
+ * tabs frozen. Resolving the real scroller at runtime keeps highlighting in
+ * sync regardless of which ancestor is doing the scrolling. */
+function getScrollParent(el: HTMLElement | null): HTMLElement | null {
+  let node: HTMLElement | null = el;
+  while (node && node !== document.body && node !== document.documentElement) {
+    const style = window.getComputedStyle(node);
+    const overflowY = style.overflowY;
+    if (
+      (overflowY === "auto" || overflowY === "scroll") &&
+      node.scrollHeight > node.clientHeight
+    ) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  return null;
+}
+
 interface ItemDetailTabsProps {
   scrollRef?: RefObject<HTMLElement | null>;
   refNum: string | number | null;
@@ -42,26 +66,26 @@ export function ItemDetailTabs({
     const sections = findSections();
     if (sections.length === 0) return;
 
-    const root = scrollRef?.current;
+    const scroller = getScrollParent(scrollRef?.current ?? null);
+    const rootTop = scroller?.getBoundingClientRect().top ?? 0;
 
-    // When scrolled to (or within a few px of) the bottom, the final
-    // section's heading may never reach the offset line — activate the
-    // last section directly so the tab reflects what's actually in view.
-    const scroller: Element | null =
-      root ?? document.scrollingElement ?? document.documentElement;
-    if (scroller) {
+    // When genuinely scrolled to the bottom, the final section's heading may
+    // never reach the offset line — activate the last section directly so the
+    // tab reflects what's actually in view. Guarded by an "is scrollable"
+    // check so short, non-scrolling content doesn't falsely pick the last
+    // section while sitting at the top of the panel.
+    if (scroller && scroller.scrollHeight - scroller.clientHeight > 8) {
       const atBottom =
         scroller.scrollTop + scroller.clientHeight >=
         scroller.scrollHeight - 4;
       if (atBottom) {
-        const last = sections[sections.length - 1].dataset
-          .sectionId as SectionId;
-        setActive(last);
+        setActive(
+          sections[sections.length - 1].dataset.sectionId as SectionId,
+        );
         return;
       }
     }
 
-    const rootTop = root?.getBoundingClientRect().top ?? 0;
     let best: SectionId | null = null;
     let bestTop = -Infinity;
 
@@ -98,8 +122,8 @@ export function ItemDetailTabs({
   }, [refNum, updateActive]);
 
   useEffect(() => {
-    const root = scrollRef?.current;
-    const target: HTMLElement | Window = root ?? window;
+    const scroller = getScrollParent(scrollRef?.current ?? null);
+    const target: HTMLElement | Window = scroller ?? window;
     let ticking = false;
     const onScroll = () => {
       if (ticking) return;
@@ -118,7 +142,7 @@ export function ItemDetailTabs({
       target.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [scrollRef, updateActive]);
+  }, [scrollRef, updateActive, refNum]);
 
   const scrollTo = (id: SectionId) => {
     const target = findSections().find(
@@ -132,12 +156,12 @@ export function ItemDetailTabs({
       manualRef.current = false;
       updateActive();
     }, 800);
-    const root = scrollRef?.current;
-    if (root) {
-      const rootTop = root.getBoundingClientRect().top;
+    const scroller = getScrollParent(scrollRef?.current ?? null);
+    if (scroller) {
+      const rootTop = scroller.getBoundingClientRect().top;
       const targetTop = target.getBoundingClientRect().top;
-      root.scrollTo({
-        top: root.scrollTop + targetTop - rootTop - topOffset,
+      scroller.scrollTo({
+        top: scroller.scrollTop + targetTop - rootTop - topOffset,
         behavior: "smooth",
       });
       return;
