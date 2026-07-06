@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Active filter bar — ported from Roast Radar (Claude Design "Browse
+   Redesign"). A rounded, accent-tinted card at the top of the grid column;
+   groups separated by a hairline; each value a chip (flag + label + ×);
+   accent Clear-all. Uses --accent, which follows the user's selected accent
+   colour (SettingsSync sets it on <html>), so the bar re-tints live.
+   ========================================================================== */
+
+.active-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 9px 12px;
+  background: color-mix(in srgb, var(--accent) 4%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+  border-radius: 13px;
+}
+
+.active-grp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.active-grp:not(:first-child) {
+  padding-left: 12px;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+}
+
+.active-grp-k {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px 4px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--border);
+  cursor: pointer;
+  transition:
+    box-shadow 0.13s,
+    color 0.13s;
+}
+.active-chip:hover {
+  box-shadow: inset 0 0 0 1px var(--accent);
+  color: var(--accent);
+}
+
+/* Only the × dims at rest — the flag keeps full colour. */
+.active-chip-x {
+  opacity: 0.5;
+  transition: opacity 0.13s;
+}
+.active-chip:hover .active-chip-x {
+  opacity: 1;
+}
+
+.active-bar-spacer {
+  flex: 1 1 0%;
+}
+
+.active-bar-clear {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.active-bar-clear:hover {
+  text-decoration: underline;
+}

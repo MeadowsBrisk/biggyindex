@@ -84,10 +84,6 @@ export const R2Keys = {
   /** Shipping aggregate for a market */
   shipping: (market: string) => `markets/${market}/aggregates/ship.json`,
 
-  /** Pricing aggregate for a market and weight */
-  pricing: (market: string, grams: number) =>
-    `markets/${market}/aggregates/pricing/${grams}g.json`,
-
   /** Index meta (fsa, lua, lur per item) */
   indexMeta: "shared/aggregates/index-meta.json",
 

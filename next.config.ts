@@ -4,14 +4,26 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  ...(process.env.NODE_ENV === "development" && {
-    turbopack: { root: ".." },
-  }),
+  turbopack: {
+    // Pin Turbopack's root to THIS project. The workspace root
+    // (E:\my-sites\biggy-index-v2) has its own package.json + yarn.lock for
+    // the `r2` CLI, so without an explicit root Turbopack infers the whole
+    // ~9 GB workspace (old-biggyindex, dashboard, food-aggregator-example,
+    // …) as root and watches/resolves across all of it — which makes every
+    // dev compile take 10-20s and the watcher thrash. food-aggregator has no
+    // parent lockfile, so it gets a correctly-scoped root for free; we have
+    // to pin it. Must be absolute (Turbopack warns otherwise).
+    root: __dirname,
+  },
   experimental: {
     viewTransition: true,
     prefetchInlining: true,
     cachedNavigations: true,
   },
+  // Keep the AWS SDK external instead of bundling it into server routes
+  // (matches food-aggregator). lib/r2-server.ts pulls it in for the
+  // authenticated R2 API routes.
+  serverExternalPackages: ["@aws-sdk/client-s3"],
   cacheComponents: true,
   cacheLife: {
     /** Browse pages — stale 1h, revalidate daily, expire weekly */

@@ -412,6 +412,16 @@
         "descending": "Sort descending"
       }
     },
+    "activeBar": {
+      "search": "Search",
+      "category": "Category",
+      "subcategory": "Subcategory",
+      "sellers": "Sellers",
+      "shipFrom": "From",
+      "shipNot": "Not from",
+      "weight": "Weight",
+      "price": "Price"
+    },
     "filters": {
       "toggle": "Toggle filters",
       "label": "Filters",
@@ -430,7 +440,7 @@
         "sellers": "Sellers"
       },
       "attrs": {
-        "effect": "Effect",
+        "effect": "Type",
         "micron": "Micron",
         "filtration": "Filtration",
         "texture": "Texture",
@@ -565,7 +575,7 @@
       "attributes": {
         "heading": "Attributes",
         "labels": {
-          "effect": "Effect",
+          "effect": "Type",
           "cbd": "CBD",
           "grow": "Grow",
           "imported": "Imported",

@@ -76,12 +76,9 @@ export function ItemDetailTabs({
     // section while sitting at the top of the panel.
     if (scroller && scroller.scrollHeight - scroller.clientHeight > 8) {
       const atBottom =
-        scroller.scrollTop + scroller.clientHeight >=
-        scroller.scrollHeight - 4;
+        scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4;
       if (atBottom) {
-        setActive(
-          sections[sections.length - 1].dataset.sectionId as SectionId,
-        );
+        setActive(sections[sections.length - 1].dataset.sectionId as SectionId);
         return;
       }
     }

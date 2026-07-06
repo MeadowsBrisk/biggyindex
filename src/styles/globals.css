@@ -8,6 +8,9 @@
 @import "../styles/elements/photo-review-modal.css";
 @import "../styles/elements/basket.css";
 @import "../styles/elements/sort-bar.css";
+@import "../styles/elements/active-bar.css";
+@import "../styles/elements/reveal.css";
+@import "../styles/elements/sidebar.css";
 
 @keyframes fadeIn {
   from {

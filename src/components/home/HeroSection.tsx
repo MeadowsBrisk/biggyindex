@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ArrowRight, Cannabis } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -64,46 +63,35 @@ export function HeroSection({
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center px-4 w-full max-w-5xl mx-auto">
         {/* Logo mark */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mb-8"
-        >
+        <div className="mount-fade-scale mb-8">
           <div className="relative">
             <Cannabis size={48} className="text-primary" />
             <div className="absolute inset-0 blur-xl opacity-40 bg-primary rounded-full" />
           </div>
-        </motion.div>
+        </div>
 
         {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground text-center tracking-tight leading-tight"
+        <h1
+          style={{ "--mount-delay": "150ms" } as React.CSSProperties}
+          className="mount-fade text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground text-center tracking-tight leading-tight"
         >
           {t("title.line1")}
           <br />
           <span className="text-primary">{t("title.highlight")}</span>
-        </motion.h1>
+        </h1>
 
         {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-6 text-lg sm:text-xl text-muted text-center max-w-2xl"
+        <p
+          style={{ "--mount-delay": "300ms" } as React.CSSProperties}
+          className="mount-fade mt-6 text-lg sm:text-xl text-muted text-center max-w-2xl"
         >
           {t("subtitle")}
-        </motion.p>
+        </p>
 
         {/* Live stats - items and sellers only */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-6 flex items-center gap-6 text-sm text-muted"
+        <div
+          style={{ "--mount-delay": "400ms" } as React.CSSProperties}
+          className="mount-fade mt-6 flex items-center gap-6 text-sm text-muted"
         >
           <span>
             <span className="text-foreground font-semibold">
@@ -118,14 +106,12 @@ export function HeroSection({
             </span>{" "}
             {t("stats.activeSellers")}
           </span>
-        </motion.div>
+        </div>
 
         {/* Category grid — responsive, icon-led, no emojis */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 w-full max-w-5xl"
+        <div
+          style={{ "--mount-delay": "500ms" } as React.CSSProperties}
+          className="mount-fade mt-10 w-full max-w-5xl"
         >
           <div className="flex flex-wrap justify-center gap-1.5">
             {categoryCounts.map((cat) => {
@@ -155,14 +141,12 @@ export function HeroSection({
               );
             })}
           </div>
-        </motion.div>
+        </div>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12"
+        <div
+          style={{ "--mount-delay": "600ms" } as React.CSSProperties}
+          className="mount-fade mt-12"
         >
           {/* Hero CTA — the one navigation we DO prefetch (high-traffic
               home → browse hop). Other links across the site stay
@@ -185,14 +169,12 @@ export function HeroSection({
               className="transition-transform group-hover:translate-x-1"
             />
           </Link>
-        </motion.div>
+        </div>
 
         {/* Market flag strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.75 }}
-          className="mt-12 flex items-center gap-4"
+        <div
+          style={{ "--mount-delay": "750ms" } as React.CSSProperties}
+          className="mount-fade mt-12 flex items-center gap-4"
         >
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
             {t("markets")}
@@ -228,28 +210,19 @@ export function HeroSection({
               );
             })}
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Scroll indicator - fades out on scroll */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: scrolledPast ? 0 : 1 }}
-        transition={{ duration: 0.4 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none"
+      {/* Scroll indicator - fades out once the user scrolls */}
+      <div
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-[400ms] ${
+          scrolledPast ? "opacity-0" : "opacity-100"
+        }`}
       >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{
-            duration: 2,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="w-5 h-8 rounded-full border-2 border-[var(--border)] flex justify-center pt-1.5"
-        >
+        <div className="hero-bob w-5 h-8 rounded-full border-2 border-[var(--border)] flex justify-center pt-1.5">
           <div className="w-1 h-2 rounded-full bg-muted-foreground" />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   ArrowRight,
@@ -19,6 +18,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 import {
   currencyDisplayAtom,
   expandedRefNumAtom,
@@ -408,16 +408,17 @@ export function WhatsNewSection({
     }),
     [t],
   );
+  const header = useRevealOnScroll<HTMLDivElement>();
+  const carousel = useRevealOnScroll<HTMLDivElement>();
 
   return (
     <section className="py-20 bg-background">
       {/* Header area - contained */}
       <div className="max-w-7xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+        <div
+          ref={header.ref}
+          data-revealed={header.revealed}
+          className="reveal-fade"
         >
           {/* Section label */}
           <p className="text-sm font-semibold uppercase tracking-wider text-primary mb-2">
@@ -468,83 +469,76 @@ export function WhatsNewSection({
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Card carousel - Swiper */}
       <div className="overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
+        <div
+          ref={carousel.ref}
+          data-revealed={carousel.revealed}
+          className="reveal-fade"
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.24, ease: "easeOut" }}
+          {/* Re-keyed on tab change so the enter animation replays —
+              CSS stand-in for AnimatePresence mode="wait" */}
+          <div key={activeTab} className="tab-switch-fade">
+            <Swiper
+              modules={[Navigation]}
+              navigation={{
+                nextEl: ".whats-new-next",
+                prevEl: ".whats-new-prev",
+              }}
+              slidesPerView={1.4}
+              centeredSlides
+              spaceBetween={12}
+              breakpoints={{
+                480: {
+                  slidesPerView: 2.2,
+                  centeredSlides: false,
+                  spaceBetween: 12,
+                },
+                640: {
+                  slidesPerView: 3,
+                  centeredSlides: false,
+                  spaceBetween: 12,
+                },
+                900: {
+                  slidesPerView: 4,
+                  centeredSlides: false,
+                  spaceBetween: 14,
+                },
+                1200: {
+                  slidesPerView: 5,
+                  centeredSlides: false,
+                  spaceBetween: 16,
+                },
+                1600: {
+                  slidesPerView: 6,
+                  centeredSlides: false,
+                  spaceBetween: 16,
+                },
+                2200: {
+                  slidesPerView: 8,
+                  centeredSlides: false,
+                  spaceBetween: 16,
+                },
+              }}
+              style={{ overflow: "visible", padding: "0 1rem" }}
             >
-              <Swiper
-                modules={[Navigation]}
-                navigation={{
-                  nextEl: ".whats-new-next",
-                  prevEl: ".whats-new-prev",
-                }}
-                slidesPerView={1.4}
-                centeredSlides
-                spaceBetween={12}
-                breakpoints={{
-                  480: {
-                    slidesPerView: 2.2,
-                    centeredSlides: false,
-                    spaceBetween: 12,
-                  },
-                  640: {
-                    slidesPerView: 3,
-                    centeredSlides: false,
-                    spaceBetween: 12,
-                  },
-                  900: {
-                    slidesPerView: 4,
-                    centeredSlides: false,
-                    spaceBetween: 14,
-                  },
-                  1200: {
-                    slidesPerView: 5,
-                    centeredSlides: false,
-                    spaceBetween: 16,
-                  },
-                  1600: {
-                    slidesPerView: 6,
-                    centeredSlides: false,
-                    spaceBetween: 16,
-                  },
-                  2200: {
-                    slidesPerView: 8,
-                    centeredSlides: false,
-                    spaceBetween: 16,
-                  },
-                }}
-                style={{ overflow: "visible", padding: "0 1rem" }}
-              >
-                {items.map((item) => (
-                  <SwiperSlide key={`${activeTab}-${item.id}`}>
-                    <HomeItemCard
-                      item={item}
-                      currencySymbol={currencySymbol}
-                      exchangeRate={exchangeRate}
-                      copy={itemCardCopy}
-                      now={now}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
+              {items.map((item) => (
+                <SwiperSlide key={`${activeTab}-${item.id}`}>
+                  <HomeItemCard
+                    item={item}
+                    currencySymbol={currencySymbol}
+                    exchangeRate={exchangeRate}
+                    copy={itemCardCopy}
+                    now={now}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
       </div>
 
       {/* Browse CTA */}

@@ -31,17 +31,45 @@ const useBrowserLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /**
+ * Module-level fetch cache: the browse dataset is fetched once per URL (the
+ * URL embeds a data version, see /api/browse) and shared across every page
+ * that mounts a DataLoader — re-navigating to /browse reuses the in-memory
+ * promise instead of refetching. Version-pinned URLs are also browser-cached
+ * immutably, so even a fresh tab pays zero bytes until the data changes.
+ */
+let browseCache: { url: string; promise: Promise<Item[]> } | null = null;
+
+function fetchBrowseData(url: string): Promise<Item[]> {
+  if (browseCache?.url !== url) {
+    const promise = fetch(url).then((res) => {
+      if (!res.ok) throw new Error(`browse data fetch failed: ${res.status}`);
+      return res.json() as Promise<Item[]>;
+    });
+    // Drop failed fetches from the cache so a later mount retries instead
+    // of being pinned to the rejection forever.
+    promise.catch(() => {
+      if (browseCache?.promise === promise) browseCache = null;
+    });
+    browseCache = { url, promise };
+  }
+  return browseCache.promise;
+}
+
+/**
  * Client component that hydrates items into the Jotai store.
- * Receives pre-loaded data as props from the server component.
- * Matches food-agg DataLoader pattern.
+ *
+ * Filter/config state arrives as props; the item dataset is fetched from
+ * /api/browse (browser-cached immutably per data version) rather than being
+ * serialized into the RSC payload — keeps ~900KB out of every browse
+ * document. Matches the food-agg DataLoader pattern.
  */
 export function DataLoader({
-  items,
+  dataUrl,
   sellers,
   routeCategory,
   currencySymbol,
 }: {
-  items: Item[];
+  dataUrl: string;
   sellers?: Seller[];
   routeCategory?: string | null;
   currencySymbol?: string;
@@ -61,6 +89,12 @@ export function DataLoader({
   const setSortDir = useSetAtom(sortDirAtom);
   const setPriceRange = useSetAtom(priceRangeAtom);
   const setCurrencySymbol = useSetAtom(currencySymbolAtom);
+
+  // Kick the dataset fetch off during render (idempotent via module cache)
+  // so it races hydration instead of waiting for the mount effect.
+  if (typeof window !== "undefined") {
+    fetchBrowseData(dataUrl);
+  }
 
   useBrowserLayoutEffect(() => {
     // Signal that this page uses DataLoader so transition gating waits for hydration.
@@ -96,15 +130,32 @@ export function DataLoader({
 
     // Set sellers BEFORE items so seller map is ready
     if (sellers) setSellerData(sellers);
-    setItems(items);
     if (currencySymbol) setCurrencySymbol(currencySymbol);
-    setLoading(false);
+
+    // Items arrive async from /api/browse. On a same-version re-navigation
+    // the cached promise resolves in a microtask; the store may also still
+    // hold items from the previous visit, which ItemGrid keeps showing
+    // until the fresh set lands. Loading must flip false even on failure —
+    // the HydrationGate waits on it.
+    let cancelled = false;
+    fetchBrowseData(dataUrl)
+      .then((items) => {
+        if (cancelled) return;
+        setItems(items);
+        setLoading(false);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("[DataLoader] browse data fetch failed", error);
+        setLoading(false);
+      });
 
     return () => {
+      cancelled = true;
       setDataLoaderActive(false);
     };
   }, [
-    items,
+    dataUrl,
     sellers,
     routeCategory,
     currencySymbol,

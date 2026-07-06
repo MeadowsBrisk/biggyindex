@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { useSetAtom } from "jotai";
 import {
   ArrowRight,
@@ -16,6 +15,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 import { expandedRefNumAtom, photoReviewModalAtom } from "@/store/atoms";
 
 interface ReviewCardData {
@@ -155,7 +156,7 @@ function PhotoReviewCard({
   now: number;
 }) {
   const openModal = useSetAtom(photoReviewModalAtom);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const images = useMemo(
     () => (review.images ?? []).filter((src) => src.trim().length > 0),
     [review.images],
@@ -623,16 +624,16 @@ export function CommunityReviews({
       textReviews: text.slice(0, 24),
     };
   }, [reviews]);
+  const header = useRevealOnScroll<HTMLDivElement>();
 
   return (
     <section className="py-20 bg-background">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+        <div
+          ref={header.ref}
+          data-revealed={header.revealed}
+          className="reveal-fade"
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-primary mb-2">
             {t("eyebrow")}
@@ -656,7 +657,7 @@ export function CommunityReviews({
               <ArrowRight size={14} />
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* ── Text Reviews — Auto-scrolling Review Wall (first) ── */}

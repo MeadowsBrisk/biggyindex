@@ -338,7 +338,7 @@ export function FilterPanelContent({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 lg:pl-0 py-3 pb-10">
+      <div className="sidebar-scroll flex-1 overflow-y-auto overscroll-contain px-4 lg:pl-0 py-3 pb-10">
         <div className="mb-4">
           <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
             {t("categories")}
@@ -625,7 +625,7 @@ export function FilterPanelContent({
               <div
                 className={`rounded-md border border-border bg-surface overflow-hidden ${
                   showAllSellers || sellerQuery.trim()
-                    ? "max-h-76 overflow-y-auto"
+                    ? "sidebar-scroll max-h-76 overflow-y-auto"
                     : ""
                 }`}
               >

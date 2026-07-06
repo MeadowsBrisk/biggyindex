@@ -7,7 +7,10 @@
  * Scope rules:
  *  - Raw `variant.d` is NEVER mutated. The overlay renders it verbatim.
  *  - This module is pure: called from atoms (filtering / sort) and ItemCard (chip row).
- *  - For pricing aggregates the crawler has its own parser; intentionally duplicated.
+ *  - The crawler stamps parse results onto index variants using a 1:1 port
+ *    of this parser (dashboard/scripts/unified-crawler/shared/logic/variantStamp.ts).
+ *    Fix parsing bugs in BOTH files, then run the parity tool:
+ *    dashboard/scripts/unified-crawler/tools/compare-variant-parsers.ts
  */
 
 import type { Item, ItemVariant } from "./types";
@@ -479,10 +482,51 @@ function preprocessRaw(s: string): string {
   return s;
 }
 
+/**
+ * Build a ParsedVariant from crawler-stamped fields (g/q/u/st/ol) — set by
+ * stampIndexVariants in the unified crawler, itself a 1:1 port of this
+ * file's parser. Returns null when the variant carries no stamps (legacy
+ * data, or the parser found nothing), in which case the caller falls back
+ * to the full regex parse below.
+ */
+function fromStampedVariant(v: ItemVariant): ParsedVariant | null {
+  if (typeof v.g === "number" && v.g > 0) {
+    const weightLabel = `${v.g}g`;
+    return {
+      qty: v.g,
+      unit: "g",
+      grams: v.g,
+      weightLabel,
+      originalLabel: v.ol ?? weightLabel,
+      strain: v.st ?? null,
+      variant: v,
+    };
+  }
+  if (typeof v.q === "number" && v.q > 0 && typeof v.u === "string" && v.u) {
+    const weightLabel =
+      v.u === "ml" || v.u === "mg"
+        ? `${v.q}${v.u}`
+        : formatCountLabel(v.q, v.u);
+    return {
+      qty: v.q,
+      unit: v.u,
+      weightLabel,
+      originalLabel: v.ol ?? weightLabel,
+      strain: v.st ?? null,
+      variant: v,
+    };
+  }
+  return null;
+}
+
 export function parseVariant(
   v: ItemVariant,
   context?: string | null,
 ): ParsedVariant | null {
+  // Crawler-stamped fast path — skips the regex cascade entirely.
+  const stamped = fromStampedVariant(v);
+  if (stamped) return stamped;
+
   const raw = (v.dEn || v.d || "").trim();
   if (!raw) return null;
 

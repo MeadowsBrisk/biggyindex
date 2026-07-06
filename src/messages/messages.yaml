@@ -2775,6 +2775,17 @@ browse:
         el-GR: Φθίνουσα ταξινόμηση
         cs-CZ: Třídit sestupně
         pl-PL: Sortowanie w dół
+  # Active-filter bar group labels (above the grid). Bare strings = en-GB,
+  # other locales inherit until batch-translated.
+  activeBar:
+    search: Search
+    category: Category
+    subcategory: Subcategory
+    sellers: Sellers
+    shipFrom: From
+    shipNot: Not from
+    weight: Weight
+    price: Price
   filters:
     toggle:
       en-GB: Toggle filters

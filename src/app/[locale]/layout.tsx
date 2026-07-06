@@ -15,6 +15,7 @@ import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
 import { type Locale, routing } from "@/i18n/routing";
+import { IMAGE_CDN_ORIGIN } from "@/lib/images";
 import { localeToMarket } from "@/lib/market/market";
 import { marketBaseUrl } from "@/lib/seo/metadata";
 
@@ -81,6 +82,11 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} antialiased`}
     >
       <head>
+        {/* Warm up the image CDN connection before the first card thumbnails
+            are requested — saves DNS+TCP+TLS (~100-300ms) on the LCP image.
+            No crossOrigin: images are plain <img> (no-cors) requests. */}
+        <link rel="preconnect" href={IMAGE_CDN_ORIGIN} />
+        <link rel="dns-prefetch" href={IMAGE_CDN_ORIGIN} />
         {/* Prevent FOUC — apply theme + accent + pauseGifs before first paint.
             Keep this before critical styles so the initial canvas is correct. */}
         <script

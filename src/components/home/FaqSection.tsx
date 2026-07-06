@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 
 interface FaqItem {
   id: string;
@@ -42,6 +42,8 @@ export function FaqSection() {
   const t = useTranslations("home.faq");
   const [activeTab, setActiveTab] = useState<Tab>("about");
   const [expanded, setExpanded] = useState<number | null>(null);
+  const header = useRevealOnScroll<HTMLDivElement>();
+  const list = useRevealOnScroll<HTMLDivElement>();
 
   const faqs: FaqItem[] = FAQ_KEYS[activeTab].map((key) => ({
     id: key,
@@ -57,12 +59,10 @@ export function FaqSection() {
   return (
     <section className="py-20 px-4 bg-[var(--background)]">
       <div className="max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+        <div
+          ref={header.ref}
+          data-revealed={header.revealed}
+          className="reveal-fade text-center mb-12"
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-primary mb-2">
             {t("eyebrow")}
@@ -70,7 +70,7 @@ export function FaqSection() {
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
             {t("heading")}
           </h2>
-        </motion.div>
+        </div>
 
         {/* Tab switcher */}
         <div className="flex justify-center mb-8">
@@ -92,18 +92,18 @@ export function FaqSection() {
           </div>
         </div>
 
-        {/* Accordion */}
-        <div className="space-y-3">
+        {/* Accordion — items stagger in once the list scrolls into view */}
+        <div className="space-y-3" ref={list.ref}>
           {faqs.map((faq, i) => {
             const isExpanded = expanded === i;
             return (
-              <motion.div
+              <div
                 key={`${activeTab}-${faq.id}`}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: i * 0.04 }}
-                className="rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden"
+                data-revealed={list.revealed}
+                style={
+                  { "--reveal-delay": `${i * 40}ms` } as React.CSSProperties
+                }
+                className="reveal-fade rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden"
               >
                 <button
                   type="button"
@@ -119,22 +119,19 @@ export function FaqSection() {
                   />
                 </button>
 
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-5 pb-5 pt-0 text-sm text-muted leading-relaxed border-t border-[var(--border)]">
-                        <p className="pt-4">{faq.a}</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {/* Stays mounted; grid-rows 0fr→1fr animates height without JS */}
+                <div
+                  className="collapse-rows"
+                  data-open={isExpanded}
+                  aria-hidden={!isExpanded}
+                >
+                  <div>
+                    <div className="px-5 pb-5 pt-0 text-sm text-muted leading-relaxed border-t border-[var(--border)]">
+                      <p className="pt-4">{faq.a}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>

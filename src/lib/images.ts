@@ -42,6 +42,9 @@ const CDN_PREFIX = CDN_BASE.startsWith("http")
   ? CDN_BASE
   : `https://${CDN_BASE}`;
 
+/** Public origin of the image CDN — used for <link rel="preconnect"> in the layout. */
+export const IMAGE_CDN_ORIGIN = CDN_PREFIX;
+
 type ImageSize = "thumb" | "full" | "icon";
 
 interface ItemImageOptions {

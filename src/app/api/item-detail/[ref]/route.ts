@@ -27,6 +27,10 @@ export async function GET(
     headers: {
       "Cache-Control":
         "public, max-age=60, s-maxage=43200, stale-while-revalidate=86400",
+      // Durable: one cached copy across Netlify's whole CDN (not per edge
+      // node) — the function and R2 read run far less often.
+      "Netlify-CDN-Cache-Control":
+        "public, durable, s-maxage=43200, stale-while-revalidate=86400",
     },
   });
 }

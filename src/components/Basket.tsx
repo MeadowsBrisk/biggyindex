@@ -11,7 +11,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -474,11 +473,15 @@ function BasketLine({
             aria-label={t("viewItem", { item: entry.name })}
             className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-surface cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
-            <Image
+            {/* Plain <img> — src is already an optimised R2 CDN AVIF; next/image
+                would re-process it through Netlify's image CDN. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={entry.imageUrl}
               alt={entry.name}
               width={80}
               height={80}
+              loading="lazy"
               className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
             />
             <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/25 group-focus-visible:bg-black/25">

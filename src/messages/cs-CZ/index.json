@@ -412,6 +412,16 @@
         "descending": "Třídit sestupně"
       }
     },
+    "activeBar": {
+      "search": "Search",
+      "category": "Category",
+      "subcategory": "Subcategory",
+      "sellers": "Sellers",
+      "shipFrom": "From",
+      "shipNot": "Not from",
+      "weight": "Weight",
+      "price": "Price"
+    },
     "filters": {
       "toggle": "Přepínané filtry",
       "label": "Filtry",
@@ -430,7 +440,7 @@
         "sellers": "Prodejci"
       },
       "attrs": {
-        "effect": "Dopad",
+        "effect": "Typ",
         "micron": "Micron",
         "filtration": "Filtrace",
         "texture": "Textura",
@@ -565,7 +575,7 @@
       "attributes": {
         "heading": "Atributy",
         "labels": {
-          "effect": "Dopad",
+          "effect": "Typ",
           "cbd": "CBD",
           "grow": "Rost",
           "imported": "Dovezený",

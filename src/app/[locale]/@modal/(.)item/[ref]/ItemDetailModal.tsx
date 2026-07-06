@@ -2,7 +2,6 @@
 
 import { useAtomValue } from "jotai";
 import { Clock, ExternalLink, Share2, Star, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -109,13 +108,14 @@ export function ItemDetailModal({ refNum }: { refNum: string }) {
         {/* Image */}
         {imageUrl && (
           <div className="relative aspect-video w-full overflow-hidden rounded-t-2xl bg-surface">
-            <Image
+            {/* Plain <img> — src is already an optimised R2 CDN AVIF; next/image
+                would re-process it through Netlify's image CDN. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={imageUrl}
               alt={item.n}
-              fill
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 672px"
-              priority
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-contain"
             />
           </div>
         )}

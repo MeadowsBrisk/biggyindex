@@ -1,0 +1,117 @@
+/* ── CSS replacements for the framer-motion entrance/collapse patterns ──
+   Used by the home sections + ScrollToTopButton so framer-motion stays out
+   of the eager bundles (it remains only in lazy chunks like the zoom). */
+
+/* Scroll-triggered reveal — pairs with hooks/useRevealOnScroll.
+   Elements start hidden and fade in once `data-revealed="true"`.
+   Pure opacity, no translate (per design feedback).
+   Stagger with `style={{ transitionDelay: … }}` or --reveal-delay. */
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal-fade[data-revealed="true"] {
+  opacity: 1;
+}
+
+/* Height auto expand/collapse without JS measurement (replaces
+   AnimatePresence height: 0 → auto). The single child must be allowed
+   to shrink: grid-template-rows animates 0fr → 1fr. */
+.collapse-rows {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 250ms ease-in-out,
+    opacity 250ms ease-in-out;
+}
+
+.collapse-rows[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.collapse-rows > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Mount-time fade / fade+scale entrances (hero).
+   Runs once when the element first renders; stagger with --mount-delay. */
+.mount-fade {
+  opacity: 0;
+  animation: mount-fade 600ms ease-out forwards;
+  animation-delay: var(--mount-delay, 0ms);
+}
+
+@keyframes mount-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+.mount-fade-scale {
+  opacity: 0;
+  animation: mount-fade-scale 600ms ease-out forwards;
+  animation-delay: var(--mount-delay, 0ms);
+}
+
+@keyframes mount-fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Hero scroll-indicator bob (replaces motion's repeating y animation). */
+.hero-bob {
+  animation: hero-bob 2s ease-in-out infinite;
+}
+
+@keyframes hero-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* Tab-content switch — element is re-keyed on tab change, so the enter
+   animation replays on each switch (replaces AnimatePresence mode="wait"). */
+.tab-switch-fade {
+  animation: tab-switch-fade 240ms ease-out;
+}
+
+@keyframes tab-switch-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-fade,
+  .mount-fade,
+  .mount-fade-scale,
+  .collapse-rows,
+  .tab-switch-fade {
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-bob {
+    animation: none;
+  }
+}

@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useSetAtom } from "jotai";
 import { AlertTriangle, ShieldCheck, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 import { getSellerImageUrl } from "@/lib/images";
 import { sellerModalIdAtom } from "@/store/atoms";
 
@@ -288,13 +288,14 @@ function Panel({
       ? "bg-emerald-500/15 text-emerald-500"
       : "bg-amber-500/15 text-amber-500";
 
+  const reveal = useRevealOnScroll<HTMLDivElement>();
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay }}
-      className="relative rounded-2xl border border-border bg-card overflow-hidden"
+    <div
+      ref={reveal.ref}
+      data-revealed={reveal.revealed}
+      style={{ "--reveal-delay": `${delay * 1000}ms` } as React.CSSProperties}
+      className="reveal-fade relative rounded-2xl border border-border bg-card overflow-hidden"
     >
       <div
         className={`absolute inset-x-0 top-0 h-32 bg-linear-to-b ${accentGrad} pointer-events-none`}
@@ -335,7 +336,7 @@ function Panel({
           </li>
         ))}
       </ul>
-    </motion.div>
+    </div>
   );
 }
 
@@ -365,16 +366,16 @@ export function SellerTrustBoard({
     }),
     [t],
   );
+  const header = useRevealOnScroll<HTMLDivElement>();
+  const joined = useRevealOnScroll<HTMLDivElement>();
 
   return (
     <section className="py-20 px-4 bg-surface">
       <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="mb-10 flex items-end justify-between gap-4 flex-wrap"
+        <div
+          ref={header.ref}
+          data-revealed={header.revealed}
+          className="reveal-fade mb-10 flex items-end justify-between gap-4 flex-wrap"
         >
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-primary/80 font-semibold mb-2">
@@ -385,7 +386,7 @@ export function SellerTrustBoard({
             </h2>
             <p className="text-muted mt-2 max-w-xl">{t("description")}</p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Two columns */}
         <div className="grid gap-6 lg:grid-cols-2">
@@ -419,12 +420,11 @@ export function SellerTrustBoard({
 
         {/* Recently Joined */}
         {recentlyJoined.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-6 rounded-2xl border border-border bg-card overflow-hidden"
+          <div
+            ref={joined.ref}
+            data-revealed={joined.revealed}
+            style={{ "--reveal-delay": "300ms" } as React.CSSProperties}
+            className="reveal-fade mt-6 rounded-2xl border border-border bg-card overflow-hidden"
           >
             <header className="flex items-center gap-3 px-5 py-4 border-b border-(--border)/70">
               <div className="rounded-xl p-2 bg-blue-500/15 text-blue-500">
@@ -459,7 +459,7 @@ export function SellerTrustBoard({
                 </button>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

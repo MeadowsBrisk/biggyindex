@@ -28,6 +28,7 @@ import { useAddToast } from "@/components/Toast";
 import { Tooltip } from "@/components/Tooltip";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
+import { cancelScrollCheck, scheduleScrollCheck } from "@/lib/batchScrollCheck";
 import { getItemBrowseMeta, type ItemIndex } from "@/lib/browse/item-index";
 import { MARKETS } from "@/lib/constants";
 import { decodeEntities, formatDateTime } from "@/lib/format";
@@ -735,32 +736,17 @@ function ItemCardInner({
   const strainStripRef = useRef<HTMLDivElement>(null);
   const weightStripRef = useRef<HTMLDivElement>(null);
 
-  // Double-rAF: batch layout reads (scrollWidth) separately from DOM writes (dataset)
-  // to avoid read→write→read forced reflow across 50+ cards mounting simultaneously.
+  // Batched globally via lib/batchScrollCheck — all cards mounting in the
+  // same tick share one rAF (all layout reads, then all dataset writes), so
+  // progressive-render chunks can't interleave reads and writes into
+  // forced-reflow thrash.
   useEffect(() => {
-    let cancelled = false;
-    requestAnimationFrame(() => {
-      if (cancelled) return;
-      const results: [HTMLDivElement, boolean][] = [];
-      for (const el of [strainStripRef.current, weightStripRef.current]) {
-        if (!el) continue;
-        results.push([el, el.scrollWidth > el.clientWidth]);
-      }
-      requestAnimationFrame(() => {
-        if (cancelled) return;
-        for (const [el, scrollable] of results) {
-          el.dataset.scrollable = scrollable ? "true" : "false";
-          el.dataset.scrolled = "false";
-          el.dataset.atEnd = !scrollable
-            ? "true"
-            : el.scrollLeft + el.clientWidth >= el.scrollWidth - 2
-              ? "true"
-              : "false";
-        }
-      });
-    });
+    const els = [strainStripRef.current, weightStripRef.current].filter(
+      (el): el is HTMLDivElement => el != null,
+    );
+    for (const el of els) scheduleScrollCheck(el);
     return () => {
-      cancelled = true;
+      for (const el of els) cancelScrollCheck(el);
     };
   }, [displayStrains, weightGroups, quantityGroups, showQuantityRow]);
 

@@ -885,99 +885,101 @@ export function ItemDetailOverlay() {
                         <div className="ido-meta-strip">
                           <div className="ido-meta-cells">
                             {displayItem.rs?.avg != null && (
-                            <div className="ido-meta-cell">
-                              <Star
-                                size={14}
-                                className="ido-meta-cell__icon text-amber-500"
-                              />
-                              <div className="ido-meta-cell__body">
-                                <span className="ido-meta-cell__label">
-                                  {t("meta.rating")}
-                                </span>
-                                <span className="ido-meta-cell__value">
-                                  {displayItem.rs.avg.toFixed(1)}
-                                  <span className="ido-meta-cell__unit">
-                                    /10
+                              <div className="ido-meta-cell">
+                                <Star
+                                  size={14}
+                                  className="ido-meta-cell__icon text-amber-500"
+                                />
+                                <div className="ido-meta-cell__body">
+                                  <span className="ido-meta-cell__label">
+                                    {t("meta.rating")}
                                   </span>
-                                  {displayItem.rs.cnt != null && (
-                                    <span className="ido-meta-cell__sub">
-                                      {" "}
-                                      ({displayItem.rs.cnt})
+                                  <span className="ido-meta-cell__value">
+                                    {displayItem.rs.avg.toFixed(1)}
+                                    <span className="ido-meta-cell__unit">
+                                      /10
                                     </span>
-                                  )}
-                                </span>
+                                    {displayItem.rs.cnt != null && (
+                                      <span className="ido-meta-cell__sub">
+                                        {" "}
+                                        ({displayItem.rs.cnt})
+                                      </span>
+                                    )}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          {displayItem.rs?.days != null && (
-                            <div className="ido-meta-cell">
-                              <Truck
-                                size={14}
-                                className="ido-meta-cell__icon"
-                              />
-                              <div className="ido-meta-cell__body">
-                                <span className="ido-meta-cell__label">
-                                  {t("meta.avgDelivery")}
-                                </span>
-                                <span className="ido-meta-cell__value">
-                                  {displayItem.rs.days.toFixed(1)}
-                                  <span className="ido-meta-cell__unit">d</span>
-                                </span>
+                            )}
+                            {displayItem.rs?.days != null && (
+                              <div className="ido-meta-cell">
+                                <Truck
+                                  size={14}
+                                  className="ido-meta-cell__icon"
+                                />
+                                <div className="ido-meta-cell__body">
+                                  <span className="ido-meta-cell__label">
+                                    {t("meta.avgDelivery")}
+                                  </span>
+                                  <span className="ido-meta-cell__value">
+                                    {displayItem.rs.days.toFixed(1)}
+                                    <span className="ido-meta-cell__unit">
+                                      d
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          {displayItem.fsa && (
-                            <div className="ido-meta-cell">
-                              <Calendar
-                                size={14}
-                                className="ido-meta-cell__icon"
-                              />
-                              <div className="ido-meta-cell__body">
-                                <span className="ido-meta-cell__label">
-                                  {t("meta.listed")}
-                                </span>
-                                <span className="ido-meta-cell__value">
-                                  {(() => {
-                                    const age = relativeAge(
-                                      displayItem.fsa,
-                                      clientNow,
-                                    );
-                                    return age
-                                      ? t(`time.${age.unit}Ago`, {
-                                          count: age.count,
-                                        })
-                                      : null;
-                                  })()}
-                                </span>
+                            )}
+                            {displayItem.fsa && (
+                              <div className="ido-meta-cell">
+                                <Calendar
+                                  size={14}
+                                  className="ido-meta-cell__icon"
+                                />
+                                <div className="ido-meta-cell__body">
+                                  <span className="ido-meta-cell__label">
+                                    {t("meta.listed")}
+                                  </span>
+                                  <span className="ido-meta-cell__value">
+                                    {(() => {
+                                      const age = relativeAge(
+                                        displayItem.fsa,
+                                        clientNow,
+                                      );
+                                      return age
+                                        ? t(`time.${age.unit}Ago`, {
+                                            count: age.count,
+                                          })
+                                        : null;
+                                    })()}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          {displayItem.lua && (
-                            <div className="ido-meta-cell">
-                              <RefreshCw
-                                size={14}
-                                className="ido-meta-cell__icon"
-                              />
-                              <div className="ido-meta-cell__body">
-                                <span className="ido-meta-cell__label">
-                                  {t("meta.updated")}
-                                </span>
-                                <span className="ido-meta-cell__value">
-                                  {(() => {
-                                    const age = relativeAge(
-                                      displayItem.lua,
-                                      clientNow,
-                                    );
-                                    return age
-                                      ? t(`time.${age.unit}Ago`, {
-                                          count: age.count,
-                                        })
-                                      : null;
-                                  })()}
-                                </span>
+                            )}
+                            {displayItem.lua && (
+                              <div className="ido-meta-cell">
+                                <RefreshCw
+                                  size={14}
+                                  className="ido-meta-cell__icon"
+                                />
+                                <div className="ido-meta-cell__body">
+                                  <span className="ido-meta-cell__label">
+                                    {t("meta.updated")}
+                                  </span>
+                                  <span className="ido-meta-cell__value">
+                                    {(() => {
+                                      const age = relativeAge(
+                                        displayItem.lua,
+                                        clientNow,
+                                      );
+                                      return age
+                                        ? t(`time.${age.unit}Ago`, {
+                                            count: age.count,
+                                          })
+                                        : null;
+                                    })()}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                           </div>
                           {/* Last-update reason from the crawler
                               (e.g. "Images changed, -3 variants"). Stamped on

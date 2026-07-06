@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { ActiveFilterBar } from "@/components/ActiveFilterBar";
 import { DataLoader } from "@/components/DataLoader";
 import { FilterPanel } from "@/components/FilterPanel";
 import { FooterSentinel } from "@/components/FooterSentinel";
@@ -9,7 +10,7 @@ import { ItemGrid } from "@/components/ItemGrid";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
-import { loadItems, loadSellers } from "@/lib/data";
+import { browseDataVersion, loadItems, loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { buildSeedItems } from "@/lib/seed";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -52,11 +53,17 @@ export default async function BrowsePage({
 
   const seedItems = buildSeedItems(itemList);
 
+  // Items are NOT inlined into the RSC payload (was ~900KB of flight data).
+  // The client fetches them from /api/browse; the version-pinned URL is
+  // browser-cached immutably, so repeat visits and router.refresh() cost
+  // zero bytes until the dataset actually changes.
+  const dataUrl = `/api/browse?mkt=${mkt}&v=${browseDataVersion(itemList)}`;
+
   return (
     <>
       <Suspense>
         <DataLoader
-          items={itemList}
+          dataUrl={dataUrl}
           sellers={sellerList}
           currencySymbol={cSym}
         />
@@ -72,6 +79,7 @@ export default async function BrowsePage({
           <FilterPanel />
 
           <div className="flex-1 min-w-0 py-4 md:pl-4">
+            <ActiveFilterBar />
             <ItemGrid seedItems={seedItems} seedSym="£" />
           </div>
         </div>

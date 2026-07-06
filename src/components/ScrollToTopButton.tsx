@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { ArrowUp } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -59,23 +58,23 @@ export function ScrollToTopButton() {
 
   const visible = scrolledPast && !footerVisible;
 
+  // Stays mounted; CSS transitions handle the fade/scale in both directions
+  // (replaces framer-motion's AnimatePresence — keeps it out of the bundle).
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.button
-          type="button"
-          onClick={handleClick}
-          aria-label={t("backToTop")}
-          title={t("backToTop")}
-          initial={{ opacity: 0, scale: 0.8, y: 8 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 8 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg backdrop-blur-sm transition-colors hover:bg-surface-hover hover:shadow-xl focus-visible:outline-2 focus-visible:outline-ring cursor-pointer"
-        >
-          <ArrowUp size={18} strokeWidth={2.25} />
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label={t("backToTop")}
+      title={t("backToTop")}
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
+      className={`fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg backdrop-blur-sm transition-[opacity,transform,background-color] duration-200 ease-out motion-reduce:transition-none hover:bg-surface-hover hover:shadow-xl focus-visible:outline-2 focus-visible:outline-ring cursor-pointer ${
+        visible
+          ? "opacity-100 translate-y-0 scale-100"
+          : "opacity-0 translate-y-2 scale-[0.8] pointer-events-none"
+      }`}
+    >
+      <ArrowUp size={18} strokeWidth={2.25} />
+    </button>
   );
 }

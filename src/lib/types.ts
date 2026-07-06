@@ -15,6 +15,21 @@ export interface ItemVariant {
   dEn?: string;
   /** Price in USD */
   usd: number;
+  /*
+   * Crawler-stamped parse results (stampIndexVariants in the unified
+   * crawler — a 1:1 port of this repo's lib/variants.ts parser). When
+   * present, parseVariant() uses them and skips the regex parse.
+   */
+  /** Grams — weight-bearing variants (qty=g, unit='g' implied) */
+  g?: number;
+  /** Quantity — non-weight variants */
+  q?: number;
+  /** Canonical unit tag — non-weight variants ('ml', 'mg', 'cart', …) */
+  u?: string;
+  /** Strain/flavour residual */
+  st?: string;
+  /** Seller-format label when it differs from canonical (e.g. "1oz") */
+  ol?: string;
 }
 
 /** Aggregated review statistics */

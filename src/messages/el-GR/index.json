@@ -412,6 +412,16 @@
         "descending": "Φθίνουσα ταξινόμηση"
       }
     },
+    "activeBar": {
+      "search": "Search",
+      "category": "Category",
+      "subcategory": "Subcategory",
+      "sellers": "Sellers",
+      "shipFrom": "From",
+      "shipNot": "Not from",
+      "weight": "Weight",
+      "price": "Price"
+    },
     "filters": {
       "toggle": "Εναλλαγή φίλτρων",
       "label": "Φίλτρα",
@@ -430,7 +440,7 @@
         "sellers": "Πωλητές"
       },
       "attrs": {
-        "effect": "Αποτέλεσμα",
+        "effect": "Τύπος",
         "micron": "Μικρον",
         "filtration": "Διήθηση",
         "texture": "Υφή",
@@ -565,7 +575,7 @@
       "attributes": {
         "heading": "Χαρακτηριστικά",
         "labels": {
-          "effect": "Αποτέλεσμα",
+          "effect": "Τύπος",
           "cbd": "CBD",
           "grow": "Καλλιεργώ",
           "imported": "Εισαγόμενος",

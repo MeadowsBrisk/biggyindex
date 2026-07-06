@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 
 interface Step {
   emoji: string;
@@ -177,35 +177,35 @@ export function QuickStartGuide() {
   const t = useTranslations("home.quickStart");
   const [expanded, setExpanded] = useState<number | null>(null);
   const steps = buildSteps(t);
+  const header = useRevealOnScroll<HTMLDivElement>();
+  const list = useRevealOnScroll<HTMLDivElement>();
 
   return (
     <section className="py-20 px-4 bg-surface">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+        <div
+          ref={header.ref}
+          data-revealed={header.revealed}
+          className="reveal-fade text-center mb-14"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
             {t("heading")}
           </h2>
           <p className="text-muted max-w-lg mx-auto">{t("subheading")}</p>
-        </motion.div>
+        </div>
 
-        {/* Steps — vertical layout for clarity */}
-        <div className="space-y-4 max-w-2xl mx-auto">
+        {/* Steps — vertical layout for clarity, staggered reveal */}
+        <div className="space-y-4 max-w-2xl mx-auto" ref={list.ref}>
           {steps.map((step, i) => {
             const isExpanded = expanded === i;
             return (
-              <motion.div
+              <div
                 key={step.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="rounded-2xl border border-border bg-card overflow-hidden"
+                data-revealed={list.revealed}
+                style={
+                  { "--reveal-delay": `${i * 80}ms` } as React.CSSProperties
+                }
+                className="reveal-fade rounded-2xl border border-border bg-card overflow-hidden"
               >
                 {/* Clickable header */}
                 <button
@@ -238,23 +238,19 @@ export function QuickStartGuide() {
                   />
                 </button>
 
-                {/* Expandable detail — inline, not absolute */}
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-5 pb-5 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                        <div className="pt-4">{step.detail}</div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {/* Expandable detail — stays mounted; grid-rows animates height */}
+                <div
+                  className="collapse-rows"
+                  data-open={isExpanded}
+                  aria-hidden={!isExpanded}
+                >
+                  <div>
+                    <div className="px-5 pb-5 pt-0 text-sm text-muted leading-relaxed border-t border-border">
+                      <div className="pt-4">{step.detail}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>

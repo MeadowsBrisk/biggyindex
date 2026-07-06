@@ -1,6 +1,6 @@
 "use client";
 
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   ArrowDown,
   ArrowUp,
@@ -10,39 +10,21 @@ import {
   List,
   Package,
   Truck,
-  X,
 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-  useTransition,
-} from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useSyncExternalStore, useTransition } from "react";
 import { FilterToggle } from "@/components/FilterPanel";
-import { shipFromLabel } from "@/lib/shipFrom";
 import type { SortKey } from "@/lib/types";
 import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "@/lib/urlFilters";
 import {
-  attrFiltersAtom,
-  availableSellersAtom,
   bookmarksAtom,
   bookmarksOnlyAtom,
-  categoryAtom,
-  excludedShipFromAtom,
   filteredItemsAtom,
   freeShippingOnlyAtom,
   includeShippingAtom,
   itemsAtom,
-  priceRangeAtom,
-  searchQueryAtom,
-  selectedSellersAtom,
-  selectedShipFromAtom,
-  selectedWeightsAtom,
   sortDirAtom,
   sortKeyAtom,
-  subcategoryAtom,
   viewModeAtom,
 } from "@/store/atoms";
 
@@ -93,10 +75,9 @@ export function Toolbar() {
           <ViewModeToggle />
         </div>
 
-        {/* Active filter pills — scrollable between buttons and sort */}
-        <div className="min-w-0 flex-1 overflow-hidden basis-full sm:basis-auto">
-          <ActivePills />
-        </div>
+        {/* Active filters moved to the ActiveFilterBar above the grid (the
+            grouped accent card) — the in-toolbar strip was cramped/overflowy. */}
+        <div className="min-w-0 flex-1" />
 
         {/* Desktop: result count + sort */}
         <div className="hidden sm:flex items-center gap-3 shrink-0">
@@ -110,179 +91,6 @@ export function Toolbar() {
         <ResultCount mobile />
         <SortSelect />
       </div>
-    </div>
-  );
-}
-
-// ─── Active filter pills ───────────────────────────────────────────
-
-function ActivePills() {
-  const t = useTranslations("browse.toolbar");
-  const locale = useLocale();
-  const search = useAtomValue(searchQueryAtom);
-  const setSearch = useSetAtom(searchQueryAtom);
-  const category = useAtomValue(categoryAtom);
-  const setCategory = useSetAtom(categoryAtom);
-  const subcategory = useAtomValue(subcategoryAtom);
-  const setSubcategory = useSetAtom(subcategoryAtom);
-  const sellers = useAtomValue(selectedSellersAtom);
-  const setSellers = useSetAtom(selectedSellersAtom);
-  const allSellers = useAtomValue(availableSellersAtom);
-  const shipInclude = useAtomValue(selectedShipFromAtom);
-  const setShipInclude = useSetAtom(selectedShipFromAtom);
-  const shipExclude = useAtomValue(excludedShipFromAtom);
-  const setShipExclude = useSetAtom(excludedShipFromAtom);
-  const weights = useAtomValue(selectedWeightsAtom);
-  const setWeights = useSetAtom(selectedWeightsAtom);
-  const attrs = useAtomValue(attrFiltersAtom);
-  const setAttrs = useSetAtom(attrFiltersAtom);
-  const priceRange = useAtomValue(priceRangeAtom);
-  const setPriceRange = useSetAtom(priceRangeAtom);
-  const [, startTransition] = useTransition();
-
-  const sellerMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const s of allSellers) map.set(s.id, s.name);
-    return map;
-  }, [allSellers]);
-
-  const pills = useMemo(() => {
-    const p: { key: string; label: string; clear: () => void }[] = [];
-
-    if (search.trim()) {
-      p.push({
-        key: "search",
-        label: `"${search}"`,
-        clear: () => startTransition(() => setSearch("")),
-      });
-    }
-    if (category !== "All") {
-      p.push({
-        key: "category",
-        label: category,
-        clear: () =>
-          startTransition(() => {
-            setCategory("All");
-            setSubcategory([]);
-          }),
-      });
-    }
-    for (const sc of subcategory) {
-      p.push({
-        key: `subcategory:${sc}`,
-        label: sc,
-        clear: () =>
-          startTransition(() =>
-            setSubcategory((prev) => prev.filter((s) => s !== sc)),
-          ),
-      });
-    }
-    for (const sid of sellers) {
-      const name = sellerMap.get(sid) ?? `#${sid}`;
-      p.push({
-        key: `seller:${sid}`,
-        label: name,
-        clear: () =>
-          startTransition(() =>
-            setSellers((prev) => prev.filter((s) => s !== sid)),
-          ),
-      });
-    }
-    for (const sf of shipInclude) {
-      p.push({
-        key: `ship-include:${sf}`,
-        label: t("fromFilter", { value: shipFromLabel(sf, locale) }),
-        clear: () =>
-          startTransition(() =>
-            setShipInclude((prev) => prev.filter((v) => v !== sf)),
-          ),
-      });
-    }
-    for (const sf of shipExclude) {
-      p.push({
-        key: `ship-exclude:${sf}`,
-        label: t("notFilter", { value: shipFromLabel(sf, locale) }),
-        clear: () =>
-          startTransition(() =>
-            setShipExclude((prev) => prev.filter((v) => v !== sf)),
-          ),
-      });
-    }
-    // Free shipping pill omitted — already visible as toolbar toggle
-    for (const w of weights) {
-      p.push({
-        key: `weight:${w}`,
-        label: `${w}g`,
-        clear: () =>
-          startTransition(() =>
-            setWeights((prev) => prev.filter((g) => g !== w)),
-          ),
-      });
-    }
-    if (priceRange.min > 0 || priceRange.max < Infinity) {
-      p.push({
-        key: "price-range",
-        label: t("priceRange"),
-        clear: () =>
-          startTransition(() => setPriceRange({ min: 0, max: Infinity })),
-      });
-    }
-    for (const [key, vals] of Object.entries(attrs)) {
-      for (const val of vals) {
-        p.push({
-          key: `attr:${key}:${val}`,
-          label: val,
-          clear: () =>
-            startTransition(() =>
-              setAttrs((prev) => ({
-                ...prev,
-                [key]: (prev[key] ?? []).filter((v) => v !== val),
-              })),
-            ),
-        });
-      }
-    }
-    return p;
-  }, [
-    search,
-    category,
-    subcategory,
-    sellers,
-    sellerMap,
-    locale,
-    shipInclude,
-    shipExclude,
-    weights,
-    priceRange,
-    attrs,
-    setSearch,
-    setCategory,
-    setSubcategory,
-    setSellers,
-    setShipInclude,
-    setShipExclude,
-    setWeights,
-    setPriceRange,
-    setAttrs,
-    t,
-  ]);
-
-  if (pills.length === 0) return null;
-
-  return (
-    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-      {pills.map((pill) => (
-        <button
-          key={pill.key}
-          type="button"
-          onClick={pill.clear}
-          className="group flex shrink-0 items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors cursor-pointer"
-          title={t("removeFilter", { label: pill.label })}
-        >
-          {pill.label}
-          <X size={10} className="opacity-60 group-hover:opacity-100" />
-        </button>
-      ))}
     </div>
   );
 }

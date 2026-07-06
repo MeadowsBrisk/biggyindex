@@ -84,6 +84,38 @@ function stripSellerFields(sellers: Seller[]): Seller[] {
   return sellers;
 }
 
+// ─── Browse data version ────────────────────────────────────────
+
+/**
+ * Stable short version of the browse dataset — changes whenever the dataset
+ * meaningfully changes. Used to version /api/browse URLs so browsers can
+ * cache the payload immutably across visits (pattern from food-aggregator).
+ *
+ * Hashes per-item id/lua/lur/prices/variant-count/category rather than just
+ * count+max(lua): repair scripts can REVERT lua values (making the max
+ * unchanged), and an unchanged version would leave browsers pinned to the
+ * pre-repair payload forever via the immutable cache.
+ *
+ * Hotness (`h`) is deliberately excluded — it drifts every crawl, and any
+ * crawl that matters also touches lua/price/variants on some item, so the
+ * version still rolls over when real changes land.
+ */
+export function browseDataVersion(items: Item[]): string {
+  let h = 5381;
+  const mix = (src: string) => {
+    for (let i = 0; i < src.length; i++) {
+      h = ((h << 5) + h + src.charCodeAt(i)) | 0;
+    }
+  };
+  mix(String(items.length));
+  for (const item of items) {
+    mix(
+      `|${item.id}:${item.lua ?? ""}:${item.lur ?? ""}:${item.uMin ?? ""}:${item.uMax ?? ""}:${item.v?.length ?? 0}:${item.c ?? ""}:${item.sc?.join("+") ?? ""}`,
+    );
+  }
+  return (h >>> 0).toString(36);
+}
+
 // ─── Data loaders ───────────────────────────────────────────────
 
 /** Load all items for a market (browse-optimised). */
