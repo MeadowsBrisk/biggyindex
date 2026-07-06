@@ -17,6 +17,7 @@ import {
   isLoadingAtom,
   itemIndexAtom,
   marketAtom,
+  mobileGridColsAtom,
   pauseGifsAtom,
   selectedSellersAtom,
   selectedWeightsAtom,
@@ -100,12 +101,15 @@ function SeedCard({
   item,
   priority,
   sym,
+  mobileCols,
 }: {
   item: SeedItem;
   priority: boolean;
   sym: string;
+  mobileCols: 1 | 2;
 }) {
   const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
+  const mobileSize = mobileCols === 2 ? "50vw" : "100vw";
 
   return (
     <div className="item-card">
@@ -118,7 +122,7 @@ function SeedCard({
               alt={item.n}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : undefined}
-              sizes="(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              sizes={`(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, ${mobileSize}`}
               className="card-image card-image--primary"
             />
           ) : (
@@ -127,16 +131,40 @@ function SeedCard({
             </div>
           )}
         </div>
-        <div className="p-2">
-          <p className="text-xs text-muted truncate">{item.sn}</p>
-          <p className="text-sm font-medium leading-snug line-clamp-2 mt-0.5">
-            {item.n}
-          </p>
-          <p className="text-sm font-semibold mt-1">
-            {sym}
-            {item.uMin.toFixed(2)}
-          </p>
-        </div>
+        {mobileCols === 2 ? (
+          /* Compact seed body — mirrors the 2-col live card so first paint
+             (title 2-line ~11.5px, seller ~10.5px, price ~13px) doesn't jump
+             when live cards swap in. */
+          <div className="px-1.5 pb-2 pt-1">
+            <p
+              className="font-medium leading-tight line-clamp-2"
+              style={{ fontSize: "11.5px" }}
+            >
+              {item.n}
+            </p>
+            <p
+              className="text-muted truncate mt-1"
+              style={{ fontSize: "10.5px" }}
+            >
+              {item.sn}
+            </p>
+            <p className="font-bold mt-1" style={{ fontSize: "13px" }}>
+              {sym}
+              {item.uMin.toFixed(2)}
+            </p>
+          </div>
+        ) : (
+          <div className="p-2">
+            <p className="text-xs text-muted truncate">{item.sn}</p>
+            <p className="text-sm font-medium leading-snug line-clamp-2 mt-0.5">
+              {item.n}
+            </p>
+            <p className="text-sm font-semibold mt-1">
+              {sym}
+              {item.uMin.toFixed(2)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -183,6 +211,7 @@ export function ItemGrid({
   const activeCategory = useAtomValue(categoryAtom);
   const viewMode = useAtomValue(viewModeAtom);
   const viewLayout = useAtomValue(viewLayoutAtom);
+  const mobileGridCols = useAtomValue(mobileGridColsAtom);
   const itemIndex = useAtomValue(itemIndexAtom);
   const [clientNow, setClientNow] = useState<number | null>(null);
 
@@ -263,13 +292,18 @@ export function ItemGrid({
     // flashing hot-sorted seeds before live sorted cards appear.
     if (seedItems?.length && !gateComplete) {
       return (
-        <div className="item-list-grid" data-view={viewMode}>
+        <div
+          className="item-list-grid"
+          data-view={viewMode}
+          data-mobile-cols={mobileGridCols}
+        >
           {seedItems.map((item, i) => (
             <SeedCard
               key={item.id}
               item={item}
               priority={i < 2}
               sym={seedSym ?? "£"}
+              mobileCols={mobileGridCols}
             />
           ))}
         </div>
@@ -277,7 +311,11 @@ export function ItemGrid({
     }
     // Fallback skeleton (only if no seed data at all)
     return (
-      <div className="item-list-grid" data-view={viewMode}>
+      <div
+        className="item-list-grid"
+        data-view={viewMode}
+        data-mobile-cols={mobileGridCols}
+      >
         {Array.from({ length: 12 }).map((_, i) => (
           <div
             key={`skeleton-${i}`}
@@ -318,6 +356,7 @@ export function ItemGrid({
     <div
       className="item-list-grid animate-[fadeIn_350ms_ease-out]"
       data-view={viewMode}
+      data-mobile-cols={mobileGridCols}
     >
       {visibleItems.map((item, index) => (
         <ItemCard

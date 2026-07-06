@@ -54,11 +54,23 @@ import {
   bucketGrams,
   expandedRefNumAtom,
   forceEnglishAtom,
+  type MobileGridCols,
+  mobileGridColsAtom,
   selectedSellersAtom,
   sellerModalIdAtom,
   toggleBookmarkAtom,
   toggleHiddenSellerAtom,
 } from "@/store/atoms";
+
+/**
+ * Responsive `sizes` hint for card images. The clauses ≥640px are fixed and
+ * match the grid column ramp in item-card.css. Below 640px the value depends on
+ * the mobile grid density: 1-up = full width (100vw), 2-up = half width (50vw).
+ */
+function CARD_IMG_SIZES(mobileCols: MobileGridCols): string {
+  const mobile = mobileCols === 2 ? "50vw" : "100vw";
+  return `(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, ${mobile}`;
+}
 
 /** Shared config lifted from ItemGrid — avoids per-card atom subscriptions. */
 export interface CardConfig {
@@ -316,6 +328,12 @@ function ItemCardInner({
   // without re-fetching. Falls back gracefully when fields are missing
   // (English markets, untranslated items).
   const forceEnglish = useAtomValue(forceEnglishAtom);
+  // Mobile grid density (1 | 2 cards per row). Only affects the trailing
+  // (<640px) clause of the responsive `sizes` hint: at 2-up a card is ~half
+  // the viewport, so 50vw avoids fetching double-resolution images. All other
+  // breakpoints are unchanged.
+  const mobileGridCols = useAtomValue(mobileGridColsAtom);
+  const imgSizes = CARD_IMG_SIZES(mobileGridCols);
   const displayName = forceEnglish && item.nEn ? item.nEn : item.n;
   const displayDesc = forceEnglish && item.dEn ? item.dEn : item.d;
   const itemMeta = useMemo(
@@ -826,7 +844,7 @@ function ItemCardInner({
                   alt={decodeEntities(displayName)}
                   loading={priority ? "eager" : "lazy"}
                   fetchPriority={priority ? "high" : undefined}
-                  sizes="(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  sizes={imgSizes}
                   className="card-image card-image--primary"
                 />
                 {/* Second image hover — always rendered if available */}
@@ -836,7 +854,7 @@ function ItemCardInner({
                     src={hoverSrc}
                     alt=""
                     loading="lazy"
-                    sizes="(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    sizes={imgSizes}
                     className="card-image card-image--hover"
                   />
                 )}

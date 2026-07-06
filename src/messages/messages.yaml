@@ -352,6 +352,16 @@ header:
       el-GR: Κλείσιμο μενού
       cs-CZ: Zavřít menu
       pl-PL: Zamknij menu
+    label:
+      en-GB: Menu
+      de-DE: Menü
+      fr-FR: Menu
+      pt-PT: Menu
+      it-IT: Menu
+      es-ES: Menú
+      el-GR: Μενού
+      cs-CZ: Menu
+      pl-PL: Menu
   marketMenu:
     market:
       en-GB: Market
@@ -2615,46 +2625,6 @@ browse:
       el-GR: "{count, plural, one {πωλητής} other {πωλητές}}"
       cs-CZ: "{count, plural, one {prodejce} few {prodejci} other {prodejců}}"
       pl-PL: "{count, plural, one {sprzedawca} few {sprzedawców} other {sprzedawców}}"
-    comfortableCards:
-      en-GB: Switch to comfortable cards
-      de-DE: Wechsel zu bequemen Karten
-      fr-FR: Passer aux cartes confortables
-      pt-PT: Mude para cartas confortáveis
-      it-IT: Passa a carte comode
-      es-ES: Cambiar a cartas cómodas
-      el-GR: Μετάβαση σε άνετες κάρτες
-      cs-CZ: Přejděte na pohodlné karty
-      pl-PL: Przejdź na wygodne karty
-    compactCards:
-      en-GB: Switch to compact cards
-      de-DE: Wechsel zu kompakten Karten
-      fr-FR: Passage aux cartes compactes
-      pt-PT: Mudar para cartões compactos
-      it-IT: Passa alle schede compatte
-      es-ES: Cambiar a tarjetas compactas
-      el-GR: Μετάβαση σε συμπαγείς κάρτες
-      cs-CZ: Přechod na kompaktní karty
-      pl-PL: Przejście na karty kompaktowe
-    roomy:
-      en-GB: Roomy
-      de-DE: Geräumig
-      fr-FR: Spacieux
-      pt-PT: Espaçoso
-      it-IT: Spazioso
-      es-ES: Espacioso
-      el-GR: Ευρύχωρο
-      cs-CZ: Prostorný
-      pl-PL: Przestronne
-    compact:
-      en-GB: Compact
-      de-DE: Kompakt
-      fr-FR: Compact
-      pt-PT: Compacto
-      it-IT: Compatto
-      es-ES: Compacto
-      el-GR: Συμπαγής
-      cs-CZ: Kompaktní
-      pl-PL: Compact
     # Saved / bookmarks chip label (desktop)
     saved:
       en-GB: Saved
@@ -2687,6 +2657,114 @@ browse:
       el-GR: Προβολή λίστας
       cs-CZ: Zobrazení seznamu
       pl-PL: Widok listy
+    # Mobile "View" popover — single trigger consolidating layout / per-row /
+    # card-size controls into one labelled dropdown.
+    view:
+      # Trigger button label + panel aria-label
+      trigger:
+        en-GB: View
+        de-DE: Ansicht
+        fr-FR: Affichage
+        pt-PT: Vista
+        it-IT: Vista
+        es-ES: Vista
+        el-GR: Προβολή
+        cs-CZ: Zobrazení
+        pl-PL: Widok
+      # Section header — layout (grid vs list)
+      layoutSection:
+        en-GB: Layout
+        de-DE: Layout
+        fr-FR: Disposition
+        pt-PT: Disposição
+        it-IT: Disposizione
+        es-ES: Disposición
+        el-GR: Διάταξη
+        cs-CZ: Rozvržení
+        pl-PL: Układ
+      # Section header — cards per row
+      perRowSection:
+        en-GB: Per row
+        de-DE: Pro Reihe
+        fr-FR: Par ligne
+        pt-PT: Por linha
+        it-IT: Per riga
+        es-ES: Por fila
+        el-GR: Ανά σειρά
+        cs-CZ: Na řádek
+        pl-PL: W rzędzie
+      # Section header — card size (comfortable vs compact)
+      cardSizeSection:
+        en-GB: Card size
+        de-DE: Kartengröße
+        fr-FR: Taille des cartes
+        pt-PT: Tamanho do cartão
+        it-IT: Dimensione scheda
+        es-ES: Tamaño de tarjeta
+        el-GR: Μέγεθος κάρτας
+        cs-CZ: Velikost karty
+        pl-PL: Rozmiar karty
+      # Row labels — short nouns for the menu rows
+      grid:
+        en-GB: Grid
+        de-DE: Raster
+        fr-FR: Grille
+        pt-PT: Grelha
+        it-IT: Griglia
+        es-ES: Cuadrícula
+        el-GR: Πλέγμα
+        cs-CZ: Mřížka
+        pl-PL: Siatka
+      list:
+        en-GB: List
+        de-DE: Liste
+        fr-FR: Liste
+        pt-PT: Lista
+        it-IT: Elenco
+        es-ES: Lista
+        el-GR: Λίστα
+        cs-CZ: Seznam
+        pl-PL: Lista
+      onePerRow:
+        en-GB: 1 per row
+        de-DE: 1 pro Reihe
+        fr-FR: 1 par ligne
+        pt-PT: 1 por linha
+        it-IT: 1 per riga
+        es-ES: 1 por fila
+        el-GR: 1 ανά σειρά
+        cs-CZ: 1 na řádek
+        pl-PL: 1 w rzędzie
+      twoPerRow:
+        en-GB: 2 per row
+        de-DE: 2 pro Reihe
+        fr-FR: 2 par ligne
+        pt-PT: 2 por linha
+        it-IT: 2 per riga
+        es-ES: 2 por fila
+        el-GR: 2 ανά σειρά
+        cs-CZ: 2 na řádek
+        pl-PL: 2 w rzędzie
+      comfortable:
+        en-GB: Comfortable
+        de-DE: Bequem
+        fr-FR: Confortable
+        pt-PT: Confortável
+        it-IT: Comodo
+        es-ES: Cómodo
+        el-GR: Άνετο
+        cs-CZ: Pohodlné
+        pl-PL: Wygodne
+      compact:
+        en-GB: Compact
+        de-DE: Kompakt
+        fr-FR: Compact
+        pt-PT: Compacto
+        it-IT: Compatto
+        es-ES: Compacto
+        el-GR: Συμπαγές
+        cs-CZ: Kompaktní
+        pl-PL: Kompaktowe
     sort:
       hottest:
         en-GB: Hot

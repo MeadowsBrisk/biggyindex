@@ -1425,6 +1425,173 @@
 }
 
 /* ==========================================================================
+   Mobile "2 cards per row" grid density (mobileGridColsAtom = 2).
+   Ported from food-aggregator's `.item-list-grid--compact`. Purely CSS-driven
+   via the `data-mobile-cols="2"` attribute on the grid container — the card
+   component is unchanged; half-width cards are achieved by hiding/shrinking
+   children with descendant selectors.
+
+   SCOPED inside `@media (max-width: 639px)` so it is a strict no-op at ≥640px
+   (where the base grid already goes 2+ columns from its own breakpoints).
+   Therefore this can NEVER affect desktop layout, and it lives on
+   `.item-list-grid` only, so list view (`.item-list-rows`) is untouched.
+
+   Aim: a tidy, readable half-width card — image, name (clamped), seller name,
+   category pill (overlaid on image), item rating, price + PPU — not a cramped
+   full card. Orthogonal to `data-view` density: both attributes can coexist.
+   ========================================================================== */
+
+/* ==========================================================================
+   Ground-up 2-cards-per-row mobile card (mobileGridColsAtom = 2).
+   Modelled on roast-radar's compact 2-col card: an information-light,
+   legible card that shows only — category pill (on image), image,
+   title (2-line clamp), seller name, price + per-unit. NOTHING else:
+   no variant/size pills, no outbound "Little Biggy" button, no description,
+   no seller badges/meta, no Listed/Updated timestamps.
+
+   Everything is sized for a ~180px-wide card. Scoped entirely to
+   .item-list-grid[data-mobile-cols="2"] inside this max-width:639px media
+   query so 1-col, desktop grid, and list view are untouched.
+   ========================================================================== */
+
+@media (max-width: 639px) {
+  /* ── Grid: two columns, tight gutter, no horizontal overflow. ── */
+  .item-list-grid[data-mobile-cols="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    overflow-x: clip;
+  }
+
+  .item-list-grid[data-mobile-cols="2"] .item-card,
+  .item-list-grid[data-mobile-cols="2"] .item-card-inner {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* ── Image: shrink the block, cap height, contain tall/portrait images
+     inside a subtle tinted letterbox frame so they aren't hard-cropped at
+     half width. ── */
+  .item-list-grid[data-mobile-cols="2"] .item-card-image {
+    max-height: 150px;
+    margin: 3px 3px 0;
+    background: var(--surface-hover);
+  }
+  .item-list-grid[data-mobile-cols="2"] .card-image {
+    object-fit: contain;
+  }
+
+  /* ── HIDE everything that isn't category pill / image / title / seller
+     name / price+PPU. ──
+       · description
+       · the outbound "Little Biggy" button
+       · ALL variant rows: strain pill row, weight/quantity pill rows,
+         their spacers, the single-variant fallback select
+       · seller rating/endorsement/shipping badges
+       · seller meta row (ships-from flag, delivery days, Only/Hide)
+       · the item rating chip beside the title
+       · the expand arrow beside the title
+       · everything after the price area in the footer (Listed/Updated) */
+  .item-list-grid[data-mobile-cols="2"] .card-content__description,
+  .item-list-grid[data-mobile-cols="2"] .card-lb-btn,
+  .item-list-grid[data-mobile-cols="2"] .pill-row,
+  .item-list-grid[data-mobile-cols="2"] .pill-row-spacer,
+  .item-list-grid[data-mobile-cols="2"] .variant-select,
+  .item-list-grid[data-mobile-cols="2"] .variant-size-row,
+  .item-list-grid[data-mobile-cols="2"] .seller-card__badge,
+  .item-list-grid[data-mobile-cols="2"] .seller-card__meta,
+  .item-list-grid[data-mobile-cols="2"] .card-item-rating,
+  .item-list-grid[data-mobile-cols="2"] .card-content__icon,
+  .item-list-grid[data-mobile-cols="2"]
+    .card-footer-gradient
+    .card-price-area
+    ~ * {
+    display: none;
+  }
+
+  /* ── Body padding: minimal. ── */
+  .item-list-grid[data-mobile-cols="2"] .p-1\.5 {
+    padding: 5px 6px 0 !important;
+  }
+
+  /* Drastically reduce the footer reserve — only price + PPU remain below,
+     so we don't need the tall 5rem (pb-20) gap. */
+  .item-list-grid[data-mobile-cols="2"] .pb-20 {
+    padding-bottom: 2.5rem !important;
+  }
+
+  /* ── Title: readable ~11.5px with a 2-LINE clamp (base clamps to 1 line
+     which truncates to a single word at this width). ── */
+  .item-list-grid[data-mobile-cols="2"] .card-content__title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 11.5px;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  /* ── Seller row: keep avatar + name, compact. Shrink the avatar, drop the
+     name to ~10.5px, tighten the top margin. ── */
+  .item-list-grid[data-mobile-cols="2"] .seller-card {
+    margin-top: 4px !important;
+    gap: 5px;
+    padding: 2px 0;
+  }
+  .item-list-grid[data-mobile-cols="2"] .seller-card__avatar {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+    border-radius: 5px;
+  }
+  .item-list-grid[data-mobile-cols="2"] .seller-card__name {
+    max-width: 100%;
+    font-size: 10.5px;
+    line-height: 1.2;
+  }
+
+  /* ── Footer: price ~13px, per-unit ~9.5px, tight padding. ── */
+  .item-list-grid[data-mobile-cols="2"] .card-footer-gradient {
+    padding: 0.25rem 0.5rem 0.4375rem;
+  }
+  .item-list-grid[data-mobile-cols="2"] .card-price-main,
+  .item-list-grid[data-mobile-cols="2"] .card-price-main--range {
+    font-size: 13px;
+    line-height: 1.15;
+  }
+  .item-list-grid[data-mobile-cols="2"] .card-price-ppg {
+    font-size: 9.5px;
+    margin-top: 0;
+  }
+
+  /* ── Category pill on the image: smaller. ── */
+  .item-list-grid[data-mobile-cols="2"] .card-controls {
+    padding: 5px;
+  }
+  .item-list-grid[data-mobile-cols="2"] .card-pill--image {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    gap: 3px;
+  }
+  .item-list-grid[data-mobile-cols="2"] .card-pill__group-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* ── Bookmark heart: keep it, but tone down the mobile touch-target bump
+     (p-2.5 / 20px svg) so it stays proportional on a ~180px card. ── */
+  .item-list-grid[data-mobile-cols="2"] .bookmark-btn {
+    padding: 6px;
+  }
+  .item-list-grid[data-mobile-cols="2"] .bookmark-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* ==========================================================================
    List view — one compact scanning row per item (viewLayoutAtom = 'list').
    Ported from food-aggregator's .irow layout, adapted to biggy tokens.
    ========================================================================== */

@@ -42,7 +42,8 @@
     },
     "mobileMenu": {
       "open": "Άνοιγμα μενού",
-      "close": "Κλείσιμο μενού"
+      "close": "Κλείσιμο μενού",
+      "label": "Μενού"
     },
     "marketMenu": {
       "market": "Αγορά",
@@ -392,13 +393,21 @@
       "itemsLabel": "{count, plural, one {item} other {items}}",
       "ofLabel": "από",
       "sellersLabel": "{count, plural, one {πωλητής} other {πωλητές}}",
-      "comfortableCards": "Μετάβαση σε άνετες κάρτες",
-      "compactCards": "Μετάβαση σε συμπαγείς κάρτες",
-      "roomy": "Ευρύχωρο",
-      "compact": "Συμπαγής",
       "saved": "Αποθηκευμένα",
       "gridView": "Πλέγμα καρτών",
       "listView": "Προβολή λίστας",
+      "view": {
+        "trigger": "Προβολή",
+        "layoutSection": "Διάταξη",
+        "perRowSection": "Ανά σειρά",
+        "cardSizeSection": "Μέγεθος κάρτας",
+        "grid": "Πλέγμα",
+        "list": "Λίστα",
+        "onePerRow": "1 ανά σειρά",
+        "twoPerRow": "2 ανά σειρά",
+        "comfortable": "Άνετο",
+        "compact": "Συμπαγές"
+      },
       "sort": {
         "hottest": "Ζεστό",
         "newest": "Νεότερο",

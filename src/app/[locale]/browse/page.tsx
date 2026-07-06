@@ -7,6 +7,7 @@ import { DataLoader } from "@/components/DataLoader";
 import { FilterPanel } from "@/components/FilterPanel";
 import { FooterSentinel } from "@/components/FooterSentinel";
 import { ItemGrid } from "@/components/ItemGrid";
+import { MobileResultCount } from "@/components/MobileResultCount";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
@@ -80,6 +81,7 @@ export default async function BrowsePage({
 
           <div className="flex-1 min-w-0 py-4 md:pl-4">
             <ActiveFilterBar />
+            <MobileResultCount />
             <ItemGrid seedItems={seedItems} seedSym="£" />
           </div>
         </div>

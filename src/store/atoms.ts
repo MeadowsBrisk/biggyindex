@@ -180,6 +180,23 @@ export const viewModeAtom = atomWithStorage<ViewMode>(
   "comfortable",
 );
 
+/** Mobile-only grid density: number of item cards per row below the `sm`
+ *  (640px) breakpoint. `1` is the rich full-width card (default); `2` renders
+ *  two condensed cards per row. Affects ONLY grid view on mobile — desktop
+ *  column counts and list view are untouched (see item-card.css, the rule is
+ *  scoped inside `@media (max-width: 639px)` on `.item-list-grid`). */
+export type MobileGridCols = 1 | 2;
+// Plain atomWithStorage (no getOnInit) — matches viewLayoutAtom/viewModeAtom.
+// The value is written into SSR'd markup (the seed grid's data-mobile-cols), so
+// the default must equal the server value to avoid a hydration mismatch; the
+// stored choice is read on mount and applied behind the HydrationGate (no
+// visible 1→2 flash). getOnInit here would risk React reverting to the server
+// default on mismatch.
+export const mobileGridColsAtom = atomWithStorage<MobileGridCols>(
+  "mobileGridCols",
+  1,
+);
+
 /** Accent color swatch — 'green' is default, others are easter-egg options */
 export type AccentColor =
   | "green"

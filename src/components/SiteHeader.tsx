@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { CATEGORIES, MARKETS } from "@/lib/constants";
 import {
   ENGLISH_MARKETS,
@@ -108,21 +109,7 @@ export function SiteHeader() {
               prefetch={false}
               className="group flex items-center gap-2.5"
             >
-              <div className="relative">
-                <Cannabis
-                  size={26}
-                  className="text-primary transition-transform group-hover:rotate-12"
-                />
-                <div className="absolute inset-0 blur-md opacity-30 bg-primary rounded-full" />
-              </div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xl font-bold tracking-tight text-foreground">
-                  Biggy
-                </span>
-                <span className="text-xl font-bold tracking-tight text-primary">
-                  Index
-                </span>
-              </div>
+              <BrandLogo />
             </Link>
 
             {/* Core nav links — always visible */}
@@ -163,7 +150,11 @@ export function SiteHeader() {
           {/* Right side: basket + market/currency dropdown + settings + theme toggle + mobile menu */}
           <div className="flex items-center gap-2">
             <BasketButton />
-            <MarketDropdown />
+            {/* Market/locale flag dropdown — desktop only. On mobile it moves
+                into the hamburger drawer (see <MobileNav>) to save header space. */}
+            <span className="hidden sm:block">
+              <MarketDropdown />
+            </span>
             <SettingsButton />
             <ThemeToggle />
             <MobileMenuButton />
@@ -174,6 +165,33 @@ export function SiteHeader() {
       {/* Mobile nav drawer */}
       <MobileNav />
     </header>
+  );
+}
+
+/**
+ * Brand logo (icon + wordmark). Shared between the site header and the mobile
+ * menu's top bar so the two are pixel-identical. Callers wrap it in a `group`
+ * element (Link) — the icon's hover rotate keys off that group.
+ */
+function BrandLogo() {
+  return (
+    <>
+      <div className="relative">
+        <Cannabis
+          size={26}
+          className="text-primary transition-transform group-hover:rotate-12"
+        />
+        <div className="absolute inset-0 blur-md opacity-30 bg-primary rounded-full" />
+      </div>
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-xl font-bold tracking-tight text-foreground">
+          Biggy
+        </span>
+        <span className="text-xl font-bold tracking-tight text-primary">
+          Index
+        </span>
+      </div>
+    </>
   );
 }
 
@@ -215,6 +233,57 @@ function BasketButton() {
         {count}
       </span>
     </button>
+  );
+}
+
+/**
+ * Shared market-switch navigation. Given a market code, navigates to the
+ * equivalent URL on that market's origin (production) or locale path prefix
+ * (dev). Does NOT write `marketAtom` — the atom is hydrated per-origin on load
+ * (see <MarketHydrate>). Used by both the desktop dropdown and the mobile
+ * hamburger switcher so the routing logic lives in one place.
+ */
+function useMarketSelect(currentMarket: string, onNavigate?: () => void) {
+  return useCallback(
+    (code: string) => {
+      onNavigate?.();
+      // Already on the picked market — nothing to do.
+      if (code === currentMarket) return;
+
+      // In production each market is its own subdomain (see `domains` in
+      // src/i18n/routing.ts and `marketToHost`). The atom flip alone
+      // doesn't change the SSR-rendered data — host detection in proxy.ts
+      // pins the locale per request — so we need a real navigation.
+      if (typeof window === "undefined") return;
+      const path = window.location.pathname;
+      const search = window.location.search;
+      const hash = window.location.hash;
+
+      if (isHostBasedEnv(window.location.hostname)) {
+        // Cross-origin → full page load. Preserve path + query + hash so
+        // a user on `/browse?cat=Flower` stays on the equivalent URL on
+        // the new market's host.
+        const targetHost = marketToHost(code as MarketCode);
+        window.location.assign(`https://${targetHost}${path}${search}${hash}`);
+        return;
+      }
+
+      // Dev / staging fallback (localhost, lbindex.vip, etc.) — domains
+      // are disabled in routing.ts when not in production, so locales
+      // live under path prefixes instead. Strip any existing locale
+      // prefix and replace with the target one.
+      const targetLocale = marketToLocale(code as MarketCode);
+      const stripped = path.replace(
+        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)(?=\/|$)/,
+        "",
+      );
+      const nextPath =
+        targetLocale === "en-GB"
+          ? stripped || "/"
+          : `/${targetLocale}${stripped || ""}`;
+      window.location.assign(`${nextPath}${search}${hash}`);
+    },
+    [currentMarket, onNavigate],
   );
 }
 
@@ -260,54 +329,8 @@ function MarketDropdown() {
     return () => document.removeEventListener("keydown", handler);
   }, [open]);
 
-  const handleMarketSelect = useCallback(
-    (code: string) => {
-      setOpen(false);
-      // Already on the picked market — nothing to do.
-      if (code === market) return;
-
-      // Do NOT write `marketAtom` here. The atom is now hydrated from
-      // the request host on every page load (see <MarketHydrate>). A
-      // pre-navigation write would have no effect on the destination
-      // origin (per-origin atom hydration) and would just persist a
-      // mismatched value into the source origin's session storage if
-      // the navigation were ever cancelled. Just navigate.
-
-      // In production each market is its own subdomain (see `domains` in
-      // src/i18n/routing.ts and `marketToHost`). The atom flip alone
-      // doesn't change the SSR-rendered data — host detection in proxy.ts
-      // pins the locale per request — so we need a real navigation.
-      if (typeof window === "undefined") return;
-      const path = window.location.pathname;
-      const search = window.location.search;
-      const hash = window.location.hash;
-
-      if (isHostBasedEnv(window.location.hostname)) {
-        // Cross-origin → full page load. Preserve path + query + hash so
-        // a user on `/browse?cat=Flower` stays on the equivalent URL on
-        // the new market's host.
-        const targetHost = marketToHost(code as MarketCode);
-        window.location.assign(`https://${targetHost}${path}${search}${hash}`);
-        return;
-      }
-
-      // Dev / staging fallback (localhost, lbindex.vip, etc.) — domains
-      // are disabled in routing.ts when not in production, so locales
-      // live under path prefixes instead. Strip any existing locale
-      // prefix and replace with the target one.
-      const targetLocale = marketToLocale(code as MarketCode);
-      const stripped = path.replace(
-        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)(?=\/|$)/,
-        "",
-      );
-      const nextPath =
-        targetLocale === "en-GB"
-          ? stripped || "/"
-          : `/${targetLocale}${stripped || ""}`;
-      window.location.assign(`${nextPath}${search}${hash}`);
-    },
-    [market],
-  );
+  const closeMenu = useCallback(() => setOpen(false), []);
+  const handleMarketSelect = useMarketSelect(market, closeMenu);
 
   return (
     <div ref={ref} className="relative">
@@ -448,13 +471,47 @@ function MobileNav() {
   const pathname = usePathname();
   const previousPathnameRef = useRef(pathname);
   const tNav = useTranslations("nav");
+  const tMobileMenu = useTranslations("header.mobileMenu");
+  const [closing, setClosing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
+  // Animated dismiss: play the fade-out, then unmount. Mirrors SettingsModal.
+  const close = useCallback(() => {
+    setClosing(true);
+    setTimeout(() => {
+      setClosing(false);
+      setOpen(false);
+    }, 180);
+  }, [setOpen]);
+
+  // Safety net: close on route change. SiteHeader re-mounts per page, so this
+  // rarely fires (the ref re-inits on mount) — nav-link taps close the menu
+  // directly below — but it guards any external navigation while open.
   useEffect(() => {
     if (previousPathnameRef.current !== pathname) {
       previousPathnameRef.current = pathname;
+      setClosing(false);
       setOpen(false);
     }
   }, [pathname, setOpen]);
+
+  // Escape closes (with the exit animation).
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open, close]);
+
+  // Lock the page behind the full-screen overlay.
+  useBodyScrollLock(open);
+
+  // Move focus into the dialog on open (matches SettingsModal).
+  useEffect(() => {
+    if (open) panelRef.current?.focus();
+  }, [open]);
 
   if (!open) return null;
 
@@ -465,23 +522,188 @@ function MobileNav() {
   ];
 
   return (
-    <div className="sm:hidden border-b border-[var(--border)] bg-[var(--background)]">
-      <nav className="flex flex-col px-4 py-2 gap-0.5">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            prefetch={false}
-            className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-              pathname === link.href
-                ? "text-primary bg-primary/10"
-                : "text-muted hover:text-foreground hover:bg-[var(--surface-hover)]"
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+    <div
+      ref={panelRef}
+      className={`menu-modal sm:hidden${closing ? " menu-modal--closing" : ""}`}
+      style={{ zIndex: 150 }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={tMobileMenu("label")}
+      tabIndex={-1}
+    >
+      {/* Gradient accent bar — the site header has this 3px bar above its row,
+          so replicating it here keeps the logo and bottom border aligned (the
+          menu is a fixed overlay at top:0; without the bar everything sat 3px
+          too high). */}
+      <div
+        className="h-[3px] shrink-0"
+        style={{ background: "var(--accent-gradient)" }}
+      />
+      {/* Top bar — mirrors the site header (height, padding, shared logo) so the
+          close button lands exactly where the hamburger was. */}
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--border)] px-4">
+        <Link
+          href="/"
+          prefetch={false}
+          onClick={() => setOpen(false)}
+          className="group flex items-center gap-2.5"
+        >
+          <BrandLogo />
+        </Link>
+        <button
+          type="button"
+          onClick={close}
+          className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer"
+          aria-label={tMobileMenu("close")}
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      {/* Body — vertically centered when short, scrolls when the market list is
+          expanded. `min-h-full` on the inner column keeps short content centered
+          without clipping tall content. */}
+      <div className="menu-modal-body flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto flex min-h-full w-full max-w-sm flex-col justify-center gap-7 px-5 py-8">
+          <nav className="flex flex-col gap-1">
+            {links.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  prefetch={false}
+                  onClick={() => setOpen(false)}
+                  className={`rounded-xl px-4 py-3 text-lg font-semibold transition-colors ${
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground hover:bg-[var(--surface-hover)]"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="border-t border-[var(--border)]" />
+
+          {/* Market / language switcher — collapsed behind a single trigger so
+              the drawer isn't dominated by the full market list. */}
+          <MobileMarketSwitch onNavigate={() => setOpen(false)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Market + language switcher for the mobile hamburger drawer. Reuses the same
+ * market-navigation and `forceEnglishAtom` logic as the desktop
+ * <MarketDropdown> right-cluster control (currency picking stays desktop-only —
+ * it's an advanced option and the drawer is meant to be compact).
+ *
+ * The market list is collapsed behind a single trigger that shows the current
+ * market — expanding it reveals the full list. This keeps the drawer from being
+ * dominated by ~10 market rows. The compact 2-button language toggle (non-English
+ * markets only) stays visible below.
+ */
+function MobileMarketSwitch({ onNavigate }: { onNavigate: () => void }) {
+  const market = useAtomValue(marketAtom);
+  const [forceEnglish, setForceEnglish] = useAtom(forceEnglishAtom);
+  const tMarketMenu = useTranslations("header.marketMenu");
+  const tMarkets = useTranslations("markets");
+  const [expanded, setExpanded] = useState(false);
+
+  const handleMarketSelect = useMarketSelect(market, onNavigate);
+  const showLanguageToggle = !(ENGLISH_MARKETS as readonly string[]).includes(
+    market,
+  );
+  const current = MARKETS.find((m) => m.code === market) ?? MARKETS[0];
+
+  return (
+    <div>
+      <div className="px-1 pb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+        {tMarketMenu("market")}
+      </div>
+
+      {/* Collapsed trigger — current market; tap to reveal the full list. */}
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="flex w-full items-center gap-2.5 rounded-xl border border-[var(--border)] bg-surface px-3 py-2.5 text-sm transition-colors hover:bg-surface-hover cursor-pointer"
+        aria-expanded={expanded}
+      >
+        <CountryFlag code={current.code} size={20} />
+        <span className="flex-1 text-left font-medium text-foreground">
+          {tMarkets(current.code)}
+        </span>
+        <span className="text-xs text-muted">
+          {current.currencySymbol} {current.currency}
+        </span>
+        <ChevronDown
+          size={16}
+          className={`text-muted transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Expanded market list. */}
+      {expanded && (
+        <div className="menu-reveal mt-1.5 flex flex-col gap-0.5">
+          {MARKETS.map((m) => (
+            <button
+              key={m.code}
+              type="button"
+              onClick={() => handleMarketSelect(m.code)}
+              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors cursor-pointer ${
+                market === m.code
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted hover:bg-surface-hover hover:text-foreground"
+              }`}
+            >
+              <CountryFlag code={m.code} size={18} />
+              <span className="flex-1 text-left">{tMarkets(m.code)}</span>
+              <span className="text-xs opacity-60">
+                {m.currencySymbol} {m.currency}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Language toggle — only on non-English markets, matching the desktop
+          dropdown. Persists per-origin via forceEnglishAtom. */}
+      {showLanguageToggle && (
+        <>
+          <div className="mt-4 px-1 pb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+            {tMarketMenu("language")}
+          </div>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setForceEnglish(false)}
+              className={`flex-1 rounded-lg px-2 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                !forceEnglish
+                  ? "bg-primary/15 text-primary border border-primary/30"
+                  : "bg-surface border border-[var(--border)] text-muted hover:text-foreground"
+              }`}
+            >
+              {tMarkets(market)}
+            </button>
+            <button
+              type="button"
+              onClick={() => setForceEnglish(true)}
+              className={`flex-1 rounded-lg px-2 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                forceEnglish
+                  ? "bg-primary/15 text-primary border border-primary/30"
+                  : "bg-surface border border-[var(--border)] text-muted hover:text-foreground"
+              }`}
+            >
+              {tMarketMenu("english")}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

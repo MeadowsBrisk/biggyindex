@@ -128,3 +128,62 @@
     transform: scale(0.96) translateY(6px);
   }
 }
+
+/* ==========================================================================
+   Full-screen mobile menu (hamburger). A true edge-to-edge overlay — not a
+   centered card — so its top bar aligns with the site header and the close
+   button lands exactly where the hamburger was. Fades the shell in/out and
+   gives the body a subtle downward reveal.
+   ========================================================================== */
+.menu-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  animation: modal-fade-in 0.2s ease-out;
+}
+
+.menu-modal--closing {
+  animation: modal-fade-out 0.18s ease-in forwards;
+}
+
+.menu-modal-body {
+  animation: menu-body-in 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes menu-body-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Expanding market list inside the menu's collapsible region. */
+.menu-reveal {
+  animation: menu-reveal-in 0.18s ease-out;
+}
+
+@keyframes menu-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-modal,
+  .menu-modal--closing,
+  .menu-modal-body,
+  .menu-reveal {
+    animation: none !important;
+  }
+}

@@ -42,7 +42,8 @@
     },
     "mobileMenu": {
       "open": "Open menu",
-      "close": "Close menu"
+      "close": "Close menu",
+      "label": "Menu"
     },
     "marketMenu": {
       "market": "Market",
@@ -392,13 +393,21 @@
       "itemsLabel": "{count, plural, one {item} other {items}}",
       "ofLabel": "of",
       "sellersLabel": "{count, plural, one {seller} other {sellers}}",
-      "comfortableCards": "Switch to comfortable cards",
-      "compactCards": "Switch to compact cards",
-      "roomy": "Roomy",
-      "compact": "Compact",
       "saved": "Saved",
       "gridView": "Card grid",
       "listView": "List view",
+      "view": {
+        "trigger": "View",
+        "layoutSection": "Layout",
+        "perRowSection": "Per row",
+        "cardSizeSection": "Card size",
+        "grid": "Grid",
+        "list": "List",
+        "onePerRow": "1 per row",
+        "twoPerRow": "2 per row",
+        "comfortable": "Comfortable",
+        "compact": "Compact"
+      },
       "sort": {
         "hottest": "Hot",
         "newest": "Newest",

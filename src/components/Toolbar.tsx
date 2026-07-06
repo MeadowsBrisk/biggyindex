@@ -8,13 +8,13 @@ import {
   ChevronDown,
   Heart,
   LayoutGrid,
-  List,
   Rows3,
   Shuffle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useSyncExternalStore, useTransition } from "react";
 import { FilterToggle } from "@/components/FilterPanel";
+import { ViewMenu } from "@/components/ViewMenu";
 import { cx } from "@/lib/cn";
 import type { SortKey } from "@/lib/types";
 import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "@/lib/urlFilters";
@@ -27,7 +27,6 @@ import {
   sortDirAtom,
   sortKeyAtom,
   viewLayoutAtom,
-  viewModeAtom,
 } from "@/store/atoms";
 
 /**
@@ -67,39 +66,38 @@ export function Toolbar() {
       className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/78 dark:bg-[var(--background)]/80 backdrop-blur-[28px]"
       data-tour="toolbar"
     >
-      {/* Row 1: filters + count (left) · saved → sort → layout (right) */}
-      <div className="flex items-center gap-2 px-4 pt-2 pb-1 sm:pb-2 flex-wrap sm:flex-nowrap">
+      {/* Desktop row: filters + count (left) · saved → sort → layout (right).
+          Hidden on mobile, where a single compact row is rendered below. */}
+      <div className="hidden sm:flex items-center gap-2 px-4 pt-2 pb-2 flex-nowrap">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">
           <FilterToggle />
-          {/* Result count sits immediately after Filters on desktop. On mobile
-              the count lives in row 2 (this instance self-hides via its span). */}
           <ResultCount />
-          {/* Saved is desktop-anchored on the right; on mobile it stays here in
-              the left cluster so it's still reachable. */}
-          <span className="sm:hidden">
-            <BookmarkToggle />
-          </span>
-          <ViewModeToggle />
         </div>
 
         {/* Active filters moved to the ActiveFilterBar above the grid (the
             grouped accent card) — the in-toolbar strip was cramped/overflowy. */}
         <div className="min-w-0 flex-1" />
 
-        {/* Desktop: saved → sort → layout, pinned to the far right. */}
-        <div className="hidden sm:flex items-center gap-2 shrink-0">
+        {/* Saved → sort → layout, pinned to the far right. */}
+        <div className="flex items-center gap-2 shrink-0">
           <BookmarkToggle />
           <SortPills />
           <ViewLayoutToggle />
         </div>
       </div>
 
-      {/* Row 2 (mobile only): result count + layout + sort select */}
-      <div className="flex sm:hidden items-center justify-between gap-2 px-4 pb-2">
-        <ResultCount mobile />
-        <div className="flex items-center gap-2">
-          <ViewLayoutToggle />
+      {/* Mobile row (single, compact): filters (left) · saved · sort · view
+          (right). The three inline view toggles (layout / per-row / card-size)
+          are consolidated into one labelled "View" popover (ViewMenu). The
+          result count is NOT in the bar on mobile — inline it collided with the
+          right-hand controls at ~360px — it renders as its own muted line above
+          the grid (MobileResultCount). The right cluster is `ml-auto shrink-0`. */}
+      <div className="flex sm:hidden items-center gap-1.5 px-3 py-1.5">
+        <FilterToggle />
+        <div className="flex items-center gap-1.5 ml-auto shrink-0">
+          <BookmarkToggle />
           <SortSelect />
+          <ViewMenu />
         </div>
       </div>
     </div>
@@ -121,7 +119,7 @@ function BookmarkToggle() {
       type="button"
       onClick={() => setActive((v) => !v)}
       className={cx(
-        "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-colors whitespace-nowrap cursor-pointer",
+        "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 sm:px-3 text-[11px] font-medium transition-colors whitespace-nowrap cursor-pointer",
         active
           ? "border-rose-500 bg-rose-500 text-white"
           : "border-border text-muted hover:text-foreground hover:bg-surface-hover",
@@ -149,7 +147,7 @@ function BookmarkToggle() {
 
 // ─── Result count ──────────────────────────────────────────────────
 
-function ResultCount({ mobile }: { mobile?: boolean }) {
+function ResultCount() {
   const t = useTranslations("browse.toolbar");
   const filtered = useAtomValue(filteredItemsAtom);
   const total = useAtomValue(itemsAtom);
@@ -164,9 +162,7 @@ function ResultCount({ mobile }: { mobile?: boolean }) {
   ).size;
 
   return (
-    <span
-      className={`flex min-w-0 items-baseline gap-1.5 whitespace-nowrap text-sm tabular-nums ${mobile ? "inline-flex" : "hidden sm:inline-flex"}`}
-    >
+    <span className="hidden min-w-0 items-baseline gap-1.5 whitespace-nowrap text-sm tabular-nums sm:inline-flex">
       <span className="font-bold text-foreground">
         {(isFiltered ? filtered.length : total.length).toLocaleString()}
       </span>
@@ -330,26 +326,6 @@ function ViewLayoutToggle() {
   );
 }
 
-// ─── Density toggle (mobile only — comfortable ↔ compact) ─────────
-
-function ViewModeToggle() {
-  const t = useTranslations("browse.toolbar");
-  const [mode, setMode] = useAtom(viewModeAtom);
-  const isCompact = mode === "compact";
-  return (
-    <button
-      type="button"
-      onClick={() => setMode(isCompact ? "comfortable" : "compact")}
-      className="sm:hidden flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer text-muted hover:text-foreground"
-      title={isCompact ? t("comfortableCards") : t("compactCards")}
-      aria-label={isCompact ? t("comfortableCards") : t("compactCards")}
-    >
-      {isCompact ? <LayoutGrid size={13} /> : <List size={13} />}
-      <span>{isCompact ? t("roomy") : t("compact")}</span>
-    </button>
-  );
-}
-
 // ─── Sort select (mobile) ──────────────────────────────────────────
 
 function SortSelect() {
@@ -385,7 +361,7 @@ function SortSelect() {
   const DirIcon = effectiveSortDir === "asc" ? ArrowUp : ArrowDown;
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1">
       <div className="sort-select">
         <select
           value={effectiveSortKey}

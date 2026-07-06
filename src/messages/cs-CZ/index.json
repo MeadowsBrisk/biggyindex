@@ -42,7 +42,8 @@
     },
     "mobileMenu": {
       "open": "Otevřít menu",
-      "close": "Zavřít menu"
+      "close": "Zavřít menu",
+      "label": "Menu"
     },
     "marketMenu": {
       "market": "Trh",
@@ -392,13 +393,21 @@
       "itemsLabel": "{count, plural, one {item} other {items}}",
       "ofLabel": "z",
       "sellersLabel": "{count, plural, one {prodejce} few {prodejci} other {prodejců}}",
-      "comfortableCards": "Přejděte na pohodlné karty",
-      "compactCards": "Přechod na kompaktní karty",
-      "roomy": "Prostorný",
-      "compact": "Kompaktní",
       "saved": "Uložené",
       "gridView": "Mřížka karet",
       "listView": "Zobrazení seznamu",
+      "view": {
+        "trigger": "Zobrazení",
+        "layoutSection": "Rozvržení",
+        "perRowSection": "Na řádek",
+        "cardSizeSection": "Velikost karty",
+        "grid": "Mřížka",
+        "list": "Seznam",
+        "onePerRow": "1 na řádek",
+        "twoPerRow": "2 na řádek",
+        "comfortable": "Pohodlné",
+        "compact": "Kompaktní"
+      },
       "sort": {
         "hottest": "Horko",
         "newest": "Nejnovější",
