@@ -77,27 +77,28 @@
 .sort-select__field {
   appearance: none;
   -webkit-appearance: none;
-  background-color: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  /* Match the other toolbar controls: fixed 32px height, neutral outline,
+     transparent fill (the toolbar itself supplies the frosted backdrop). */
+  height: 32px;
+  background-color: transparent;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 6px 22px 6px 8px;
-  font-size: 12px;
+  padding: 0 24px 0 10px;
+  font-size: 11px;
   font-weight: 500;
   line-height: 1;
   color: var(--foreground);
   outline: none;
   cursor: pointer;
   transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease;
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .sort-select__field:hover {
-  background-color: var(--glass-bg-strong);
-  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background-color: var(--surface-hover);
+  border-color: var(--border);
 }
 
 .sort-select__field:focus-visible {
@@ -118,24 +119,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  /* Square button matching the 32px control height + neutral outline. */
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  background-color: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  background-color: transparent;
+  border: 1px solid var(--border);
   color: var(--muted);
   cursor: pointer;
   transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    box-shadow 180ms ease;
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .sort-select__dir:hover {
   color: var(--foreground);
-  background-color: var(--glass-bg-strong);
-  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background-color: var(--surface-hover);
+  border-color: var(--border);
 }

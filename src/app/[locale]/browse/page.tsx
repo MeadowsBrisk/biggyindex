@@ -79,7 +79,11 @@ export default async function BrowsePage({
         <div className="flex gap-0">
           <FilterPanel />
 
-          <div className="flex-1 min-w-0 py-4 md:pl-4">
+          {/* `pl-4` at all widths (not just md): on mobile the left gutter
+              gives the fixed edge-swipe tap zone (FilterPanel) visible room so
+              it reads as tappable, matching Roast Radar. On desktop it's the
+              gap from the filter sidebar. */}
+          <div className="flex-1 min-w-0 py-4 pl-4">
             <ActiveFilterBar />
             <MobileResultCount />
             <ItemGrid seedItems={seedItems} seedSym="£" />

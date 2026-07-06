@@ -4,9 +4,9 @@ import { useAtom } from "jotai";
 import {
   Check,
   Columns2,
+  LayoutDashboard,
   LayoutGrid,
   Rows3,
-  SlidersHorizontal,
   Square,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -135,7 +135,7 @@ export function ViewMenu() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cx(
-          "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-colors whitespace-nowrap cursor-pointer",
+          "flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-[11px] font-medium transition-colors whitespace-nowrap cursor-pointer",
           open
             ? "border-primary bg-primary/10 text-primary"
             : "border-border text-muted hover:text-foreground hover:bg-surface-hover",
@@ -145,7 +145,7 @@ export function ViewMenu() {
         aria-controls={open ? panelId : undefined}
         title={t("trigger")}
       >
-        <SlidersHorizontal size={14} />
+        <LayoutDashboard size={14} />
         <span>{t("trigger")}</span>
       </button>
 

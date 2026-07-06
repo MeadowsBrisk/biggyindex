@@ -64,7 +64,7 @@ export function FilterToggle() {
       onClick={() => setOpen((open) => !open)}
       aria-label={t("toggle")}
       data-tour="filter-toggle"
-      className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+      className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-[11px] font-medium transition-colors cursor-pointer sm:h-auto sm:px-3 sm:py-1.5 sm:text-sm ${
         filterCount > 0
           ? "border-primary bg-primary/10 text-primary"
           : "border-border text-muted hover:text-foreground hover:bg-surface-hover"
@@ -146,6 +146,30 @@ export function FilterPanel() {
 
   return (
     <>
+      {/* Mobile: invisible left-edge tap zone that opens the filter drawer,
+          with a subtle indicator bar. Mirrors Roast Radar — gives phones a
+          thumb-reachable strip on the screen edge to open filters without
+          reaching for the toolbar button. Only when the drawer is closed; sits
+          just below the sticky toolbar (var(--toolbar-h)). */}
+      {mounted && isMobile && !open && (
+        <button
+          type="button"
+          aria-label={t("toggle")}
+          className="group fixed left-0 bottom-0 z-30 w-4 focus:outline-none md:hidden"
+          style={{ top: "var(--toolbar-h, 44px)" }}
+          onClick={() => setOpen(true)}
+        >
+          <span className="sr-only">{t("toggle")}</span>
+          <span
+            className="absolute inset-y-0 left-0 w-[3px] rounded-r-full transition-all group-hover:w-1 group-active:opacity-[0.6]"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--primary) 25%, transparent) 50%, transparent)",
+            }}
+          />
+        </button>
+      )}
+
       <aside
         className={`hidden md:block shrink-0 self-start sticky overflow-hidden ${
           transitionReady ? "transition-all duration-300 ease-out" : ""

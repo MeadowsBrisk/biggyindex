@@ -174,12 +174,14 @@ export function HeroSection({
         {/* Market flag strip */}
         <div
           style={{ "--mount-delay": "750ms" } as React.CSSProperties}
-          className="mount-fade mt-12 flex items-center gap-4"
+          className="mount-fade mt-12 flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
         >
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
             {t("markets")}
           </span>
-          <div className="flex items-center gap-3">
+          {/* Wraps to multiple rows on narrow screens so 9-10 markets never run
+              off the edge; stays a single inline row from sm up. */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {MARKETS.map((m) => {
               const marketCode = m.code as MarketCode;
               const active = marketCode === currentMarket;

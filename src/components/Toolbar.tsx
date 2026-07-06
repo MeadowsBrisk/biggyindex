@@ -119,7 +119,7 @@ function BookmarkToggle() {
       type="button"
       onClick={() => setActive((v) => !v)}
       className={cx(
-        "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 sm:px-3 text-[11px] font-medium transition-colors whitespace-nowrap cursor-pointer",
+        "flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-[11px] font-medium transition-colors whitespace-nowrap cursor-pointer sm:h-auto sm:px-3 sm:py-1.5",
         active
           ? "border-rose-500 bg-rose-500 text-white"
           : "border-border text-muted hover:text-foreground hover:bg-surface-hover",
