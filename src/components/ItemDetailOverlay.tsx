@@ -4,9 +4,9 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   Award,
   Calendar,
-  Check,
   ChevronLeft,
   ChevronRight,
+  Minus,
   Plus,
   RefreshCw,
   Star,
@@ -60,12 +60,14 @@ import {
 } from "@/lib/variants";
 import {
   addToBasketAtom,
+  basketAtom,
   currencyDisplayAtom,
   expandedRefNumAtom,
   focusReviewIdAtom,
   forceEnglishAtom,
   itemsAtom,
   marketAtom,
+  removeFromBasketAtom,
   sellerModalIdAtom,
   sellersMapAtom,
   sortedItemsAtom,
@@ -155,6 +157,8 @@ export function ItemDetailOverlay() {
   const setSellerModalId = useSetAtom(sellerModalIdAtom);
   const sellersMap = useAtomValue(sellersMapAtom);
   const addToBasket = useSetAtom(addToBasketAtom);
+  const removeFromBasket = useSetAtom(removeFromBasketAtom);
+  const basket = useAtomValue(basketAtom);
   const addToast = useAddToast();
   const { symbol: cSym, rate: cRate } = useAtomValue(currencyDisplayAtom);
 
@@ -364,10 +368,6 @@ export function ItemDetailOverlay() {
   // ── Selected shipping cost (local to overlay) ──
   const [selectedShipCost, setSelectedShipCost] = useState(0);
 
-  // ── Cart add indicator ──
-  const [addedVariantKey, setAddedVariantKey] = useState<string | null>(null);
-  const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // Reset shipping selection when item changes
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -460,6 +460,20 @@ export function ItemDetailOverlay() {
         };
       });
   }, [displayItem, forceEnglish, variantContext]);
+
+  // Variant ids for THIS item already in the basket — drives the +/− button
+  // state so re-clicking a row removes it (and toasts accordingly).
+  const itemRef = displayItem
+    ? String(displayItem.refNum ?? displayItem.id)
+    : null;
+  const basketedVariantIds = useMemo(() => {
+    if (!itemRef) return new Set<string>();
+    const set = new Set<string>();
+    for (const entry of basket) {
+      if (entry.refNum === itemRef) set.add(entry.variantId);
+    }
+    return set;
+  }, [basket, itemRef]);
 
   const bestValueKey = useMemo(() => {
     if (!variantRows || variantRows.length <= 1) return null;
@@ -792,71 +806,93 @@ export function ItemDetailOverlay() {
                                             </td>
                                           )}
                                           <td className="ido-table__action">
-                                            <button
-                                              type="button"
-                                              className={`ido-add-btn${addedVariantKey === row.key ? " ido-add-btn--added" : ""}`}
-                                              title={t("variants.addToBasket")}
-                                              onClick={() => {
-                                                const ref = String(
-                                                  displayItem.refNum ??
-                                                    displayItem.id,
-                                                );
-                                                addToBasket({
-                                                  refNum: ref,
-                                                  variantId: row.key,
-                                                  variantDesc: row.label,
-                                                  name: name,
-                                                  sellerName:
-                                                    displayItem.sn ?? "",
-                                                  qty: 1,
-                                                  priceUSD: row.price,
-                                                  shippingUsd:
-                                                    hasSelectableShipping
-                                                      ? selectedShipCost
-                                                      : null,
-                                                  includeShip:
-                                                    hasSelectableShipping,
-                                                  shOpts:
-                                                    shipOptions.length > 0
-                                                      ? shipOptions
-                                                      : undefined,
-                                                  imageUrl:
-                                                    getItemPrimaryImage(
-                                                      displayItem,
-                                                      "thumb",
-                                                      { forceStatic: true },
-                                                    ) ??
-                                                    displayItem.i ??
-                                                    null,
-                                                  sl: displayItem.sl ?? null,
-                                                });
-                                                if (addedTimerRef.current)
-                                                  clearTimeout(
-                                                    addedTimerRef.current,
-                                                  );
-                                                setAddedVariantKey(row.key);
-                                                addedTimerRef.current =
-                                                  setTimeout(
-                                                    () =>
-                                                      setAddedVariantKey(null),
-                                                    1200,
-                                                  );
-                                                addToast({
-                                                  message: t(
-                                                    "variants.addedToBasket",
-                                                    { variant: row.label },
-                                                  ),
-                                                  variant: "success",
-                                                  duration: 2200,
-                                                });
-                                              }}
-                                            >
-                                              {addedVariantKey === row.key ? (
-                                                <Check size={14} />
-                                              ) : (
-                                                <Plus size={14} />
-                                              )}
-                                            </button>
+                                            {(() => {
+                                              const inBasket =
+                                                basketedVariantIds.has(row.key);
+                                              return (
+                                                <button
+                                                  type="button"
+                                                  className={`ido-add-btn${inBasket ? " ido-add-btn--added" : ""}`}
+                                                  title={
+                                                    inBasket
+                                                      ? t(
+                                                          "variants.removeFromBasket",
+                                                        )
+                                                      : t(
+                                                          "variants.addToBasket",
+                                                        )
+                                                  }
+                                                  aria-pressed={inBasket}
+                                                  onClick={() => {
+                                                    const ref = String(
+                                                      displayItem.refNum ??
+                                                        displayItem.id,
+                                                    );
+                                                    if (inBasket) {
+                                                      removeFromBasket({
+                                                        refNum: ref,
+                                                        variantId: row.key,
+                                                      });
+                                                      addToast({
+                                                        message: t(
+                                                          "variants.removedFromBasket",
+                                                          {
+                                                            variant: row.label,
+                                                          },
+                                                        ),
+                                                        variant: "success",
+                                                        duration: 2200,
+                                                      });
+                                                      return;
+                                                    }
+                                                    addToBasket({
+                                                      refNum: ref,
+                                                      variantId: row.key,
+                                                      variantDesc: row.label,
+                                                      name: name,
+                                                      sellerName:
+                                                        displayItem.sn ?? "",
+                                                      qty: 1,
+                                                      priceUSD: row.price,
+                                                      shippingUsd:
+                                                        hasSelectableShipping
+                                                          ? selectedShipCost
+                                                          : null,
+                                                      includeShip:
+                                                        hasSelectableShipping,
+                                                      shOpts:
+                                                        shipOptions.length > 0
+                                                          ? shipOptions
+                                                          : undefined,
+                                                      imageUrl:
+                                                        getItemPrimaryImage(
+                                                          displayItem,
+                                                          "thumb",
+                                                          { forceStatic: true },
+                                                        ) ??
+                                                        displayItem.i ??
+                                                        null,
+                                                      sl:
+                                                        displayItem.sl ?? null,
+                                                    });
+                                                    addToast({
+                                                      message: t(
+                                                        "variants.addedToBasket",
+                                                        { variant: row.label },
+                                                      ),
+                                                      variant: "success",
+                                                      duration: 2200,
+                                                    });
+                                                  }}
+                                                >
+                                                  {inBasket ? (
+                                                    <Minus size={14} />
+                                                  ) : (
+                                                    <Plus size={14} />
+                                                  )}
+                                                </button>
+                                              );
+                                            })()}
                                           </td>
                                         </tr>
                                       );

@@ -2592,67 +2592,29 @@ browse:
       el-GR: Εμφάνιση μόνο με σελιδοδείκτη
       cs-CZ: Pouze pro pořad uložené do záložek
       pl-PL: Tylko do zakładek
-    shippingIncluded:
-      en-GB: Showing prices with shipping
-      de-DE: Preise mit Versand anzeigen
-      fr-FR: Affichage des prix avec les frais de port
-      pt-PT: Mostrar preços com envio
-      it-IT: Mostra i prezzi con spedizione
-      es-ES: Mostrar precios con envío
-      el-GR: Προβολή τιμών με μεταφορικά
-      cs-CZ: Zobrazení cen s dopravou
-      pl-PL: Pokazywanie cen z wysyłką
-    addShipping:
-      en-GB: Add shipping to prices
-      de-DE: Fügen Sie den Versand zu den Preisen hinzu
-      fr-FR: Ajoutez la livraison aux prix
-      pt-PT: Adicione o envio aos preços
-      it-IT: Aggiungi la spedizione ai prezzi
-      es-ES: Suma el envío a los precios
-      el-GR: Προσθέστε τα μεταφορικά στις τιμές
-      cs-CZ: Přidejte poštovné k cenám
-      pl-PL: Dodaj wysyłkę do cen
-    shippingShort:
-      en-GB: +Ship
-      de-DE: +Schiff
-      fr-FR: +Navire
-      pt-PT: +Nave
-      it-IT: +Nave
-      es-ES: +Nave
-      el-GR: +Πλοίο
-      cs-CZ: +Loď
-      pl-PL: +Statek
     itemsLabel: "{count, plural, one {item} other {items}}"
-    freeShippingActive:
-      en-GB: Showing free shipping only
-      de-DE: Zeigt nur kostenlosen Versand an
-      fr-FR: Affichage de la livraison gratuite uniquement
-      pt-PT: A mostrar apenas envio grátis
-      it-IT: Mostra solo la spedizione gratuita
-      es-ES: Mostrando solo envío gratuito
-      el-GR: Εμφάνιση δωρεάν αποστολής μόνο
-      cs-CZ: Zobrazuje pouze dopravu zdarma
-      pl-PL: Pokazuje tylko darmową wysyłkę
-    freeShippingInactive:
-      en-GB: Filter to free shipping
-      de-DE: Filtern Sie auf kostenlosen Versand
-      fr-FR: Filtrer vers la livraison gratuite
-      pt-PT: Filtrar para envio gratuito
-      it-IT: Filtra alla spedizione gratuita
-      es-ES: Filtrar a envío gratuito
-      el-GR: Φιλτράρισμα για δωρεάν αποστολή
-      cs-CZ: Filtrovat na bezplatné doručení
-      pl-PL: Filtruj do darmowej wysyłki
-    freeShippingShort:
-      en-GB: Free Ship
-      de-DE: Freies Schiff
-      fr-FR: Vaisseau libre
-      pt-PT: Nave Livre
-      it-IT: Nave Libera
-      es-ES: Nave libre
-      el-GR: Δωρεάν αποστολή
-      cs-CZ: Free Ship
-      pl-PL: Free Ship
+    # "of" connector in the filtered result count (e.g. "128 of 919")
+    ofLabel:
+      en-GB: of
+      de-DE: von
+      fr-FR: sur
+      pt-PT: de
+      it-IT: di
+      es-ES: de
+      el-GR: από
+      cs-CZ: z
+      pl-PL: z
+    # Distinct-seller count shown in the result count (e.g. "· 16 sellers")
+    sellersLabel:
+      en-GB: "{count, plural, one {seller} other {sellers}}"
+      de-DE: "{count, plural, one {Verkäufer} other {Verkäufer}}"
+      fr-FR: "{count, plural, one {vendeur} other {vendeurs}}"
+      pt-PT: "{count, plural, one {vendedor} other {vendedores}}"
+      it-IT: "{count, plural, one {venditore} other {venditori}}"
+      es-ES: "{count, plural, one {vendedor} other {vendedores}}"
+      el-GR: "{count, plural, one {πωλητής} other {πωλητές}}"
+      cs-CZ: "{count, plural, one {prodejce} few {prodejci} other {prodejců}}"
+      pl-PL: "{count, plural, one {sprzedawca} few {sprzedawców} other {sprzedawców}}"
     comfortableCards:
       en-GB: Switch to comfortable cards
       de-DE: Wechsel zu bequemen Karten
@@ -2693,6 +2655,38 @@ browse:
       el-GR: Συμπαγής
       cs-CZ: Kompaktní
       pl-PL: Compact
+    # Saved / bookmarks chip label (desktop)
+    saved:
+      en-GB: Saved
+      de-DE: Gespeichert
+      fr-FR: Enregistrés
+      pt-PT: Guardados
+      it-IT: Salvati
+      es-ES: Guardados
+      el-GR: Αποθηκευμένα
+      cs-CZ: Uložené
+      pl-PL: Zapisane
+    # Grid / list layout toggle
+    gridView:
+      en-GB: Card grid
+      de-DE: Kartenraster
+      fr-FR: Grille de cartes
+      pt-PT: Grelha de cartões
+      it-IT: Griglia di schede
+      es-ES: Cuadrícula de tarjetas
+      el-GR: Πλέγμα καρτών
+      cs-CZ: Mřížka karet
+      pl-PL: Siatka kart
+    listView:
+      en-GB: List view
+      de-DE: Listenansicht
+      fr-FR: Vue en liste
+      pt-PT: Vista de lista
+      it-IT: Vista elenco
+      es-ES: Vista de lista
+      el-GR: Προβολή λίστας
+      cs-CZ: Zobrazení seznamu
+      pl-PL: Widok listy
     sort:
       hottest:
         en-GB: Hot
@@ -2735,16 +2729,26 @@ browse:
         cs-CZ: Cena
         pl-PL: Cena
       pricePerGram: £/g
-      name:
-        en-GB: Name
-        de-DE: Name
-        fr-FR: Nom
-        pt-PT: Nome
-        it-IT: Nome
-        es-ES: Nombre
-        el-GR: Όνομα
-        cs-CZ: Jméno
-        pl-PL: Nazwa
+      shuffle:
+        en-GB: Shuffle
+        de-DE: Mischen
+        fr-FR: Mélanger
+        pt-PT: Baralhar
+        it-IT: Mescola
+        es-ES: Barajar
+        el-GR: Ανακάτεμα
+        cs-CZ: Zamíchat
+        pl-PL: Losuj
+      shuffleAgain:
+        en-GB: Shuffle again
+        de-DE: Erneut mischen
+        fr-FR: Mélanger à nouveau
+        pt-PT: Baralhar novamente
+        it-IT: Mescola di nuovo
+        es-ES: Barajar de nuevo
+        el-GR: Ανακάτεμα ξανά
+        cs-CZ: Zamíchat znovu
+        pl-PL: Losuj ponownie
       aria:
         en-GB: Sort by
         de-DE: Sortieren nach
@@ -2781,6 +2785,7 @@ browse:
     search: Search
     category: Category
     subcategory: Subcategory
+    subcategoryNot: Excluding
     sellers: Sellers
     shipFrom: From
     shipNot: Not from
@@ -2888,16 +2893,16 @@ browse:
       cs-CZ: Podkategorie
       pl-PL: Podkategorie
     sections:
-      shipsFrom:
-        en-GB: Ships From
-        de-DE: Schiffe aus
-        fr-FR: Navires de
-        pt-PT: Navios de
-        it-IT: Navi da
-        es-ES: Barcos de
-        el-GR: Αποστολή από
-        cs-CZ: Lodě z
-        pl-PL: Statki z
+      shipping:
+        en-GB: Shipping
+        de-DE: Versand
+        fr-FR: Livraison
+        pt-PT: Envio
+        it-IT: Spedizione
+        es-ES: Envío
+        el-GR: Αποστολή
+        cs-CZ: Doprava
+        pl-PL: Wysyłka
       weight:
         en-GB: Weight
         de-DE: Gewicht
@@ -3050,6 +3055,58 @@ browse:
       el-GR: "Κλικ: συμπερίληψη. Δεξί κλικ: εξαίρεση"
       cs-CZ: "Kliknout: zahrnout. Pravé kliknutí: vyloučit"
       pl-PL: "Klik: uwzględnij. Kliknij prawym przyciskiem myszy: wyklucz"
+    # Sub-label above the ships-from origin list inside the Shipping section
+    shippingFrom:
+      en-GB: From
+      de-DE: Aus
+      fr-FR: Depuis
+      pt-PT: De
+      it-IT: Da
+      es-ES: Desde
+      el-GR: Από
+      cs-CZ: Z
+      pl-PL: Z
+    # Shipping-cost toggles (moved from the toolbar into the sidebar)
+    freeShippingOnly:
+      en-GB: Free shipping only
+      de-DE: Nur kostenloser Versand
+      fr-FR: Livraison gratuite uniquement
+      pt-PT: Apenas envio grátis
+      it-IT: Solo spedizione gratuita
+      es-ES: Solo envío gratis
+      el-GR: Μόνο δωρεάν αποστολή
+      cs-CZ: Pouze doprava zdarma
+      pl-PL: Tylko darmowa wysyłka
+    addShippingToPrices:
+      en-GB: Add shipping to prices
+      de-DE: Versand zu Preisen hinzufügen
+      fr-FR: Ajouter la livraison aux prix
+      pt-PT: Adicionar envio aos preços
+      it-IT: Aggiungi la spedizione ai prezzi
+      es-ES: Sumar el envío a los precios
+      el-GR: Προσθήκη μεταφορικών στις τιμές
+      cs-CZ: Přidat poštovné k cenám
+      pl-PL: Dodaj wysyłkę do cen
+    subcategoryExcludeHint:
+      en-GB: "Click: include. Right-click: exclude"
+      de-DE: "Klicken: hinzufügen. Rechtsklick: ausschließen"
+      fr-FR: "Cliquer : inclure. Clic droit : exclure"
+      pt-PT: "Clicar: incluir. Clicar com o botão direito: excluir"
+      it-IT: "Clicca: include. Clicca con il tasto destro: escludi"
+      es-ES: "Haz clic: incluir. Haz clic derecho: excluir"
+      el-GR: "Κλικ: συμπερίληψη. Δεξί κλικ: εξαίρεση"
+      cs-CZ: "Kliknout: zahrnout. Pravé kliknutí: vyloučit"
+      pl-PL: "Klik: uwzględnij. Kliknij prawym przyciskiem myszy: wyklucz"
+    subcategoryExcludeRemove:
+      en-GB: "Right-click to remove exclusion"
+      de-DE: "Rechtsklick, um den Ausschluss zu entfernen"
+      fr-FR: "Clic droit pour retirer l'exclusion"
+      pt-PT: "Clique com o botão direito para remover a exclusão"
+      it-IT: "Clicca con il tasto destro per rimuovere l'esclusione"
+      es-ES: "Haz clic derecho para quitar la exclusión"
+      el-GR: "Δεξί κλικ για αφαίρεση της εξαίρεσης"
+      cs-CZ: "Pravým kliknutím odeberte vyloučení"
+      pl-PL: "Kliknij prawym przyciskiem, aby usunąć wykluczenie"
     searchSellers:
       en-GB: Search sellers...
       de-DE: Suche Verkäufer...
@@ -3866,6 +3923,26 @@ item:
         el-GR: Προστέθηκε {variant} στο καλάθι
         cs-CZ: Přidal {variant} do košíku
         pl-PL: Dodałem {variant} do kosza
+      removedFromBasket:
+        en-GB: Removed {variant} from basket
+        de-DE: Habe {variant} aus dem Korb entfernt
+        fr-FR: Retiré {variant} du panier
+        pt-PT: Removi {variant} do cesto
+        it-IT: Rimosso {variant} dal canestro
+        es-ES: Eliminado {variant} de la cesta
+        el-GR: Αφαιρέθηκε {variant} από το καλάθι
+        cs-CZ: Odebral {variant} z košíku
+        pl-PL: Usunąłem {variant} z kosza
+      removeFromBasket:
+        en-GB: Remove from basket
+        de-DE: Aus dem Korb entfernen
+        fr-FR: Retirer du panier
+        pt-PT: Remover do cesto
+        it-IT: Rimuovi dal cestino
+        es-ES: Quitar de la cesta
+        el-GR: Αφαίρεση από το καλάθι
+        cs-CZ: Odebrat z košíku
+        pl-PL: Usuń z kosza
       bestValue:
         en-GB: Best value
         de-DE: Bestes Preis-Leistungs-Verhältnis

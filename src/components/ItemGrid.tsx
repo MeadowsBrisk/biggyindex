@@ -23,10 +23,12 @@ import {
   sellersMapAtom,
   sortedItemsAtom,
   thumbnailAspectAtom,
+  viewLayoutAtom,
   viewModeAtom,
 } from "@/store/atoms";
 import type { CardConfig } from "./ItemCard";
 import { ItemCard } from "./ItemCard";
+import { ItemRow } from "./ItemRow";
 
 // ─── Progressive rendering (ported from food-agg) ──────────────────
 
@@ -180,6 +182,7 @@ export function ItemGrid({
   const highRes = useAtomValue(highResImagesAtom);
   const activeCategory = useAtomValue(categoryAtom);
   const viewMode = useAtomValue(viewModeAtom);
+  const viewLayout = useAtomValue(viewLayoutAtom);
   const itemIndex = useAtomValue(itemIndexAtom);
   const [clientNow, setClientNow] = useState<number | null>(null);
 
@@ -290,6 +293,23 @@ export function ItemGrid({
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
         <p className="text-lg font-medium">{t("noItemsFound")}</p>
         <p className="text-sm">{t("adjustFilters")}</p>
+      </div>
+    );
+  }
+
+  if (viewLayout === "list") {
+    return (
+      <div className="item-list-rows animate-[fadeIn_350ms_ease-out]">
+        {visibleItems.map((item) => (
+          <ItemRow
+            key={item.id}
+            item={item}
+            config={config}
+            isBookmarked={bookmarksSet.has(
+              item.refNum ? String(item.refNum) : String(item.id),
+            )}
+          />
+        ))}
       </div>
     );
   }

@@ -57,6 +57,12 @@
   flex-shrink: 0;
 }
 
+/* Decorative lead glyph before the pills (roast-radar parity) */
+.sort-bar__lead {
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+
 /* ==========================================================================
    Sort Select (mobile) — glass-styled native select + direction toggle
    to match the toolbar's frosted aesthetic.

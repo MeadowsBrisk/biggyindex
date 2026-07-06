@@ -12,6 +12,7 @@ import {
   categoryAtom,
   clearFiltersAtom,
   excludedShipFromAtom,
+  excludedSubcategoriesAtom,
   priceRangeAtom,
   searchQueryAtom,
   selectedSellersAtom,
@@ -25,6 +26,8 @@ interface ActiveChip {
   label: string;
   /** Country code — renders a flag on the chip (ship-from filters). */
   flag?: string;
+  /** Exclusion chip — rendered strikethrough/red to read as "not this". */
+  excluded?: boolean;
   clear: () => void;
 }
 
@@ -51,6 +54,8 @@ export function ActiveFilterBar() {
   const setCategory = useSetAtom(categoryAtom);
   const subcategory = useAtomValue(subcategoryAtom);
   const setSubcategory = useSetAtom(subcategoryAtom);
+  const excludedSubcategory = useAtomValue(excludedSubcategoriesAtom);
+  const setExcludedSubcategory = useSetAtom(excludedSubcategoriesAtom);
   const sellers = useAtomValue(selectedSellersAtom);
   const setSellers = useSetAtom(selectedSellersAtom);
   const allSellers = useAtomValue(availableSellersAtom);
@@ -115,6 +120,21 @@ export function ActiveFilterBar() {
         label: sc,
         clear: () =>
           tx(() => setSubcategory((prev) => prev.filter((s) => s !== sc))),
+      })),
+    });
+  }
+  if (excludedSubcategory.length > 0) {
+    groups.push({
+      key: "subcategory-exclude",
+      label: t("subcategoryNot"),
+      chips: excludedSubcategory.map((sc) => ({
+        key: sc,
+        label: sc,
+        excluded: true,
+        clear: () =>
+          tx(() =>
+            setExcludedSubcategory((prev) => prev.filter((s) => s !== sc)),
+          ),
       })),
     });
   }
@@ -215,7 +235,9 @@ export function ActiveFilterBar() {
             <button
               key={`${g.key}-${c.key}`}
               type="button"
-              className="active-chip"
+              className={
+                c.excluded ? "active-chip active-chip--excluded" : "active-chip"
+              }
               onClick={c.clear}
               title={tToolbar("removeFilter", { label: c.label })}
             >

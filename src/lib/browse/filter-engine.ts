@@ -6,6 +6,7 @@ import type { Item, SortDir, SortKey } from "@/lib/types";
 export interface BrowseFilters {
   category: string;
   subcategories: string[];
+  excludedSubcategories: string[];
   query: string;
   selectedSellers: string[];
   hiddenSellers: string[];
@@ -26,6 +27,8 @@ export interface BrowseSnapshotInput {
   sortKey: SortKey;
   sortDir: SortDir;
   includeShipping: boolean;
+  /** Seed for the "shuffle" sort — stable ordering per seed value. */
+  randomSeed?: number;
 }
 
 export interface SellerFacet {
@@ -130,6 +133,7 @@ export function buildBrowseResults(input: BrowseSnapshotInput): BrowseResults {
       input.includeShipping,
       input.filters.selectedWeights,
       input.itemIndex,
+      input.randomSeed ?? 0,
     ),
   };
 }
@@ -144,6 +148,11 @@ function applyFilters(
   const subcategories = options.skipSubcategory ? [] : filters.subcategories;
   const subcategorySet =
     subcategories.length > 0 ? new Set(subcategories) : null;
+  const excludedSubcategories = options.skipSubcategory
+    ? []
+    : filters.excludedSubcategories;
+  const excludedSubcategorySet =
+    excludedSubcategories.length > 0 ? new Set(excludedSubcategories) : null;
   const query = filters.query.toLowerCase().trim();
   const sellers = options.skipSellers ? [] : filters.selectedSellers;
   const sellersSet = sellers.length > 0 ? new Set(sellers) : null;
@@ -180,6 +189,13 @@ function applyFilters(
       subcategorySet &&
       (!item.sc ||
         !item.sc.some((subcategory) => subcategorySet.has(subcategory)))
+    ) {
+      return false;
+    }
+
+    if (
+      excludedSubcategorySet &&
+      item.sc?.some((subcategory) => excludedSubcategorySet.has(subcategory))
     ) {
       return false;
     }
@@ -226,6 +242,16 @@ function applyFilters(
   });
 }
 
+/** Stable per-seed hash (FNV-ish) — same construction as food-aggregator. */
+function seededHash(str: string, seed: number): number {
+  let hash = (seed ^ 0x9e3779b9) >>> 0;
+  for (let index = 0; index < str.length; index++) {
+    hash = Math.imul(hash ^ str.charCodeAt(index), 0x01000193);
+  }
+  hash ^= hash >>> 16;
+  return hash >>> 0;
+}
+
 function sortItems(
   items: Item[],
   sortKey: SortKey,
@@ -233,7 +259,21 @@ function sortItems(
   includeShipping: boolean,
   selectedWeights: number[],
   itemIndex?: ItemIndex,
+  randomSeed = 0,
 ): Item[] {
+  // Shuffle: deterministic per-seed order so the list stays stable within a
+  // session and only re-rolls when the seed changes (explicit re-select).
+  // Direction is irrelevant for shuffle.
+  if (sortKey === "shuffle") {
+    return [...items].sort((first, second) => {
+      const keyA = String(first.refNum ?? first.id);
+      const keyB = String(second.refNum ?? second.id);
+      const hashA = seededHash(keyA, randomSeed);
+      const hashB = seededHash(keyB, randomSeed);
+      return hashA < hashB ? -1 : hashA > hashB ? 1 : 0;
+    });
+  }
+
   const selectedWeightBuckets =
     sortKey === "ppg" && selectedWeights.length > 0
       ? new Set(selectedWeights)
@@ -259,9 +299,6 @@ function sortItems(
           (first.uMin ?? 0) +
           itemShipCost(first, includeShipping) -
           ((second.uMin ?? 0) + itemShipCost(second, includeShipping));
-        break;
-      case "name":
-        comparison = first.n.localeCompare(second.n);
         break;
       case "ppg": {
         const firstPpg = cheapestPpg(

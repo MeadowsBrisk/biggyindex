@@ -58,6 +58,21 @@
   color: var(--accent);
 }
 
+/* Exclusion chips (e.g. excluded subcategories) read as "not this": muted
+   red tint + strikethrough on the label so they're clearly distinct from
+   the include chips. */
+.active-chip--excluded {
+  background: color-mix(in srgb, #ef4444 12%, var(--surface));
+  color: #ef4444;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #ef4444 35%, transparent);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, #ef4444 60%, transparent);
+}
+.active-chip--excluded:hover {
+  box-shadow: inset 0 0 0 1px #ef4444;
+  color: #ef4444;
+}
+
 /* Only the × dims at rest — the flag keeps full colour. */
 .active-chip-x {
   opacity: 0.5;

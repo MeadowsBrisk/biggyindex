@@ -131,6 +131,7 @@ const edgeItems: Item[] = [
 const baseFilters: BrowseFilters = {
   category: "All",
   subcategories: [],
+  excludedSubcategories: [],
   query: "",
   selectedSellers: [],
   hiddenSellers: [],
@@ -184,6 +185,47 @@ assert.deepEqual(
   ["flower-a"],
 );
 
+// Excluded subcategories hide matching items (right-click-to-exclude).
+assert.deepEqual(
+  ids(
+    buildBrowseResults(
+      input({ category: "Flower", excludedSubcategories: ["Gelato"] }),
+    ).filteredItems,
+  ),
+  ["flower-b"],
+);
+// Exclusion applies across categories (no category filter set).
+assert.deepEqual(
+  ids(
+    buildBrowseResults(input({ excludedSubcategories: ["Gelato", "DrySift"] }))
+      .filteredItems,
+  ),
+  ["flower-b", "edible-a"],
+);
+// Include + exclude compose: include Flower subs, exclude one of them.
+assert.deepEqual(
+  ids(
+    buildBrowseResults(
+      input({
+        category: "Flower",
+        subcategories: ["Gelato", "Haze"],
+        excludedSubcategories: ["Haze"],
+      }),
+    ).filteredItems,
+  ),
+  ["flower-a"],
+);
+// Available-subcategory facet ignores exclusions so users can re-add them.
+assert.deepEqual(
+  buildBrowseSnapshot(
+    input({ category: "Flower", excludedSubcategories: ["Gelato"] }),
+  ).availableSubcategories,
+  [
+    { name: "Gelato", count: 1 },
+    { name: "Haze", count: 1 },
+  ],
+);
+
 const flowerSnapshot = buildBrowseSnapshot(input({ category: "Flower" }));
 assert.deepEqual(flowerSnapshot.categoryCounts, {
   All: 4,
@@ -206,14 +248,11 @@ assert.deepEqual(
 );
 
 assert.deepEqual(
-  ids(
-    buildBrowseResults(input({ selectedShipFrom: ["united kingdom"] }))
-      .filteredItems,
-  ),
+  ids(buildBrowseResults(input({ selectedShipFrom: ["gb"] })).filteredItems),
   ["flower-a", "hash-a"],
 );
 assert.deepEqual(
-  ids(buildBrowseResults(input({ excludedShipFrom: ["spain"] })).filteredItems),
+  ids(buildBrowseResults(input({ excludedShipFrom: ["es"] })).filteredItems),
   ["flower-a", "hash-a", "edible-a"],
 );
 assert.deepEqual(

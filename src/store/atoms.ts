@@ -24,7 +24,11 @@ import type {
   SortDir,
   SortKey,
 } from "@/lib/types";
-import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "@/lib/urlFilters";
+import {
+  DEFAULT_SORT_DIR,
+  DEFAULT_SORT_KEY,
+  isSortKey,
+} from "@/lib/urlFilters";
 
 export { bucketGrams } from "@/lib/browse/item-index";
 
@@ -199,6 +203,9 @@ export const searchQueryAtom = atom<string>("");
 export const deferredSearchQueryAtom = atom<string>("");
 export const categoryAtom = atom<string>("All");
 export const subcategoryAtom = atom<string[]>([]);
+/** Excluded subcategories — items whose `sc` matches any of these are hidden.
+ *  Right-click (desktop) a subcategory chip to toggle exclusion. */
+export const excludedSubcategoriesAtom = atom<string[]>([]);
 export const selectedSellersAtom = atom<string[]>([]);
 /** Hidden sellers — persisted list, items from these sellers are always hidden */
 export const hiddenSellersAtom = atomWithStorage<string[]>("hiddenSellers", []);
@@ -266,6 +273,7 @@ export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
   set(deferredSearchQueryAtom, "");
   set(categoryAtom, "All");
   set(subcategoryAtom, []);
+  set(excludedSubcategoriesAtom, []);
   set(priceRangeAtom, { min: 0, max: Infinity });
   set(attrFiltersAtom, {});
   set(freeShippingOnlyAtom, false);
@@ -281,16 +289,53 @@ export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
 
 // ─── Sort ───────────────────────────────────────────────────────
 
+/**
+ * Persisted sort key. A validating storage layer coerces any stale/removed
+ * value (e.g. an old `localStorage.sortKey === "name"` after that sort was
+ * dropped) back to the default rather than leaving an unknown key active that
+ * no pill/option could match.
+ */
+const sortKeyStorage = {
+  getItem(key: string, initialValue: SortKey): SortKey {
+    if (typeof window === "undefined") return initialValue;
+    const stored = window.localStorage.getItem(key);
+    return isSortKey(stored) ? stored : initialValue;
+  },
+  setItem(key: string, value: SortKey) {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(key, value);
+  },
+  removeItem(key: string) {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(key);
+  },
+};
+
 export const sortKeyAtom = atomWithStorage<SortKey>(
   "sortKey",
   DEFAULT_SORT_KEY,
+  sortKeyStorage,
 );
 export const sortDirAtom = atomWithStorage<SortDir>(
   "sortDir",
   DEFAULT_SORT_DIR,
 );
 
+/**
+ * Per-session shuffle seed for the "Shuffle" sort. NOT persisted — a fresh
+ * seed each session (and each explicit Shuffle re-select) so the order is
+ * stable within a session but doesn't reshuffle on every unrelated atom
+ * change. Mirrors food-aggregator's randomSeedAtom.
+ */
+export const randomSeedAtom = atom<number>(
+  Math.floor(Math.random() * 0x7fffffff),
+);
+
 // ─── Layout ─────────────────────────────────────────────────────
+
+/** Browse presentation: card grid vs compact scanning list. Persisted. */
+export type ViewLayout = "grid" | "list";
+export const viewLayoutAtom = atomWithStorage<ViewLayout>("viewLayout", "grid");
 
 /** Filter panel open state — persisted so it remembers between sessions.
  *  Default `false` so SSR output matches a cold client; otherwise the panel
@@ -440,6 +485,25 @@ export const bookmarksSetAtom = atom<Set<string>>(
   (get) => new Set(get(bookmarksAtom)),
 );
 
+/**
+ * Count of bookmarks that still match a currently-listed item. The persisted
+ * `bookmarksAtom` accumulates refs for items that have since delisted (kept on
+ * purpose — items can be relisted), so its raw `.length` overstates the saved
+ * count shown in the UI. This intersects against the loaded items using the
+ * same refNum-or-id key ItemGrid uses for `isBookmarked`.
+ */
+export const activeBookmarksCountAtom = atom<number>((get) => {
+  const bookmarks = get(bookmarksSetAtom);
+  if (bookmarks.size === 0) return 0;
+  const items = get(itemsAtom);
+  let count = 0;
+  for (const item of items) {
+    const key = item.refNum ? String(item.refNum) : String(item.id);
+    if (bookmarks.has(key)) count++;
+  }
+  return count;
+});
+
 /** Toggle bookmark: add if absent, remove if present */
 export const toggleBookmarkAtom = atom<null, [string], void>(
   null,
@@ -463,6 +527,7 @@ const browseInputAtom = atom((get) => {
     filters: {
       category: get(categoryAtom),
       subcategories: get(subcategoryAtom),
+      excludedSubcategories: get(excludedSubcategoriesAtom),
       query: get(deferredSearchQueryAtom),
       selectedSellers: get(selectedSellersAtom),
       hiddenSellers: get(hiddenSellersAtom),
@@ -478,6 +543,7 @@ const browseInputAtom = atom((get) => {
     sortKey: get(sortKeyAtom),
     sortDir: get(sortDirAtom),
     includeShipping: get(includeShippingAtom),
+    randomSeed: get(randomSeedAtom),
   };
 });
 
@@ -541,6 +607,7 @@ export const activeFiltersCountAtom = atom<number>((get) => {
   let count = 0;
   if (get(categoryAtom) !== "All") count++;
   count += get(subcategoryAtom).length;
+  count += get(excludedSubcategoriesAtom).length;
   if (get(searchQueryAtom).trim()) count++;
   if (get(selectedSellersAtom).length > 0) count++;
   if (get(hiddenSellersAtom).length > 0) count++;

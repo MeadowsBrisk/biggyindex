@@ -211,6 +211,38 @@ export function itemVariantContext(item: Pick<Item, "n" | "c" | "sc">): string {
 
 /* ─────────── Patterns ─────────── */
 
+/**
+ * Numeric-token fragment used inside quantity regexes (oz/g/ml/mg).
+ * Accepts a normal decimal ("3.5", "28") OR a leading-decimal ("​.77" = 0.77,
+ * ".5ml"). The full-decimal alternative is listed first so "3.5" is captured
+ * whole and never truncated to ".5". Only the numeric token is widened — the
+ * surrounding anchoring of each pattern is left exactly as it was, so this does
+ * not loosen where a quantity may appear (e.g. sentence punctuation before a
+ * space-separated number like "grade a. 5g" is still not a leading-decimal).
+ */
+const NUM = String.raw`(?:\d+(?:\.\d+)?|\.\d+)`;
+
+/*
+ * ── Parse regression cases (leading-decimal + counted-ml multipack) ──
+ * These are covered by the parity tool corpus, but are documented here so a
+ * future edit to NUM / the ml multipack rules has an at-a-glance contract.
+ * (No standalone test stage; wiring one into cli.ts is non-trivial.)
+ *
+ *   "1 .77oz bar punch"      → 21.56g   (0.77oz; leading-"1 " strip + .77)
+ *   "10 .2g"                 → 2g       (10 × 0.2g via MULTIPACK_RE)
+ *   ".5g"                    → 0.5g     (WEIGHT_RE leading-decimal)
+ *   "5 1ml message …"        → 5ml      (MULTIPACK_ML_COUNT_RE, 5×1ml)
+ *   "2 1ml message …"        → 2ml      (MULTIPACK_ML_COUNT_RE, 2×1ml)
+ *   "10 1ml carts"           → 10ml     (COUNTED_ML_RE keeps its path)
+ *   "2x1ml cart"             → 2ml      (MULTIPACK_ML_RE keeps its path)
+ *   "1 500 ml lemonchillo"   → 500ml    ("1 " stripped → plain ML_RE, NOT 1×500)
+ *
+ * ML_RE keeps a PLAIN numeric token (no leading-decimal): it is `\b`-anchored
+ * and matches anywhere, so a leading-decimal alt would let it mis-split a glued
+ * fraction (the `\b` sits between "." and a digit). No such string exists in the
+ * live corpus, but the plain token avoids introducing the risk.
+ */
+
 /** Ounce-family patterns. Slang canonicalizes to grams; numeric oz preserves "Noz". */
 const OZ_PATTERNS: {
   re: RegExp;
@@ -228,27 +260,54 @@ const OZ_PATTERNS: {
     label: "14g",
   },
   { re: /\bzip\b/i, grams: 28, label: "28g" },
-  { re: /(\d+(?:\.\d+)?)\s*(?:oz|ounce|ounces|z)\b/i, grams: null, mult: 28 },
+  {
+    re: new RegExp(`(${NUM})\\s*(?:oz|ounce|ounces|z)\\b`, "i"),
+    grams: null,
+    mult: 28,
+  },
 ];
 
-/** "3.5 g", "3.5g", "3.5 gram", "14 grams" — at start of string. */
-const WEIGHT_RE = /^(\d+(?:\.\d+)?)\s*(g|gram|grams)\b/i;
+/** "3.5 g", "3.5g", "3.5 gram", "14 grams", ".5g" — at start of string. */
+const WEIGHT_RE = new RegExp(`^(${NUM})\\s*(g|gram|grams)\\b`, "i");
 
 /** "5 1g nasha" → 5 × 1g = 5g. Also supports "5 x 1g". */
-const MULTIPACK_RE =
-  /^(\d+)\s+(?:x|×)?\s*(\d+(?:\.\d+)?)\s*(?:g|gram|grams)\b/i;
+const MULTIPACK_RE = new RegExp(
+  `^(\\d+)\\s+(?:x|×)?\\s*(${NUM})\\s*(?:g|gram|grams)\\b`,
+  "i",
+);
 
 /** "8 x 50mg nerd bites" → 8 × 50mg = 400mg (kept as mg, not grams). */
-const MULTIPACK_MG_RE =
-  /^(\d+)\s*(?:x|×)\s*(\d+(?:\.\d+)?)\s*(?:mg|milligram|milligrams)\b/i;
+const MULTIPACK_MG_RE = new RegExp(
+  `^(\\d+)\\s*(?:x|×)\\s*(${NUM})\\s*(?:mg|milligram|milligrams)\\b`,
+  "i",
+);
 
 /** "2x1ml cart" / "pick and mix (2x1ml cart)" → total ml. */
-const MULTIPACK_ML_RE =
-  /\b(\d+)\s*(?:x|×)\s*(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
+const MULTIPACK_ML_RE = new RegExp(
+  `\\b(\\d+)\\s*(?:x|×)\\s*(${NUM})\\s*(?:ml|milliliter|milliliters)\\b`,
+  "i",
+);
 
 /** "10 1ml carts" → total ml, common vape cart shorthand. */
-const COUNTED_ML_RE =
-  /^(\d+)\s+(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\s*(?:carts?|cartridges?|vapes?)\b/i;
+const COUNTED_ML_RE = new RegExp(
+  `^(\\d+)\\s+(${NUM})\\s*(?:ml|milliliter|milliliters)\\s*(?:carts?|cartridges?|vapes?)\\b`,
+  "i",
+);
+
+/**
+ * "5 1ml message to select strain" → 5 × 1ml = 5ml. Mirrors MULTIPACK_RE for
+ * ml: a start-anchored count + per-unit ml with NO x/× separator and NO
+ * carts/vapes suffix (COUNTED_ML_RE handles the suffixed form, MULTIPACK_ML_RE
+ * the x/× form). Anchored at start so it never fires mid-sentence, and the
+ * count is a plain integer. Interplay note: preprocessRaw strips a leading
+ * platform "1 " before a number, so "1 500 ml lemonchillo" becomes
+ * "500 ml lemonchillo" and falls through to plain ML_RE (500ml), never
+ * 1×500ml here.
+ */
+const MULTIPACK_ML_COUNT_RE = new RegExp(
+  `^(\\d+)\\s+(${NUM})\\s*(?:ml|milliliter|milliliters)\\b`,
+  "i",
+);
 
 /** "2 x vape carts gelato" / "7 x carts all flavours" → counted carts. */
 const COUNT_X_UNIT_RE = new RegExp(
@@ -273,11 +332,19 @@ const COUNT_UNIT_WITH_VOLUME_RE = new RegExp(
 /** "1 g rr - 5 pack mix" → check for "N pack" after a weight match. */
 const PACK_MULT_RE = /\b(\d+)\s*x?\s*pack/i;
 
-/** "1 ml", "10ml", "og kush 1ml". */
+/**
+ * "1 ml", "10ml", "og kush 1ml".
+ * Deliberately keeps the plain numeric token (no leading-decimal NUM): this
+ * pattern is `\b`-anchored and matches anywhere in the string, so a leading-
+ * decimal alternative would let `\b` sit between a word char and "." and
+ * mis-capture the fractional tail of a glued number (e.g. "kush2.5ml" → ".5").
+ * Leading-decimal ml never reaches here anyway — `\b` prefers the digit run
+ * ("​.5ml" → "5"), so widening the token buys nothing and only adds risk.
+ */
 const ML_RE = /\b(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
 
 /** "500 mg" — dose units, typically edibles. */
-const MG_RE = /^(\d+(?:\.\d+)?)\s*(?:mg|milligram|milligrams)\b/i;
+const MG_RE = new RegExp(`^(${NUM})\\s*(?:mg|milligram|milligrams)\\b`, "i");
 
 /** "14 /grams z strain" → 14g (typo with slash). */
 const SLASH_GRAMS_RE = /^(\d+(?:\.\d+)?)\s*\/\s*grams?\b/i;
@@ -470,15 +537,18 @@ function cleanResidual(raw: string): string | null {
  *   - "10 10 10 of your choice"→ "of your choice" (triple dup)
  *   - "1 500 ml lemonchillo"   → "500 ml lemonchillo" (platform prefixed "1 ")
  *   - "1 2000 mg gelato"       → "2000 mg gelato"
+ *   - "1 .77oz bar punch"      → ".77oz bar punch" (leading-decimal weight)
  * Only strips the leading "1 " when followed by another number+unit so we
- * never gut a legitimate "1 g" / "1 oz" / "1 pack" token.
+ * never gut a legitimate "1 g" / "1 oz" / "1 pack" token. A leading-decimal
+ * number (".77") counts as a number here, so the strip fires for it too.
  */
 function preprocessRaw(s: string): string {
   // 1) Collapse 2 or 3 identical leading numbers.
   s = s.replace(/^(\d+)\s+\1(?:\s+\1)?\s+/, "");
-  // 2) Strip leading "1 " when the next token is a number (platform prefix quirk).
+  // 2) Strip leading "1 " when the next token is a number — including a
+  //    leading-decimal number (".77") — (platform prefix quirk).
   //    Only strip "1 " specifically — "1" is the always-added prefix.
-  s = s.replace(/^1\s+(?=\d)/, "");
+  s = s.replace(/^1\s+(?=\.?\d)/, "");
   return s;
 }
 
@@ -620,6 +690,24 @@ export function parseVariant(
     const ml = parseFloat(countedMl[2]);
     const total = count * ml;
     const residual = cleanResidual(clean.slice(countedMl[0].length));
+    const lab = `${count}×${ml}ml`;
+    return {
+      qty: total,
+      unit: "ml",
+      weightLabel: `${total}ml`,
+      originalLabel: lab,
+      strain: residual,
+      variant: v,
+    };
+  }
+
+  /* Counted ml multipack (no x, no carts suffix): "5 1ml message" → 5ml. */
+  const mpMlCount = clean.match(MULTIPACK_ML_COUNT_RE);
+  if (mpMlCount) {
+    const count = parseInt(mpMlCount[1], 10);
+    const ml = parseFloat(mpMlCount[2]);
+    const total = count * ml;
+    const residual = cleanResidual(clean.slice(mpMlCount[0].length));
     const lab = `${count}×${ml}ml`;
     return {
       qty: total,

@@ -11,7 +11,7 @@ export const VALID_SORT_KEYS = new Set<string>([
   "updated",
   "price",
   "ppg",
-  "name",
+  "shuffle",
 ]);
 
 export const browseUrlParsers = {

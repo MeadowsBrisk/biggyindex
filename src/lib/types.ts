@@ -199,7 +199,7 @@ export type SortKey =
   | "updated"
   | "price"
   | "ppg"
-  | "name";
+  | "shuffle";
 
 export type SortDir = "asc" | "desc";
 

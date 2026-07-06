@@ -30,8 +30,11 @@ import {
   categoryCountsAtom,
   clearFiltersAtom,
   excludedShipFromAtom,
+  excludedSubcategoriesAtom,
   filteredSellersAtom,
+  freeShippingOnlyAtom,
   hiddenSellersAtom,
+  includeShippingAtom,
   pinnedSellersAtom,
   pinnedShipFromAtom,
   searchQueryAtom,
@@ -124,6 +127,9 @@ export function FilterPanelContent({
 }) {
   const [category, setCategory] = useAtom(categoryAtom);
   const [subcategory, setSubcategory] = useAtom(subcategoryAtom);
+  const [excludedSubcategory, setExcludedSubcategory] = useAtom(
+    excludedSubcategoriesAtom,
+  );
   const [search, setSearch] = useAtom(searchQueryAtom);
   const categoryCounts = useAtomValue(categoryCountsAtom);
   const subcategories = useAtomValue(availableSubcategoriesAtom);
@@ -136,6 +142,8 @@ export function FilterPanelContent({
   const shipFromOptions = useAtomValue(availableShipFromAtom);
   const [shipInclude, setShipInclude] = useAtom(selectedShipFromAtom);
   const [shipExclude, setShipExclude] = useAtom(excludedShipFromAtom);
+  const [freeShippingOnly, setFreeShippingOnly] = useAtom(freeShippingOnlyAtom);
+  const [includeShipping, setIncludeShipping] = useAtom(includeShippingAtom);
   const weightOptions = useAtomValue(availableWeightsAtom);
   const [selectedWeights, setSelectedWeights] = useAtom(selectedWeightsAtom);
   const [pinnedSellers, setPinnedSellers] = useAtom(pinnedSellersAtom);
@@ -185,13 +193,17 @@ export function FilterPanelContent({
     (cat: string) => {
       setCategory(cat);
       setSubcategory([]);
+      setExcludedSubcategory([]);
       scrollResultsToTop();
     },
-    [setCategory, setSubcategory],
+    [setCategory, setSubcategory, setExcludedSubcategory],
   );
 
+  // Left-click toggles INCLUDE. Including a subcategory clears any exclusion
+  // on the same value so the two states can't both be set at once.
   const toggleSubcategory = useCallback(
     (name: string) => {
+      setExcludedSubcategory((prev) => prev.filter((entry) => entry !== name));
       setSubcategory((prev) =>
         prev.includes(name)
           ? prev.filter((subcategory) => subcategory !== name)
@@ -199,7 +211,24 @@ export function FilterPanelContent({
       );
       scrollResultsToTop();
     },
-    [setSubcategory],
+    [setSubcategory, setExcludedSubcategory],
+  );
+
+  // Right-click (desktop) toggles EXCLUDE. Excluding clears any include on the
+  // same value. Mobile has no contextmenu — exclusion is desktop-only for now
+  // (removable from the ActiveFilterBar on any device).
+  const excludeSubcategory = useCallback(
+    (name: string, event: MouseEvent) => {
+      event.preventDefault();
+      setSubcategory((prev) => prev.filter((entry) => entry !== name));
+      setExcludedSubcategory((prev) =>
+        prev.includes(name)
+          ? prev.filter((entry) => entry !== name)
+          : [...prev, name],
+      );
+      scrollResultsToTop();
+    },
+    [setSubcategory, setExcludedSubcategory],
   );
 
   const toggleSeller = useCallback(
@@ -275,15 +304,19 @@ export function FilterPanelContent({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="ido-filter-header flex h-10 items-center justify-between border-b border-border px-3 md:h-8 md:justify-end md:px-2">
-        <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground md:hidden">
+      {/* Header bar — mobile only. The desktop panel is toggled from the
+          toolbar's Filters button, so its own close X was redundant (mirrors
+          food-aggregator, which dropped the desktop header entirely). The
+          mobile drawer still needs an explicit close affordance. */}
+      <div className="ido-filter-header flex h-10 items-center justify-between border-b border-border px-3 md:hidden">
+        <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
           <SlidersHorizontal size={14} aria-hidden="true" />
           {t("label")}
         </span>
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer md:h-6 md:w-6"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
           aria-label={t("close")}
           title={t("close")}
         >
@@ -322,7 +355,7 @@ export function FilterPanelContent({
             placeholder={t("searchItems")}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className={`w-full rounded-lg border border-border bg-surface py-1.5 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors ${search ? "pr-8" : "pr-3"}`}
+            className={`w-full rounded-lg border border-border bg-surface py-2.5 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors ${search ? "pr-8" : "pr-3"}`}
           />
           {search && (
             <button
@@ -395,20 +428,38 @@ export function FilterPanelContent({
               {t("subcategories")}
             </h3>
             <div className="flex flex-wrap gap-1.5">
-              {subcategories.map((sc) => (
-                <button
-                  key={sc.name}
-                  type="button"
-                  onClick={() => toggleSubcategory(sc.name)}
-                  className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border ${
-                    subcategory.includes(sc.name)
-                      ? "border-primary/40 bg-primary/20 text-primary"
-                      : "border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-                  }`}
-                >
-                  {sc.name} <span className="opacity-60">{sc.count}</span>
-                </button>
-              ))}
+              {subcategories.map((sc) => {
+                const isIncluded = subcategory.includes(sc.name);
+                const isExcluded = excludedSubcategory.includes(sc.name);
+                return (
+                  <button
+                    key={sc.name}
+                    type="button"
+                    onClick={() => toggleSubcategory(sc.name)}
+                    onContextMenu={(event) =>
+                      excludeSubcategory(sc.name, event)
+                    }
+                    aria-pressed={isIncluded || isExcluded}
+                    title={
+                      isExcluded
+                        ? t("subcategoryExcludeRemove")
+                        : t("subcategoryExcludeHint")
+                    }
+                    className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border select-none inline-flex items-center gap-1.5 ${
+                      isExcluded
+                        ? "border-transparent bg-red-500/20 text-red-400 line-through"
+                        : isIncluded
+                          ? "border-primary/40 bg-primary/20 text-primary"
+                          : "border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+                    }`}
+                  >
+                    {isExcluded && (
+                      <X size={11} aria-hidden="true" className="shrink-0" />
+                    )}
+                    {sc.name} <span className="opacity-60">{sc.count}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -423,12 +474,17 @@ export function FilterPanelContent({
           />
         ))}
 
-        {shipFromOptions.length > 0 && (
-          <Section
-            title={t("sections.shipsFrom")}
-            storageKey="ships-from"
-            activeCount={shipInclude.length + shipExclude.length}
-            trailing={
+        <Section
+          title={t("sections.shipping")}
+          storageKey="shipping"
+          activeCount={
+            shipInclude.length +
+            shipExclude.length +
+            (freeShippingOnly ? 1 : 0) +
+            (includeShipping ? 1 : 0)
+          }
+          trailing={
+            shipFromOptions.length > 0 ? (
               <button
                 type="button"
                 onClick={(event) => {
@@ -447,53 +503,78 @@ export function FilterPanelContent({
                   className={pinnedShipFrom ? "fill-current" : ""}
                 />
               </button>
-            }
-          >
-            <div className="flex flex-wrap gap-1.5">
-              {shipFromOptions.map((shipFrom) => {
-                const isIncluded = shipInclude.includes(shipFrom.value);
-                const isExcluded = shipExclude.includes(shipFrom.value);
-                const label = shipFromLabel(shipFrom.value, locale);
-                return (
-                  <button
-                    key={shipFrom.value}
-                    type="button"
-                    onClick={(event) => cycleShipFrom(shipFrom.value, event)}
-                    onContextMenu={(event) => {
-                      event.preventDefault();
-                      if (shipExclude.includes(shipFrom.value)) {
-                        setShipExclude((prev) =>
-                          prev.filter((value) => value !== shipFrom.value),
-                        );
-                      } else {
-                        setShipInclude((prev) =>
-                          prev.filter((value) => value !== shipFrom.value),
-                        );
-                        setShipExclude((prev) => [...prev, shipFrom.value]);
-                      }
-                      scrollResultsToTop();
-                    }}
-                    title={t("shipFromHelp")}
-                    className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
-                      isIncluded
-                        ? "border-transparent bg-primary/20 text-primary"
-                        : isExcluded
-                          ? "border-transparent bg-red-500/20 text-red-400 line-through"
-                          : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
-                    }`}
-                  >
-                    {/* shipFrom.value is already a normalized code
-                        (gb / nl / multi / unknown) coming from
-                        item-index.ts. CountryFlag renders synthetic
-                        codes (multi → globe, unknown → ?) too. */}
-                    <CountryFlag code={shipFrom.value} size={12} />
-                    {label} <span className="opacity-60">{shipFrom.count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </Section>
-        )}
+            ) : undefined
+          }
+        >
+          {/* Cost toggles: free-only filter + add-shipping-to-prices. */}
+          <div className="mb-3 flex flex-col gap-2">
+            <ShippingSwitch
+              label={t("freeShippingOnly")}
+              checked={freeShippingOnly}
+              onChange={() => {
+                setFreeShippingOnly((value) => !value);
+                scrollResultsToTop();
+              }}
+            />
+            <ShippingSwitch
+              label={t("addShippingToPrices")}
+              checked={includeShipping}
+              onChange={() => setIncludeShipping((value) => !value)}
+            />
+          </div>
+
+          {shipFromOptions.length > 0 && (
+            <>
+              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+                {t("shippingFrom")}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {shipFromOptions.map((shipFrom) => {
+                  const isIncluded = shipInclude.includes(shipFrom.value);
+                  const isExcluded = shipExclude.includes(shipFrom.value);
+                  const label = shipFromLabel(shipFrom.value, locale);
+                  return (
+                    <button
+                      key={shipFrom.value}
+                      type="button"
+                      onClick={(event) => cycleShipFrom(shipFrom.value, event)}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        if (shipExclude.includes(shipFrom.value)) {
+                          setShipExclude((prev) =>
+                            prev.filter((value) => value !== shipFrom.value),
+                          );
+                        } else {
+                          setShipInclude((prev) =>
+                            prev.filter((value) => value !== shipFrom.value),
+                          );
+                          setShipExclude((prev) => [...prev, shipFrom.value]);
+                        }
+                        scrollResultsToTop();
+                      }}
+                      title={t("shipFromHelp")}
+                      className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
+                        isIncluded
+                          ? "border-transparent bg-primary/20 text-primary"
+                          : isExcluded
+                            ? "border-transparent bg-red-500/20 text-red-400 line-through"
+                            : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                      }`}
+                    >
+                      {/* shipFrom.value is already a normalized code
+                          (gb / nl / multi / unknown) coming from
+                          item-index.ts. CountryFlag renders synthetic
+                          codes (multi → globe, unknown → ?) too. */}
+                      <CountryFlag code={shipFrom.value} size={12} />
+                      {label}{" "}
+                      <span className="opacity-60">{shipFrom.count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </Section>
 
         {weightOptions.length > 0 && (
           <Section
@@ -721,6 +802,43 @@ export function FilterPanelContent({
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Labelled on/off switch used by the Shipping section. Matches the sidebar's
+ * primary-accent conventions (track fills `bg-primary` when on).
+ */
+function ShippingSwitch({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className="group flex w-full items-center justify-between gap-2 rounded-md px-1 py-1 text-xs font-medium cursor-pointer transition-colors text-muted hover:text-foreground"
+    >
+      <span>{label}</span>
+      <span
+        className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors ${
+          checked ? "bg-primary" : "bg-border"
+        }`}
+      >
+        <span
+          className={`inline-block h-3 w-3 rounded-full bg-white shadow transition-transform ${
+            checked ? "translate-x-3.5" : "translate-x-0.5"
+          }`}
+        />
+      </span>
+    </button>
   );
 }
 
