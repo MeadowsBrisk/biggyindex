@@ -1,10 +1,9 @@
 /**
  * Category landing-page slug map (/category/{slug}).
  *
- * Reclaims v1's ranked /category/* URLs — the nine v1 slugs plus "shake"
- * (new v2 category). Distillate deliberately has NO landing page: it's a
- * tiny category with no v1 URL equity; its items still appear under
- * /browse filters.
+ * Reclaims v1's ranked /category/* URLs — the nine v1 slugs plus the two
+ * new v2 categories (shake, distillate), so every category in CATEGORIES
+ * has a landing page.
  *
  * Shared contract for anything that links to category pages
  * (hero tiles, footer, sitemap, breadcrumbs):
@@ -20,6 +19,7 @@ export const CATEGORY_SLUGS = [
   "shake",
   "hash",
   "concentrates",
+  "distillate",
   "vapes",
   "prerolls",
   "edibles",
@@ -35,6 +35,7 @@ const SLUG_TO_CATEGORY: Record<CategorySlug, Category> = {
   shake: "Shake",
   hash: "Hash",
   concentrates: "Concentrates",
+  distillate: "Distillate",
   vapes: "Vapes",
   prerolls: "PreRolls",
   edibles: "Edibles",
