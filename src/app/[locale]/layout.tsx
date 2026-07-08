@@ -12,12 +12,35 @@ import { ModalHost } from "@/components/ModalHost";
 import { JotaiProvider } from "@/components/Providers";
 import { RouterRefreshOnReturn } from "@/components/RouterRefreshOnReturn";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { SeedParamsScript } from "@/components/SeedParamsScript";
 import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
 import { type Locale, routing } from "@/i18n/routing";
+import { computeCustomAccentVars } from "@/lib/accent";
 import { IMAGE_CDN_ORIGIN } from "@/lib/images";
 import { localeToMarket } from "@/lib/market/market";
 import { marketBaseUrl } from "@/lib/seo/metadata";
+
+/**
+ * Pre-hydration boot script — runs synchronously before first paint on every
+ * hard load so nothing visibly snaps once React hydrates. Each piece stamps
+ * the EXACT attribute/class/inline-style its post-hydration counterpart
+ * re-applies, making hydration a visual no-op:
+ *   - darkMode        → html[data-theme] + bg/fg/color-scheme (ThemeToggle)
+ *   - accentColor     → html[data-accent] for the named accents (AccentSync)
+ *   - customAccentHex → --primary/--accent/--accent-gradient/
+ *                       --primary-foreground inline vars, computed by the
+ *                       SAME shared function AccentSync uses
+ *                       (lib/accent.ts, embedded via toString for parity)
+ *   - pauseGifs       → html[data-pause-gifs] (PauseGifsSync)
+ *   - filterPanelOpen → html.bi-panel-open, which reveals the browse
+ *                       sidebar's SSR'd 280px skeleton placeholder
+ *                       (FilterPanel removes the class in the same commit
+ *                       its hydrated panel first takes its real width)
+ * Storage keys/defaults must track store/atoms.ts (atomWithStorage
+ * JSON-encodes values, hence the '"true"'/quote-stripping tolerance).
+ */
+const BOOT_SCRIPT = `(function(){try{var h=document.documentElement;var d=localStorage.getItem('darkMode');var dark=d==='true'||d==='"true"'||d==='1'||d==='dark';h.setAttribute('data-theme',dark?'dark':'light');h.style.backgroundColor=dark?'#0c0f0c':'#f7f9f7';h.style.color=dark?'#e8ece8':'#1a1a1a';h.style.colorScheme=dark?'dark':'light';var a=localStorage.getItem('accentColor');if(a){a=a.replace(/"/g,'');if(a==='custom'){var x=localStorage.getItem('customAccentHex');x=x?x.replace(/"/g,''):'#6366f1';if(/^#[0-9a-fA-F]{6}$/.test(x)){var v=(${computeCustomAccentVars.toString()})(x,dark);h.style.setProperty('--primary',v.primary);h.style.setProperty('--accent',v.accent);h.style.setProperty('--accent-gradient',v.gradient);h.style.setProperty('--primary-foreground',v.foreground)}}else if(a!=='green'){h.setAttribute('data-accent',a)}}var p=localStorage.getItem('pauseGifs');if(p==='true'||p==='"true"')h.setAttribute('data-pause-gifs','true');var f=localStorage.getItem('filterPanelOpen');if(f==='true'||f==='"true"')h.classList.add('bi-panel-open')}catch(e){}})()`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -87,13 +110,16 @@ export default async function LocaleLayout({
             No crossOrigin: images are plain <img> (no-cors) requests. */}
         <link rel="preconnect" href={IMAGE_CDN_ORIGIN} />
         <link rel="dns-prefetch" href={IMAGE_CDN_ORIGIN} />
-        {/* Prevent FOUC — apply theme + accent + pauseGifs before first paint.
-            Keep this before critical styles so the initial canvas is correct. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var h=document.documentElement;var d=localStorage.getItem('darkMode');var dark=d==='true'||d==='"true"'||d==='1'||d==='dark';h.setAttribute('data-theme',dark?'dark':'light');h.style.backgroundColor=dark?'#0c0f0c':'#f7f9f7';h.style.color=dark?'#e8ece8':'#1a1a1a';h.style.colorScheme=dark?'dark':'light';var a=localStorage.getItem('accentColor');if(a){a=a.replace(/"/g,'');if(a&&a!=='green')h.setAttribute('data-accent',a)}var p=localStorage.getItem('pauseGifs');if(p==='true'||p==='"true"')h.setAttribute('data-pause-gifs','true')}catch(e){}})()`,
-          }}
-        />
+        {/* Prevent FOUC — apply theme + accent (incl. custom) + pauseGifs +
+            the browse sidebar placeholder before first paint. See BOOT_SCRIPT
+            above. Keep this before critical styles so the initial canvas is
+            correct. */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+        {/* Seed-grid guard for /browse — must live HERE (layout, hard loads
+            only), not in the page tree: React never executes inline scripts
+            re-rendered during client navigation and warns about them.
+            SeedParamsSync (browse page) covers client navs. */}
+        <SeedParamsScript />
         {/* Critical inline styles — define --background/--foreground for BOTH themes.
           :root provides light defaults; [data-theme="dark"] overrides. */}
         <style

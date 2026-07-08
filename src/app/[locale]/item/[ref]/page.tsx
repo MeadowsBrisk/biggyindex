@@ -27,7 +27,11 @@ import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { categoryToSlug } from "@/lib/categories";
-import { loadArchivedDetail, loadMergedDetail } from "@/lib/data";
+import {
+  type ArchivedDetailBlob,
+  loadArchivedDetail,
+  loadMergedDetail,
+} from "@/lib/data";
 import { decodeEntities, formatPriceRangeChange } from "@/lib/format";
 import { getItemGalleryImages } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
@@ -285,6 +289,41 @@ async function itemMarketPresence(): Promise<Record<string, MarketCode[]>> {
   return presence;
 }
 
+interface ItemDetailResult {
+  live: MergedDetailBlob | null;
+  archived: ArchivedDetailBlob | null;
+}
+
+/**
+ * Cached item-detail load, shared by generateMetadata AND ItemContent so the
+ * R2 fetches happen once per (ref, market) — the cache key MUST include the
+ * market: GB/IE share English copy but are distinct markets/hosts with
+ * distinct data. Live blob first; delisted items fall back to the
+ * manifest-gated archive snapshot.
+ *
+ * This wrapper exists so generateMetadata performs ZERO uncached IO — a
+ * single raw fetch there marks the whole response dynamic under
+ * cacheComponents, and Next emits `private,no-store` (every visitor and
+ * crawler hits origin). With all metadata IO cached the page gets the same
+ * durable CDN TTL as /browse.
+ *
+ * INVARIANT: unknown refs return {null, null} — the nulls travel OUT of the
+ * cache scope and the CALLER throws notFound(). Never throw it in here.
+ */
+async function loadItemDetail(
+  ref: string,
+  mkt: string,
+): Promise<ItemDetailResult> {
+  "use cache";
+  cacheLife("item-detail");
+  cacheTag("item-detail");
+  cacheTag("items");
+
+  const live = await loadMergedDetail(ref, mkt);
+  const archived = live ? null : await loadArchivedDetail(ref, mkt);
+  return { live, archived };
+}
+
 export async function generateMetadata({
   params,
 }: ItemPageProps): Promise<Metadata> {
@@ -295,8 +334,7 @@ export async function generateMetadata({
   // Live blob first; delisted items fall back to the archive snapshot and
   // stay INDEXABLE (normal canonical, no noindex) — they render as full
   // "no longer listed" pages.
-  const live = await loadMergedDetail(ref, mkt);
-  const archived = live ? null : await loadArchivedDetail(ref, mkt);
+  const { live, archived } = await loadItemDetail(ref, mkt);
   const item = live ?? archived;
 
   // Truly unknown ref (no live blob AND no archive entry): real 404.
@@ -384,9 +422,9 @@ async function ItemContent({ params }: ItemPageProps) {
 
   // Live blob first; delisted items render as full archived pages from the
   // manifest-gated snapshot. Archive fetch failures return null and fall
-  // through to notFound() with the truly-unknown refs.
-  const live = await loadMergedDetail(ref, mkt);
-  const archived = live ? null : await loadArchivedDetail(ref, mkt);
+  // through to notFound() with the truly-unknown refs. Same cached loader
+  // as generateMetadata — the data is fetched once per (ref, market).
+  const { live, archived } = await loadItemDetail(ref, mkt);
   const item = live ?? archived;
 
   if (!item) notFound();
@@ -524,14 +562,12 @@ async function ItemContent({ params }: ItemPageProps) {
 
   return (
     <>
-      {/* Preload the LCP gallery image — React 19 hoists <link> rendered in
-          server components into <head>, so the browser starts the fetch from
-          the document HTML instead of waiting for the gallery <img> to be
-          discovered. href must match ItemDetailGallery's first image exactly
-          (same `images` array). */}
-      {images[0] && (
-        <link rel="preload" as="image" href={images[0]} fetchPriority="high" />
-      )}
+      {/* NO manual <link rel="preload"> for the LCP gallery image: React's
+          Fizz renderer AUTO-emits an image preload for any SSR'd <img> that
+          is loading="eager" + fetchPriority="high" (ItemDetailGallery's
+          static first image qualifies), so a manual link just duplicates it
+          in <head> — and unlike a manual href it can never drift from the
+          src the gallery actually renders. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}

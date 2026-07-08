@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { CommunityReviews } from "@/components/home/CommunityReviews";
 import { EmbassySection } from "@/components/home/EmbassySection";
 import { FaqSection } from "@/components/home/FaqSection";
@@ -120,52 +119,45 @@ export default async function HomePage({
           __html: serializeJsonLd(organizationJsonLd),
         }}
       />
-      <Suspense>
-        <HeroSection
-          totalItems={feed.hero.totalItems}
-          totalSellers={feed.hero.totalSellers}
-          categoryCounts={categoryCounts}
-        />
-      </Suspense>
+      {/* NOTE: deliberately NO <Suspense> around the home sections. Under
+          cacheComponents, React outlines every Suspense boundary in the
+          prerendered document: the shell shipped with six empty <template>
+          placeholders followed by the footer, the section HTML streamed in
+          afterwards as hidden chunks, and the footer visibly painted at the
+          top of the page before being pushed down ~500ms later. All data
+          here is already awaited inside this cached render and none of the
+          sections use dynamic APIs, so inlining them costs nothing at
+          request time and makes first paint layout-stable. */}
+      <HeroSection
+        totalItems={feed.hero.totalItems}
+        totalSellers={feed.hero.totalSellers}
+        categoryCounts={categoryCounts}
+      />
 
-      <Suspense>
-        <WhatsNewSection
-          newest={feed.whatsNew.newest.map((i) => toNewItem(i, "fsa"))}
-          recentlyUpdated={feed.whatsNew.updated.map((i) =>
-            toNewItem(i, "lua"),
-          )}
-          now={timeReference}
-        />
-      </Suspense>
+      <WhatsNewSection
+        newest={feed.whatsNew.newest.map((i) => toNewItem(i, "fsa"))}
+        recentlyUpdated={feed.whatsNew.updated.map((i) => toNewItem(i, "lua"))}
+        now={timeReference}
+      />
 
-      <Suspense>
-        <SellerTrustBoard
-          topSellers={feed.sellers.top}
-          bottomSellers={feed.sellers.bottom}
-          recentlyJoined={feed.sellers.recentlyJoined}
-          now={timeReference}
-        />
-      </Suspense>
+      <SellerTrustBoard
+        topSellers={feed.sellers.top}
+        bottomSellers={feed.sellers.bottom}
+        recentlyJoined={feed.sellers.recentlyJoined}
+        now={timeReference}
+      />
 
-      <Suspense>
-        <CommunityReviews
-          reviews={feed.reviews.list}
-          reviewStats={feed.reviews.stats}
-          now={timeReference}
-        />
-      </Suspense>
+      <CommunityReviews
+        reviews={feed.reviews.list}
+        reviewStats={feed.reviews.stats}
+        now={timeReference}
+      />
 
-      <Suspense>
-        <QuickStartGuide />
-      </Suspense>
+      <QuickStartGuide />
 
-      <Suspense>
-        <EmbassySection />
-      </Suspense>
+      <EmbassySection />
 
-      <Suspense>
-        <FaqSection />
-      </Suspense>
+      <FaqSection />
 
       <SiteFooter locale={locale} />
     </>

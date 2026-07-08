@@ -3,7 +3,13 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import { FilterPanelContent } from "@/components/FilterPanelContent";
 import {
@@ -103,6 +109,21 @@ export function FilterPanel() {
     transitionReady ? CLOSE_TRANSITION_MS : 0,
   );
 
+  // Hand-off from the pre-paint sidebar placeholder. The layout's boot
+  // script stamps html.bi-panel-open on hard loads when the user left the
+  // panel open (localStorage.filterPanelOpen), which reveals the SSR'd
+  // 280px skeleton column below — so returning users see a stable sidebar
+  // slot from first paint instead of the panel popping in at hydration.
+  // Once `mounted` flips true the real <aside> takes its hydrated width in
+  // the SAME render, and this layout effect removes the class in the same
+  // commit (before paint): skeleton → panel swaps with zero width change.
+  // Removing the class is also what stops stale CSS from fighting a later
+  // manual close, and clears any class stamped on non-browse hard loads.
+  useLayoutEffect(() => {
+    if (!mounted) return;
+    document.documentElement.classList.remove("bi-panel-open");
+  }, [mounted]);
+
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     setIsMobile(mq.matches);
@@ -172,6 +193,54 @@ export function FilterPanel() {
           />
         </button>
       )}
+
+      {/* Pre-paint sidebar placeholder — SSR'd hidden, revealed only while
+          html.bi-panel-open is set (boot script, persisted open state; CSS
+          in styles/elements/sidebar.css, md+ only). Sits in the same flex
+          slot as the <aside> below with the same width/sticky metrics, so
+          the grid column never shifts during the skeleton→panel hand-off
+          (the layout effect above removes the class in the commit where the
+          aside first gets its real width). Shimmer bars roughly follow
+          FilterPanelContent's rhythm: search box, then accordion sections. */}
+      <div
+        aria-hidden="true"
+        className="bi-panel-placeholder shrink-0 self-start sticky overflow-hidden"
+        style={{ width: PANEL_WIDTH, top: "var(--toolbar-h, 44px)" }}
+      >
+        <div
+          className="border-r border-border bg-background"
+          style={{
+            width: PANEL_WIDTH,
+            height: "calc(100vh - var(--toolbar-h, 44px))",
+          }}
+        >
+          <div className="animate-pulse px-4 pt-2 lg:pl-0">
+            <div className="h-10 rounded-lg bg-surface" />
+            <div className="mt-5 space-y-2 border-b border-border pb-4">
+              <div className="h-3 w-24 rounded bg-surface" />
+              <div className="h-7 rounded-md bg-surface" />
+              <div className="h-7 rounded-md bg-surface" />
+              <div className="h-7 w-4/5 rounded-md bg-surface" />
+            </div>
+            <div className="mt-4 space-y-2 border-b border-border pb-4">
+              <div className="h-3 w-16 rounded bg-surface" />
+              <div className="h-7 rounded-md bg-surface" />
+              <div className="h-7 w-3/4 rounded-md bg-surface" />
+            </div>
+            <div className="mt-4 space-y-2 border-b border-border pb-4">
+              <div className="h-3 w-20 rounded bg-surface" />
+              <div className="h-7 rounded-md bg-surface" />
+              <div className="h-7 rounded-md bg-surface" />
+              <div className="h-7 w-2/3 rounded-md bg-surface" />
+            </div>
+            <div className="mt-4 space-y-2">
+              <div className="h-3 w-24 rounded bg-surface" />
+              <div className="h-7 rounded-md bg-surface" />
+              <div className="h-7 w-4/5 rounded-md bg-surface" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <aside
         className={`hidden md:block shrink-0 self-start sticky overflow-hidden ${

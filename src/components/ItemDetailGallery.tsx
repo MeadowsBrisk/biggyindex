@@ -115,6 +115,11 @@ export function ItemDetailGallery({
                 onClick={() => openZoom(activeSlide)}
                 className="w-full h-full focus:outline-none"
               >
+                {/* loading="eager" + fetchPriority="high" ALSO makes React's
+                    SSR auto-emit a <link rel="preload"> for this image (the
+                    item page's LCP preload — there is no manual one in
+                    page.tsx). Demoting these attributes silently drops that
+                    preload. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={staticSrc}

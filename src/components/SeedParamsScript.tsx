@@ -1,35 +1,37 @@
+import { computeSeedFlags } from "@/lib/seedFlags";
+
 /**
- * Pre-hydration seed-grid guard for /browse.
+ * Pre-hydration seed-grid guard — rendered in `app/[locale]/layout.tsx`
+ * <head>, NOT in the browse page tree.
  *
- * The browse page is cached path-only (`'use cache'`), so its SSR HTML always
- * contains the default (unfiltered, hottest-sorted) seed grid. On a first
- * load WITH filter params in the URL (shared links like /browse?cat=Flower)
- * those seeds would be visibly wrong until hydration applies the filters.
+ * Placement matters: React only executes inline <script> tags that arrive in
+ * the server-rendered document. If this lived inside a page component, every
+ * client-side navigation would re-render the element WITHOUT executing it,
+ * and React logs "Encountered a script tag while rendering React component"
+ * to the console. In the layout it is server-rendered exactly once per hard
+ * load (never re-rendered on client nav), which is also the only moment the
+ * script is actually needed: it must run synchronously before the browse
+ * seed grid first paints. Client-side navigations are covered by
+ * `SeedParamsSync` (mounted on the browse page), which recomputes the same
+ * flags in a layout effect.
  *
- * This tiny inline script runs synchronously before the grid paints and sets
- * `html.bi-seed-hide` when the SSR'd default seeds can't match what the user
- * will see after hydration:
- *   1. location.search contains any browse filter param (shared links —
- *      see lib/urlFilters browseUrlParsers), or
- *   2. localStorage holds a non-default persisted view: sortKey (raw string,
- *      custom storage) / sortDir / viewLayout / mobileGridCols (JSON-encoded
- *      by atomWithStorage) — otherwise returning users with e.g. "newest"
- *      sort or list layout would watch real cards visibly reorder/reflow.
- * CSS in item-card.css then hides the seed grid and shows the
- * dimension-matched skeleton grid instead — the header/toolbar stay visible
- * and nothing overlays content. `html.bi-cols-2` additionally switches the
- * skeleton grid to the persisted 2-per-row mobile layout so the
- * skeleton→live swap doesn't reflow columns.
+ * The flag logic lives in `lib/seedFlags.ts` (shared with SeedParamsSync for
+ * byte parity) and is embedded here via Function.prototype.toString(). It
+ * sets `html.bi-seed-hide` when the SSR'd default seeds can't match the
+ * post-hydration view (URL filter params, or persisted non-default
+ * sort/layout) and `html.bi-cols-2` for the persisted 2-per-row mobile
+ * layout — see lib/seedFlags.ts for the full rationale. CSS in item-card.css
+ * then swaps the seed grid for the dimension-matched skeleton grid; the
+ * header/toolbar stay visible and nothing overlays content.
  *
- * Classes are toggled BOTH ways so client-side navigations (React executes
- * freshly inserted inline scripts) and param-less loads stay correct.
- * Crawlers fetch /browse without params → the raw HTML keeps the full linked
- * seed grid (SEO-critical). Storage defaults here must track
- * DEFAULT_SORT_KEY/DEFAULT_SORT_DIR (urlFilters) and the atom defaults in
- * store/atoms.ts.
+ * Stamping the classes globally (on every route) is harmless: the selectors
+ * only affect `[data-seed-grid]`/`[data-seed-skeleton]`, which exist solely
+ * in the browse page's ItemGrid. Crawlers fetch /browse without params and
+ * with empty storage → the raw HTML keeps the full linked seed grid
+ * (SEO-critical) and the classes are never stamped.
  */
 
-const SEED_PARAMS_JS = `(function(){try{var h=false;var p=new URLSearchParams(location.search);var k=["cat","sub","q","sellers","pmin","pmax","sort","dir"];for(var i=0;i<k.length;i++){if(p.has(k[i])){h=true;break}}var ls=window.localStorage;var sk=ls.getItem("sortKey");if(sk&&sk!=="hottest")h=true;var sd=ls.getItem("sortDir");if(sd&&sd!=='"desc"')h=true;var vl=ls.getItem("viewLayout");if(vl&&vl!=='"grid"')h=true;var mc=ls.getItem("mobileGridCols");var c2=mc==="2";if(c2)h=true;var d=document.documentElement;d.classList.toggle("bi-seed-hide",h);d.classList.toggle("bi-cols-2",c2)}catch(e){}})();`;
+const SEED_PARAMS_JS = `(function(){try{var r=(${computeSeedFlags.toString()})(location.search);var d=document.documentElement;d.classList.toggle("bi-seed-hide",r.hide);d.classList.toggle("bi-cols-2",r.cols2)}catch(e){}})();`;
 
 export function SeedParamsScript() {
   return <script dangerouslySetInnerHTML={{ __html: SEED_PARAMS_JS }} />;

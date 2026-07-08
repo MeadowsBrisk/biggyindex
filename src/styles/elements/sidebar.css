@@ -35,3 +35,23 @@
   width: 0;
   height: 0;
 }
+
+/* ── Pre-paint filter panel placeholder (desktop /browse) ──
+   The layout's boot script stamps html.bi-panel-open before first paint when
+   the user left the panel open (localStorage.filterPanelOpen). That reveals
+   the SSR'd 280px skeleton column FilterPanel renders next to its <aside>,
+   so the sidebar slot is reserved from the very first frame instead of the
+   panel popping in at hydration. FilterPanel removes the class (layout
+   effect) in the same commit the hydrated aside takes its real width —
+   after that this rule can never fight a manual close. The element only
+   exists on /browse, so a stale class on other routes is inert. md+ only,
+   matching the desktop aside (mobile uses the drawer). */
+.bi-panel-placeholder {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  html.bi-panel-open .bi-panel-placeholder {
+    display: block;
+  }
+}

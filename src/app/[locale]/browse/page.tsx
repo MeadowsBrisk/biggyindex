@@ -8,7 +8,7 @@ import { FilterPanel } from "@/components/FilterPanel";
 import { FooterSentinel } from "@/components/FooterSentinel";
 import { ItemGrid } from "@/components/ItemGrid";
 import { MobileResultCount } from "@/components/MobileResultCount";
-import { SeedParamsScript } from "@/components/SeedParamsScript";
+import { SeedParamsSync } from "@/components/SeedParamsSync";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
@@ -112,10 +112,12 @@ export default async function BrowsePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
       />
-      {/* Must run before the seed grid paints — hides the (unfiltered) seed
-          cards when the URL carries filter params. See SeedParamsScript. */}
-      <SeedParamsScript />
+      {/* The pre-paint seed-grid guard script lives in the locale layout
+          (SeedParamsScript) — hard loads only. SeedParamsSync keeps the
+          html.bi-seed-hide / bi-cols-2 flags correct across client-side
+          navigations (Suspense: useSearchParams needs a boundary here). */}
       <Suspense>
+        <SeedParamsSync />
         <DataLoader
           dataUrl={dataUrl}
           sellers={sellerList}

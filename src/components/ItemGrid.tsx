@@ -119,15 +119,25 @@ function SeedCard({
       <div className="item-card-inner">
         <div className="item-card-image aspect-square">
           {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={item.c ? `${item.n} — ${item.c}` : item.n}
-              loading={priority ? "eager" : "lazy"}
-              fetchPriority={priority ? "high" : undefined}
-              sizes={`(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, ${mobileSize}`}
-              className="card-image card-image--primary"
-            />
+            /* <picture> wrapper is React's documented escape hatch from
+               Fizz's automatic image preloading: without it, SSR'd
+               eager+high imgs get promoted into a CACHED HTTP Link
+               preload header that also rides the /browse RSC prefetch —
+               browsers then warn about unused preloads on OTHER pages
+               (seen live on the homepage). The preload scanner still
+               discovers the img from the HTML immediately; only the
+               header/link auto-emit is suppressed. */
+            <picture>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt={item.c ? `${item.n} — ${item.c}` : item.n}
+                loading={priority ? "eager" : "lazy"}
+                fetchPriority={priority ? "high" : undefined}
+                sizes={`(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, ${mobileSize}`}
+                className="card-image card-image--primary"
+              />
+            </picture>
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               <Package size={48} />
@@ -292,8 +302,9 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
     // content-identical and dimension-stable. When the URL carries filter
     // params (shared links like /browse?cat=Flower) the seeds would show
     // the UNFILTERED default set — the page is cached path-only, so the
-    // server can't vary on searchParams. For that case an inline script in
-    // the browse page (SeedParamsScript) sets `html.bi-seed-hide` before
+    // server can't vary on searchParams. For that case the layout's inline
+    // script (SeedParamsScript; SeedParamsSync on client navs) sets
+    // `html.bi-seed-hide` before
     // first paint; CSS then hides the seed grid and reveals the skeleton
     // grid below (same grid container → no layout shift, and the toolbar/
     // header above are never hidden). Crawlers fetch /browse without

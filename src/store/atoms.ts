@@ -203,7 +203,12 @@ export const mobileGridColsAtom = atomWithStorage<MobileGridCols>(
   1,
 );
 
-/** Accent color swatch — 'green' is default, others are easter-egg options */
+/** Accent color swatch — 'green' is default, others are easter-egg options.
+ *  Applied post-hydration by AccentSync (SettingsSync.tsx) AND pre-paint by
+ *  the boot script in app/[locale]/layout.tsx (named accents → data-accent
+ *  attribute, 'custom' → inline CSS vars via lib/accent.ts). Storage keys and
+ *  the '#6366f1' custom default are duplicated in that script — keep in sync,
+ *  or returning users get an accent flash at hydration. */
 export type AccentColor =
   | "green"
   | "blue"
@@ -363,7 +368,11 @@ export const viewLayoutAtom = atomWithStorage<ViewLayout>("viewLayout", "grid");
 /** Filter panel open state — persisted so it remembers between sessions.
  *  Default `false` so SSR output matches a cold client; otherwise the panel
  *  flashes open on first paint and animates closed once atomWithStorage
- *  hydrates the user's stored `false`. Matches food-aggregator. */
+ *  hydrates the user's stored `false`. Matches food-aggregator.
+ *  The layout boot script reads this storage key pre-paint and stamps
+ *  html.bi-panel-open when true, revealing FilterPanel's SSR'd skeleton
+ *  placeholder so the open sidebar's 280px column is reserved from first
+ *  paint (no pop-in at hydration). Keep the key in sync with that script. */
 export const filterPanelOpenAtom = atomWithStorage<boolean>(
   "filterPanelOpen",
   false,
