@@ -45,10 +45,6 @@ const nextConfig: NextConfig = {
       // v1 page renames
       { source: "/home", destination: "/", permanent: true },
       { source: "/latest-reviews", destination: "/reviews", permanent: true },
-      // Deliberate 302: real /category/[slug] pages return in Phase 2 and we
-      // want Google to keep the source URLs indexed. DELETE this rule when
-      // category pages ship.
-      { source: "/category/:slug", destination: "/browse", permanent: false },
       // v1 localized item/seller paths (ported from v1 netlify.toml 301s;
       // /producto added for symmetry — v1 only had the seller-side /vendedor)
       { source: "/produit/:ref", destination: "/item/:ref", permanent: true },
@@ -114,10 +110,9 @@ const nextConfig: NextConfig = {
         destination: "/sitemap/sellers.xml",
         permanent: true,
       },
-      // No categories sitemap child yet — retarget when category pages ship
       {
         source: "/sitemap-categories.xml",
-        destination: "/sitemap/static.xml",
+        destination: "/sitemap/categories.xml",
         permanent: true,
       },
     ];

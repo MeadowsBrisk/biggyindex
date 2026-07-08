@@ -62,6 +62,7 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "cookies": "Cookies",
+    "categoriesTitle": "Categories",
     "copyright": "© {year} Biggy Index. Prices shown may vary - always check the store for the latest pricing."
   },
   "home": {
@@ -656,6 +657,25 @@
       "moreFromSeller": "More from {seller}",
       "relatedInCategory": "More {category} on Little Biggy"
     },
+    "meta": {
+      "title": "{name} by {seller} | BiggyIndex",
+      "titleNoSeller": "{name} | BiggyIndex",
+      "titleArchived": "{name} by {seller} {suffix} | BiggyIndex",
+      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "soldBy": "Sold by {seller} on Little Biggy.",
+      "browseFallback": "Browse {name} from {seller} on Little Biggy.",
+      "browseFallbackNoSeller": "Browse {name} on Little Biggy.",
+      "categoryFact": "{category} listing",
+      "reviewsFact": "{count, plural, one {1 review} other {# reviews}}",
+      "ratingFact": "{rating}/10 rating"
+    },
+    "archive": {
+      "bannerTitle": "No longer listed on Little Biggy",
+      "bannerDelisted": "Delisted {date}",
+      "titleSuffix": "(no longer listed)",
+      "lastKnownPrice": "Last known price",
+      "lastKnownShipping": "Last known shipping"
+    },
     "legacyModal": {
       "close": "Close",
       "itemNotFound": "Item not found.",
@@ -677,6 +697,10 @@
     "products": "{count, plural, one {1 product} other {# products}}",
     "rating": "Rating",
     "visitStore": "Visit store",
+    "meta": {
+      "activeListings": "{count, plural, one {1 active listing} other {# active listings}}",
+      "reviews": "{count, plural, one {1 review} other {# reviews}}"
+    },
     "page": {
       "metadataTitle": "Little Biggy Sellers | BiggyIndex",
       "metadataDescription": "Compare Little Biggy sellers with trust scores, review counts, and community ratings — all littlebiggy vendors ranked in one index.",
@@ -1058,6 +1082,32 @@
         }
       },
       "outro": "Because none of this storage tracks you, there is no consent banner to dismiss. If you clear your browser data, the site simply returns to its defaults."
+    }
+  },
+  "category": {
+    "page": {
+      "metadataTitle": "Buy {category} Online | {count}+ Little Biggy Listings | BiggyIndex",
+      "metadataTitleNoCount": "Buy {category} Online on Little Biggy | BiggyIndex",
+      "metadataDescription": "Browse {count}+ {category} listings on Little Biggy. Compare prices, sellers, reviews and shipping — every listing indexed and refreshed daily on BiggyIndex.",
+      "metadataDescriptionNoCount": "Browse {category} listings on Little Biggy. Compare prices, sellers, reviews and shipping — every listing indexed and refreshed daily on BiggyIndex.",
+      "heading": "Buy {category} Online on Little Biggy",
+      "countLine": "{count, plural, one {1 {category} listing indexed from Little Biggy} other {# {category} listings indexed from Little Biggy}}",
+      "subcategoriesLabel": "Popular types",
+      "browseAllCta": "Browse all {category} listings with filters",
+      "breadcrumbHome": "Home",
+      "breadcrumbLabel": "Breadcrumb",
+      "intro": {
+        "flower": "Flower is the biggest category on Little Biggy, running from budget smalls to imported Cali exotics. Listings are grouped by strain family — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake and more — so you can follow a genetic line you already know instead of guessing from product names. Most sellers offer several weight tiers, and the price per gram usually drops sharply at the 7g and 14g marks. Descriptions tend to note indica, sativa or hybrid leanings along with grow style. Every listing links back to the seller on Little Biggy, with reviews, delivery times and shipping costs indexed here so you can compare growers side by side before ordering.",
+        "shake": "Shake is the value end of the flower market: loose shake, trim and small popcorn buds, usually sold by the same growers who list full flower but at a much lower price per gram. It's a popular choice for rolling, cooking and making edibles or extracts at home, where bag appeal matters far less than cost. Quality varies more here than in any other category — some listings are mostly dust and sugar leaf, others are near-whole smalls — so seller reviews are worth reading closely. We split Shake out of Flower in this index precisely so bargain hunters can compare like for like instead of wading through premium listings.",
+        "hash": "Hash on Little Biggy spans traditional imports and modern solventless work. Listings are organised by processing method: Moroccan-style pressed hash, dry sift and static sift, bubble hash from ice-water extraction, soft mousse, unpressed kief, and premium forms like piatella and temple balls. Micron grades and filtration levels show up in listing details where sellers state them. UK-based makers tend toward fresher artisan batches, while imports cover the classic Moroccan and Afghan styles. Prices per gram range wider than flower, tracking quality closely — comparing review scores and delivery records across sellers is the quickest way to find hash that matches its description.",
+        "concentrates": "Concentrates cover the potent end of the menu: shatter, wax, crumble, rosin, live resin, diamonds and THC oils. Solventless products like rosin sit alongside butane- and CO2-extracted options, and listings usually state the extraction method and the strain it started from. Doses are small and potency is high — most concentrates are several times stronger than flower — so per-gram prices look steep but stretch much further. Typical use is a dab rig or a concentrate-capable vaporiser, and some buyers simply top flower with a little extract. Review histories are indexed for every listing, which matters in a category where texture and purity are hard to judge from photos.",
+        "vapes": "Vape listings on Little Biggy include pre-filled 510-thread cartridges, disposable pens and pods. The oil inside matters most: distillate carts are the cheapest and most consistent, while live resin and full-spectrum extracts cost more and keep more of the original strain's flavour and effect. Listings normally state the size (0.5ml or 1ml), extract type and strain. Disposables work out of the box; cartridges need a 510 battery bought separately. Counterfeits of brand-name carts are common everywhere, so a seller's review history and time on the platform are better guides than packaging — both are indexed on every listing here.",
+        "prerolls": "Pre-rolls take the rolling out of the equation. Little Biggy sellers list singles, multipacks and infused options — from straightforward single-strain joints rolled with flower from their own menu to blunts and pre-rolls boosted with hash or concentrates for extra strength. Multipacks bring the per-joint price down and are the usual pick for regulars; infused rolls carry a clear premium. Descriptions typically state the strain, the weight per roll and the pack count. Freshness and how well they're rolled are the usual quality complaints, so recent reviews — indexed on every listing — are the best signal before you order.",
+        "edibles": "Edibles on Little Biggy run from gummies and chocolate to baked goods, capsules and drink mixes. Strength is the first thing to check: listings state milligrams of THC per piece and per pack, and doses vary hugely — a sensible starting dose is 5–10mg, while some single sweets carry 100mg or more. Onset is slow, often 30–90 minutes, so the golden rule is start low and wait before taking more. Vegan and gluten-free options appear regularly. We index per-piece strength where sellers declare it, so you can compare products on dose and value rather than pack price alone.",
+        "tincture": "Tinctures are liquid cannabis extracts taken as drops under the tongue — a smoke-free option with faster onset than edibles and finer dose control than either. Listings on Little Biggy include THC oils, CBD blends and balanced ratios, usually stating strength in milligrams per bottle or per millilitre. Sublingual effects typically arrive within 15–45 minutes, quicker than eating and easier to titrate. Full-extract RSO-style oils appear here too, favoured by high-dose users. Bottle size, carrier oil and total strength drive the price, so the per-milligram cost is the fairest way to compare sellers — check it before judging a bottle expensive.",
+        "psychedelics": "Psychedelics gathers Little Biggy's non-cannabis listings: dried mushrooms, truffles, microdose capsules, and mushroom chocolates and gummies. Dried fruit is the staple, with strength varying noticeably by variety — descriptions usually name the strain and a suggested dose range. Microdose capsules offer measured sub-perceptual amounts for people following a schedule, while chocolates and gummies split a full dose into smaller, easier pieces. Set, setting and starting low matter more in this category than anywhere else on the site. Seller reviews and delivery times are indexed on every listing, exactly as with the cannabis categories.",
+        "other": "Other is the catch-all for listings that don't fit the main categories: CBD products, seeds, accessories like grinders and rolling supplies, and the one-off items sellers list alongside their main menu. It's worth a scan now and then because new product types tend to land here first, before there are enough listings to justify a category of their own. Expect the contents to shift week to week as sellers rotate stock. Every listing still carries the same indexed data as the rest of the site — price, seller history, review scores and shipping options — so an unusual item can be vetted exactly like a mainstream one."
+      }
     }
   }
 }

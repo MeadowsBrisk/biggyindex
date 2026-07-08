@@ -23,7 +23,7 @@ export interface AnnouncementBannerConfig {
 
 const BANNER: AnnouncementBannerConfig = {
   id: "biggyindex-v2-launch-2026-04",
-  active: true,
+  active: false,
   severity: "info",
   targetHostnames: ["biggyindex.com", "www.biggyindex.com"],
   messageByLocale: {

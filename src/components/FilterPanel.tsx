@@ -150,12 +150,15 @@ export function FilterPanel() {
           with a subtle indicator bar. Mirrors Roast Radar — gives phones a
           thumb-reachable strip on the screen edge to open filters without
           reaching for the toolbar button. Only when the drawer is closed; sits
-          just below the sticky toolbar (var(--toolbar-h)). */}
+          just below the sticky toolbar (var(--toolbar-h)). w-7 (28px): 16px
+          proved too thin to hit reliably with a thumb; the visible affordance
+          stays the thin indicator, and the content column's own left gutter
+          keeps the extra hit area off any controls. */}
       {mounted && isMobile && !open && (
         <button
           type="button"
           aria-label={t("toggle")}
-          className="group fixed left-0 bottom-0 z-30 w-4 focus:outline-none md:hidden"
+          className="group fixed left-0 bottom-0 z-30 w-7 focus:outline-none md:hidden"
           style={{ top: "var(--toolbar-h, 44px)" }}
           onClick={() => setOpen(true)}
         >

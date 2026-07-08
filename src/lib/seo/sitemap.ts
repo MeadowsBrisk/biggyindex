@@ -1,10 +1,18 @@
 import type { MetadataRoute } from "next";
+import { CATEGORY_SLUGS } from "@/lib/categories";
+import { loadArchiveManifest } from "@/lib/data";
 import { ALL_MARKETS, type MarketCode } from "@/lib/market/market";
 import { R2Keys, readR2JSON } from "@/lib/r2";
 import { alternateLanguagesForPath, marketBaseUrl } from "@/lib/seo/metadata";
 import type { Item, Seller } from "@/lib/types";
 
-export const SITEMAP_IDS = ["static", "items", "sellers"] as const;
+export const SITEMAP_IDS = [
+  "static",
+  "categories",
+  "items",
+  "sellers",
+  "archive",
+] as const;
 
 export type SitemapId = (typeof SITEMAP_IDS)[number];
 
@@ -68,10 +76,14 @@ export async function getSitemapEntries(
   switch (id) {
     case "static":
       return staticSitemap(baseUrl);
+    case "categories":
+      return categoriesSitemap(baseUrl);
     case "items":
       return itemsSitemap(market, baseUrl);
     case "sellers":
       return sellersSitemap(market, baseUrl);
+    case "archive":
+      return archiveSitemap(market, baseUrl);
   }
 }
 
@@ -99,6 +111,24 @@ function staticSitemap(baseUrl: string): MetadataRoute.Sitemap {
       },
     })),
   ];
+}
+
+function categoriesSitemap(baseUrl: string): MetadataRoute.Sitemap {
+  // Category landing pages exist for every market, so the hreflang cluster
+  // is always the full market set. No lastModified — same honest-signal
+  // reasoning as staticSitemap; the daily changefreq reflects the grid
+  // revalidating with the items dataset.
+  return CATEGORY_SLUGS.map((slug) => {
+    const path = `/category/${slug}`;
+    return {
+      url: `${baseUrl}${path}`,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+      alternates: {
+        languages: alternateLanguagesForPath(path, ALL_MARKETS),
+      },
+    };
+  });
 }
 
 async function itemsSitemap(
@@ -143,6 +173,35 @@ async function itemsSitemap(
       priority: 0.6,
       alternates: {
         languages: alternateLanguagesForPath(path, [...itemMarkets]),
+      },
+    };
+  });
+}
+
+/**
+ * Archived (delisted) item pages — they render as full, indexable
+ * "no longer listed" pages from the archive snapshots.
+ *
+ * hreflang is self-only: delists are per-market, so the live-items
+ * presence map can't vouch for any other market and a wrong cluster is
+ * worse than none. lastmod = the crawler's delistedAt stamp.
+ */
+async function archiveSitemap(
+  market: MarketCode,
+  baseUrl: string,
+): Promise<MetadataRoute.Sitemap> {
+  const manifest = await loadArchiveManifest(market.toLowerCase());
+
+  return Object.entries(manifest).map(([ref, entry]) => {
+    const path = `/item/${encodeURIComponent(ref)}`;
+
+    return {
+      url: `${baseUrl}${path}`,
+      lastModified: entry.at ? new Date(entry.at) : undefined,
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
+      alternates: {
+        languages: alternateLanguagesForPath(path, [market]),
       },
     };
   });

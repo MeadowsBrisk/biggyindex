@@ -335,9 +335,17 @@ export function ItemDetailOverlay() {
 
   // Treat as loading if refNum is set but neither source resolved yet (avoids flash of "not found")
   const isLoading = detailLoading || (!!refNum && !item && !mergedDetail);
-  const littleBiggyUrl = displayItem
-    ? getLittleBiggyItemUrl(displayItem)
-    : null;
+  // Archived (delisted) details come from /api/item-detail with an
+  // `archived: true` envelope flag — the Little Biggy listing is dead, so
+  // suppress the outbound CTA entirely (mirrors the server page's archived
+  // rendering, which replaces it with seller links).
+  const isArchivedDetail =
+    (mergedDetail as { archived?: boolean } | null)?.archived === true &&
+    !item;
+  const littleBiggyUrl =
+    displayItem && !isArchivedDetail
+      ? getLittleBiggyItemUrl(displayItem)
+      : null;
   const littleBiggyEvent = useMemo(() => {
     if (!displayItem || !littleBiggyUrl) return null;
     return {

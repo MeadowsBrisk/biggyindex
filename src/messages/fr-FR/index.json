@@ -6,19 +6,19 @@
   },
   "nav": {
     "browse": "Parcourez",
-    "reviews": "Critiques",
+    "reviews": "Avis",
     "sellers": "Vendeurs",
-    "settings": "Décors"
+    "settings": "Paramètres"
   },
   "categories": {
-    "all": "Tous",
+    "all": "Tout",
     "Flower": "Fleur",
     "Shake": "Shake",
-    "Hash": "Hachch",
+    "Hash": "Hash",
     "Concentrates": "Concentrés",
     "Distillate": "Distillat",
     "Vapes": "Vapes",
-    "PreRolls": "Pré-rouleaux",
+    "PreRolls": "Pré-roulés",
     "Edibles": "Comestibles",
     "Tincture": "Teinture",
     "Psychedelics": "Psychédéliques",
@@ -38,16 +38,16 @@
   },
   "header": {
     "basket": {
-      "items": "{count, plural, one {Basket (1 item)} other {Basket (# items)}}"
+      "items": "{count, plural, one {Panier (1 article)} other {Panier (# articles)}}"
     },
     "mobileMenu": {
-      "open": "Menu ouvert",
+      "open": "Ouvrir le menu",
       "close": "Fermer le menu",
       "label": "Menu"
     },
     "marketMenu": {
       "market": "Marché",
-      "displayPricesIn": "Prix d’affichage dans",
+      "displayPricesIn": "Afficher les prix en",
       "approximateWhenConverted": "Approximation lors de la conversion",
       "language": "Langue",
       "english": "Anglais"
@@ -55,13 +55,14 @@
   },
   "footer": {
     "ctaTitle": "Trouve ce que tu cherches.",
-    "ctaCopy": "Explorez des milliers d’annonces de Little Biggy vendeurs – un marché fondé sur le principe de ne pas faire de mal.",
+    "ctaCopy": "Explorez des milliers d’annonces de vendeurs Little Biggy – un marché fondé sur le principe de ne pas faire de mal.",
     "browseItems": "Parcourez les articles",
     "community": "Communauté",
     "communityCopy": "Rejoignez la conversation. Partagez vos expériences, posez des questions ou vérifiez la réputation des vendeurs.",
     "privacy": "Confidentialité",
     "terms": "Conditions",
     "cookies": "Cookies",
+    "categoriesTitle": "Catégories",
     "copyright": "© {year} Biggy Index. Les prix affichés peuvent varier – vérifiez toujours dans le magasin les derniers tarifs."
   },
   "home": {
@@ -71,7 +72,7 @@
     "recentlyAdded": "Ajouté récemment",
     "recentlyUpdated": "Mise à jour récente",
     "popular": "Populaire",
-    "topSellers": "Meilleures ventes",
+    "topSellers": "Meilleurs vendeurs",
     "communityReviews": "Avis de la communauté",
     "viewAll": "Voir tout",
     "embassy": {
@@ -91,13 +92,13 @@
       "noImages": "Aucune image jointe",
       "zoomImage": "Image en zoom",
       "zoomPhoto": "Photo {index} zoom de {total}",
-      "reviewPhoto": "Photo de critique",
-      "close": "Revue approfondie",
+      "reviewPhoto": "Photo d’avis",
+      "close": "Fermer l’avis",
       "bySeller": "par {seller}",
       "deliveryDays": "{days}d",
-      "noText": "Pas de texte écrit de critique.",
-      "openItem": "Point ouvert",
-      "viewOnLittleBiggy": "Avis sur LittleBiggy"
+      "noText": "Pas de texte d’avis.",
+      "openItem": "Ouvrir l’article",
+      "viewOnLittleBiggy": "Voir sur LittleBiggy"
     },
     "hero": {
       "title": {
@@ -118,8 +119,8 @@
       "steps": {
         "bitcoin": {
           "title": "Obtenez du Bitcoin",
-          "summary": "Prenez du Bitcoin pour être prêt à essayer.",
-          "intro": "Little Biggy'accepte uniquement le Bitcoin. Vous devrez mettre en place un moyen d’en acheter si ce n’est pas déjà fait, afin d’être prêt à commencer à commander des articles.",
+          "summary": "Procurez-vous du Bitcoin pour être prêt à passer commande.",
+          "intro": "Little Biggy n’accepte que le Bitcoin. Vous devrez mettre en place un moyen d’en acheter si ce n’est pas déjà fait, afin d’être prêt à commencer à commander des articles.",
           "easiestWay": {
             "heading": "La méthode la plus simple",
             "text": "Des applications que vous utilisez peut-être déjà, comme Revolut ou Monzo, vous permettent d’acheter du Bitcoin dans l’application bancaire en quelques clics."
@@ -130,13 +131,13 @@
           },
           "proTip": {
             "label": "Astuce d’expert :",
-            "text": "Achetez quelques livres de plus que nécessaire et arrondissez à l’augment. Cette marge supplémentaire couvre les frais de réseau ou la volatilité des cryptomonnaies."
+            "text": "Achetez pour quelques euros de plus que nécessaire et arrondissez au supérieur. Cette marge supplémentaire couvre les frais de réseau ou la volatilité des cryptomonnaies."
           },
           "peerToPeer": {
             "label": "Vous voulez sauter l’échange ?",
             "beforeLinks": "Plateformes pair-à-pair telles que",
             "betweenLinks": "ou",
-            "afterLinks": "Ça permet d’acheter du Bitcoin directement à une autre personne – pas de compte d’échange, pas de papiers KYC. C’est plus pratique, mais les pièces atterrissent directement dans un portefeuille que tu contrôles."
+            "afterLinks": "permettent d’acheter du Bitcoin directement à une autre personne – pas de compte d’échange, pas de formalités KYC. C’est un peu plus manuel, mais les coins arrivent directement dans un portefeuille que tu contrôles."
           }
         },
         "browse": {
@@ -154,7 +155,7 @@
           "title": "Payez et envoyez votre Bitcoin",
           "summary": "Copiez les informations, puis envoyez le paiement depuis votre téléphone ou ordinateur portable.",
           "intro": "Au moment du paiement, Little Biggy affiche une page de commande privée avec tout ce dont vous avez besoin pour payer en toute sécurité, que vous soyez sur un seul appareil ou que vous passiez du téléphone au bureau.",
-          "copyHeading": "Copie les deux détails de la caisse",
+          "copyHeading": "Copiez les deux informations de paiement",
           "amountLabel": "Le montant exact en BTC :",
           "amountBefore": "On dirait",
           "amountAfter": "Copiez-le exactement pour ne pas sous-payer.",
@@ -175,19 +176,19 @@
           "intro": "Votre Bitcoin va à Transaxe, le système d’entiercement intégré de Little Biggy. Le vendeur peut voir que le paiement est arrivé, mais les fonds sont conservés en sécurité.",
           "release": "L’argent n’est libéré au vendeur qu’une fois la fenêtre de contestation terminée. Cela vous protège en tant qu’acheteur – si quelque chose tourne mal, vous pouvez ouvrir un litige avant la fin de la fenêtre.",
           "peaceHeading": "Tranquillité d’esprit",
-          "peaceText": "L’entiercement signifie que le vendeur ne touche jamais à vos fonds tant que l’article n’est pas expédié et reçu. C’est la garantie qui Little Biggy maintient honnête."
+          "peaceText": "L’entiercement signifie que le vendeur ne touche jamais à vos fonds tant que l’article n’est pas expédié et reçu. C’est la garantie qui maintient Little Biggy honnête."
         },
         "delivery": {
           "title": "Attends le facteur",
           "summary": "Détendez-vous pendant qu’il vient vers vous.",
-          "intro": "Les vendeurs marquent généralement votre commande comme expédiée dans un jour ouvrable. Les délais de livraison dépendent du vendeur et de votre localisation, mais la plupart des commandes britanniques arrivent en quelques jours.",
+          "intro": "Les vendeurs marquent généralement votre commande comme expédiée dans un jour ouvrable. Les délais de livraison dépendent du vendeur et de votre localisation, mais la plupart des commandes arrivent en quelques jours.",
           "late": "Si votre commande est en retard, contactez d’abord le vendeur via Little Biggy - la plupart des problèmes se résolvent rapidement. Ouvrez un litige uniquement en dernier recours."
         }
       }
     },
     "faq": {
       "eyebrow": "Foire aux questions",
-      "heading": "FAQ pour les visiteurs pour la première fois",
+      "heading": "FAQ pour les nouveaux visiteurs",
       "tabs": {
         "about": "À propos de Biggy Index",
         "bitcoin": "Little Biggy & Bitcoin"
@@ -195,8 +196,8 @@
       "about": {
         "items": {
           "whatIs": {
-            "q": "Quelle est la Biggy Index ?",
-            "a": "Le Biggy Index offre un moyen plus simple de naviguer sur le marché Little Biggy, avec la catégorisation des articles, des options de tri supplémentaires et d’autres outils pratiques adaptés aux acheteurs britanniques."
+            "q": "Qu’est-ce que le Biggy Index ?",
+            "a": "Le Biggy Index offre un moyen plus simple de naviguer sur le marché Little Biggy, avec la catégorisation des articles, des options de tri supplémentaires et d’autres outils pratiques adaptés aux acheteurs en France."
           },
           "sellOrShip": {
             "q": "Vendez-vous ou expédiez-vous des articles ?",
@@ -227,12 +228,12 @@
             "a": "Seulement du Bitcoin - pas de cartes, de virements bancaires ou d’autres cryptomonnaies."
           },
           "buying": {
-            "q": "Comment acheter du Bitcoin au Royaume-Uni ?",
-            "a": "La plupart des acheteurs utilisent Revolut, Monzo, Kraken ou Coinbase. Rechargez en livres, achetez le montant de BTC indiqué au moment du paiement, et prévoyez quelques livres pour les frais de réseau ou d’échange."
+            "q": "Comment acheter du Bitcoin en France ?",
+            "a": "La plupart des acheteurs utilisent Revolut, Monzo, Kraken ou Coinbase. Rechargez en euros, achetez le montant de BTC indiqué au moment du paiement, et prévoyez quelques euros pour les frais de réseau ou d’échange."
           },
           "wallet": {
             "q": "Ai-je besoin d’abord de mon propre portefeuille ?",
-            "a": "Vous pouvez payer directement depuis la plateforme d’échange, mais beaucoup de gens déplacent le BTC dans un portefeuille privé comme Cake Wallet ou Trust Wallet pour plus d’intimité. Les plateformes britanniques doivent demander où vous envoyez vos pièces – donc certains acheteurs préfèrent le routage via un portefeuille personnel."
+            "a": "Vous pouvez payer directement depuis la plateforme d’échange, mais beaucoup de gens déplacent le BTC dans un portefeuille privé comme Cake Wallet ou Trust Wallet pour plus d’intimité. Les plateformes d’échange doivent demander où vous envoyez vos coins – donc certains acheteurs préfèrent le routage via un portefeuille personnel."
           },
           "escrow": {
             "q": "Comment Transaxe me protège-t-elle en séquestre ?",
@@ -247,7 +248,7 @@
             "a": "La concurrence sur Little Biggy maintient une qualité élevée et des prix équitables. Les revendeurs Clearnet facturent souvent des majorations élevées ou expédient des stocks douteux."
           },
           "legality": {
-            "q": "Qu’en est-il de la légalité au Royaume-Uni ?",
+            "q": "Qu’en est-il de la légalité en France ?",
             "a": "Les lois sur le cannabis s’appliquent toujours. Vous êtes responsable de respecter les réglementations locales et de vérifier chaque détail de Little Biggy."
           }
         }
@@ -256,17 +257,17 @@
     "whatsNewSection": {
       "eyebrow": "Nouvelle activité",
       "heading": "Éléments récemment indexés",
-      "description": "Consultez les articles les plus récents ou les plus récents mis à jour sur Little Biggy.",
+      "description": "Consultez les articles les plus récents ou ceux mis à jour dernièrement sur Little Biggy.",
       "tabs": {
         "newest": "Ajouté récemment",
         "updated": "Mise à jour récente"
       },
       "browseAll": "Parcourez tous les articles",
-      "scrollLeft": "Scroller à gauche",
-      "scrollRight": "Faites défiler à droite",
+      "scrollLeft": "Faire défiler vers la gauche",
+      "scrollRight": "Faire défiler vers la droite",
       "priceUnavailable": "N/A",
       "unknownSeller": "Vendeur inconnu",
-      "viewSeller": "Voir le {seller} vendeur",
+      "viewSeller": "Voir le vendeur {seller}",
       "alternateImageAlt": "{item} alternatif",
       "time": {
         "justNow": "À l’instant",
@@ -277,9 +278,9 @@
       }
     },
     "sellerTrust": {
-      "eyebrow": "Trust communautaire",
-      "heading": "Conseil du Trust du vendeur",
-      "description": "Classements tirés des avis de la communauté. Passez la survie sur un avatar pour un aperçu, appuyez pour ouvrir le profil complet du vendeur.",
+      "eyebrow": "Confiance de la communauté",
+      "heading": "Tableau de confiance des vendeurs",
+      "description": "Classements tirés des avis de la communauté. Survolez un avatar pour un aperçu, touchez pour ouvrir le profil complet du vendeur.",
       "panels": {
         "top": {
           "title": "Mieux noté",
@@ -289,10 +290,10 @@
           "title": "À vérifier",
           "subtitle": "Taux d'avis négatifs plus élevé"
         },
-        "reviewsLabel": "Critiques"
+        "reviewsLabel": "Avis"
       },
       "row": {
-        "reviews": "{count} critiques",
+        "reviews": "{count} avis",
         "negative": "{count} négatif"
       },
       "recentlyJoined": {
@@ -313,23 +314,23 @@
       "eyebrow": "Avis des acheteurs",
       "heading": "Avis de la communauté",
       "subtitle": "Des retours réels de la part de véritables acheteurs",
-      "seeAll": "Voir toutes les critiques",
-      "recentReviews": "Critiques récentes",
-      "photoReviews": "Critiques de photos",
+      "seeAll": "Voir tous les avis",
+      "recentReviews": "Avis récents",
+      "photoReviews": "Avis avec photos",
       "fallback": {
         "seller": "Vendeur",
         "product": "Produit",
-        "reviewPhoto": "Photo de critique"
+        "reviewPhoto": "Photo d’avis"
       },
       "stats": {
         "avgDelivery": "Livraison moyenne",
         "avgDeliveryValue": "~{count} jours",
-        "basedOnRecentReviews": "D’après des critiques récentes",
-        "newReviews": "Nouvelles critiques",
+        "basedOnRecentReviews": "d’après les avis récents",
+        "newReviews": "Nouveaux avis",
         "postedThisWeek": "Publié cette semaine",
         "avgRating": "Note moyenne",
         "avgRatingValue": "{rating} ★",
-        "fromReviews": "D’après {count} critiques"
+        "fromReviews": "d’après {count} avis"
       },
       "deliveryDays": "{count}d",
       "time": {
@@ -379,8 +380,8 @@
     },
     "allCategories": "Toutes les catégories",
     "noResults": "Aucun produit ne correspond à vos filtres",
-    "clearFilters": "Filtres clairs",
-    "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
+    "clearFilters": "Effacer les filtres",
+    "itemCount": "{count, plural, =0 {Aucun produit} one {1 produit} other {# produits}}",
     "sortBy": "Trier par",
     "search": "Rechercher des produits...",
     "noItemsFound": "Aucun objet trouvé",
@@ -391,8 +392,8 @@
       "notFilter": "Pas : {value}",
       "priceRange": "Fourchette de prix",
       "bookmarksShowAll": "Afficher tous les éléments",
-      "bookmarksOnly": "Émission mise en favori uniquement",
-      "itemsLabel": "{count, plural, one {item} other {items}}",
+      "bookmarksOnly": "Afficher uniquement les favoris",
+      "itemsLabel": "{count, plural, one {article} other {articles}}",
       "ofLabel": "sur",
       "sellersLabel": "{count, plural, one {vendeur} other {vendeurs}}",
       "saved": "Enregistrés",
@@ -415,7 +416,7 @@
         "newest": "Les plus récents",
         "updated": "Mise à jour",
         "price": "Prix",
-        "pricePerGram": "£/g",
+        "pricePerGram": "€/g",
         "shuffle": "Mélanger",
         "shuffleAgain": "Mélanger à nouveau",
         "aria": "Trier par",
@@ -424,25 +425,25 @@
       }
     },
     "activeBar": {
-      "search": "Search",
-      "category": "Category",
-      "subcategory": "Subcategory",
-      "subcategoryNot": "Excluding",
-      "sellers": "Sellers",
-      "shipFrom": "From",
-      "shipNot": "Not from",
-      "weight": "Weight",
-      "price": "Price"
+      "search": "Recherche",
+      "category": "Catégorie",
+      "subcategory": "Sous-catégorie",
+      "subcategoryNot": "Sans",
+      "sellers": "Vendeurs",
+      "shipFrom": "Depuis",
+      "shipNot": "Pas depuis",
+      "weight": "Poids",
+      "price": "Prix"
     },
     "filters": {
-      "toggle": "Filtres à basculement",
+      "toggle": "Afficher ou masquer les filtres",
       "label": "Filtres",
-      "close": "Filtres fermés",
+      "close": "Fermer les filtres",
       "active": "{count} actif",
-      "clearAll": "Écartez tout",
+      "clearAll": "Tout effacer",
       "clearAllTitle": "Effacez tous les filtres non épinglés",
-      "searchItems": "Fouiller les choses...",
-      "clearSearch": "Recherche claire",
+      "searchItems": "Rechercher des articles...",
+      "clearSearch": "Effacer la recherche",
       "categories": "Catégories",
       "subcategories": "Sous-catégories",
       "sections": {
@@ -463,7 +464,7 @@
         "strength": "Force"
       },
       "pin": {
-        "unpin": "Débroyage - nettoyage avec des filtres",
+        "unpin": "Détacher - sera effacé avec les filtres",
         "pin": "Pin - conserve la sélection lors de la suppression des filtres"
       },
       "shipFromHelp": "Cliquer : inclure. Clic droit : exclure",
@@ -472,19 +473,19 @@
       "addShippingToPrices": "Ajouter la livraison aux prix",
       "subcategoryExcludeHint": "Cliquer : inclure. Clic droit : exclure",
       "subcategoryExcludeRemove": "Clic droit pour retirer l'exclusion",
-      "searchSellers": "Cherchez les vendeurs...",
-      "sellerSortAlpha": "Trié de A à Z - cliquez d’abord pour la plupart des éléments",
+      "searchSellers": "Rechercher des vendeurs...",
+      "sellerSortAlpha": "Trié de A à Z - cliquez pour trier par nombre d’articles",
       "sellerSortCount": "Trié par nombre d’éléments - cliquez pour A à Z",
       "removeSeller": "Retirez {seller}",
       "selectSeller": "Sélectionnez {seller}",
       "unselectSeller": "Désélectionner {seller}",
       "hideSeller": "Masquer {seller} - supprime tous leurs éléments des résultats",
-      "hideSellerAria": "Cache{seller}",
-      "noSellersMatch": "Aucune correspondance entre vendeurs",
+      "hideSellerAria": "Masquer {seller}",
+      "noSellersMatch": "Aucun vendeur correspondant",
       "noSellersAvailable": "Aucun vendeur disponible",
       "showLess": "Afficher moins",
       "showAll": "Afficher tout {count}",
-      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
+      "hiddenSellers": "{count, plural, one {1 vendeur masqué - à gérer dans les paramètres} other {# vendeurs masqués - à gérer dans les paramètres}}"
     },
     "priceRange": {
       "title": "Prix",
@@ -503,16 +504,16 @@
       "viewOnLittleBiggy": "Voir {item} sur LittleBiggy",
       "onlineToday": "En ligne aujourd’hui",
       "freeShipping": "Livraison gratuite",
-      "endorsed": "{count, plural, one {1 endorsed} other {# endorsed}}",
-      "shipsFrom": "Navires de",
-      "shipsFromAria": "Navires de {country}",
+      "endorsed": "{count, plural, one {1 recommandation} other {# recommandations}}",
+      "shipsFrom": "Expédié depuis",
+      "shipsFromAria": "Expédié depuis {country}",
       "deliveryDays": "~{count}d livraison",
       "showAllSellers": "Afficher tous les vendeurs",
       "onlySeller": "Seulement {seller}",
       "all": "Tous",
       "only": "Seulement",
-      "hideSeller": "Cache{seller}",
-      "hide": "Cache-toi",
+      "hideSeller": "Masquer {seller}",
+      "hide": "Masquer",
       "updated": "Mise à jour {time}",
       "listed": "Listé {time}",
       "listedUnknown": "Listé -",
@@ -534,32 +535,32 @@
   "item": {
     "from": "de",
     "perGram": "/g",
-    "variants": "{count, plural, one {1 variant} other {# variants}}",
-    "reviews": "{count, plural, one {1 review} other {# reviews}}",
+    "variants": "{count, plural, one {1 variante} other {# variantes}}",
+    "reviews": "{count, plural, one {1 avis} other {# avis}}",
     "noReviews": "Pas encore d’avis",
-    "shipping": "Transport maritime",
+    "shipping": "Livraison",
     "freeShipping": "Livraison gratuite",
-    "viewOnSeller": "Avis sur {seller}",
+    "viewOnSeller": "Voir chez {seller}",
     "addToBasket": "Ajouter au panier",
     "firstSeen": "Première apparition",
     "lastUpdated": "Dernière mise à jour",
     "detail": {
       "close": "Fermer",
       "previousItem": "Élément précédent",
-      "nextItem": "Point suivant",
+      "nextItem": "Article suivant",
       "prev": "Précédent",
       "next": "Suivant",
       "by": "par",
       "wasPrice": "était {price}",
-      "viewOnLittleBiggy": "Avis sur Little Biggy",
+      "viewOnLittleBiggy": "Voir sur Little Biggy",
       "itemNotFound": "Article non trouvé.",
       "tabs": {
         "prices": "Prix",
         "description": "Description",
-        "reviews": "Critiques"
+        "reviews": "Avis"
       },
       "reviews": {
-        "heading": "Critiques",
+        "heading": "Avis",
         "noneAvailable": "Aucun avis disponible",
         "readMoreAt": "Lisez plus d’avis sur :",
         "filter": {
@@ -582,7 +583,7 @@
         "unit": "Unité"
       },
       "meta": {
-        "rating": "Classement",
+        "rating": "Note",
         "avgDelivery": "Livraison moyenne",
         "listed": "Listé",
         "updated": "Mise à jour"
@@ -612,15 +613,15 @@
       },
       "priceHistory": {
         "heading": "Historique des prix",
-        "firstTracked": "Première piste"
+        "firstTracked": "Premier relevé"
       },
       "shipping": {
-        "label": "Transport maritime",
-        "noShipping": "Pas de transport",
+        "label": "Livraison",
+        "noShipping": "Pas de livraison",
         "freeShipping": "Livraison gratuite",
         "cheapest": "Le moins cher",
         "highest": "Plus haut",
-        "shipping": "Transport maritime",
+        "shipping": "Livraison",
         "free": "Gratuit"
       },
       "time": {
@@ -638,23 +639,42 @@
       "backToIndex": "Retour à l’index",
       "imageAlt": "{item} image {index}",
       "by": "par",
-      "shipsFrom": "Navires de {country}",
+      "shipsFrom": "Expédié depuis {country}",
       "unavailable": "N/A",
-      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "reviewsCount": "{count, plural, one {1 avis} other {# avis}}",
       "deliveryShort": "~{count}d livraison",
       "avgDelivery": "{days} jours de livraison moyenne",
       "attributes": "Attributs",
       "variants": "Variantes",
       "bestValue": "Meilleur rapport qualité-prix",
-      "shipping": "Transport maritime",
+      "shipping": "Livraison",
       "free": "Gratuit",
-      "viewOnLittleBiggy": "Avis sur LittleBiggy",
+      "viewOnLittleBiggy": "Voir sur LittleBiggy",
       "firstSeen": "Première vue : {date}",
       "updated": "Mise à jour : {date}",
       "priceHistory": "Historique des prix",
-      "reviews": "Critiques",
+      "reviews": "Avis",
       "moreFromSeller": "Plus de {seller}",
       "relatedInCategory": "Plus de {category} sur Little Biggy"
+    },
+    "meta": {
+      "title": "{name} par {seller} | BiggyIndex",
+      "titleNoSeller": "{name} | BiggyIndex",
+      "titleArchived": "{name} par {seller} {suffix} | BiggyIndex",
+      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "soldBy": "Vendu par {seller} sur Little Biggy.",
+      "browseFallback": "Découvrez {name} de {seller} sur Little Biggy.",
+      "browseFallbackNoSeller": "Découvrez {name} sur Little Biggy.",
+      "categoryFact": "Annonce {category}",
+      "reviewsFact": "{count, plural, one {1 avis} other {# avis}}",
+      "ratingFact": "Note {rating}/10"
+    },
+    "archive": {
+      "bannerTitle": "N’est plus référencé sur Little Biggy",
+      "bannerDelisted": "Retiré le {date}",
+      "titleSuffix": "(n’est plus référencé)",
+      "lastKnownPrice": "Dernier prix connu",
+      "lastKnownShipping": "Derniers frais d’envoi connus"
     },
     "legacyModal": {
       "close": "Fermer",
@@ -663,36 +683,40 @@
       "unavailable": "N/A",
       "variants": "Variantes",
       "attributes": "Attributs",
-      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "reviewsCount": "{count, plural, one {1 avis} other {# avis}}",
       "avgDelivery": "{days} jours de livraison moyenne",
-      "shipping": "Transport maritime",
+      "shipping": "Livraison",
       "freeAvailable": "Disponible gratuitement",
       "firstSeen": "Première vue : {date}",
       "updated": "Mise à jour : {date}",
-      "viewOnLittleBiggy": "Avis sur LittleBiggy",
+      "viewOnLittleBiggy": "Voir sur LittleBiggy",
       "fullPage": "Page complète"
     }
   },
   "seller": {
-    "products": "{count, plural, one {1 product} other {# products}}",
-    "rating": "Classement",
+    "products": "{count, plural, one {1 produit} other {# produits}}",
+    "rating": "Note",
     "visitStore": "Visiter la boutique",
+    "meta": {
+      "activeListings": "{count, plural, one {1 annonce active} other {# annonces actives}}",
+      "reviews": "{count, plural, one {1 avis} other {# avis}}"
+    },
     "page": {
       "metadataTitle": "Vendeurs Little Biggy | BiggyIndex",
       "metadataDescription": "Tous les vendeurs Little Biggy avec scores de confiance, nombre d'avis et évaluations de la communauté.",
       "title": "Vendeurs Little Biggy",
-      "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
+      "activeSellers": "{count, plural, one {1 vendeur actif sur Little Biggy} other {# vendeurs actifs sur Little Biggy}}",
       "leaderboard": {
-        "title": "Classement Trust",
+        "title": "Classement de confiance",
         "allTime": "Tous les temps",
         "thisWeek": "Cette semaine",
         "topRated": "Mieux noté",
         "topRatedSubtitle": "Taux d’avis positifs le plus élevé",
         "useCaution": "À vérifier",
         "useCautionSubtitle": "Taux d'avis négatifs plus élevé",
-        "reviews": "Critiques",
-        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
-        "negativeCount": "{count, plural, one {1 negative} other {# negative}}"
+        "reviews": "Avis",
+        "reviewCount": "{count, plural, one {1 avis} other {# avis}}",
+        "negativeCount": "{count, plural, one {1 négatif} other {# négatifs}}"
       },
       "allSellers": "Tous les vendeurs",
       "search": "Chercher...",
@@ -703,7 +727,7 @@
         "positive": "Positif",
         "negatives": "Négatifs",
         "perfect": "10/10",
-        "rating": "Classement",
+        "rating": "Note",
         "days": "Jours",
         "items": "Objets",
         "totalTitle": "Total des avis rapportés par Little Biggy",
@@ -713,41 +737,41 @@
     },
     "detail": {
       "metadataTitle": "{seller} | BiggyIndex",
-      "notFoundTitle": "Seller not found | BiggyIndex",
-      "backToSellers": "Sellers",
-      "breadcrumb": "Seller page",
-      "currentListings": "Current listings",
-      "listingCount": "{count, plural, =0 {No active listings in this market} one {1 active listing in this market} other {# active listings in this market}}",
-      "viewAllListings": "View all listings",
-      "noListings": "No current listings for this seller in this market.",
-      "openItem": "Open {item}"
+      "notFoundTitle": "Vendeur introuvable | BiggyIndex",
+      "backToSellers": "Vendeurs",
+      "breadcrumb": "Page du vendeur",
+      "currentListings": "Annonces actuelles",
+      "listingCount": "{count, plural, =0 {Aucune annonce active sur ce marché} one {1 annonce active sur ce marché} other {# annonces actives sur ce marché}}",
+      "viewAllListings": "Voir toutes les annonces",
+      "noListings": "Aucune annonce actuelle de ce vendeur sur ce marché.",
+      "openItem": "Ouvrir {item}"
     },
     "modal": {
       "fallbackName": "Vendeur",
       "close": "Fermer",
-      "zoomProfileImage": "Image de profil de Zoom {seller}",
+      "zoomProfileImage": "Agrandir l’image de profil de {seller}",
       "onlineToday": "En ligne aujourd’hui",
       "lastSeen": "Dernière vue {time}",
       "joined": "A rejoint {date}",
-      "itemCount": "{count, plural, one {1 item} other {# items}}",
-      "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+      "itemCount": "{count, plural, one {1 article} other {# articles}}",
+      "reviewCount": "{count, plural, one {1 avis} other {# avis}}",
       "deliveryShort": "~{days}d livraison",
       "about": "À propos",
       "noDescription": "Aucune description disponible",
       "feedback": {
-        "summaryHeading": "Community feedback",
-        "endorsementCount": "{count, plural, one {1 community endorsement} other {# community endorsements}}",
-        "reportCount": "{count, plural, one {1 reviewed report} other {# reviewed reports}}",
-        "reviewedNote": "Moderator-reviewed report",
-        "similarReports": "{count, plural, one {1 similar report} other {# similar reports}}",
+        "summaryHeading": "Retours de la communauté",
+        "endorsementCount": "{count, plural, one {1 recommandation de la communauté} other {# recommandations de la communauté}}",
+        "reportCount": "{count, plural, one {1 signalement examiné} other {# signalements examinés}}",
+        "reviewedNote": "Signalement vérifié par un modérateur",
+        "similarReports": "{count, plural, one {1 signalement similaire} other {# signalements similaires}}",
         "endpointMissing": "Endpoint de retour non configuré.",
         "hourlyLimit": "Vous avez atteint la limite horaire (20 par heure). Essayez plus tard.",
         "duplicateThanks": "Merci - votre vote a été ajouté à un rapport existant.",
-        "reviewThanks": "Merci - un modérateur fera une critique.",
+        "reviewThanks": "Merci - un modérateur va vérifier.",
         "networkError": "Erreur réseau",
         "endorsed": "Approuvé",
-        "submitting": "Soumettre...",
-        "endorseSeller": "Vendeur endossant",
+        "submitting": "Envoi en cours...",
+        "endorseSeller": "Recommander le vendeur",
         "reported": "Rapporté",
         "reportSeller": "Signaler le vendeur",
         "reasonOptional": "Raison (optionnelle)",
@@ -756,17 +780,17 @@
         "submitReport": "Soumettre le rapport"
       },
       "reviews": {
-        "heading": "Critiques",
+        "heading": "Avis",
         "loading": "Chargement...",
         "recentTotal": "{recent} récent ({total} total)",
         "recentCount": "{count} récent",
         "avgDelivery": "~{days}d livraison moyenne",
         "removeFilter": "Retirer le filtre",
         "filter": "Filtre",
-        "removeLowRatingFilterTitle": "Remove low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
-        "applyLowRatingFilterTitle": "Apply low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
-        "lowRating": "{count, plural, one {1 low rating} other {# low ratings}}",
-        "ratingFilterTitle": "{action}: {count, plural, one {1 review} other {# reviews}} rated {rating}/10",
+        "removeLowRatingFilterTitle": "Retirer le filtre notes basses (≤ 5/10) - {count, plural, one {1 avis} other {# avis}}",
+        "applyLowRatingFilterTitle": "Appliquer le filtre notes basses (≤ 5/10) - {count, plural, one {1 avis} other {# avis}}",
+        "lowRating": "{count, plural, one {1 note basse} other {# notes basses}}",
+        "ratingFilterTitle": "{action} : {count, plural, one {1 avis} other {# avis}} notés {rating}/10",
         "noReviewsYet": "Pas encore d’avis",
         "lowRated": "Faible cote",
         "noFilteredReviews": "Aucun avis {filter}",
@@ -776,9 +800,9 @@
       "visit": "Visitez {seller}"
     },
     "error": {
-      "title": "Échec de charger les vendeurs",
-      "description": "Nous n’avons pas pu charger la page du vendeur. C’est généralement temporaire.",
-      "retry": "Nouvelle tentative"
+      "title": "Échec du chargement des vendeurs",
+      "description": "Nous n’avons pas pu charger la page des vendeurs. C’est généralement temporaire.",
+      "retry": "Réessayer"
     }
   },
   "reviews": {
@@ -786,7 +810,7 @@
       "metadataTitle": "Avis Little Biggy | BiggyIndex",
       "metadataDescription": "Les derniers avis Little Biggy des acheteurs, avec photos, notes et délais de livraison.",
       "title": "Avis Little Biggy",
-      "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
+      "subtitle": "{count, plural, one {1 avis récent d’acheteurs Little Biggy} other {# avis récents d’acheteurs Little Biggy}}",
       "filters": {
         "all": "Tous",
         "withPhotos": "Avec des photos",
@@ -802,12 +826,12 @@
         "sameDay": "Même jour",
         "oneDay": "1 jour",
         "days": "{count} jours",
-        "reviewPhoto": "Photo de critique {index}"
+        "reviewPhoto": "Photo d’avis {index}"
       },
       "error": {
-        "title": "Échec de charger les avis",
+        "title": "Échec du chargement des avis",
         "description": "Nous n’avons pas pu charger la page des avis. C’est généralement temporaire.",
-        "retry": "Nouvelle tentative"
+        "retry": "Réessayer"
       }
     },
     "card": {
@@ -817,11 +841,11 @@
         "daysAgo": "Il y a {count}d",
         "monthsAgo": "Il y a {count}mo"
       },
-      "imageAlt": "Image de critique {index}",
+      "imageAlt": "Photo d’avis {index}",
       "stats": {
         "average": "{rating}/10 de moyenne",
         "recentTotal": "{recent} récent ({total} total)",
-        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "reviewCount": "{count, plural, one {1 avis} other {# avis}}",
         "avgDelivery": "~{days}d livraison moyenne"
       }
     }
@@ -842,7 +866,7 @@
       "bySeller": "par {seller}",
       "error": {
         "title": "Impossible de charger le formulaire de suggestion",
-        "retry": "Nouvelle tentative"
+        "retry": "Réessayer"
       }
     },
     "form": {
@@ -857,7 +881,7 @@
       "wrongProductDescription": "Signalez ce produit pour un avis. Il peut être mal catégorisé ou ne pas avoir sa place sur ce site.",
       "addThisEdit": "+ Ajouter cette modification",
       "addEdit": "+ Ajouter une modification",
-      "submitting": "Soumettre...",
+      "submitting": "Envoi en cours...",
       "submitSuggestion": "Soumettre une suggestion",
       "submitSuggestions": "Soumettez {count} suggestions",
       "suggestionSubmitted": "Suggestion soumise !",
@@ -879,12 +903,12 @@
   },
   "basket": {
     "label": "Panier",
-    "clearAll": "Écartez tout",
-    "close": "Panier serré",
+    "clearAll": "Tout effacer",
+    "close": "Fermer le panier",
     "empty": "Ton panier est vide.",
-    "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
-    "shipping": "Transport maritime",
-    "noShipping": "Pas de transport",
+    "sellerItemCount": "{count, plural, one {1 article} other {# articles}}",
+    "shipping": "Livraison",
+    "noShipping": "Pas de livraison",
     "viewOnLittleBiggy": "Voir {item} sur LittleBiggy",
     "changeVariant": "Modifier la variante de {item}",
     "change": "Modifier",
@@ -900,24 +924,24 @@
   },
   "settings": {
     "theme": {
-      "switchToLight": "Passer en mode lumière",
+      "switchToLight": "Passer en mode clair",
       "switchToDark": "Passer en mode sombre"
     },
     "modal": {
-      "label": "Décors",
-      "close": "Paramètres proches",
+      "label": "Paramètres",
+      "close": "Fermer les paramètres",
       "highResImages": "Images haute résolution",
       "highResDescription": "Utilisez des images produit en pleine résolution. Utilise plus de données mais paraît plus net.",
-      "pauseGifs": "Pause des GIF",
+      "pauseGifs": "Mettre les GIF en pause",
       "pauseGifsDescription": "Affichez des vignettes statiques pour les images animées. Réduit les distractions et économise de la batterie.",
       "showInEnglish": "Afficher en anglais",
       "showInEnglishDescription": "Utiliser le texte anglais et les noms/descriptions d’origine des produits lorsque disponibles.",
       "skipGuides": "Ignorer les guides d'aide",
       "skipGuidesDesc": "Masquer les conseils rapides affichés avant d'ouvrir Little Biggy. Désactiver pour les afficher à nouveau.",
-      "thumbnailShape": "Forme de l’ongle",
+      "thumbnailShape": "Format des vignettes",
       "thumbnailDescription": "Changez le ratio de recadrage des images des produits sur les cartes.",
       "aspect": {
-        "square": "Square",
+        "square": "Carré",
         "fourThree": "4:3",
         "threeTwo": "3:2"
       },
@@ -928,14 +952,14 @@
         "haze": "Haze",
         "sunset": "Coucher de soleil",
         "cherry": "Cherry",
-        "custom": "Coutumes",
+        "custom": "Personnalisé",
         "customValue": "Personnalisé {value}",
         "default": "Par défaut"
       },
       "hiddenSellers": "Vendeurs cachés",
       "hiddenDescription": "Les articles provenant de vendeurs cachés n’apparaissent nulle part. Cela persiste sur une session à l’autre et n’est pas effacé par « Effacer les filtres ».",
-      "searchSellers": "Cherchez les vendeurs pour cacher...",
-      "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+      "searchSellers": "Rechercher des vendeurs à masquer...",
+      "sellerItemCount": "{count, plural, one {1 article} other {# articles}}",
       "unhideSeller": "Cliquez pour afficher {seller}",
       "noSellersHidden": "Aucun vendeur caché"
     }
@@ -947,14 +971,14 @@
       "retry": "Essaie encore"
     },
     "browse": {
-      "title": "Échec de charger les articles",
+      "title": "Échec du chargement des articles",
       "description": "Nous n’avons pas pu charger la page de navigation. C’est généralement temporaire.",
-      "retry": "Nouvelle tentative"
+      "retry": "Réessayer"
     },
     "item": {
       "title": "Article non disponible",
       "description": "Nous n’avons pas pu charger cet article. Il a peut-être été retiré ou il y a eu une erreur temporaire.",
-      "retry": "Nouvelle tentative",
+      "retry": "Réessayer",
       "browseItems": "Parcourez les articles"
     },
     "notFound": {
@@ -973,91 +997,117 @@
   },
   "legal": {
     "privacy": {
-      "metadataTitle": "Privacy Policy | BiggyIndex",
-      "metadataDescription": "How BiggyIndex handles data — no accounts, no analytics, no tracking, and only functional cookies.",
-      "title": "Privacy Policy",
-      "updated": "Last updated July 2026",
-      "intro": "BiggyIndex is an independent, read-only index of publicly available Little Biggy listings. The site is deliberately simple, and that extends to privacy — there is very little data we could collect, and we choose not to collect more.",
+      "metadataTitle": "Politique de confidentialité | BiggyIndex",
+      "metadataDescription": "Comment BiggyIndex traite les données — pas de comptes, pas d’analytics, pas de traçage, et uniquement des cookies fonctionnels.",
+      "title": "Politique de confidentialité",
+      "updated": "Dernière mise à jour : juillet 2026",
+      "intro": "BiggyIndex est un index indépendant, en lecture seule, des annonces Little Biggy publiquement disponibles. Le site est volontairement simple, et cela vaut aussi pour la confidentialité — il y a très peu de données que nous pourrions collecter, et nous choisissons de ne pas en collecter davantage.",
       "sections": {
         "noAccounts": {
-          "heading": "No accounts, no purchases",
-          "body": "You cannot create an account, log in, or buy anything on BiggyIndex. We never ask for your name, email address, payment details, or delivery address. Any purchase happens on Little Biggy, under Little Biggy's own terms and privacy practices — nothing about it passes through us."
+          "heading": "Pas de comptes, pas d’achats",
+          "body": "Vous ne pouvez pas créer de compte, vous connecter ou acheter quoi que ce soit sur BiggyIndex. Nous ne demandons jamais votre nom, votre adresse e-mail, vos coordonnées de paiement ou votre adresse de livraison. Tout achat se fait sur Little Biggy, selon ses propres conditions et pratiques de confidentialité — rien ne passe par nous."
         },
         "noTracking": {
-          "heading": "No analytics or tracking",
-          "body": "We do not run analytics or advertising scripts, and we do not use tracking pixels or fingerprinting. We do not build visitor profiles, and we have no personal data to sell or share with anyone."
+          "heading": "Pas d’analytics ni de traçage",
+          "body": "Nous n’utilisons aucun script d’analyse ou de publicité, ni pixels de suivi ou empreinte numérique. Nous ne créons pas de profils de visiteurs et nous n’avons aucune donnée personnelle à vendre ou à partager avec qui que ce soit."
         },
         "functionalStorage": {
-          "heading": "Functional cookies and local storage",
-          "body": "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for display preferences such as dark mode. None of it identifies you. See the Cookie Policy for the full list."
+          "heading": "Cookies fonctionnels et stockage local",
+          "body": "Le site n’utilise qu’un minimum de stockage fonctionnel — un cookie qui mémorise votre langue et votre marché, et le stockage local du navigateur pour les préférences d’affichage comme le mode sombre. Rien de tout cela ne vous identifie. Consultez la politique de cookies pour la liste complète."
         },
         "listingData": {
-          "heading": "Where our data comes from",
-          "body": "Everything shown on BiggyIndex — items, sellers, prices, reviews — is sourced from publicly available Little Biggy listings. We hold no data about Little Biggy buyers."
+          "heading": "D’où viennent nos données",
+          "body": "Tout ce qui est affiché sur BiggyIndex — articles, vendeurs, prix, avis — provient d’annonces Little Biggy publiquement disponibles. Nous ne détenons aucune donnée sur les acheteurs de Little Biggy."
         },
         "contact": {
           "heading": "Contact",
-          "body": "If you have a question, or want something corrected or removed, contact us via the suggestion feature on any item page."
+          "body": "Pour toute question, ou si vous souhaitez faire corriger ou retirer quelque chose, contactez-nous via la fonction de suggestion présente sur chaque page d’article."
         }
       }
     },
     "terms": {
-      "metadataTitle": "Terms of Use | BiggyIndex",
-      "metadataDescription": "The terms that apply when you browse BiggyIndex, an independent informational index of Little Biggy listings.",
-      "title": "Terms of Use",
-      "updated": "Last updated July 2026",
-      "intro": "By using BiggyIndex you agree to these terms. They are short because the site is simple — we index listings and display them, nothing more.",
+      "metadataTitle": "Conditions d’utilisation | BiggyIndex",
+      "metadataDescription": "Les conditions qui s’appliquent lorsque vous naviguez sur BiggyIndex, un index informatif indépendant des annonces Little Biggy.",
+      "title": "Conditions d’utilisation",
+      "updated": "Dernière mise à jour : juillet 2026",
+      "intro": "En utilisant BiggyIndex, vous acceptez ces conditions. Elles sont courtes parce que le site est simple — nous indexons des annonces et les affichons, rien de plus.",
       "sections": {
         "whatWeAre": {
-          "heading": "What BiggyIndex is",
-          "body": "BiggyIndex is an informational index. We collect publicly available Little Biggy listings and present them with search, filtering, and sorting so they are easier to browse. Nothing is bought or sold on this site, and no age-restricted sales take place here — there is no checkout, no payment, and no fulfilment of any kind."
+          "heading": "Ce qu’est BiggyIndex",
+          "body": "BiggyIndex est un index informatif. Nous collectons des annonces Little Biggy publiquement disponibles et les présentons avec recherche, filtres et tri pour faciliter la navigation. Rien n’est acheté ni vendu sur ce site, et aucune vente soumise à des restrictions d’âge n’y a lieu — il n’y a ni paiement, ni caisse, ni traitement de commande d’aucune sorte."
         },
         "independence": {
-          "heading": "Independence",
-          "body": "BiggyIndex is an independent project. We are not affiliated with, endorsed by, or operated by Little Biggy. Listings, seller names, images, and reviews belong to their respective owners and are shown here for reference."
+          "heading": "Indépendance",
+          "body": "BiggyIndex est un projet indépendant. Nous ne sommes ni affiliés à Little Biggy, ni approuvés ou exploités par Little Biggy. Les annonces, noms de vendeurs, images et avis appartiennent à leurs propriétaires respectifs et sont affichés ici à titre de référence."
         },
         "accuracy": {
-          "heading": "Accuracy is not guaranteed",
-          "body": "Listings change frequently and our index refreshes on a schedule, so prices, availability, shipping options, and review counts may be out of date or incorrect. Always check the original listing before relying on anything shown here. The site is provided as-is, without warranties of any kind."
+          "heading": "L’exactitude n’est pas garantie",
+          "body": "Les annonces changent fréquemment et notre index se met à jour selon un calendrier. Les prix, la disponibilité, les options de livraison et le nombre d’avis peuvent donc être obsolètes ou incorrects. Vérifiez toujours l’annonce d’origine avant de vous fier à ce qui est affiché ici. Le site est fourni tel quel, sans aucune garantie."
         },
         "outboundLinks": {
-          "heading": "Outbound links",
-          "body": "Links from items and sellers lead to Little Biggy. Once you leave BiggyIndex you are subject to that site's own terms, and we are not responsible for anything that happens there, including any transaction."
+          "heading": "Liens sortants",
+          "body": "Les liens des articles et des vendeurs mènent vers Little Biggy. Une fois que vous quittez BiggyIndex, vous êtes soumis aux conditions de ce site, et nous ne sommes pas responsables de ce qui s’y passe, y compris toute transaction."
         },
         "yourResponsibility": {
-          "heading": "Your responsibility",
-          "body": "You are responsible for ensuring that anything you do after leaving this site complies with the laws that apply where you live."
+          "heading": "Votre responsabilité",
+          "body": "Il vous appartient de vous assurer que tout ce que vous faites après avoir quitté ce site est conforme aux lois en vigueur là où vous vivez."
         },
         "changes": {
-          "heading": "Changes to these terms",
-          "body": "We may update these terms from time to time, and the latest version always lives on this page. If something looks wrong, contact us via the suggestion feature."
+          "heading": "Modifications de ces conditions",
+          "body": "Nous pouvons mettre à jour ces conditions de temps à autre, et la dernière version se trouve toujours sur cette page. Si quelque chose vous semble incorrect, contactez-nous via la fonction de suggestion."
         }
       }
     },
     "cookies": {
-      "metadataTitle": "Cookie Policy | BiggyIndex",
-      "metadataDescription": "The functional cookies and local storage BiggyIndex uses — no analytics, no advertising, no tracking.",
-      "title": "Cookie Policy",
-      "updated": "Last updated July 2026",
-      "intro": "BiggyIndex uses no analytics, advertising, or tracking cookies. The only storage on this site is functional — it keeps the site working and remembers your preferences.",
+      "metadataTitle": "Politique de cookies | BiggyIndex",
+      "metadataDescription": "Les cookies fonctionnels et le stockage local utilisés par BiggyIndex — pas d’analytics, pas de publicité, pas de traçage.",
+      "title": "Politique de cookies",
+      "updated": "Dernière mise à jour : juillet 2026",
+      "intro": "BiggyIndex n’utilise aucun cookie d’analyse, de publicité ou de traçage. Le seul stockage sur ce site est fonctionnel — il fait fonctionner le site et mémorise vos préférences.",
       "table": {
-        "name": "Name",
+        "name": "Nom",
         "type": "Type",
-        "purpose": "Purpose"
+        "purpose": "Finalité"
       },
       "rows": {
         "locale": {
           "name": "NEXT_LOCALE",
           "type": "Cookie",
-          "purpose": "Remembers your language and market so pages load in the right locale."
+          "purpose": "Mémorise votre langue et votre marché pour que les pages se chargent dans la bonne langue."
         },
         "preferences": {
-          "name": "Display preferences",
-          "type": "Local storage",
-          "purpose": "Keeps settings like dark mode and display currency in your browser. This data never leaves your device."
+          "name": "Préférences d’affichage",
+          "type": "Stockage local",
+          "purpose": "Conserve des réglages comme le mode sombre et la devise d’affichage dans votre navigateur. Ces données ne quittent jamais votre appareil."
         }
       },
-      "outro": "Because none of this storage tracks you, there is no consent banner to dismiss. If you clear your browser data, the site simply returns to its defaults."
+      "outro": "Comme aucun de ces stockages ne vous suit, il n’y a pas de bannière de consentement à fermer. Si vous effacez vos données de navigation, le site revient simplement à ses réglages par défaut."
+    }
+  },
+  "category": {
+    "page": {
+      "metadataTitle": "Acheter {category} en ligne | {count}+ annonces Little Biggy | BiggyIndex",
+      "metadataTitleNoCount": "Acheter {category} en ligne sur Little Biggy | BiggyIndex",
+      "metadataDescription": "Parcourez {count}+ annonces {category} sur Little Biggy. Comparez prix, vendeurs, avis et livraison — mises à jour chaque jour sur BiggyIndex.",
+      "metadataDescriptionNoCount": "Parcourez les annonces {category} sur Little Biggy. Comparez prix, vendeurs, avis et livraison — mises à jour chaque jour sur BiggyIndex.",
+      "heading": "Acheter {category} en ligne sur Little Biggy",
+      "countLine": "{count, plural, one {1 annonce {category} indexée depuis Little Biggy} other {# annonces {category} indexées depuis Little Biggy}}",
+      "subcategoriesLabel": "Types populaires",
+      "browseAllCta": "Parcourir toutes les annonces {category} avec filtres",
+      "breadcrumbHome": "Accueil",
+      "breadcrumbLabel": "Fil d'Ariane",
+      "intro": {
+        "flower": "La fleur est la plus grande catégorie de Little Biggy, des petites têtes économiques aux exotiques Cali importées. Les annonces sont regroupées par famille de variétés — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake et plus — pour suivre une lignée génétique que vous connaissez déjà au lieu de deviner à partir des noms de produits. La plupart des vendeurs proposent plusieurs paliers de poids, et le prix au gramme chute nettement à partir de 7 g et 14 g. Les descriptions précisent en général la tendance indica, sativa ou hybride et le mode de culture. Chaque annonce renvoie au vendeur sur Little Biggy, avec avis, délais de livraison et frais d’envoi indexés ici pour comparer les producteurs avant de commander.",
+        "shake": "Le shake est l’entrée de gamme du marché de la fleur : shake en vrac, trim et petites têtes popcorn, généralement vendus par les mêmes producteurs que la fleur entière mais à un prix au gramme bien plus bas. C’est un choix populaire pour rouler, cuisiner et préparer des comestibles ou extraits maison, où l’apparence compte bien moins que le coût. La qualité varie ici plus que dans toute autre catégorie — certaines annonces sont surtout de la poussière et des feuilles sucrées, d’autres des smalls presque entières — ; lisez donc attentivement les avis des vendeurs. Nous avons séparé le shake de la fleur dans cet index précisément pour que les chasseurs de bonnes affaires comparent à armes égales.",
+        "hash": "Le hash sur Little Biggy va des imports traditionnels au travail moderne sans solvant. Les annonces sont classées par méthode de fabrication : hash pressé de style marocain, dry sift et static sift, bubble hash issu de l’extraction à l’eau glacée, mousse souple, kief non pressé, et formes premium comme la piatella et les temple balls. Les grades en microns et les niveaux de filtration figurent dans les détails quand les vendeurs les indiquent. Les artisans britanniques proposent plutôt des lots frais, tandis que les imports couvrent les styles marocains et afghans classiques. Les prix au gramme varient plus que pour la fleur et suivent de près la qualité — comparer les notes et l’historique de livraison des vendeurs est le moyen le plus rapide de trouver un hash fidèle à sa description.",
+        "concentrates": "Les concentrés couvrent le haut de gamme en puissance : shatter, wax, crumble, rosin, live resin, diamonds et huiles THC. Les produits sans solvant comme le rosin côtoient les extractions au butane et au CO2, et les annonces précisent généralement la méthode d’extraction et la variété d’origine. Les doses sont petites et la puissance élevée — la plupart des concentrés sont plusieurs fois plus forts que la fleur — donc les prix au gramme semblent élevés mais durent bien plus longtemps. L’usage typique passe par un dab rig ou un vaporisateur compatible, et certains acheteurs ajoutent simplement un peu d’extrait sur la fleur. Les historiques d’avis sont indexés pour chaque annonce — essentiel dans une catégorie où texture et pureté se jugent mal en photo.",
+        "vapes": "Les annonces de vapes sur Little Biggy comprennent des cartouches pré-remplies à filetage 510, des stylos jetables et des pods. C’est l’huile qui compte le plus : les carts au distillat sont les moins chères et les plus régulières, tandis que la live resin et les extraits full-spectrum coûtent plus cher et gardent davantage la saveur et l’effet de la variété d’origine. Les annonces indiquent normalement la taille (0,5 ml ou 1 ml), le type d’extrait et la variété. Les jetables marchent immédiatement ; les cartouches nécessitent une batterie 510 achetée à part. Les contrefaçons de carts de marque sont partout — l’historique d’avis d’un vendeur et son ancienneté sur la plateforme sont de meilleurs repères que l’emballage, et les deux sont indexés ici sur chaque annonce.",
+        "prerolls": "Les pré-roulés vous épargnent le roulage. Les vendeurs de Little Biggy proposent des unités, des multipacks et des options infusées — du simple joint mono-variété roulé avec la fleur de leur propre menu aux blunts et pré-roulés renforcés au hash ou aux concentrés pour plus de puissance. Les multipacks font baisser le prix par joint et sont le choix habituel des habitués ; les roulés infusés se paient nettement plus cher. Les descriptions précisent en général la variété, le poids par joint et le nombre par paquet. La fraîcheur et la qualité du roulage sont les reproches les plus courants — les avis récents, indexés sur chaque annonce, sont le meilleur signal avant de commander.",
+        "edibles": "Les comestibles sur Little Biggy vont des gummies et du chocolat aux pâtisseries, gélules et mélanges à boire. La puissance est la première chose à vérifier : les annonces indiquent les milligrammes de THC par pièce et par paquet, et les doses varient énormément — une dose de départ raisonnable est de 5–10 mg, tandis que certains bonbons en contiennent 100 mg ou plus. Les effets arrivent lentement, souvent en 30–90 minutes ; la règle d’or est de commencer bas et d’attendre avant d’en reprendre. Des options véganes et sans gluten apparaissent régulièrement. Nous indexons la puissance par pièce quand les vendeurs la déclarent, pour comparer les produits selon la dose et le rapport qualité-prix plutôt que le seul prix du paquet.",
+        "tincture": "Les teintures sont des extraits liquides de cannabis pris en gouttes sous la langue — une option sans fumée, aux effets plus rapides que les comestibles et au dosage plus fin que les deux. Les annonces sur Little Biggy comprennent des huiles THC, des mélanges CBD et des ratios équilibrés, avec la puissance indiquée en milligrammes par flacon ou par millilitre. Les effets sublinguaux arrivent en général en 15–45 minutes, plus vite qu’en mangeant et plus faciles à doser. On trouve aussi des huiles full-extract de style RSO, appréciées des gros consommateurs. La taille du flacon, l’huile de support et la puissance totale font le prix — le coût par milligramme est donc la comparaison la plus juste avant de juger un flacon trop cher.",
+        "psychedelics": "Psychédéliques rassemble les annonces non-cannabis de Little Biggy : champignons séchés, truffes, gélules de microdose, et chocolats et gummies aux champignons. Les champignons séchés sont la base, avec une puissance qui varie nettement selon la variété — les descriptions donnent en général la variété et une plage de dose conseillée. Les gélules de microdose offrent des quantités mesurées sub-perceptuelles pour ceux qui suivent un protocole, tandis que chocolats et gummies divisent une dose complète en morceaux plus petits et plus simples. Le set, le setting et commencer bas comptent plus ici que partout ailleurs sur le site. Les avis vendeurs et délais de livraison sont indexés sur chaque annonce, exactement comme pour les catégories cannabis.",
+        "other": "Autres est la catégorie fourre-tout pour les annonces qui ne rentrent pas dans les catégories principales : produits CBD, graines, accessoires comme les grinders et le matériel de roulage, et les articles ponctuels que les vendeurs listent à côté de leur menu principal. Un coup d’œil de temps en temps vaut la peine, car les nouveaux types de produits atterrissent généralement ici en premier, avant qu’il y ait assez d’annonces pour justifier leur propre catégorie. Attendez-vous à un contenu qui change de semaine en semaine au gré des stocks. Chaque annonce porte les mêmes données indexées que le reste du site — prix, historique du vendeur, notes d’avis et options de livraison — si bien qu’un article insolite se vérifie exactement comme un article classique."
+      }
     }
   }
 }

@@ -12,6 +12,7 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Fragment, Suspense } from "react";
 import { ItemDetailGallery } from "@/components/ItemDetailGallery";
@@ -25,7 +26,8 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { loadMergedDetail } from "@/lib/data";
+import { categoryToSlug } from "@/lib/categories";
+import { loadArchivedDetail, loadMergedDetail } from "@/lib/data";
 import { decodeEntities, formatPriceRangeChange } from "@/lib/format";
 import { getItemGalleryImages } from "@/lib/images";
 import {
@@ -51,6 +53,8 @@ interface ItemPageProps {
 }
 
 type AttributeScalar = string | number | boolean;
+
+type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
 interface RawDetailReview {
   id?: string | number | null;
@@ -198,7 +202,11 @@ function itemReviewsFromDetail(
   });
 }
 
-function itemMetadataDescription(item: MergedDetailBlob): string {
+function itemMetadataDescription(
+  item: MergedDetailBlob,
+  metaT: Translator,
+  tCategories: Translator,
+): string {
   const seller = item.sn ? decodeEntities(item.sn) : null;
   const description = decodeEntities(item.d ?? item.dEn ?? "")
     .replace(/\s+/g, " ")
@@ -206,20 +214,29 @@ function itemMetadataDescription(item: MergedDetailBlob): string {
 
   if (description) {
     return compactMetaDescription(
-      `${description}${seller ? ` Sold by ${seller} on Little Biggy.` : ""}`,
+      `${description}${seller ? ` ${metaT("soldBy", { seller })}` : ""}`,
     );
   }
 
   const name = decodeEntities(item.n);
+  const category = item.c
+    ? tCategories.has(item.c)
+      ? tCategories(item.c)
+      : item.c
+    : null;
   const facts = [
-    item.c ? `${item.c} listing` : null,
-    item.rs?.cnt ? `${item.rs.cnt} reviews` : null,
-    item.rs?.avg ? `${item.rs.avg.toFixed(1)}/10 rating` : null,
+    category ? metaT("categoryFact", { category }) : null,
+    item.rs?.cnt ? metaT("reviewsFact", { count: item.rs.cnt }) : null,
+    item.rs?.avg
+      ? metaT("ratingFact", { rating: item.rs.avg.toFixed(1) })
+      : null,
   ].filter(Boolean);
 
-  return compactMetaDescription(
-    `Browse ${name}${seller ? ` from ${seller}` : ""} on Little Biggy. ${facts.join(". ")}`,
-  );
+  const lead = seller
+    ? metaT("browseFallback", { name, seller })
+    : metaT("browseFallbackNoSeller", { name });
+
+  return compactMetaDescription(`${lead} ${facts.join(". ")}`);
 }
 
 /**
@@ -267,16 +284,20 @@ export async function generateMetadata({
   params,
 }: ItemPageProps): Promise<Metadata> {
   const { ref, locale } = await params;
-  const t = await getTranslations({ locale, namespace: "item.page" });
   const market = localeToMarket(locale);
-  const item = await loadMergedDetail(ref, market.toLowerCase());
+  const mkt = market.toLowerCase();
 
-  if (!item) {
-    return {
-      title: t("notFoundTitle"),
-      robots: { index: false, follow: false },
-    };
-  }
+  // Live blob first; delisted items fall back to the archive snapshot and
+  // stay INDEXABLE (normal canonical, no noindex) — they render as full
+  // "no longer listed" pages.
+  const live = await loadMergedDetail(ref, mkt);
+  const archived = live ? null : await loadArchivedDetail(ref, mkt);
+  const item = live ?? archived;
+
+  // Truly unknown ref (no live blob AND no archive entry): real 404.
+  // Metadata is blocking for html-limited bots (incl. Googlebot), so
+  // throwing here guarantees crawlers the status.
+  if (!item) notFound();
 
   const name = decodeEntities(item.n);
   const seller = item.sn ? decodeEntities(item.sn) : null;
@@ -285,18 +306,45 @@ export async function generateMetadata({
   // The page can render from the shared detail blob for an item already
   // delisted in this market — the cluster must still self-reference the
   // canonical's own market or Google treats it as invalid.
+  //
+  // ARCHIVED pages are always self-only: the ref may still be LIVE in other
+  // markets (their pages/sitemaps emit clusters that exclude this market),
+  // so advertising a cross-market cluster here would be non-reciprocal.
+  // This also matches archiveSitemap's deliberate self-only entries.
   const presenceMarkets = presence[ref] ?? [];
-  const alternateMarkets = presenceMarkets.includes(market)
-    ? presenceMarkets
-    : [market, ...presenceMarkets];
+  const alternateMarkets = archived
+    ? [market]
+    : presenceMarkets.includes(market)
+      ? presenceMarkets
+      : [market, ...presenceMarkets];
+
+  const metaT = await getTranslations({ locale, namespace: "item.meta" });
+  const tCategories = await getTranslations({
+    locale,
+    namespace: "categories",
+  });
+
+  let title: string;
+  if (archived) {
+    const archiveT = await getTranslations({
+      locale,
+      namespace: "item.archive",
+    });
+    const suffix = archiveT("titleSuffix");
+    title = seller
+      ? metaT("titleArchived", { name, seller, suffix })
+      : metaT("titleArchivedNoSeller", { name, suffix });
+  } else {
+    title = seller
+      ? metaT("title", { name, seller })
+      : metaT("titleNoSeller", { name });
+  }
 
   return pageMetadata({
     market,
     path: `/item/${encodeURIComponent(ref)}`,
-    title: seller
-      ? `${name} by ${seller} | BiggyIndex`
-      : `${name} | BiggyIndex`,
-    description: itemMetadataDescription(item),
+    title,
+    description: itemMetadataDescription(item, metaT, tCategories),
     alternateMarkets,
     images: image ? [{ url: image, alt: name }] : undefined,
   });
@@ -314,35 +362,26 @@ async function ItemContent({ params }: ItemPageProps) {
   const { ref, locale } = await params;
   const t = await getTranslations({ locale, namespace: "item.page" });
   const detailT = await getTranslations({ locale, namespace: "item.detail" });
+  const archiveT = await getTranslations({ locale, namespace: "item.archive" });
+  const tCategories = await getTranslations({
+    locale,
+    namespace: "categories",
+  });
   const market = localeToMarket(locale);
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
 
-  const item = await loadMergedDetail(ref, mkt);
+  // Live blob first; delisted items render as full archived pages from the
+  // manifest-gated snapshot. Archive fetch failures return null and fall
+  // through to notFound() with the truly-unknown refs.
+  const live = await loadMergedDetail(ref, mkt);
+  const archived = live ? null : await loadArchivedDetail(ref, mkt);
+  const item = live ?? archived;
 
-  if (!item) {
-    return (
-      <>
-        <ItemPageBar
-          browseLabel={t("browseIndex")}
-          breadcrumbLabel={t("breadcrumb")}
-        />
-        <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-foreground">
-            {t("notFoundTitle")}
-          </h1>
-          <p className="mt-2 text-muted">{t("notFoundDescription", { ref })}</p>
-          <Link
-            href="/browse"
-            prefetch={false}
-            className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            {t("backToIndex")}
-          </Link>
-        </div>
-      </>
-    );
-  }
+  if (!item) notFound();
+
+  const isArchived = archived != null;
+  const archivedDate = isArchived ? fmtDate(archived.arc?.at) : null;
 
   const translatedName = decodeEntities(item.n);
   const englishName = item.nEn ? decodeEntities(item.nEn) : null;
@@ -353,9 +392,24 @@ async function ItemContent({ params }: ItemPageProps) {
   const reviews = itemReviewsFromDetail(item.reviews, item);
   const priceHistory = (item as MergedDetailBlob).ph ?? [];
   const shipOptions = (item as MergedDetailBlob).shOpts ?? [];
-  const shareLink = getLittleBiggyItemUrl(item);
+  // Archived items have no live listing to link out to — the outbound
+  // "View on Little Biggy" CTA is replaced by a seller-page link below.
+  const shareLink = isArchived ? null : getLittleBiggyItemUrl(item);
+  const sellerHref =
+    item.sid != null ? `/seller/${encodeURIComponent(String(item.sid))}` : null;
+  const sellerLabel = item.sn ? decodeEntities(item.sn) : null;
   const attrs = attributeRows(item.at);
   const variantContext = itemVariantContext(item);
+
+  // Breadcrumb targets the indexable /category/{slug} landing page —
+  // /browse?cat= is robots-blocked so links there pass nothing. Categories
+  // without a landing page (null slug) render as plain text.
+  const categorySlug = categoryToSlug(item.c);
+  const categoryLabel = item.c
+    ? tCategories.has(item.c)
+      ? tCategories(item.c)
+      : item.c
+    : null;
 
   const variantRows =
     item.v
@@ -390,13 +444,26 @@ async function ItemContent({ params }: ItemPageProps) {
   return (
     <>
       <ItemPageBar
-        category={item.c}
-        subcategory={item.sc?.[0]}
+        categoryLabel={categoryLabel}
+        categoryHref={categorySlug ? `/category/${categorySlug}` : null}
+        subcategoryLabel={item.sc?.[0]}
         browseLabel={t("browseIndex")}
         breadcrumbLabel={t("breadcrumb")}
       />
 
       <main className="idp">
+        {isArchived && (
+          <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+              {archiveT("bannerTitle")}
+            </p>
+            {archivedDate && (
+              <p className="mt-0.5 text-xs text-amber-700/90 dark:text-amber-200/80">
+                {archiveT("bannerDelisted", { date: archivedDate })}
+              </p>
+            )}
+          </div>
+        )}
         <div className="ido-panel idp-panel">
           <div className="ido-grid">
             <div className="ido-left">
@@ -487,6 +554,11 @@ async function ItemContent({ params }: ItemPageProps) {
                         item.uMax !== item.uMin &&
                         ` - ${cSym}${item.uMax.toFixed(2)}`}
                     </span>
+                    {isArchived && item.uMin != null && (
+                      <span className="text-xs font-medium text-muted">
+                        {archiveT("lastKnownPrice")}
+                      </span>
+                    )}
                     {priceHistory.length >= 2 && item.uMin != null && (
                       <PriceChangeBadge
                         history={priceHistory}
@@ -510,7 +582,11 @@ async function ItemContent({ params }: ItemPageProps) {
                         <thead>
                           <tr>
                             <th>{detailT("variants.variant")}</th>
-                            <th>{detailT("variants.price")}</th>
+                            <th>
+                              {isArchived
+                                ? archiveT("lastKnownPrice")
+                                : detailT("variants.price")}
+                            </th>
                             <th>{detailT("variants.unit")}</th>
                           </tr>
                         </thead>
@@ -546,7 +622,9 @@ async function ItemContent({ params }: ItemPageProps) {
                         <div className="ido-ship">
                           <div className="ido-ship__head">
                             <span className="ido-ship__label">
-                              {t("shipping")}
+                              {isArchived
+                                ? archiveT("lastKnownShipping")
+                                : t("shipping")}
                             </span>
                           </div>
                           <div className="ido-ship__chips">
@@ -780,6 +858,15 @@ async function ItemContent({ params }: ItemPageProps) {
                       {t("viewOnLittleBiggy")}
                     </OutboundLink>
                   )}
+                  {isArchived && sellerHref && sellerLabel && (
+                    <Link
+                      href={sellerHref}
+                      prefetch={false}
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-90"
+                    >
+                      {t("moreFromSeller", { seller: sellerLabel })}
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -819,6 +906,16 @@ async function ItemContent({ params }: ItemPageProps) {
               </span>
             </OutboundLink>
           )}
+          {isArchived && sellerHref && sellerLabel && (
+            <Link href={sellerHref} prefetch={false} className="ido-lb-btn">
+              <span className="ido-lb-btn__label">
+                {t("moreFromSeller", { seller: sellerLabel })}
+              </span>
+              <span className="ido-lb-btn__arrow" aria-hidden="true">
+                -&gt;
+              </span>
+            </Link>
+          )}
         </div>
 
         <RelatedItemsSections
@@ -836,13 +933,18 @@ async function ItemContent({ params }: ItemPageProps) {
 }
 
 function ItemPageBar({
-  category,
-  subcategory,
+  categoryLabel,
+  categoryHref,
+  subcategoryLabel,
   browseLabel,
   breadcrumbLabel,
 }: {
-  category?: string | null;
-  subcategory?: string | null;
+  /** Localized category display name (categories.* namespace). */
+  categoryLabel?: string | null;
+  /** Indexable /category/{slug} target; null → plain-text crumb. */
+  categoryHref?: string | null;
+  /** Subcategory crumb — always plain text (?sub= URLs are robots-blocked). */
+  subcategoryLabel?: string | null;
   browseLabel: string;
   breadcrumbLabel: string;
 }) {
@@ -859,29 +961,27 @@ function ItemPageBar({
           </span>
           {browseLabel}
         </Link>
-        {category && (
+        {categoryLabel && (
           <nav
             aria-label={breadcrumbLabel}
             className="flex min-w-0 flex-1 items-center gap-1.5 text-xs text-muted"
           >
             <span className="text-muted-foreground/50">/</span>
-            <Link
-              href={`/browse?cat=${encodeURIComponent(category)}`}
-              prefetch={false}
-              className="shrink-0 transition-colors hover:text-foreground"
-            >
-              {category}
-            </Link>
-            {category && subcategory && (
+            {categoryHref ? (
+              <Link
+                href={categoryHref}
+                prefetch={false}
+                className="shrink-0 transition-colors hover:text-foreground"
+              >
+                {categoryLabel}
+              </Link>
+            ) : (
+              <span className="shrink-0">{categoryLabel}</span>
+            )}
+            {subcategoryLabel && (
               <>
                 <span className="text-muted-foreground/50">/</span>
-                <Link
-                  href={`/browse?cat=${encodeURIComponent(category)}&sub=${encodeURIComponent(subcategory)}`}
-                  prefetch={false}
-                  className="shrink-0 transition-colors hover:text-foreground"
-                >
-                  {subcategory}
-                </Link>
+                <span className="shrink-0">{subcategoryLabel}</span>
               </>
             )}
           </nav>

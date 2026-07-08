@@ -35,14 +35,6 @@
   status = 301
   force = true
 
-# Deliberate 302: real /category/[slug] pages return in Phase 2 and we want
-# Google to keep the source URLs indexed. DELETE when category pages ship.
-[[redirects]]
-  from = "/category/*"
-  to = "/browse"
-  status = 302
-  force = true
-
 # v1 localized item/seller paths
 [[redirects]]
   from = "/produit/*"
@@ -210,9 +202,8 @@
   status = 301
   force = true
 
-# No categories sitemap child yet — retarget when category pages ship
 [[redirects]]
   from = "/sitemap-categories.xml"
-  to = "/sitemap/static.xml"
+  to = "/sitemap/categories.xml"
   status = 301
   force = true

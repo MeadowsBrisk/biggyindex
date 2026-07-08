@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { categoryToSlug } from "@/lib/categories";
 import { CATEGORIES, type Category, MARKETS } from "@/lib/constants";
 import {
   localeToMarket,
@@ -121,10 +122,16 @@ export function HeroSection({
               const label = CATEGORIES.includes(categoryName)
                 ? tCategories(categoryName)
                 : meta.label;
+              // Crawlable landing page when one exists (SEO recovery);
+              // categories without one (Distillate) keep the filter link.
+              const slug = categoryToSlug(cat.name);
+              const href = slug
+                ? `/category/${slug}`
+                : `/browse?cat=${encodeURIComponent(cat.name)}`;
               return (
                 <Link
                   key={cat.name}
-                  href={`/browse?cat=${encodeURIComponent(cat.name)}`}
+                  href={href}
                   prefetch={false}
                   className="group inline-flex max-w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-[var(--surface-hover)] hover:-translate-y-0.5"
                 >

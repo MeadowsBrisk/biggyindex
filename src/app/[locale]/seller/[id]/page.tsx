@@ -30,6 +30,8 @@ interface SellerPageData {
   sellerMarkets: MarketCode[];
 }
 
+type Translator = Awaited<ReturnType<typeof getTranslations>>;
+
 const SELLER_ITEM_LIMIT = 24;
 
 const LOCALE_FOR: Record<MarketCode, string> = {
@@ -223,7 +225,7 @@ async function getSellerPageData(
   };
 }
 
-function sellerDescription(data: SellerPageData): string {
+function sellerDescription(data: SellerPageData, metaT: Translator): string {
   const name = decodeEntities(data.detail.sellerName || data.seller.name);
   const manifesto = data.detail.manifesto
     ? decodeEntities(data.detail.manifesto).replace(/\s+/g, " ").trim()
@@ -232,9 +234,11 @@ function sellerDescription(data: SellerPageData): string {
     ? manifesto.slice(0, 150) + (manifesto.length > 150 ? "..." : "")
     : null;
   const stats = [
-    data.itemTotal > 0 ? `${data.itemTotal} active listings` : null,
+    data.itemTotal > 0
+      ? metaT("activeListings", { count: data.itemTotal })
+      : null,
     data.seller.numberOfReviews != null
-      ? `${data.seller.numberOfReviews} reviews`
+      ? metaT("reviews", { count: data.seller.numberOfReviews })
       : null,
   ].filter(Boolean);
 
@@ -256,11 +260,12 @@ export async function generateMetadata({
   if (!data) notFound();
 
   const t = await getTranslations({ locale, namespace: "seller.detail" });
+  const metaT = await getTranslations({ locale, namespace: "seller.meta" });
 
   const title = t("metadataTitle", {
     seller: decodeEntities(data.detail.sellerName || data.seller.name),
   });
-  const description = sellerDescription(data);
+  const description = sellerDescription(data, metaT);
   const image =
     data.detail.sellerImageUrl ??
     data.detail.imageUrl ??
@@ -300,9 +305,10 @@ async function SellerContent({ params }: SellerPageProps) {
   if (!data) notFound();
 
   const t = await getTranslations({ locale, namespace: "seller.detail" });
+  const metaT = await getTranslations({ locale, namespace: "seller.meta" });
   const name = decodeEntities(data.detail.sellerName || data.seller.name);
   const canonical = sellerUrl(data.market, sellerId);
-  const description = sellerDescription(data);
+  const description = sellerDescription(data, metaT);
   const image =
     data.detail.sellerImageUrl ??
     data.detail.imageUrl ??

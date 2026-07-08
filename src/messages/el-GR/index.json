@@ -12,13 +12,13 @@
   },
   "categories": {
     "all": "Όλα",
-    "Flower": "Λουλούδι",
+    "Flower": "Άνθη",
     "Shake": "Σέικ",
     "Hash": "Χασίς",
     "Concentrates": "Συμπυκνώματα",
     "Distillate": "Απόσταγμα",
-    "Vapes": "Ατμιστές",
-    "PreRolls": "Προ-ρολά",
+    "Vapes": "Vapes",
+    "PreRolls": "Pre-Rolls",
     "Edibles": "Βρώσιμα",
     "Tincture": "Βάμμα",
     "Psychedelics": "Ψυχεδελικά",
@@ -38,7 +38,7 @@
   },
   "header": {
     "basket": {
-      "items": "{count, plural, one {Basket (1 item)} other {Basket (# items)}}"
+      "items": "{count, plural, one {Καλάθι (1 προϊόν)} other {Καλάθι (# προϊόντα)}}"
     },
     "mobileMenu": {
       "open": "Άνοιγμα μενού",
@@ -61,7 +61,8 @@
     "communityCopy": "Ενώστε τη συζήτηση. Μοιραστείτε εμπειρίες, κάντε ερωτήσεις ή ελέγξτε τη φήμη των πωλητών.",
     "privacy": "Απόρρητο",
     "terms": "Όροι",
-    "cookies": "Μπισκότα",
+    "cookies": "Cookies",
+    "categoriesTitle": "Κατηγορίες",
     "copyright": "© {year} Biggy Index. Οι τιμές που εμφανίζονται ενδέχεται να διαφέρουν - ελέγχετε πάντα το κατάστημα για τις πιο πρόσφατες τιμές."
   },
   "home": {
@@ -71,7 +72,7 @@
     "recentlyAdded": "Προστέθηκαν πρόσφατα",
     "recentlyUpdated": "Πρόσφατα ενημερώθηκε",
     "popular": "Δημοφιλές",
-    "topSellers": "Κορυφαία σε πωλήσεις",
+    "topSellers": "Κορυφαίοι πωλητές",
     "communityReviews": "Κριτικές κοινότητας",
     "viewAll": "Προβολή όλων",
     "embassy": {
@@ -118,7 +119,7 @@
       "steps": {
         "bitcoin": {
           "title": "Πάρτε λίγο Bitcoin",
-          "summary": "Πάρτε λίγο Bitcoin για να είστε έτοιμοι να το ελέγξετε.",
+          "summary": "Πάρτε λίγο Bitcoin για να είστε έτοιμοι για την παραγγελία.",
           "intro": "Little Biggy δέχεται μόνο Bitcoin. Θα χρειαστεί να δημιουργήσετε έναν τρόπο για να αγοράσετε μερικά, αν δεν το έχετε κάνει ήδη, ώστε να είστε έτοιμοι να αρχίσετε να παραγγέλνετε αντικείμενα.",
           "easiestWay": {
             "heading": "Ο ευκολότερος τρόπος",
@@ -130,7 +131,7 @@
           },
           "proTip": {
             "label": "Επαγγελματική συμβουλή:",
-            "text": "Αγοράστε μερικές λίρες παραπάνω από όσες χρειάζεστε και στρογγυλοποιήστε προς τα πάνω. Αυτό το επιπλέον buffer καλύπτει τα τέλη δικτύου ή τη μεταβλητότητα των κρυπτονομισμάτων."
+            "text": "Αγοράστε μερικά ευρώ παραπάνω από όσα χρειάζεστε και στρογγυλοποιήστε προς τα πάνω. Αυτό το επιπλέον buffer καλύπτει τα τέλη δικτύου ή τη μεταβλητότητα των κρυπτονομισμάτων."
           },
           "peerToPeer": {
             "label": "Θέλετε να παραλείψετε την ανταλλαγή;",
@@ -154,12 +155,12 @@
           "title": "Ολοκλήρωση αγοράς και αποστολή του Bitcoin σας",
           "summary": "Αντιγράψτε τα στοιχεία και, στη συνέχεια, στείλτε την πληρωμή από το τηλέφωνο ή τον φορητό υπολογιστή σας.",
           "intro": "Στο ταμείο, Little Biggy εμφανίζει μια ιδιωτική σελίδα παραγγελιών με όλα όσα χρειάζεστε για να πληρώσετε με ασφάλεια, είτε βρίσκεστε σε μία συσκευή είτε κάνετε εναλλαγή μεταξύ τηλεφώνου και επιτραπέζιου υπολογιστή.",
-          "copyHeading": "Αντιγράψτε τα δύο στοιχεία δανεισμού",
+          "copyHeading": "Αντιγράψτε τα δύο στοιχεία πληρωμής",
           "amountLabel": "Το ακριβές ποσό BTC:",
           "amountBefore": "Μοιάζει με",
           "amountAfter": "Αντιγράψτε το ακριβώς για να μην πληρώσετε λιγότερο.",
           "addressLabel": "Η διεύθυνση Bitcoin:",
-          "addressBefore": "μια μακριά χορδή όπως",
+          "addressBefore": "μια μακριά σειρά χαρακτήρων όπως",
           "addressAfter": "Σκεφτείτε το ως τον αριθμό λογαριασμού για αυτήν την παραγγελία.",
           "sendHeading": "Αποστολή της πληρωμής",
           "sendSteps": {
@@ -175,19 +176,19 @@
           "intro": "Το Bitcoin σας πηγαίνει στο Transaxe, το ενσωματωμένο σύστημα μεσεγγύησης της Little Biggy. Ο πωλητής μπορεί να δει ότι η πληρωμή έχει φτάσει, αλλά τα χρήματα φυλάσσονται με ασφάλεια.",
           "release": "Τα χρήματα αποδεσμεύονται στον πωλητή μόνο όταν κλείσει το παράθυρο διαφωνίας. Αυτό σας προστατεύει ως αγοραστή - εάν κάτι πάει στραβά, μπορείτε να ανοίξετε μια διαφωνία πριν λήξει το παράθυρο.",
           "peaceHeading": "Ξεγνοιασιά",
-          "peaceText": "Μεσεγγύηση σημαίνει ότι ο πωλητής δεν αγγίζει ποτέ τα χρήματά σας μέχρι να αποσταλεί και να παραληφθεί το αντικείμενο. Είναι η προστασία που Little Biggy κρατά ειλικρινείς."
+          "peaceText": "Μεσεγγύηση σημαίνει ότι ο πωλητής δεν αγγίζει ποτέ τα χρήματά σας μέχρι να αποσταλεί και να παραληφθεί το αντικείμενο. Είναι η προστασία που κρατά το Little Biggy ειλικρινές."
         },
         "delivery": {
-          "title": "Περιμένετε τον Postie",
+          "title": "Περιμένετε τον ταχυδρόμο",
           "summary": "Χαλαρώστε ενώ φτάνει προς εσάς.",
-          "intro": "Οι πωλητές συνήθως επισημαίνουν την παραγγελία σας ως αποστολή εντός μίας εργάσιμης ημέρας. Οι χρόνοι παράδοσης εξαρτώνται από τον πωλητή και την τοποθεσία σας, αλλά οι περισσότερες παραγγελίες στο Ηνωμένο Βασίλειο φτάνουν εντός λίγων ημερών.",
+          "intro": "Οι πωλητές συνήθως επισημαίνουν την παραγγελία σας ως αποστολή εντός μίας εργάσιμης ημέρας. Οι χρόνοι παράδοσης εξαρτώνται από τον πωλητή και την τοποθεσία σας, αλλά οι περισσότερες παραγγελίες φτάνουν εντός λίγων ημερών.",
           "late": "Εάν η παραγγελία σας καθυστερήσει, επικοινωνήστε πρώτα με τον πωλητή μέσω Little Biggy - τα περισσότερα ζητήματα επιλύονται γρήγορα. Ανοίξτε μια διαφωνία μόνο ως έσχατη λύση."
         }
       }
     },
     "faq": {
       "eyebrow": "Συχνές ερωτήσεις",
-      "heading": "Συχνές ερωτήσεις για επισκέπτες για πρώτη φορά",
+      "heading": "Συχνές ερωτήσεις για νέους επισκέπτες",
       "tabs": {
         "about": "Σχετικά με Biggy Index",
         "bitcoin": "Little Biggy & Bitcoin"
@@ -195,8 +196,8 @@
       "about": {
         "items": {
           "whatIs": {
-            "q": "Ποια είναι η Biggy Index;",
-            "a": "Το Biggy Index παρέχει έναν ευκολότερο τρόπο περιήγησης στην αγορά Little Biggy, με κατηγοριοποίηση αντικειμένων, πρόσθετες επιλογές ταξινόμησης και άλλα εύχρηστα εργαλεία προσαρμοσμένα για τους αγοραστές του Ηνωμένου Βασιλείου."
+            "q": "Τι είναι το Biggy Index;",
+            "a": "Το Biggy Index παρέχει έναν ευκολότερο τρόπο περιήγησης στην αγορά Little Biggy, με κατηγοριοποίηση αντικειμένων, πρόσθετες επιλογές ταξινόμησης και άλλα εύχρηστα εργαλεία προσαρμοσμένα για αγοραστές στην Ελλάδα."
           },
           "sellOrShip": {
             "q": "Πουλάτε ή αποστέλλετε αντικείμενα;",
@@ -227,12 +228,12 @@
             "a": "Μόνο Bitcoin - χωρίς κάρτες, τραπεζικά εμβάσματα ή άλλα κρυπτονομίσματα."
           },
           "buying": {
-            "q": "Πώς μπορώ να αγοράσω Bitcoin στο Ηνωμένο Βασίλειο;",
-            "a": "Οι περισσότεροι αγοραστές χρησιμοποιούν Revolut, Monzo, Kraken ή Coinbase. Συμπληρώστε σε λίρες, αγοράστε το ποσό BTC που εμφανίζεται στο ταμείο και επιτρέψτε μερικές λίρες για χρεώσεις δικτύου ή ανταλλαγής."
+            "q": "Πώς μπορώ να αγοράσω Bitcoin στην Ελλάδα;",
+            "a": "Οι περισσότεροι αγοραστές χρησιμοποιούν Revolut, Monzo, Kraken ή Coinbase. Φορτώστε σε ευρώ, αγοράστε το ποσό BTC που εμφανίζεται στο ταμείο και αφήστε μερικά ευρώ για χρεώσεις δικτύου ή ανταλλαγής."
           },
           "wallet": {
             "q": "Χρειάζομαι πρώτα το δικό μου πορτοφόλι;",
-            "a": "Μπορείτε να πληρώσετε απευθείας από το ανταλλακτήριο, αλλά πολλοί άνθρωποι μεταφέρουν BTC σε ένα ιδιωτικό πορτοφόλι όπως το Cake Wallet ή το Trust Wallet για επιπλέον προστασία της ιδιωτικής ζωής. Τα ανταλλακτήρια του Ηνωμένου Βασιλείου πρέπει να ρωτούν πού στέλνετε νομίσματα - έτσι ορισμένοι αγοραστές προτιμούν τη δρομολόγηση μέσω ενός προσωπικού πορτοφολιού."
+            "a": "Μπορείτε να πληρώσετε απευθείας από το ανταλλακτήριο, αλλά πολλοί άνθρωποι μεταφέρουν BTC σε ένα ιδιωτικό πορτοφόλι όπως το Cake Wallet ή το Trust Wallet για επιπλέον προστασία της ιδιωτικής ζωής. Τα ανταλλακτήρια πρέπει να ρωτούν πού στέλνετε νομίσματα - έτσι ορισμένοι αγοραστές προτιμούν τη δρομολόγηση μέσω ενός προσωπικού πορτοφολιού."
           },
           "escrow": {
             "q": "Πώς με προστατεύει η μεσεγγύηση Transaxe;",
@@ -247,7 +248,7 @@
             "a": "Ο ανταγωνισμός σε Little Biggy διατηρεί την ποιότητα υψηλή και τις τιμές δίκαιες. Οι μεταπωλητές Clearnet συχνά χρεώνουν μεγάλες προσαυξήσεις ή αποστέλλουν αμφισβητήσιμα αποθέματα."
           },
           "legality": {
-            "q": "Τι γίνεται με τη νομιμότητα του Ηνωμένου Βασιλείου;",
+            "q": "Τι ισχύει με τη νομιμότητα στην Ελλάδα;",
             "a": "Οι νόμοι για την κάνναβη εξακολουθούν να ισχύουν. Είστε υπεύθυνοι για την τήρηση των τοπικών κανονισμών και την επαλήθευση κάθε λεπτομέρειας σχετικά με Little Biggy."
           }
         }
@@ -266,7 +267,7 @@
       "scrollRight": "Κύλιση προς τα δεξιά",
       "priceUnavailable": "Δ/Υ",
       "unknownSeller": "Άγνωστος πωλητής",
-      "viewSeller": "Προβολή {seller} πωλητή",
+      "viewSeller": "Προβολή πωλητή {seller}",
       "alternateImageAlt": "{item} εναλλακτικό",
       "time": {
         "justNow": "Μόλις τώρα",
@@ -380,7 +381,7 @@
     "allCategories": "Όλες οι Κατηγορίες",
     "noResults": "Κανένα προϊόν δεν ταιριάζει με τα φίλτρα σας",
     "clearFilters": "Καθαρισμός φίλτρων",
-    "itemCount": "{count, plural, =0 {No products} one {1 product} other {# products}}",
+    "itemCount": "{count, plural, =0 {Κανένα προϊόν} one {1 προϊόν} other {# προϊόντα}}",
     "sortBy": "Ταξινόμηση ανά",
     "search": "Αναζήτηση προϊόντων...",
     "noItemsFound": "Δεν βρέθηκαν αντικείμενα",
@@ -392,7 +393,7 @@
       "priceRange": "Εύρος τιμών",
       "bookmarksShowAll": "Εμφάνιση όλων των στοιχείων",
       "bookmarksOnly": "Εμφάνιση μόνο με σελιδοδείκτη",
-      "itemsLabel": "{count, plural, one {item} other {items}}",
+      "itemsLabel": "{count, plural, one {προϊόν} other {προϊόντα}}",
       "ofLabel": "από",
       "sellersLabel": "{count, plural, one {πωλητής} other {πωλητές}}",
       "saved": "Αποθηκευμένα",
@@ -413,9 +414,9 @@
       "sort": {
         "hottest": "Ζεστό",
         "newest": "Νεότερο",
-        "updated": "ΕΠΙΚΑΙΡΟΠΟΙΗΜΕΝΟ",
+        "updated": "Ενημερώθηκε",
         "price": "Τιμή",
-        "pricePerGram": "£/g",
+        "pricePerGram": "€/g",
         "shuffle": "Ανακάτεμα",
         "shuffleAgain": "Ανακάτεμα ξανά",
         "aria": "Ταξινόμηση ανά",
@@ -424,15 +425,15 @@
       }
     },
     "activeBar": {
-      "search": "Search",
-      "category": "Category",
-      "subcategory": "Subcategory",
-      "subcategoryNot": "Excluding",
-      "sellers": "Sellers",
-      "shipFrom": "From",
-      "shipNot": "Not from",
-      "weight": "Weight",
-      "price": "Price"
+      "search": "Αναζήτηση",
+      "category": "Κατηγορία",
+      "subcategory": "Υποκατηγορία",
+      "subcategoryNot": "Εξαιρείται",
+      "sellers": "Πωλητές",
+      "shipFrom": "Από",
+      "shipNot": "Όχι από",
+      "weight": "Βάρος",
+      "price": "Τιμή"
     },
     "filters": {
       "toggle": "Εναλλαγή φίλτρων",
@@ -473,7 +474,7 @@
       "subcategoryExcludeHint": "Κλικ: συμπερίληψη. Δεξί κλικ: εξαίρεση",
       "subcategoryExcludeRemove": "Δεξί κλικ για αφαίρεση της εξαίρεσης",
       "searchSellers": "Αναζήτηση πωλητών...",
-      "sellerSortAlpha": "Ταξινόμηση Α-Ω - κάντε κλικ πρώτα για τα περισσότερα στοιχεία",
+      "sellerSortAlpha": "Ταξινόμηση Α-Ω - κάντε κλικ για ταξινόμηση κατά αριθμό αντικειμένων",
       "sellerSortCount": "Ταξινόμηση κατά αριθμό αντικειμένων - κάντε κλικ για Α-Ω",
       "removeSeller": "Αφαιρέστε {seller}",
       "selectSeller": "Επιλέξτε {seller}",
@@ -484,7 +485,7 @@
       "noSellersAvailable": "Δεν υπάρχουν διαθέσιμοι πωλητές",
       "showLess": "Εμφάνιση λιγότερων",
       "showAll": "Εμφάνιση όλων {count}",
-      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
+      "hiddenSellers": "{count, plural, one {1 πωλητής κρυμμένος - διαχείριση στις ρυθμίσεις} other {# πωλητές κρυμμένοι - διαχείριση στις ρυθμίσεις}}"
     },
     "priceRange": {
       "title": "Τιμή",
@@ -503,9 +504,9 @@
       "viewOnLittleBiggy": "Δείτε {item} στο LittleBiggy",
       "onlineToday": "Online σήμερα",
       "freeShipping": "Δωρεάν αποστολή",
-      "endorsed": "{count, plural, one {1 endorsed} other {# endorsed}}",
-      "shipsFrom": "Πλοία από",
-      "shipsFromAria": "Πλοία από {country}",
+      "endorsed": "{count, plural, one {1 σύσταση} other {# συστάσεις}}",
+      "shipsFrom": "Αποστολή από",
+      "shipsFromAria": "Αποστολή από {country}",
       "deliveryDays": "~ {count}d παράδοση",
       "showAllSellers": "Εμφάνιση όλων των πωλητών",
       "onlySeller": "Μόνο {seller}",
@@ -514,8 +515,8 @@
       "hideSeller": "Απόκρυψη {seller}",
       "hide": "Απόκρυψη",
       "updated": "Ενημερώθηκε {time}",
-      "listed": "Αναφέρονται {time}",
-      "listedUnknown": "Εισηγμένες -",
+      "listed": "Καταχωρήθηκε {time}",
+      "listedUnknown": "Καταχωρήθηκε -",
       "time": {
         "minutesAgo": "{count}m πριν",
         "hoursAgo": "{count}h πριν",
@@ -534,8 +535,8 @@
   "item": {
     "from": "από",
     "perGram": "/γ",
-    "variants": "{count, plural, one {1 variant} other {# variants}}",
-    "reviews": "{count, plural, one {1 review} other {# reviews}}",
+    "variants": "{count, plural, one {1 παραλλαγή} other {# παραλλαγές}}",
+    "reviews": "{count, plural, one {1 κριτική} other {# κριτικές}}",
     "noReviews": "Δεν υπάρχουν ακόμη κριτικές",
     "shipping": "Αποστολή",
     "freeShipping": "Δωρεάν αποστολή",
@@ -582,10 +583,10 @@
         "unit": "μονάδα"
       },
       "meta": {
-        "rating": "Εκτίμηση",
+        "rating": "Βαθμολογία",
         "avgDelivery": "Μέση παράδοση",
-        "listed": "Εισηγμένες",
-        "updated": "ΕΠΙΚΑΙΡΟΠΟΙΗΜΕΝΟ"
+        "listed": "Καταχωρήθηκε",
+        "updated": "Ενημερώθηκε"
       },
       "description": {
         "heading": "Περιγραφή",
@@ -632,15 +633,15 @@
     },
     "page": {
       "browseIndex": "Περιηγηθείτε στο ευρετήριο",
-      "breadcrumb": "Τριμμένη φρυγανιά",
+      "breadcrumb": "Διαδρομή πλοήγησης",
       "notFoundTitle": "Το προϊόν δεν βρέθηκε",
       "notFoundDescription": "Το στοιχείο \"{ref}\" δεν υπάρχει ή έχει αφαιρεθεί.",
       "backToIndex": "Επιστροφή στο ευρετήριο",
       "imageAlt": "{item} εικόνα {index}",
       "by": "από τον",
-      "shipsFrom": "Πλοία από {country}",
+      "shipsFrom": "Αποστολή από {country}",
       "unavailable": "Δ/Υ",
-      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "reviewsCount": "{count, plural, one {1 κριτική} other {# κριτικές}}",
       "deliveryShort": "~ {count}d παράδοση",
       "avgDelivery": "{days} ημέρες μέση παράδοση",
       "attributes": "Χαρακτηριστικά",
@@ -656,6 +657,25 @@
       "moreFromSeller": "Περισσότερα από {seller}",
       "relatedInCategory": "Περισσότερα {category} στο Little Biggy"
     },
+    "meta": {
+      "title": "{name} από {seller} | BiggyIndex",
+      "titleNoSeller": "{name} | BiggyIndex",
+      "titleArchived": "{name} από {seller} {suffix} | BiggyIndex",
+      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "soldBy": "Πωλείται από {seller} στο Little Biggy.",
+      "browseFallback": "Δείτε {name} από {seller} στο Little Biggy.",
+      "browseFallbackNoSeller": "Δείτε {name} στο Little Biggy.",
+      "categoryFact": "Καταχώριση {category}",
+      "reviewsFact": "{count, plural, one {1 κριτική} other {# κριτικές}}",
+      "ratingFact": "Βαθμολογία {rating}/10"
+    },
+    "archive": {
+      "bannerTitle": "Δεν διατίθεται πλέον στο Little Biggy",
+      "bannerDelisted": "Αποσύρθηκε στις {date}",
+      "titleSuffix": "(δεν διατίθεται πλέον)",
+      "lastKnownPrice": "Τελευταία γνωστή τιμή",
+      "lastKnownShipping": "Τελευταία γνωστά μεταφορικά"
+    },
     "legacyModal": {
       "close": "Κλείσιμο",
       "itemNotFound": "Το αντικείμενο δεν βρέθηκε.",
@@ -663,7 +683,7 @@
       "unavailable": "Δ/Υ",
       "variants": "Παραλλαγές",
       "attributes": "Χαρακτηριστικά",
-      "reviewsCount": "{count, plural, one {1 review} other {# reviews}}",
+      "reviewsCount": "{count, plural, one {1 κριτική} other {# κριτικές}}",
       "avgDelivery": "{days} ημέρες μέση παράδοση",
       "shipping": "Αποστολή",
       "freeAvailable": "Δωρεάν διαθέσιμο",
@@ -674,25 +694,29 @@
     }
   },
   "seller": {
-    "products": "{count, plural, one {1 product} other {# products}}",
-    "rating": "Εκτίμηση",
+    "products": "{count, plural, one {1 προϊόν} other {# προϊόντα}}",
+    "rating": "Βαθμολογία",
     "visitStore": "Επισκεφθείτε το κατάστημα",
+    "meta": {
+      "activeListings": "{count, plural, one {1 ενεργή καταχώριση} other {# ενεργές καταχωρίσεις}}",
+      "reviews": "{count, plural, one {1 κριτική} other {# κριτικές}}"
+    },
     "page": {
       "metadataTitle": "Πωλητές Little Biggy | BiggyIndex",
       "metadataDescription": "Όλοι οι πωλητές του Little Biggy με βαθμολογίες εμπιστοσύνης, αριθμό κριτικών και αξιολογήσεις κοινότητας.",
       "title": "Πωλητές Little Biggy",
-      "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
+      "activeSellers": "{count, plural, one {1 ενεργός πωλητής στο Little Biggy} other {# ενεργοί πωλητές στο Little Biggy}}",
       "leaderboard": {
         "title": "Πίνακας κατάταξης εμπιστοσύνης",
-        "allTime": "Ολη την ώρα",
+        "allTime": "Συνολικά",
         "thisWeek": "Αυτή την εβδομάδα",
         "topRated": "Κορυφαία βαθμολογία",
         "topRatedSubtitle": "Υψηλότερη αναλογία θετικών κριτικών",
         "useCaution": "Χρειάζεται έλεγχο",
         "useCautionSubtitle": "Υψηλότερο ποσοστό αρνητικών κριτικών",
         "reviews": "Κριτικές",
-        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
-        "negativeCount": "{count, plural, one {1 negative} other {# negative}}"
+        "reviewCount": "{count, plural, one {1 κριτική} other {# κριτικές}}",
+        "negativeCount": "{count, plural, one {1 αρνητική} other {# αρνητικές}}"
       },
       "allSellers": "Όλοι οι πωλητές",
       "search": "Αναζήτηση...",
@@ -703,7 +727,7 @@
         "positive": "Θετικό",
         "negatives": "Αρνήσεις",
         "perfect": "10/10",
-        "rating": "Εκτίμηση",
+        "rating": "Βαθμολογία",
         "days": "Ημέρες",
         "items": "Αντικείμενα",
         "totalTitle": "Συνολικές κριτικές που αναφέρθηκαν από Little Biggy",
@@ -713,33 +737,33 @@
     },
     "detail": {
       "metadataTitle": "{seller} | BiggyIndex",
-      "notFoundTitle": "Seller not found | BiggyIndex",
-      "backToSellers": "Sellers",
-      "breadcrumb": "Seller page",
-      "currentListings": "Current listings",
-      "listingCount": "{count, plural, =0 {No active listings in this market} one {1 active listing in this market} other {# active listings in this market}}",
-      "viewAllListings": "View all listings",
-      "noListings": "No current listings for this seller in this market.",
-      "openItem": "Open {item}"
+      "notFoundTitle": "Ο πωλητής δεν βρέθηκε | BiggyIndex",
+      "backToSellers": "Πωλητές",
+      "breadcrumb": "Σελίδα πωλητή",
+      "currentListings": "Τρέχουσες καταχωρίσεις",
+      "listingCount": "{count, plural, =0 {Καμία ενεργή καταχώριση σε αυτήν την αγορά} one {1 ενεργή καταχώριση σε αυτήν την αγορά} other {# ενεργές καταχωρίσεις σε αυτήν την αγορά}}",
+      "viewAllListings": "Δείτε όλες τις καταχωρίσεις",
+      "noListings": "Δεν υπάρχουν τρέχουσες καταχωρίσεις αυτού του πωλητή σε αυτήν την αγορά.",
+      "openItem": "Άνοιγμα {item}"
     },
     "modal": {
       "fallbackName": "Πωλητής",
       "close": "Κλείσιμο",
-      "zoomProfileImage": "Εικόνα προφίλ του Zoom {seller}",
+      "zoomProfileImage": "Μεγέθυνση εικόνας προφίλ του {seller}",
       "onlineToday": "Online σήμερα",
       "lastSeen": "Εθεάθη τελευταία φορά {time}",
       "joined": "Έγινε μέλος {date}",
-      "itemCount": "{count, plural, one {1 item} other {# items}}",
-      "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+      "itemCount": "{count, plural, one {1 προϊόν} other {# προϊόντα}}",
+      "reviewCount": "{count, plural, one {1 κριτική} other {# κριτικές}}",
       "deliveryShort": "~ {days}d παράδοση",
       "about": "Σχετικά με",
       "noDescription": "Δεν υπάρχει διαθέσιμη περιγραφή",
       "feedback": {
-        "summaryHeading": "Community feedback",
-        "endorsementCount": "{count, plural, one {1 community endorsement} other {# community endorsements}}",
-        "reportCount": "{count, plural, one {1 reviewed report} other {# reviewed reports}}",
-        "reviewedNote": "Moderator-reviewed report",
-        "similarReports": "{count, plural, one {1 similar report} other {# similar reports}}",
+        "summaryHeading": "Σχόλια της κοινότητας",
+        "endorsementCount": "{count, plural, one {1 σύσταση της κοινότητας} other {# συστάσεις της κοινότητας}}",
+        "reportCount": "{count, plural, one {1 ελεγμένη αναφορά} other {# ελεγμένες αναφορές}}",
+        "reviewedNote": "Αναφορά ελεγμένη από συντονιστή",
+        "similarReports": "{count, plural, one {1 παρόμοια αναφορά} other {# παρόμοιες αναφορές}}",
         "endpointMissing": "Το τελικό σημείο σχολίων δεν έχει ρυθμιστεί.",
         "hourlyLimit": "Έχετε συμπληρώσει το ωριαίο όριο (20 ανά ώρα). Δοκιμάστε ξανά αργότερα.",
         "duplicateThanks": "Ευχαριστώ - η ψήφος σας προστέθηκε σε μια υπάρχουσα έκθεση.",
@@ -748,7 +772,7 @@
         "endorsed": "Εγκρίθηκε",
         "submitting": "Υποβολή...",
         "endorseSeller": "Εγκρίνετε τον πωλητή",
-        "reported": "Εχουν αναφερθεί",
+        "reported": "Αναφέρθηκε",
         "reportSeller": "Αναφορά πωλητή",
         "reasonOptional": "Αιτιολογία (προαιρετικό)",
         "reasonPlaceholder": "Τι παρατηρήσατε; (απάτη, ψεύτικες κριτικές, πρόβλημα αποστολής...)",
@@ -763,10 +787,10 @@
         "avgDelivery": "~{days}d Μέση παράδοση",
         "removeFilter": "Αφαιρέστε το φίλτρο",
         "filter": "Φίλτρο",
-        "removeLowRatingFilterTitle": "Remove low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
-        "applyLowRatingFilterTitle": "Apply low-rating filter (≤ 5/10) - {count, plural, one {1 review} other {# reviews}}",
-        "lowRating": "{count, plural, one {1 low rating} other {# low ratings}}",
-        "ratingFilterTitle": "{action}: {count, plural, one {1 review} other {# reviews}} rated {rating}/10",
+        "removeLowRatingFilterTitle": "Αφαίρεση φίλτρου χαμηλής βαθμολογίας (≤ 5/10) - {count, plural, one {1 κριτική} other {# κριτικές}}",
+        "applyLowRatingFilterTitle": "Εφαρμογή φίλτρου χαμηλής βαθμολογίας (≤ 5/10) - {count, plural, one {1 κριτική} other {# κριτικές}}",
+        "lowRating": "{count, plural, one {1 χαμηλή βαθμολογία} other {# χαμηλές βαθμολογίες}}",
+        "ratingFilterTitle": "{action}: {count, plural, one {1 κριτική} other {# κριτικές}} με βαθμολογία {rating}/10",
         "noReviewsYet": "Δεν υπάρχουν ακόμη κριτικές",
         "lowRated": "χαμηλής βαθμολογίας",
         "noFilteredReviews": "Δεν υπάρχουν {filter} κριτικές",
@@ -786,7 +810,7 @@
       "metadataTitle": "Κριτικές Little Biggy | BiggyIndex",
       "metadataDescription": "Οι τελευταίες κριτικές Little Biggy από αγοραστές, με φωτογραφίες, αξιολογήσεις και χρόνους παράδοσης.",
       "title": "Κριτικές Little Biggy",
-      "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
+      "subtitle": "{count, plural, one {1 πρόσφατη κριτική από αγοραστές του Little Biggy} other {# πρόσφατες κριτικές από αγοραστές του Little Biggy}}",
       "filters": {
         "all": "Όλα",
         "withPhotos": "Με φωτογραφίες",
@@ -802,7 +826,7 @@
         "sameDay": "αυθημερόν",
         "oneDay": "1 ημέρα",
         "days": "{count} ημέρες",
-        "reviewPhoto": "Ανασκόπηση φωτογραφιών {index}"
+        "reviewPhoto": "Φωτογραφία κριτικής {index}"
       },
       "error": {
         "title": "Αποτυχία φόρτωσης κριτικών",
@@ -817,11 +841,11 @@
         "daysAgo": "{count}d πριν",
         "monthsAgo": "{count}mo πριν"
       },
-      "imageAlt": "Ελέγξτε την εικόνα {index}",
+      "imageAlt": "Εικόνα κριτικής {index}",
       "stats": {
         "average": "{rating}/10 μ.ο.",
         "recentTotal": "{recent} πρόσφατα ({total} σύνολο)",
-        "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
+        "reviewCount": "{count, plural, one {1 κριτική} other {# κριτικές}}",
         "avgDelivery": "~{days}d Μέση παράδοση"
       }
     }
@@ -882,7 +906,7 @@
     "clearAll": "Καθαρισμός όλων",
     "close": "Κλείσιμο καλαθιού",
     "empty": "Το καλάθι σας είναι άδειο.",
-    "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+    "sellerItemCount": "{count, plural, one {1 προϊόν} other {# προϊόντα}}",
     "shipping": "Αποστολή",
     "noShipping": "Χωρίς αποστολή",
     "viewOnLittleBiggy": "Δείτε {item} στο LittleBiggy",
@@ -900,7 +924,7 @@
   },
   "settings": {
     "theme": {
-      "switchToLight": "Μετάβαση σε λειτουργία φωτισμού",
+      "switchToLight": "Μετάβαση σε φωτεινή λειτουργία",
       "switchToDark": "Μετάβαση σε σκοτεινή λειτουργία"
     },
     "modal": {
@@ -917,7 +941,7 @@
       "thumbnailShape": "Σχήμα μικρογραφίας",
       "thumbnailDescription": "Αλλάξτε την αναλογία περικοπής των εικόνων προϊόντων στις κάρτες.",
       "aspect": {
-        "square": "τετράγωνο",
+        "square": "Τετράγωνο",
         "fourThree": "4:3",
         "threeTwo": "3:2"
       },
@@ -928,14 +952,14 @@
         "haze": "Ομίχλη",
         "sunset": "Ηλιοβασίλεμα",
         "cherry": "Κεράσι",
-        "custom": "Εθιμο",
+        "custom": "Προσαρμοσμένο",
         "customValue": "Προσαρμοσμένο {value}",
         "default": "Προεπιλογή"
       },
       "hiddenSellers": "Κρυφοί πωλητές",
       "hiddenDescription": "Τα στοιχεία από κρυφούς πωλητές δεν θα εμφανίζονται πουθενά. Αυτό παραμένει σε όλες τις περιόδους σύνδεσης και δεν διαγράφεται από την επιλογή \"Διαγραφή φίλτρων\".",
       "searchSellers": "Αναζήτηση πωλητών για απόκρυψη...",
-      "sellerItemCount": "{count, plural, one {1 item} other {# items}}",
+      "sellerItemCount": "{count, plural, one {1 προϊόν} other {# προϊόντα}}",
       "unhideSeller": "Κάντε κλικ για επανεμφάνιση {seller}",
       "noSellersHidden": "Δεν κρύβονται πωλητές"
     }
@@ -973,91 +997,117 @@
   },
   "legal": {
     "privacy": {
-      "metadataTitle": "Privacy Policy | BiggyIndex",
-      "metadataDescription": "How BiggyIndex handles data — no accounts, no analytics, no tracking, and only functional cookies.",
-      "title": "Privacy Policy",
-      "updated": "Last updated July 2026",
-      "intro": "BiggyIndex is an independent, read-only index of publicly available Little Biggy listings. The site is deliberately simple, and that extends to privacy — there is very little data we could collect, and we choose not to collect more.",
+      "metadataTitle": "Πολιτική Απορρήτου | BiggyIndex",
+      "metadataDescription": "Πώς διαχειρίζεται τα δεδομένα το BiggyIndex — χωρίς λογαριασμούς, χωρίς analytics, χωρίς παρακολούθηση και μόνο λειτουργικά cookies.",
+      "title": "Πολιτική Απορρήτου",
+      "updated": "Τελευταία ενημέρωση: Ιούλιος 2026",
+      "intro": "Το BiggyIndex είναι ένα ανεξάρτητο ευρετήριο μόνο για ανάγνωση των δημόσια διαθέσιμων καταχωρίσεων του Little Biggy. Ο ιστότοπος είναι σκόπιμα απλός, και αυτό ισχύει και για το απόρρητο — υπάρχουν ελάχιστα δεδομένα που θα μπορούσαμε να συλλέξουμε, και επιλέγουμε να μη συλλέγουμε περισσότερα.",
       "sections": {
         "noAccounts": {
-          "heading": "No accounts, no purchases",
-          "body": "You cannot create an account, log in, or buy anything on BiggyIndex. We never ask for your name, email address, payment details, or delivery address. Any purchase happens on Little Biggy, under Little Biggy's own terms and privacy practices — nothing about it passes through us."
+          "heading": "Χωρίς λογαριασμούς, χωρίς αγορές",
+          "body": "Δεν μπορείτε να δημιουργήσετε λογαριασμό, να συνδεθείτε ή να αγοράσετε κάτι στο BiggyIndex. Δεν ζητάμε ποτέ το όνομά σας, το email σας, στοιχεία πληρωμής ή διεύθυνση παράδοσης. Κάθε αγορά γίνεται στο Little Biggy, με τους δικούς του όρους και πρακτικές απορρήτου — τίποτα από αυτά δεν περνά από εμάς."
         },
         "noTracking": {
-          "heading": "No analytics or tracking",
-          "body": "We do not run analytics or advertising scripts, and we do not use tracking pixels or fingerprinting. We do not build visitor profiles, and we have no personal data to sell or share with anyone."
+          "heading": "Χωρίς analytics ή παρακολούθηση",
+          "body": "Δεν χρησιμοποιούμε σενάρια analytics ή διαφημίσεων, ούτε pixels παρακολούθησης ή fingerprinting. Δεν δημιουργούμε προφίλ επισκεπτών και δεν έχουμε προσωπικά δεδομένα να πουλήσουμε ή να μοιραστούμε με κανέναν."
         },
         "functionalStorage": {
-          "heading": "Functional cookies and local storage",
-          "body": "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for display preferences such as dark mode. None of it identifies you. See the Cookie Policy for the full list."
+          "heading": "Λειτουργικά cookies και τοπική αποθήκευση",
+          "body": "Ο ιστότοπος χρησιμοποιεί μόνο ελάχιστη λειτουργική αποθήκευση — ένα cookie που θυμάται τη γλώσσα και την αγορά σας, και την τοπική αποθήκευση του προγράμματος περιήγησης για προτιμήσεις εμφάνισης όπως η σκοτεινή λειτουργία. Τίποτα από αυτά δεν σας ταυτοποιεί. Δείτε την Πολιτική Cookies για την πλήρη λίστα."
         },
         "listingData": {
-          "heading": "Where our data comes from",
-          "body": "Everything shown on BiggyIndex — items, sellers, prices, reviews — is sourced from publicly available Little Biggy listings. We hold no data about Little Biggy buyers."
+          "heading": "Από πού προέρχονται τα δεδομένα μας",
+          "body": "Ό,τι εμφανίζεται στο BiggyIndex — προϊόντα, πωλητές, τιμές, κριτικές — προέρχεται από δημόσια διαθέσιμες καταχωρίσεις του Little Biggy. Δεν διατηρούμε κανένα δεδομένο για τους αγοραστές του Little Biggy."
         },
         "contact": {
-          "heading": "Contact",
-          "body": "If you have a question, or want something corrected or removed, contact us via the suggestion feature on any item page."
+          "heading": "Επικοινωνία",
+          "body": "Αν έχετε απορία ή θέλετε να διορθωθεί ή να αφαιρεθεί κάτι, επικοινωνήστε μαζί μας μέσω της λειτουργίας προτάσεων σε οποιαδήποτε σελίδα προϊόντος."
         }
       }
     },
     "terms": {
-      "metadataTitle": "Terms of Use | BiggyIndex",
-      "metadataDescription": "The terms that apply when you browse BiggyIndex, an independent informational index of Little Biggy listings.",
-      "title": "Terms of Use",
-      "updated": "Last updated July 2026",
-      "intro": "By using BiggyIndex you agree to these terms. They are short because the site is simple — we index listings and display them, nothing more.",
+      "metadataTitle": "Όροι Χρήσης | BiggyIndex",
+      "metadataDescription": "Οι όροι που ισχύουν όταν περιηγείστε στο BiggyIndex, ένα ανεξάρτητο ενημερωτικό ευρετήριο καταχωρίσεων του Little Biggy.",
+      "title": "Όροι Χρήσης",
+      "updated": "Τελευταία ενημέρωση: Ιούλιος 2026",
+      "intro": "Χρησιμοποιώντας το BiggyIndex αποδέχεστε αυτούς τους όρους. Είναι σύντομοι επειδή ο ιστότοπος είναι απλός — ευρετηριάζουμε καταχωρίσεις και τις εμφανίζουμε, τίποτα περισσότερο.",
       "sections": {
         "whatWeAre": {
-          "heading": "What BiggyIndex is",
-          "body": "BiggyIndex is an informational index. We collect publicly available Little Biggy listings and present them with search, filtering, and sorting so they are easier to browse. Nothing is bought or sold on this site, and no age-restricted sales take place here — there is no checkout, no payment, and no fulfilment of any kind."
+          "heading": "Τι είναι το BiggyIndex",
+          "body": "Το BiggyIndex είναι ένα ενημερωτικό ευρετήριο. Συλλέγουμε δημόσια διαθέσιμες καταχωρίσεις του Little Biggy και τις παρουσιάζουμε με αναζήτηση, φίλτρα και ταξινόμηση για ευκολότερη περιήγηση. Τίποτα δεν αγοράζεται ή πωλείται σε αυτόν τον ιστότοπο, και δεν πραγματοποιούνται εδώ πωλήσεις με όριο ηλικίας — δεν υπάρχει ταμείο, πληρωμή ή οποιαδήποτε διεκπεραίωση παραγγελιών."
         },
         "independence": {
-          "heading": "Independence",
-          "body": "BiggyIndex is an independent project. We are not affiliated with, endorsed by, or operated by Little Biggy. Listings, seller names, images, and reviews belong to their respective owners and are shown here for reference."
+          "heading": "Ανεξαρτησία",
+          "body": "Το BiggyIndex είναι ένα ανεξάρτητο έργο. Δεν συνδεόμαστε με το Little Biggy, ούτε έχουμε την έγκρισή του, ούτε λειτουργούμε από αυτό. Οι καταχωρίσεις, τα ονόματα πωλητών, οι εικόνες και οι κριτικές ανήκουν στους αντίστοιχους ιδιοκτήτες τους και εμφανίζονται εδώ για αναφορά."
         },
         "accuracy": {
-          "heading": "Accuracy is not guaranteed",
-          "body": "Listings change frequently and our index refreshes on a schedule, so prices, availability, shipping options, and review counts may be out of date or incorrect. Always check the original listing before relying on anything shown here. The site is provided as-is, without warranties of any kind."
+          "heading": "Η ακρίβεια δεν είναι εγγυημένη",
+          "body": "Οι καταχωρίσεις αλλάζουν συχνά και το ευρετήριό μας ανανεώνεται βάσει προγράμματος, οπότε οι τιμές, η διαθεσιμότητα, οι επιλογές αποστολής και ο αριθμός κριτικών μπορεί να είναι παρωχημένα ή λανθασμένα. Ελέγχετε πάντα την αρχική καταχώριση πριν βασιστείτε σε οτιδήποτε εμφανίζεται εδώ. Ο ιστότοπος παρέχεται ως έχει, χωρίς καμία εγγύηση."
         },
         "outboundLinks": {
-          "heading": "Outbound links",
-          "body": "Links from items and sellers lead to Little Biggy. Once you leave BiggyIndex you are subject to that site's own terms, and we are not responsible for anything that happens there, including any transaction."
+          "heading": "Εξωτερικοί σύνδεσμοι",
+          "body": "Οι σύνδεσμοι από προϊόντα και πωλητές οδηγούν στο Little Biggy. Μόλις φύγετε από το BiggyIndex, υπόκεισθε στους όρους εκείνου του ιστότοπου, και δεν φέρουμε ευθύνη για οτιδήποτε συμβεί εκεί, συμπεριλαμβανομένης οποιασδήποτε συναλλαγής."
         },
         "yourResponsibility": {
-          "heading": "Your responsibility",
-          "body": "You are responsible for ensuring that anything you do after leaving this site complies with the laws that apply where you live."
+          "heading": "Η δική σας ευθύνη",
+          "body": "Είστε υπεύθυνοι να διασφαλίσετε ότι οτιδήποτε κάνετε αφού φύγετε από αυτόν τον ιστότοπο συμμορφώνεται με τους νόμους που ισχύουν εκεί όπου ζείτε."
         },
         "changes": {
-          "heading": "Changes to these terms",
-          "body": "We may update these terms from time to time, and the latest version always lives on this page. If something looks wrong, contact us via the suggestion feature."
+          "heading": "Αλλαγές στους όρους",
+          "body": "Ενδέχεται να ενημερώνουμε αυτούς τους όρους κατά καιρούς, και η πιο πρόσφατη έκδοση βρίσκεται πάντα σε αυτήν τη σελίδα. Αν κάτι φαίνεται λάθος, επικοινωνήστε μαζί μας μέσω της λειτουργίας προτάσεων."
         }
       }
     },
     "cookies": {
-      "metadataTitle": "Cookie Policy | BiggyIndex",
-      "metadataDescription": "The functional cookies and local storage BiggyIndex uses — no analytics, no advertising, no tracking.",
-      "title": "Cookie Policy",
-      "updated": "Last updated July 2026",
-      "intro": "BiggyIndex uses no analytics, advertising, or tracking cookies. The only storage on this site is functional — it keeps the site working and remembers your preferences.",
+      "metadataTitle": "Πολιτική Cookies | BiggyIndex",
+      "metadataDescription": "Τα λειτουργικά cookies και η τοπική αποθήκευση που χρησιμοποιεί το BiggyIndex — χωρίς analytics, χωρίς διαφημίσεις, χωρίς παρακολούθηση.",
+      "title": "Πολιτική Cookies",
+      "updated": "Τελευταία ενημέρωση: Ιούλιος 2026",
+      "intro": "Το BiggyIndex δεν χρησιμοποιεί cookies για analytics, διαφημίσεις ή παρακολούθηση. Η μόνη αποθήκευση σε αυτόν τον ιστότοπο είναι λειτουργική — διατηρεί τη λειτουργία του ιστότοπου και θυμάται τις προτιμήσεις σας.",
       "table": {
-        "name": "Name",
-        "type": "Type",
-        "purpose": "Purpose"
+        "name": "Όνομα",
+        "type": "Τύπος",
+        "purpose": "Σκοπός"
       },
       "rows": {
         "locale": {
           "name": "NEXT_LOCALE",
           "type": "Cookie",
-          "purpose": "Remembers your language and market so pages load in the right locale."
+          "purpose": "Θυμάται τη γλώσσα και την αγορά σας, ώστε οι σελίδες να φορτώνουν στη σωστή γλώσσα."
         },
         "preferences": {
-          "name": "Display preferences",
-          "type": "Local storage",
-          "purpose": "Keeps settings like dark mode and display currency in your browser. This data never leaves your device."
+          "name": "Προτιμήσεις εμφάνισης",
+          "type": "Τοπική αποθήκευση",
+          "purpose": "Διατηρεί ρυθμίσεις όπως η σκοτεινή λειτουργία και το νόμισμα εμφάνισης στο πρόγραμμα περιήγησής σας. Αυτά τα δεδομένα δεν φεύγουν ποτέ από τη συσκευή σας."
         }
       },
-      "outro": "Because none of this storage tracks you, there is no consent banner to dismiss. If you clear your browser data, the site simply returns to its defaults."
+      "outro": "Επειδή τίποτα από αυτήν την αποθήκευση δεν σας παρακολουθεί, δεν υπάρχει banner συγκατάθεσης για να κλείσετε. Αν διαγράψετε τα δεδομένα του προγράμματος περιήγησης, ο ιστότοπος απλώς επιστρέφει στις προεπιλογές του."
+    }
+  },
+  "category": {
+    "page": {
+      "metadataTitle": "Αγορά {category} online | {count}+ καταχωρίσεις Little Biggy | BiggyIndex",
+      "metadataTitleNoCount": "Αγορά {category} online στο Little Biggy | BiggyIndex",
+      "metadataDescription": "Δείτε {count}+ καταχωρίσεις {category} στο Little Biggy. Συγκρίνετε τιμές, πωλητές, κριτικές και αποστολή — ενημερώνονται καθημερινά στο BiggyIndex.",
+      "metadataDescriptionNoCount": "Δείτε καταχωρίσεις {category} στο Little Biggy. Συγκρίνετε τιμές, πωλητές, κριτικές και αποστολή — ενημερώνονται καθημερινά στο BiggyIndex.",
+      "heading": "Αγορά {category} online στο Little Biggy",
+      "countLine": "{count, plural, one {1 καταχώριση {category} από το Little Biggy} other {# καταχωρίσεις {category} από το Little Biggy}}",
+      "subcategoriesLabel": "Δημοφιλείς τύποι",
+      "browseAllCta": "Δείτε όλες τις καταχωρίσεις {category} με φίλτρα",
+      "breadcrumbHome": "Αρχική",
+      "breadcrumbLabel": "Διαδρομή πλοήγησης",
+      "intro": {
+        "flower": "Τα άνθη είναι η μεγαλύτερη κατηγορία στο Little Biggy, από οικονομικά smalls έως εισαγόμενα Cali exotics. Οι καταχωρίσεις ομαδοποιούνται ανά οικογένεια ποικιλίας — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake και άλλες — ώστε να ακολουθείτε μια γενετική γραμμή που ήδη γνωρίζετε αντί να μαντεύετε από τα ονόματα των προϊόντων. Οι περισσότεροι πωλητές προσφέρουν διάφορες κλίμακες βάρους, και η τιμή ανά γραμμάριο συνήθως πέφτει αισθητά στα 7 γρ. και 14 γρ. Οι περιγραφές συνήθως αναφέρουν τάση indica, sativa ή υβριδική και τον τρόπο καλλιέργειας. Κάθε καταχώριση οδηγεί στον πωλητή στο Little Biggy, με κριτικές, χρόνους παράδοσης και μεταφορικά ευρετηριασμένα εδώ, για να συγκρίνετε καλλιεργητές πριν παραγγείλετε.",
+        "shake": "Το shake είναι η οικονομική πλευρά της αγοράς ανθών: χύμα shake, trim και μικρά popcorn μπουμπούκια, συνήθως από τους ίδιους καλλιεργητές που πουλούν και ολόκληρα άνθη, αλλά σε πολύ χαμηλότερη τιμή ανά γραμμάριο. Είναι δημοφιλής επιλογή για στριφτό, μαγείρεμα και σπιτικά εδώδιμα ή εκχυλίσματα, όπου η εμφάνιση μετράει πολύ λιγότερο από το κόστος. Η ποιότητα εδώ ποικίλλει περισσότερο από κάθε άλλη κατηγορία — κάποιες καταχωρίσεις είναι κυρίως σκόνη και φύλλα, άλλες σχεδόν ολόκληρα smalls — γι' αυτό αξίζει να διαβάζετε προσεκτικά τις κριτικές των πωλητών. Χωρίσαμε το Shake από τα Άνθη σε αυτό το ευρετήριο ακριβώς για να συγκρίνουν οι κυνηγοί προσφορών όμοια με όμοια.",
+        "hash": "Το χασίς στο Little Biggy καλύπτει από παραδοσιακές εισαγωγές μέχρι σύγχρονη δουλειά χωρίς διαλύτες. Οι καταχωρίσεις οργανώνονται ανά μέθοδο επεξεργασίας: πρεσαριστό μαροκινού τύπου, dry sift και static sift, bubble hash από εκχύλιση με παγωμένο νερό, μαλακό mousse, απρεσάριστο kief και premium μορφές όπως piatella και temple balls. Οι βαθμοί micron και τα επίπεδα διήθησης εμφανίζονται στις λεπτομέρειες όταν τα δηλώνουν οι πωλητές. Οι παραγωγοί από το Ηνωμένο Βασίλειο τείνουν σε φρεσκότερες χειροποίητες παρτίδες, ενώ οι εισαγωγές καλύπτουν τα κλασικά μαροκινά και αφγανικά στυλ. Οι τιμές ανά γραμμάριο κυμαίνονται περισσότερο από τα άνθη και ακολουθούν στενά την ποιότητα — η σύγκριση κριτικών και ιστορικού παραδόσεων είναι ο γρηγορότερος τρόπος να βρείτε χασίς που ανταποκρίνεται στην περιγραφή του.",
+        "concentrates": "Τα συμπυκνώματα καλύπτουν το πιο ισχυρό κομμάτι του μενού: shatter, wax, crumble, rosin, live resin, diamonds και έλαια THC. Προϊόντα χωρίς διαλύτες όπως το rosin συνυπάρχουν με εκχυλίσεις βουτανίου και CO2, και οι καταχωρίσεις συνήθως αναφέρουν τη μέθοδο εκχύλισης και την ποικιλία προέλευσης. Οι δόσεις είναι μικρές και η ισχύς υψηλή — τα περισσότερα συμπυκνώματα είναι αρκετές φορές ισχυρότερα από τα άνθη — οπότε οι τιμές ανά γραμμάριο φαίνονται τσουχτερές αλλά διαρκούν πολύ περισσότερο. Η τυπική χρήση είναι dab rig ή κατάλληλος ατμοποιητής, ενώ κάποιοι αγοραστές απλώς προσθέτουν λίγο εκχύλισμα στα άνθη. Το ιστορικό κριτικών είναι ευρετηριασμένο για κάθε καταχώριση — σημαντικό σε μια κατηγορία όπου υφή και καθαρότητα δύσκολα κρίνονται από φωτογραφίες.",
+        "vapes": "Οι καταχωρίσεις vape στο Little Biggy περιλαμβάνουν προγεμισμένες κάρτριτζ με σπείρωμα 510, στυλό μίας χρήσης και pods. Το λάδι στο εσωτερικό μετράει περισσότερο: οι κάρτριτζ distillate είναι οι φθηνότερες και πιο σταθερές, ενώ η live resin και τα εκχυλίσματα πλήρους φάσματος κοστίζουν περισσότερο και διατηρούν περισσότερη από τη γεύση και την επίδραση της αρχικής ποικιλίας. Οι καταχωρίσεις συνήθως αναφέρουν μέγεθος (0,5 ml ή 1 ml), τύπο εκχυλίσματος και ποικιλία. Τα μίας χρήσης δουλεύουν αμέσως· οι κάρτριτζ χρειάζονται μπαταρία 510 που αγοράζεται ξεχωριστά. Οι απομιμήσεις επώνυμων καρτριτζ είναι παντού συχνές, οπότε το ιστορικό κριτικών του πωλητή και ο χρόνος του στην πλατφόρμα είναι καλύτερος οδηγός από τη συσκευασία — και τα δύο είναι ευρετηριασμένα εδώ σε κάθε καταχώριση.",
+        "prerolls": "Τα pre-rolls βγάζουν το στρίψιμο από την εξίσωση. Οι πωλητές του Little Biggy προσφέρουν μονά, πολυσυσκευασίες και infused επιλογές — από απλά τζόιντ μίας ποικιλίας, στριμμένα με άνθη από το δικό τους μενού, μέχρι blunts και pre-rolls ενισχυμένα με χασίς ή συμπυκνώματα για έξτρα δύναμη. Οι πολυσυσκευασίες ρίχνουν την τιμή ανά τζόιντ και είναι η συνηθισμένη επιλογή των τακτικών· τα infused έχουν σαφώς υψηλότερη τιμή. Οι περιγραφές συνήθως αναφέρουν την ποικιλία, το βάρος ανά τεμάχιο και τον αριθμό της συσκευασίας. Η φρεσκάδα και το πόσο καλά είναι στριμμένα είναι τα συνήθη παράπονα ποιότητας, οπότε οι πρόσφατες κριτικές — ευρετηριασμένες σε κάθε καταχώριση — είναι το καλύτερο σήμα πριν παραγγείλετε.",
+        "edibles": "Τα εδώδιμα στο Little Biggy πάνε από ζελεδάκια και σοκολάτα μέχρι αρτοσκευάσματα, κάψουλες και μείγματα ροφημάτων. Η δύναμη είναι το πρώτο που ελέγχετε: οι καταχωρίσεις αναφέρουν χιλιοστόγραμμα THC ανά τεμάχιο και ανά συσκευασία, και οι δόσεις διαφέρουν τεράστια — μια λογική αρχική δόση είναι 5–10 mg, ενώ κάποια μεμονωμένα γλυκά έχουν 100 mg ή περισσότερο. Η δράση αργεί, συχνά 30–90 λεπτά, οπότε ο χρυσός κανόνας είναι να ξεκινάτε χαμηλά και να περιμένετε πριν πάρετε κι άλλο. Vegan και χωρίς γλουτένη επιλογές εμφανίζονται τακτικά. Ευρετηριάζουμε τη δύναμη ανά τεμάχιο όπου τη δηλώνουν οι πωλητές, ώστε να συγκρίνετε προϊόντα με βάση τη δόση και την αξία, όχι μόνο την τιμή της συσκευασίας.",
+        "tincture": "Τα βάμματα είναι υγρά εκχυλίσματα κάνναβης που λαμβάνονται σε σταγόνες κάτω από τη γλώσσα — μια επιλογή χωρίς κάπνισμα, με γρηγορότερη δράση από τα εδώδιμα και πιο λεπτό έλεγχο δόσης από αμφότερα. Οι καταχωρίσεις στο Little Biggy περιλαμβάνουν έλαια THC, μείγματα CBD και ισορροπημένες αναλογίες, συνήθως με τη δύναμη σε χιλιοστόγραμμα ανά φιάλη ή ανά χιλιοστόλιτρο. Η υπογλώσσια δράση έρχεται τυπικά σε 15–45 λεπτά, πιο γρήγορα από την κατάποση και ευκολότερη στη ρύθμιση. Εμφανίζονται επίσης έλαια πλήρους εκχύλισης τύπου RSO, αγαπητά σε χρήστες υψηλών δόσεων. Το μέγεθος φιάλης, το έλαιο-φορέας και η συνολική δύναμη καθορίζουν την τιμή — το κόστος ανά χιλιοστόγραμμο είναι η πιο δίκαιη σύγκριση πριν κρίνετε μια φιάλη ακριβή.",
+        "psychedelics": "Τα ψυχεδελικά συγκεντρώνουν τις μη-κανναβικές καταχωρίσεις του Little Biggy: αποξηραμένα μανιτάρια, τρούφες, κάψουλες μικροδόσης, και σοκολάτες και ζελεδάκια μανιταριών. Τα αποξηραμένα μανιτάρια είναι η βάση, με τη δύναμη να διαφέρει αισθητά ανά ποικιλία — οι περιγραφές συνήθως αναφέρουν την ποικιλία και ένα προτεινόμενο εύρος δόσης. Οι κάψουλες μικροδόσης προσφέρουν μετρημένες, υπο-αντιληπτικές ποσότητες για όσους ακολουθούν πρόγραμμα, ενώ σοκολάτες και ζελεδάκια χωρίζουν μια πλήρη δόση σε μικρότερα, πιο εύκολα κομμάτια. Το set, το setting και το χαμηλό ξεκίνημα μετράνε εδώ περισσότερο από οπουδήποτε αλλού στον ιστότοπο. Κριτικές πωλητών και χρόνοι παράδοσης είναι ευρετηριασμένα σε κάθε καταχώριση, όπως ακριβώς στις κατηγορίες κάνναβης.",
+        "other": "Τα Άλλα είναι η κατηγορία-συλλέκτης για καταχωρίσεις που δεν ταιριάζουν στις κύριες κατηγορίες: προϊόντα CBD, σπόροι, αξεσουάρ όπως grinders και είδη στριφτού, και τα μεμονωμένα αντικείμενα που οι πωλητές βάζουν δίπλα στο κύριο μενού τους. Αξίζει μια ματιά πού και πού, γιατί οι νέοι τύποι προϊόντων συνήθως προσγειώνονται πρώτα εδώ, πριν υπάρξουν αρκετές καταχωρίσεις για δική τους κατηγορία. Περιμένετε το περιεχόμενο να αλλάζει από εβδομάδα σε εβδομάδα καθώς οι πωλητές ανανεώνουν το απόθεμα. Κάθε καταχώριση έχει τα ίδια ευρετηριασμένα δεδομένα με τον υπόλοιπο ιστότοπο — τιμή, ιστορικό πωλητή, βαθμολογίες κριτικών και επιλογές αποστολής — ώστε ένα ασυνήθιστο αντικείμενο να ελέγχεται ακριβώς όπως ένα συνηθισμένο."
+      }
     }
   }
 }

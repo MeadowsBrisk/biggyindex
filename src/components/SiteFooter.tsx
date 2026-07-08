@@ -1,6 +1,7 @@
 import { ArrowRight, Cannabis, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { CATEGORY_SLUGS, slugToCategory } from "@/lib/categories";
 
 /**
  * SiteFooter — distinct from food-agg: gradient top bar, centered layout, cannabis branding.
@@ -14,6 +15,10 @@ export async function SiteFooter({
 }) {
   const year = new Date().getFullYear();
   const t = await getTranslations({ locale, namespace: "footer" });
+  const tCategories = await getTranslations({
+    locale,
+    namespace: "categories",
+  });
 
   return (
     <footer className={`mt-auto${hideBrowseCta ? " pt-12" : ""}`}>
@@ -52,6 +57,32 @@ export async function SiteFooter({
               </div>
             )}
           </div>
+
+          {/* Category landing pages — sitewide crawlable links */}
+          <nav
+            aria-label={t("categoriesTitle")}
+            className="flex flex-col items-center gap-3 border-t border-border pt-8 mb-8"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("categoriesTitle")}
+            </span>
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+              {CATEGORY_SLUGS.map((slug) => {
+                const category = slugToCategory(slug);
+                if (!category) return null;
+                return (
+                  <Link
+                    key={slug}
+                    href={`/category/${slug}`}
+                    prefetch={false}
+                    className="text-sm text-muted hover:text-primary transition-colors"
+                  >
+                    {tCategories(category)}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
 
           {/* Community + links row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-border pt-8 mb-8">

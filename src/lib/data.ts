@@ -17,6 +17,71 @@ import type {
   SellerDetail,
 } from "./types";
 
+// ─── Archive types (crawler contract) ───────────────────────────
+//
+// Written by the crawler's archive stage
+// (dashboard/scripts/unified-crawler/stages/archive/logic.ts).
+// ref ∈ manifest ⇔ archived; manifest keys and indexed_items refs are
+// kept strictly disjoint by the crawler.
+
+/**
+ * Entry in the per-market archive manifest
+ * (`markets/{mkt}/archive/manifest.json`).
+ *
+ * NOTE: `at` here means archivedAt/delistedAt — NOT item attributes.
+ * Optional fields are omitted when absent (never null).
+ */
+export interface ArchiveManifestEntry {
+  /** Item name (market-localized) */
+  n: string;
+  /** Category */
+  c?: string;
+  /** Subcategories */
+  sc?: string[];
+  /** Seller id */
+  sid?: number;
+  /** Seller name */
+  sn?: string;
+  /** Primary image hash */
+  ih?: string;
+  /** Gallery image hashes (nulls already filtered out) */
+  ish?: string[];
+  /** firstSeenAt ISO */
+  fsa?: string;
+  /** lastUpdatedAt ISO — "last known at" */
+  lua?: string;
+  /** archivedAt/delistedAt ISO — used as sitemap lastModified */
+  at: string;
+}
+
+/** ref → manifest entry. */
+export type ArchiveManifest = Record<string, ArchiveManifestEntry>;
+
+/** Archive stamp on snapshot blobs. */
+export interface ArchiveStamp {
+  /** archivedAt/delistedAt ISO */
+  at: string;
+  /** Last seen in index, when known */
+  lsi?: string | null;
+  /** How the snapshot was produced */
+  src: "live" | "backfill-v2" | "backfill-v1";
+  v: 1;
+}
+
+/**
+ * Archived snapshot blob — the full merged detail blob as last seen,
+ * plus the archive stamp. backfill-v1 snapshots may lack ih/ish entirely
+ * (no-image state) and have empty shOpts.
+ */
+export interface ArchivedDetailBlob extends MergedDetailBlob {
+  arc?: ArchiveStamp;
+}
+
+const archiveManifestKey = (market: string) =>
+  `markets/${market}/archive/manifest.json`;
+const archivedDetailKey = (market: string, ref: string) =>
+  `markets/${market}/archive/item-detail/${encodeURIComponent(ref)}.json`;
+
 // ─── Browse field stripping ─────────────────────────────────────
 
 function truncateDesc(text: string, max = 260): string {
@@ -213,4 +278,59 @@ export async function loadMergedDetail(
   // Fall back to basic item + shipping merge
   const item = await loadItemByRef(ref, market);
   return item as MergedDetailBlob | null;
+}
+
+// ─── Archive loaders (delisted items) ───────────────────────────
+
+/**
+ * Load the archive manifest for a market (delisted refs → summary entries).
+ *
+ * Plain loader — same idiom as loadMergedDetail: callers cache. The item
+ * page reads it inside a `'use cache'` scope tagged `item-detail`, which the
+ * crawler revalidates whenever any market's manifest changes (archive,
+ * relist, or applied backfill); the API/sitemap routes rely on their CDN
+ * cache headers.
+ */
+export async function loadArchiveManifest(
+  market = "gb",
+): Promise<ArchiveManifest> {
+  const manifest = await readR2JSON<ArchiveManifest>(
+    archiveManifestKey(market),
+  );
+  return manifest ?? {};
+}
+
+/**
+ * Load the archived snapshot for a delisted item.
+ *
+ * Gated on the manifest: an orphan snapshot blob may exist for a live or
+ * relisted ref and MUST be ignored unless manifested. Returns null when the
+ * ref isn't archived or either fetch fails — callers fall through to their
+ * not-found flow.
+ */
+export async function loadArchivedDetail(
+  ref: string,
+  market = "gb",
+): Promise<ArchivedDetailBlob | null> {
+  const manifest = await loadArchiveManifest(market);
+  const entry = manifest[ref];
+  if (!entry) return null;
+
+  const blob = await readR2JSON<ArchivedDetailBlob>(
+    archivedDetailKey(market, ref),
+  );
+  if (!blob) return null;
+
+  // Normalize legacy .net share link to .org (matches loadMergedDetail).
+  if (blob.sl?.includes("littlebiggy.net")) {
+    blob.sl = blob.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
+  }
+
+  // Belt-and-braces: if a snapshot ever predates the arc stamp, fall back
+  // to the manifest's archivedAt so consumers always get a delist date.
+  if (!blob.arc?.at) {
+    blob.arc = { src: "live", v: 1, ...blob.arc, at: entry.at };
+  }
+
+  return blob;
 }
