@@ -524,6 +524,14 @@ async function ItemContent({ params }: ItemPageProps) {
 
   return (
     <>
+      {/* Preload the LCP gallery image — React 19 hoists <link> rendered in
+          server components into <head>, so the browser starts the fetch from
+          the document HTML instead of waiting for the gallery <img> to be
+          discovered. href must match ItemDetailGallery's first image exactly
+          (same `images` array). */}
+      {images[0] && (
+        <link rel="preload" as="image" href={images[0]} fetchPriority="high" />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}

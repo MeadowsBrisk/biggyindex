@@ -1,0 +1,93 @@
+/* ── What's New card strip (home) ──
+   CSS scroll-snap replacement for the old Swiper carousel — keeps Swiper
+   (+ its CSS) out of the home page's critical bundle. Card widths per
+   breakpoint reproduce the previous Swiper config exactly:
+
+     slidesPerView 1.4 @base (gap 12), 2.2 @480, 3 @640,
+     4 @900 (gap 14), 5 @1200 (gap 16), 6 @1600, 8 @2200
+
+   Swiper's slide width formula is (100% - gap*(perView-1)) / perView; the
+   calc() below is that formula with the constants folded in. No looping
+   (the Swiper setup had none). One intentional difference: on <480px the
+   old config centered the active slide; the snap strip left-aligns with a
+   1rem gutter instead (scroll-snap can't offset the first slide to center
+   without dead space). */
+
+.whats-new-scroller {
+  display: flex;
+  gap: 12px;
+  /* Vertical padding + compensating negative margins: overflow-x:auto forces
+     overflow-y to auto too, which would clip the cards' hover shadows
+     (the removed Swiper used overflow:visible for exactly this). The extra
+     box space keeps shadows inside the scroll container without shifting
+     the strip's layout position. */
+  padding: 8px 1rem 20px;
+  margin: -8px 0 -20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 1rem;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.whats-new-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.whats-new-slide {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  /* perView 1.4, gap 12 → (100% - 4.8px) / 1.4 */
+  width: calc((100% - 4.8px) / 1.4);
+}
+
+@media (min-width: 480px) {
+  .whats-new-slide {
+    /* perView 2.2, gap 12 */
+    width: calc((100% - 14.4px) / 2.2);
+  }
+}
+
+@media (min-width: 640px) {
+  .whats-new-slide {
+    /* perView 3, gap 12 */
+    width: calc((100% - 24px) / 3);
+  }
+}
+
+@media (min-width: 900px) {
+  .whats-new-scroller {
+    gap: 14px;
+  }
+
+  .whats-new-slide {
+    /* perView 4, gap 14 */
+    width: calc((100% - 42px) / 4);
+  }
+}
+
+@media (min-width: 1200px) {
+  .whats-new-scroller {
+    gap: 16px;
+  }
+
+  .whats-new-slide {
+    /* perView 5, gap 16 */
+    width: calc((100% - 64px) / 5);
+  }
+}
+
+@media (min-width: 1600px) {
+  .whats-new-slide {
+    /* perView 6, gap 16 */
+    width: calc((100% - 80px) / 6);
+  }
+}
+
+@media (min-width: 2200px) {
+  .whats-new-slide {
+    /* perView 8, gap 16 */
+    width: calc((100% - 112px) / 8);
+  }
+}

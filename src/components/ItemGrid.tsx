@@ -11,7 +11,6 @@ import {
   bookmarksSetAtom,
   categoryAtom,
   currencyDisplayAtom,
-  gateCompleteAtom,
   highResImagesAtom,
   includeShippingAtom,
   isLoadingAtom,
@@ -184,7 +183,6 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
   const t = useTranslations("browse");
   const items = useAtomValue(sortedItemsAtom);
   const isLoading = useAtomValue(isLoadingAtom);
-  const gateComplete = useAtomValue(gateCompleteAtom);
   const visibleItems = useProgressiveRender(items);
 
   // Smooth-scroll to top when filtered/sorted item list changes.
@@ -289,25 +287,52 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
   // back to /browse), render them immediately — the user shouldn't see a
   // skeleton flash for data that's already in memory.
   if (isLoading && items.length === 0) {
-    // Show seed cards during initial page load (gate still active).
-    // Skip during client-side navigation (gate already done) to avoid
-    // flashing hot-sorted seeds before live sorted cards appear.
-    if (seedItems?.length && !gateComplete) {
+    // Seed cards until live data lands. Seeds mirror the default sort
+    // (hottest desc), so on a plain /browse load the live swap-in is
+    // content-identical and dimension-stable. When the URL carries filter
+    // params (shared links like /browse?cat=Flower) the seeds would show
+    // the UNFILTERED default set — the page is cached path-only, so the
+    // server can't vary on searchParams. For that case an inline script in
+    // the browse page (SeedParamsScript) sets `html.bi-seed-hide` before
+    // first paint; CSS then hides the seed grid and reveals the skeleton
+    // grid below (same grid container → no layout shift, and the toolbar/
+    // header above are never hidden). Crawlers fetch /browse without
+    // params, so the SEO-critical raw HTML keeps the full linked seed grid.
+    if (seedItems?.length) {
       return (
-        <div
-          className="item-list-grid"
-          data-view={viewMode}
-          data-mobile-cols={mobileGridCols}
-        >
-          {seedItems.map((item, i) => (
-            <SeedCard
-              key={item.id}
-              item={item}
-              priority={i < 2}
-              mobileCols={mobileGridCols}
-            />
-          ))}
-        </div>
+        <>
+          <div
+            className="item-list-grid"
+            data-seed-grid
+            data-view={viewMode}
+            data-mobile-cols={mobileGridCols}
+          >
+            {seedItems.map((item, i) => (
+              <SeedCard
+                key={item.id}
+                item={item}
+                priority={i < 2}
+                mobileCols={mobileGridCols}
+              />
+            ))}
+          </div>
+          {/* Hidden unless html.bi-seed-hide is set pre-paint (URL has
+              filter params). aria-hidden: purely decorative placeholder. */}
+          <div
+            className="item-list-grid"
+            data-seed-skeleton
+            data-view={viewMode}
+            data-mobile-cols={mobileGridCols}
+            aria-hidden="true"
+          >
+            {seedItems.map((item) => (
+              <div
+                key={`sk-${item.id}`}
+                className="aspect-3/4 animate-pulse rounded-lg bg-surface"
+              />
+            ))}
+          </div>
+        </>
       );
     }
     // Fallback skeleton (only if no seed data at all)
@@ -338,7 +363,7 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
 
   if (viewLayout === "list") {
     return (
-      <div className="item-list-rows animate-[fadeIn_350ms_ease-out]">
+      <div className="item-list-rows">
         {visibleItems.map((item) => (
           <ItemRow
             key={item.id}
@@ -355,7 +380,7 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
 
   return (
     <div
-      className="item-list-grid animate-[fadeIn_350ms_ease-out]"
+      className="item-list-grid"
       data-view={viewMode}
       data-mobile-cols={mobileGridCols}
     >

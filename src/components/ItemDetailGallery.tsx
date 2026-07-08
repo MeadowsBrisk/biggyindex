@@ -2,6 +2,7 @@
 
 import { Package } from "lucide-react";
 import {
+  type ComponentType,
   lazy,
   Suspense,
   useCallback,
@@ -9,14 +10,19 @@ import {
   useRef,
   useState,
 } from "react";
-import { EffectFade, Keyboard } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
-import "swiper/css";
-import "swiper/css/effect-fade";
 import { cx } from "@/lib/cn";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
+
+type GallerySwiperComponent = ComponentType<{
+  images: string[];
+  alt: string;
+  initialSlide: number;
+  onSwiper: (swiper: SwiperInstance) => void;
+  onSlideChange: (index: number) => void;
+  onZoom: (index: number) => void;
+}>;
 
 interface ItemDetailGalleryProps {
   images: string[];
@@ -24,6 +30,15 @@ interface ItemDetailGalleryProps {
   itemKey?: string | number | null;
 }
 
+/**
+ * Item gallery. The FIRST image renders as a plain server-renderable <img>
+ * (it's the item page's LCP element — no JS needed to paint it). Swiper is
+ * only imported, on the client after mount, when there is more than one
+ * image; until the chunk lands the static image stands in inside the same
+ * dimension-fixed `.ido-swiper` container (aspect-ratio'd in CSS), so the
+ * swap causes no layout shift. Thumbnails render immediately (SSR'd) and
+ * work pre-Swiper by swapping the static image's src.
+ */
 export function ItemDetailGallery({
   images,
   alt,
@@ -33,6 +48,26 @@ export function ItemDetailGallery({
   const [activeSlide, setActiveSlide] = useState(0);
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [startZoomIndex, setStartZoomIndex] = useState(0);
+  const [GallerySwiper, setGallerySwiper] =
+    useState<GallerySwiperComponent | null>(null);
+
+  // Lazy-load Swiper only for multi-image galleries. Single-image items
+  // (and the SSR pass) never pay for the chunk.
+  useEffect(() => {
+    if (images.length <= 1) return;
+    let cancelled = false;
+    import("@/components/ItemDetailGallerySwiper").then(
+      (mod) => {
+        if (!cancelled) setGallerySwiper(() => mod.default);
+      },
+      () => {
+        // Chunk failed to load — the static image + thumbs keep working.
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [images.length]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -58,40 +93,40 @@ export function ItemDetailGallery({
     mainSwiperRef.current?.slideTo(index);
   }, []);
 
+  const staticSrc = images[activeSlide] ?? images[0];
+
   return (
     <>
       {images.length > 0 ? (
         <>
-          <Swiper
-            modules={[Keyboard, EffectFade]}
-            effect="fade"
-            fadeEffect={{ crossFade: true }}
-            keyboard={{ enabled: true }}
-            spaceBetween={0}
-            slidesPerView={1}
-            onSwiper={setSwiper}
-            onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex ?? 0)}
-            className="ido-swiper"
-          >
-            {images.map((src, index) => (
-              <SwiperSlide key={`${index}-${src}`}>
-                <button
-                  type="button"
-                  onClick={() => openZoom(index)}
-                  className="w-full h-full focus:outline-none"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt={alt}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    draggable={false}
-                  />
-                </button>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          {GallerySwiper ? (
+            <GallerySwiper
+              images={images}
+              alt={alt}
+              initialSlide={activeSlide}
+              onSwiper={setSwiper}
+              onSlideChange={setActiveSlide}
+              onZoom={openZoom}
+            />
+          ) : (
+            <div className="ido-swiper ido-swiper--static">
+              <button
+                type="button"
+                onClick={() => openZoom(activeSlide)}
+                className="w-full h-full focus:outline-none"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={staticSrc}
+                  alt={alt}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  draggable={false}
+                />
+              </button>
+            </div>
+          )}
 
           {images.length > 1 && (
             <div className="absolute bottom-3 left-3 z-20 md:relative md:bottom-auto md:left-auto md:mt-3 md:flex md:justify-center">

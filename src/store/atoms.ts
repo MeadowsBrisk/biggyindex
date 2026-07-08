@@ -100,9 +100,13 @@ export const sellersMapAtom = atom<Map<string, Seller>>((get) => {
 export const isLoadingAtom = atom<boolean>(true);
 
 /** True once URL params have been applied to filter atoms */
+// NOTE: write-only since the veil removal (no readers) — kept because
+// UrlSync still stamps it; safe to delete together with its writer.
 export const urlSyncDoneAtom = atom<boolean>(false);
 
 /** True once DataLoader has mounted on the current page */
+// NOTE: write-only since the veil removal (no readers) — kept because
+// DataLoader still stamps it; safe to delete together with its writer.
 export const dataLoaderActiveAtom = atom<boolean>(false);
 
 // ─── Theme ──────────────────────────────────────────────────────
@@ -188,9 +192,11 @@ export const viewModeAtom = atomWithStorage<ViewMode>(
 export type MobileGridCols = 1 | 2;
 // Plain atomWithStorage (no getOnInit) — matches viewLayoutAtom/viewModeAtom.
 // The value is written into SSR'd markup (the seed grid's data-mobile-cols), so
-// the default must equal the server value to avoid a hydration mismatch; the
-// stored choice is read on mount and applied behind the HydrationGate (no
-// visible 1→2 flash). getOnInit here would risk React reverting to the server
+// the default must equal the server value to avoid a hydration mismatch. The
+// boot veil that used to mask the 1→2 snap is gone: SeedParamsScript now
+// detects a persisted non-default value pre-paint and swaps the seed grid for
+// skeletons (html.bi-seed-hide + html.bi-cols-2), so users never watch real
+// cards reflow. getOnInit here would risk React reverting to the server
 // default on mismatch.
 export const mobileGridColsAtom = atomWithStorage<MobileGridCols>(
   "mobileGridCols",
@@ -377,17 +383,17 @@ export const footerVisibleAtom = atom<boolean>(false);
 // ─── Hydration gate ─────────────────────────────────────────────
 
 /** True once the client has mounted and atomWithStorage has had one rAF */
+// NOTE: no readers since the veil removal — only HydrationGate writes it
+// (gateCompleteAtom is the consumer-facing signal).
 export const clientReadyAtom = atom<boolean>(false);
 
-/** True after HydrationGate has fully faded out */
+/**
+ * True one frame after `clientReadyAtom` (see HydrationGate). Derived from
+ * client hydration ONLY — never from data loading. Consumers use it to
+ * suppress CSS transitions on the initial boot snap (e.g. FilterPanel).
+ * Forward-only: flips true once per session.
+ */
 export const gateCompleteAtom = atom<boolean>(false);
-
-/** Composite: ready when data is loaded + URL synced (or no DataLoader active) */
-export const isHydratedAtom = atom<boolean>((get) => {
-  if (!get(clientReadyAtom)) return false;
-  if (!get(dataLoaderActiveAtom)) return true;
-  return !get(isLoadingAtom) && get(urlSyncDoneAtom);
-});
 
 // ─── Market ─────────────────────────────────────────────────────
 

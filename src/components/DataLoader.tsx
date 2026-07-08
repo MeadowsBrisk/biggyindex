@@ -136,7 +136,8 @@ export function DataLoader({
     // the cached promise resolves in a microtask; the store may also still
     // hold items from the previous visit, which ItemGrid keeps showing
     // until the fresh set lands. Loading must flip false even on failure —
-    // the HydrationGate waits on it.
+    // ItemGrid's seed/skeleton state waits on it. Nothing full-screen ever
+    // gates on this fetch (the old HydrationGate veil is gone).
     let cancelled = false;
     fetchBrowseData(dataUrl)
       .then((items) => {

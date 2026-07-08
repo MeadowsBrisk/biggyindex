@@ -8,6 +8,7 @@ import { FilterPanel } from "@/components/FilterPanel";
 import { FooterSentinel } from "@/components/FooterSentinel";
 import { ItemGrid } from "@/components/ItemGrid";
 import { MobileResultCount } from "@/components/MobileResultCount";
+import { SeedParamsScript } from "@/components/SeedParamsScript";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
@@ -111,6 +112,9 @@ export default async function BrowsePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
       />
+      {/* Must run before the seed grid paints — hides the (unfiltered) seed
+          cards when the URL carries filter params. See SeedParamsScript. */}
+      <SeedParamsScript />
       <Suspense>
         <DataLoader
           dataUrl={dataUrl}

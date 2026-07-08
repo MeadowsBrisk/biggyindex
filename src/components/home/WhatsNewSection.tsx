@@ -12,11 +12,15 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { KeyboardEvent, MouseEvent } from "react";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Navigation } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/navigation";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 import {
@@ -417,6 +421,22 @@ export function WhatsNewSection({
   const header = useRevealOnScroll<HTMLDivElement>();
   const carousel = useRevealOnScroll<HTMLDivElement>();
 
+  // CSS scroll-snap strip (replaces Swiper — kept it out of the home page's
+  // critical bundle). The prev/next buttons advance by one card width; no
+  // looping (the Swiper setup had none either).
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollByCard = useCallback((direction: 1 | -1) => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const slide = scroller.querySelector<HTMLElement>(".whats-new-slide");
+    if (!slide) return;
+    const gap = Number.parseFloat(getComputedStyle(scroller).columnGap) || 12;
+    scroller.scrollBy({
+      left: direction * (slide.offsetWidth + gap),
+      behavior: "smooth",
+    });
+  }, []);
+
   return (
     <section className="py-20 bg-background">
       {/* Header area - contained */}
@@ -461,6 +481,7 @@ export function WhatsNewSection({
             <div className="hidden md:flex items-center gap-2">
               <button
                 type="button"
+                onClick={() => scrollByCard(-1)}
                 className="whats-new-prev rounded-full border border-border p-2 text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
                 aria-label={t("scrollLeft")}
               >
@@ -468,6 +489,7 @@ export function WhatsNewSection({
               </button>
               <button
                 type="button"
+                onClick={() => scrollByCard(1)}
                 className="whats-new-next rounded-full border border-border p-2 text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
                 aria-label={t("scrollRight")}
               >
@@ -478,61 +500,29 @@ export function WhatsNewSection({
         </div>
       </div>
 
-      {/* Card carousel - Swiper */}
+      {/* Card strip — CSS scroll-snap (Swiper removed from the critical bundle) */}
       <div className="overflow-hidden">
         <div
           ref={carousel.ref}
           data-revealed={carousel.revealed}
           className="reveal-fade"
         >
-          {/* Re-keyed on tab change so the enter animation replays —
-              CSS stand-in for AnimatePresence mode="wait" */}
+          {/* Re-keyed on tab change so the enter animation replays (and the
+              scroll position resets) — CSS stand-in for AnimatePresence
+              mode="wait". Card widths per breakpoint replicate the previous
+              Swiper slidesPerView/spaceBetween config (see whats-new.css). */}
           <div key={activeTab} className="tab-switch-fade">
-            <Swiper
-              modules={[Navigation]}
-              navigation={{
-                nextEl: ".whats-new-next",
-                prevEl: ".whats-new-prev",
-              }}
-              slidesPerView={1.4}
-              centeredSlides
-              spaceBetween={12}
-              breakpoints={{
-                480: {
-                  slidesPerView: 2.2,
-                  centeredSlides: false,
-                  spaceBetween: 12,
-                },
-                640: {
-                  slidesPerView: 3,
-                  centeredSlides: false,
-                  spaceBetween: 12,
-                },
-                900: {
-                  slidesPerView: 4,
-                  centeredSlides: false,
-                  spaceBetween: 14,
-                },
-                1200: {
-                  slidesPerView: 5,
-                  centeredSlides: false,
-                  spaceBetween: 16,
-                },
-                1600: {
-                  slidesPerView: 6,
-                  centeredSlides: false,
-                  spaceBetween: 16,
-                },
-                2200: {
-                  slidesPerView: 8,
-                  centeredSlides: false,
-                  spaceBetween: 16,
-                },
-              }}
-              style={{ overflow: "visible", padding: "0 1rem" }}
+            <div
+              ref={scrollerRef}
+              className="whats-new-scroller"
+              // biome-ignore lint/a11y/noNoninteractiveTabindex: horizontal scroller must be keyboard-scrollable
+              tabIndex={0}
             >
               {items.map((item) => (
-                <SwiperSlide key={`${activeTab}-${item.id}`}>
+                <div
+                  key={`${activeTab}-${item.id}`}
+                  className="whats-new-slide"
+                >
                   <HomeItemCard
                     item={item}
                     currencySymbol={currencySymbol}
@@ -540,9 +530,9 @@ export function WhatsNewSection({
                     copy={itemCardCopy}
                     now={now}
                   />
-                </SwiperSlide>
+                </div>
               ))}
-            </Swiper>
+            </div>
           </div>
         </div>
       </div>

@@ -32,6 +32,34 @@
   }
 }
 
+/* ── Pre-hydration seed grid guard ──
+   /browse SSR HTML always contains the default seed grid (page is cached
+   path-only). When the URL carries filter params, SeedParamsScript sets
+   html.bi-seed-hide before first paint: the seed grid hides and the
+   dimension-matched skeleton grid (SSR'd alongside it, see ItemGrid)
+   shows instead — no overlay, header/toolbar untouched. */
+[data-seed-skeleton] {
+  display: none;
+}
+
+html.bi-seed-hide [data-seed-grid] {
+  display: none;
+}
+
+html.bi-seed-hide [data-seed-skeleton] {
+  display: grid;
+}
+
+/* Persisted 2-per-row mobile layout (html.bi-cols-2, stamped by the same
+   pre-hydration script from localStorage.mobileGridCols): render the
+   skeleton grid in 2 columns so the skeleton→live swap keeps the column
+   count stable. Mirrors .item-list-grid[data-mobile-cols="2"]. */
+@media (max-width: 639px) {
+  html.bi-cols-2 [data-seed-skeleton].item-list-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ==========================================================================
    Item Card — shell
    ========================================================================== */
