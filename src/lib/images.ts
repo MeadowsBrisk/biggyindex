@@ -69,6 +69,49 @@ export function getImageUrl(
 }
 
 /**
+ * Convert an optimised AVIF CDN URL into its WebP sibling for social-share
+ * metadata (og:image / twitter:image).
+ *
+ * Rationale: on-page <img>/gallery use AVIF (best compression, universal
+ * browser support), but social scrapers — Facebook, WhatsApp, Twitter/X,
+ * Slack, iMessage — CANNOT decode AVIF, so an AVIF og:image renders as a
+ * missing/blank preview. WebP is decodable by all of them.
+ *
+ * Only rewrites optimised CDN AVIF URLs (…/full.avif, …/thumb.avif,
+ * …/icon.avif). Already-WebP URLs (…/anim.webp), raw source URLs and any
+ * non-CDN URL pass through untouched.
+ *
+ * IMPORTANT: the crawler image pipeline must emit the matching WebP variant
+ * for the returned URL to resolve. As of this writing the optimizer
+ * (dashboard/scripts/unified-crawler/stages/images/optimizer.ts) emits WebP
+ * ONLY for animated GIFs (anim.webp / icon.webp) — the static product tiers
+ * (full/thumb/icon) are AVIF-only. Until the crawler backfills full.webp,
+ * this helper produces a URL that 404s on the CDN. It is intentionally
+ * forward-compatible: the moment the crawler emits full.webp, item shares
+ * start working with no further frontend change.
+ */
+export function getOgImageUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  if (!url.startsWith(CDN_PREFIX)) return url;
+  if (url.endsWith(".avif")) return `${url.slice(0, -".avif".length)}.webp`;
+  return url;
+}
+
+/**
+ * Map an image URL to its MIME type from the file extension, for
+ * og:image:type / twitter image metadata. Returns undefined when unknown.
+ */
+export function imageMimeType(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  if (url.endsWith(".webp")) return "image/webp";
+  if (url.endsWith(".avif")) return "image/avif";
+  if (url.endsWith(".png")) return "image/png";
+  if (url.endsWith(".jpg") || url.endsWith(".jpeg")) return "image/jpeg";
+  if (url.endsWith(".gif")) return "image/gif";
+  return undefined;
+}
+
+/**
  * Build an array of optimised image URLs for a gallery.
  */
 export function getGalleryUrls(

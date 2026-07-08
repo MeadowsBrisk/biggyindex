@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
+import { getOgImageUrl, imageMimeType } from "@/lib/images";
 import {
   ALL_MARKETS,
   type MarketCode,
   marketToHost,
   marketToLocale,
 } from "@/lib/market/market";
+
+/**
+ * Site-wide default social-share image, served from `frontend/public`.
+ * 1200x630 PNG — the standard og:image / summary_large_image aspect ratio.
+ * Emitted (at the market's absolute host) whenever a page passes no images
+ * of its own, so hub and legal pages always yield a rich card instead of a
+ * bare `summary` with no preview.
+ */
+const DEFAULT_OG_IMAGE = {
+  path: "/og-image.png",
+  width: 1200,
+  height: 630,
+  type: "image/png",
+} as const;
 
 export const SEO_LOCALE_FOR: Record<MarketCode, string> = {
   GB: "en",
@@ -71,9 +86,23 @@ interface PageMetadataOptions {
   title: string;
   description: string;
   alternateMarkets?: MarketCode[];
-  images?: Array<{ url: string; alt?: string }>;
+  images?: Array<{
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+    type?: string;
+  }>;
   /** og:type override — e.g. "product" for item pages. Default "website". */
   ogType?: "website" | "product";
+}
+
+interface ResolvedOgImage {
+  url: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  type?: string;
 }
 
 export function pageMetadata({
@@ -88,6 +117,31 @@ export function pageMetadata({
   const url = absoluteUrl(market, path);
   const metaDescription = compactMetaDescription(description, 160);
   const validImages = images?.filter((image) => image.url);
+
+  // Page-supplied images (item/seller/category): rewrite optimised AVIF CDN
+  // URLs to WebP so social scrapers can decode them, and tag each with its
+  // MIME type. When a page supplies no image, fall back to the site-wide
+  // default so EVERY page (hubs, legal, ...) yields a rich share card.
+  const ogImages: ResolvedOgImage[] = validImages?.length
+    ? validImages.map((image) => {
+        const ogUrl = getOgImageUrl(image.url) ?? image.url;
+        return {
+          url: ogUrl,
+          alt: image.alt,
+          width: image.width,
+          height: image.height,
+          type: image.type ?? imageMimeType(ogUrl),
+        };
+      })
+    : [
+        {
+          url: `${marketBaseUrl(market)}${DEFAULT_OG_IMAGE.path}`,
+          alt: title,
+          width: DEFAULT_OG_IMAGE.width,
+          height: DEFAULT_OG_IMAGE.height,
+          type: DEFAULT_OG_IMAGE.type,
+        },
+      ];
 
   const metadata: Metadata = {
     title,
@@ -104,13 +158,15 @@ export function pageMetadata({
       description: metaDescription,
       url,
       siteName: "BiggyIndex",
-      images: validImages?.length ? validImages : undefined,
+      images: ogImages,
     },
     twitter: {
-      card: validImages?.length ? "summary_large_image" : "summary",
+      // We always emit at least the default image, so the large card is
+      // always valid.
+      card: "summary_large_image",
       title,
       description: metaDescription,
-      images: validImages?.map((image) => image.url),
+      images: ogImages.map((image) => image.url),
     },
   };
 

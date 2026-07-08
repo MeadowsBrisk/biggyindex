@@ -14,7 +14,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 import { ItemDetailGallery } from "@/components/ItemDetailGallery";
 import { ItemDetailTabs } from "@/components/ItemDetailTabs";
 import {
@@ -295,8 +295,8 @@ interface ItemDetailResult {
 }
 
 /**
- * Cached item-detail load, shared by generateMetadata AND ItemContent so the
- * R2 fetches happen once per (ref, market) — the cache key MUST include the
+ * Cached item-detail load, shared by generateMetadata AND the ItemPage body so
+ * the R2 fetches happen once per (ref, market) — the cache key MUST include the
  * market: GB/IE share English copy but are distinct markets/hosts with
  * distinct data. Live blob first; delisted items fall back to the
  * manifest-gated archive snapshot.
@@ -394,7 +394,14 @@ export async function generateMetadata({
   });
 }
 
-async function ItemContent({ params }: ItemPageProps) {
+// NO generateStaticParams: under cacheComponents an EMPTY one throws
+// (EmptyGenerateStaticParamsError) and we can't enumerate every ref without a
+// build-time R2 dependency. Its ABSENCE + the whole-page 'use cache' body is
+// what makes the route on-demand-ISR: the first request for a ref renders the
+// full page and Netlify durably caches it (item-detail/items tags for purge),
+// instead of PPR postponing every hit as private,no-store. Same shape as the
+// food-aggregator item route (Next 16.2.7, cacheComponents on).
+export default async function ItemPage({ params }: ItemPageProps) {
   "use cache";
   cacheLife("item-detail");
   // Both tags: the page body is item-detail data, but the related/more-from
@@ -562,6 +569,12 @@ async function ItemContent({ params }: ItemPageProps) {
 
   return (
     <>
+      {/* og:type "product" — Next's metadata resolver rejects it
+          (pageMetadata suppresses the default og:type for item pages), so
+          it's rendered directly; React 19 hoists it into <head>. Lives inside
+          the cached page body so nothing dynamic sits outside the cache
+          scope (a dynamic shell would make Next postpone the whole route). */}
+      <meta property="og:type" content="product" />
       {/* NO manual <link rel="preload"> for the LCP gallery image: React's
           Fizz renderer AUTO-emits an image preload for any SSR'd <img> that
           is loading="eager" + fetchPriority="high" (ItemDetailGallery's
@@ -1162,19 +1175,5 @@ function PriceChangeBadge({
     >
       {change}
     </span>
-  );
-}
-
-export default async function ItemPage(props: ItemPageProps) {
-  return (
-    <>
-      {/* og:type "product" — Next's metadata resolver rejects it
-          (pageMetadata suppresses the default og:type for item pages),
-          so it's rendered directly; React 19 hoists it into <head>. */}
-      <meta property="og:type" content="product" />
-      <Suspense>
-        <ItemContent params={props.params} />
-      </Suspense>
-    </>
   );
 }

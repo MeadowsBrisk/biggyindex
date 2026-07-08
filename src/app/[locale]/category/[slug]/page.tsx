@@ -18,10 +18,13 @@ import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { categoryToSlug, slugToCategory } from "@/lib/categories";
+import {
+  CATEGORY_SLUGS,
+  categoryToSlug,
+  slugToCategory,
+} from "@/lib/categories";
 import { loadItems } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage } from "@/lib/images";
@@ -31,6 +34,18 @@ import type { Item } from "@/lib/types";
 
 interface CategoryPageProps {
   params: Promise<{ locale: string; slug: string }>;
+}
+
+/**
+ * Every category landing slug is known at build time (no data fetch), so the
+ * route prerenders per (locale × slug) exactly like /browse instead of
+ * falling into PPR's postponed-shell mode (which Netlify marks
+ * private,no-store and never durably caches). Unknown slugs still render
+ * on-demand and hit notFound() below → real 404. locale combinations come
+ * from the parent [locale] segment's own generateStaticParams.
+ */
+export function generateStaticParams() {
+  return CATEGORY_SLUGS.map((slug) => ({ slug }));
 }
 
 /** SSR grid cap — full catalog browsing lives in /browse. */
@@ -158,7 +173,7 @@ function CategoryItemCard({
   );
 }
 
-async function CategoryContent({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params }: CategoryPageProps) {
   "use cache";
   cacheLife("items");
   cacheTag("items");
@@ -326,13 +341,5 @@ async function CategoryContent({ params }: CategoryPageProps) {
 
       <SiteFooter hideBrowseCta locale={locale} />
     </>
-  );
-}
-
-export default async function CategoryPage(props: CategoryPageProps) {
-  return (
-    <Suspense>
-      <CategoryContent params={props.params} />
-    </Suspense>
   );
 }

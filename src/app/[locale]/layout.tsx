@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { AnnouncementBannerGate } from "@/components/AnnouncementBannerGate";
 import { ExchangeRateProvider } from "@/components/ExchangeRateProvider";
 import { FlagFontPolyfill } from "@/components/FlagFontPolyfill";
 import { HydrationGate } from "@/components/HydrationGate";
+import { IntlClientProvider } from "@/components/IntlClientProvider";
 import { MarketHydrate } from "@/components/MarketHydrate";
 import { ModalHost } from "@/components/ModalHost";
 import { JotaiProvider } from "@/components/Providers";
@@ -15,6 +16,7 @@ import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { SeedParamsScript } from "@/components/SeedParamsScript";
 import { AccentSync, PauseGifsSync } from "@/components/SettingsSync";
 import { ToastHost } from "@/components/Toast";
+import { pickMessages } from "@/i18n/client-messages";
 import { type Locale, routing } from "@/i18n/routing";
 import { computeCustomAccentVars } from "@/lib/accent";
 import { IMAGE_CDN_ORIGIN } from "@/lib/images";
@@ -129,7 +131,11 @@ export default async function LocaleLayout({
         />
       </head>
       <body className="antialiased bg-background">
-        <NextIntlClientProvider messages={messages}>
+        {/* Only ship the namespaces CLIENT components consume — Server
+            Components read the full catalog via getTranslations. Adding a
+            client useTranslations namespace requires listing it in
+            CLIENT_NAMESPACES (src/i18n/client-messages.ts). */}
+        <IntlClientProvider locale={locale} messages={pickMessages(messages)}>
           <JotaiProvider>
             {/* Seed marketAtom from the host-pinned locale BEFORE first
                 render so the dropdown / currency / shipping logic never
@@ -150,7 +156,7 @@ export default async function LocaleLayout({
             <RouterRefreshOnReturn />
             <HydrationGate />
           </JotaiProvider>
-        </NextIntlClientProvider>
+        </IntlClientProvider>
       </body>
     </html>
   );

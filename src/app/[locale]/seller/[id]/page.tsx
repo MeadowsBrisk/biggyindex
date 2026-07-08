@@ -3,7 +3,6 @@ import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { loadItems, loadSellerDetail, loadSellers } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
@@ -159,22 +158,6 @@ function normalizeSellerDetail(
   };
 }
 
-/**
- * Cheap existence check — just the current market's seller ids, cached
- * separately from the heavy page data so the page component can await it
- * up front (before the streamed Suspense boundary) without de-streaming
- * the rest of the page. Same source + cache profile as getSellerPageData,
- * so the two views stay consistent within a revalidation window.
- */
-async function getMarketSellerIds(market: MarketCode): Promise<string[]> {
-  "use cache";
-  cacheLife("sellers");
-  cacheTag("sellers");
-
-  const sellers = await loadSellers(market.toLowerCase());
-  return sellers.map((entry) => String(entry.id));
-}
-
 async function getSellerPageData(
   locale: string,
   sellerId: string,
@@ -298,7 +281,28 @@ export async function generateMetadata({
   };
 }
 
-async function SellerContent({ params }: SellerPageProps) {
+// NO generateStaticParams: under cacheComponents an EMPTY one throws
+// (EmptyGenerateStaticParamsError) and we can't enumerate every seller id
+// without a build-time R2 dependency. Its ABSENCE + the whole-page 'use cache'
+// body is what makes the route on-demand-ISR: the first request for a seller
+// renders the full page and Netlify durably caches it (sellers tag for purge),
+// instead of PPR postponing every hit as private,no-store. Same shape as the
+// food-aggregator store route (Next 16.2.7, cacheComponents on).
+export default async function SellerPage({ params }: SellerPageProps) {
+  // Whole-page cache (mirrors /browse) so the route prerenders as a unit with
+  // NO dynamic shell — the previous <Suspense>-wrapped content became a PPR
+  // postponed hole that Netlify served private,no-store on every hit.
+  //
+  // Folding the existence check inside this cache scope also STRENGTHENS the
+  // 404 semantics the old pre-Suspense getMarketSellerIds gate protected:
+  // notFound() now fires during the unit prerender (before any bytes flush),
+  // so dead sellers get a real HTTP 404 that is itself durably cached —
+  // getSellerPageData returns null for ids absent from THIS market (GB/IE
+  // distinct), so per-market correctness is preserved.
+  "use cache";
+  cacheLife("sellers");
+  cacheTag("sellers");
+
   const { locale, id } = await params;
   const sellerId = parseSellerId(id);
   if (!sellerId) notFound();
@@ -436,25 +440,5 @@ function SellerPageBar({
         </div>
       </div>
     </div>
-  );
-}
-
-export default async function SellerPage(props: SellerPageProps) {
-  // Existence check BEFORE returning the streamed JSX: notFound() thrown
-  // inside the Suspense boundary below fires after the 200 shell has
-  // flushed, so Next can only inject a noindex meta tag (GSC soft-404s).
-  // Awaiting the cheap cached id list here makes dead seller pages return
-  // a real HTTP 404 while live pages keep streaming the heavy detail.
-  const { locale, id } = await props.params;
-  const sellerId = parseSellerId(id);
-  if (!sellerId) notFound();
-
-  const sellerIds = await getMarketSellerIds(localeToMarket(locale));
-  if (!sellerIds.includes(sellerId)) notFound();
-
-  return (
-    <Suspense>
-      <SellerContent params={props.params} />
-    </Suspense>
   );
 }

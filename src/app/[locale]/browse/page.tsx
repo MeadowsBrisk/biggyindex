@@ -14,6 +14,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
 import { browseDataVersion, loadItems, loadSellers } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
+import { getServerCurrency } from "@/lib/market/currency";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { buildSeedItems } from "@/lib/seed";
 import { serializeJsonLd } from "@/lib/seo/jsonld";
@@ -74,12 +75,32 @@ export default async function BrowsePage({
   const cSym = marketCurrencySymbol(market);
   const t = await getTranslations({ locale, namespace: "browse.page" });
 
-  const [itemList, sellerList] = await Promise.all([
+  const [itemList, sellerList, currency, tCategories] = await Promise.all([
     loadItems(mkt),
     loadSellers(mkt),
+    // Server-side USD→native conversion for real seed prices (same upstream
+    // as the client's exchange-rate atoms). Falls back to "$"/USD on failure —
+    // never a wrong symbol on an unconverted number.
+    getServerCurrency(market),
+    getTranslations({ locale, namespace: "categories" }),
   ]);
 
-  const seedItems = buildSeedItems(itemList);
+  // Translate the seed category pill to the display locale, matching the live
+  // CardPill. Unknown keys (shouldn't happen — crawler emits the 10 canonical
+  // categories) fall back to the raw value rather than surfacing a MISSING
+  // error string.
+  const translateCategory = (category: string): string => {
+    try {
+      return tCategories(category);
+    } catch {
+      return category;
+    }
+  };
+
+  const seedItems = buildSeedItems(itemList, {
+    currency: { symbol: currency.symbol, rate: currency.rate },
+    translateCategory,
+  });
 
   // Items are NOT inlined into the RSC payload (was ~900KB of flight data).
   // The client fetches them from /api/browse; the version-pinned URL is

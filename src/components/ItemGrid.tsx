@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtomValue } from "jotai";
-import { Package } from "lucide-react";
+import { Package, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_MARKET } from "@/lib/constants";
@@ -99,7 +99,14 @@ function useProgressiveRender<T extends { id: string | number }>(
  * immediately from the server HTML, and is a real <a href="/item/{ref}">
  * so crawlers get a linked catalog with the item name as anchor text.
  * No onClick — pre-hydration a tap navigating to the item page is correct.
- * No prices — SSR currency conversion is broken (separate fix).
+ * No client hooks — renders identically on the server so the seed HTML is
+ * complete for crawlers.
+ *
+ * Fields are pre-shaped by buildSeedItems (server): the price string (`p`) is
+ * already currency-converted to match the live card's footer format, the
+ * rating (`ra`/`rc`) mirrors the live rating chip, and the category pill
+ * (`cl`/`sc0`) mirrors the live CardPill — closing the visible content gap so
+ * a seed reads as a complete card, not an image-with-missing-text stub.
  */
 function SeedCard({
   item,
@@ -113,6 +120,13 @@ function SeedCard({
   const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
   const mobileSize = mobileCols === 2 ? "50vw" : "100vw";
   const href = `/item/${encodeURIComponent(String(item.refNum ?? item.id))}`;
+  // Category · Subcategory — same label the live CardPill builds in the "All"
+  // (unfiltered) view the seed grid always represents.
+  const pillLabel = item.cl
+    ? item.sc0
+      ? `${item.cl} · ${item.sc0}`
+      : item.cl
+    : null;
 
   return (
     <a href={href} className="item-card">
@@ -143,13 +157,27 @@ function SeedCard({
               <Package size={48} />
             </div>
           )}
+
+          {/* Category pill overlay — mirrors the live card's glass CardPill.
+              Reuses the live classes so the mobile 2-col CSS (font/padding
+              shrink) applies for free. `always-show` overrides the
+              .card-controls hover-reveal so the pill is visible pre-hover on
+              desktop too; on touch devices it's shown regardless. Absolutely
+              positioned → no layout impact on the card body. */}
+          {pillLabel && (
+            <div className="card-controls absolute inset-x-0 top-0 z-10 flex items-start justify-between p-2 pointer-events-none">
+              <div className="flex items-start gap-1 always-show">
+                <span className="card-pill card-pill--image glass text-[10px] font-medium">
+                  {pillLabel}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         {mobileCols === 2 ? (
-          /* Compact seed body — mirrors the 2-col live card so first paint
-             (title 2-line ~11.5px, seller ~10.5px, price ~13px) doesn't jump
-             when live cards swap in. The price line is a blank placeholder
-             reserving the live card's .card-price-main box height (SSR
-             currency conversion is broken, so no real price pre-hydration). */
+          /* Compact seed body — mirrors the 2-col live card (title 2-line
+             ~11.5px, seller ~10.5px, price ~13px). No rating chip: the live
+             2-col card hides .card-item-rating, so the seed omits it too. */
           <div className="px-1.5 pb-2 pt-1">
             <p
               className="font-medium leading-tight line-clamp-2"
@@ -163,23 +191,48 @@ function SeedCard({
             >
               {item.sn}
             </p>
-            <p
-              aria-hidden="true"
-              className="mt-1 font-bold"
-              style={{ fontSize: "13px" }}
-            >
-              &nbsp;
-            </p>
+            {item.p ? (
+              <p className="mt-1 font-bold" style={{ fontSize: "13px" }}>
+                {item.p}
+              </p>
+            ) : (
+              <p
+                aria-hidden="true"
+                className="mt-1 font-bold"
+                style={{ fontSize: "13px" }}
+              >
+                &nbsp;
+              </p>
+            )}
           </div>
         ) : (
+          /* 1-col seed body — title (+ rating chip, as the live 1-col card
+             shows) above seller + real price. */
           <div className="p-2">
-            <p className="text-xs text-muted truncate">{item.sn}</p>
-            <p className="text-sm font-medium leading-snug line-clamp-2 mt-0.5">
-              {item.n}
-            </p>
-            <p aria-hidden="true" className="text-sm font-semibold mt-1">
-              &nbsp;
-            </p>
+            <div className="flex items-start gap-1">
+              <p className="text-sm font-medium leading-snug line-clamp-2 min-w-0 flex-1">
+                {item.n}
+              </p>
+              {item.ra != null && (
+                <span
+                  className={`card-item-rating${item.ra < 8 ? " card-item-rating--low" : ""}`}
+                >
+                  <Star size={9} className="fill-current" />
+                  {item.ra.toFixed(1)}
+                  {item.rc != null && item.rc > 0 && (
+                    <span className="card-item-rating__count">({item.rc})</span>
+                  )}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted truncate mt-1">{item.sn}</p>
+            {item.p ? (
+              <p className="text-sm font-semibold mt-1">{item.p}</p>
+            ) : (
+              <p aria-hidden="true" className="text-sm font-semibold mt-1">
+                &nbsp;
+              </p>
+            )}
           </div>
         )}
       </div>
