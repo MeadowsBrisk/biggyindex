@@ -153,6 +153,16 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
     setZoomSignal((s) => (s ?? 0) + 1);
   }, []);
 
+  const itemThumb = hasItemImage ? (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={review.itemImageUrl}
+      alt={review.itemName ?? ""}
+      loading="lazy"
+      className="h-12 w-12 object-cover"
+    />
+  ) : null;
+
   return (
     <div
       className={`relative rounded-xl border transition-colors ${panel} ${
@@ -166,19 +176,26 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
           imageUrl={review.itemImageUrl}
           tooltipSize={160}
         >
-          <button
-            type="button"
-            onClick={() => review.refNum && setRefNum(review.refNum)}
-            className="absolute right-3 top-3 overflow-hidden rounded-lg border border-border bg-surface shadow-sm hover:ring-2 hover:ring-primary/30 transition-all"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={review.itemImageUrl}
-              alt={review.itemName ?? ""}
-              loading="lazy"
-              className="h-12 w-12 object-cover"
-            />
-          </button>
+          {review.refNum ? (
+            <a
+              href={`/item/${encodeURIComponent(review.refNum)}`}
+              onClick={(e) => {
+                // Middle-click / ctrl-click → let browser open in new tab
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey)
+                  return;
+                e.preventDefault();
+                setRefNum(review.refNum!);
+              }}
+              className="absolute right-3 top-3 overflow-hidden rounded-lg border border-border bg-surface shadow-sm hover:ring-2 hover:ring-primary/30 transition-all"
+            >
+              {itemThumb}
+            </a>
+          ) : (
+            /* No refNum → nothing to open; plain container, no click affordance */
+            <span className="absolute right-3 top-3 overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+              {itemThumb}
+            </span>
+          )}
         </SellerAvatarTooltip>
       )}
 
@@ -190,9 +207,15 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
             sellerName={review.sellerName}
             imageUrl={sellerAvatar}
           >
-            <button
-              type="button"
-              onClick={() => setSellerModal(review.sellerId)}
+            <a
+              href={`/seller/${encodeURIComponent(review.sellerId)}`}
+              onClick={(e) => {
+                // Middle-click / ctrl-click → let browser open in new tab
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey)
+                  return;
+                e.preventDefault();
+                setSellerModal(review.sellerId);
+              }}
               className="shrink-0 mt-0.5"
               title={review.sellerName}
             >
@@ -208,27 +231,50 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
                   {getInitials(review.sellerName)}
                 </div>
               )}
-            </button>
+            </a>
           </SellerAvatarTooltip>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              {review.itemName && (
-                <button
-                  type="button"
-                  onClick={() => review.refNum && setRefNum(review.refNum)}
-                  className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate max-w-[60%] text-left"
-                >
-                  {review.itemName}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setSellerModal(review.sellerId)}
+              {review.itemName &&
+                (review.refNum ? (
+                  <a
+                    href={`/item/${encodeURIComponent(review.refNum)}`}
+                    onClick={(e) => {
+                      // Middle-click / ctrl-click → let browser open in new tab
+                      if (
+                        e.button !== 0 ||
+                        e.metaKey ||
+                        e.ctrlKey ||
+                        e.shiftKey
+                      )
+                        return;
+                      e.preventDefault();
+                      setRefNum(review.refNum!);
+                    }}
+                    className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate max-w-[60%] text-left"
+                  >
+                    {review.itemName}
+                  </a>
+                ) : (
+                  /* No refNum → nothing to open; plain text, no click affordance */
+                  <span className="text-sm font-semibold text-foreground truncate max-w-[60%] text-left">
+                    {review.itemName}
+                  </span>
+                ))}
+              <a
+                href={`/seller/${encodeURIComponent(review.sellerId)}`}
+                onClick={(e) => {
+                  // Middle-click / ctrl-click → let browser open in new tab
+                  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey)
+                    return;
+                  e.preventDefault();
+                  setSellerModal(review.sellerId);
+                }}
                 className="text-[11px] text-muted hover:text-primary transition-colors"
               >
                 {review.sellerName}
-              </button>
+              </a>
             </div>
 
             {/* Stars + arrival + time — same line */}

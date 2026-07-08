@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Περιηγητής Little Biggy",
-    "description": "Περιηγηθείτε στις καταχωρίσεις Little Biggy ανά προϊόν, πωλητή, τιμή, κριτικές, αποστολή και αγορά."
+    "tagline": "Βρείτε κάνναβη στο Little Biggy",
+    "description": "Βρείτε κάνναβη στο Little Biggy: όλες οι καταχωρίσεις littlebiggy ανά κατηγορία, τιμή, πωλητή, κριτικές και αποστολή."
   },
   "nav": {
     "browse": "Περιήγηση",
@@ -101,8 +101,8 @@
     },
     "hero": {
       "title": {
-        "line1": "Ένας δείκτης για το",
-        "highlight": "420 αγορά"
+        "line1": "Το ευρετήριο κάνναβης",
+        "highlight": "του Little Biggy"
       },
       "subtitle": "Ταχύτερη αναζήτηση, καθαρότερες κατηγορίες και εμπιστοσύνη πωλητών με μια ματιά για την αγορά Little Biggy.",
       "stats": {
@@ -372,8 +372,10 @@
   },
   "browse": {
     "page": {
-      "metadataTitle": "Καταχωρίσεις Little Biggy | BiggyIndex",
-      "metadataDescription": "Αναζητήστε και φιλτράρετε καταχωρίσεις Little Biggy ανά κατηγορία, τιμή, πωλητή, αποστολή, κριτικές και αγορά."
+      "metadataTitle": "{count}+ καταχωρίσεις κάνναβης στο Little Biggy | BiggyIndex",
+      "metadataTitleNoCount": "Καταχωρίσεις κάνναβης στο Little Biggy | BiggyIndex",
+      "heading": "Καταχωρίσεις κάνναβης στο Little Biggy",
+      "metadataDescription": "Δείτε καταχωρίσεις κάνναβης στο Little Biggy — άνθη, χασίς και άλλα. Φιλτράρετε ανά κατηγορία, τιμή, πωλητή, αποστολή και κριτικές."
     },
     "allCategories": "Όλες οι Κατηγορίες",
     "noResults": "Κανένα προϊόν δεν ταιριάζει με τα φίλτρα σας",
@@ -650,7 +652,9 @@
       "firstSeen": "Πρώτη εμφάνιση: {date}",
       "updated": "Ανανεώθηκε: {date}",
       "priceHistory": "Ιστορικό τιμών",
-      "reviews": "Κριτικές"
+      "reviews": "Κριτικές",
+      "moreFromSeller": "Περισσότερα από {seller}",
+      "relatedInCategory": "Περισσότερα {category} στο Little Biggy"
     },
     "legacyModal": {
       "close": "Κλείσιμο",
@@ -675,8 +679,8 @@
     "visitStore": "Επισκεφθείτε το κατάστημα",
     "page": {
       "metadataTitle": "Πωλητές Little Biggy | BiggyIndex",
-      "metadataDescription": "Περιηγηθείτε σε όλους τους πωλητές Little Biggy με βαθμολογίες εμπιστοσύνης, πλήθος κριτικών και αξιολογήσεις κοινότητας.",
-      "title": "Πωλητές",
+      "metadataDescription": "Όλοι οι πωλητές του Little Biggy με βαθμολογίες εμπιστοσύνης, αριθμό κριτικών και αξιολογήσεις κοινότητας.",
+      "title": "Πωλητές Little Biggy",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
       "leaderboard": {
         "title": "Πίνακας κατάταξης εμπιστοσύνης",
@@ -780,8 +784,8 @@
   "reviews": {
     "page": {
       "metadataTitle": "Κριτικές Little Biggy | BiggyIndex",
-      "metadataDescription": "Οι τελευταίες κριτικές κοινότητας από Little Biggy αγοραστές με εικόνες, αξιολογήσεις και χρόνους παράδοσης.",
-      "title": "Κριτικές κοινότητας",
+      "metadataDescription": "Οι τελευταίες κριτικές Little Biggy από αγοραστές, με φωτογραφίες, αξιολογήσεις και χρόνους παράδοσης.",
+      "title": "Κριτικές Little Biggy",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
       "filters": {
         "all": "Όλα",

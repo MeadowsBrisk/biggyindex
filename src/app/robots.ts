@@ -29,7 +29,11 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // Explicit /api allows so the WRS renderer can fetch the browse
+        // dataset + rates and render the full catalog during the rendering
+        // wave. Google resolves by most-specific path, but explicit Allow
+        // entries above the blanket /api/ disallow make the intent clear.
+        allow: ["/", "/api/browse", "/api/exchange-rates"],
         disallow: [
           "/api/",
           "/browse?*", // Filter combos — let Google discover /browse itself

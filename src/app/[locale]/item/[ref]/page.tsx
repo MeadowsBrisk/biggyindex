@@ -44,6 +44,7 @@ import {
   pricePerUnit,
   UNIT_DISPLAY_LABEL,
 } from "@/lib/variants";
+import { RelatedItemsSections } from "./RelatedItemsSections";
 
 interface ItemPageProps {
   params: Promise<{ locale: string; ref: string }>;
@@ -304,7 +305,11 @@ export async function generateMetadata({
 async function ItemContent({ params }: ItemPageProps) {
   "use cache";
   cacheLife("item-detail");
+  // Both tags: the page body is item-detail data, but the related/more-from
+  // sections derive from the items dataset — an "items" revalidation must
+  // refresh them too or they'd link delisted items for up to 48h.
   cacheTag("item-detail");
+  cacheTag("items");
 
   const { ref, locale } = await params;
   const t = await getTranslations({ locale, namespace: "item.page" });
@@ -438,9 +443,19 @@ async function ItemContent({ params }: ItemPageProps) {
                   <div className="flex items-center gap-2 text-sm text-muted">
                     <span>
                       {t("by")}{" "}
-                      <span className="font-medium text-foreground">
-                        {item.sn}
-                      </span>
+                      {item.sid != null ? (
+                        <Link
+                          href={`/seller/${encodeURIComponent(String(item.sid))}`}
+                          prefetch={false}
+                          className="font-medium text-foreground transition-colors hover:text-primary"
+                        >
+                          {item.sn}
+                        </Link>
+                      ) : (
+                        <span className="font-medium text-foreground">
+                          {item.sn}
+                        </span>
+                      )}
                     </span>
                     {item.sf && (
                       <span className="text-xs text-muted-foreground">
@@ -805,6 +820,16 @@ async function ItemContent({ params }: ItemPageProps) {
             </OutboundLink>
           )}
         </div>
+
+        <RelatedItemsSections
+          locale={locale}
+          market={mkt}
+          currentRef={String(item.refNum ?? item.id)}
+          sid={item.sid}
+          sellerName={item.sn}
+          category={item.c}
+          subcategories={item.sc}
+        />
       </main>
     </>
   );

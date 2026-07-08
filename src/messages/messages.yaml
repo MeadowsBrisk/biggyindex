@@ -42,25 +42,27 @@ $locales:
 site:
   title: BiggyIndex
   tagline:
-    en-GB: Little Biggy Browser
-    de-DE: Little Biggy-Browser
-    fr-FR: Navigateur Little Biggy
-    pt-PT: Navegador Little Biggy
-    it-IT: Browser Little Biggy
-    es-ES: Navegador Little Biggy
-    el-GR: Περιηγητής Little Biggy
-    cs-CZ: Prohlížeč Little Biggy
-    pl-PL: Przeglądarka Little Biggy
+    en-GB: Browse UK Cannabis on Little Biggy
+    en-IE: Browse Cannabis in Ireland on Little Biggy
+    de-DE: Cannabis auf Little Biggy durchsuchen
+    fr-FR: Parcourez le cannabis sur Little Biggy
+    pt-PT: Navegue pela canábis no Little Biggy
+    it-IT: Esplora la cannabis su Little Biggy
+    es-ES: Explora el cannabis en Little Biggy
+    el-GR: Βρείτε κάνναβη στο Little Biggy
+    cs-CZ: Procházejte nabídky konopí na Little Biggy
+    pl-PL: Przeglądaj oferty konopi na Little Biggy
   description:
-    en-GB: Browse Little Biggy listings by product, seller, price, reviews, shipping, and market.
-    de-DE: Durchsuchen Sie Little Biggy-Angebote nach Produkt, Verkäufer, Preis, Bewertungen, Versand und Markt.
-    fr-FR: Parcourez les annonces Little Biggy par produit, vendeur, prix, avis, livraison et marché.
-    pt-PT: Navegue pelas listagens Little Biggy por produto, vendedor, preço, avaliações, envio e mercado.
-    it-IT: Sfoglia le inserzioni Little Biggy per prodotto, venditore, prezzo, recensioni, spedizione e mercato.
-    es-ES: Explora los anuncios de Little Biggy por producto, vendedor, precio, reseñas, envío y mercado.
-    el-GR: Περιηγηθείτε στις καταχωρίσεις Little Biggy ανά προϊόν, πωλητή, τιμή, κριτικές, αποστολή και αγορά.
-    cs-CZ: Procházejte nabídky Little Biggy podle produktu, prodejce, ceny, recenzí, dopravy a trhu.
-    pl-PL: Przeglądaj oferty Little Biggy według produktu, sprzedawcy, ceny, recenzji, wysyłki i rynku.
+    en-GB: "Browse UK cannabis on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
+    en-IE: "Browse cannabis in Ireland on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
+    de-DE: "Cannabis auf Little Biggy durchsuchen: alle littlebiggy-Angebote nach Kategorie, Preis, Verkäufer, Bewertungen und Versand indexiert."
+    fr-FR: "Parcourez le cannabis sur Little Biggy : toutes les annonces littlebiggy indexées par catégorie, prix, vendeur, avis et livraison."
+    pt-PT: "Navegue pela canábis no Little Biggy: todas as listagens littlebiggy indexadas por categoria, preço, vendedor, avaliações e envio."
+    it-IT: "Esplora la cannabis su Little Biggy: tutte le inserzioni littlebiggy indicizzate per categoria, prezzo, venditore, recensioni e spedizione."
+    es-ES: "Explora el cannabis en Little Biggy: todos los anuncios littlebiggy indexados por categoría, precio, vendedor, reseñas y envío."
+    el-GR: "Βρείτε κάνναβη στο Little Biggy: όλες οι καταχωρίσεις littlebiggy ανά κατηγορία, τιμή, πωλητή, κριτικές και αποστολή."
+    cs-CZ: "Procházejte nabídky konopí na Little Biggy: všechny nabídky littlebiggy podle kategorie, ceny, prodejce, recenzí a dopravy."
+    pl-PL: "Przeglądaj oferty konopi na Little Biggy: wszystkie oferty littlebiggy według kategorii, ceny, sprzedawcy, recenzji i wysyłki."
 
 nav:
   browse:
@@ -797,25 +799,25 @@ home:
   hero:
     title:
       line1:
-        en-GB: An index for the
-        de-DE: Ein Index für die
-        fr-FR: Un indice pour la
-        pt-PT: Um índice para o
-        it-IT: Un indice per il
-        es-ES: Un índice para la
-        el-GR: Ένας δείκτης για το
-        cs-CZ: Index pro
-        pl-PL: Indeks dla
+        en-GB: The Little Biggy
+        de-DE: Der Little Biggy
+        fr-FR: L'index du cannabis
+        pt-PT: O índice de canábis
+        it-IT: L'indice cannabis
+        es-ES: El índice de cannabis
+        el-GR: Το ευρετήριο κάνναβης
+        cs-CZ: Index konopí
+        pl-PL: Indeks konopi
       highlight:
-        en-GB: 420 marketplace
-        de-DE: Marktplatz 420
-        fr-FR: Marché 420
-        pt-PT: Mercado 420
-        it-IT: Mercato 420
-        es-ES: Mercado 420
-        el-GR: 420 αγορά
-        cs-CZ: Tržiště 420
-        pl-PL: Rynek 420
+        en-GB: Cannabis Index
+        de-DE: Cannabis-Index
+        fr-FR: de Little Biggy
+        pt-PT: do Little Biggy
+        it-IT: di Little Biggy
+        es-ES: de Little Biggy
+        el-GR: του Little Biggy
+        cs-CZ: na Little Biggy
+        pl-PL: na Little Biggy
     subtitle:
       en-GB: Faster search, cleaner categories, and at-a-glance seller trust for the Little Biggy marketplace.
       de-DE: Schnellere Suche, übersichtlichere Kategorien und schnelles Vertrauen der Verkäufer für den Little Biggy Marktplatz.
@@ -2451,25 +2453,47 @@ lbGuide:
 browse:
   page:
     metadataTitle:
-      en-GB: Little Biggy Listings | BiggyIndex
-      de-DE: Little Biggy-Angebote | BiggyIndex
-      fr-FR: Annonces Little Biggy | BiggyIndex
-      pt-PT: Listagens Little Biggy | BiggyIndex
-      it-IT: Inserzioni Little Biggy | BiggyIndex
-      es-ES: Anuncios Little Biggy | BiggyIndex
-      el-GR: Καταχωρίσεις Little Biggy | BiggyIndex
-      cs-CZ: Nabídky Little Biggy | BiggyIndex
-      pl-PL: Oferty Little Biggy | BiggyIndex
+      en-GB: "Browse {count}+ Cannabis Listings on Little Biggy | BiggyIndex"
+      de-DE: "{count}+ Cannabis-Angebote auf Little Biggy | BiggyIndex"
+      fr-FR: "{count}+ annonces de cannabis sur Little Biggy | BiggyIndex"
+      pt-PT: "{count}+ anúncios de canábis no Little Biggy | BiggyIndex"
+      it-IT: "{count}+ annunci di cannabis su Little Biggy | BiggyIndex"
+      es-ES: "{count}+ anuncios de cannabis en Little Biggy | BiggyIndex"
+      el-GR: "{count}+ καταχωρίσεις κάνναβης στο Little Biggy | BiggyIndex"
+      cs-CZ: "{count}+ nabídek konopí na Little Biggy | BiggyIndex"
+      pl-PL: "{count}+ ofert konopi na Little Biggy | BiggyIndex"
+    # Fallback when the live item count is unavailable or too small to brag about.
+    metadataTitleNoCount:
+      en-GB: Browse Cannabis Listings on Little Biggy | BiggyIndex
+      de-DE: Cannabis-Angebote auf Little Biggy durchsuchen | BiggyIndex
+      fr-FR: Annonces de cannabis sur Little Biggy | BiggyIndex
+      pt-PT: Anúncios de canábis no Little Biggy | BiggyIndex
+      it-IT: Annunci di cannabis su Little Biggy | BiggyIndex
+      es-ES: Anuncios de cannabis en Little Biggy | BiggyIndex
+      el-GR: Καταχωρίσεις κάνναβης στο Little Biggy | BiggyIndex
+      cs-CZ: Nabídky konopí na Little Biggy | BiggyIndex
+      pl-PL: Oferty konopi na Little Biggy | BiggyIndex
+    # SSR h1 for /browse (sr-only — the visible layout is toolbar-first).
+    heading:
+      en-GB: Browse Cannabis Listings on Little Biggy
+      de-DE: Cannabis-Angebote auf Little Biggy durchsuchen
+      fr-FR: Annonces de cannabis sur Little Biggy
+      pt-PT: Anúncios de canábis no Little Biggy
+      it-IT: Annunci di cannabis su Little Biggy
+      es-ES: Anuncios de cannabis en Little Biggy
+      el-GR: Καταχωρίσεις κάνναβης στο Little Biggy
+      cs-CZ: Nabídky konopí na Little Biggy
+      pl-PL: Oferty konopi na Little Biggy
     metadataDescription:
-      en-GB: Search and filter Little Biggy listings by category, price, seller, shipping, reviews, and market.
-      de-DE: Suchen und filtern Sie Little Biggy-Angebote nach Kategorie, Preis, Verkäufer, Versand, Bewertungen und Markt.
-      fr-FR: Recherchez et filtrez les annonces Little Biggy par catégorie, prix, vendeur, livraison, avis et marché.
-      pt-PT: Pesquise e filtre as listagens Little Biggy por categoria, preço, vendedor, envio, avaliações e mercado.
-      it-IT: Cerca e filtra le inserzioni Little Biggy per categoria, prezzo, venditore, spedizione, recensioni e mercato.
-      es-ES: Busca y filtra anuncios de Little Biggy por categoría, precio, vendedor, envío, reseñas y mercado.
-      el-GR: Αναζητήστε και φιλτράρετε καταχωρίσεις Little Biggy ανά κατηγορία, τιμή, πωλητή, αποστολή, κριτικές και αγορά.
-      cs-CZ: Vyhledávejte a filtrujte nabídky Little Biggy podle kategorie, ceny, prodejce, dopravy, recenzí a trhu.
-      pl-PL: Wyszukuj i filtruj oferty Little Biggy według kategorii, ceny, sprzedawcy, wysyłki, recenzji i rynku.
+      en-GB: Browse cannabis listings on Little Biggy — flower, hash, edibles, and vapes. Filter by category, price, seller, shipping, and reviews.
+      de-DE: Cannabis-Angebote auf Little Biggy durchsuchen — Blüten, Hasch, Edibles und Vapes. Nach Kategorie, Preis, Verkäufer, Versand und Bewertungen filtern.
+      fr-FR: Parcourez les annonces de cannabis sur Little Biggy — fleurs, hash, comestibles et vapes. Filtrez par catégorie, prix, vendeur, livraison et avis.
+      pt-PT: Navegue pelos anúncios de canábis no Little Biggy — flores, haxixe, comestíveis e vapes. Filtre por categoria, preço, vendedor, envio e avaliações.
+      it-IT: Sfoglia gli annunci di cannabis su Little Biggy — fiori, hashish, edibili e vape. Filtra per categoria, prezzo, venditore, spedizione e recensioni.
+      es-ES: Explora los anuncios de cannabis en Little Biggy — flores, hachís, comestibles y vapeos. Filtra por categoría, precio, vendedor, envío y reseñas.
+      el-GR: Δείτε καταχωρίσεις κάνναβης στο Little Biggy — άνθη, χασίς και άλλα. Φιλτράρετε ανά κατηγορία, τιμή, πωλητή, αποστολή και κριτικές.
+      cs-CZ: Procházejte nabídky konopí na Little Biggy — květy, hašiš a další. Filtrujte podle kategorie, ceny, prodejce, dopravy a recenzí.
+      pl-PL: Przeglądaj oferty konopi na Little Biggy — susz, haszysz i nie tylko. Filtruj według kategorii, ceny, sprzedawcy, wysyłki i recenzji.
   allCategories:
     en-GB: All Categories
     de-DE: Alle Kategorien
@@ -4610,6 +4634,26 @@ item:
       el-GR: Κριτικές
       cs-CZ: Recenze
       pl-PL: Recenzje
+    moreFromSeller:
+      en-GB: "More from {seller}"
+      de-DE: "Mehr von {seller}"
+      fr-FR: "Plus de {seller}"
+      pt-PT: "Mais de {seller}"
+      it-IT: "Altro da {seller}"
+      es-ES: "Más de {seller}"
+      el-GR: "Περισσότερα από {seller}"
+      cs-CZ: "Více od {seller}"
+      pl-PL: "Więcej od {seller}"
+    relatedInCategory:
+      en-GB: "More {category} on Little Biggy"
+      de-DE: "Mehr {category} auf Little Biggy"
+      fr-FR: "Plus de {category} sur Little Biggy"
+      pt-PT: "Mais {category} no Little Biggy"
+      it-IT: "Altro in {category} su Little Biggy"
+      es-ES: "Más {category} en Little Biggy"
+      el-GR: "Περισσότερα {category} στο Little Biggy"
+      cs-CZ: "Další {category} na Little Biggy"
+      pl-PL: "Więcej z kategorii {category} na Little Biggy"
   legacyModal:
     close:
       en-GB: Close
@@ -4777,25 +4821,25 @@ seller:
       cs-CZ: Prodejci Little Biggy | BiggyIndex
       pl-PL: Sprzedawcy Little Biggy | BiggyIndex
     metadataDescription:
-      en-GB: Browse all Little Biggy sellers with trust scores, review counts, and community ratings.
-      de-DE: Durchstöbern Sie alle Little Biggy Verkäufer mit Vertrauenswertungen, Bewertungszahlen und Community-Bewertungen.
-      fr-FR: Parcourez tous les vendeurs Little Biggy avec des scores de confiance, des comptes d’avis et des évaluations communautaires.
-      pt-PT: Navegue por todos Little Biggy vendedores com pontuações de confiança, contagens de avaliações e avaliações da comunidade.
-      it-IT: Sfoglia tutti Little Biggy venditori con punteggi di fiducia, conteggio di recensioni e valutazioni della community.
-      es-ES: Explora todos los vendedores Little Biggy con puntuaciones de confianza, recuentos de reseñas y valoraciones de la comunidad.
-      el-GR: Περιηγηθείτε σε όλους τους πωλητές Little Biggy με βαθμολογίες εμπιστοσύνης, πλήθος κριτικών και αξιολογήσεις κοινότητας.
-      cs-CZ: Prohlédněte si všechny Little Biggy prodejce s důvěryhodnými skóre, počtem recenzí a hodnoceními komunity.
-      pl-PL: Przeglądaj wszystkich Little Biggy sprzedawców z ocenami zaufania, liczbą recenzji i ocenami społeczności.
+      en-GB: Compare Little Biggy sellers with trust scores, review counts, and community ratings — all littlebiggy vendors ranked in one index.
+      de-DE: Alle Little Biggy-Verkäufer mit Vertrauenswerten, Bewertungszahlen und Community-Bewertungen im Überblick.
+      fr-FR: Tous les vendeurs Little Biggy avec scores de confiance, nombre d'avis et évaluations de la communauté.
+      pt-PT: Todos os vendedores Little Biggy com pontuações de confiança, número de avaliações e classificações da comunidade.
+      it-IT: Tutti i venditori Little Biggy con punteggi di fiducia, numero di recensioni e valutazioni della community.
+      es-ES: Todos los vendedores de Little Biggy con puntuaciones de confianza, número de reseñas y valoraciones de la comunidad.
+      el-GR: Όλοι οι πωλητές του Little Biggy με βαθμολογίες εμπιστοσύνης, αριθμό κριτικών και αξιολογήσεις κοινότητας.
+      cs-CZ: Všichni prodejci Little Biggy s hodnocením důvěryhodnosti, počtem recenzí a hodnocením komunity.
+      pl-PL: Wszyscy sprzedawcy Little Biggy z ocenami zaufania, liczbą recenzji i ocenami społeczności.
     title:
-      en-GB: Sellers
-      de-DE: Verkäufer
-      fr-FR: Vendeurs
-      pt-PT: Vendedores
-      it-IT: Venditori
-      es-ES: Vendedores
-      el-GR: Πωλητές
-      cs-CZ: Prodejci
-      pl-PL: Sprzedawcy
+      en-GB: Little Biggy Sellers
+      de-DE: Little Biggy-Verkäufer
+      fr-FR: Vendeurs Little Biggy
+      pt-PT: Vendedores Little Biggy
+      it-IT: Venditori Little Biggy
+      es-ES: Vendedores de Little Biggy
+      el-GR: Πωλητές Little Biggy
+      cs-CZ: Prodejci Little Biggy
+      pl-PL: Sprzedawcy Little Biggy
     activeSellers: "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}"
     leaderboard:
       title:
@@ -5468,25 +5512,25 @@ reviews:
       cs-CZ: Recenze Little Biggy | BiggyIndex
       pl-PL: Recenzje Little Biggy | BiggyIndex
     metadataDescription:
-      en-GB: Latest community reviews from Little Biggy buyers with images, ratings, and delivery times.
-      de-DE: Neueste Community-Bewertungen von Little Biggy Käufern mit Bildern, Bewertungen und Lieferzeiten.
-      fr-FR: Dernières critiques de la communauté de Little Biggy acheteurs avec des images, des évaluations et des délais de livraison.
-      pt-PT: Últimas avaliações da comunidade de compradores Little Biggy com imagens, avaliações e prazos de entrega.
-      it-IT: Ultime recensioni della community da Little Biggy acquirenti con immagini, valutazioni e tempi di consegna.
-      es-ES: Últimas opiniones de la comunidad de compradores Little Biggy con imágenes, valoraciones y plazos de entrega.
-      el-GR: Οι τελευταίες κριτικές κοινότητας από Little Biggy αγοραστές με εικόνες, αξιολογήσεις και χρόνους παράδοσης.
-      cs-CZ: Nejnovější recenze komunity od Little Biggy kupujících s obrázky, hodnoceními a časy doručení.
-      pl-PL: Najnowsze recenzje społeczności od Little Biggy kupujących ze zdjęciami, ocenami i terminami dostawy.
+      en-GB: The latest Little Biggy reviews from buyers, with photos, ratings, and delivery times.
+      de-DE: Die neuesten Little Biggy-Bewertungen von Käufern, mit Bildern, Bewertungen und Lieferzeiten.
+      fr-FR: Les derniers avis Little Biggy des acheteurs, avec photos, notes et délais de livraison.
+      pt-PT: As últimas avaliações Little Biggy dos compradores, com fotos, classificações e prazos de entrega.
+      it-IT: Le ultime recensioni Little Biggy dagli acquirenti, con foto, valutazioni e tempi di consegna.
+      es-ES: Las últimas reseñas de Little Biggy de los compradores, con fotos, valoraciones y plazos de entrega.
+      el-GR: Οι τελευταίες κριτικές Little Biggy από αγοραστές, με φωτογραφίες, αξιολογήσεις και χρόνους παράδοσης.
+      cs-CZ: Nejnovější recenze Little Biggy od kupujících, s fotografiemi, hodnoceními a časy doručení.
+      pl-PL: Najnowsze recenzje Little Biggy od kupujących, ze zdjęciami, ocenami i czasami dostawy.
     title:
-      en-GB: Community Reviews
-      de-DE: Community-Bewertungen
-      fr-FR: Avis de la communauté
-      pt-PT: Avaliações da Comunidade
-      it-IT: Recensioni della comunità
-      es-ES: Reseñas de la comunidad
-      el-GR: Κριτικές κοινότητας
-      cs-CZ: Recenze komunity
-      pl-PL: Recenzje społeczności
+      en-GB: Little Biggy Reviews
+      de-DE: Little Biggy-Bewertungen
+      fr-FR: Avis Little Biggy
+      pt-PT: Avaliações Little Biggy
+      it-IT: Recensioni Little Biggy
+      es-ES: Reseñas de Little Biggy
+      el-GR: Κριτικές Little Biggy
+      cs-CZ: Recenze Little Biggy
+      pl-PL: Recenzje Little Biggy
     subtitle: "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}"
     filters:
       all:

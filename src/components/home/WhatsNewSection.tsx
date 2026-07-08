@@ -179,12 +179,15 @@ function HomeItemCard({
     : item.image
       ? [item.image]
       : [];
+  const itemHref = `/item/${encodeURIComponent(String(item.refNum ?? item.id))}`;
   const sellerName = item.seller ?? copy.unknownSeller;
   const hasSellerLink = item.sellerId != null;
   const openSellerModal = () => {
     if (item.sellerId != null) setSellerModalId(String(item.sellerId));
   };
   const handleSellerClick = (event: MouseEvent<HTMLSpanElement>) => {
+    // preventDefault stops the enclosing item anchor from navigating
+    event.preventDefault();
     event.stopPropagation();
     openSellerModal();
   };
@@ -240,10 +243,13 @@ function HomeItemCard({
           )}
         </button>
 
-        {/* Clickable body -- opens overlay */}
-        <button
-          type="button"
-          onClick={() => {
+        {/* Clickable body -- real link for crawlers; left-click opens overlay */}
+        <a
+          href={itemHref}
+          onClick={(e) => {
+            // Middle-click / ctrl-click → let browser open in new tab
+            if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+            e.preventDefault();
             const ref = item.refNum ? String(item.refNum) : String(item.id);
             setRefNum(ref);
           }}
@@ -258,9 +264,9 @@ function HomeItemCard({
             </div>
 
             {/* Seller row — avatar + name, both open SellerModal.
-                NOTE: uses spans with role=button (not <button>) because the
-                enclosing card-content is already a <button>, and nested buttons
-                are invalid HTML. */}
+                NOTE: uses spans with role=button (not <button>/<a>) because the
+                enclosing card-content is an <a>, and nested interactive
+                elements are invalid HTML. */}
             <div className="seller-card mt-1.5">
               <SellerAvatarTooltip
                 sellerName={sellerName}
@@ -268,7 +274,7 @@ function HomeItemCard({
                 showInitialTooltip
               >
                 {hasSellerLink ? (
-                  /* biome-ignore lint/a11y/useSemanticElements: This control sits inside the card detail button, so a nested button would be invalid HTML. */
+                  /* biome-ignore lint/a11y/useSemanticElements: This control sits inside the card detail link, so a nested button/anchor would be invalid HTML. */
                   <span
                     role="button"
                     tabIndex={0}
@@ -308,7 +314,7 @@ function HomeItemCard({
               <div className="seller-card__body">
                 <div className="seller-card__name-row">
                   {hasSellerLink ? (
-                    /* biome-ignore lint/a11y/useSemanticElements: This control sits inside the card detail button, so a nested button would be invalid HTML. */
+                    /* biome-ignore lint/a11y/useSemanticElements: This control sits inside the card detail link, so a nested button/anchor would be invalid HTML. */
                     <span
                       role="button"
                       tabIndex={0}
@@ -357,7 +363,7 @@ function HomeItemCard({
               )}
             </div>
           </div>
-        </button>
+        </a>
       </div>
 
       {/* Image zoom preview */}

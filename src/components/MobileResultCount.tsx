@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtomValue } from "jotai";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { filteredItemsAtom, itemsAtom } from "@/store/atoms";
 
 /**
@@ -12,11 +12,20 @@ import { filteredItemsAtom, itemsAtom } from "@/store/atoms";
  * in the Toolbar (ResultCount). Its own line also has room to surface the
  * distinct-seller count, which the cramped mobile bar hid.
  */
-export function MobileResultCount() {
+export function MobileResultCount({ initialCount }: { initialCount?: number }) {
   const t = useTranslations("browse.toolbar");
+  // Explicit locale for number formatting: bare toLocaleString() would use
+  // the server's ICU default during SSR but the browser locale on the
+  // client — a hydration mismatch on non-English markets now that the
+  // count is server-rendered.
+  const locale = useLocale();
   const filtered = useAtomValue(filteredItemsAtom);
   const total = useAtomValue(itemsAtom);
   const isFiltered = filtered.length !== total.length;
+
+  // Server-rendered fallback: the store is empty during SSR/hydration, so
+  // fall back to the server-known total until items land client-side.
+  const totalCount = total.length > 0 ? total.length : (initialCount ?? 0);
 
   // Distinct sellers among the visible (filtered) items — mirrors ResultCount.
   const sellerCount = new Set(
@@ -26,16 +35,16 @@ export function MobileResultCount() {
   return (
     <div className="mb-2.5 flex items-baseline gap-1.5 px-0.5 text-[13px] tabular-nums sm:hidden">
       <span className="font-bold text-foreground">
-        {(isFiltered ? filtered.length : total.length).toLocaleString()}
+        {(isFiltered ? filtered.length : totalCount).toLocaleString(locale)}
       </span>
       <span className="text-muted">
         {isFiltered
-          ? `${t("ofLabel")} ${total.length.toLocaleString()}`
-          : t("itemsLabel", { count: total.length })}
+          ? `${t("ofLabel")} ${totalCount.toLocaleString(locale)}`
+          : t("itemsLabel", { count: totalCount })}
       </span>
       {sellerCount > 0 && (
         <span className="text-muted-foreground">
-          · {sellerCount.toLocaleString()}{" "}
+          · {sellerCount.toLocaleString(locale)}{" "}
           {t("sellersLabel", { count: sellerCount })}
         </span>
       )}

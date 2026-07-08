@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Little Biggy-Browser",
-    "description": "Durchsuchen Sie Little Biggy-Angebote nach Produkt, Verkäufer, Preis, Bewertungen, Versand und Markt."
+    "tagline": "Cannabis auf Little Biggy durchsuchen",
+    "description": "Cannabis auf Little Biggy durchsuchen: alle littlebiggy-Angebote nach Kategorie, Preis, Verkäufer, Bewertungen und Versand indexiert."
   },
   "nav": {
     "browse": "Durchstöbern",
@@ -101,8 +101,8 @@
     },
     "hero": {
       "title": {
-        "line1": "Ein Index für die",
-        "highlight": "Marktplatz 420"
+        "line1": "Der Little Biggy",
+        "highlight": "Cannabis-Index"
       },
       "subtitle": "Schnellere Suche, übersichtlichere Kategorien und schnelles Vertrauen der Verkäufer für den Little Biggy Marktplatz.",
       "stats": {
@@ -372,8 +372,10 @@
   },
   "browse": {
     "page": {
-      "metadataTitle": "Little Biggy-Angebote | BiggyIndex",
-      "metadataDescription": "Suchen und filtern Sie Little Biggy-Angebote nach Kategorie, Preis, Verkäufer, Versand, Bewertungen und Markt."
+      "metadataTitle": "{count}+ Cannabis-Angebote auf Little Biggy | BiggyIndex",
+      "metadataTitleNoCount": "Cannabis-Angebote auf Little Biggy durchsuchen | BiggyIndex",
+      "heading": "Cannabis-Angebote auf Little Biggy durchsuchen",
+      "metadataDescription": "Cannabis-Angebote auf Little Biggy durchsuchen — Blüten, Hasch, Edibles und Vapes. Nach Kategorie, Preis, Verkäufer, Versand und Bewertungen filtern."
     },
     "allCategories": "Alle Kategorien",
     "noResults": "Keine Produkte passen zu Ihren Filtern",
@@ -650,7 +652,9 @@
       "firstSeen": "Zuerst gesehen: {date}",
       "updated": "Aktualisiert: {date}",
       "priceHistory": "Preisgeschichte",
-      "reviews": "Rezensionen"
+      "reviews": "Rezensionen",
+      "moreFromSeller": "Mehr von {seller}",
+      "relatedInCategory": "Mehr {category} auf Little Biggy"
     },
     "legacyModal": {
       "close": "Schließen",
@@ -675,8 +679,8 @@
     "visitStore": "Besuche den Shop",
     "page": {
       "metadataTitle": "Little Biggy-Verkäufer | BiggyIndex",
-      "metadataDescription": "Durchstöbern Sie alle Little Biggy Verkäufer mit Vertrauenswertungen, Bewertungszahlen und Community-Bewertungen.",
-      "title": "Verkäufer",
+      "metadataDescription": "Alle Little Biggy-Verkäufer mit Vertrauenswerten, Bewertungszahlen und Community-Bewertungen im Überblick.",
+      "title": "Little Biggy-Verkäufer",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
       "leaderboard": {
         "title": "Vertrauensbestenliste",
@@ -780,8 +784,8 @@
   "reviews": {
     "page": {
       "metadataTitle": "Little Biggy-Bewertungen | BiggyIndex",
-      "metadataDescription": "Neueste Community-Bewertungen von Little Biggy Käufern mit Bildern, Bewertungen und Lieferzeiten.",
-      "title": "Community-Bewertungen",
+      "metadataDescription": "Die neuesten Little Biggy-Bewertungen von Käufern, mit Bildern, Bewertungen und Lieferzeiten.",
+      "title": "Little Biggy-Bewertungen",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
       "filters": {
         "all": "Alle",

@@ -16,6 +16,25 @@ import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { buildSeedItems } from "@/lib/seed";
 import { pageMetadata } from "@/lib/seo/metadata";
 
+/**
+ * Item count for the metadata title. Cached with the same profile/tag as the
+ * page body so generateMetadata doesn't pay an uncached R2 fetch per request
+ * and the "{count}+" title revalidates in lockstep with the grid.
+ */
+async function browseItemCount(mkt: string): Promise<number> {
+  "use cache";
+  cacheLife("items");
+  cacheTag("items");
+  const items = await loadItems(mkt);
+  return items.length;
+}
+
+/** Round down to a stable "N+" figure so the title doesn't churn per crawl. */
+function roundedCount(count: number): number {
+  if (count >= 100) return Math.floor(count / 50) * 50;
+  return Math.floor(count / 10) * 10;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -24,11 +43,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const market = localeToMarket(locale);
   const t = await getTranslations({ locale, namespace: "browse.page" });
+  const count = roundedCount(await browseItemCount(market.toLowerCase()));
 
   return pageMetadata({
     market,
     path: "/browse",
-    title: t("metadataTitle"),
+    // Tiny/empty markets fall back to the countless title ("Browse 0+..."
+    // would read worse than no number at all).
+    title:
+      count >= 10 ? t("metadataTitle", { count }) : t("metadataTitleNoCount"),
     description: t("metadataDescription"),
   });
 }
@@ -46,6 +69,7 @@ export default async function BrowsePage({
   const market = localeToMarket(locale);
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
+  const t = await getTranslations({ locale, namespace: "browse.page" });
 
   const [itemList, sellerList] = await Promise.all([
     loadItems(mkt),
@@ -71,11 +95,17 @@ export default async function BrowsePage({
       </Suspense>
 
       <SiteHeader />
-      <Toolbar />
+      <Toolbar initialCount={itemList.length} />
 
       {/* Horizontal gutters only — vertical padding is dropped so the sidebar's
           right border runs flush into the toolbar. */}
       <main className="mx-auto px-4">
+        {/* SEO h1 — sr-only because the browse layout is deliberately
+            toolbar-first (SiteHeader → Toolbar → grid); any visible heading
+            would push the toolbar down and change the Phase-1 "pixel
+            identical" layout. Screen readers and crawlers still get a
+            keyworded page heading. */}
+        <h1 className="sr-only">{t("heading")}</h1>
         <div className="flex gap-0">
           <FilterPanel />
 
@@ -85,8 +115,8 @@ export default async function BrowsePage({
               gap from the filter sidebar. */}
           <div className="flex-1 min-w-0 py-4 pl-4">
             <ActiveFilterBar />
-            <MobileResultCount />
-            <ItemGrid seedItems={seedItems} seedSym="£" />
+            <MobileResultCount initialCount={itemList.length} />
+            <ItemGrid seedItems={seedItems} />
           </div>
         </div>
       </main>

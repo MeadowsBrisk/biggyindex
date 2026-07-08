@@ -34,8 +34,10 @@ import { ItemRow } from "./ItemRow";
 // ─── Progressive rendering (ported from food-agg) ──────────────────
 
 const COLS = 4;
-const INITIAL_ROWS = 5;
-const INITIAL_BATCH = COLS * INITIAL_ROWS; // ~20 items visible immediately
+const INITIAL_ROWS = 9;
+// Matches the 36 SSR seed cards so the seed→live swap never removes
+// rendered rows (page height shrinking mid-load = scroll jump / CLS).
+const INITIAL_BATCH = COLS * INITIAL_ROWS;
 const CHUNK_SIZE = COLS * 3; // ~12 items per scroll-load
 
 function useProgressiveRender<T extends { id: string | number }>(
@@ -95,31 +97,33 @@ function useProgressiveRender<T extends { id: string | number }>(
 /**
  * Lightweight card rendered during loading (before Jotai hydrates).
  * Contains a real <img> so the browser preload scanner discovers images
- * immediately from the server HTML.
+ * immediately from the server HTML, and is a real <a href="/item/{ref}">
+ * so crawlers get a linked catalog with the item name as anchor text.
+ * No onClick — pre-hydration a tap navigating to the item page is correct.
+ * No prices — SSR currency conversion is broken (separate fix).
  */
 function SeedCard({
   item,
   priority,
-  sym,
   mobileCols,
 }: {
   item: SeedItem;
   priority: boolean;
-  sym: string;
   mobileCols: 1 | 2;
 }) {
   const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
   const mobileSize = mobileCols === 2 ? "50vw" : "100vw";
+  const href = `/item/${encodeURIComponent(String(item.refNum ?? item.id))}`;
 
   return (
-    <div className="item-card">
+    <a href={href} className="item-card">
       <div className="item-card-inner">
         <div className="item-card-image aspect-square">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imageUrl}
-              alt={item.n}
+              alt={item.c ? `${item.n} — ${item.c}` : item.n}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : undefined}
               sizes={`(min-width: 2560px) 17vw, (min-width: 1920px) 20vw, (min-width: 1440px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, ${mobileSize}`}
@@ -134,7 +138,9 @@ function SeedCard({
         {mobileCols === 2 ? (
           /* Compact seed body — mirrors the 2-col live card so first paint
              (title 2-line ~11.5px, seller ~10.5px, price ~13px) doesn't jump
-             when live cards swap in. */
+             when live cards swap in. The price line is a blank placeholder
+             reserving the live card's .card-price-main box height (SSR
+             currency conversion is broken, so no real price pre-hydration). */
           <div className="px-1.5 pb-2 pt-1">
             <p
               className="font-medium leading-tight line-clamp-2"
@@ -148,9 +154,12 @@ function SeedCard({
             >
               {item.sn}
             </p>
-            <p className="font-bold mt-1" style={{ fontSize: "13px" }}>
-              {sym}
-              {item.uMin.toFixed(2)}
+            <p
+              aria-hidden="true"
+              className="mt-1 font-bold"
+              style={{ fontSize: "13px" }}
+            >
+              &nbsp;
             </p>
           </div>
         ) : (
@@ -159,26 +168,19 @@ function SeedCard({
             <p className="text-sm font-medium leading-snug line-clamp-2 mt-0.5">
               {item.n}
             </p>
-            <p className="text-sm font-semibold mt-1">
-              {sym}
-              {item.uMin.toFixed(2)}
+            <p aria-hidden="true" className="text-sm font-semibold mt-1">
+              &nbsp;
             </p>
           </div>
         )}
       </div>
-    </div>
+    </a>
   );
 }
 
 // ─── Item Grid ─────────────────────────────────────────────────────
 
-export function ItemGrid({
-  seedItems,
-  seedSym,
-}: {
-  seedItems?: SeedItem[];
-  seedSym?: string;
-}) {
+export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
   const t = useTranslations("browse");
   const items = useAtomValue(sortedItemsAtom);
   const isLoading = useAtomValue(isLoadingAtom);
@@ -302,7 +304,6 @@ export function ItemGrid({
               key={item.id}
               item={item}
               priority={i < 2}
-              sym={seedSym ?? "£"}
               mobileCols={mobileGridCols}
             />
           ))}

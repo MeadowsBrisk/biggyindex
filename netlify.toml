@@ -8,3 +8,211 @@
   # not credentials. The real secrets (R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY)
   # remain scanned.
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_R2_DATA_URL,NEXT_PUBLIC_R2_IMAGES_URL,NEXT_PUBLIC_SUGGESTIONS_API,R2_DATA_V2_BUCKET,R2_IMAGES_BUCKET"
+
+# ---------------------------------------------------------------------------
+# v1 → v2 redirect map (SEO recovery).
+#
+# These MUST live here, not (only) in next.config.ts redirects(): on Netlify
+# the next-intl proxy runs as an edge function BEFORE the origin, rewriting
+# /home → /en-GB/home so the config redirect source never matches. CDN-level
+# rules run before the edge function and win. (next.config.ts keeps a mirror
+# of these rules for portability; only dot-containing paths like
+# /sitemap-*.xml actually fire there because the proxy matcher skips them.)
+#
+# Rules are host-relative except the locale-prefix ones, so every market
+# subdomain redirects its own legacy paths. First match wins.
+# ---------------------------------------------------------------------------
+
+[[redirects]]
+  from = "/home"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/latest-reviews"
+  to = "/reviews"
+  status = 301
+  force = true
+
+# Deliberate 302: real /category/[slug] pages return in Phase 2 and we want
+# Google to keep the source URLs indexed. DELETE when category pages ship.
+[[redirects]]
+  from = "/category/*"
+  to = "/browse"
+  status = 302
+  force = true
+
+# v1 localized item/seller paths
+[[redirects]]
+  from = "/produit/*"
+  to = "/item/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/produkt/*"
+  to = "/item/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/prodotto/*"
+  to = "/item/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/produto/*"
+  to = "/item/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/producto/*"
+  to = "/item/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/vendeur/*"
+  to = "/seller/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/verkaeufer/*"
+  to = "/seller/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/venditore/*"
+  to = "/seller/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/vendedor/*"
+  to = "/seller/:splat"
+  status = 301
+  force = true
+
+# v1 apex locale-prefix paths → market subdomains. /xx/home first (single
+# hop for the commonest legacy URL), then the generic prefix rule; the bare
+# prefix (/de) needs its own rule because the splat form only matches /de/….
+[[redirects]]
+  from = "/de"
+  to = "https://de.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/home"
+  to = "https://de.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/*"
+  to = "https://de.biggyindex.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fr"
+  to = "https://fr.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fr/home"
+  to = "https://fr.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fr/*"
+  to = "https://fr.biggyindex.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pt"
+  to = "https://pt.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pt/home"
+  to = "https://pt.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pt/*"
+  to = "https://pt.biggyindex.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it"
+  to = "https://it.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/home"
+  to = "https://it.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/*"
+  to = "https://it.biggyindex.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/es"
+  to = "https://es.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/es/home"
+  to = "https://es.biggyindex.com/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/es/*"
+  to = "https://es.biggyindex.com/:splat"
+  status = 301
+  force = true
+
+# v1 sitemap child names → v2 /sitemap/[id] routes
+[[redirects]]
+  from = "/sitemap-static.xml"
+  to = "/sitemap/static.xml"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/sitemap-items.xml"
+  to = "/sitemap/items.xml"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/sitemap-sellers.xml"
+  to = "/sitemap/sellers.xml"
+  status = 301
+  force = true
+
+# No categories sitemap child yet — retarget when category pages ship
+[[redirects]]
+  from = "/sitemap-categories.xml"
+  to = "/sitemap/static.xml"
+  status = 301
+  force = true

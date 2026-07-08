@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Prohlížeč Little Biggy",
-    "description": "Procházejte nabídky Little Biggy podle produktu, prodejce, ceny, recenzí, dopravy a trhu."
+    "tagline": "Procházejte nabídky konopí na Little Biggy",
+    "description": "Procházejte nabídky konopí na Little Biggy: všechny nabídky littlebiggy podle kategorie, ceny, prodejce, recenzí a dopravy."
   },
   "nav": {
     "browse": "Procházet",
@@ -101,8 +101,8 @@
     },
     "hero": {
       "title": {
-        "line1": "Index pro",
-        "highlight": "Tržiště 420"
+        "line1": "Index konopí",
+        "highlight": "na Little Biggy"
       },
       "subtitle": "Rychlejší vyhledávání, čistší kategorie a okamžitá důvěra prodejců pro Little Biggy trh.",
       "stats": {
@@ -372,8 +372,10 @@
   },
   "browse": {
     "page": {
-      "metadataTitle": "Nabídky Little Biggy | BiggyIndex",
-      "metadataDescription": "Vyhledávejte a filtrujte nabídky Little Biggy podle kategorie, ceny, prodejce, dopravy, recenzí a trhu."
+      "metadataTitle": "{count}+ nabídek konopí na Little Biggy | BiggyIndex",
+      "metadataTitleNoCount": "Nabídky konopí na Little Biggy | BiggyIndex",
+      "heading": "Nabídky konopí na Little Biggy",
+      "metadataDescription": "Procházejte nabídky konopí na Little Biggy — květy, hašiš a další. Filtrujte podle kategorie, ceny, prodejce, dopravy a recenzí."
     },
     "allCategories": "Všechny kategorie",
     "noResults": "Žádné produkty neodpovídají vašim filtrům",
@@ -650,7 +652,9 @@
       "firstSeen": "Poprvé viděn: {date}",
       "updated": "Aktualizováno: {date}",
       "priceHistory": "Historie cen",
-      "reviews": "Recenze"
+      "reviews": "Recenze",
+      "moreFromSeller": "Více od {seller}",
+      "relatedInCategory": "Další {category} na Little Biggy"
     },
     "legacyModal": {
       "close": "Zavřít",
@@ -675,8 +679,8 @@
     "visitStore": "Navštivte obchod",
     "page": {
       "metadataTitle": "Prodejci Little Biggy | BiggyIndex",
-      "metadataDescription": "Prohlédněte si všechny Little Biggy prodejce s důvěryhodnými skóre, počtem recenzí a hodnoceními komunity.",
-      "title": "Prodejci",
+      "metadataDescription": "Všichni prodejci Little Biggy s hodnocením důvěryhodnosti, počtem recenzí a hodnocením komunity.",
+      "title": "Prodejci Little Biggy",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
       "leaderboard": {
         "title": "Žebříček Trust",
@@ -780,8 +784,8 @@
   "reviews": {
     "page": {
       "metadataTitle": "Recenze Little Biggy | BiggyIndex",
-      "metadataDescription": "Nejnovější recenze komunity od Little Biggy kupujících s obrázky, hodnoceními a časy doručení.",
-      "title": "Recenze komunity",
+      "metadataDescription": "Nejnovější recenze Little Biggy od kupujících, s fotografiemi, hodnoceními a časy doručení.",
+      "title": "Recenze Little Biggy",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
       "filters": {
         "all": "Všichni",

@@ -181,13 +181,10 @@ function PhotoReviewCard({
   const activeIndex =
     visibleImages.length > 0 ? activeImageIndex % visibleImages.length : 0;
 
-  return (
-    <button
-      type="button"
-      onClick={() => openModal(review)}
-      className="group relative w-full overflow-hidden rounded-xl break-inside-avoid mb-4 cursor-pointer"
-      style={{ height }}
-    >
+  const cardClassName =
+    "group relative w-full overflow-hidden rounded-xl break-inside-avoid mb-4 cursor-pointer";
+  const cardInner = (
+    <>
       {visibleImages.length > 0 ? (
         <div className="absolute inset-0">
           {visibleImages.map((src, imageIndex) => (
@@ -264,6 +261,32 @@ function PhotoReviewCard({
           )}
         </div>
       </div>
+    </>
+  );
+
+  // Real item link for crawlers when the item is known; left-click keeps the modal UX
+  return review.refNum ? (
+    <a
+      href={`/item/${encodeURIComponent(String(review.refNum))}`}
+      onClick={(e) => {
+        // Middle-click / ctrl-click → let browser open in new tab
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        openModal(review);
+      }}
+      className={`inline-block ${cardClassName}`}
+      style={{ height }}
+    >
+      {cardInner}
+    </a>
+  ) : (
+    <button
+      type="button"
+      onClick={() => openModal(review)}
+      className={cardClassName}
+      style={{ height }}
+    >
+      {cardInner}
     </button>
   );
 }
@@ -282,18 +305,13 @@ function MarqueeReviewCard({
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const canOpen = !!review.refNum;
 
-  return (
-    <button
-      type="button"
-      onClick={() => canOpen && setRefNum(review.refNum!)}
-      disabled={!canOpen}
-      className={`w-70 sm:w-80 shrink-0 text-left rounded-xl border border-border bg-card p-3 flex flex-col transition-colors select-none ${
-        canOpen
-          ? "hover:border-primary/30 hover:bg-surface-hover cursor-pointer"
-          : "cursor-default"
-      }`}
-      style={{ height: "180px" }}
-    >
+  const cardClassName = `w-70 sm:w-80 shrink-0 text-left rounded-xl border border-border bg-card p-3 flex flex-col transition-colors select-none ${
+    canOpen
+      ? "hover:border-primary/30 hover:bg-surface-hover cursor-pointer"
+      : "cursor-default"
+  }`;
+  const cardInner = (
+    <>
       {/* Top: stars + time */}
       <div className="flex items-center justify-between mb-1.5 shrink-0">
         <StarRatingDark rating={review.rating} size={10} />
@@ -372,6 +390,32 @@ function MarqueeReviewCard({
           )}
         </div>
       </div>
+    </>
+  );
+
+  // Real item link for crawlers; left-click keeps the modal UX
+  return canOpen ? (
+    <a
+      href={`/item/${encodeURIComponent(String(review.refNum))}`}
+      onClick={(e) => {
+        // Middle-click / ctrl-click → let browser open in new tab
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        setRefNum(review.refNum!);
+      }}
+      className={cardClassName}
+      style={{ height: "180px" }}
+    >
+      {cardInner}
+    </a>
+  ) : (
+    <button
+      type="button"
+      disabled
+      className={cardClassName}
+      style={{ height: "180px" }}
+    >
+      {cardInner}
     </button>
   );
 }

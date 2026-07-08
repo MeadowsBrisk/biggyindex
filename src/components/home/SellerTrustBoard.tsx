@@ -199,9 +199,14 @@ function SellerRow({
       : "text-amber-500";
 
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(seller.sellerId)}
+    <a
+      href={`/seller/${encodeURIComponent(seller.sellerId)}`}
+      onClick={(e) => {
+        // Middle-click / ctrl-click → let browser open in new tab
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        onOpen(seller.sellerId);
+      }}
       className="group w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
     >
       <SellerAvatar
@@ -246,7 +251,7 @@ function SellerRow({
         </span>
         <MeterBar pct={pct} tone={tone} />
       </div>
-    </button>
+    </a>
   );
 }
 
@@ -441,10 +446,16 @@ export function SellerTrustBoard({
             </header>
             <div className="px-4 py-4 flex flex-wrap gap-2">
               {recentlyJoined.slice(0, 12).map((seller) => (
-                <button
+                <a
                   key={seller.sellerId}
-                  type="button"
-                  onClick={() => openSeller(seller.sellerId)}
+                  href={`/seller/${encodeURIComponent(seller.sellerId)}`}
+                  onClick={(e) => {
+                    // Middle-click / ctrl-click → let browser open in new tab
+                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey)
+                      return;
+                    e.preventDefault();
+                    openSeller(seller.sellerId);
+                  }}
                   className="group flex items-center gap-2 rounded-full bg-surface border border-border pl-1 pr-3 py-1 transition-all hover:bg-surface-hover hover:border-blue-500/40 hover:shadow-sm"
                 >
                   <SellerAvatar seller={seller} size={24} tone="blue" />
@@ -456,7 +467,7 @@ export function SellerTrustBoard({
                       {formatDate(seller.joined, copy.time, now)}
                     </span>
                   )}
-                </button>
+                </a>
               ))}
             </div>
           </div>

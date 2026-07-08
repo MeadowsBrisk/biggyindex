@@ -11,7 +11,7 @@ import {
   Rows3,
   Shuffle,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useSyncExternalStore, useTransition } from "react";
 import { FilterToggle } from "@/components/FilterPanel";
 import { ViewMenu } from "@/components/ViewMenu";
@@ -32,8 +32,12 @@ import {
 /**
  * Toolbar — sticky at the top of the viewport (header scrolls away above it).
  * BiggyIndex-distinct: hotness indicator, bookmark toggle.
+ *
+ * `initialCount` is the server-known item total, used as the SSR fallback in
+ * ResultCount so raw HTML shows the real count instead of "0 items" until
+ * the client store hydrates.
  */
-export function Toolbar() {
+export function Toolbar({ initialCount }: { initialCount?: number }) {
   const ref = useRef<HTMLDivElement>(null);
 
   // Publish the live toolbar height to `--toolbar-h` so the filter sidebar
@@ -71,7 +75,7 @@ export function Toolbar() {
       <div className="hidden sm:flex items-center gap-2 px-4 pt-2 pb-2 flex-nowrap">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">
           <FilterToggle />
-          <ResultCount />
+          <ResultCount initialCount={initialCount} />
         </div>
 
         {/* Active filters moved to the ActiveFilterBar above the grid (the
@@ -147,11 +151,19 @@ function BookmarkToggle() {
 
 // ─── Result count ──────────────────────────────────────────────────
 
-function ResultCount() {
+function ResultCount({ initialCount }: { initialCount?: number }) {
   const t = useTranslations("browse.toolbar");
+  // Explicit locale for number formatting: bare toLocaleString() differs
+  // between the server ICU default and the browser locale — a hydration
+  // mismatch on non-English markets now that the count is server-rendered.
+  const locale = useLocale();
   const filtered = useAtomValue(filteredItemsAtom);
   const total = useAtomValue(itemsAtom);
   const isFiltered = filtered.length !== total.length;
+
+  // Server-rendered fallback: the store is empty during SSR/hydration, so
+  // fall back to the server-known total until items land client-side.
+  const totalCount = total.length > 0 ? total.length : (initialCount ?? 0);
 
   // Distinct sellers among the currently-visible (filtered) items — mirrors
   // roast-radar's `new Set(items.map(i => i.sid)).size`. Deriving straight
@@ -164,16 +176,16 @@ function ResultCount() {
   return (
     <span className="hidden min-w-0 items-baseline gap-1.5 whitespace-nowrap text-sm tabular-nums sm:inline-flex">
       <span className="font-bold text-foreground">
-        {(isFiltered ? filtered.length : total.length).toLocaleString()}
+        {(isFiltered ? filtered.length : totalCount).toLocaleString(locale)}
       </span>
       <span className="text-muted">
         {isFiltered
-          ? `${t("ofLabel")} ${total.length.toLocaleString()}`
-          : t("itemsLabel", { count: total.length })}
+          ? `${t("ofLabel")} ${totalCount.toLocaleString(locale)}`
+          : t("itemsLabel", { count: totalCount })}
       </span>
       {sellerCount > 0 && (
         <span className="hidden text-muted-foreground sm:inline">
-          · {sellerCount.toLocaleString()}{" "}
+          · {sellerCount.toLocaleString(locale)}{" "}
           {t("sellersLabel", { count: sellerCount })}
         </span>
       )}

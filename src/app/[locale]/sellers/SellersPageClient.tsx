@@ -220,9 +220,20 @@ function LeaderboardCard({
 
           return (
             <li key={e.sellerId}>
-              <button
-                type="button"
-                onClick={() => openSeller(e.sellerId)}
+              <a
+                href={`/seller/${encodeURIComponent(e.sellerId)}`}
+                onClick={(event) => {
+                  // Middle-click / ctrl-click → let browser open in new tab
+                  if (
+                    event.button !== 0 ||
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    event.shiftKey
+                  )
+                    return;
+                  event.preventDefault();
+                  openSeller(e.sellerId);
+                }}
                 className="group w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--surface-hover)]"
               >
                 <LbAvatar
@@ -263,7 +274,7 @@ function LeaderboardCard({
                   </span>
                   <LbMeterBar pct={pct} tone={tone} />
                 </div>
-              </button>
+              </a>
             </li>
           );
         })}
@@ -564,10 +575,21 @@ export function SellersPageClient({
                             ? "bg-amber-500/15 text-amber-400"
                             : "bg-red-500/15 text-red-400";
                   return (
-                    <button
+                    <a
                       key={seller.id}
-                      type="button"
-                      onClick={() => openSeller(String(seller.id))}
+                      href={`/seller/${encodeURIComponent(String(seller.id))}`}
+                      onClick={(e) => {
+                        // Middle-click / ctrl-click → let browser open in new tab
+                        if (
+                          e.button !== 0 ||
+                          e.metaKey ||
+                          e.ctrlKey ||
+                          e.shiftKey
+                        )
+                          return;
+                        e.preventDefault();
+                        openSeller(String(seller.id));
+                      }}
                       className="grid grid-cols-[minmax(10rem,1fr)_60px_56px_64px_48px_48px_56px_60px_48px] gap-1.5 px-3 py-3 w-full text-left hover:bg-[var(--surface-hover)] transition-colors items-center"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -677,7 +699,7 @@ export function SellersPageClient({
                       <span className="text-sm text-foreground tabular-nums text-right">
                         {seller.itemsCount ?? 0}
                       </span>
-                    </button>
+                    </a>
                   );
                 })}
               </div>

@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Little Biggy Browser",
-    "description": "Browse Little Biggy listings by product, seller, price, reviews, shipping, and market."
+    "tagline": "Browse UK Cannabis on Little Biggy",
+    "description": "Browse UK cannabis on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
   },
   "nav": {
     "browse": "Browse",
@@ -101,8 +101,8 @@
     },
     "hero": {
       "title": {
-        "line1": "An index for the",
-        "highlight": "420 marketplace"
+        "line1": "The Little Biggy",
+        "highlight": "Cannabis Index"
       },
       "subtitle": "Faster search, cleaner categories, and at-a-glance seller trust for the Little Biggy marketplace.",
       "stats": {
@@ -372,8 +372,10 @@
   },
   "browse": {
     "page": {
-      "metadataTitle": "Little Biggy Listings | BiggyIndex",
-      "metadataDescription": "Search and filter Little Biggy listings by category, price, seller, shipping, reviews, and market."
+      "metadataTitle": "Browse {count}+ Cannabis Listings on Little Biggy | BiggyIndex",
+      "metadataTitleNoCount": "Browse Cannabis Listings on Little Biggy | BiggyIndex",
+      "heading": "Browse Cannabis Listings on Little Biggy",
+      "metadataDescription": "Browse cannabis listings on Little Biggy — flower, hash, edibles, and vapes. Filter by category, price, seller, shipping, and reviews."
     },
     "allCategories": "All Categories",
     "noResults": "No products match your filters",
@@ -650,7 +652,9 @@
       "firstSeen": "First seen: {date}",
       "updated": "Updated: {date}",
       "priceHistory": "Price History",
-      "reviews": "Reviews"
+      "reviews": "Reviews",
+      "moreFromSeller": "More from {seller}",
+      "relatedInCategory": "More {category} on Little Biggy"
     },
     "legacyModal": {
       "close": "Close",
@@ -675,8 +679,8 @@
     "visitStore": "Visit store",
     "page": {
       "metadataTitle": "Little Biggy Sellers | BiggyIndex",
-      "metadataDescription": "Browse all Little Biggy sellers with trust scores, review counts, and community ratings.",
-      "title": "Sellers",
+      "metadataDescription": "Compare Little Biggy sellers with trust scores, review counts, and community ratings — all littlebiggy vendors ranked in one index.",
+      "title": "Little Biggy Sellers",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
       "leaderboard": {
         "title": "Trust Leaderboard",
@@ -780,8 +784,8 @@
   "reviews": {
     "page": {
       "metadataTitle": "Little Biggy Reviews | BiggyIndex",
-      "metadataDescription": "Latest community reviews from Little Biggy buyers with images, ratings, and delivery times.",
-      "title": "Community Reviews",
+      "metadataDescription": "The latest Little Biggy reviews from buyers, with photos, ratings, and delivery times.",
+      "title": "Little Biggy Reviews",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
       "filters": {
         "all": "All",
