@@ -28,10 +28,16 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { loadMergedDetail } from "@/lib/data";
 import { decodeEntities, formatPriceRangeChange } from "@/lib/format";
 import { getItemGalleryImages } from "@/lib/images";
-import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import {
+  ALL_MARKETS,
+  localeToMarket,
+  type MarketCode,
+  marketCurrencySymbol,
+} from "@/lib/market/market";
+import { R2Keys, readR2JSON } from "@/lib/r2";
 import { compactMetaDescription, pageMetadata } from "@/lib/seo/metadata";
 import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
-import type { MergedDetailBlob, PriceSnapshot } from "@/lib/types";
+import type { Item, MergedDetailBlob, PriceSnapshot } from "@/lib/types";
 import {
   itemVariantContext,
   parseVariant,
@@ -215,6 +221,47 @@ function itemMetadataDescription(item: MergedDetailBlob): string {
   );
 }
 
+/**
+ * Markets in which each item ref currently exists, keyed by ref.
+ *
+ * Mirrors the presence map itemsSitemap() builds so page-level hreflang
+ * and sitemap hreflang emit identical clusters — a self-only page cluster
+ * contradicting a full sitemap cluster makes Google discard both.
+ *
+ * Cached once for ALL item pages (one read of each market's item list),
+ * so metadata generation never fetches presence per item.
+ */
+async function itemMarketPresence(): Promise<Record<string, MarketCode[]>> {
+  "use cache";
+  cacheLife("items");
+  cacheTag("items");
+
+  const allResults = await Promise.all(
+    ALL_MARKETS.map(async (candidateMarket) => {
+      const items = await readR2JSON<Item[]>(
+        R2Keys.items(candidateMarket.toLowerCase()),
+      );
+      return { market: candidateMarket, items: items ?? [] };
+    }),
+  );
+
+  const presence: Record<string, MarketCode[]> = {};
+  for (const { market: candidateMarket, items } of allResults) {
+    for (const item of items) {
+      const ref = String(item.refNum ?? item.id);
+      let itemMarkets = presence[ref];
+      if (!itemMarkets) {
+        itemMarkets = [];
+        presence[ref] = itemMarkets;
+      }
+      if (!itemMarkets.includes(candidateMarket)) {
+        itemMarkets.push(candidateMarket);
+      }
+    }
+  }
+  return presence;
+}
+
 export async function generateMetadata({
   params,
 }: ItemPageProps): Promise<Metadata> {
@@ -233,6 +280,14 @@ export async function generateMetadata({
   const name = decodeEntities(item.n);
   const seller = item.sn ? decodeEntities(item.sn) : null;
   const image = getItemGalleryImages(item, "full", { forceStatic: true })[0];
+  const presence = await itemMarketPresence();
+  // The page can render from the shared detail blob for an item already
+  // delisted in this market — the cluster must still self-reference the
+  // canonical's own market or Google treats it as invalid.
+  const presenceMarkets = presence[ref] ?? [];
+  const alternateMarkets = presenceMarkets.includes(market)
+    ? presenceMarkets
+    : [market, ...presenceMarkets];
 
   return pageMetadata({
     market,
@@ -241,7 +296,7 @@ export async function generateMetadata({
       ? `${name} by ${seller} | BiggyIndex`
       : `${name} | BiggyIndex`,
     description: itemMetadataDescription(item),
-    alternateMarkets: [market],
+    alternateMarkets,
     images: image ? [{ url: image, alt: name }] : undefined,
   });
 }

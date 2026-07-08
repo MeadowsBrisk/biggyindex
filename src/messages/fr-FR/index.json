@@ -966,5 +966,94 @@
     "close": "Fermer",
     "backToTop": "Retour en haut",
     "back": "Retour"
+  },
+  "legal": {
+    "privacy": {
+      "metadataTitle": "Privacy Policy | BiggyIndex",
+      "metadataDescription": "How BiggyIndex handles data — no accounts, no analytics, no tracking, and only functional cookies.",
+      "title": "Privacy Policy",
+      "updated": "Last updated July 2026",
+      "intro": "BiggyIndex is an independent, read-only index of publicly available Little Biggy listings. The site is deliberately simple, and that extends to privacy — there is very little data we could collect, and we choose not to collect more.",
+      "sections": {
+        "noAccounts": {
+          "heading": "No accounts, no purchases",
+          "body": "You cannot create an account, log in, or buy anything on BiggyIndex. We never ask for your name, email address, payment details, or delivery address. Any purchase happens on Little Biggy, under Little Biggy's own terms and privacy practices — nothing about it passes through us."
+        },
+        "noTracking": {
+          "heading": "No analytics or tracking",
+          "body": "We do not run analytics or advertising scripts, and we do not use tracking pixels or fingerprinting. We do not build visitor profiles, and we have no personal data to sell or share with anyone."
+        },
+        "functionalStorage": {
+          "heading": "Functional cookies and local storage",
+          "body": "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for display preferences such as dark mode. None of it identifies you. See the Cookie Policy for the full list."
+        },
+        "listingData": {
+          "heading": "Where our data comes from",
+          "body": "Everything shown on BiggyIndex — items, sellers, prices, reviews — is sourced from publicly available Little Biggy listings. We hold no data about Little Biggy buyers."
+        },
+        "contact": {
+          "heading": "Contact",
+          "body": "If you have a question, or want something corrected or removed, contact us via the suggestion feature on any item page."
+        }
+      }
+    },
+    "terms": {
+      "metadataTitle": "Terms of Use | BiggyIndex",
+      "metadataDescription": "The terms that apply when you browse BiggyIndex, an independent informational index of Little Biggy listings.",
+      "title": "Terms of Use",
+      "updated": "Last updated July 2026",
+      "intro": "By using BiggyIndex you agree to these terms. They are short because the site is simple — we index listings and display them, nothing more.",
+      "sections": {
+        "whatWeAre": {
+          "heading": "What BiggyIndex is",
+          "body": "BiggyIndex is an informational index. We collect publicly available Little Biggy listings and present them with search, filtering, and sorting so they are easier to browse. Nothing is bought or sold on this site, and no age-restricted sales take place here — there is no checkout, no payment, and no fulfilment of any kind."
+        },
+        "independence": {
+          "heading": "Independence",
+          "body": "BiggyIndex is an independent project. We are not affiliated with, endorsed by, or operated by Little Biggy. Listings, seller names, images, and reviews belong to their respective owners and are shown here for reference."
+        },
+        "accuracy": {
+          "heading": "Accuracy is not guaranteed",
+          "body": "Listings change frequently and our index refreshes on a schedule, so prices, availability, shipping options, and review counts may be out of date or incorrect. Always check the original listing before relying on anything shown here. The site is provided as-is, without warranties of any kind."
+        },
+        "outboundLinks": {
+          "heading": "Outbound links",
+          "body": "Links from items and sellers lead to Little Biggy. Once you leave BiggyIndex you are subject to that site's own terms, and we are not responsible for anything that happens there, including any transaction."
+        },
+        "yourResponsibility": {
+          "heading": "Your responsibility",
+          "body": "You are responsible for ensuring that anything you do after leaving this site complies with the laws that apply where you live."
+        },
+        "changes": {
+          "heading": "Changes to these terms",
+          "body": "We may update these terms from time to time, and the latest version always lives on this page. If something looks wrong, contact us via the suggestion feature."
+        }
+      }
+    },
+    "cookies": {
+      "metadataTitle": "Cookie Policy | BiggyIndex",
+      "metadataDescription": "The functional cookies and local storage BiggyIndex uses — no analytics, no advertising, no tracking.",
+      "title": "Cookie Policy",
+      "updated": "Last updated July 2026",
+      "intro": "BiggyIndex uses no analytics, advertising, or tracking cookies. The only storage on this site is functional — it keeps the site working and remembers your preferences.",
+      "table": {
+        "name": "Name",
+        "type": "Type",
+        "purpose": "Purpose"
+      },
+      "rows": {
+        "locale": {
+          "name": "NEXT_LOCALE",
+          "type": "Cookie",
+          "purpose": "Remembers your language and market so pages load in the right locale."
+        },
+        "preferences": {
+          "name": "Display preferences",
+          "type": "Local storage",
+          "purpose": "Keeps settings like dark mode and display currency in your browser. This data never leaves your device."
+        }
+      },
+      "outro": "Because none of this storage tracks you, there is no consent banner to dismiss. If you clear your browser data, the site simply returns to its defaults."
+    }
   }
 }

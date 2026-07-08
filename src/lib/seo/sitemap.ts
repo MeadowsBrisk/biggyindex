@@ -77,16 +77,28 @@ export async function getSitemapEntries(
 
 function staticSitemap(baseUrl: string): MetadataRoute.Sitemap {
   const pages = ["/", "/browse", "/sellers", "/reviews"];
+  const legalPages = ["/privacy", "/terms", "/cookies"];
 
-  return pages.map((path) => ({
-    url: `${baseUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: path === "/" ? "daily" : "weekly",
-    priority: path === "/" ? 1.0 : path === "/browse" ? 0.9 : 0.7,
-    alternates: {
-      languages: alternateLanguagesForPath(path, ALL_MARKETS),
-    },
-  }));
+  // No lastModified for static pages — stamping new Date() on every render is
+  // a lying signal; Google's own crawl signals are more reliable than that.
+  return [
+    ...pages.map((path) => ({
+      url: `${baseUrl}${path}`,
+      changeFrequency: path === "/" ? ("daily" as const) : ("weekly" as const),
+      priority: path === "/" ? 1.0 : path === "/browse" ? 0.9 : 0.7,
+      alternates: {
+        languages: alternateLanguagesForPath(path, ALL_MARKETS),
+      },
+    })),
+    ...legalPages.map((path) => ({
+      url: `${baseUrl}${path}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+      alternates: {
+        languages: alternateLanguagesForPath(path, ALL_MARKETS),
+      },
+    })),
+  ];
 }
 
 async function itemsSitemap(
@@ -172,10 +184,11 @@ async function sellersSitemap(
     const sellerMarkets = presence.get(id) ?? new Set([market]);
     const path = `/seller/${encodeURIComponent(id)}`;
 
+    // No lastModified — no reliable per-seller signal here today; a real one
+    // (e.g. latest review date) can be added later.
     return [
       {
         url: `${baseUrl}${path}`,
-        lastModified: new Date(),
         changeFrequency: "weekly" as const,
         priority: 0.5,
         alternates: {

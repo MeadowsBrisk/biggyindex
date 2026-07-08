@@ -155,6 +155,22 @@ function normalizeSellerDetail(
   };
 }
 
+/**
+ * Cheap existence check — just the current market's seller ids, cached
+ * separately from the heavy page data so the page component can await it
+ * up front (before the streamed Suspense boundary) without de-streaming
+ * the rest of the page. Same source + cache profile as getSellerPageData,
+ * so the two views stay consistent within a revalidation window.
+ */
+async function getMarketSellerIds(market: MarketCode): Promise<string[]> {
+  "use cache";
+  cacheLife("sellers");
+  cacheTag("sellers");
+
+  const sellers = await loadSellers(market.toLowerCase());
+  return sellers.map((entry) => String(entry.id));
+}
+
 async function getSellerPageData(
   locale: string,
   sellerId: string,
@@ -230,15 +246,16 @@ export async function generateMetadata({
 }: SellerPageProps): Promise<Metadata> {
   const { locale, id } = await params;
   const sellerId = parseSellerId(id);
-  const t = await getTranslations({ locale, namespace: "seller.detail" });
-  if (!sellerId) {
-    return { title: t("notFoundTitle") };
-  }
+  // notFound() here (not just a fallback title): metadata is blocking for
+  // html-limited bots (incl. Googlebot), so throwing from generateMetadata
+  // guarantees crawlers a real 404 status even if the route-level loading
+  // boundary has already begun streaming a 200 shell to browsers.
+  if (!sellerId) notFound();
 
   const data = await getSellerPageData(locale, sellerId);
-  if (!data) {
-    return { title: t("notFoundTitle") };
-  }
+  if (!data) notFound();
+
+  const t = await getTranslations({ locale, namespace: "seller.detail" });
 
   const title = t("metadataTitle", {
     seller: decodeEntities(data.detail.sellerName || data.seller.name),
@@ -382,6 +399,18 @@ function SellerPageBar({
 }
 
 export default async function SellerPage(props: SellerPageProps) {
+  // Existence check BEFORE returning the streamed JSX: notFound() thrown
+  // inside the Suspense boundary below fires after the 200 shell has
+  // flushed, so Next can only inject a noindex meta tag (GSC soft-404s).
+  // Awaiting the cheap cached id list here makes dead seller pages return
+  // a real HTTP 404 while live pages keep streaming the heavy detail.
+  const { locale, id } = await props.params;
+  const sellerId = parseSellerId(id);
+  if (!sellerId) notFound();
+
+  const sellerIds = await getMarketSellerIds(localeToMarket(locale));
+  if (!sellerIds.includes(sellerId)) notFound();
+
   return (
     <Suspense>
       <SellerContent params={props.params} />

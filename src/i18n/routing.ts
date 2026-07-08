@@ -100,4 +100,7 @@ export const routing = defineRouting({
   // instead of being pushed to en-IE by a stale NEXT_LOCALE cookie or
   // Accept-Language ambiguity between en-GB / en-IE.
   localeDetection: false,
+  // Don't emit the hreflang Link header from middleware — it conflicts with
+  // the per-page <link rel="alternate"> tags generated in metadata.ts.
+  alternateLinks: false,
 });
