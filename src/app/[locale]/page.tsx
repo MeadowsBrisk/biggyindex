@@ -12,8 +12,9 @@ import { WhatsNewSection } from "@/components/home/WhatsNewSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadHomeFeed } from "@/lib/data";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
-import { localeToMarket } from "@/lib/market/market";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
+import { serializeJsonLd } from "@/lib/seo/jsonld";
+import { marketBaseUrl, pageMetadata } from "@/lib/seo/metadata";
 import type { HomeFeedItemCard } from "@/lib/types";
 
 export async function generateMetadata({
@@ -87,8 +88,38 @@ export default async function HomePage({
   const feedBuiltAt = Date.parse(feed.builtAt);
   const timeReference = Number.isFinite(feedBuiltAt) ? feedBuiltAt : 0;
 
+  // WebSite + Organization structured data. sameAs links the other
+  // market editions of the same organization.
+  const baseUrl = marketBaseUrl(market);
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "BiggyIndex",
+    url: `${baseUrl}/`,
+  };
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "BiggyIndex",
+    url: `${baseUrl}/`,
+    logo: `${baseUrl}/icon-512.png`,
+    sameAs: ALL_MARKETS.filter((m) => m !== market).map(
+      (m) => `${marketBaseUrl(m)}/`,
+    ),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(organizationJsonLd),
+        }}
+      />
       <Suspense>
         <HeroSection
           totalItems={feed.hero.totalItems}

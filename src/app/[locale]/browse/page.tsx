@@ -12,9 +12,11 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
 import { browseDataVersion, loadItems, loadSellers } from "@/lib/data";
+import { decodeEntities } from "@/lib/format";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { buildSeedItems } from "@/lib/seed";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { serializeJsonLd } from "@/lib/seo/jsonld";
+import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 
 /**
  * Item count for the metadata title. Cached with the same profile/tag as the
@@ -84,8 +86,31 @@ export default async function BrowsePage({
   // zero bytes until the dataset actually changes.
   const dataUrl = `/api/browse?mkt=${mkt}&v=${browseDataVersion(itemList)}`;
 
+  // ItemList structured data: top 50 by hotness — mirrors the grid's
+  // default "hottest" sort. Names + absolute URLs only (lean payload).
+  const topByHotness = [...itemList]
+    .sort((a, b) => Number(b.h ?? 0) - Number(a.h ?? 0))
+    .slice(0, 50);
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: topByHotness.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: absoluteUrl(
+        market,
+        `/item/${encodeURIComponent(String(item.refNum ?? item.id))}`,
+      ),
+      name: decodeEntities(item.n),
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
+      />
       <Suspense>
         <DataLoader
           dataUrl={dataUrl}

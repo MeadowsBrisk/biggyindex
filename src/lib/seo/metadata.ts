@@ -3,6 +3,7 @@ import {
   ALL_MARKETS,
   type MarketCode,
   marketToHost,
+  marketToLocale,
 } from "@/lib/market/market";
 
 export const SEO_LOCALE_FOR: Record<MarketCode, string> = {
@@ -71,6 +72,8 @@ interface PageMetadataOptions {
   description: string;
   alternateMarkets?: MarketCode[];
   images?: Array<{ url: string; alt?: string }>;
+  /** og:type override — e.g. "product" for item pages. Default "website". */
+  ogType?: "website" | "product";
 }
 
 export function pageMetadata({
@@ -80,12 +83,13 @@ export function pageMetadata({
   description,
   alternateMarkets = ALL_MARKETS,
   images,
+  ogType = "website",
 }: PageMetadataOptions): Metadata {
   const url = absoluteUrl(market, path);
   const metaDescription = compactMetaDescription(description, 160);
   const validImages = images?.filter((image) => image.url);
 
-  return {
+  const metadata: Metadata = {
     title,
     description: metaDescription,
     alternates: {
@@ -94,6 +98,8 @@ export function pageMetadata({
     },
     openGraph: {
       type: "website",
+      // og:locale uses underscore territory format (en_GB, de_DE, ...).
+      locale: marketToLocale(market).replace("-", "_"),
       title,
       description: metaDescription,
       url,
@@ -107,4 +113,16 @@ export function pageMetadata({
       images: validImages?.map((image) => image.url),
     },
   };
+
+  // Next 16's metadata resolver REJECTS og:type "product" at runtime
+  // ("Invalid OpenGraph type: product" — and the throw drops ALL meta
+  // tags for the page), so it can't be set here. Instead, suppress the
+  // default og:type and let the page render
+  // <meta property="og:type" content="product" /> itself — React 19
+  // hoists it into <head>.
+  if (ogType !== "website" && metadata.openGraph) {
+    delete (metadata.openGraph as { type?: string }).type;
+  }
+
+  return metadata;
 }

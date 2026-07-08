@@ -13,6 +13,8 @@ import {
   type MarketCode,
   marketToHost,
 } from "@/lib/market/market";
+import { serializeJsonLd } from "@/lib/seo/jsonld";
+import { absoluteUrl } from "@/lib/seo/metadata";
 import type { Item, Seller, SellerDetail } from "@/lib/types";
 import { SellerPageClient } from "./SellerPageClient";
 
@@ -314,6 +316,12 @@ async function SellerContent({ params }: SellerPageProps) {
     data.detail.imageUrl ??
     data.seller.imageUrl ??
     undefined;
+  // The littlebiggy profile is a sameAs reference — the entity's url must
+  // be the canonical BiggyIndex seller page, not an external site.
+  const littleBiggyUrl = data.detail.share ?? data.detail.sellerUrl ?? null;
+  const joinedMs = data.detail.sellerJoined
+    ? Date.parse(data.detail.sellerJoined)
+    : Number.NaN;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
@@ -321,7 +329,11 @@ async function SellerContent({ params }: SellerPageProps) {
       "@type": "Organization",
       name,
       description,
-      url: data.detail.share ?? data.detail.sellerUrl ?? canonical,
+      url: canonical,
+      sameAs: littleBiggyUrl ? [littleBiggyUrl] : undefined,
+      dateCreated: Number.isFinite(joinedMs)
+        ? new Date(joinedMs).toISOString().slice(0, 10)
+        : undefined,
       image,
       aggregateRating:
         data.seller.averageRating != null && data.seller.numberOfReviews > 0
@@ -335,6 +347,25 @@ async function SellerContent({ params }: SellerPageProps) {
           : undefined,
     },
   };
+  // Mirrors the visual breadcrumb: Sellers → seller.
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: t("backToSellers"),
+        item: absoluteUrl(data.market, "/sellers"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name,
+        item: canonical,
+      },
+    ],
+  };
 
   return (
     <>
@@ -345,7 +376,11 @@ async function SellerContent({ params }: SellerPageProps) {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <SellerPageClient
         detail={data.detail}

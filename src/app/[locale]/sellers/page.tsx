@@ -6,9 +6,11 @@ import { RouteDataLoader } from "@/components/RouteDataLoader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { loadSellers } from "@/lib/data";
+import { decodeEntities } from "@/lib/format";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
 import { readR2JSON } from "@/lib/r2";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { serializeJsonLd } from "@/lib/seo/jsonld";
+import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 import { SellersPageClient } from "./SellersPageClient";
 
 export async function generateMetadata({
@@ -108,8 +110,27 @@ export default async function SellersPage({
     if (s.sellerId && s.lifetime) analyticsMap[String(s.sellerId)] = s.lifetime;
   }
 
+  // ItemList structured data: seller profile URLs + names.
+  const sellerListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: sellerList.map((seller, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: absoluteUrl(
+        market,
+        `/seller/${encodeURIComponent(String(seller.id))}`,
+      ),
+      name: decodeEntities(seller.name),
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(sellerListJsonLd) }}
+      />
       <RouteDataLoader
         sellers={sellerList}
         currencySymbol={cSym}

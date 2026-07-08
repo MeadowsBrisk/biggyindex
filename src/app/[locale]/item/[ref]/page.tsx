@@ -30,14 +30,19 @@ import { categoryToSlug } from "@/lib/categories";
 import { loadArchivedDetail, loadMergedDetail } from "@/lib/data";
 import { decodeEntities, formatPriceRangeChange } from "@/lib/format";
 import { getItemGalleryImages } from "@/lib/images";
+import { getServerCurrency } from "@/lib/market/currency";
 import {
   ALL_MARKETS,
   localeToMarket,
   type MarketCode,
-  marketCurrencySymbol,
 } from "@/lib/market/market";
 import { R2Keys, readR2JSON } from "@/lib/r2";
-import { compactMetaDescription, pageMetadata } from "@/lib/seo/metadata";
+import { serializeJsonLd } from "@/lib/seo/jsonld";
+import {
+  absoluteUrl,
+  compactMetaDescription,
+  pageMetadata,
+} from "@/lib/seo/metadata";
 import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import type { Item, MergedDetailBlob, PriceSnapshot } from "@/lib/types";
 import {
@@ -347,6 +352,7 @@ export async function generateMetadata({
     description: itemMetadataDescription(item, metaT, tCategories),
     alternateMarkets,
     images: image ? [{ url: image, alt: name }] : undefined,
+    ogType: "product",
   });
 }
 
@@ -369,7 +375,12 @@ async function ItemContent({ params }: ItemPageProps) {
   });
   const market = localeToMarket(locale);
   const mkt = market.toLowerCase();
-  const cSym = marketCurrencySymbol(market);
+  // Stored prices are USD — convert to the market currency before display
+  // (mirrors the client's currencyDisplayAtom). Falls back to "$" + USD
+  // amounts when rates are unavailable; never a wrong symbol.
+  const currency = await getServerCurrency(market);
+  const fmtMoney = (usd: number) =>
+    `${currency.symbol}${(usd * currency.rate).toFixed(2)}`;
 
   // Live blob first; delisted items render as full archived pages from the
   // manifest-gated snapshot. Archive fetch failures return null and fall
@@ -441,8 +452,86 @@ async function ItemContent({ params }: ItemPageProps) {
     return best?.key ?? null;
   })();
 
+  // ─── Structured data (Product + BreadcrumbList) ────────────────────
+  const canonicalUrl = absoluteUrl(market, `/item/${encodeURIComponent(ref)}`);
+  const plainDescription = decodeEntities(item.d ?? item.dEn ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 5000);
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    image: images.length > 0 ? images : undefined,
+    description: plainDescription || undefined,
+    sku: ref,
+    url: canonicalUrl,
+    category: item.c ?? undefined,
+    brand: sellerLabel
+      ? { "@type": "Organization", name: sellerLabel }
+      : undefined,
+    offers:
+      item.uMin != null
+        ? {
+            "@type": "AggregateOffer",
+            // Converted market-currency amounts + ISO code — never raw
+            // USD numbers behind a local currency code.
+            lowPrice: (item.uMin * currency.rate).toFixed(2),
+            highPrice: ((item.uMax ?? item.uMin) * currency.rate).toFixed(2),
+            priceCurrency: currency.code,
+            offerCount: Math.max(variantRows.length, 1),
+            availability: isArchived
+              ? "https://schema.org/Discontinued"
+              : "https://schema.org/InStock",
+            url: canonicalUrl,
+          }
+        : undefined,
+    // Same 1-10 convention as the seller page's AggregateRating.
+    aggregateRating:
+      item.rs?.cnt && item.rs.avg != null
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: item.rs.avg.toFixed(1),
+            reviewCount: String(item.rs.cnt),
+            bestRating: "10",
+            worstRating: "1",
+          }
+        : undefined,
+  };
+  // Mirrors the visual breadcrumb: Browse → category landing page → item.
+  const breadcrumbTrail = [
+    { name: t("browseIndex"), url: absoluteUrl(market, "/browse") },
+    ...(categorySlug && categoryLabel
+      ? [
+          {
+            name: categoryLabel,
+            url: absoluteUrl(market, `/category/${categorySlug}`),
+          },
+        ]
+      : []),
+    { name, url: canonicalUrl },
+  ];
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbTrail.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: crumb.url,
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
       <ItemPageBar
         categoryLabel={categoryLabel}
         categoryHref={categorySlug ? `/category/${categorySlug}` : null}
@@ -548,11 +637,11 @@ async function ItemContent({ params }: ItemPageProps) {
                   <div className="flex flex-wrap items-baseline gap-2">
                     <span className="text-lg font-semibold text-primary">
                       {item.uMin != null
-                        ? `${cSym}${item.uMin.toFixed(2)}`
+                        ? fmtMoney(item.uMin)
                         : t("unavailable")}
                       {item.uMax != null &&
                         item.uMax !== item.uMin &&
-                        ` - ${cSym}${item.uMax.toFixed(2)}`}
+                        ` - ${fmtMoney(item.uMax)}`}
                     </span>
                     {isArchived && item.uMin != null && (
                       <span className="text-xs font-medium text-muted">
@@ -604,13 +693,12 @@ async function ItemContent({ params }: ItemPageProps) {
                                 </span>
                               </td>
                               <td className="ido-table__price">
-                                {cSym}
-                                {variant.price.toFixed(2)}
+                                {fmtMoney(variant.price)}
                               </td>
                               <td className="ido-table__ppu">
                                 {variant.ppu != null &&
                                 variant.unitLabel != null
-                                  ? `${cSym}${variant.ppu.toFixed(2)}/${variant.unitLabel}`
+                                  ? `${fmtMoney(variant.ppu)}/${variant.unitLabel}`
                                   : "-"}
                               </td>
                             </tr>
@@ -639,7 +727,7 @@ async function ItemContent({ params }: ItemPageProps) {
                                 <span className="ido-ship__chip-cost">
                                   {option.cost === 0
                                     ? t("free")
-                                    : `${cSym}${option.cost.toFixed(2)}`}
+                                    : fmtMoney(option.cost)}
                                 </span>
                               </span>
                             ))}
@@ -797,13 +885,11 @@ async function ItemContent({ params }: ItemPageProps) {
                                     {shortDate(snapshot.d)}
                                   </time>
                                   <span className="ido-price-history__price">
-                                    {cSym}
-                                    {snapshot.min.toFixed(2)}
+                                    {fmtMoney(snapshot.min)}
                                     {snapshot.max !== snapshot.min && (
                                       <span className="ido-price-history__range">
                                         {" "}
-                                        - {cSym}
-                                        {snapshot.max.toFixed(2)}
+                                        - {fmtMoney(snapshot.max)}
                                       </span>
                                     )}
                                   </span>
@@ -1037,8 +1123,14 @@ function PriceChangeBadge({
 
 export default async function ItemPage(props: ItemPageProps) {
   return (
-    <Suspense>
-      <ItemContent params={props.params} />
-    </Suspense>
+    <>
+      {/* og:type "product" — Next's metadata resolver rejects it
+          (pageMetadata suppresses the default og:type for item pages),
+          so it's rendered directly; React 19 hoists it into <head>. */}
+      <meta property="og:type" content="product" />
+      <Suspense>
+        <ItemContent params={props.params} />
+      </Suspense>
+    </>
   );
 }
