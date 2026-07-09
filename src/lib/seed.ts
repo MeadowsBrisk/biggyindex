@@ -1,3 +1,4 @@
+import { getItemPrimaryHash, isItemPrimaryAnimated } from "./images";
 import type { Item } from "./types";
 
 /** Display currency context used to pre-format seed prices server-side. */
@@ -37,6 +38,12 @@ export interface SeedItem {
   ra?: number | null;
   /** Rating count — only present alongside `ra`. */
   rc?: number | null;
+  /**
+   * Card-variant widths for the primary image hash (e.g. [320, 640]), from the
+   * shared image-meta aggregate. Powers the seed card's responsive srcset.
+   * Absent for legacy / animated / no-variant images → plain `thumb.avif` src.
+   */
+  vw?: number[];
 }
 
 /**
@@ -67,6 +74,12 @@ export interface BuildSeedOptions {
    * namespace). Optional — falls back to the raw key when omitted.
    */
   translateCategory?: (category: string) => string;
+  /**
+   * Global hash → card-variant-widths lookup (from `loadVariantWidths`). When
+   * provided, non-animated primary images get a `vw` list for a responsive
+   * srcset. Omitted → seeds render the plain `thumb.avif` (unchanged).
+   */
+  variantWidths?: (hash: string) => number[] | undefined;
 }
 
 /**
@@ -86,7 +99,7 @@ export function buildSeedItems(
   items: Item[],
   opts: BuildSeedOptions,
 ): SeedItem[] {
-  const { count = 36, currency, translateCategory } = opts;
+  const { count = 36, currency, translateCategory, variantWidths } = opts;
   const { symbol, rate } = currency;
   return [...items]
     .sort((a, b) => (b.h ?? 0) - (a.h ?? 0))
@@ -95,6 +108,11 @@ export function buildSeedItems(
       const avg = item.rs?.avg;
       const hasRating = typeof avg === "number" && avg > 0;
       const cat = item.c ?? null;
+      // Skip srcset for animated sources (they serve anim.webp / no w-variants).
+      const primaryHash = isItemPrimaryAnimated(item)
+        ? undefined
+        : getItemPrimaryHash(item);
+      const vw = primaryHash ? variantWidths?.(primaryHash) : undefined;
       return {
         id: item.id,
         refNum: item.refNum,
@@ -109,6 +127,7 @@ export function buildSeedItems(
         p: fmtSeedPrice(item.uMin, item.uMax, symbol, rate),
         ra: hasRating ? avg : null,
         rc: hasRating ? (item.rs?.cnt ?? null) : null,
+        vw: vw?.length ? vw : undefined,
       };
     });
 }

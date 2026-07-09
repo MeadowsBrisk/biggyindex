@@ -12,7 +12,12 @@ import { SeedParamsSync } from "@/components/SeedParamsSync";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toolbar } from "@/components/Toolbar";
-import { browseDataVersion, loadItems, loadSellers } from "@/lib/data";
+import {
+  browseDataVersion,
+  loadItems,
+  loadSellers,
+  loadVariantWidths,
+} from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import { getServerCurrency } from "@/lib/market/currency";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
@@ -75,15 +80,19 @@ export default async function BrowsePage({
   const cSym = marketCurrencySymbol(market);
   const t = await getTranslations({ locale, namespace: "browse.page" });
 
-  const [itemList, sellerList, currency, tCategories] = await Promise.all([
-    loadItems(mkt),
-    loadSellers(mkt),
-    // Server-side USD→native conversion for real seed prices (same upstream
-    // as the client's exchange-rate atoms). Falls back to "$"/USD on failure —
-    // never a wrong symbol on an unconverted number.
-    getServerCurrency(market),
-    getTranslations({ locale, namespace: "categories" }),
-  ]);
+  const [itemList, sellerList, currency, tCategories, variantWidths] =
+    await Promise.all([
+      loadItems(mkt),
+      loadSellers(mkt),
+      // Server-side USD→native conversion for real seed prices (same upstream
+      // as the client's exchange-rate atoms). Falls back to "$"/USD on failure —
+      // never a wrong symbol on an unconverted number.
+      getServerCurrency(market),
+      getTranslations({ locale, namespace: "categories" }),
+      // Global hash → variant-widths lookup for the seed cards' responsive
+      // srcset (live cards get theirs from /api/browse's `vw` field instead).
+      loadVariantWidths(),
+    ]);
 
   // Translate the seed category pill to the display locale, matching the live
   // CardPill. Unknown keys (shouldn't happen — crawler emits the 10 canonical
@@ -100,6 +109,7 @@ export default async function BrowsePage({
   const seedItems = buildSeedItems(itemList, {
     currency: { symbol: currency.symbol, rate: currency.rate },
     translateCategory,
+    variantWidths: (hash) => variantWidths[hash],
   });
 
   // Items are NOT inlined into the RSC payload (was ~900KB of flight data).

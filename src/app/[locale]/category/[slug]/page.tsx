@@ -25,9 +25,14 @@ import {
   categoryToSlug,
   slugToCategory,
 } from "@/lib/categories";
-import { loadItems } from "@/lib/data";
+import { loadItems, loadVariantWidths } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
-import { getItemPrimaryImage } from "@/lib/images";
+import {
+  getItemPrimaryHash,
+  getItemPrimaryImage,
+  isItemPrimaryAnimated,
+  variantSrcSetForUrl,
+} from "@/lib/images";
 import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
 import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 import type { Item } from "@/lib/types";
@@ -135,12 +140,23 @@ export async function generateMetadata({
 function CategoryItemCard({
   item,
   priority,
+  variantWidths,
 }: {
   item: Item;
   priority: boolean;
+  variantWidths: (hash: string) => number[] | undefined;
 }) {
   const name = decodeEntities(item.n);
   const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
+  // Responsive srcset — skip animated sources (no w-variants). The `sizes`
+  // hint below was authored for this and is now live.
+  const primaryHash = isItemPrimaryAnimated(item)
+    ? undefined
+    : getItemPrimaryHash(item);
+  const imageSrcSet = variantSrcSetForUrl(
+    imageUrl,
+    primaryHash ? variantWidths(primaryHash) : undefined,
+  );
 
   return (
     <a href={itemHref(item)} className="item-card">
@@ -150,6 +166,7 @@ function CategoryItemCard({
             // biome-ignore lint/performance/noImgElement: R2 images are already optimized before reaching this component.
             <img
               src={imageUrl}
+              srcSet={imageSrcSet}
               alt={item.c ? `${name} — ${item.c}` : name}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : undefined}
@@ -193,7 +210,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const categoryName = tCategories(category);
 
-  const items = await loadItems(mkt);
+  const [items, variantWidthsMap] = await Promise.all([
+    loadItems(mkt),
+    loadVariantWidths(),
+  ]);
+  const variantWidths = (hash: string): number[] | undefined =>
+    variantWidthsMap[hash];
   const categoryItems = items
     .filter((item) => item.c === category)
     .sort((a, b) => (b.h ?? 0) - (a.h ?? 0));
@@ -317,6 +339,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 key={item.id}
                 item={item}
                 priority={index < 2}
+                variantWidths={variantWidths}
               />
             ))}
           </div>

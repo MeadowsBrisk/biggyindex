@@ -33,6 +33,8 @@ import { getItemBrowseMeta, type ItemIndex } from "@/lib/browse/item-index";
 import { MARKETS } from "@/lib/constants";
 import { decodeEntities, formatDateTime } from "@/lib/format";
 import {
+  buildItemVariantWidthMap,
+  cardImageSrcSet,
   getItemGalleryImages,
   getItemPrimaryImage,
   getSellerImageUrl,
@@ -442,6 +444,17 @@ function ItemCardInner({
   );
   const hoverSrc = galleryThumbs[1] ?? null;
 
+  // Responsive srcset from the item's compact `vw` field (built server-side in
+  // /api/browse). `cardImageSrcSet` no-ops for non-thumb URLs, so high-res mode
+  // (full.avif) and animated images (anim.webp) automatically get NO srcset and
+  // keep serving the plain `src` exactly as before. The `sizes` hint below was
+  // authored for this and is now live.
+  const variantWidthMap = useMemo(() => buildItemVariantWidthMap(item), [item]);
+  const thumbSrcSet = cardImageSrcSet(thumbSrc, variantWidthMap);
+  const hoverSrcSet = hoverSrc
+    ? cardImageSrcSet(hoverSrc, variantWidthMap)
+    : undefined;
+
   const activeGroup = useMemo(() => {
     if (!weightGroups || selectedGrams == null) return null;
     return weightGroups.find((g) => g.grams === selectedGrams) ?? null;
@@ -841,6 +854,7 @@ function ItemCardInner({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thumbSrc}
+                  srcSet={thumbSrcSet}
                   alt={decodeEntities(displayName)}
                   loading={priority ? "eager" : "lazy"}
                   fetchPriority={priority ? "high" : undefined}
@@ -852,6 +866,7 @@ function ItemCardInner({
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={hoverSrc}
+                    srcSet={hoverSrcSet}
                     alt=""
                     loading="lazy"
                     sizes={imgSizes}

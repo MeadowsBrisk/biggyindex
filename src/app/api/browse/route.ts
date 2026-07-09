@@ -1,4 +1,5 @@
-import { browseDataVersion, loadItems } from "@/lib/data";
+import { browseDataVersion, loadItems, loadVariantWidths } from "@/lib/data";
+import { itemVariantMasks } from "@/lib/images";
 import { ALL_MARKETS } from "@/lib/market/market";
 
 /**
@@ -25,6 +26,18 @@ export async function GET(request: Request) {
   const mkt = VALID_MARKETS.has(mktParam) ? mktParam : "gb";
 
   const items = await loadItems(mkt);
+
+  // Augment each item with a compact responsive-variant field `vw` (bitmask
+  // per image slot over CARD_VARIANT_WIDTHS) so client cards can build a
+  // srcset with no extra fetch of image-meta. Omitted when an item has no
+  // variants; animated slots are zeroed. Adds < 1KB brotli to the payload.
+  const variantWidths = await loadVariantWidths();
+  const lookup = (hash: string): number[] | undefined => variantWidths[hash];
+  const payload = items.map((item) => {
+    const vw = itemVariantMasks(item, lookup);
+    return vw ? { ...item, vw } : item;
+  });
+
   const version = browseDataVersion(items);
   const etag = `"${mkt}-${version}"`;
   const pinned = url.searchParams.has("v");
@@ -43,5 +56,5 @@ export async function GET(request: Request) {
   if (request.headers.get("if-none-match") === etag) {
     return new Response(null, { status: 304, headers });
   }
-  return new Response(JSON.stringify(items), { headers });
+  return new Response(JSON.stringify(payload), { headers });
 }

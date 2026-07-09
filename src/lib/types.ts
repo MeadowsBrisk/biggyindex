@@ -148,6 +148,14 @@ export interface Item {
   lur?: string | null;
   /** Image optimized in R2 (1 = yes) */
   io?: number;
+  /**
+   * Responsive card-variant widths (browse payload only, added by
+   * /api/browse). Bitmask per image slot, index-parallel to
+   * [primary, ...gallery] hashes, over CARD_VARIANT_WIDTHS (see
+   * lib/imageVariants.ts). Omitted when the item has no variants; animated
+   * slots are 0. Consumed client-side by `buildItemVariantWidthMap`.
+   */
+  vw?: number[];
   /** v2 filterable attributes */
   at?: ItemAttributes | null;
   /** Categorization confidence (0-1, rounded to 2dp) */

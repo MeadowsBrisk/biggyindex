@@ -5,7 +5,7 @@ import { Package, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_MARKET } from "@/lib/constants";
-import { getItemPrimaryImage } from "@/lib/images";
+import { getItemPrimaryImage, variantSrcSetForUrl } from "@/lib/images";
 import type { SeedItem } from "@/lib/seed";
 import {
   bookmarksSetAtom,
@@ -118,6 +118,7 @@ function SeedCard({
   mobileCols: 1 | 2;
 }) {
   const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
+  const imageSrcSet = variantSrcSetForUrl(imageUrl, item.vw);
   const mobileSize = mobileCols === 2 ? "50vw" : "100vw";
   const href = `/item/${encodeURIComponent(String(item.refNum ?? item.id))}`;
   // Category · Subcategory — same label the live CardPill builds in the "All"
@@ -145,6 +146,7 @@ function SeedCard({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
+                srcSet={imageSrcSet}
                 alt={item.c ? `${item.n} — ${item.c}` : item.n}
                 loading={priority ? "eager" : "lazy"}
                 fetchPriority={priority ? "high" : undefined}

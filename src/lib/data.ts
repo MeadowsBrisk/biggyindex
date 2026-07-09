@@ -8,6 +8,8 @@
  * - `stripBrowseFields()` trims fields unused by browse components
  */
 
+import { cacheLife, cacheTag } from "next/cache";
+import { IMAGE_VARIANT_VERSION } from "./imageVariants";
 import { R2Keys, readR2JSON } from "./r2";
 import type {
   HomeFeed,
@@ -187,6 +189,62 @@ export function browseDataVersion(items: Item[]): string {
 export async function loadItems(market = "gb"): Promise<Item[]> {
   const items = await readR2JSON<Item[]>(R2Keys.items(market));
   return items ? stripBrowseFields(items, market) : [];
+}
+
+// ─── Responsive image variants ──────────────────────────────────
+
+/**
+ * Per-item image-meta entry (subset we read). Shared aggregate at
+ * `shared/aggregates/image-meta.json`, keyed by item ref. `variantWidths` is
+ * index-parallel with `hashes`; `variantV` gates whether it can be trusted.
+ */
+interface ImageMetaEntry {
+  hashes?: string[];
+  variantWidths?: number[][];
+  variantV?: number;
+}
+
+/** Global hash → available card-variant widths (e.g. `abc123` → [320, 640]). */
+export type VariantWidthsByHash = Record<string, number[]>;
+
+/**
+ * Load the hash → variant-widths map from the shared image-meta aggregate.
+ *
+ * The variants (`{hash}/w320.avif`, …) are per-hash in R2, so a single global
+ * lookup keyed by hash is authoritative regardless of which item references it.
+ * Only entries stamped `variantV >= IMAGE_VARIANT_VERSION` with a non-empty
+ * width list are included — legacy / tiny-source hashes are simply absent, and
+ * their cards fall back to the plain `thumb.avif` with no srcset.
+ *
+ * Cached like the item data ('items' profile + tag) so the crawler's existing
+ * revalidation rolls this over in lockstep with the grid, and the ~625KB
+ * aggregate is fetched at most once per revalidation window per instance.
+ */
+export async function loadVariantWidths(): Promise<VariantWidthsByHash> {
+  "use cache";
+  cacheLife("items");
+  cacheTag("items");
+
+  const meta = await readR2JSON<Record<string, ImageMetaEntry>>(
+    R2Keys.imageMeta,
+  );
+  const map: VariantWidthsByHash = {};
+  if (!meta) return map;
+
+  for (const ref in meta) {
+    const entry = meta[ref];
+    if (!entry || (entry.variantV ?? 0) < IMAGE_VARIANT_VERSION) continue;
+    const { hashes, variantWidths } = entry;
+    if (!hashes || !variantWidths) continue;
+    for (let i = 0; i < hashes.length; i++) {
+      const hash = hashes[i];
+      const widths = variantWidths[i];
+      if (!hash || !Array.isArray(widths) || widths.length === 0) continue;
+      // First writer wins — a hash's variants are identical across items.
+      if (!map[hash]) map[hash] = widths;
+    }
+  }
+  return map;
 }
 
 /** Load sellers for a market. */
