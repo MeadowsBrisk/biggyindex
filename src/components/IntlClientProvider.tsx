@@ -65,6 +65,13 @@ export function IntlClientProvider({
     <NextIntlClientProvider
       locale={locale}
       messages={messages}
+      // Must be passed EXPLICITLY: automatic server-config inheritance only
+      // works when NextIntlClientProvider is rendered directly from a Server
+      // Component — this wrapper is a client module, so without it client
+      // components (e.g. loading.tsx) hit ENVIRONMENT_FALLBACK, which is a
+      // FATAL error during `next build` prerendering. Keep in sync with the
+      // timeZone in src/i18n/request.ts.
+      timeZone="UTC"
       onError={onError}
       getMessageFallback={getMessageFallback}
     >

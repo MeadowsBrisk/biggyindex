@@ -6,6 +6,14 @@ import { CATEGORY_SLUGS, slugToCategory } from "@/lib/categories";
 /**
  * SiteFooter — distinct from food-agg: gradient top bar, centered layout, cannabis branding.
  */
+
+// Module scope, NOT render scope: under cacheComponents, `new Date()` inside
+// an uncached Server Component render is a fatal next-prerender-current-time
+// build error (it broke prerendering of the @modal fallback shell). Module
+// init runs outside the render clock-check; the value refreshes on every
+// deploy/cold start, which is plenty for a copyright year.
+const COPYRIGHT_YEAR = new Date().getFullYear();
+
 export async function SiteFooter({
   hideBrowseCta,
   locale,
@@ -13,7 +21,6 @@ export async function SiteFooter({
   hideBrowseCta?: boolean;
   locale: string;
 }) {
-  const year = new Date().getFullYear();
   const t = await getTranslations({ locale, namespace: "footer" });
   const tCategories = await getTranslations({
     locale,
@@ -144,7 +151,7 @@ export async function SiteFooter({
 
           {/* Copyright */}
           <p className="text-center text-xs text-muted-foreground">
-            {t("copyright", { year })}
+            {t("copyright", { year: COPYRIGHT_YEAR })}
           </p>
         </div>
       </div>
