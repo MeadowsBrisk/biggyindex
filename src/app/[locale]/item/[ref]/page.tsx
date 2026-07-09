@@ -30,6 +30,7 @@ import { categoryToSlug } from "@/lib/categories";
 import {
   type ArchivedDetailBlob,
   loadArchivedDetail,
+  loadItems,
   loadMergedDetail,
 } from "@/lib/data";
 import { decodeEntities, formatPriceRangeChange } from "@/lib/format";
@@ -394,13 +395,64 @@ export async function generateMetadata({
   });
 }
 
-// NO generateStaticParams: under cacheComponents an EMPTY one throws
-// (EmptyGenerateStaticParamsError) and we can't enumerate every ref without a
-// build-time R2 dependency. Its ABSENCE + the whole-page 'use cache' body is
-// what makes the route on-demand-ISR: the first request for a ref renders the
-// full page and Netlify durably caches it (item-detail/items tags for purge),
-// instead of PPR postponing every hit as private,no-store. Same shape as the
-// food-aggregator item route (Next 16.2.7, cacheComponents on).
+/** Top-hotness item refs prerendered at build (see generateStaticParams). */
+const PRERENDER_ITEM_COUNT = 24;
+
+/**
+ * A NON-EMPTY generateStaticParams is what flips this route from PPR-dynamic
+ * (private,no-store + x-nextjs-postponed on every hit) to durably-cached ISR —
+ * the exact change that flipped /category/[slug] in round 2. An ABSENT (or
+ * empty) one does NOT work here, despite food-aggregator's item route caching
+ * without one, because of a structural difference:
+ *
+ * This route sits under the `[locale]` ROOT param (app/[locale] is directly
+ * under the root app/layout.tsx). Next's buildAppStaticPaths
+ * (next/dist/build/static-paths/app.js) therefore emits, per locale, a PARTIAL
+ * static shell `/{loc}/item/[ref]` whose `throwOnEmptyStaticShell` is set true
+ * by assignStaticShellMetadata UNLESS that shell's trie node has a concrete
+ * child param. With no child ref, the whole-page 'use cache' body (which awaits
+ * params.ref) yields an EMPTY shell for every locale → the route is treated as
+ * fully dynamic and Netlify never durably caches it (observed in rounds 1-2).
+ * Supplying >=1 concrete ref per locale gives each shell a child →
+ * throwOnEmptyStaticShell=false → the route registers as static-with-fallback:
+ * enumerated refs prerender; NON-enumerated refs render on demand then durably
+ * cache (fallback ISR, old fallback:'blocking'); unknown refs still hit
+ * notFound() during that render → real 404.
+ *
+ * food-aggregator's item route has NO `[locale]` root param (single domain,
+ * top-level `[slug]`): its base route gets a PRERENDER fallback with zero root
+ * params and caches WITHOUT generateStaticParams — a pattern that does NOT
+ * transfer to a route nested under a root param.
+ *
+ * Returns ONLY { ref }; the parent [locale] segment supplies { locale } and
+ * Next merges them (mirrors category/[slug] returning only { slug }).
+ *
+ * Runs at BUILD on Netlify. loadItems reads PUBLIC R2 over plain fetch
+ * (lib/r2 readR2JSON — no credentials, no headers()/cookies()), safe outside
+ * request context. ANY failure → a single sentinel ref that renders the
+ * not-found path: the array is NEVER empty (EmptyGenerateStaticParamsError)
+ * and the build NEVER fails on a transient R2 blip.
+ */
+export async function generateStaticParams(): Promise<Array<{ ref: string }>> {
+  try {
+    const items = await loadItems("gb");
+    const refs = Array.from(
+      new Set(
+        [...items]
+          .sort((a, b) => (b.h ?? 0) - (a.h ?? 0))
+          .slice(0, PRERENDER_ITEM_COUNT)
+          .map((item) => String(item.refNum ?? item.id))
+          .filter((ref) => ref && ref !== "undefined" && ref !== "null"),
+      ),
+    );
+    return refs.length > 0
+      ? refs.map((ref) => ({ ref }))
+      : [{ ref: "build-fallback" }];
+  } catch {
+    return [{ ref: "build-fallback" }];
+  }
+}
+
 export default async function ItemPage({ params }: ItemPageProps) {
   "use cache";
   cacheLife("item-detail");

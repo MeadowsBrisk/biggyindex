@@ -281,13 +281,60 @@ export async function generateMetadata({
   };
 }
 
-// NO generateStaticParams: under cacheComponents an EMPTY one throws
-// (EmptyGenerateStaticParamsError) and we can't enumerate every seller id
-// without a build-time R2 dependency. Its ABSENCE + the whole-page 'use cache'
-// body is what makes the route on-demand-ISR: the first request for a seller
-// renders the full page and Netlify durably caches it (sellers tag for purge),
-// instead of PPR postponing every hit as private,no-store. Same shape as the
-// food-aggregator store route (Next 16.2.7, cacheComponents on).
+/** Top sellers (by listing count) prerendered at build. */
+const PRERENDER_SELLER_COUNT = 12;
+
+/**
+ * A NON-EMPTY generateStaticParams is what flips this route from PPR-dynamic
+ * (private,no-store + x-nextjs-postponed on every hit) to durably-cached ISR —
+ * the exact change that flipped /category/[slug] in round 2. It is REQUIRED
+ * here (even though food-aggregator's store route caches without one) because
+ * this route sits under the `[locale]` ROOT param (app/[locale] is directly
+ * under the root app/layout.tsx).
+ *
+ * Next's buildAppStaticPaths (next/dist/build/static-paths/app.js) emits, per
+ * locale, a PARTIAL static shell `/{loc}/seller/[id]` whose
+ * `throwOnEmptyStaticShell` is set true UNLESS the shell's trie node has a
+ * concrete child param. With no child id the whole-page 'use cache' body (which
+ * awaits params.id) yields an EMPTY shell per locale → the route stays fully
+ * dynamic and Netlify never durably caches it (observed rounds 1-2). Supplying
+ * >=1 concrete id per locale gives each shell a child →
+ * throwOnEmptyStaticShell=false → the route registers as static-with-fallback:
+ * enumerated ids prerender; NON-enumerated ids render on demand then durably
+ * cache (fallback ISR); dead/unknown ids hit notFound() during that render →
+ * real 404 (finally fixing the dead-seller soft-404). food-aggregator's store
+ * route has NO root param, so its base route gets a PRERENDER fallback with
+ * zero root params and caches without this — not transferable here.
+ *
+ * Returns ONLY { id }; the parent [locale] segment supplies { locale }.
+ *
+ * Runs at BUILD. loadSellers reads PUBLIC R2 over plain fetch (no credentials,
+ * no headers()/cookies()), safe outside request context. ANY failure → the
+ * sentinel id "0" (no such seller → renders notFound): the array is NEVER empty
+ * (EmptyGenerateStaticParamsError) and the build NEVER fails on an R2 blip.
+ */
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+  try {
+    const sellers = await loadSellers("gb");
+    const ids = Array.from(
+      new Set(
+        [...sellers]
+          .sort(
+            (a, b) =>
+              (b.itemsCount ?? 0) - (a.itemsCount ?? 0) ||
+              (b.numberOfReviews ?? 0) - (a.numberOfReviews ?? 0),
+          )
+          .slice(0, PRERENDER_SELLER_COUNT)
+          .map((seller) => String(seller.id))
+          .filter((id) => /^\d+$/.test(id)),
+      ),
+    );
+    return ids.length > 0 ? ids.map((id) => ({ id })) : [{ id: "0" }];
+  } catch {
+    return [{ id: "0" }];
+  }
+}
+
 export default async function SellerPage({ params }: SellerPageProps) {
   // Whole-page cache (mirrors /browse) so the route prerenders as a unit with
   // NO dynamic shell — the previous <Suspense>-wrapped content became a PPR

@@ -117,6 +117,39 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // ───────────────────────────────────────────────────────────────────────
+  // FALLBACK ONLY — commented out. Enable this headers() block if round 3's
+  // deploy STILL shows /item/:ref* or /seller/:id* returning private,no-store
+  // + x-nextjs-postponed (i.e. the non-empty generateStaticParams did NOT flip
+  // them to x-nextjs-prerender + Netlify Durable hit).
+  //
+  // It force-attaches a durable CDN TTL at the edge, bypassing the framework's
+  // per-render cache decision — the SAME header the app's data routes already
+  // use successfully (src/app/api/item-detail/[ref]/route.ts:40 ships exactly
+  // `public, durable, s-maxage=43200, stale-while-revalidate=86400`).
+  //
+  // TRADEOFF: this is TTL-based, NOT tag-based. revalidateTag('item-detail' /
+  // 'items' / 'sellers') will NOT purge these edge entries — they only refresh
+  // on the s-maxage clock. Items change at the ~30-min crawl cadence, so
+  // worst-case HTML staleness is ~s-maxage (1h below) rather than "until the
+  // next crawl + tag purge". Acceptable for detail pages (price/stock drift is
+  // minor and the client re-fetches live data via /api/item-detail), but it is
+  // why this stays OFF unless the framework path fails.
+  //
+  // async headers() {
+  //   const durable =
+  //     "public, durable, s-maxage=3600, stale-while-revalidate=86400";
+  //   return [
+  //     { source: "/item/:ref*", headers: [
+  //       { key: "Netlify-CDN-Cache-Control", value: durable },
+  //     ] },
+  //     { source: "/seller/:id*", headers: [
+  //       { key: "Netlify-CDN-Cache-Control", value: durable },
+  //     ] },
+  //   ];
+  // },
+  // ───────────────────────────────────────────────────────────────────────
 };
 
 export default withNextIntl(nextConfig);
