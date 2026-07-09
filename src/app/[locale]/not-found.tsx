@@ -1,19 +1,36 @@
+/**
+ * Generic (catch-all) 404 for the locale subtree. Renders for notFound()
+ * thrown anywhere under [locale] that has no nearer boundary — e.g. hub pages
+ * or a bad locale in the layout. The per-type boundaries (item/seller/category)
+ * override this with tailored copy.
+ *
+ * Truly unmatched URLs (/fr-FR/does-not-exist) and non-locale traffic
+ * (/bogus.xyz) fall to the ROOT app/not-found.tsx instead — this boundary only
+ * catches notFound() raised INSIDE the locale tree.
+ */
+
 import { getTranslations } from "next-intl/server";
+import {
+  NotFoundPrimaryLink,
+  NotFoundSecondaryLink,
+  NotFoundView,
+} from "@/components/NotFoundView";
 
 export default async function NotFound() {
-  const t = await getTranslations("errors.notFound");
+  const t = await getTranslations("notFound.generic");
+  const tCta = await getTranslations("notFound.cta");
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--background)] px-4 text-center">
-      <h1 className="text-6xl font-bold text-primary">404</h1>
-      <h2 className="text-xl font-semibold text-foreground">{t("title")}</h2>
-      <p className="max-w-md text-sm text-muted">{t("description")}</p>
-      <a
-        href="/browse"
-        className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-      >
-        {t("browseItems")}
-      </a>
-    </div>
+    <NotFoundView title={t("title")} description={t("description")}>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <NotFoundPrimaryLink href="/browse">
+          {tCta("browse")}
+        </NotFoundPrimaryLink>
+        <NotFoundSecondaryLink href="/sellers">
+          {tCta("sellers")}
+        </NotFoundSecondaryLink>
+        <NotFoundSecondaryLink href="/">{tCta("home")}</NotFoundSecondaryLink>
+      </div>
+    </NotFoundView>
   );
 }

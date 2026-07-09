@@ -987,6 +987,29 @@
       "browseItems": "Prohlížení položek"
     }
   },
+  "notFound": {
+    "item": {
+      "title": "Tato položka není v indexu",
+      "description": "Možná nikdy nebyla v nabídce, nebo byla mezitím vyprodána, stažena či odstraněna. Zkuste místo toho procházet index."
+    },
+    "seller": {
+      "title": "Tento prodejce není v indexu",
+      "description": "Možná nedoručuje na váš trh, nebo zavřel svůj obchod či změnil jméno. Projděte si všechny prodejce a zjistěte, kdo je aktivní."
+    },
+    "category": {
+      "title": "Taková kategorie neexistuje",
+      "description": "Taková kategorie neexistuje. Vyberte si místo toho jednu z těchto:"
+    },
+    "generic": {
+      "title": "Stránka nenalezena",
+      "description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta. Zkuste procházet index."
+    },
+    "cta": {
+      "browse": "Procházet index",
+      "sellers": "Všichni prodejci",
+      "home": "Zpět na úvod"
+    }
+  },
   "common": {
     "loading": "Načítám...",
     "error": "Něco se pokazilo",

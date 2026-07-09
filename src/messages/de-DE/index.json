@@ -987,6 +987,29 @@
       "browseItems": "Durchstöbern Sie Artikel"
     }
   },
+  "notFound": {
+    "item": {
+      "title": "Dieser Artikel ist nicht im Index",
+      "description": "Möglicherweise wurde er nie gelistet oder ist inzwischen ausverkauft, entfernt oder gelöscht worden. Durchstöbern Sie stattdessen den Index."
+    },
+    "seller": {
+      "title": "Dieser Verkäufer ist nicht im Index",
+      "description": "Vielleicht liefert er nicht in Ihren Markt, oder er hat seinen Shop geschlossen oder seinen Namen geändert. Sehen Sie sich alle Verkäufer an, um zu sehen, wer aktiv ist."
+    },
+    "category": {
+      "title": "Diese Kategorie gibt es nicht",
+      "description": "Diese Kategorie existiert nicht. Wählen Sie stattdessen eine davon:"
+    },
+    "generic": {
+      "title": "Seite nicht gefunden",
+      "description": "Die gesuchte Seite existiert nicht oder wurde verschoben. Durchstöbern Sie den Index."
+    },
+    "cta": {
+      "browse": "Index durchstöbern",
+      "sellers": "Alle Verkäufer",
+      "home": "Zurück zur Startseite"
+    }
+  },
   "common": {
     "loading": "Lädt...",
     "error": "Etwas ist schiefgelaufen",

@@ -208,7 +208,20 @@ export const mobileGridColsAtom = atomWithStorage<MobileGridCols>(
  *  the boot script in app/[locale]/layout.tsx (named accents → data-accent
  *  attribute, 'custom' → inline CSS vars via lib/accent.ts). Storage keys and
  *  the '#6366f1' custom default are duplicated in that script — keep in sync,
- *  or returning users get an accent flash at hydration. */
+ *  or returning users get an accent flash at hydration.
+ *
+ *  getOnInit is REQUIRED on both atoms: without it, the first client render
+ *  sees the defaults ('green' / '#6366f1') and AccentSync's effect fires once
+ *  with those values — removeAttribute('data-accent') + clearCustomAccent() —
+ *  wiping the boot script's pre-paint stamp for one painted frame before
+ *  jotai's onMount flips the atom to the stored value and the effect
+ *  re-stamps it (= the accent flash). With getOnInit the first render already
+ *  holds the stored value, so the effect's first run rewrites the identical
+ *  attribute/vars and hydration stays a visual no-op. Safe here because
+ *  nothing accent-driven is in SSR markup: AccentSync renders null,
+ *  SettingsModal renders null while closed, and data-accent/the inline vars
+ *  live on <html> outside React's render output (contrast mobileGridColsAtom
+ *  above, where the value IS serialized into SSR markup). */
 export type AccentColor =
   | "green"
   | "blue"
@@ -219,10 +232,14 @@ export type AccentColor =
 export const accentColorAtom = atomWithStorage<AccentColor>(
   "accentColor",
   "green",
+  undefined,
+  readStorageOnClientInit,
 );
 export const customAccentHexAtom = atomWithStorage<string>(
   "customAccentHex",
   "#6366f1",
+  undefined,
+  readStorageOnClientInit,
 );
 
 // ─── Filters ────────────────────────────────────────────────────

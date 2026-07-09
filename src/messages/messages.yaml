@@ -7382,6 +7382,127 @@ errors:
       cs-CZ: Prohlížení položek
       pl-PL: Przeglądaj przedmioty
 
+# Custom per-type 404 pages (app/[locale]/**/not-found.tsx). Distinct from the
+# `errors.*` boundaries above: those recover from load FAILURES; these are the
+# real "does not exist" pages for unknown item refs, seller ids and category
+# slugs. Rendered by Server Components, so no client-namespace registration.
+notFound:
+  item:
+    title:
+      en-GB: This item isn't in the index
+      de-DE: Dieser Artikel ist nicht im Index
+      fr-FR: Cet article n'est pas dans l'index
+      pt-PT: Este item não está no índice
+      it-IT: Questo articolo non è nell'indice
+      es-ES: Este artículo no está en el índice
+      el-GR: Αυτό το προϊόν δεν βρίσκεται στο ευρετήριο
+      cs-CZ: Tato položka není v indexu
+      pl-PL: Tego przedmiotu nie ma w indeksie
+    description:
+      en-GB: It may never have been listed, or the listing has since been sold out, delisted, or removed. Try browsing the index instead.
+      de-DE: Möglicherweise wurde er nie gelistet oder ist inzwischen ausverkauft, entfernt oder gelöscht worden. Durchstöbern Sie stattdessen den Index.
+      fr-FR: Il n'a peut-être jamais été référencé, ou il a depuis été épuisé, retiré ou supprimé. Parcourez plutôt l'index.
+      pt-PT: Pode nunca ter sido listado ou, entretanto, ter esgotado, sido retirado ou removido. Explore antes o índice.
+      it-IT: Potrebbe non essere mai stato inserito oppure nel frattempo è esaurito, ritirato o rimosso. Prova invece a esplorare l'indice.
+      es-ES: Puede que nunca se haya publicado o que se haya agotado, retirado o eliminado. Explora el índice en su lugar.
+      el-GR: Ίσως να μην καταχωρήθηκε ποτέ, ή στο μεταξύ εξαντλήθηκε, αποσύρθηκε ή αφαιρέθηκε. Δοκιμάστε να περιηγηθείτε στο ευρετήριο.
+      cs-CZ: Možná nikdy nebyla v nabídce, nebo byla mezitím vyprodána, stažena či odstraněna. Zkuste místo toho procházet index.
+      pl-PL: Być może nigdy nie było wystawione albo zostało wyprzedane, wycofane lub usunięte. Zamiast tego przejrzyj indeks.
+  seller:
+    title:
+      en-GB: This seller isn't in the index
+      de-DE: Dieser Verkäufer ist nicht im Index
+      fr-FR: Ce vendeur n'est pas dans l'index
+      pt-PT: Este vendedor não está no índice
+      it-IT: Questo venditore non è nell'indice
+      es-ES: Este vendedor no está en el índice
+      el-GR: Αυτός ο πωλητής δεν βρίσκεται στο ευρετήριο
+      cs-CZ: Tento prodejce není v indexu
+      pl-PL: Tego sprzedawcy nie ma w indeksie
+    description:
+      en-GB: They may not ship to your market, or they may have closed their store or changed their name. Browse all sellers to see who's active.
+      de-DE: Vielleicht liefert er nicht in Ihren Markt, oder er hat seinen Shop geschlossen oder seinen Namen geändert. Sehen Sie sich alle Verkäufer an, um zu sehen, wer aktiv ist.
+      fr-FR: Il ne livre peut-être pas dans votre marché, ou il a fermé sa boutique ou changé de nom. Parcourez tous les vendeurs pour voir qui est actif.
+      pt-PT: Pode não enviar para o seu mercado ou pode ter fechado a loja ou mudado de nome. Veja todos os vendedores para saber quem está ativo.
+      it-IT: Potrebbe non spedire nel tuo mercato, oppure ha chiuso il negozio o cambiato nome. Sfoglia tutti i venditori per vedere chi è attivo.
+      es-ES: Puede que no envíe a tu mercado, o que haya cerrado su tienda o cambiado de nombre. Explora todos los vendedores para ver quién está activo.
+      el-GR: Ίσως να μην αποστέλλει στην αγορά σας, ή να έκλεισε το κατάστημά του ή άλλαξε όνομα. Δείτε όλους τους πωλητές για να βρείτε ποιος είναι ενεργός.
+      cs-CZ: Možná nedoručuje na váš trh, nebo zavřel svůj obchod či změnil jméno. Projděte si všechny prodejce a zjistěte, kdo je aktivní.
+      pl-PL: Być może nie wysyła na Twój rynek albo zamknął sklep lub zmienił nazwę. Przejrzyj wszystkich sprzedawców, aby zobaczyć, kto jest aktywny.
+  category:
+    title:
+      en-GB: No such category
+      de-DE: Diese Kategorie gibt es nicht
+      fr-FR: Cette catégorie n'existe pas
+      pt-PT: Categoria inexistente
+      it-IT: Categoria inesistente
+      es-ES: No existe esa categoría
+      el-GR: Δεν υπάρχει τέτοια κατηγορία
+      cs-CZ: Taková kategorie neexistuje
+      pl-PL: Nie ma takiej kategorii
+    description:
+      en-GB: "That category doesn't exist. Pick one of these instead:"
+      de-DE: "Diese Kategorie existiert nicht. Wählen Sie stattdessen eine davon:"
+      fr-FR: "Cette catégorie n'existe pas. Choisissez plutôt l'une de celles-ci :"
+      pt-PT: "Essa categoria não existe. Escolha antes uma destas:"
+      it-IT: "Questa categoria non esiste. Scegli invece una di queste:"
+      es-ES: "Esa categoría no existe. Elige una de estas en su lugar:"
+      el-GR: "Αυτή η κατηγορία δεν υπάρχει. Διαλέξτε μία από αυτές:"
+      cs-CZ: "Taková kategorie neexistuje. Vyberte si místo toho jednu z těchto:"
+      pl-PL: "Taka kategoria nie istnieje. Wybierz zamiast tego jedną z tych:"
+  generic:
+    title:
+      en-GB: Page not found
+      de-DE: Seite nicht gefunden
+      fr-FR: Page non trouvée
+      pt-PT: Página não encontrada
+      it-IT: Pagina non trovata
+      es-ES: Página no encontrada
+      el-GR: Η σελίδα δεν βρέθηκε
+      cs-CZ: Stránka nenalezena
+      pl-PL: Strona nie znaleziona
+    description:
+      en-GB: The page you're looking for doesn't exist, or it may have moved. Try browsing the index.
+      de-DE: Die gesuchte Seite existiert nicht oder wurde verschoben. Durchstöbern Sie den Index.
+      fr-FR: La page que vous cherchez n'existe pas ou a été déplacée. Parcourez l'index.
+      pt-PT: A página que procura não existe ou foi movida. Explore o índice.
+      it-IT: La pagina che cerchi non esiste o è stata spostata. Esplora l'indice.
+      es-ES: La página que buscas no existe o se ha movido. Explora el índice.
+      el-GR: Η σελίδα που αναζητάτε δεν υπάρχει ή έχει μετακινηθεί. Περιηγηθείτε στο ευρετήριο.
+      cs-CZ: Stránka, kterou hledáte, neexistuje nebo byla přesunuta. Zkuste procházet index.
+      pl-PL: Strona, której szukasz, nie istnieje lub została przeniesiona. Przejrzyj indeks.
+  cta:
+    browse:
+      en-GB: Browse the index
+      de-DE: Index durchstöbern
+      fr-FR: Parcourir l'index
+      pt-PT: Explorar o índice
+      it-IT: Esplora l'indice
+      es-ES: Explorar el índice
+      el-GR: Περιήγηση στο ευρετήριο
+      cs-CZ: Procházet index
+      pl-PL: Przeglądaj indeks
+    sellers:
+      en-GB: All sellers
+      de-DE: Alle Verkäufer
+      fr-FR: Tous les vendeurs
+      pt-PT: Todos os vendedores
+      it-IT: Tutti i venditori
+      es-ES: Todos los vendedores
+      el-GR: Όλοι οι πωλητές
+      cs-CZ: Všichni prodejci
+      pl-PL: Wszyscy sprzedawcy
+    home:
+      en-GB: Back to home
+      de-DE: Zurück zur Startseite
+      fr-FR: Retour à l'accueil
+      pt-PT: Voltar ao início
+      it-IT: Torna alla home
+      es-ES: Volver al inicio
+      el-GR: Επιστροφή στην αρχική
+      cs-CZ: Zpět na úvod
+      pl-PL: Powrót na stronę główną
+
 common:
   loading:
     en-GB: Loading...

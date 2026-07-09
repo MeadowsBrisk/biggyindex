@@ -987,6 +987,29 @@
       "browseItems": "Browse items"
     }
   },
+  "notFound": {
+    "item": {
+      "title": "This item isn't in the index",
+      "description": "It may never have been listed, or the listing has since been sold out, delisted, or removed. Try browsing the index instead."
+    },
+    "seller": {
+      "title": "This seller isn't in the index",
+      "description": "They may not ship to your market, or they may have closed their store or changed their name. Browse all sellers to see who's active."
+    },
+    "category": {
+      "title": "No such category",
+      "description": "That category doesn't exist. Pick one of these instead:"
+    },
+    "generic": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist, or it may have moved. Try browsing the index."
+    },
+    "cta": {
+      "browse": "Browse the index",
+      "sellers": "All sellers",
+      "home": "Back to home"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",

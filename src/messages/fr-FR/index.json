@@ -987,6 +987,29 @@
       "browseItems": "Parcourez les articles"
     }
   },
+  "notFound": {
+    "item": {
+      "title": "Cet article n'est pas dans l'index",
+      "description": "Il n'a peut-être jamais été référencé, ou il a depuis été épuisé, retiré ou supprimé. Parcourez plutôt l'index."
+    },
+    "seller": {
+      "title": "Ce vendeur n'est pas dans l'index",
+      "description": "Il ne livre peut-être pas dans votre marché, ou il a fermé sa boutique ou changé de nom. Parcourez tous les vendeurs pour voir qui est actif."
+    },
+    "category": {
+      "title": "Cette catégorie n'existe pas",
+      "description": "Cette catégorie n'existe pas. Choisissez plutôt l'une de celles-ci :"
+    },
+    "generic": {
+      "title": "Page non trouvée",
+      "description": "La page que vous cherchez n'existe pas ou a été déplacée. Parcourez l'index."
+    },
+    "cta": {
+      "browse": "Parcourir l'index",
+      "sellers": "Tous les vendeurs",
+      "home": "Retour à l'accueil"
+    }
+  },
   "common": {
     "loading": "Chargement...",
     "error": "Quelque chose a mal tourné",
