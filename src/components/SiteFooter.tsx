@@ -117,6 +117,21 @@ export async function SiteFooter({
                   Reddit
                   <ExternalLink size={13} className="text-muted" />
                 </a>
+                {/* Telegram channel — appears once the channel exists and
+                    NEXT_PUBLIC_TELEGRAM_CHANNEL_URL is set on the frontend
+                    Netlify site (e.g. https://t.me/biggyindex). Inlined at
+                    build time, so setting/changing it needs a redeploy. */}
+                {process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL && (
+                  <a
+                    href={process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                  >
+                    Telegram
+                    <ExternalLink size={13} className="text-muted" />
+                  </a>
+                )}
                 <Link
                   href="/littlebiggy-status"
                   prefetch={false}
@@ -132,6 +147,13 @@ export async function SiteFooter({
 
             {/* Legal links */}
             <nav className="flex gap-6 text-sm">
+              <Link
+                href="/about"
+                prefetch={false}
+                className="text-muted hover:text-primary transition-colors"
+              >
+                {t("about")}
+              </Link>
               <Link
                 href="/privacy"
                 prefetch={false}

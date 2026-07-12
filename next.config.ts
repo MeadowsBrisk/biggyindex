@@ -124,6 +124,35 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // Filtered /browse URLs are crawlable (robots re-opens /browse?cat=) but must
+  // never be INDEXED — they duplicate the canonical /browse hub. Emit
+  // `X-Robots-Tag: noindex, follow` whenever a browse request carries a filter
+  // param so Googlebot follows the outbound links (passing equity) without
+  // indexing the filtered permutation. One rule per known filter key via a
+  // `has` query matcher (supported by Next's headers() route matching); the
+  // bare /browse hub carries no matched param, so it stays fully indexable.
+  // This is a distinct, active headers() block — unrelated to the commented-out
+  // durable-CDN fallback below, which remains disabled.
+  async headers() {
+    const noindexFollow = [
+      { key: "X-Robots-Tag", value: "noindex, follow" },
+    ];
+    const filterKeys = [
+      "cat",
+      "q",
+      "pmin",
+      "pmax",
+      "sellers",
+      "sub",
+      "excl",
+    ];
+    return filterKeys.map((key) => ({
+      source: "/browse",
+      has: [{ type: "query" as const, key }],
+      headers: noindexFollow,
+    }));
+  },
+
   // ───────────────────────────────────────────────────────────────────────
   // FALLBACK ONLY — commented out. Enable this headers() block if round 3's
   // deploy STILL shows /item/:ref* or /seller/:id* returning private,no-store

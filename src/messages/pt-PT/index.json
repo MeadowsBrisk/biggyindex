@@ -60,6 +60,7 @@
     "community": "Comunidade",
     "communityCopy": "Junte-se à conversa. Partilhe experiências, faça perguntas ou verifique a reputação dos vendedores.",
     "statusLink": "Estado do Little Biggy",
+    "about": "Sobre",
     "privacy": "Privacidade",
     "terms": "Termos",
     "cookies": "Cookies",
@@ -67,6 +68,10 @@
     "copyright": "© {year} Biggy Index. Os preços mostrados podem variar – verifica sempre a loja para os preços mais recentes."
   },
   "littleBiggyStatus": {
+    "telegram": {
+      "copy": "Quer saber no momento em que o Little Biggy cai ou volta? O nosso canal do Telegram publica alertas de falhas e um resumo diário de novos artigos e descidas de preço.",
+      "button": "Aderir ao canal do Telegram"
+    },
     "meta": {
       "title": "O Little Biggy está em baixo? Estado ao vivo & guia de acesso | BiggyIndex",
       "description": "O littlebiggy.org está online ou em baixo? Estado ao vivo com histórico, o endereço oficial, ajuda de início de sessão e o que fazer numa falha — atualizado a cada minutos."
@@ -1069,6 +1074,39 @@
     "close": "Fechar",
     "backToTop": "Voltar ao topo",
     "back": "Voltar"
+  },
+  "about": {
+    "metadataTitle": "Sobre o BiggyIndex — como funciona o índice | BiggyIndex",
+    "metadataDescription": "Como funciona o BiggyIndex: um índice independente e só de leitura das listagens públicas do Little Biggy, atualizado cerca de cada 30 minutos, com histórico de preços, ranking de popularidade e dados de confiança dos vendedores.",
+    "title": "Sobre o BiggyIndex",
+    "updated": "Última atualização: julho de 2026",
+    "intro": "O BiggyIndex é um índice independente e só de leitura das ofertas publicamente listadas no Little Biggy. Esta página explica o que é o site, de onde vêm os seus dados e como são construídos os números que vê — para que possa avaliar por si próprio até que ponto confiar neles.",
+    "sections": {
+      "whatItIs": {
+        "heading": "O que o BiggyIndex é — e o que não é",
+        "body": "O BiggyIndex é um catálogo independente que torna as listagens públicas do Little Biggy mais fáceis de navegar, filtrar e comparar. Não é um mercado: não pode comprar nada aqui, nenhuma encomenda ou pagamento passa por nós, e não somos afiliados, apoiados nem operados pelo Little Biggy. Cada compra acontece no próprio Little Biggy, sob os termos do próprio Little Biggy."
+      },
+      "dataSources": {
+        "heading": "De onde vêm os dados",
+        "body": "Tudo o que é mostrado aqui é recolhido de listagens públicas do Little Biggy por um rastreador automático que se atualiza cerca de cada 30 minutos. Nada é introduzido à mão e não acrescentamos qualquer informação privada. Nas nossas edições não inglesas, o texto das listagens é traduzido por máquina, pelo que algumas expressões estranhas são normais — o original está sempre a um clique no Little Biggy."
+      },
+      "whatWeCompute": {
+        "heading": "O que calculamos",
+        "body": "A maior parte do que vê é copiada diretamente das listagens, mas alguns valores são calculados por nós:\n\n• Histórico de preços — registamos os preços de cada listagem ao longo do tempo para que possa ver se subiram ou desceram.\n• Ranking de popularidade — uma pontuação baseada na recência e na atividade que destaca as listagens com interesse recente; é um indicador aproximado, não uma medida de qualidade.\n• Confiança no vendedor — recomendações e denúncias da comunidade tal como aparecem no Little Biggy, agregadas por vendedor.\n• Estatísticas de avaliações — classificações e dados de entrega agregados a partir das avaliações públicas de cada listagem.\n\nNada disto são garantias; são resumos de dados públicos destinados a ajudá-lo a comparar."
+      },
+      "archive": {
+        "heading": "Política de arquivo",
+        "body": "Quando uma listagem é removida do Little Biggy, não a apagamos simplesmente. Em vez disso, mantemos uma página arquivada, claramente marcada como \"já não listada\", para que ligações, preços e histórico continuem disponíveis para consulta em vez de se tornarem becos sem saída."
+      },
+      "freshness": {
+        "heading": "Atualidade e exatidão",
+        "body": "Como os rastreios são periódicos, os preços, o stock e a disponibilidade podem mudar no Little Biggy entre atualizações, e o que vê aqui pode ficar brevemente atrás da listagem em direto. Encare os valores como uma orientação útil, não como um preço em tempo real — confirme sempre o preço e a disponibilidade atuais no Little Biggy antes de agir."
+      },
+      "contact": {
+        "heading": "Contacto e sugestões",
+        "body": "Detetou algo errado, ou quer que uma listagem seja corrigida ou removida? Use a funcionalidade de sugestões em qualquer página de item para nos contactar — é a forma mais rápida de chegar até nós."
+      }
+    }
   },
   "legal": {
     "privacy": {

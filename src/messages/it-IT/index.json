@@ -60,6 +60,7 @@
     "community": "Comunità",
     "communityCopy": "Unisciti alla conversazione. Condividi esperienze, fai domande o controlla la reputazione dei venditori.",
     "statusLink": "Stato di Little Biggy",
+    "about": "Informazioni",
     "privacy": "Privacy",
     "terms": "Termini",
     "cookies": "Cookie",
@@ -67,6 +68,10 @@
     "copyright": "© {year} Biggy Index. I prezzi mostrati possono variare - controlla sempre il negozio per gli ultimi punti."
   },
   "littleBiggyStatus": {
+    "telegram": {
+      "copy": "Vuoi sapere subito quando Little Biggy va offline o torna attivo? Il nostro canale Telegram pubblica avvisi di interruzione e un riepilogo giornaliero di novità e ribassi.",
+      "button": "Unisciti al canale Telegram"
+    },
     "meta": {
       "title": "Little Biggy è offline? Stato in tempo reale e guida all'accesso | BiggyIndex",
       "description": "littlebiggy.org è online o offline? Stato in tempo reale con cronologia, indirizzo ufficiale, aiuto per l'accesso e cosa fare durante un'interruzione — aggiornato di continuo."
@@ -1069,6 +1074,39 @@
     "close": "Chiudi",
     "backToTop": "Torna su",
     "back": "Indietro"
+  },
+  "about": {
+    "metadataTitle": "Informazioni su BiggyIndex — come funziona l'indice | BiggyIndex",
+    "metadataDescription": "Come funziona BiggyIndex: un indice indipendente e di sola lettura degli annunci pubblici di Little Biggy, aggiornato all'incirca ogni 30 minuti, con storico dei prezzi, classifica di popolarità e dati di affidabilità dei venditori.",
+    "title": "Informazioni su BiggyIndex",
+    "updated": "Ultimo aggiornamento: luglio 2026",
+    "intro": "BiggyIndex è un indice indipendente e di sola lettura delle offerte pubblicamente elencate su Little Biggy. Questa pagina spiega cos'è il sito, da dove provengono i suoi dati e come sono costruiti i numeri che vedi — così puoi giudicare da solo quanto fidartene.",
+    "sections": {
+      "whatItIs": {
+        "heading": "Cos'è BiggyIndex — e cosa non è",
+        "body": "BiggyIndex è un catalogo indipendente che rende più facile sfogliare, filtrare e confrontare gli annunci pubblici di Little Biggy. Non è un marketplace: qui non puoi acquistare nulla, nessun ordine o pagamento passa mai da noi, e non siamo affiliati, approvati o gestiti da Little Biggy. Ogni acquisto avviene su Little Biggy stesso, secondo i termini di Little Biggy."
+      },
+      "dataSources": {
+        "heading": "Da dove provengono i dati",
+        "body": "Tutto ciò che vedi qui è raccolto dagli annunci pubblici di Little Biggy da un crawler automatico che si aggiorna all'incirca ogni 30 minuti. Nulla è inserito a mano e non aggiungiamo alcuna informazione privata. Nelle nostre edizioni non in inglese il testo degli annunci è tradotto automaticamente, quindi qualche formulazione imprecisa è normale — l'originale è sempre a un clic di distanza su Little Biggy."
+      },
+      "whatWeCompute": {
+        "heading": "Cosa calcoliamo",
+        "body": "La maggior parte di ciò che vedi è copiata direttamente dagli annunci, ma alcuni dati li calcoliamo noi:\n\n• Storico dei prezzi — registriamo i prezzi di ogni annuncio nel tempo così puoi vedere se sono saliti o scesi.\n• Classifica di popolarità — un punteggio basato su recenza e attività che mette in evidenza gli annunci con interesse recente; è un indicatore approssimativo, non una misura di qualità.\n• Affidabilità del venditore — raccomandazioni e segnalazioni della community come mostrate su Little Biggy, aggregate per venditore.\n• Statistiche delle recensioni — valutazioni e dati di consegna aggregati dalle recensioni pubbliche di ogni annuncio.\n\nNessuno di questi è una garanzia; sono riepiloghi di dati pubblici pensati per aiutarti a confrontare."
+      },
+      "archive": {
+        "heading": "Politica di archiviazione",
+        "body": "Quando un annuncio viene rimosso da Little Biggy non lo cancelliamo semplicemente. Manteniamo invece una pagina archiviata, chiaramente contrassegnata come \"non più in elenco\", così che link, prezzi e storico restino disponibili come riferimento invece di trasformarsi in vicoli ciechi."
+      },
+      "freshness": {
+        "heading": "Aggiornamento e accuratezza",
+        "body": "Poiché le scansioni vengono eseguite periodicamente, prezzi, disponibilità e giacenze possono cambiare su Little Biggy tra un aggiornamento e l'altro, e ciò che vedi qui potrebbe essere brevemente in ritardo rispetto all'annuncio dal vivo. Considera i dati come una guida utile, non come un prezzo in tempo reale — conferma sempre il prezzo e la disponibilità attuali su Little Biggy prima di agire."
+      },
+      "contact": {
+        "heading": "Contatti e feedback",
+        "body": "Hai notato qualcosa di sbagliato, o vuoi che un annuncio venga corretto o rimosso? Usa la funzione di suggerimento presente in ogni pagina di articolo per metterti in contatto — è il modo più rapido per raggiungerci."
+      }
+    }
   },
   "legal": {
     "privacy": {

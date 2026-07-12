@@ -9,6 +9,7 @@ import { getItemPrimaryImage, variantSrcSetForUrl } from "@/lib/images";
 import type { SeedItem } from "@/lib/seed";
 import {
   bookmarksSetAtom,
+  browseViewSignatureAtom,
   categoryAtom,
   currencyDisplayAtom,
   highResImagesAtom,
@@ -41,17 +42,38 @@ const CHUNK_SIZE = COLS * 3; // ~12 items per scroll-load
 
 function useProgressiveRender<T extends { id: string | number }>(
   items: T[],
+  signature: string,
 ): T[] {
   const [renderCount, setRenderCount] = useState(() =>
     Math.min(items.length, INITIAL_BATCH),
   );
+  const [prevSignature, setPrevSignature] = useState(signature);
   const [prevLength, setPrevLength] = useState(items.length);
 
-  // React-recommended "adjust state during render" pattern:
-  // reset count immediately when item list changes — no effect cascade
-  if (items.length !== prevLength) {
+  // React-recommended "adjust state during render" pattern (no effect cascade).
+  //
+  // The reset key is the user's active-view SIGNATURE, not the raw item count.
+  // `sortedItemsAtom` emits a new array both when the user changes a
+  // filter/sort AND when fresh data lands (crawler ran → router.refresh
+  // refetched the browse RSC). Only the former should snap back to the first
+  // batch; the latter under a deep-scrolled reader truncated the list and
+  // collapsed the page height (the reported bug).
+  if (signature !== prevSignature) {
+    // User changed their view (filter/sort/search/category/market/…): reset to
+    // the first batch, exactly as before.
+    setPrevSignature(signature);
     setPrevLength(items.length);
     setRenderCount(Math.min(items.length, INITIAL_BATCH));
+  } else if (items.length !== prevLength) {
+    // Same view, new data reference (background swap, or the seed→live boot
+    // swap): PRESERVE how far the user had scrolled. Clamp to the new length,
+    // floored at INITIAL_BATCH so the boot transition (renderCount 0 while the
+    // store is empty → first live array) still reveals a full first batch
+    // rather than freezing at 0.
+    setPrevLength(items.length);
+    setRenderCount((prev) =>
+      Math.min(items.length, Math.max(prev, INITIAL_BATCH)),
+    );
   }
 
   // Progressively render remaining items as the user scrolls
@@ -247,20 +269,26 @@ function SeedCard({
 export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
   const t = useTranslations("browse");
   const items = useAtomValue(sortedItemsAtom);
+  const viewSignature = useAtomValue(browseViewSignatureAtom);
   const isLoading = useAtomValue(isLoadingAtom);
-  const visibleItems = useProgressiveRender(items);
+  const visibleItems = useProgressiveRender(items, viewSignature);
 
-  // Smooth-scroll to top when filtered/sorted item list changes.
-  // Skips initial mount; only scrolls if user is near top.
-  const prevItemsRef = useRef(items);
+  // Smooth-scroll to top when the user changes their VIEW (filter/sort/search/
+  // category/market/…), keyed on the same signature the progressive renderer
+  // resets on. Deliberately NOT keyed on the `items` reference: a background
+  // data swap (crawler ran → router.refresh) or the seed→live boot swap both
+  // produce a new `items` array with an UNCHANGED signature, and scrolling a
+  // deep reader to the top for those would be the very disruption we're fixing.
+  // Skips initial mount; only scrolls if the user is already near the top.
+  const prevSignatureRef = useRef(viewSignature);
   useEffect(() => {
-    if (prevItemsRef.current !== items) {
-      prevItemsRef.current = items;
+    if (prevSignatureRef.current !== viewSignature) {
+      prevSignatureRef.current = viewSignature;
       if (window.scrollY < 400) {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
-  }, [items]);
+  }, [viewSignature]);
 
   // Read shared atoms once here — avoids per-card subscriptions (food-agg pattern)
   const currentMarket = useAtomValue(marketAtom) || DEFAULT_MARKET;

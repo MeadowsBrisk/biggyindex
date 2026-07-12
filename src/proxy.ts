@@ -55,6 +55,23 @@ const LOCALE_PREFIX_HOSTS: Record<string, string> = {
 function legacyRedirect(request: NextRequest): NextResponse | null {
   const { pathname, search } = request.nextUrl;
 
+  // Legacy v1 domain (lbindex.vip) → canonical apex. Runs FIRST so the alias
+  // never serves duplicate 200s — the canonical tag only mitigates, a 301 is
+  // the correct fix. Read the real Host header (nextUrl.host can be the
+  // deployment host on the edge), lowercase it and strip any port. localhost/
+  // dev and every *.biggyindex.com host fall through untouched; the GB_HOSTS
+  // mapping stays in place so requests still reaching the app on that host
+  // during DNS propagation resolve as GB.
+  const requestHost = (request.headers.get("host") ?? "")
+    .toLowerCase()
+    .split(":")[0];
+  if (requestHost === "lbindex.vip" || requestHost === "www.lbindex.vip") {
+    return NextResponse.redirect(
+      `https://biggyindex.com${pathname}${search}`,
+      301,
+    );
+  }
+
   const rename = PAGE_RENAMES[pathname];
   if (rename) {
     return NextResponse.redirect(new URL(rename + search, request.url), 301);

@@ -246,6 +246,28 @@ export default async function LittleBiggyStatusPage({
             ))}
           </div>
 
+          {/* Telegram alerts — rendered only once the channel exists and
+              NEXT_PUBLIC_TELEGRAM_CHANNEL_URL is set on the frontend site
+              (inlined at build time; changing it needs a redeploy). The
+              channel's bot posts LB down/up alerts, so this page is the
+              natural place to offer the subscription. */}
+          {process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL && (
+            <section className="mt-8 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+              <p className="text-sm font-medium text-foreground">
+                {t("telegram.copy")}
+              </p>
+              <a
+                href={process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                {t("telegram.button")}
+                <ArrowRight size={14} />
+              </a>
+            </section>
+          )}
+
           {/* CTA — browse the index */}
           <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
             <h2 className="text-xl font-bold text-foreground">

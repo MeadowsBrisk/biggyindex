@@ -613,6 +613,55 @@ export const sortedItemsAtom = atom<Item[]>(
   (get) => get(browseResultsAtom).sortedItems,
 );
 
+/**
+ * Compact signature of the user's *active view* — everything that legitimately
+ * defines "which result set, in which order" EXCEPT the underlying data
+ * (`itemsAtom`/`itemIndexAtom`). It mirrors the inputs of `browseInputAtom`
+ * minus the item data, plus `marketAtom`.
+ *
+ * Why: `sortedItemsAtom` produces a new array reference whenever EITHER the
+ * user changes a filter/sort OR fresh data lands (crawler ran, router.refresh).
+ * ItemGrid needs to tell those apart — a user-initiated view change should
+ * reset progressive rendering to the first batch and scroll to top, but a
+ * background data swap under a deep-scrolled reader must NOT (that truncated
+ * the list and jumped the page — the reported bug). When this signature is
+ * unchanged but `sortedItemsAtom`'s reference changed, it was a data swap.
+ *
+ * NOT included: the bookmark *set* contents (only relevant while
+ * `bookmarksOnly` is on). Toggling a bookmark while browsing bookmarks-only
+ * therefore preserves scroll position instead of yanking the list — the same
+ * "don't disrupt the reader" intent, applied to an in-place set edit. The
+ * `bookmarksOnly` toggle itself IS included, so entering/leaving that view
+ * still resets, exactly as before.
+ *
+ * `randomSeed` is only folded in when the shuffle sort is active, so a fresh
+ * session seed never forces a reset under a non-shuffle sort.
+ */
+export const browseViewSignatureAtom = atom<string>((get) => {
+  const pr = get(priceRangeAtom);
+  return JSON.stringify([
+    get(marketAtom),
+    get(categoryAtom),
+    get(subcategoryAtom),
+    get(excludedSubcategoriesAtom),
+    get(deferredSearchQueryAtom),
+    get(selectedSellersAtom),
+    get(hiddenSellersAtom),
+    pr.min,
+    pr.max === Number.POSITIVE_INFINITY ? "inf" : pr.max,
+    get(bookmarksOnlyAtom),
+    get(attrFiltersAtom),
+    get(selectedShipFromAtom),
+    get(excludedShipFromAtom),
+    get(freeShippingOnlyAtom),
+    get(selectedWeightsAtom),
+    get(sortKeyAtom),
+    get(sortDirAtom),
+    get(includeShippingAtom),
+    get(sortKeyAtom) === "shuffle" ? get(randomSeedAtom) : 0,
+  ]);
+});
+
 export const categoryCountsAtom = atom<Record<string, number>>(
   (get) => get(browseSnapshotAtom).categoryCounts,
 );

@@ -13,7 +13,7 @@ import {
   marketToHost,
 } from "@/lib/market/market";
 import { serializeJsonLd } from "@/lib/seo/jsonld";
-import { absoluteUrl } from "@/lib/seo/metadata";
+import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 import type { Item, Seller, SellerDetail } from "@/lib/types";
 import { SellerPageClient } from "./SellerPageClient";
 
@@ -35,19 +35,6 @@ type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
 const SELLER_ITEM_LIMIT = 24;
 
-const LOCALE_FOR: Record<MarketCode, string> = {
-  GB: "en",
-  IE: "en-IE",
-  DE: "de",
-  FR: "fr",
-  PT: "pt",
-  IT: "it",
-  ES: "es",
-  GR: "el",
-  CZ: "cs",
-  PL: "pl",
-};
-
 function parseSellerId(raw: string | undefined): string | null {
   if (!raw) return null;
   const decoded = decodeURIComponent(raw).trim();
@@ -64,20 +51,6 @@ function sellerPath(sellerId: string): string {
 
 function sellerUrl(market: MarketCode, sellerId: string): string {
   return `https://${marketToHost(market)}${sellerPath(sellerId)}`;
-}
-
-function alternateLanguages(
-  sellerId: string,
-  markets: MarketCode[],
-): Record<string, string> {
-  const languages: Record<string, string> = {};
-  for (const market of markets) {
-    languages[LOCALE_FOR[market]] = sellerUrl(market, sellerId);
-  }
-  const defaultMarket = markets.includes("GB") ? "GB" : markets[0];
-  if (defaultMarket)
-    languages["x-default"] = sellerUrl(defaultMarket, sellerId);
-  return languages;
 }
 
 function dateValue(item: Item): number {
@@ -258,34 +231,21 @@ export async function generateMetadata({
     seller: decodeEntities(data.detail.sellerName || data.seller.name),
   });
   const description = sellerDescription(data, metaT);
-  const image =
-    data.detail.sellerImageUrl ??
-    data.detail.imageUrl ??
-    data.seller.imageUrl ??
-    null;
 
-  return {
+  // Route through pageMetadata for the shared SEO surface: description
+  // compaction, og:locale, the WebP-rewritten default og:image + twitter
+  // defaults, and hreflang. alternateMarkets = the presence-based
+  // sellerMarkets (load-bearing) — pageMetadata's alternateLanguagesForPath
+  // reproduces the old alternateLanguages() cluster exactly. No images passed:
+  // seller avatars are small/often absent, so the 1200x630 default og card is
+  // the richer share preview.
+  return pageMetadata({
+    market: data.market,
+    path: sellerPath(sellerId),
     title,
     description,
-    alternates: {
-      canonical: sellerUrl(data.market, sellerId),
-      languages: alternateLanguages(sellerId, data.sellerMarkets),
-    },
-    openGraph: {
-      type: "profile",
-      title,
-      description,
-      url: sellerUrl(data.market, sellerId),
-      siteName: "BiggyIndex",
-      images: image ? [{ url: image }] : undefined,
-    },
-    twitter: {
-      card: image ? "summary_large_image" : "summary",
-      title,
-      description,
-      images: image ? [image] : undefined,
-    },
-  };
+    alternateMarkets: data.sellerMarkets,
+  });
 }
 
 /** Top sellers (by listing count) prerendered at build. */

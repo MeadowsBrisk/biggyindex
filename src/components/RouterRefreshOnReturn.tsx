@@ -23,16 +23,44 @@ import { useEffect, useRef } from "react";
  *   - `visibilitychange` to "visible" after the tab was hidden long enough
  *   - `pageshow` with `event.persisted` (bfcache restore — same idea)
  *
+ * Deep-scroll guard: a refresh that lands new data while the user is reading
+ * far down the /browse grid re-fetches the browse RSC; if the crawler ran
+ * meanwhile, DataLoader swaps in a new item array and the default "hottest"
+ * sort can reshuffle under the reader's viewport. On mobile every
+ * app-switch / screen-lock fires `visibilitychange`, so a deep reader was
+ * getting the rug pulled out repeatedly ("the list refreshes every time I
+ * scroll"). So when the tab returns while scrolled past `SCROLL_DEFER_PX`, we
+ * DON'T refresh immediately — we defer it until the reader scrolls back near
+ * the top (where a reshuffle is expected and harmless), or until the next full
+ * navigation refreshes anyway. Near-top readers keep the original snappy
+ * freshness behavior. (ItemGrid separately preserves scroll depth even if a
+ * refresh does land, so this is belt-and-braces against reshuffle churn.)
+ *
  * Renders nothing.
  */
 
 const STALE_AFTER_MS = 2 * 60 * 1000; // 2 minutes — well below the 30-min crawler cadence
+const SCROLL_DEFER_PX = 600; // past this, defer the refresh rather than disrupt the reader
 
 export function RouterRefreshOnReturn() {
   const router = useRouter();
   const hiddenAtRef = useRef<number | null>(null);
+  // Set when a return-refresh was deferred because the reader was scrolled
+  // deep; a scroll listener flushes it once they're back near the top.
+  const pendingRefreshRef = useRef(false);
 
   useEffect(() => {
+    // Run the refresh now if the reader is near the top, otherwise defer it
+    // until they scroll back up (armed via the scroll listener below).
+    const refreshOrDefer = () => {
+      if (window.scrollY > SCROLL_DEFER_PX) {
+        pendingRefreshRef.current = true;
+        return;
+      }
+      pendingRefreshRef.current = false;
+      router.refresh();
+    };
+
     const onVisibility = () => {
       if (document.visibilityState === "hidden") {
         hiddenAtRef.current = Date.now();
@@ -44,7 +72,7 @@ export function RouterRefreshOnReturn() {
       if (hiddenAt == null) return;
       const elapsed = Date.now() - hiddenAt;
       if (elapsed >= STALE_AFTER_MS) {
-        router.refresh();
+        refreshOrDefer();
       }
     };
 
@@ -52,15 +80,30 @@ export function RouterRefreshOnReturn() {
       // bfcache restore — equivalent to "tab returned"; refresh defensively
       // so frozen React state from the cached page picks up newer RSC.
       if (event.persisted) {
-        router.refresh();
+        refreshOrDefer();
       }
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (!pendingRefreshRef.current || ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        ticking = false;
+        if (pendingRefreshRef.current && window.scrollY <= SCROLL_DEFER_PX) {
+          pendingRefreshRef.current = false;
+          router.refresh();
+        }
+      });
     };
 
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pageshow", onPageShow);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pageshow", onPageShow);
+      window.removeEventListener("scroll", onScroll);
     };
   }, [router]);
 

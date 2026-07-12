@@ -60,6 +60,7 @@
     "community": "Community",
     "communityCopy": "Join the conversation. Share experiences, ask questions, or check seller reputations.",
     "statusLink": "Little Biggy status",
+    "about": "About",
     "privacy": "Privacy",
     "terms": "Terms",
     "cookies": "Cookies",
@@ -67,6 +68,10 @@
     "copyright": "© {year} Biggy Index. Prices shown may vary - always check the store for the latest pricing."
   },
   "littleBiggyStatus": {
+    "telegram": {
+      "copy": "Want to know the moment Little Biggy goes down or comes back? Our Telegram channel posts outage alerts and a daily digest of new items and price drops.",
+      "button": "Join the Telegram channel"
+    },
     "meta": {
       "title": "Is Little Biggy Down? Live Status & Access Guide | BiggyIndex",
       "description": "Is littlebiggy.org up or down right now? A live status check with uptime history, the official address, login help and what to do during an outage — refreshed every few minutes."
@@ -1069,6 +1074,39 @@
     "close": "Close",
     "backToTop": "Back to top",
     "back": "Back"
+  },
+  "about": {
+    "metadataTitle": "About BiggyIndex — How the Index Works | BiggyIndex",
+    "metadataDescription": "How BiggyIndex works: an independent, read-only index of public Little Biggy listings, refreshed roughly every 30 minutes, with price history, hotness ranking and seller trust data.",
+    "title": "About BiggyIndex",
+    "updated": "Last updated July 2026",
+    "intro": "BiggyIndex is an independent, read-only index of publicly listed Little Biggy offerings. This page explains what the site is, where its data comes from, and how the numbers you see are put together — so you can judge for yourself how far to trust them.",
+    "sections": {
+      "whatItIs": {
+        "heading": "What BiggyIndex is — and is not",
+        "body": "BiggyIndex is an independent catalogue that makes public Little Biggy listings easier to browse, filter and compare. It is not a marketplace: you cannot buy anything here, no order or payment ever passes through us, and we are not affiliated with, endorsed by, or operated by Little Biggy. Every purchase happens on Little Biggy itself, under Little Biggy's own terms."
+      },
+      "dataSources": {
+        "heading": "Where the data comes from",
+        "body": "Everything shown here is gathered from publicly available Little Biggy listings by an automated crawler that refreshes roughly every 30 minutes. Nothing is entered by hand and we add no private information. For our non-English editions, listing text is translated by machine, so occasional wording quirks are normal — the original is always a click away on Little Biggy."
+      },
+      "whatWeCompute": {
+        "heading": "What we compute",
+        "body": "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Hotness ranking — a recency-and-activity score that surfaces listings drawing recent engagement; it is a rough indicator, not a measure of quality.\n• Seller trust surface — community endorsements and reports as shown on Little Biggy, aggregated per seller.\n• Review stats — ratings and delivery figures aggregated from the public reviews on each listing.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
+      },
+      "archive": {
+        "heading": "Archive policy",
+        "body": "When a listing is removed from Little Biggy we do not simply delete it. Instead we keep an archived page, clearly marked \"no longer listed\", so links, prices and history stay available for reference rather than turning into dead ends."
+      },
+      "freshness": {
+        "heading": "Freshness and accuracy",
+        "body": "Because crawls run periodically, prices, stock and availability can change on Little Biggy between refreshes, and what you see here may briefly lag the live listing. Treat the figures as a helpful guide, not a live quote — always confirm the current price and availability on Little Biggy before acting."
+      },
+      "contact": {
+        "heading": "Contact and feedback",
+        "body": "Spotted something wrong, or want a listing corrected or removed? Use the suggestion feature on any item page to get in touch — it is the quickest way to reach us."
+      }
+    }
   },
   "legal": {
     "privacy": {

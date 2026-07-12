@@ -102,6 +102,13 @@ export default async function HomePage({
     name: "BiggyIndex",
     url: `${baseUrl}/`,
     logo: `${baseUrl}/icon-512.png`,
+    description:
+      "Independent index of Little Biggy listings — price history, review stats and seller trust data.",
+    // The /about page describes this entity (methodology + provenance).
+    subjectOf: {
+      "@type": "AboutPage",
+      url: `${baseUrl}/about`,
+    },
     sameAs: ALL_MARKETS.filter((m) => m !== market).map(
       (m) => `${marketBaseUrl(m)}/`,
     ),

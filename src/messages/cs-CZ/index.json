@@ -60,6 +60,7 @@
     "community": "Komunita",
     "communityCopy": "Připojte se k diskusi. Sdílejte zkušenosti, ptejte se na otázky nebo kontrolujte reputaci prodejců.",
     "statusLink": "Stav Little Biggy",
+    "about": "O nás",
     "privacy": "Soukromí",
     "terms": "Podmínky",
     "cookies": "Cookies",
@@ -67,6 +68,10 @@
     "copyright": "© {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě."
   },
   "littleBiggyStatus": {
+    "telegram": {
+      "copy": "Chcete hned vědět, když Little Biggy spadne nebo znovu naběhne? Náš kanál na Telegramu posílá upozornění na výpadky a denní přehled novinek a slev.",
+      "button": "Připojit se ke kanálu na Telegramu"
+    },
     "meta": {
       "title": "Je Little Biggy mimo provoz? Živý stav a průvodce | BiggyIndex",
       "description": "Funguje littlebiggy.org právě teď? Živý stav s historií, oficiální adresa, pomoc s přihlášením a co dělat při výpadku — pravidelně aktualizováno."
@@ -1069,6 +1074,39 @@
     "close": "Zavřít",
     "backToTop": "Zpět nahoru",
     "back": "Zpět"
+  },
+  "about": {
+    "metadataTitle": "O BiggyIndexu — jak index funguje | BiggyIndex",
+    "metadataDescription": "Jak BiggyIndex funguje: nezávislý index veřejných nabídek Little Biggy určený pouze ke čtení, aktualizovaný zhruba každých 30 minut, s historií cen, žebříčkem popularity a údaji o důvěryhodnosti prodejců.",
+    "title": "O BiggyIndexu",
+    "updated": "Naposledy aktualizováno v červenci 2026",
+    "intro": "BiggyIndex je nezávislý index veřejně vypsaných nabídek Little Biggy, určený pouze ke čtení. Tato stránka vysvětluje, co web je, odkud pocházejí jeho data a jak vznikají čísla, která vidíte — abyste sami posoudili, nakolik jim věřit.",
+    "sections": {
+      "whatItIs": {
+        "heading": "Co BiggyIndex je — a co není",
+        "body": "BiggyIndex je nezávislý katalog, který usnadňuje procházení, filtrování a porovnávání veřejných nabídek Little Biggy. Není to tržiště: nic si tu nekoupíte, žádná objednávka ani platba přes nás nikdy neprojde a nejsme s Little Biggy nijak spojeni, jím schváleni ani provozováni. Každý nákup probíhá na samotném Little Biggy, podle jeho vlastních podmínek."
+      },
+      "dataSources": {
+        "heading": "Odkud data pocházejí",
+        "body": "Vše, co se zde zobrazuje, sbírá z veřejně dostupných nabídek Little Biggy automatický crawler, který se obnovuje zhruba každých 30 minut. Nic se nezadává ručně a nepřidáváme žádné soukromé informace. V našich neanglických verzích je text nabídek překládán strojově, takže občasné jazykové neobratnosti jsou běžné — originál je na Little Biggy vždy na jedno kliknutí."
+      },
+      "whatWeCompute": {
+        "heading": "Co počítáme",
+        "body": "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Žebříček popularity — skóre založené na aktuálnosti a aktivitě, které vyzdvihuje nabídky s nedávným zájmem; je to hrubý ukazatel, ne měřítko kvality.\n• Důvěryhodnost prodejce — doporučení a nahlášení komunity tak, jak se zobrazují na Little Biggy, agregované podle prodejce.\n• Statistiky recenzí — hodnocení a údaje o doručení agregované z veřejných recenzí u každé nabídky.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
+      },
+      "archive": {
+        "heading": "Zásady archivace",
+        "body": "Když je nabídka odstraněna z Little Biggy, jednoduše ji nesmažeme. Místo toho ponecháme archivovanou stránku, zřetelně označenou jako \"již není v nabídce\", aby odkazy, ceny a historie zůstaly dostupné pro referenci, místo aby se z nich staly slepé uličky."
+      },
+      "freshness": {
+        "heading": "Aktuálnost a přesnost",
+        "body": "Protože procházení probíhá pravidelně, ceny, skladová dostupnost a nabídka se mohou na Little Biggy mezi aktualizacemi změnit a to, co zde vidíte, může krátce zaostávat za živou nabídkou. Berte údaje jako užitečné vodítko, ne jako živou cenu — před jednáním si vždy ověřte aktuální cenu a dostupnost na Little Biggy."
+      },
+      "contact": {
+        "heading": "Kontakt a zpětná vazba",
+        "body": "Všimli jste si chyby, nebo chcete nějakou nabídku opravit či odstranit? Napište nám přes funkci návrhů na kterékoli stránce položky — je to nejrychlejší způsob, jak nás zastihnout."
+      }
+    }
   },
   "legal": {
     "privacy": {

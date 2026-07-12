@@ -33,7 +33,16 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         // dataset + rates and render the full catalog during the rendering
         // wave. Google resolves by most-specific path, but explicit Allow
         // entries above the blanket /api/ disallow make the intent clear.
-        allow: ["/", "/api/browse", "/api/exchange-rates"],
+        //
+        // "/browse?cat=" re-opens ONLY the category-filter form for crawling.
+        // Under Google's longest-match rule the allow's 12 literal chars beat
+        // the "/browse?*" disallow's 8 ("/browse?"), so /browse?cat=Flower is
+        // fetchable while every other filter combo (q/pmin/pmax/sellers/sub/
+        // excl) stays blocked. Crawlable != indexable: these responses carry
+        // X-Robots-Tag: noindex, follow (next.config headers) + canonical to
+        // /browse, so Googlebot follows the links and passes equity without
+        // indexing the filtered URL.
+        allow: ["/", "/api/browse", "/api/exchange-rates", "/browse?cat="],
         disallow: [
           "/api/",
           "/browse?*", // Filter combos — let Google discover /browse itself

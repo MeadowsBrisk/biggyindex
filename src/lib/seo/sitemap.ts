@@ -102,6 +102,15 @@ function staticSitemap(baseUrl: string): MetadataRoute.Sitemap {
         languages: alternateLanguagesForPath(path, ALL_MARKETS),
       },
     })),
+    // About / methodology page — E-E-A-T surface, changes rarely.
+    {
+      url: `${baseUrl}/about`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+      alternates: {
+        languages: alternateLanguagesForPath("/about", ALL_MARKETS),
+      },
+    },
     // Live Little Biggy status page — hourly changefreq reflects the live
     // uptime indicator revalidating far faster than the other hubs.
     {
@@ -181,7 +190,10 @@ async function itemsSitemap(
 
     return {
       url: `${baseUrl}${path}`,
-      lastModified: lastmod ? new Date(lastmod) : new Date(),
+      // Omit lastModified when we have no real timestamp — stamping
+      // new Date() would fabricate a freshness signal. The serializer
+      // skips <lastmod> when absent (same fix as static/sellers).
+      lastModified: lastmod ? new Date(lastmod) : undefined,
       changeFrequency: "daily" as const,
       priority: 0.6,
       alternates: {

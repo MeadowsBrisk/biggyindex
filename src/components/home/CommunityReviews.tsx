@@ -510,10 +510,18 @@ function MarqueeRow({
       }
     >
       <div className="review-marquee-track flex gap-2.5">
-        {/* First copy */}
+        {/* First copy — the real, interactive one */}
         {cards}
-        {/* Duplicate for seamless loop */}
-        {cards}
+        {/* Visual clone for the seamless -50% loop. `display:contents` keeps
+            each card a direct flex item (gap + width unchanged, so the loop
+            stays pixel-identical), while `aria-hidden` drops the duplicate
+            from the a11y tree and `inert` makes the whole subtree
+            unfocusable + unclickable — the correct behaviour for a decorative
+            clone. Wrapping also scopes the reused keys so they no longer
+            collide with the first copy's siblings. */}
+        <div className="contents" aria-hidden="true" inert>
+          {cards}
+        </div>
       </div>
     </div>
   );

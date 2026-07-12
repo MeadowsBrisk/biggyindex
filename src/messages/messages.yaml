@@ -486,6 +486,16 @@ footer:
     el-GR: Κατάσταση Little Biggy
     cs-CZ: Stav Little Biggy
     pl-PL: Status Little Biggy
+  about:
+    en-GB: About
+    de-DE: Über uns
+    fr-FR: À propos
+    pt-PT: Sobre
+    it-IT: Informazioni
+    es-ES: Acerca de
+    el-GR: Σχετικά
+    cs-CZ: O nás
+    pl-PL: O nas
   privacy:
     en-GB: Privacy
     de-DE: Datenschutz
@@ -538,6 +548,27 @@ footer:
     pl-PL: © {year} Biggy Index. Ceny mogą się różnić – zawsze sprawdź sklep pod kątem najnowszych cen.
 
 littleBiggyStatus:
+  telegram:
+    copy:
+      en-GB: "Want to know the moment Little Biggy goes down or comes back? Our Telegram channel posts outage alerts and a daily digest of new items and price drops."
+      de-DE: "Sofort wissen, wenn Little Biggy down ist oder wieder läuft? Unser Telegram-Kanal meldet Ausfälle und liefert täglich neue Artikel und Preissenkungen."
+      fr-FR: "Envie de savoir immédiatement quand Little Biggy tombe en panne ou revient ? Notre canal Telegram publie les alertes de panne et un résumé quotidien des nouveautés et baisses de prix."
+      pt-PT: "Quer saber no momento em que o Little Biggy cai ou volta? O nosso canal do Telegram publica alertas de falhas e um resumo diário de novos artigos e descidas de preço."
+      it-IT: "Vuoi sapere subito quando Little Biggy va offline o torna attivo? Il nostro canale Telegram pubblica avvisi di interruzione e un riepilogo giornaliero di novità e ribassi."
+      es-ES: "¿Quieres saber al momento cuándo Little Biggy se cae o vuelve? Nuestro canal de Telegram publica alertas de caídas y un resumen diario de novedades y bajadas de precio."
+      el-GR: "Θέλετε να μαθαίνετε αμέσως πότε το Little Biggy πέφτει ή επανέρχεται; Το κανάλι μας στο Telegram στέλνει ειδοποιήσεις διακοπών και καθημερινή σύνοψη νέων προϊόντων και μειώσεων τιμών."
+      cs-CZ: "Chcete hned vědět, když Little Biggy spadne nebo znovu naběhne? Náš kanál na Telegramu posílá upozornění na výpadky a denní přehled novinek a slev."
+      pl-PL: "Chcesz od razu wiedzieć, kiedy Little Biggy padnie albo wróci? Nasz kanał na Telegramie publikuje alerty o awariach i codzienne podsumowanie nowości i obniżek cen."
+    button:
+      en-GB: "Join the Telegram channel"
+      de-DE: "Telegram-Kanal beitreten"
+      fr-FR: "Rejoindre le canal Telegram"
+      pt-PT: "Aderir ao canal do Telegram"
+      it-IT: "Unisciti al canale Telegram"
+      es-ES: "Únete al canal de Telegram"
+      el-GR: "Μπείτε στο κανάλι Telegram"
+      cs-CZ: "Připojit se ke kanálu na Telegramu"
+      pl-PL: "Dołącz do kanału na Telegramie"
   meta:
     title:
       en-GB: "Is Little Biggy Down? Live Status & Access Guide | BiggyIndex"
@@ -7933,6 +7964,184 @@ common:
     cs-CZ: Zpět
     pl-PL: Wstecz
 
+about:
+  metadataTitle:
+    en-GB: "About BiggyIndex — How the Index Works | BiggyIndex"
+    de-DE: "Über BiggyIndex — So funktioniert der Index | BiggyIndex"
+    fr-FR: "À propos de BiggyIndex — comment fonctionne l'index | BiggyIndex"
+    pt-PT: "Sobre o BiggyIndex — como funciona o índice | BiggyIndex"
+    it-IT: "Informazioni su BiggyIndex — come funziona l'indice | BiggyIndex"
+    es-ES: "Acerca de BiggyIndex — cómo funciona el índice | BiggyIndex"
+    el-GR: "Σχετικά με το BiggyIndex — Πώς λειτουργεί το ευρετήριο | BiggyIndex"
+    cs-CZ: "O BiggyIndexu — jak index funguje | BiggyIndex"
+    pl-PL: "O BiggyIndex — jak działa indeks | BiggyIndex"
+  metadataDescription:
+    en-GB: "How BiggyIndex works: an independent, read-only index of public Little Biggy listings, refreshed roughly every 30 minutes, with price history, hotness ranking and seller trust data."
+    de-DE: "Wie BiggyIndex funktioniert: ein unabhängiger, rein lesender Index öffentlicher Little Biggy Angebote, der etwa alle 30 Minuten aktualisiert wird – mit Preisverlauf, Beliebtheits-Ranking und Verkäufer-Vertrauensdaten."
+    fr-FR: "Comment fonctionne BiggyIndex : un index indépendant, en lecture seule, des annonces publiques Little Biggy, actualisé environ toutes les 30 minutes, avec historique des prix, classement de popularité et données de confiance des vendeurs."
+    pt-PT: "Como funciona o BiggyIndex: um índice independente e só de leitura das listagens públicas do Little Biggy, atualizado cerca de cada 30 minutos, com histórico de preços, ranking de popularidade e dados de confiança dos vendedores."
+    it-IT: "Come funziona BiggyIndex: un indice indipendente e di sola lettura degli annunci pubblici di Little Biggy, aggiornato all'incirca ogni 30 minuti, con storico dei prezzi, classifica di popolarità e dati di affidabilità dei venditori."
+    es-ES: "Cómo funciona BiggyIndex: un índice independiente y de solo lectura de los anuncios públicos de Little Biggy, actualizado aproximadamente cada 30 minutos, con historial de precios, ranking de popularidad y datos de confianza de los vendedores."
+    el-GR: "Πώς λειτουργεί το BiggyIndex: ένα ανεξάρτητο ευρετήριο μόνο για ανάγνωση των δημόσιων καταχωρίσεων του Little Biggy, που ανανεώνεται περίπου κάθε 30 λεπτά, με ιστορικό τιμών, κατάταξη δημοφιλίας και δεδομένα αξιοπιστίας πωλητών."
+    cs-CZ: "Jak BiggyIndex funguje: nezávislý index veřejných nabídek Little Biggy určený pouze ke čtení, aktualizovaný zhruba každých 30 minut, s historií cen, žebříčkem popularity a údaji o důvěryhodnosti prodejců."
+    pl-PL: "Jak działa BiggyIndex: niezależny, tylko do odczytu indeks publicznych ofert Little Biggy, odświeżany mniej więcej co 30 minut, z historią cen, rankingiem popularności i danymi o zaufaniu do sprzedawców."
+  title:
+    en-GB: "About BiggyIndex"
+    de-DE: "Über BiggyIndex"
+    fr-FR: "À propos de BiggyIndex"
+    pt-PT: "Sobre o BiggyIndex"
+    it-IT: "Informazioni su BiggyIndex"
+    es-ES: "Acerca de BiggyIndex"
+    el-GR: "Σχετικά με το BiggyIndex"
+    cs-CZ: "O BiggyIndexu"
+    pl-PL: "O BiggyIndex"
+  updated:
+    en-GB: "Last updated July 2026"
+    de-DE: "Zuletzt aktualisiert im Juli 2026"
+    fr-FR: "Dernière mise à jour : juillet 2026"
+    pt-PT: "Última atualização: julho de 2026"
+    it-IT: "Ultimo aggiornamento: luglio 2026"
+    es-ES: "Última actualización: julio de 2026"
+    el-GR: "Τελευταία ενημέρωση: Ιούλιος 2026"
+    cs-CZ: "Naposledy aktualizováno v červenci 2026"
+    pl-PL: "Ostatnia aktualizacja: lipiec 2026"
+  intro:
+    en-GB: "BiggyIndex is an independent, read-only index of publicly listed Little Biggy offerings. This page explains what the site is, where its data comes from, and how the numbers you see are put together — so you can judge for yourself how far to trust them."
+    de-DE: "BiggyIndex ist ein unabhängiger, rein lesender Index öffentlich gelisteter Little Biggy Angebote. Diese Seite erklärt, was die Seite ist, woher ihre Daten stammen und wie die angezeigten Zahlen zustande kommen – damit Sie selbst einschätzen können, wie sehr Sie ihnen vertrauen."
+    fr-FR: "BiggyIndex est un index indépendant, en lecture seule, des offres publiquement répertoriées sur Little Biggy. Cette page explique ce qu'est le site, d'où proviennent ses données et comment les chiffres affichés sont établis — afin que vous puissiez juger par vous-même de la confiance à leur accorder."
+    pt-PT: "O BiggyIndex é um índice independente e só de leitura das ofertas publicamente listadas no Little Biggy. Esta página explica o que é o site, de onde vêm os seus dados e como são construídos os números que vê — para que possa avaliar por si próprio até que ponto confiar neles."
+    it-IT: "BiggyIndex è un indice indipendente e di sola lettura delle offerte pubblicamente elencate su Little Biggy. Questa pagina spiega cos'è il sito, da dove provengono i suoi dati e come sono costruiti i numeri che vedi — così puoi giudicare da solo quanto fidartene."
+    es-ES: "BiggyIndex es un índice independiente y de solo lectura de las ofertas listadas públicamente en Little Biggy. Esta página explica qué es el sitio, de dónde proceden sus datos y cómo se elaboran las cifras que ves, para que puedas juzgar por ti mismo hasta qué punto fiarte de ellas."
+    el-GR: "Το BiggyIndex είναι ένα ανεξάρτητο ευρετήριο μόνο για ανάγνωση των δημόσια καταχωρισμένων προσφορών του Little Biggy. Αυτή η σελίδα εξηγεί τι είναι ο ιστότοπος, από πού προέρχονται τα δεδομένα του και πώς προκύπτουν οι αριθμοί που βλέπετε — ώστε να κρίνετε μόνοι σας πόσο να τους εμπιστευτείτε."
+    cs-CZ: "BiggyIndex je nezávislý index veřejně vypsaných nabídek Little Biggy, určený pouze ke čtení. Tato stránka vysvětluje, co web je, odkud pocházejí jeho data a jak vznikají čísla, která vidíte — abyste sami posoudili, nakolik jim věřit."
+    pl-PL: "BiggyIndex to niezależny, tylko do odczytu indeks publicznie wystawionych ofert Little Biggy. Ta strona wyjaśnia, czym jest serwis, skąd pochodzą jego dane i jak powstają widoczne liczby — abyś mógł sam ocenić, na ile im ufać."
+  sections:
+    whatItIs:
+      heading:
+        en-GB: "What BiggyIndex is — and is not"
+        de-DE: "Was BiggyIndex ist – und was nicht"
+        fr-FR: "Ce qu'est BiggyIndex — et ce qu'il n'est pas"
+        pt-PT: "O que o BiggyIndex é — e o que não é"
+        it-IT: "Cos'è BiggyIndex — e cosa non è"
+        es-ES: "Qué es BiggyIndex y qué no es"
+        el-GR: "Τι είναι το BiggyIndex — και τι δεν είναι"
+        cs-CZ: "Co BiggyIndex je — a co není"
+        pl-PL: "Czym BiggyIndex jest — a czym nie"
+      body:
+        en-GB: "BiggyIndex is an independent catalogue that makes public Little Biggy listings easier to browse, filter and compare. It is not a marketplace: you cannot buy anything here, no order or payment ever passes through us, and we are not affiliated with, endorsed by, or operated by Little Biggy. Every purchase happens on Little Biggy itself, under Little Biggy's own terms."
+        de-DE: "BiggyIndex ist ein unabhängiger Katalog, der öffentliche Little Biggy Angebote leichter durchsuchbar, filterbar und vergleichbar macht. Es ist kein Marktplatz: Man kann hier nichts kaufen, keine Bestellung und keine Zahlung läuft je über uns, und wir sind weder mit Little Biggy verbunden noch von Little Biggy unterstützt oder betrieben. Jeder Kauf findet auf Little Biggy selbst statt, zu dessen eigenen Bedingungen."
+        fr-FR: "BiggyIndex est un catalogue indépendant qui facilite la navigation, le filtrage et la comparaison des annonces publiques de Little Biggy. Ce n'est pas une place de marché : vous ne pouvez rien acheter ici, aucune commande ni aucun paiement ne passe par nous, et nous ne sommes ni affiliés à Little Biggy, ni approuvés ou exploités par lui. Chaque achat se fait sur Little Biggy même, selon ses propres conditions."
+        pt-PT: "O BiggyIndex é um catálogo independente que torna as listagens públicas do Little Biggy mais fáceis de navegar, filtrar e comparar. Não é um mercado: não pode comprar nada aqui, nenhuma encomenda ou pagamento passa por nós, e não somos afiliados, apoiados nem operados pelo Little Biggy. Cada compra acontece no próprio Little Biggy, sob os termos do próprio Little Biggy."
+        it-IT: "BiggyIndex è un catalogo indipendente che rende più facile sfogliare, filtrare e confrontare gli annunci pubblici di Little Biggy. Non è un marketplace: qui non puoi acquistare nulla, nessun ordine o pagamento passa mai da noi, e non siamo affiliati, approvati o gestiti da Little Biggy. Ogni acquisto avviene su Little Biggy stesso, secondo i termini di Little Biggy."
+        es-ES: "BiggyIndex es un catálogo independiente que facilita navegar, filtrar y comparar los anuncios públicos de Little Biggy. No es un mercado: aquí no puedes comprar nada, ningún pedido ni pago pasa por nosotros, y no estamos afiliados, respaldados ni gestionados por Little Biggy. Cada compra ocurre en el propio Little Biggy, bajo los términos del propio Little Biggy."
+        el-GR: "Το BiggyIndex είναι ένας ανεξάρτητος κατάλογος που κάνει τις δημόσιες καταχωρίσεις του Little Biggy πιο εύκολο να τις περιηγηθείτε, να τις φιλτράρετε και να τις συγκρίνετε. Δεν είναι αγορά: εδώ δεν μπορείτε να αγοράσετε τίποτα, καμία παραγγελία ή πληρωμή δεν περνά ποτέ από εμάς, και δεν έχουμε σχέση, έγκριση ή διαχείριση από το Little Biggy. Κάθε αγορά γίνεται στο ίδιο το Little Biggy, με τους δικούς του όρους."
+        cs-CZ: "BiggyIndex je nezávislý katalog, který usnadňuje procházení, filtrování a porovnávání veřejných nabídek Little Biggy. Není to tržiště: nic si tu nekoupíte, žádná objednávka ani platba přes nás nikdy neprojde a nejsme s Little Biggy nijak spojeni, jím schváleni ani provozováni. Každý nákup probíhá na samotném Little Biggy, podle jeho vlastních podmínek."
+        pl-PL: "BiggyIndex to niezależny katalog, który ułatwia przeglądanie, filtrowanie i porównywanie publicznych ofert Little Biggy. Nie jest to rynek: niczego tu nie kupisz, żadne zamówienie ani płatność nigdy nie przechodzi przez nas, i nie jesteśmy powiązani z Little Biggy, wspierani przez niego ani przez niego prowadzeni. Każdy zakup odbywa się na samym Little Biggy, na jego własnych warunkach."
+    dataSources:
+      heading:
+        en-GB: "Where the data comes from"
+        de-DE: "Woher die Daten stammen"
+        fr-FR: "D'où proviennent les données"
+        pt-PT: "De onde vêm os dados"
+        it-IT: "Da dove provengono i dati"
+        es-ES: "De dónde provienen los datos"
+        el-GR: "Από πού προέρχονται τα δεδομένα"
+        cs-CZ: "Odkud data pocházejí"
+        pl-PL: "Skąd pochodzą dane"
+      body:
+        en-GB: "Everything shown here is gathered from publicly available Little Biggy listings by an automated crawler that refreshes roughly every 30 minutes. Nothing is entered by hand and we add no private information. For our non-English editions, listing text is translated by machine, so occasional wording quirks are normal — the original is always a click away on Little Biggy."
+        de-DE: "Alles, was hier zu sehen ist, wird von einem automatischen Crawler aus öffentlich verfügbaren Little Biggy Angeboten gesammelt und etwa alle 30 Minuten aktualisiert. Nichts wird von Hand eingegeben, und wir fügen keine privaten Informationen hinzu. In unseren nicht-englischen Ausgaben werden Angebotstexte maschinell übersetzt, gelegentliche sprachliche Ungereimtheiten sind daher normal – das Original ist auf Little Biggy stets nur einen Klick entfernt."
+        fr-FR: "Tout ce qui est affiché ici est collecté à partir des annonces Little Biggy publiquement disponibles par un robot automatique qui s'actualise environ toutes les 30 minutes. Rien n'est saisi à la main et nous n'ajoutons aucune information privée. Dans nos éditions non anglophones, le texte des annonces est traduit par machine ; quelques tournures approximatives sont donc normales — l'original est toujours à un clic sur Little Biggy."
+        pt-PT: "Tudo o que é mostrado aqui é recolhido de listagens públicas do Little Biggy por um rastreador automático que se atualiza cerca de cada 30 minutos. Nada é introduzido à mão e não acrescentamos qualquer informação privada. Nas nossas edições não inglesas, o texto das listagens é traduzido por máquina, pelo que algumas expressões estranhas são normais — o original está sempre a um clique no Little Biggy."
+        it-IT: "Tutto ciò che vedi qui è raccolto dagli annunci pubblici di Little Biggy da un crawler automatico che si aggiorna all'incirca ogni 30 minuti. Nulla è inserito a mano e non aggiungiamo alcuna informazione privata. Nelle nostre edizioni non in inglese il testo degli annunci è tradotto automaticamente, quindi qualche formulazione imprecisa è normale — l'originale è sempre a un clic di distanza su Little Biggy."
+        es-ES: "Todo lo que se muestra aquí lo recopila un rastreador automático a partir de los anuncios públicos de Little Biggy, y se actualiza aproximadamente cada 30 minutos. Nada se introduce a mano y no añadimos ninguna información privada. En nuestras ediciones que no son en inglés, el texto de los anuncios se traduce automáticamente, así que alguna expresión rara es normal: el original está siempre a un clic en Little Biggy."
+        el-GR: "Ό,τι εμφανίζεται εδώ συλλέγεται από δημόσια διαθέσιμες καταχωρίσεις του Little Biggy από έναν αυτόματο crawler που ανανεώνεται περίπου κάθε 30 λεπτά. Τίποτα δεν καταχωρείται με το χέρι και δεν προσθέτουμε καμία ιδιωτική πληροφορία. Στις μη αγγλικές εκδόσεις μας, το κείμενο των καταχωρίσεων μεταφράζεται από μηχανή, οπότε κάποιες αδέξιες διατυπώσεις είναι φυσιολογικές — το πρωτότυπο είναι πάντα ένα κλικ μακριά στο Little Biggy."
+        cs-CZ: "Vše, co se zde zobrazuje, sbírá z veřejně dostupných nabídek Little Biggy automatický crawler, který se obnovuje zhruba každých 30 minut. Nic se nezadává ručně a nepřidáváme žádné soukromé informace. V našich neanglických verzích je text nabídek překládán strojově, takže občasné jazykové neobratnosti jsou běžné — originál je na Little Biggy vždy na jedno kliknutí."
+        pl-PL: "Wszystko, co tu widać, zbiera z publicznie dostępnych ofert Little Biggy automatyczny crawler, który odświeża dane mniej więcej co 30 minut. Nic nie jest wprowadzane ręcznie i nie dodajemy żadnych prywatnych informacji. W naszych edycjach innych niż angielska tekst ofert jest tłumaczony maszynowo, więc sporadyczne niezręczności językowe są normalne — oryginał jest zawsze o jedno kliknięcie na Little Biggy."
+    whatWeCompute:
+      heading:
+        en-GB: "What we compute"
+        de-DE: "Was wir berechnen"
+        fr-FR: "Ce que nous calculons"
+        pt-PT: "O que calculamos"
+        it-IT: "Cosa calcoliamo"
+        es-ES: "Qué calculamos"
+        el-GR: "Τι υπολογίζουμε"
+        cs-CZ: "Co počítáme"
+        pl-PL: "Co obliczamy"
+      body:
+        en-GB: "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Hotness ranking — a recency-and-activity score that surfaces listings drawing recent engagement; it is a rough indicator, not a measure of quality.\n• Seller trust surface — community endorsements and reports as shown on Little Biggy, aggregated per seller.\n• Review stats — ratings and delivery figures aggregated from the public reviews on each listing.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
+        de-DE: "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Beliebtheits-Ranking – ein auf Aktualität und Aktivität beruhender Wert, der Angebote mit jüngstem Interesse hervorhebt; es ist ein grober Anhaltspunkt, kein Qualitätsmaß.\n• Verkäufer-Vertrauen – Empfehlungen und Meldungen der Community, wie sie auf Little Biggy angezeigt werden, pro Verkäufer zusammengefasst.\n• Bewertungsstatistik – Bewertungen und Lieferkennzahlen, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
+        fr-FR: "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Classement de popularité — un score fondé sur la récence et l'activité qui met en avant les annonces suscitant un intérêt récent ; c'est un indicateur approximatif, pas une mesure de qualité.\n• Confiance envers le vendeur — recommandations et signalements de la communauté tels qu'affichés sur Little Biggy, agrégés par vendeur.\n• Statistiques d'avis — notes et données de livraison agrégées à partir des avis publics de chaque annonce.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
+        pt-PT: "A maior parte do que vê é copiada diretamente das listagens, mas alguns valores são calculados por nós:\n\n• Histórico de preços — registamos os preços de cada listagem ao longo do tempo para que possa ver se subiram ou desceram.\n• Ranking de popularidade — uma pontuação baseada na recência e na atividade que destaca as listagens com interesse recente; é um indicador aproximado, não uma medida de qualidade.\n• Confiança no vendedor — recomendações e denúncias da comunidade tal como aparecem no Little Biggy, agregadas por vendedor.\n• Estatísticas de avaliações — classificações e dados de entrega agregados a partir das avaliações públicas de cada listagem.\n\nNada disto são garantias; são resumos de dados públicos destinados a ajudá-lo a comparar."
+        it-IT: "La maggior parte di ciò che vedi è copiata direttamente dagli annunci, ma alcuni dati li calcoliamo noi:\n\n• Storico dei prezzi — registriamo i prezzi di ogni annuncio nel tempo così puoi vedere se sono saliti o scesi.\n• Classifica di popolarità — un punteggio basato su recenza e attività che mette in evidenza gli annunci con interesse recente; è un indicatore approssimativo, non una misura di qualità.\n• Affidabilità del venditore — raccomandazioni e segnalazioni della community come mostrate su Little Biggy, aggregate per venditore.\n• Statistiche delle recensioni — valutazioni e dati di consegna aggregati dalle recensioni pubbliche di ogni annuncio.\n\nNessuno di questi è una garanzia; sono riepiloghi di dati pubblici pensati per aiutarti a confrontare."
+        es-ES: "La mayor parte de lo que ves se copia directamente de los anuncios, pero algunas cifras las calculamos nosotros:\n\n• Historial de precios: registramos los precios de cada anuncio a lo largo del tiempo para que veas si han subido o bajado.\n• Ranking de popularidad: una puntuación basada en la actualidad y la actividad que destaca los anuncios con interés reciente; es un indicador aproximado, no una medida de calidad.\n• Confianza en el vendedor: recomendaciones y denuncias de la comunidad tal como aparecen en Little Biggy, agregadas por vendedor.\n• Estadísticas de reseñas: valoraciones y datos de entrega agregados a partir de las reseñas públicas de cada anuncio.\n\nNada de esto son garantías; son resúmenes de datos públicos pensados para ayudarte a comparar."
+        el-GR: "Το μεγαλύτερο μέρος όσων βλέπετε αντιγράφεται απευθείας από τις καταχωρίσεις, αλλά ορισμένα στοιχεία τα υπολογίζουμε εμείς:\n\n• Ιστορικό τιμών — καταγράφουμε τις τιμές κάθε καταχώρισης στον χρόνο, ώστε να βλέπετε αν έχουν ανέβει ή πέσει.\n• Κατάταξη δημοφιλίας — μια βαθμολογία βασισμένη στην προσφατότητα και τη δραστηριότητα που αναδεικνύει καταχωρίσεις με πρόσφατο ενδιαφέρον· είναι ένας πρόχειρος δείκτης, όχι μέτρο ποιότητας.\n• Αξιοπιστία πωλητή — συστάσεις και αναφορές της κοινότητας όπως εμφανίζονται στο Little Biggy, συγκεντρωμένες ανά πωλητή.\n• Στατιστικά κριτικών — βαθμολογίες και στοιχεία παράδοσης συγκεντρωμένα από τις δημόσιες κριτικές κάθε καταχώρισης.\n\nΤίποτα από αυτά δεν αποτελεί εγγύηση· είναι συνόψεις δημόσιων δεδομένων που σκοπό έχουν να σας βοηθήσουν να συγκρίνετε."
+        cs-CZ: "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Žebříček popularity — skóre založené na aktuálnosti a aktivitě, které vyzdvihuje nabídky s nedávným zájmem; je to hrubý ukazatel, ne měřítko kvality.\n• Důvěryhodnost prodejce — doporučení a nahlášení komunity tak, jak se zobrazují na Little Biggy, agregované podle prodejce.\n• Statistiky recenzí — hodnocení a údaje o doručení agregované z veřejných recenzí u každé nabídky.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
+        pl-PL: "Większość tego, co widzisz, jest kopiowana wprost z ofert, ale niektóre dane obliczamy sami:\n\n• Historia cen — zapisujemy ceny każdej oferty w czasie, abyś mógł zobaczyć, czy wzrosły, czy spadły.\n• Ranking popularności — wynik oparty na świeżości i aktywności, który wyróżnia oferty cieszące się ostatnio zainteresowaniem; to przybliżony wskaźnik, a nie miara jakości.\n• Zaufanie do sprzedawcy — rekomendacje i zgłoszenia społeczności w postaci wyświetlanej na Little Biggy, zagregowane dla każdego sprzedawcy.\n• Statystyki recenzji — oceny i dane o dostawie zagregowane z publicznych recenzji każdej oferty.\n\nŻadna z tych rzeczy nie jest gwarancją; to podsumowania publicznych danych, które mają pomóc Ci w porównaniu."
+    archive:
+      heading:
+        en-GB: "Archive policy"
+        de-DE: "Archiv-Richtlinie"
+        fr-FR: "Politique d'archivage"
+        pt-PT: "Política de arquivo"
+        it-IT: "Politica di archiviazione"
+        es-ES: "Política de archivo"
+        el-GR: "Πολιτική αρχειοθέτησης"
+        cs-CZ: "Zásady archivace"
+        pl-PL: "Zasady archiwizacji"
+      body:
+        en-GB: "When a listing is removed from Little Biggy we do not simply delete it. Instead we keep an archived page, clearly marked \"no longer listed\", so links, prices and history stay available for reference rather than turning into dead ends."
+        de-DE: "Wenn ein Angebot von Little Biggy entfernt wird, löschen wir es nicht einfach. Stattdessen behalten wir eine archivierte Seite, deutlich als \"nicht mehr gelistet\" gekennzeichnet, damit Links, Preise und Verlauf als Referenz erhalten bleiben, statt zu toten Enden zu werden."
+        fr-FR: "Lorsqu'une annonce est retirée de Little Biggy, nous ne la supprimons pas purement et simplement. Nous conservons plutôt une page archivée, clairement marquée « n'est plus répertoriée », afin que les liens, les prix et l'historique restent consultables au lieu de devenir des impasses."
+        pt-PT: "Quando uma listagem é removida do Little Biggy, não a apagamos simplesmente. Em vez disso, mantemos uma página arquivada, claramente marcada como \"já não listada\", para que ligações, preços e histórico continuem disponíveis para consulta em vez de se tornarem becos sem saída."
+        it-IT: "Quando un annuncio viene rimosso da Little Biggy non lo cancelliamo semplicemente. Manteniamo invece una pagina archiviata, chiaramente contrassegnata come \"non più in elenco\", così che link, prezzi e storico restino disponibili come riferimento invece di trasformarsi in vicoli ciechi."
+        es-ES: "Cuando un anuncio se retira de Little Biggy no lo eliminamos sin más. En su lugar conservamos una página archivada, claramente marcada como \"ya no listado\", para que los enlaces, los precios y el historial sigan disponibles como referencia en vez de convertirse en callejones sin salida."
+        el-GR: "Όταν μια καταχώριση αφαιρείται από το Little Biggy, δεν τη διαγράφουμε απλώς. Αντ' αυτού διατηρούμε μια αρχειοθετημένη σελίδα, με σαφή σήμανση \"δεν είναι πλέον καταχωρισμένη\", ώστε σύνδεσμοι, τιμές και ιστορικό να παραμένουν διαθέσιμα για αναφορά αντί να καταλήγουν σε αδιέξοδα."
+        cs-CZ: "Když je nabídka odstraněna z Little Biggy, jednoduše ji nesmažeme. Místo toho ponecháme archivovanou stránku, zřetelně označenou jako \"již není v nabídce\", aby odkazy, ceny a historie zůstaly dostupné pro referenci, místo aby se z nich staly slepé uličky."
+        pl-PL: "Gdy oferta zostaje usunięta z Little Biggy, nie kasujemy jej po prostu. Zamiast tego zachowujemy zarchiwizowaną stronę, wyraźnie oznaczoną jako \"już niedostępna\", aby linki, ceny i historia pozostały dostępne jako źródło informacji, zamiast stać się ślepymi zaułkami."
+    freshness:
+      heading:
+        en-GB: "Freshness and accuracy"
+        de-DE: "Aktualität und Genauigkeit"
+        fr-FR: "Fraîcheur et exactitude"
+        pt-PT: "Atualidade e exatidão"
+        it-IT: "Aggiornamento e accuratezza"
+        es-ES: "Actualidad y exactitud"
+        el-GR: "Επικαιρότητα και ακρίβεια"
+        cs-CZ: "Aktuálnost a přesnost"
+        pl-PL: "Aktualność i dokładność"
+      body:
+        en-GB: "Because crawls run periodically, prices, stock and availability can change on Little Biggy between refreshes, and what you see here may briefly lag the live listing. Treat the figures as a helpful guide, not a live quote — always confirm the current price and availability on Little Biggy before acting."
+        de-DE: "Da die Crawls in Abständen laufen, können sich Preise, Bestand und Verfügbarkeit auf Little Biggy zwischen den Aktualisierungen ändern, und was Sie hier sehen, kann dem Live-Angebot kurzzeitig hinterherhinken. Betrachten Sie die Angaben als hilfreiche Orientierung, nicht als Live-Preis – prüfen Sie den aktuellen Preis und die Verfügbarkeit immer auf Little Biggy, bevor Sie handeln."
+        fr-FR: "Comme les collectes s'exécutent périodiquement, les prix, le stock et la disponibilité peuvent changer sur Little Biggy entre deux actualisations, et ce que vous voyez ici peut brièvement être en retard sur l'annonce en direct. Considérez les chiffres comme un repère utile, pas comme un tarif en temps réel — confirmez toujours le prix et la disponibilité actuels sur Little Biggy avant d'agir."
+        pt-PT: "Como os rastreios são periódicos, os preços, o stock e a disponibilidade podem mudar no Little Biggy entre atualizações, e o que vê aqui pode ficar brevemente atrás da listagem em direto. Encare os valores como uma orientação útil, não como um preço em tempo real — confirme sempre o preço e a disponibilidade atuais no Little Biggy antes de agir."
+        it-IT: "Poiché le scansioni vengono eseguite periodicamente, prezzi, disponibilità e giacenze possono cambiare su Little Biggy tra un aggiornamento e l'altro, e ciò che vedi qui potrebbe essere brevemente in ritardo rispetto all'annuncio dal vivo. Considera i dati come una guida utile, non come un prezzo in tempo reale — conferma sempre il prezzo e la disponibilità attuali su Little Biggy prima di agire."
+        es-ES: "Como los rastreos se ejecutan de forma periódica, los precios, el stock y la disponibilidad pueden cambiar en Little Biggy entre actualizaciones, y lo que ves aquí puede ir brevemente por detrás del anuncio en vivo. Toma las cifras como una guía útil, no como un precio en tiempo real: confirma siempre el precio y la disponibilidad actuales en Little Biggy antes de actuar."
+        el-GR: "Επειδή οι σαρώσεις εκτελούνται περιοδικά, οι τιμές, το απόθεμα και η διαθεσιμότητα μπορεί να αλλάξουν στο Little Biggy μεταξύ των ανανεώσεων, και ό,τι βλέπετε εδώ μπορεί να υστερεί για λίγο σε σχέση με τη ζωντανή καταχώριση. Θεωρήστε τα στοιχεία χρήσιμο οδηγό, όχι τιμή σε πραγματικό χρόνο — επιβεβαιώνετε πάντα την τρέχουσα τιμή και διαθεσιμότητα στο Little Biggy πριν ενεργήσετε."
+        cs-CZ: "Protože procházení probíhá pravidelně, ceny, skladová dostupnost a nabídka se mohou na Little Biggy mezi aktualizacemi změnit a to, co zde vidíte, může krátce zaostávat za živou nabídkou. Berte údaje jako užitečné vodítko, ne jako živou cenu — před jednáním si vždy ověřte aktuální cenu a dostupnost na Little Biggy."
+        pl-PL: "Ponieważ przeszukiwania odbywają się okresowo, ceny, stan magazynowy i dostępność mogą się na Little Biggy zmieniać między odświeżeniami, a to, co tu widzisz, może przez chwilę być opóźnione względem aktywnej oferty. Traktuj te dane jako pomocną wskazówkę, a nie cenę w czasie rzeczywistym — przed podjęciem działania zawsze potwierdź aktualną cenę i dostępność na Little Biggy."
+    contact:
+      heading:
+        en-GB: "Contact and feedback"
+        de-DE: "Kontakt und Feedback"
+        fr-FR: "Contact et retours"
+        pt-PT: "Contacto e sugestões"
+        it-IT: "Contatti e feedback"
+        es-ES: "Contacto y sugerencias"
+        el-GR: "Επικοινωνία και σχόλια"
+        cs-CZ: "Kontakt a zpětná vazba"
+        pl-PL: "Kontakt i opinie"
+      body:
+        en-GB: "Spotted something wrong, or want a listing corrected or removed? Use the suggestion feature on any item page to get in touch — it is the quickest way to reach us."
+        de-DE: "Ist Ihnen ein Fehler aufgefallen, oder soll ein Angebot korrigiert oder entfernt werden? Nutzen Sie die Korrekturvorschlag-Funktion auf jeder Artikelseite, um uns zu kontaktieren – das ist der schnellste Weg zu uns."
+        fr-FR: "Vous avez repéré une erreur, ou souhaitez faire corriger ou retirer une annonce ? Utilisez la fonction de suggestion présente sur chaque page d'article pour nous contacter — c'est le moyen le plus rapide de nous joindre."
+        pt-PT: "Detetou algo errado, ou quer que uma listagem seja corrigida ou removida? Use a funcionalidade de sugestões em qualquer página de item para nos contactar — é a forma mais rápida de chegar até nós."
+        it-IT: "Hai notato qualcosa di sbagliato, o vuoi che un annuncio venga corretto o rimosso? Usa la funzione di suggerimento presente in ogni pagina di articolo per metterti in contatto — è il modo più rapido per raggiungerci."
+        es-ES: "¿Has visto algo incorrecto, o quieres que se corrija o elimine un anuncio? Usa la función de sugerencias de cualquier página de artículo para ponerte en contacto: es la forma más rápida de llegar a nosotros."
+        el-GR: "Εντοπίσατε κάτι λάθος ή θέλετε να διορθωθεί ή να αφαιρεθεί μια καταχώριση; Χρησιμοποιήστε τη λειτουργία προτάσεων σε οποιαδήποτε σελίδα προϊόντος για να επικοινωνήσετε — είναι ο ταχύτερος τρόπος να μας βρείτε."
+        cs-CZ: "Všimli jste si chyby, nebo chcete nějakou nabídku opravit či odstranit? Napište nám přes funkci návrhů na kterékoli stránce položky — je to nejrychlejší způsob, jak nás zastihnout."
+        pl-PL: "Zauważyłeś błąd albo chcesz, aby ofertę poprawiono lub usunięto? Skorzystaj z funkcji sugestii na dowolnej stronie przedmiotu, aby się z nami skontaktować — to najszybszy sposób, by do nas dotrzeć."
 legal:
   privacy:
     metadataTitle:
