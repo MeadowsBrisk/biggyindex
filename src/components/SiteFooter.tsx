@@ -94,7 +94,7 @@ export async function SiteFooter({
           {/* Community + links row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-border pt-8 mb-8">
             {/* Community */}
-            <div className="flex flex-col items-center sm:items-start gap-2 max-w-sm">
+            <div className="flex flex-col items-center sm:items-start gap-2 max-w-md">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("community")}
               </span>
