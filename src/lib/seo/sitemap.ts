@@ -102,6 +102,19 @@ function staticSitemap(baseUrl: string): MetadataRoute.Sitemap {
         languages: alternateLanguagesForPath(path, ALL_MARKETS),
       },
     })),
+    // Live Little Biggy status page — hourly changefreq reflects the live
+    // uptime indicator revalidating far faster than the other hubs.
+    {
+      url: `${baseUrl}/littlebiggy-status`,
+      changeFrequency: "hourly" as const,
+      priority: 0.6,
+      alternates: {
+        languages: alternateLanguagesForPath(
+          "/littlebiggy-status",
+          ALL_MARKETS,
+        ),
+      },
+    },
     ...legalPages.map((path) => ({
       url: `${baseUrl}${path}`,
       changeFrequency: "yearly" as const,

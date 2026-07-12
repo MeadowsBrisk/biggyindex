@@ -59,11 +59,61 @@
     "browseItems": "Durchstöbern Sie Artikel",
     "community": "Gemeinschaft",
     "communityCopy": "Beteiligen Sie sich an der Diskussion. Teilen Sie Erfahrungen, stellen Sie Fragen oder überprüfen Sie den Ruf von Verkäufern.",
+    "statusLink": "Little-Biggy-Status",
     "privacy": "Datenschutz",
     "terms": "Nutzungsbedingungen",
     "cookies": "Cookies",
     "categoriesTitle": "Kategorien",
     "copyright": "© {year} Biggy Index. Die angezeigten Preise können variieren – prüfen Sie immer den Laden für die neuesten Preise."
+  },
+  "littleBiggyStatus": {
+    "meta": {
+      "title": "Ist Little Biggy down? Live-Status & Zugangs-Guide | BiggyIndex",
+      "description": "Ist littlebiggy.org gerade online oder offline? Ein Live-Status mit Verlauf, der offiziellen Adresse, Login-Hilfe und Tipps bei Ausfällen — alle paar Minuten aktualisiert."
+    },
+    "heading": "Ist Little Biggy down?",
+    "intro": "Ein Live-Blick darauf, ob littlebiggy.org gerade erreichbar ist, alle paar Minuten aktualisiert — dazu die offizielle Adresse, Login-Hilfe und Tipps bei Ausfällen.",
+    "status": {
+      "up": "Little Biggy ist online",
+      "down": "Little Biggy scheint offline",
+      "unknown": "Live-Status nicht verfügbar",
+      "upDetail": "Unser Index hat littlebiggy.org bei der letzten Prüfung erreicht.",
+      "downDetail": "Bei unserer letzten Prüfung war littlebiggy.org nicht erreichbar. Ausfälle sind meist vorübergehend — schau in ein paar Minuten wieder vorbei.",
+      "unknownDetail": "Wir konnten die Live-Statusdaten gerade nicht laden. Little Biggy könnte trotzdem erreichbar sein — probiere die offizielle Adresse unten.",
+      "lastCheckedJustNow": "Zuletzt gerade eben geprüft",
+      "lastCheckedMinutes": "{count, plural, one {Zuletzt vor 1 Minute geprüft} other {Zuletzt vor # Minuten geprüft}}",
+      "lastCheckedHours": "{count, plural, one {Zuletzt vor 1 Stunde geprüft} other {Zuletzt vor # Stunden geprüft}}",
+      "lastSeenUp": "Zuletzt online um {time}",
+      "uptimeTitle": "Letzte Prüfungen (letzte 24 Stunden)",
+      "uptimeUp": "Erreichbar",
+      "uptimeDown": "Nicht erreichbar",
+      "uptimeEmpty": "Noch kein Prüfverlauf vorhanden."
+    },
+    "sections": {
+      "isDown": {
+        "heading": "Ist Little Biggy down?",
+        "body": "Die Anzeige oben spiegelt unsere letzte automatische Prüfung von littlebiggy.org wider. Little Biggy hat gelegentlich Ausfälle und Wartungsfenster, ein roter Status ist also meist von kurzer Dauer. Wenn „offline“ angezeigt wird, warte ein paar Minuten und lade neu — diese Seite aktualisiert sich von selbst."
+      },
+      "address": {
+        "heading": "Die offizielle Adresse",
+        "body": "littlebiggy.org ist die Adresse, die unser Index verfolgt. Sei vorsichtig bei ähnlich aussehenden Domains und Suchergebnissen mit anderen Endungen — speichere littlebiggy.org als Lesezeichen, damit du immer auf der von uns überwachten Seite landest."
+      },
+      "login": {
+        "heading": "Probleme beim Little-Biggy-Login",
+        "body": "Für die Anmeldung müssen bei Little Biggy Cookies und JavaScript aktiviert sein. Wenn die Seite online ist, das Login aber fehlschlägt, lösche die Cookies von Little Biggy, deaktiviere Skript-blockierende Erweiterungen oder öffne die Seite in einem privaten Fenster. Anhaltende Probleme liegen meist an Little Biggy und lösen sich von selbst."
+      },
+      "legit": {
+        "heading": "Ist Little Biggy seriös?",
+        "body": "Du fragst dich, ob Little Biggy seriös ist? Es besteht seit Jahren und nutzt Treuhand (Transaxe), um Geld zu halten, bis eine Bestellung bestätigt ist. Es ist ein echter Marktplatz, kein Betrugs-Klon — auch wenn Vertrauen, wie überall, von Verkäufer zu Verkäufer verschieden ist. Unser Index verfolgt die Community-Empfehlungen und -Meldungen jedes Verkäufers, damit du die Reputation vor dem Kauf einschätzen kannst.",
+        "sellersLink": "Verkäufer-Vertrauensbewertungen ansehen"
+      }
+    },
+    "cta": {
+      "heading": "Während du wartest — durchstöbere den Index",
+      "body": "Little Biggy offline oder langsam? Du kannst hier trotzdem jedes Angebot durchstöbern — Preise, Bewertungen und Verkäuferwertungen, ganz ohne Login.",
+      "button": "Index durchstöbern",
+      "categoriesTitle": "Oder direkt zu einer Kategorie"
+    }
   },
   "home": {
     "heroTitle": "Der Cannabis-Index",
@@ -376,7 +426,7 @@
       "metadataTitle": "{count}+ Cannabis-Angebote auf Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Cannabis-Angebote auf Little Biggy durchsuchen | BiggyIndex",
       "heading": "Cannabis-Angebote auf Little Biggy durchsuchen",
-      "metadataDescription": "Cannabis-Angebote auf Little Biggy durchsuchen — Blüten, Hasch, Edibles und Vapes. Nach Kategorie, Preis, Verkäufer, Versand und Bewertungen filtern."
+      "metadataDescription": "Der Live-Index aller Little-Biggy-Angebote — filtern nach Preis, Kategorie und Verkäuferbewertungen, mit Preisverlauf und Bewertungsdaten, die Little Biggy selbst nicht zeigt."
     },
     "allCategories": "Alle Kategorien",
     "noResults": "Keine Produkte passen zu Ihren Filtern",
@@ -658,8 +708,8 @@
       "relatedInCategory": "Mehr {category} auf Little Biggy"
     },
     "meta": {
-      "title": "{name} von {seller} | BiggyIndex",
-      "titleNoSeller": "{name} | BiggyIndex",
+      "title": "{name} von {seller} — Bewertungen & Preise | BiggyIndex",
+      "titleNoSeller": "{name} — Bewertungen & Preise | BiggyIndex",
       "titleArchived": "{name} von {seller} {suffix} | BiggyIndex",
       "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
       "soldBy": "Verkauft von {seller} auf Little Biggy.",
@@ -699,7 +749,9 @@
     "visitStore": "Besuche den Shop",
     "meta": {
       "activeListings": "{count, plural, one {1 aktives Angebot} other {# aktive Angebote}}",
-      "reviews": "{count, plural, one {1 Bewertung} other {# Bewertungen}}"
+      "reviews": "{count, plural, one {1 Bewertung} other {# Bewertungen}}",
+      "endorsements": "{count, plural, one {1 Community-Empfehlung} other {# Community-Empfehlungen}}",
+      "reports": "{count, plural, one {1 Community-Meldung} other {# Community-Meldungen}}"
     },
     "page": {
       "metadataTitle": "Little Biggy-Verkäufer | BiggyIndex",
@@ -736,7 +788,7 @@
       "noSellersFound": "Keine Verkäufer gefunden"
     },
     "detail": {
-      "metadataTitle": "{seller} | BiggyIndex",
+      "metadataTitle": "{seller} — Bewertungen & Vertrauen | BiggyIndex",
       "notFoundTitle": "Verkäufer nicht gefunden | BiggyIndex",
       "backToSellers": "Verkäufer",
       "breadcrumb": "Verkäuferseite",

@@ -96,6 +96,9 @@ export const R2Keys = {
   /** Seller analytics */
   sellerAnalytics: "shared/seller-analytics.json",
 
+  /** Public Little Biggy uptime status blob (written by the crawler) */
+  status: "shared/status.json",
+
   /** Seller summaries per market */
   sellers: (market: string) => `markets/${market}/sellers.json`,
 

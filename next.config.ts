@@ -34,6 +34,12 @@ const nextConfig: NextConfig = {
     sellers: { stale: 43200, revalidate: 172800, expire: 604800 },
     /** Site config — effectively immutable until redeploy */
     config: { stale: 600, revalidate: 86400, expire: 604800 },
+    /**
+     * Live Little Biggy status — short profile so the /littlebiggy-status
+     * "last checked X ago" indicator stays honest. Revalidates every 5 min;
+     * the crawler writes shared/status.json roughly every ~30 min.
+     */
+    status: { stale: 60, revalidate: 300, expire: 3600 },
   },
   images: {
     remotePatterns: [{ hostname: "img.biggyindex.com" }],

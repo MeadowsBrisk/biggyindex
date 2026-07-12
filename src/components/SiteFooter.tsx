@@ -117,6 +117,13 @@ export async function SiteFooter({
                   Reddit
                   <ExternalLink size={13} className="text-muted" />
                 </a>
+                <Link
+                  href="/littlebiggy-status"
+                  prefetch={false}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {t("statusLink")}
+                </Link>
               </div>
               <p className="text-xs text-muted text-center sm:text-left">
                 {t("communityCopy")}

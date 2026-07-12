@@ -59,11 +59,61 @@
     "browseItems": "Browse items",
     "community": "Community",
     "communityCopy": "Join the conversation. Share experiences, ask questions, or check seller reputations.",
+    "statusLink": "Little Biggy status",
     "privacy": "Privacy",
     "terms": "Terms",
     "cookies": "Cookies",
     "categoriesTitle": "Categories",
     "copyright": "© {year} Biggy Index. Prices shown may vary - always check the store for the latest pricing."
+  },
+  "littleBiggyStatus": {
+    "meta": {
+      "title": "Is Little Biggy Down? Live Status & Access Guide | BiggyIndex",
+      "description": "Is littlebiggy.org up or down right now? A live status check with uptime history, the official address, login help and what to do during an outage — refreshed every few minutes."
+    },
+    "heading": "Is Little Biggy down?",
+    "intro": "A live look at whether littlebiggy.org is reachable right now, refreshed every few minutes — plus the official address, login help and what to do during an outage.",
+    "status": {
+      "up": "Little Biggy is up",
+      "down": "Little Biggy looks down",
+      "unknown": "Live status unavailable",
+      "upDetail": "Our index reached littlebiggy.org on the most recent check.",
+      "downDetail": "Our most recent check couldn't reach littlebiggy.org. Outages are usually temporary — check back in a few minutes.",
+      "unknownDetail": "We couldn't load live status data right now. Little Biggy may still be reachable — try the official address below.",
+      "lastCheckedJustNow": "Last checked just now",
+      "lastCheckedMinutes": "{count, plural, one {Last checked 1 minute ago} other {Last checked # minutes ago}}",
+      "lastCheckedHours": "{count, plural, one {Last checked 1 hour ago} other {Last checked # hours ago}}",
+      "lastSeenUp": "Last seen up at {time}",
+      "uptimeTitle": "Recent checks (last 24 hours)",
+      "uptimeUp": "Reachable",
+      "uptimeDown": "Unreachable",
+      "uptimeEmpty": "No recent check history yet."
+    },
+    "sections": {
+      "isDown": {
+        "heading": "Is Little Biggy down?",
+        "body": "The indicator above reflects our latest automated check of littlebiggy.org. Little Biggy has occasional outages and maintenance windows, so a red status is usually short-lived. If it shows down, wait a few minutes and reload — this page refreshes on its own."
+      },
+      "address": {
+        "heading": "The official address",
+        "body": "littlebiggy.org is the address our index tracks. Be cautious with lookalike domains and search results on other extensions — bookmark littlebiggy.org so you always land on the site we monitor."
+      },
+      "login": {
+        "heading": "Little Biggy login problems",
+        "body": "Little Biggy needs cookies and JavaScript enabled to sign in. If the site is up but your login fails, try clearing Little Biggy's cookies, disabling extensions that block scripts, or opening the site in a private window. Persistent issues are usually on Little Biggy's side and clear on their own."
+      },
+      "legit": {
+        "heading": "Is Little Biggy legit?",
+        "body": "Wondering if Little Biggy is legit? It has operated for years and uses escrow (Transaxe) to hold funds until an order is confirmed. It's a real marketplace, not a scam clone — though, as anywhere, trust is seller by seller. Our index tracks each seller's community endorsements and reports so you can judge reputation before you buy.",
+        "sellersLink": "Browse seller trust ratings"
+      }
+    },
+    "cta": {
+      "heading": "While you wait — browse the index",
+      "body": "Little Biggy down or slow? You can still explore every listing here — prices, reviews and seller ratings, no login required.",
+      "button": "Browse the index",
+      "categoriesTitle": "Or jump to a category"
+    }
   },
   "home": {
     "heroTitle": "The Cannabis Index",
@@ -376,7 +426,7 @@
       "metadataTitle": "Browse {count}+ Cannabis Listings on Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Browse Cannabis Listings on Little Biggy | BiggyIndex",
       "heading": "Browse Cannabis Listings on Little Biggy",
-      "metadataDescription": "Browse cannabis listings on Little Biggy — flower, hash, edibles, and vapes. Filter by category, price, seller, shipping, and reviews."
+      "metadataDescription": "The live index of every Little Biggy listing — filter by price, category and seller ratings, plus price history and review stats Little Biggy doesn't show."
     },
     "allCategories": "All Categories",
     "noResults": "No products match your filters",
@@ -658,8 +708,8 @@
       "relatedInCategory": "More {category} on Little Biggy"
     },
     "meta": {
-      "title": "{name} by {seller} | BiggyIndex",
-      "titleNoSeller": "{name} | BiggyIndex",
+      "title": "{name} by {seller} — Reviews & Prices | BiggyIndex",
+      "titleNoSeller": "{name} — Reviews & Prices | BiggyIndex",
       "titleArchived": "{name} by {seller} {suffix} | BiggyIndex",
       "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
       "soldBy": "Sold by {seller} on Little Biggy.",
@@ -699,7 +749,9 @@
     "visitStore": "Visit store",
     "meta": {
       "activeListings": "{count, plural, one {1 active listing} other {# active listings}}",
-      "reviews": "{count, plural, one {1 review} other {# reviews}}"
+      "reviews": "{count, plural, one {1 review} other {# reviews}}",
+      "endorsements": "{count, plural, one {1 community endorsement} other {# community endorsements}}",
+      "reports": "{count, plural, one {1 community report} other {# community reports}}"
     },
     "page": {
       "metadataTitle": "Little Biggy Sellers | BiggyIndex",
@@ -736,7 +788,7 @@
       "noSellersFound": "No sellers found"
     },
     "detail": {
-      "metadataTitle": "{seller} | BiggyIndex",
+      "metadataTitle": "{seller} — Reviews & Trust | BiggyIndex",
       "notFoundTitle": "Seller not found | BiggyIndex",
       "backToSellers": "Sellers",
       "breadcrumb": "Seller page",

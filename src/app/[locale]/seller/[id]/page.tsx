@@ -218,12 +218,19 @@ function sellerDescription(data: SellerPageData, metaT: Translator): string {
   const excerpt = manifesto
     ? manifesto.slice(0, 150) + (manifesto.length > 150 ? "..." : "")
     : null;
+  const feedback = data.detail.communityFeedback;
   const stats = [
     data.itemTotal > 0
       ? metaT("activeListings", { count: data.itemTotal })
       : null,
     data.seller.numberOfReviews != null
       ? metaT("reviews", { count: data.seller.numberOfReviews })
+      : null,
+    feedback?.endorseCount
+      ? metaT("endorsements", { count: feedback.endorseCount })
+      : null,
+    feedback?.reportCount
+      ? metaT("reports", { count: feedback.reportCount })
       : null,
   ].filter(Boolean);
 

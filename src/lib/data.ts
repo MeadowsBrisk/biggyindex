@@ -338,6 +338,79 @@ export async function loadMergedDetail(
   return item as MergedDetailBlob | null;
 }
 
+// ─── Little Biggy live status (public uptime blob) ──────────────
+//
+// Written by the crawler to `shared/status.json` in the data bucket.
+// Contract (see /littlebiggy-status page): a rolling window of the last
+// ~48 reachability checks (~24h). The blob ships separately from this
+// frontend, so the loader NEVER throws — a missing/malformed blob
+// degrades to `null` and the page renders an "unknown" state.
+
+export interface StatusCheck {
+  /** ISO timestamp of the check */
+  at: string;
+  up: boolean;
+  /** Round-trip latency in ms, or null when unreachable/unknown */
+  latencyMs: number | null;
+}
+
+export interface LittleBiggyStatus {
+  up: boolean;
+  /** ISO timestamp of the most recent check */
+  lastCheckedAt: string;
+  /** ISO timestamp Little Biggy was last confirmed reachable */
+  lastUpAt: string;
+  /** ISO timestamp of the last observed outage, or null if never seen down */
+  lastDownAt: string | null;
+  /** Most recent checks, oldest→newest (last ~48 ≈ 24h) */
+  recentChecks: StatusCheck[];
+}
+
+function isIsoish(value: unknown): value is string {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value));
+}
+
+/**
+ * Load + validate the public Little Biggy status blob.
+ *
+ * Plain loader — the /littlebiggy-status page caches it under the short
+ * `status` profile. Returns null (unknown state) on any fetch failure OR
+ * shape mismatch, so a not-yet-written / partial blob can never 500 or
+ * render a broken indicator.
+ */
+export async function loadLittleBiggyStatus(): Promise<LittleBiggyStatus | null> {
+  const raw = await readR2JSON<unknown>(R2Keys.status);
+  if (!raw || typeof raw !== "object") return null;
+
+  const blob = raw as Record<string, unknown>;
+  if (typeof blob.up !== "boolean") return null;
+  if (!isIsoish(blob.lastCheckedAt) || !isIsoish(blob.lastUpAt)) return null;
+
+  const recentChecks: StatusCheck[] = Array.isArray(blob.recentChecks)
+    ? blob.recentChecks
+        .filter(
+          (c): c is Record<string, unknown> =>
+            !!c &&
+            typeof c === "object" &&
+            isIsoish((c as { at?: unknown }).at),
+        )
+        .map((c) => ({
+          at: c.at as string,
+          up: c.up === true,
+          latencyMs:
+            typeof c.latencyMs === "number" ? (c.latencyMs as number) : null,
+        }))
+    : [];
+
+  return {
+    up: blob.up,
+    lastCheckedAt: blob.lastCheckedAt as string,
+    lastUpAt: blob.lastUpAt as string,
+    lastDownAt: isIsoish(blob.lastDownAt) ? (blob.lastDownAt as string) : null,
+    recentChecks,
+  };
+}
+
 // ─── Archive loaders (delisted items) ───────────────────────────
 
 /**

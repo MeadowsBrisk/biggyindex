@@ -59,11 +59,61 @@
     "browseItems": "Prohlížení položek",
     "community": "Komunita",
     "communityCopy": "Připojte se k diskusi. Sdílejte zkušenosti, ptejte se na otázky nebo kontrolujte reputaci prodejců.",
+    "statusLink": "Stav Little Biggy",
     "privacy": "Soukromí",
     "terms": "Podmínky",
     "cookies": "Cookies",
     "categoriesTitle": "Kategorie",
     "copyright": "© {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě."
+  },
+  "littleBiggyStatus": {
+    "meta": {
+      "title": "Je Little Biggy mimo provoz? Živý stav a průvodce | BiggyIndex",
+      "description": "Funguje littlebiggy.org právě teď? Živý stav s historií, oficiální adresa, pomoc s přihlášením a co dělat při výpadku — pravidelně aktualizováno."
+    },
+    "heading": "Je Little Biggy mimo provoz?",
+    "intro": "Živý pohled na to, zda je littlebiggy.org právě dostupný, pravidelně aktualizovaný — plus oficiální adresa, pomoc s přihlášením a co dělat při výpadku.",
+    "status": {
+      "up": "Little Biggy funguje",
+      "down": "Little Biggy je zřejmě mimo provoz",
+      "unknown": "Živý stav není k dispozici",
+      "upDetail": "Náš index se při poslední kontrole na littlebiggy.org dostal.",
+      "downDetail": "Naše poslední kontrola se na littlebiggy.org nedostala. Výpadky bývají dočasné — zkuste to za pár minut znovu.",
+      "unknownDetail": "Živá data o stavu se nyní nepodařilo načíst. Little Biggy může být stále dostupný — vyzkoušejte oficiální adresu níže.",
+      "lastCheckedJustNow": "Zkontrolováno právě teď",
+      "lastCheckedMinutes": "{count, plural, one {Zkontrolováno před 1 minutou} few {Zkontrolováno před # minutami} other {Zkontrolováno před # minutami}}",
+      "lastCheckedHours": "{count, plural, one {Zkontrolováno před 1 hodinou} few {Zkontrolováno před # hodinami} other {Zkontrolováno před # hodinami}}",
+      "lastSeenUp": "Naposledy online v {time}",
+      "uptimeTitle": "Nedávné kontroly (posledních 24 hodin)",
+      "uptimeUp": "Dostupné",
+      "uptimeDown": "Nedostupné",
+      "uptimeEmpty": "Zatím žádná historie kontrol."
+    },
+    "sections": {
+      "isDown": {
+        "heading": "Je Little Biggy mimo provoz?",
+        "body": "Ukazatel výše odráží naši poslední automatickou kontrolu littlebiggy.org. Little Biggy má občasné výpadky a údržbu, takže červený stav obvykle netrvá dlouho. Pokud ukazuje mimo provoz, počkejte pár minut a načtěte znovu — tato stránka se aktualizuje sama."
+      },
+      "address": {
+        "heading": "Oficiální adresa",
+        "body": "littlebiggy.org je adresa, kterou náš index sleduje. Buďte opatrní u podobných domén a výsledků hledání s jinými koncovkami — uložte si littlebiggy.org do záložek, ať se vždy dostanete na web, který sledujeme."
+      },
+      "login": {
+        "heading": "Problémy s přihlášením do Little Biggy",
+        "body": "Pro přihlášení potřebuje Little Biggy povolené cookies a JavaScript. Pokud web funguje, ale přihlášení selhává, zkuste smazat cookies Little Biggy, vypnout rozšíření blokující skripty nebo otevřít web v anonymním okně. Přetrvávající potíže bývají na straně Little Biggy a vyřeší se samy."
+      },
+      "legit": {
+        "heading": "Je Little Biggy důvěryhodný?",
+        "body": "Ptáte se, zda je Little Biggy důvěryhodný? Funguje už roky a používá úschovu (Transaxe), která drží peníze, dokud není objednávka potvrzena. Je to skutečné tržiště, ne podvodný klon — i když, jako všude, důvěru je třeba posuzovat u každého prodejce zvlášť. Náš index sleduje doporučení a nahlášení komunity u každého prodejce, abyste posoudili pověst před nákupem.",
+        "sellersLink": "Zobrazit hodnocení důvěryhodnosti prodejců"
+      }
+    },
+    "cta": {
+      "heading": "Než počkáte — projděte si index",
+      "body": "Little Biggy nefunguje nebo je pomalý? I tak si tu můžete projít všechny nabídky — ceny, recenze a hodnocení prodejců, bez přihlášení.",
+      "button": "Projít index",
+      "categoriesTitle": "Nebo přejděte na kategorii"
+    }
   },
   "home": {
     "heroTitle": "Index konopí",
@@ -376,7 +426,7 @@
       "metadataTitle": "{count}+ nabídek konopí na Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Nabídky konopí na Little Biggy | BiggyIndex",
       "heading": "Nabídky konopí na Little Biggy",
-      "metadataDescription": "Procházejte nabídky konopí na Little Biggy — květy, hašiš a další. Filtrujte podle kategorie, ceny, prodejce, dopravy a recenzí."
+      "metadataDescription": "Živý index všech nabídek na Little Biggy — filtrujte podle ceny, kategorie a hodnocení prodejců, s historií cen a statistikami recenzí, které samotné Little Biggy nezobrazuje."
     },
     "allCategories": "Všechny kategorie",
     "noResults": "Žádné produkty neodpovídají vašim filtrům",
@@ -658,8 +708,8 @@
       "relatedInCategory": "Další {category} na Little Biggy"
     },
     "meta": {
-      "title": "{name} od {seller} | BiggyIndex",
-      "titleNoSeller": "{name} | BiggyIndex",
+      "title": "{name} od {seller} — Recenze a ceny | BiggyIndex",
+      "titleNoSeller": "{name} — Recenze a ceny | BiggyIndex",
       "titleArchived": "{name} od {seller} {suffix} | BiggyIndex",
       "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
       "soldBy": "Prodává {seller} na Little Biggy.",
@@ -699,7 +749,9 @@
     "visitStore": "Navštivte obchod",
     "meta": {
       "activeListings": "{count, plural, one {1 aktivní nabídka} few {# aktivní nabídky} other {# aktivních nabídek}}",
-      "reviews": "{count, plural, one {1 recenze} few {# recenze} other {# recenzí}}"
+      "reviews": "{count, plural, one {1 recenze} few {# recenze} other {# recenzí}}",
+      "endorsements": "{count, plural, one {1 doporučení komunity} few {# doporučení komunity} other {# doporučení komunity}}",
+      "reports": "{count, plural, one {1 nahlášení komunity} few {# nahlášení komunity} other {# nahlášení komunity}}"
     },
     "page": {
       "metadataTitle": "Prodejci Little Biggy | BiggyIndex",
@@ -736,7 +788,7 @@
       "noSellersFound": "Žádní prodejci nalezeni"
     },
     "detail": {
-      "metadataTitle": "{seller} | BiggyIndex",
+      "metadataTitle": "{seller} — Recenze a důvěryhodnost | BiggyIndex",
       "notFoundTitle": "Prodejce nenalezen | BiggyIndex",
       "backToSellers": "Prodejci",
       "breadcrumb": "Stránka prodejce",

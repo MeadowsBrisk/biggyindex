@@ -476,6 +476,16 @@ footer:
     el-GR: Ενώστε τη συζήτηση. Μοιραστείτε εμπειρίες, κάντε ερωτήσεις ή ελέγξτε τη φήμη των πωλητών.
     cs-CZ: Připojte se k diskusi. Sdílejte zkušenosti, ptejte se na otázky nebo kontrolujte reputaci prodejců.
     pl-PL: Dołącz do rozmowy. Dziel się doświadczeniami, zadawaj pytania lub sprawdź reputację sprzedawców.
+  statusLink:
+    en-GB: Little Biggy status
+    de-DE: Little-Biggy-Status
+    fr-FR: État de Little Biggy
+    pt-PT: Estado do Little Biggy
+    it-IT: Stato di Little Biggy
+    es-ES: Estado de Little Biggy
+    el-GR: Κατάσταση Little Biggy
+    cs-CZ: Stav Little Biggy
+    pl-PL: Status Little Biggy
   privacy:
     en-GB: Privacy
     de-DE: Datenschutz
@@ -526,6 +536,326 @@ footer:
     el-GR: © {year} Biggy Index. Οι τιμές που εμφανίζονται ενδέχεται να διαφέρουν - ελέγχετε πάντα το κατάστημα για τις πιο πρόσφατες τιμές.
     cs-CZ: © {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě.
     pl-PL: © {year} Biggy Index. Ceny mogą się różnić – zawsze sprawdź sklep pod kątem najnowszych cen.
+
+littleBiggyStatus:
+  meta:
+    title:
+      en-GB: "Is Little Biggy Down? Live Status & Access Guide | BiggyIndex"
+      de-DE: "Ist Little Biggy down? Live-Status & Zugangs-Guide | BiggyIndex"
+      fr-FR: "Little Biggy est-il en panne ? Statut en direct & guide d'accès | BiggyIndex"
+      pt-PT: "O Little Biggy está em baixo? Estado ao vivo & guia de acesso | BiggyIndex"
+      it-IT: "Little Biggy è offline? Stato in tempo reale e guida all'accesso | BiggyIndex"
+      es-ES: "¿Little Biggy está caído? Estado en vivo y guía de acceso | BiggyIndex"
+      el-GR: "Είναι το Little Biggy εκτός λειτουργίας; Ζωντανή κατάσταση & οδηγός | BiggyIndex"
+      cs-CZ: "Je Little Biggy mimo provoz? Živý stav a průvodce | BiggyIndex"
+      pl-PL: "Czy Little Biggy nie działa? Status na żywo i przewodnik | BiggyIndex"
+    description:
+      en-GB: "Is littlebiggy.org up or down right now? A live status check with uptime history, the official address, login help and what to do during an outage — refreshed every few minutes."
+      de-DE: "Ist littlebiggy.org gerade online oder offline? Ein Live-Status mit Verlauf, der offiziellen Adresse, Login-Hilfe und Tipps bei Ausfällen — alle paar Minuten aktualisiert."
+      fr-FR: "littlebiggy.org est-il en ligne ou en panne ? Un statut en direct avec historique, l'adresse officielle, une aide à la connexion et que faire en cas de panne — actualisé en continu."
+      pt-PT: "O littlebiggy.org está online ou em baixo? Estado ao vivo com histórico, o endereço oficial, ajuda de início de sessão e o que fazer numa falha — atualizado a cada minutos."
+      it-IT: "littlebiggy.org è online o offline? Stato in tempo reale con cronologia, indirizzo ufficiale, aiuto per l'accesso e cosa fare durante un'interruzione — aggiornato di continuo."
+      es-ES: "¿littlebiggy.org está en línea o caído? Estado en vivo con historial, la dirección oficial, ayuda para iniciar sesión y qué hacer en una caída — actualizado cada pocos minutos."
+      el-GR: "Λειτουργεί το littlebiggy.org τώρα; Ζωντανή κατάσταση με ιστορικό, η επίσημη διεύθυνση, βοήθεια σύνδεσης και τι να κάνετε σε διακοπή — ανανεώνεται συχνά."
+      cs-CZ: "Funguje littlebiggy.org právě teď? Živý stav s historií, oficiální adresa, pomoc s přihlášením a co dělat při výpadku — pravidelně aktualizováno."
+      pl-PL: "Czy littlebiggy.org działa teraz? Status na żywo z historią, oficjalny adres, pomoc przy logowaniu i co robić podczas awarii — odświeżane co kilka minut."
+  heading:
+    en-GB: Is Little Biggy down?
+    de-DE: Ist Little Biggy down?
+    fr-FR: Little Biggy est-il en panne ?
+    pt-PT: O Little Biggy está em baixo?
+    it-IT: Little Biggy è offline?
+    es-ES: ¿Little Biggy está caído?
+    el-GR: Είναι το Little Biggy εκτός λειτουργίας;
+    cs-CZ: Je Little Biggy mimo provoz?
+    pl-PL: Czy Little Biggy nie działa?
+  intro:
+    en-GB: A live look at whether littlebiggy.org is reachable right now, refreshed every few minutes — plus the official address, login help and what to do during an outage.
+    de-DE: Ein Live-Blick darauf, ob littlebiggy.org gerade erreichbar ist, alle paar Minuten aktualisiert — dazu die offizielle Adresse, Login-Hilfe und Tipps bei Ausfällen.
+    fr-FR: Un aperçu en direct indiquant si littlebiggy.org est joignable, actualisé en continu — avec l'adresse officielle, une aide à la connexion et que faire en cas de panne.
+    pt-PT: Uma visão ao vivo de se o littlebiggy.org está acessível agora, atualizada a cada minutos — mais o endereço oficial, ajuda de início de sessão e o que fazer numa falha.
+    it-IT: Uno sguardo in tempo reale su se littlebiggy.org è raggiungibile ora, aggiornato di continuo — con l'indirizzo ufficiale, aiuto per l'accesso e cosa fare in caso di down.
+    es-ES: Una vista en vivo de si littlebiggy.org está accesible ahora, actualizada cada pocos minutos — con la dirección oficial, ayuda para iniciar sesión y qué hacer en una caída.
+    el-GR: Μια ζωντανή εικόνα για το αν το littlebiggy.org είναι προσβάσιμο τώρα, με τακτική ανανέωση — μαζί με την επίσημη διεύθυνση, βοήθεια σύνδεσης και τι να κάνετε σε διακοπή.
+    cs-CZ: Živý pohled na to, zda je littlebiggy.org právě dostupný, pravidelně aktualizovaný — plus oficiální adresa, pomoc s přihlášením a co dělat při výpadku.
+    pl-PL: Podgląd na żywo, czy littlebiggy.org jest teraz dostępny, odświeżany co kilka minut — plus oficjalny adres, pomoc przy logowaniu i co robić podczas awarii.
+  status:
+    up:
+      en-GB: Little Biggy is up
+      de-DE: Little Biggy ist online
+      fr-FR: Little Biggy est en ligne
+      pt-PT: O Little Biggy está online
+      it-IT: Little Biggy è online
+      es-ES: Little Biggy está en línea
+      el-GR: Το Little Biggy λειτουργεί
+      cs-CZ: Little Biggy funguje
+      pl-PL: Little Biggy działa
+    down:
+      en-GB: Little Biggy looks down
+      de-DE: Little Biggy scheint offline
+      fr-FR: Little Biggy semble en panne
+      pt-PT: O Little Biggy parece estar em baixo
+      it-IT: Little Biggy sembra offline
+      es-ES: Little Biggy parece caído
+      el-GR: Το Little Biggy φαίνεται εκτός λειτουργίας
+      cs-CZ: Little Biggy je zřejmě mimo provoz
+      pl-PL: Little Biggy wygląda na niedostępny
+    unknown:
+      en-GB: Live status unavailable
+      de-DE: Live-Status nicht verfügbar
+      fr-FR: Statut en direct indisponible
+      pt-PT: Estado ao vivo indisponível
+      it-IT: Stato in tempo reale non disponibile
+      es-ES: Estado en vivo no disponible
+      el-GR: Η ζωντανή κατάσταση δεν είναι διαθέσιμη
+      cs-CZ: Živý stav není k dispozici
+      pl-PL: Status na żywo niedostępny
+    upDetail:
+      en-GB: Our index reached littlebiggy.org on the most recent check.
+      de-DE: Unser Index hat littlebiggy.org bei der letzten Prüfung erreicht.
+      fr-FR: Notre index a atteint littlebiggy.org lors de la dernière vérification.
+      pt-PT: O nosso índice alcançou o littlebiggy.org na verificação mais recente.
+      it-IT: Il nostro indice ha raggiunto littlebiggy.org all'ultimo controllo.
+      es-ES: Nuestro índice alcanzó littlebiggy.org en la comprobación más reciente.
+      el-GR: Ο δείκτης μας έφτασε στο littlebiggy.org στον πιο πρόσφατο έλεγχο.
+      cs-CZ: Náš index se při poslední kontrole na littlebiggy.org dostal.
+      pl-PL: Nasz indeks połączył się z littlebiggy.org podczas ostatniego sprawdzenia.
+    downDetail:
+      en-GB: Our most recent check couldn't reach littlebiggy.org. Outages are usually temporary — check back in a few minutes.
+      de-DE: Bei unserer letzten Prüfung war littlebiggy.org nicht erreichbar. Ausfälle sind meist vorübergehend — schau in ein paar Minuten wieder vorbei.
+      fr-FR: Notre dernière vérification n'a pas pu joindre littlebiggy.org. Les pannes sont généralement temporaires — reviens dans quelques minutes.
+      pt-PT: A nossa verificação mais recente não conseguiu alcançar o littlebiggy.org. As falhas costumam ser temporárias — volta daqui a alguns minutos.
+      it-IT: Il nostro ultimo controllo non è riuscito a raggiungere littlebiggy.org. Le interruzioni sono di solito temporanee — riprova tra qualche minuto.
+      es-ES: Nuestra comprobación más reciente no pudo alcanzar littlebiggy.org. Las caídas suelen ser temporales — vuelve en unos minutos.
+      el-GR: Ο πιο πρόσφατος έλεγχός μας δεν μπόρεσε να φτάσει στο littlebiggy.org. Οι διακοπές είναι συνήθως προσωρινές — ελέγξτε ξανά σε λίγα λεπτά.
+      cs-CZ: Naše poslední kontrola se na littlebiggy.org nedostala. Výpadky bývají dočasné — zkuste to za pár minut znovu.
+      pl-PL: Nasze ostatnie sprawdzenie nie mogło połączyć się z littlebiggy.org. Awarie są zwykle chwilowe — sprawdź ponownie za kilka minut.
+    unknownDetail:
+      en-GB: We couldn't load live status data right now. Little Biggy may still be reachable — try the official address below.
+      de-DE: Wir konnten die Live-Statusdaten gerade nicht laden. Little Biggy könnte trotzdem erreichbar sein — probiere die offizielle Adresse unten.
+      fr-FR: Nous n'avons pas pu charger les données de statut en direct. Little Biggy peut tout de même être joignable — essaie l'adresse officielle ci-dessous.
+      pt-PT: Não conseguimos carregar os dados de estado ao vivo. O Little Biggy pode continuar acessível — experimenta o endereço oficial abaixo.
+      it-IT: Non siamo riusciti a caricare i dati di stato in tempo reale. Little Biggy potrebbe essere comunque raggiungibile — prova l'indirizzo ufficiale qui sotto.
+      es-ES: No pudimos cargar los datos de estado en vivo. Little Biggy podría seguir estando accesible — prueba la dirección oficial más abajo.
+      el-GR: Δεν μπορέσαμε να φορτώσουμε τα ζωντανά δεδομένα κατάστασης. Το Little Biggy μπορεί να είναι προσβάσιμο — δοκιμάστε την επίσημη διεύθυνση παρακάτω.
+      cs-CZ: Živá data o stavu se nyní nepodařilo načíst. Little Biggy může být stále dostupný — vyzkoušejte oficiální adresu níže.
+      pl-PL: Nie udało się teraz wczytać danych o statusie na żywo. Little Biggy może być nadal dostępny — wypróbuj oficjalny adres poniżej.
+    lastCheckedJustNow:
+      en-GB: Last checked just now
+      de-DE: Zuletzt gerade eben geprüft
+      fr-FR: Vérifié à l'instant
+      pt-PT: Verificado agora mesmo
+      it-IT: Controllato proprio ora
+      es-ES: Comprobado justo ahora
+      el-GR: Ελέγχθηκε μόλις τώρα
+      cs-CZ: Zkontrolováno právě teď
+      pl-PL: Sprawdzono przed chwilą
+    lastCheckedMinutes:
+      en-GB: "{count, plural, one {Last checked 1 minute ago} other {Last checked # minutes ago}}"
+      de-DE: "{count, plural, one {Zuletzt vor 1 Minute geprüft} other {Zuletzt vor # Minuten geprüft}}"
+      fr-FR: "{count, plural, one {Vérifié il y a 1 minute} other {Vérifié il y a # minutes}}"
+      pt-PT: "{count, plural, one {Verificado há 1 minuto} other {Verificado há # minutos}}"
+      it-IT: "{count, plural, one {Controllato 1 minuto fa} other {Controllato # minuti fa}}"
+      es-ES: "{count, plural, one {Comprobado hace 1 minuto} other {Comprobado hace # minutos}}"
+      el-GR: "{count, plural, one {Ελέγχθηκε πριν από 1 λεπτό} other {Ελέγχθηκε πριν από # λεπτά}}"
+      cs-CZ: "{count, plural, one {Zkontrolováno před 1 minutou} few {Zkontrolováno před # minutami} other {Zkontrolováno před # minutami}}"
+      pl-PL: "{count, plural, one {Sprawdzono 1 minutę temu} few {Sprawdzono # minuty temu} many {Sprawdzono # minut temu} other {Sprawdzono # minuty temu}}"
+    lastCheckedHours:
+      en-GB: "{count, plural, one {Last checked 1 hour ago} other {Last checked # hours ago}}"
+      de-DE: "{count, plural, one {Zuletzt vor 1 Stunde geprüft} other {Zuletzt vor # Stunden geprüft}}"
+      fr-FR: "{count, plural, one {Vérifié il y a 1 heure} other {Vérifié il y a # heures}}"
+      pt-PT: "{count, plural, one {Verificado há 1 hora} other {Verificado há # horas}}"
+      it-IT: "{count, plural, one {Controllato 1 ora fa} other {Controllato # ore fa}}"
+      es-ES: "{count, plural, one {Comprobado hace 1 hora} other {Comprobado hace # horas}}"
+      el-GR: "{count, plural, one {Ελέγχθηκε πριν από 1 ώρα} other {Ελέγχθηκε πριν από # ώρες}}"
+      cs-CZ: "{count, plural, one {Zkontrolováno před 1 hodinou} few {Zkontrolováno před # hodinami} other {Zkontrolováno před # hodinami}}"
+      pl-PL: "{count, plural, one {Sprawdzono 1 godzinę temu} few {Sprawdzono # godziny temu} many {Sprawdzono # godzin temu} other {Sprawdzono # godziny temu}}"
+    lastSeenUp:
+      en-GB: "Last seen up at {time}"
+      de-DE: "Zuletzt online um {time}"
+      fr-FR: "Dernière fois en ligne à {time}"
+      pt-PT: "Visto online pela última vez às {time}"
+      it-IT: "Ultima volta online alle {time}"
+      es-ES: "Visto en línea por última vez a las {time}"
+      el-GR: "Τελευταία φορά online στις {time}"
+      cs-CZ: "Naposledy online v {time}"
+      pl-PL: "Ostatnio dostępny o {time}"
+    uptimeTitle:
+      en-GB: Recent checks (last 24 hours)
+      de-DE: Letzte Prüfungen (letzte 24 Stunden)
+      fr-FR: Vérifications récentes (dernières 24 heures)
+      pt-PT: Verificações recentes (últimas 24 horas)
+      it-IT: Controlli recenti (ultime 24 ore)
+      es-ES: Comprobaciones recientes (últimas 24 horas)
+      el-GR: Πρόσφατοι έλεγχοι (τελευταίες 24 ώρες)
+      cs-CZ: Nedávné kontroly (posledních 24 hodin)
+      pl-PL: Ostatnie sprawdzenia (ostatnie 24 godziny)
+    uptimeUp:
+      en-GB: Reachable
+      de-DE: Erreichbar
+      fr-FR: Joignable
+      pt-PT: Acessível
+      it-IT: Raggiungibile
+      es-ES: Accesible
+      el-GR: Προσβάσιμο
+      cs-CZ: Dostupné
+      pl-PL: Dostępny
+    uptimeDown:
+      en-GB: Unreachable
+      de-DE: Nicht erreichbar
+      fr-FR: Injoignable
+      pt-PT: Inacessível
+      it-IT: Non raggiungibile
+      es-ES: No accesible
+      el-GR: Μη προσβάσιμο
+      cs-CZ: Nedostupné
+      pl-PL: Niedostępny
+    uptimeEmpty:
+      en-GB: No recent check history yet.
+      de-DE: Noch kein Prüfverlauf vorhanden.
+      fr-FR: Pas encore d'historique de vérifications.
+      pt-PT: Ainda sem histórico de verificações.
+      it-IT: Ancora nessuna cronologia dei controlli.
+      es-ES: Aún no hay historial de comprobaciones.
+      el-GR: Δεν υπάρχει ακόμη ιστορικό ελέγχων.
+      cs-CZ: Zatím žádná historie kontrol.
+      pl-PL: Brak historii sprawdzeń.
+  sections:
+    isDown:
+      heading:
+        en-GB: Is Little Biggy down?
+        de-DE: Ist Little Biggy down?
+        fr-FR: Little Biggy est-il en panne ?
+        pt-PT: O Little Biggy está em baixo?
+        it-IT: Little Biggy è offline?
+        es-ES: ¿Little Biggy está caído?
+        el-GR: Είναι το Little Biggy εκτός λειτουργίας;
+        cs-CZ: Je Little Biggy mimo provoz?
+        pl-PL: Czy Little Biggy nie działa?
+      body:
+        en-GB: The indicator above reflects our latest automated check of littlebiggy.org. Little Biggy has occasional outages and maintenance windows, so a red status is usually short-lived. If it shows down, wait a few minutes and reload — this page refreshes on its own.
+        de-DE: Die Anzeige oben spiegelt unsere letzte automatische Prüfung von littlebiggy.org wider. Little Biggy hat gelegentlich Ausfälle und Wartungsfenster, ein roter Status ist also meist von kurzer Dauer. Wenn „offline“ angezeigt wird, warte ein paar Minuten und lade neu — diese Seite aktualisiert sich von selbst.
+        fr-FR: L'indicateur ci-dessus reflète notre dernière vérification automatique de littlebiggy.org. Little Biggy connaît des pannes et fenêtres de maintenance occasionnelles, un statut rouge est donc généralement bref. S'il indique une panne, attends quelques minutes et recharge — cette page s'actualise toute seule.
+        pt-PT: O indicador acima reflete a nossa última verificação automática do littlebiggy.org. O Little Biggy tem falhas e janelas de manutenção ocasionais, por isso um estado vermelho costuma ser breve. Se aparecer em baixo, espera alguns minutos e recarrega — esta página atualiza-se sozinha.
+        it-IT: L'indicatore sopra riflette il nostro ultimo controllo automatico di littlebiggy.org. Little Biggy ha occasionali interruzioni e finestre di manutenzione, quindi uno stato rosso è di solito breve. Se risulta offline, aspetta qualche minuto e ricarica — questa pagina si aggiorna da sola.
+        es-ES: El indicador de arriba refleja nuestra última comprobación automática de littlebiggy.org. Little Biggy tiene caídas y ventanas de mantenimiento ocasionales, así que un estado rojo suele durar poco. Si aparece caído, espera unos minutos y recarga — esta página se actualiza sola.
+        el-GR: Η ένδειξη παραπάνω αντικατοπτρίζει τον τελευταίο αυτόματο έλεγχό μας για το littlebiggy.org. Το Little Biggy έχει περιστασιακές διακοπές και συντηρήσεις, οπότε μια κόκκινη κατάσταση συνήθως δεν κρατά πολύ. Αν δείχνει εκτός λειτουργίας, περιμένετε λίγα λεπτά και ανανεώστε — η σελίδα ανανεώνεται μόνη της.
+        cs-CZ: Ukazatel výše odráží naši poslední automatickou kontrolu littlebiggy.org. Little Biggy má občasné výpadky a údržbu, takže červený stav obvykle netrvá dlouho. Pokud ukazuje mimo provoz, počkejte pár minut a načtěte znovu — tato stránka se aktualizuje sama.
+        pl-PL: Wskaźnik powyżej odzwierciedla nasze ostatnie automatyczne sprawdzenie littlebiggy.org. Little Biggy ma sporadyczne awarie i przerwy techniczne, więc czerwony status zwykle nie trwa długo. Jeśli pokazuje awarię, poczekaj kilka minut i odśwież — ta strona odświeża się sama.
+    address:
+      heading:
+        en-GB: The official address
+        de-DE: Die offizielle Adresse
+        fr-FR: L'adresse officielle
+        pt-PT: O endereço oficial
+        it-IT: L'indirizzo ufficiale
+        es-ES: La dirección oficial
+        el-GR: Η επίσημη διεύθυνση
+        cs-CZ: Oficiální adresa
+        pl-PL: Oficjalny adres
+      body:
+        en-GB: littlebiggy.org is the address our index tracks. Be cautious with lookalike domains and search results on other extensions — bookmark littlebiggy.org so you always land on the site we monitor.
+        de-DE: littlebiggy.org ist die Adresse, die unser Index verfolgt. Sei vorsichtig bei ähnlich aussehenden Domains und Suchergebnissen mit anderen Endungen — speichere littlebiggy.org als Lesezeichen, damit du immer auf der von uns überwachten Seite landest.
+        fr-FR: littlebiggy.org est l'adresse que notre index suit. Méfie-toi des domaines similaires et des résultats de recherche sur d'autres extensions — ajoute littlebiggy.org à tes favoris pour toujours arriver sur le site que nous surveillons.
+        pt-PT: littlebiggy.org é o endereço que o nosso índice acompanha. Tem cuidado com domínios parecidos e resultados de pesquisa com outras extensões — guarda littlebiggy.org nos favoritos para chegares sempre ao site que monitorizamos.
+        it-IT: littlebiggy.org è l'indirizzo che il nostro indice segue. Fai attenzione a domini simili e risultati di ricerca con altre estensioni — aggiungi littlebiggy.org ai preferiti per arrivare sempre sul sito che monitoriamo.
+        es-ES: littlebiggy.org es la dirección que sigue nuestro índice. Ten cuidado con dominios parecidos y resultados de búsqueda con otras extensiones — guarda littlebiggy.org en favoritos para llegar siempre al sitio que monitorizamos.
+        el-GR: Το littlebiggy.org είναι η διεύθυνση που παρακολουθεί ο δείκτης μας. Προσοχή σε παρόμοιους τομείς και αποτελέσματα αναζήτησης με άλλες καταλήξεις — αποθηκεύστε το littlebiggy.org στους σελιδοδείκτες για να καταλήγετε πάντα στον ιστότοπο που παρακολουθούμε.
+        cs-CZ: littlebiggy.org je adresa, kterou náš index sleduje. Buďte opatrní u podobných domén a výsledků hledání s jinými koncovkami — uložte si littlebiggy.org do záložek, ať se vždy dostanete na web, který sledujeme.
+        pl-PL: littlebiggy.org to adres, który śledzi nasz indeks. Uważaj na podobne domeny i wyniki wyszukiwania z innymi końcówkami — dodaj littlebiggy.org do zakładek, aby zawsze trafiać na stronę, którą monitorujemy.
+    login:
+      heading:
+        en-GB: Little Biggy login problems
+        de-DE: Probleme beim Little-Biggy-Login
+        fr-FR: Problèmes de connexion à Little Biggy
+        pt-PT: Problemas de início de sessão no Little Biggy
+        it-IT: Problemi di accesso a Little Biggy
+        es-ES: Problemas para iniciar sesión en Little Biggy
+        el-GR: Προβλήματα σύνδεσης στο Little Biggy
+        cs-CZ: Problémy s přihlášením do Little Biggy
+        pl-PL: Problemy z logowaniem do Little Biggy
+      body:
+        en-GB: Little Biggy needs cookies and JavaScript enabled to sign in. If the site is up but your login fails, try clearing Little Biggy's cookies, disabling extensions that block scripts, or opening the site in a private window. Persistent issues are usually on Little Biggy's side and clear on their own.
+        de-DE: Für die Anmeldung müssen bei Little Biggy Cookies und JavaScript aktiviert sein. Wenn die Seite online ist, das Login aber fehlschlägt, lösche die Cookies von Little Biggy, deaktiviere Skript-blockierende Erweiterungen oder öffne die Seite in einem privaten Fenster. Anhaltende Probleme liegen meist an Little Biggy und lösen sich von selbst.
+        fr-FR: Little Biggy a besoin des cookies et de JavaScript activés pour se connecter. Si le site est en ligne mais que la connexion échoue, essaie d'effacer les cookies de Little Biggy, de désactiver les extensions qui bloquent les scripts, ou d'ouvrir le site en navigation privée. Les problèmes persistants viennent généralement de Little Biggy et se règlent seuls.
+        pt-PT: O Little Biggy precisa de cookies e JavaScript ativados para iniciar sessão. Se o site estiver online mas o início de sessão falhar, tenta limpar os cookies do Little Biggy, desativar extensões que bloqueiam scripts ou abrir o site numa janela privada. Problemas persistentes costumam ser do lado do Little Biggy e resolvem-se sozinhos.
+        it-IT: Little Biggy richiede cookie e JavaScript attivi per accedere. Se il sito è online ma l'accesso non riesce, prova a cancellare i cookie di Little Biggy, a disattivare le estensioni che bloccano gli script o ad aprire il sito in una finestra anonima. I problemi persistenti sono di solito lato Little Biggy e si risolvono da soli.
+        es-ES: Little Biggy necesita cookies y JavaScript activados para iniciar sesión. Si el sitio está en línea pero el inicio de sesión falla, prueba a borrar las cookies de Little Biggy, desactivar extensiones que bloquean scripts o abrir el sitio en una ventana privada. Los problemas persistentes suelen ser del lado de Little Biggy y se resuelven solos.
+        el-GR: Το Little Biggy χρειάζεται ενεργά cookies και JavaScript για τη σύνδεση. Αν ο ιστότοπος λειτουργεί αλλά η σύνδεση αποτυγχάνει, δοκιμάστε να διαγράψετε τα cookies του Little Biggy, να απενεργοποιήσετε επεκτάσεις που μπλοκάρουν scripts ή να ανοίξετε τον ιστότοπο σε ιδιωτικό παράθυρο. Τα επίμονα προβλήματα είναι συνήθως από την πλευρά του Little Biggy και λύνονται μόνα τους.
+        cs-CZ: Pro přihlášení potřebuje Little Biggy povolené cookies a JavaScript. Pokud web funguje, ale přihlášení selhává, zkuste smazat cookies Little Biggy, vypnout rozšíření blokující skripty nebo otevřít web v anonymním okně. Přetrvávající potíže bývají na straně Little Biggy a vyřeší se samy.
+        pl-PL: Little Biggy wymaga włączonych plików cookie i JavaScriptu, aby się zalogować. Jeśli strona działa, ale logowanie zawodzi, spróbuj wyczyścić pliki cookie Little Biggy, wyłączyć rozszerzenia blokujące skrypty lub otworzyć stronę w oknie prywatnym. Uporczywe problemy zwykle leżą po stronie Little Biggy i mijają same.
+    legit:
+      heading:
+        en-GB: Is Little Biggy legit?
+        de-DE: Ist Little Biggy seriös?
+        fr-FR: Little Biggy est-il fiable ?
+        pt-PT: O Little Biggy é de confiança?
+        it-IT: Little Biggy è affidabile?
+        es-ES: ¿Little Biggy es de fiar?
+        el-GR: Είναι το Little Biggy αξιόπιστο;
+        cs-CZ: Je Little Biggy důvěryhodný?
+        pl-PL: Czy Little Biggy jest wiarygodny?
+      body:
+        en-GB: Wondering if Little Biggy is legit? It has operated for years and uses escrow (Transaxe) to hold funds until an order is confirmed. It's a real marketplace, not a scam clone — though, as anywhere, trust is seller by seller. Our index tracks each seller's community endorsements and reports so you can judge reputation before you buy.
+        de-DE: Du fragst dich, ob Little Biggy seriös ist? Es besteht seit Jahren und nutzt Treuhand (Transaxe), um Geld zu halten, bis eine Bestellung bestätigt ist. Es ist ein echter Marktplatz, kein Betrugs-Klon — auch wenn Vertrauen, wie überall, von Verkäufer zu Verkäufer verschieden ist. Unser Index verfolgt die Community-Empfehlungen und -Meldungen jedes Verkäufers, damit du die Reputation vor dem Kauf einschätzen kannst.
+        fr-FR: Tu te demandes si Little Biggy est fiable ? Le site existe depuis des années et utilise un séquestre (Transaxe) qui retient les fonds jusqu'à confirmation de la commande. C'est une vraie marketplace, pas un clone frauduleux — même si, comme partout, la confiance se juge vendeur par vendeur. Notre index suit les recommandations et signalements de la communauté pour chaque vendeur, pour que tu évalues sa réputation avant d'acheter.
+        pt-PT: A perguntar-te se o Little Biggy é de confiança? Existe há anos e usa custódia (Transaxe) para reter os fundos até a encomenda ser confirmada. É um marketplace real, não um clone fraudulento — embora, como em qualquer lado, a confiança se avalie vendedor a vendedor. O nosso índice acompanha as recomendações e denúncias da comunidade de cada vendedor, para avaliares a reputação antes de comprar.
+        it-IT: Ti chiedi se Little Biggy è affidabile? Esiste da anni e usa un deposito a garanzia (Transaxe) che trattiene i fondi finché l'ordine non è confermato. È un marketplace reale, non un clone truffaldino — anche se, come ovunque, la fiducia va valutata venditore per venditore. Il nostro indice segue le raccomandazioni e le segnalazioni della community per ogni venditore, così puoi giudicarne la reputazione prima di acquistare.
+        es-ES: ¿Te preguntas si Little Biggy es de fiar? Lleva años operando y usa custodia (Transaxe) para retener los fondos hasta que se confirma un pedido. Es un mercado real, no un clon fraudulento — aunque, como en todas partes, la confianza se juzga vendedor a vendedor. Nuestro índice sigue las recomendaciones y denuncias de la comunidad de cada vendedor, para que valores su reputación antes de comprar.
+        el-GR: Αναρωτιέστε αν το Little Biggy είναι αξιόπιστο; Λειτουργεί εδώ και χρόνια και χρησιμοποιεί μεσεγγύηση (Transaxe) που κρατά τα χρήματα μέχρι να επιβεβαιωθεί η παραγγελία. Είναι μια πραγματική αγορά, όχι απατεωνικό αντίγραφο — αν και, όπως παντού, η εμπιστοσύνη κρίνεται ανά πωλητή. Ο δείκτης μας παρακολουθεί τις συστάσεις και τις αναφορές της κοινότητας για κάθε πωλητή, ώστε να κρίνετε τη φήμη πριν αγοράσετε.
+        cs-CZ: Ptáte se, zda je Little Biggy důvěryhodný? Funguje už roky a používá úschovu (Transaxe), která drží peníze, dokud není objednávka potvrzena. Je to skutečné tržiště, ne podvodný klon — i když, jako všude, důvěru je třeba posuzovat u každého prodejce zvlášť. Náš index sleduje doporučení a nahlášení komunity u každého prodejce, abyste posoudili pověst před nákupem.
+        pl-PL: Zastanawiasz się, czy Little Biggy jest wiarygodny? Działa od lat i korzysta z depozytu (Transaxe), który przechowuje środki do potwierdzenia zamówienia. To prawdziwy rynek, a nie oszukańczy klon — choć, jak wszędzie, zaufanie ocenia się sprzedawca po sprzedawcy. Nasz indeks śledzi polecenia i zgłoszenia społeczności dla każdego sprzedawcy, abyś mógł ocenić reputację przed zakupem.
+      sellersLink:
+        en-GB: Browse seller trust ratings
+        de-DE: Verkäufer-Vertrauensbewertungen ansehen
+        fr-FR: Voir les évaluations de confiance des vendeurs
+        pt-PT: Ver as avaliações de confiança dos vendedores
+        it-IT: Vedi le valutazioni di affidabilità dei venditori
+        es-ES: Ver las valoraciones de confianza de los vendedores
+        el-GR: Δείτε τις βαθμολογίες εμπιστοσύνης πωλητών
+        cs-CZ: Zobrazit hodnocení důvěryhodnosti prodejců
+        pl-PL: Zobacz oceny zaufania sprzedawców
+  cta:
+    heading:
+      en-GB: While you wait — browse the index
+      de-DE: Während du wartest — durchstöbere den Index
+      fr-FR: En attendant — parcours l'index
+      pt-PT: Enquanto esperas — explora o índice
+      it-IT: Nell'attesa — sfoglia l'indice
+      es-ES: Mientras esperas — explora el índice
+      el-GR: Όσο περιμένετε — δείτε τον δείκτη
+      cs-CZ: Než počkáte — projděte si index
+      pl-PL: Czekając — przeglądaj indeks
+    body:
+      en-GB: Little Biggy down or slow? You can still explore every listing here — prices, reviews and seller ratings, no login required.
+      de-DE: Little Biggy offline oder langsam? Du kannst hier trotzdem jedes Angebot durchstöbern — Preise, Bewertungen und Verkäuferwertungen, ganz ohne Login.
+      fr-FR: Little Biggy en panne ou lent ? Tu peux quand même parcourir toutes les annonces ici — prix, avis et notes des vendeurs, sans connexion.
+      pt-PT: Little Biggy em baixo ou lento? Podes na mesma explorar todos os anúncios aqui — preços, avaliações e classificações de vendedores, sem início de sessão.
+      it-IT: Little Biggy offline o lento? Puoi comunque esplorare tutti gli annunci qui — prezzi, recensioni e valutazioni dei venditori, senza accesso.
+      es-ES: ¿Little Biggy caído o lento? Aun así puedes explorar todos los anuncios aquí — precios, reseñas y valoraciones de vendedores, sin iniciar sesión.
+      el-GR: Το Little Biggy έπεσε ή είναι αργό; Μπορείτε ακόμα να δείτε όλες τις καταχωρίσεις εδώ — τιμές, κριτικές και βαθμολογίες πωλητών, χωρίς σύνδεση.
+      cs-CZ: Little Biggy nefunguje nebo je pomalý? I tak si tu můžete projít všechny nabídky — ceny, recenze a hodnocení prodejců, bez přihlášení.
+      pl-PL: Little Biggy nie działa lub jest wolny? Nadal możesz przeglądać tu wszystkie oferty — ceny, recenzje i oceny sprzedawców, bez logowania.
+    button:
+      en-GB: Browse the index
+      de-DE: Index durchstöbern
+      fr-FR: Parcourir l'index
+      pt-PT: Explorar o índice
+      it-IT: Sfoglia l'indice
+      es-ES: Explorar el índice
+      el-GR: Δείτε τον δείκτη
+      cs-CZ: Projít index
+      pl-PL: Przeglądaj indeks
+    categoriesTitle:
+      en-GB: Or jump to a category
+      de-DE: Oder direkt zu einer Kategorie
+      fr-FR: Ou accède à une catégorie
+      pt-PT: Ou salta para uma categoria
+      it-IT: Oppure vai a una categoria
+      es-ES: O salta a una categoría
+      el-GR: Ή μεταβείτε σε μια κατηγορία
+      cs-CZ: Nebo přejděte na kategorii
+      pl-PL: Albo przejdź do kategorii
 
 home:
   heroTitle:
@@ -2510,15 +2840,15 @@ browse:
       cs-CZ: Nabídky konopí na Little Biggy
       pl-PL: Oferty konopi na Little Biggy
     metadataDescription:
-      en-GB: Browse cannabis listings on Little Biggy — flower, hash, edibles, and vapes. Filter by category, price, seller, shipping, and reviews.
-      de-DE: Cannabis-Angebote auf Little Biggy durchsuchen — Blüten, Hasch, Edibles und Vapes. Nach Kategorie, Preis, Verkäufer, Versand und Bewertungen filtern.
-      fr-FR: Parcourez les annonces de cannabis sur Little Biggy — fleurs, hash, comestibles et vapes. Filtrez par catégorie, prix, vendeur, livraison et avis.
-      pt-PT: Navegue pelos anúncios de canábis no Little Biggy — flores, haxixe, comestíveis e vapes. Filtre por categoria, preço, vendedor, envio e avaliações.
-      it-IT: Sfoglia gli annunci di cannabis su Little Biggy — fiori, hashish, edibili e vape. Filtra per categoria, prezzo, venditore, spedizione e recensioni.
-      es-ES: Explora los anuncios de cannabis en Little Biggy — flores, hachís, comestibles y vapeos. Filtra por categoría, precio, vendedor, envío y reseñas.
-      el-GR: Δείτε καταχωρίσεις κάνναβης στο Little Biggy — άνθη, χασίς και άλλα. Φιλτράρετε ανά κατηγορία, τιμή, πωλητή, αποστολή και κριτικές.
-      cs-CZ: Procházejte nabídky konopí na Little Biggy — květy, hašiš a další. Filtrujte podle kategorie, ceny, prodejce, dopravy a recenzí.
-      pl-PL: Przeglądaj oferty konopi na Little Biggy — susz, haszysz i nie tylko. Filtruj według kategorii, ceny, sprzedawcy, wysyłki i recenzji.
+      en-GB: The live index of every Little Biggy listing — filter by price, category and seller ratings, plus price history and review stats Little Biggy doesn't show.
+      de-DE: Der Live-Index aller Little-Biggy-Angebote — filtern nach Preis, Kategorie und Verkäuferbewertungen, mit Preisverlauf und Bewertungsdaten, die Little Biggy selbst nicht zeigt.
+      fr-FR: L'index en direct de chaque annonce Little Biggy — filtrez par prix, catégorie et notes des vendeurs, avec l'historique des prix et des stats d'avis que Little Biggy ne montre pas.
+      pt-PT: O índice em direto de todos os anúncios do Little Biggy — filtra por preço, categoria e avaliações de vendedores, com histórico de preços e estatísticas que o Little Biggy não mostra.
+      it-IT: L'indice in tempo reale di ogni annuncio di Little Biggy — filtra per prezzo, categoria e valutazioni dei venditori, con storico prezzi e statistiche che Little Biggy non mostra.
+      es-ES: "El índice en vivo de cada anuncio de Little Biggy: filtra por precio, categoría y valoraciones de vendedores, con historial de precios y estadísticas que Little Biggy no muestra."
+      el-GR: Ο ζωντανός δείκτης κάθε καταχώρισης του Little Biggy — φιλτράρετε ανά τιμή, κατηγορία και βαθμολογίες πωλητών, με ιστορικό τιμών και στατιστικά κριτικών που δεν δείχνει το Little Biggy.
+      cs-CZ: Živý index všech nabídek na Little Biggy — filtrujte podle ceny, kategorie a hodnocení prodejců, s historií cen a statistikami recenzí, které samotné Little Biggy nezobrazuje.
+      pl-PL: Aktualny indeks wszystkich ofert Little Biggy — filtruj według ceny, kategorii i ocen sprzedawców, z historią cen i statystykami recenzji, których samo Little Biggy nie pokazuje.
   allCategories:
     en-GB: All Categories
     de-DE: Alle Kategorien
@@ -4836,16 +5166,25 @@ item:
   # crawler's archive snapshots.
   meta:
     title:
-      en-GB: "{name} by {seller} | BiggyIndex"
-      de-DE: "{name} von {seller} | BiggyIndex"
-      fr-FR: "{name} par {seller} | BiggyIndex"
-      pt-PT: "{name} de {seller} | BiggyIndex"
-      it-IT: "{name} di {seller} | BiggyIndex"
-      es-ES: "{name} de {seller} | BiggyIndex"
-      el-GR: "{name} από {seller} | BiggyIndex"
-      cs-CZ: "{name} od {seller} | BiggyIndex"
-      pl-PL: "{name} od {seller} | BiggyIndex"
-    titleNoSeller: "{name} | BiggyIndex"
+      en-GB: "{name} by {seller} — Reviews & Prices | BiggyIndex"
+      de-DE: "{name} von {seller} — Bewertungen & Preise | BiggyIndex"
+      fr-FR: "{name} par {seller} — Avis & Prix | BiggyIndex"
+      pt-PT: "{name} de {seller} — Avaliações e Preços | BiggyIndex"
+      it-IT: "{name} di {seller} — Recensioni e Prezzi | BiggyIndex"
+      es-ES: "{name} de {seller} — Reseñas y Precios | BiggyIndex"
+      el-GR: "{name} από {seller} — Κριτικές & Τιμές | BiggyIndex"
+      cs-CZ: "{name} od {seller} — Recenze a ceny | BiggyIndex"
+      pl-PL: "{name} od {seller} — Recenzje i ceny | BiggyIndex"
+    titleNoSeller:
+      en-GB: "{name} — Reviews & Prices | BiggyIndex"
+      de-DE: "{name} — Bewertungen & Preise | BiggyIndex"
+      fr-FR: "{name} — Avis & Prix | BiggyIndex"
+      pt-PT: "{name} — Avaliações e Preços | BiggyIndex"
+      it-IT: "{name} — Recensioni e Prezzi | BiggyIndex"
+      es-ES: "{name} — Reseñas y Precios | BiggyIndex"
+      el-GR: "{name} — Κριτικές & Τιμές | BiggyIndex"
+      cs-CZ: "{name} — Recenze a ceny | BiggyIndex"
+      pl-PL: "{name} — Recenzje i ceny | BiggyIndex"
     titleArchived:
       en-GB: "{name} by {seller} {suffix} | BiggyIndex"
       de-DE: "{name} von {seller} {suffix} | BiggyIndex"
@@ -5162,6 +5501,26 @@ seller:
       el-GR: "{count, plural, one {1 κριτική} other {# κριτικές}}"
       cs-CZ: "{count, plural, one {1 recenze} few {# recenze} other {# recenzí}}"
       pl-PL: "{count, plural, one {1 recenzja} few {# recenzje} many {# recenzji} other {# recenzji}}"
+    endorsements:
+      en-GB: "{count, plural, one {1 community endorsement} other {# community endorsements}}"
+      de-DE: "{count, plural, one {1 Community-Empfehlung} other {# Community-Empfehlungen}}"
+      fr-FR: "{count, plural, one {1 recommandation de la communauté} other {# recommandations de la communauté}}"
+      pt-PT: "{count, plural, one {1 recomendação da comunidade} other {# recomendações da comunidade}}"
+      it-IT: "{count, plural, one {1 raccomandazione della community} other {# raccomandazioni della community}}"
+      es-ES: "{count, plural, one {1 recomendación de la comunidad} other {# recomendaciones de la comunidad}}"
+      el-GR: "{count, plural, one {1 σύσταση της κοινότητας} other {# συστάσεις της κοινότητας}}"
+      cs-CZ: "{count, plural, one {1 doporučení komunity} few {# doporučení komunity} other {# doporučení komunity}}"
+      pl-PL: "{count, plural, one {1 polecenie społeczności} few {# polecenia społeczności} many {# poleceń społeczności} other {# polecenia społeczności}}"
+    reports:
+      en-GB: "{count, plural, one {1 community report} other {# community reports}}"
+      de-DE: "{count, plural, one {1 Community-Meldung} other {# Community-Meldungen}}"
+      fr-FR: "{count, plural, one {1 signalement de la communauté} other {# signalements de la communauté}}"
+      pt-PT: "{count, plural, one {1 denúncia da comunidade} other {# denúncias da comunidade}}"
+      it-IT: "{count, plural, one {1 segnalazione della community} other {# segnalazioni della community}}"
+      es-ES: "{count, plural, one {1 denuncia de la comunidad} other {# denuncias de la comunidad}}"
+      el-GR: "{count, plural, one {1 αναφορά της κοινότητας} other {# αναφορές της κοινότητας}}"
+      cs-CZ: "{count, plural, one {1 nahlášení komunity} few {# nahlášení komunity} other {# nahlášení komunity}}"
+      pl-PL: "{count, plural, one {1 zgłoszenie społeczności} few {# zgłoszenia społeczności} many {# zgłoszeń społeczności} other {# zgłoszenia społeczności}}"
   page:
     metadataTitle:
       en-GB: Little Biggy Sellers | BiggyIndex
@@ -5446,7 +5805,16 @@ seller:
       cs-CZ: Žádní prodejci nalezeni
       pl-PL: Nie znaleziono sprzedawców
   detail:
-    metadataTitle: "{seller} | BiggyIndex"
+    metadataTitle:
+      en-GB: "{seller} — Reviews & Trust | BiggyIndex"
+      de-DE: "{seller} — Bewertungen & Vertrauen | BiggyIndex"
+      fr-FR: "{seller} — Avis & Confiance | BiggyIndex"
+      pt-PT: "{seller} — Avaliações e Confiança | BiggyIndex"
+      it-IT: "{seller} — Recensioni e Affidabilità | BiggyIndex"
+      es-ES: "{seller} — Reseñas y Confianza | BiggyIndex"
+      el-GR: "{seller} — Κριτικές & Αξιοπιστία | BiggyIndex"
+      cs-CZ: "{seller} — Recenze a důvěryhodnost | BiggyIndex"
+      pl-PL: "{seller} — Recenzje i zaufanie | BiggyIndex"
     notFoundTitle:
       en-GB: Seller not found | BiggyIndex
       de-DE: Verkäufer nicht gefunden | BiggyIndex
