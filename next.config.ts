@@ -124,13 +124,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Filtered /browse URLs are crawlable (robots re-opens /browse?cat=) but must
-  // never be INDEXED — they duplicate the canonical /browse hub. Emit
-  // `X-Robots-Tag: noindex, follow` whenever a browse request carries a filter
-  // param so Googlebot follows the outbound links (passing equity) without
-  // indexing the filtered permutation. One rule per known filter key via a
-  // `has` query matcher (supported by Next's headers() route matching); the
-  // bare /browse hub carries no matched param, so it stays fully indexable.
   async headers() {
     // On Netlify, proxy.ts (edge middleware) REWRITES every page request to
     // its locale-prefixed internal path (host → /en-GB/…, /de-DE/…) BEFORE the
@@ -141,16 +134,16 @@ const nextConfig: NextConfig = {
     const LOCALE_SEG =
       ":locale(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)";
 
-    const noindexFollow = [{ key: "X-Robots-Tag", value: "noindex, follow" }];
-    const filterKeys = ["cat", "q", "pmin", "pmax", "sellers", "sub", "excl"];
-    const noindexRules = ["/browse", `/${LOCALE_SEG}/browse`].flatMap(
-      (source) =>
-        filterKeys.map((key) => ({
-          source,
-          has: [{ type: "query" as const, key }],
-          headers: noindexFollow,
-        })),
-    );
+    // ── REMOVED (2026-07-13): query-conditioned X-Robots noindex on /browse.
+    // Netlify's CDN caches /browse under ONE key that IGNORES filter queries
+    // (netlify-vary only includes __nextDataReq|_rsc). A `has`-matched
+    // noindex response for /browse?cat=… therefore gets CACHED and served for
+    // the BARE hub too — observed live: bare /browse returned
+    // `x-robots-tag: noindex` minutes after a filtered request populated the
+    // entry. Query-conditional headers are structurally unsafe for any
+    // query-ignoring cache key; do NOT reintroduce in any layer that runs at
+    // or behind the CDN. The /browse canonical tag carries the dedup burden
+    // (filtered URLs canonicalise to /browse), which GSC shows working.
 
     // ── Durable-CDN fallback for the PPR-postponed long tail ──────────────
     // ACTIVATED 2026-07-13 (was the prepared fallback below round 3). Source
@@ -192,7 +185,7 @@ const nextConfig: NextConfig = {
       headers: [{ key: "Netlify-CDN-Cache-Control", value: durable }],
     }));
 
-    return [...noindexRules, ...durableRules];
+    return durableRules;
   },
 };
 

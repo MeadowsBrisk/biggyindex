@@ -1052,9 +1052,14 @@ function ItemCardInner({
                       </span>
                     )}
                     {communityEndorsements > 0 && (
-                      <span className="seller-card__badge seller-card__badge--endorsement">
+                      /* Icon + bare count — the translated phrase lives in the
+                         tooltip; "2 endorsed" inline crowded the badge row. */
+                      <span
+                        className="seller-card__badge seller-card__badge--endorsement"
+                        title={t("endorsed", { count: communityEndorsements })}
+                      >
                         <ThumbsUp size={9} />
-                        {t("endorsed", { count: communityEndorsements })}
+                        {communityEndorsements}
                       </span>
                     )}
                     {shippingIsFree ? (

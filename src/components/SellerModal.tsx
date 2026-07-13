@@ -289,8 +289,12 @@ export function SellerModal() {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full md:min-h-0 md:flex-1">
-          {/* ── Left column: seller info ── */}
-          <div className="min-w-0 p-5 md:min-h-0 md:overflow-hidden md:border-r border-border">
+          {/* ── Left column: seller info ──
+              md:overflow-y-auto (not hidden): long manifestos + the community
+              feedback block exceed the panel height — without its own scroll
+              the column just clips at the panel edge on desktop. pb-8 keeps
+              the last block (feedback actions) off the modal's bottom edge. */}
+          <div className="min-w-0 p-5 pb-8 md:min-h-0 md:overflow-y-auto md:border-r border-border">
             {/* Identity */}
             <div className="flex items-start gap-4">
               <div className="shrink-0">
