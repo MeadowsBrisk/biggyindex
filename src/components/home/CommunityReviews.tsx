@@ -297,10 +297,13 @@ function MarqueeReviewCard({
   review,
   copy,
   now,
+  tabIndex,
 }: {
   review: ReviewCardData;
   copy: CommunityReviewCopy;
   now: number;
+  /** -1 on the marquee's clone copy: clickable for mouse users, skipped by Tab. */
+  tabIndex?: number;
 }) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const canOpen = !!review.refNum;
@@ -397,6 +400,7 @@ function MarqueeReviewCard({
   return canOpen ? (
     <a
       href={`/item/${encodeURIComponent(String(review.refNum))}`}
+      tabIndex={tabIndex}
       onClick={(e) => {
         // Middle-click / ctrl-click → let browser open in new tab
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -473,8 +477,9 @@ function MarqueeRow({
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
 
-  // Build the card list once — we duplicate for seamless looping
-  const cards = useMemo(() => {
+  // Build the card list once — we duplicate for seamless looping. The clone
+  // copy gets tabIndex -1 so keyboard users don't Tab through every card twice.
+  const buildCards = (isClone: boolean) => {
     const items: React.ReactNode[] = [];
     reviews.forEach((review) => {
       items.push(
@@ -486,12 +491,23 @@ function MarqueeRow({
           review={review}
           copy={copy}
           now={now}
+          tabIndex={isClone ? -1 : undefined}
         />,
       );
     });
     if (fillerCard) items.push(fillerCard);
     return items;
-  }, [reviews, fillerCard, copy, now]);
+  };
+  // biome-ignore lint/correctness/useExhaustiveDependencies: buildCards closes over the same deps
+  const cards = useMemo(
+    () => buildCards(false),
+    [reviews, fillerCard, copy, now],
+  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: buildCards closes over the same deps
+  const cloneCards = useMemo(
+    () => buildCards(true),
+    [reviews, fillerCard, copy, now],
+  );
 
   // Duration: based on total width approximation
   // ~330px per card (320 + 10 gap)
@@ -512,15 +528,15 @@ function MarqueeRow({
       <div className="review-marquee-track flex gap-2.5">
         {/* First copy — the real, interactive one */}
         {cards}
-        {/* Visual clone for the seamless -50% loop. `display:contents` keeps
-            each card a direct flex item (gap + width unchanged, so the loop
-            stays pixel-identical), while `aria-hidden` drops the duplicate
-            from the a11y tree and `inert` makes the whole subtree
-            unfocusable + unclickable — the correct behaviour for a decorative
-            clone. Wrapping also scopes the reused keys so they no longer
-            collide with the first copy's siblings. */}
-        <div className="contents" aria-hidden="true" inert>
-          {cards}
+        {/* Clone for the seamless -50% loop. `display:contents` keeps each
+            card a direct flex item (gap + width unchanged, so the loop stays
+            pixel-identical); `aria-hidden` drops the duplicate from the a11y
+            tree and the clone cards carry tabIndex -1 so Tab skips them.
+            Deliberately NOT `inert`: the clone is on-screen half the loop and
+            must stay mouse-clickable. Wrapping also scopes the reused keys so
+            they don't collide with the first copy's siblings. */}
+        <div className="contents" aria-hidden="true">
+          {cloneCards}
         </div>
       </div>
     </div>
