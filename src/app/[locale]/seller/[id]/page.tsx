@@ -248,8 +248,14 @@ export async function generateMetadata({
   });
 }
 
-/** Top sellers (by listing count) prerendered at build. */
-const PRERENDER_SELLER_COUNT = 12;
+/**
+ * Sellers prerendered at build. Was top-12; raised to cover the whole roster
+ * (~83 live sellers, 2026-07) after the usage investigation showed runtime
+ * renders of non-prerendered sellers are PPR-postponed → uncacheable on
+ * Netlify — build prerenders are the only framework-native cached copies.
+ * The cap only guards build time against roster explosions.
+ */
+const PRERENDER_SELLER_COUNT = 200;
 
 /**
  * A NON-EMPTY generateStaticParams is what flips this route from PPR-dynamic

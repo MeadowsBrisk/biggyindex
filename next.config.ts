@@ -131,60 +131,69 @@ const nextConfig: NextConfig = {
   // indexing the filtered permutation. One rule per known filter key via a
   // `has` query matcher (supported by Next's headers() route matching); the
   // bare /browse hub carries no matched param, so it stays fully indexable.
-  // This is a distinct, active headers() block — unrelated to the commented-out
-  // durable-CDN fallback below, which remains disabled.
   async headers() {
-    const noindexFollow = [
-      { key: "X-Robots-Tag", value: "noindex, follow" },
-    ];
-    const filterKeys = [
-      "cat",
-      "q",
-      "pmin",
-      "pmax",
-      "sellers",
-      "sub",
-      "excl",
-    ];
-    return filterKeys.map((key) => ({
-      source: "/browse",
-      has: [{ type: "query" as const, key }],
-      headers: noindexFollow,
-    }));
-  },
+    // On Netlify, proxy.ts (edge middleware) REWRITES every page request to
+    // its locale-prefixed internal path (host → /en-GB/…, /de-DE/…) BEFORE the
+    // origin's router matches these header sources. In dev the unified server
+    // matches the ORIGINAL path instead. So every rule needs both the bare
+    // source (dev + any unrewritten request) and the locale-prefixed variant
+    // (prod). Locale list must track src/i18n/routing.ts.
+    const LOCALE_SEG =
+      ":locale(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)";
 
-  // ───────────────────────────────────────────────────────────────────────
-  // FALLBACK ONLY — commented out. Enable this headers() block if round 3's
-  // deploy STILL shows /item/:ref* or /seller/:id* returning private,no-store
-  // + x-nextjs-postponed (i.e. the non-empty generateStaticParams did NOT flip
-  // them to x-nextjs-prerender + Netlify Durable hit).
-  //
-  // It force-attaches a durable CDN TTL at the edge, bypassing the framework's
-  // per-render cache decision — the SAME header the app's data routes already
-  // use successfully (src/app/api/item-detail/[ref]/route.ts:40 ships exactly
-  // `public, durable, s-maxage=43200, stale-while-revalidate=86400`).
-  //
-  // TRADEOFF: this is TTL-based, NOT tag-based. revalidateTag('item-detail' /
-  // 'items' / 'sellers') will NOT purge these edge entries — they only refresh
-  // on the s-maxage clock. Items change at the ~30-min crawl cadence, so
-  // worst-case HTML staleness is ~s-maxage (1h below) rather than "until the
-  // next crawl + tag purge". Acceptable for detail pages (price/stock drift is
-  // minor and the client re-fetches live data via /api/item-detail), but it is
-  // why this stays OFF unless the framework path fails.
-  //
-  // async headers() {
-  //   const durable =
-  //     "public, durable, s-maxage=3600, stale-while-revalidate=86400";
-  //   return [
-  //     { source: "/item/:ref*", headers: [
-  //       { key: "Netlify-CDN-Cache-Control", value: durable },
-  //     ] },
-  //     { source: "/seller/:id*", headers: [
-  //       { key: "Netlify-CDN-Cache-Control", value: durable },
-  //     ] },
-  //   ];
-  // },
-  // ───────────────────────────────────────────────────────────────────────
+    const noindexFollow = [{ key: "X-Robots-Tag", value: "noindex, follow" }];
+    const filterKeys = ["cat", "q", "pmin", "pmax", "sellers", "sub", "excl"];
+    const noindexRules = ["/browse", `/${LOCALE_SEG}/browse`].flatMap(
+      (source) =>
+        filterKeys.map((key) => ({
+          source,
+          has: [{ type: "query" as const, key }],
+          headers: noindexFollow,
+        })),
+    );
+
+    // ── Durable-CDN fallback for the PPR-postponed long tail ──────────────
+    // ACTIVATED 2026-07-13 (was the prepared fallback below round 3). Source
+    // dive confirmed why the framework path cannot cache these on Netlify:
+    // under cacheComponents every route is PPR; a runtime render that
+    // postpones (x-nextjs-postponed) emits `private,no-store`
+    // (next/dist/server/lib/cache-control.js maps revalidate:0), the
+    // fallback-shell/upgrade recovery paths never run on this stack, and
+    // @netlify/plugin-nextjs run/headers.js copies that no-store verbatim to
+    // netlify-cdn-cache-control → the CDN never stores it → EVERY bot hit on
+    // ~23k item/seller/category/archive URLs was a billed function invocation
+    // (the July 2026 usage blowout).
+    //
+    // Why this is safe for healthy responses: run/headers.js only applies its
+    // own mapping when the response has `x-nextjs-cache` OR lacks a
+    // pre-existing netlify-cdn-cache-control. Prerendered/ISR responses carry
+    // x-nextjs-cache → the runtime still derives their native tag-purgeable
+    // caching and OVERRIDES this header. Postponed responses carry no
+    // x-nextjs-cache → this header survives → the CDN stores them. Net effect:
+    // the TTL applies exactly where the framework fails, nowhere else.
+    //
+    // TRADEOFF: TTL-based, NOT tag-based. revalidateTag will not purge these
+    // entries — worst-case HTML staleness is s-maxage (1h) + SWR background
+    // refresh. Prices drift ≤1h behind the ~30-min crawl; the item overlay
+    // re-fetches live data via /api/item-detail anyway. Unknown-ref 404s also
+    // cache for 1h — deliberate: the GSC validation bucket (2k dead URLs)
+    // was a pure invocation firehose.
+    const durable =
+      "public, durable, s-maxage=3600, stale-while-revalidate=86400";
+    const durableRules = [
+      "/item/:ref*",
+      "/seller/:id*",
+      "/category/:slug*",
+      `/${LOCALE_SEG}/item/:ref*`,
+      `/${LOCALE_SEG}/seller/:id*`,
+      `/${LOCALE_SEG}/category/:slug*`,
+    ].map((source) => ({
+      source,
+      headers: [{ key: "Netlify-CDN-Cache-Control", value: durable }],
+    }));
+
+    return [...noindexRules, ...durableRules];
+  },
 };
 
 export default withNextIntl(nextConfig);
