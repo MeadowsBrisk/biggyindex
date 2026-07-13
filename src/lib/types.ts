@@ -259,6 +259,8 @@ export interface SellerCommunityFeedback {
   endorseCount?: number | null;
   reportCount?: number | null;
   reports?: SellerCommunityReport[] | null;
+  /** Accepted endorsements that came with a comment (same shape as reports). */
+  endorsements?: SellerCommunityReport[] | null;
   updatedAt?: string | null;
 }
 

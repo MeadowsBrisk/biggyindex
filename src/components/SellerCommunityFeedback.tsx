@@ -33,14 +33,21 @@ export function SellerCommunityFeedbackBlock({
   const reportCount = positiveCount(
     feedback?.reportCount ?? indexSeller?.communityReportCount,
   );
-  const reports = (feedback?.reports ?? [])
-    .filter(
-      (report): report is SellerCommunityReport =>
-        typeof report?.reason === "string" && report.reason.trim().length > 0,
-    )
+  const hasComment = (
+    report: SellerCommunityReport | null | undefined,
+  ): report is SellerCommunityReport =>
+    typeof report?.reason === "string" && report.reason.trim().length > 0;
+  const reports = (feedback?.reports ?? []).filter(hasComment).slice(0, 5);
+  const endorsements = (feedback?.endorsements ?? [])
+    .filter(hasComment)
     .slice(0, 5);
 
-  if (endorseCount === 0 && reportCount === 0 && reports.length === 0) {
+  if (
+    endorseCount === 0 &&
+    reportCount === 0 &&
+    reports.length === 0 &&
+    endorsements.length === 0
+  ) {
     return null;
   }
 
@@ -63,6 +70,34 @@ export function SellerCommunityFeedbackBlock({
           </span>
         )}
       </div>
+
+      {endorsements.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {endorsements.map((endorsement) => (
+            <div
+              key={endorsement.id}
+              className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3"
+            >
+              <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted">
+                <span className="inline-flex items-center gap-1">
+                  <ThumbsUp size={11} />
+                  {t("endorsedNote")}
+                </span>
+                {positiveCount(endorsement.votes) > 1 && (
+                  <span>
+                    {t("similarEndorsements", {
+                      count: positiveCount(endorsement.votes),
+                    })}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm leading-relaxed text-foreground">
+                {endorsement.reason}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {reports.length > 0 && (
         <div className="mt-3 space-y-2">
@@ -108,7 +143,8 @@ export function SellerFeedbackActions({
     report: false,
   });
   const [busy, setBusy] = useState<FeedbackKind | null>(null);
-  const [reportOpen, setReportOpen] = useState(false);
+  // Which kind's optional-comment box is open (endorse and report share it)
+  const [openKind, setOpenKind] = useState<FeedbackKind | null>(null);
   const [reason, setReason] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const reasonId = `seller-feedback-reason-${sellerId}`;
@@ -123,10 +159,16 @@ export function SellerFeedbackActions({
     } catch {
       /* ignore */
     }
-    setReportOpen(false);
+    setOpenKind(null);
     setReason("");
     setMessage(null);
   }, [sellerId]);
+
+  const toggleKind = (kind: FeedbackKind) => {
+    setOpenKind((current) => (current === kind ? null : kind));
+    setReason("");
+    setMessage(null);
+  };
 
   const submit = useCallback(
     async (kind: FeedbackKind, reasonText?: string) => {
@@ -168,7 +210,7 @@ export function SellerFeedbackActions({
           }
           setSubmitted((s) => ({ ...s, [kind]: true }));
           setMessage(data.duplicate ? t("duplicateThanks") : t("reviewThanks"));
-          if (kind === "report") setReportOpen(false);
+          setOpenKind(null);
         }
       } catch (e) {
         setMessage(e instanceof Error ? e.message : t("networkError"));
@@ -185,7 +227,7 @@ export function SellerFeedbackActions({
         <button
           type="button"
           disabled={submitted.endorse || busy !== null}
-          onClick={() => submit("endorse")}
+          onClick={() => toggleKind("endorse")}
           className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-emerald-500/40 hover:text-emerald-500 disabled:cursor-default disabled:opacity-60"
         >
           <ThumbsUp size={12} />
@@ -198,7 +240,7 @@ export function SellerFeedbackActions({
         <button
           type="button"
           disabled={submitted.report || busy !== null}
-          onClick={() => setReportOpen((o) => !o)}
+          onClick={() => toggleKind("report")}
           className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-red-500/40 hover:text-red-500 disabled:cursor-default disabled:opacity-60"
         >
           <Flag size={12} />
@@ -206,38 +248,55 @@ export function SellerFeedbackActions({
         </button>
       </div>
 
-      {reportOpen && !submitted.report && (
+      {openKind && !submitted[openKind] && (
         <div className="space-y-2 rounded-md border border-border bg-surface p-3">
           <label
             htmlFor={reasonId}
             className="text-[11px] font-medium uppercase text-muted"
           >
-            {t("reasonOptional")}
+            {openKind === "endorse"
+              ? t("commentOptional")
+              : t("reasonOptional")}
           </label>
           <textarea
             id={reasonId}
             value={reason}
             onChange={(e) => setReason(e.target.value.slice(0, 300))}
             rows={3}
-            placeholder={t("reasonPlaceholder")}
+            placeholder={
+              openKind === "endorse"
+                ? t("endorsePlaceholder")
+                : t("reasonPlaceholder")
+            }
             className="w-full rounded-md border border-border bg-card p-2 text-xs text-foreground outline-none focus:border-primary/40"
           />
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={() => setReportOpen(false)}
+              onClick={() => setOpenKind(null)}
               className="text-xs text-muted hover:text-foreground"
             >
               {t("cancel")}
             </button>
-            <button
-              type="button"
-              disabled={busy !== null}
-              onClick={() => submit("report", reason.trim())}
-              className="rounded-md bg-red-500/90 px-3 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-60"
-            >
-              {busy === "report" ? t("submitting") : t("submitReport")}
-            </button>
+            {openKind === "endorse" ? (
+              <button
+                type="button"
+                disabled={busy !== null}
+                onClick={() => submit("endorse", reason.trim())}
+                className="rounded-md bg-emerald-600/90 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-60"
+              >
+                {busy === "endorse" ? t("submitting") : t("submitEndorsement")}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={busy !== null}
+                onClick={() => submit("report", reason.trim())}
+                className="rounded-md bg-red-500/90 px-3 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-60"
+              >
+                {busy === "report" ? t("submitting") : t("submitReport")}
+              </button>
+            )}
           </div>
         </div>
       )}

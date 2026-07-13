@@ -834,7 +834,12 @@
         "reasonOptional": "Reason (optional)",
         "reasonPlaceholder": "What did you notice? (scam, fake reviews, shipping issue...)",
         "cancel": "Cancel",
-        "submitReport": "Submit report"
+        "submitReport": "Submit report",
+        "commentOptional": "Comment (optional)",
+        "endorsePlaceholder": "What makes this seller worth recommending? (fast shipping, quality, communication...)",
+        "submitEndorsement": "Submit endorsement",
+        "endorsedNote": "Moderator-reviewed endorsement",
+        "similarEndorsements": "{count, plural, one {1 similar endorsement} other {# similar endorsements}}"
       },
       "reviews": {
         "heading": "Reviews",
@@ -1077,7 +1082,7 @@
   },
   "about": {
     "metadataTitle": "About BiggyIndex — How the Index Works | BiggyIndex",
-    "metadataDescription": "How BiggyIndex works: an independent, read-only index of public Little Biggy listings, refreshed roughly every 30 minutes, with price history, hotness ranking and seller trust data.",
+    "metadataDescription": "How BiggyIndex works: an independent, read-only index of public Little Biggy listings, refreshed roughly every 30 minutes, with price history, review stats and moderated seller feedback.",
     "title": "About BiggyIndex",
     "updated": "Last updated July 2026",
     "intro": "BiggyIndex is an independent, read-only index of publicly listed Little Biggy offerings. This page explains what the site is, where its data comes from, and how the numbers you see are put together — so you can judge for yourself how far to trust them.",
@@ -1092,7 +1097,7 @@
       },
       "whatWeCompute": {
         "heading": "What we compute",
-        "body": "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Hotness ranking — a recency-and-activity score that surfaces listings drawing recent engagement; it is a rough indicator, not a measure of quality.\n• Seller trust surface — community endorsements and reports as shown on Little Biggy, aggregated per seller.\n• Review stats — ratings and delivery figures aggregated from the public reviews on each listing.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
+        "body": "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Review stats — ratings and delivery times aggregated from the public reviews on each listing.\n• Seller feedback — endorsements and reports submitted by BiggyIndex visitors; every one is checked by a human moderator before it appears.\n\nSome numbers we deliberately do not compute: the \"Hottest\" sort order and per-item endorsement counts come from Little Biggy itself — we simply display them.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
       },
       "archive": {
         "heading": "Archive policy",

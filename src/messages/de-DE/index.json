@@ -834,7 +834,12 @@
         "reasonOptional": "Grund (optional)",
         "reasonPlaceholder": "Was ist dir aufgefallen? (Betrug, gefälschte Bewertungen, Versandproblem...)",
         "cancel": "Stornieren",
-        "submitReport": "Bericht einreichen"
+        "submitReport": "Bericht einreichen",
+        "commentOptional": "Kommentar (optional)",
+        "endorsePlaceholder": "Was macht diesen Verkäufer empfehlenswert? (schneller Versand, Qualität, Kommunikation...)",
+        "submitEndorsement": "Empfehlung absenden",
+        "endorsedNote": "Von Moderatoren geprüfte Empfehlung",
+        "similarEndorsements": "{count, plural, one {1 ähnliche Empfehlung} other {# ähnliche Empfehlungen}}"
       },
       "reviews": {
         "heading": "Rezensionen",
@@ -1077,7 +1082,7 @@
   },
   "about": {
     "metadataTitle": "Über BiggyIndex — So funktioniert der Index | BiggyIndex",
-    "metadataDescription": "Wie BiggyIndex funktioniert: ein unabhängiger, rein lesender Index öffentlicher Little Biggy Angebote, der etwa alle 30 Minuten aktualisiert wird – mit Preisverlauf, Beliebtheits-Ranking und Verkäufer-Vertrauensdaten.",
+    "metadataDescription": "Wie BiggyIndex funktioniert: ein unabhängiger, rein lesender Index öffentlicher Little Biggy Angebote, der etwa alle 30 Minuten aktualisiert wird – mit Preisverlauf, Bewertungsstatistiken und moderiertem Verkäufer-Feedback.",
     "title": "Über BiggyIndex",
     "updated": "Zuletzt aktualisiert im Juli 2026",
     "intro": "BiggyIndex ist ein unabhängiger, rein lesender Index öffentlich gelisteter Little Biggy Angebote. Diese Seite erklärt, was die Seite ist, woher ihre Daten stammen und wie die angezeigten Zahlen zustande kommen – damit Sie selbst einschätzen können, wie sehr Sie ihnen vertrauen.",
@@ -1092,7 +1097,7 @@
       },
       "whatWeCompute": {
         "heading": "Was wir berechnen",
-        "body": "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Beliebtheits-Ranking – ein auf Aktualität und Aktivität beruhender Wert, der Angebote mit jüngstem Interesse hervorhebt; es ist ein grober Anhaltspunkt, kein Qualitätsmaß.\n• Verkäufer-Vertrauen – Empfehlungen und Meldungen der Community, wie sie auf Little Biggy angezeigt werden, pro Verkäufer zusammengefasst.\n• Bewertungsstatistik – Bewertungen und Lieferkennzahlen, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
+        "body": "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Bewertungsstatistik – Bewertungen und Lieferzeiten, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n• Verkäufer-Feedback – Empfehlungen und Meldungen, die von BiggyIndex-Besuchern eingereicht werden; jede einzelne wird vor der Veröffentlichung von einem menschlichen Moderator geprüft.\n\nManche Zahlen berechnen wir bewusst nicht: die \"Hottest\"-Sortierung und die Empfehlungszähler der einzelnen Angebote stammen von Little Biggy selbst – wir zeigen sie lediglich an.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
       },
       "archive": {
         "heading": "Archiv-Richtlinie",

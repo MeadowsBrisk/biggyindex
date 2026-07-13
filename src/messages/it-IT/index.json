@@ -834,7 +834,12 @@
         "reasonOptional": "Motivo (opzionale)",
         "reasonPlaceholder": "Cosa hai notato? (truffa, recensioni false, problemi di spedizione...)",
         "cancel": "Cancella",
-        "submitReport": "Invia il rapporto"
+        "submitReport": "Invia il rapporto",
+        "commentOptional": "Commento (opzionale)",
+        "endorsePlaceholder": "Cosa rende questo venditore consigliabile? (spedizione rapida, qualità, comunicazione...)",
+        "submitEndorsement": "Invia la raccomandazione",
+        "endorsedNote": "Raccomandazione verificata da un moderatore",
+        "similarEndorsements": "{count, plural, one {1 raccomandazione simile} other {# raccomandazioni simili}}"
       },
       "reviews": {
         "heading": "Recensioni",
@@ -1077,7 +1082,7 @@
   },
   "about": {
     "metadataTitle": "Informazioni su BiggyIndex — come funziona l'indice | BiggyIndex",
-    "metadataDescription": "Come funziona BiggyIndex: un indice indipendente e di sola lettura degli annunci pubblici di Little Biggy, aggiornato all'incirca ogni 30 minuti, con storico dei prezzi, classifica di popolarità e dati di affidabilità dei venditori.",
+    "metadataDescription": "Come funziona BiggyIndex: un indice indipendente e di sola lettura degli annunci pubblici di Little Biggy, aggiornato all'incirca ogni 30 minuti, con storico dei prezzi, statistiche delle recensioni e feedback moderato sui venditori.",
     "title": "Informazioni su BiggyIndex",
     "updated": "Ultimo aggiornamento: luglio 2026",
     "intro": "BiggyIndex è un indice indipendente e di sola lettura delle offerte pubblicamente elencate su Little Biggy. Questa pagina spiega cos'è il sito, da dove provengono i suoi dati e come sono costruiti i numeri che vedi — così puoi giudicare da solo quanto fidartene.",
@@ -1092,7 +1097,7 @@
       },
       "whatWeCompute": {
         "heading": "Cosa calcoliamo",
-        "body": "La maggior parte di ciò che vedi è copiata direttamente dagli annunci, ma alcuni dati li calcoliamo noi:\n\n• Storico dei prezzi — registriamo i prezzi di ogni annuncio nel tempo così puoi vedere se sono saliti o scesi.\n• Classifica di popolarità — un punteggio basato su recenza e attività che mette in evidenza gli annunci con interesse recente; è un indicatore approssimativo, non una misura di qualità.\n• Affidabilità del venditore — raccomandazioni e segnalazioni della community come mostrate su Little Biggy, aggregate per venditore.\n• Statistiche delle recensioni — valutazioni e dati di consegna aggregati dalle recensioni pubbliche di ogni annuncio.\n\nNessuno di questi è una garanzia; sono riepiloghi di dati pubblici pensati per aiutarti a confrontare."
+        "body": "La maggior parte di ciò che vedi è copiata direttamente dagli annunci, ma alcuni dati li calcoliamo noi:\n\n• Storico dei prezzi — registriamo i prezzi di ogni annuncio nel tempo così puoi vedere se sono saliti o scesi.\n• Statistiche delle recensioni — valutazioni e tempi di consegna aggregati dalle recensioni pubbliche di ogni annuncio.\n• Feedback sui venditori — raccomandazioni e segnalazioni inviate dai visitatori di BiggyIndex; ognuna viene controllata da un moderatore umano prima di apparire.\n\nAlcuni numeri deliberatamente non li calcoliamo: l'ordinamento \"Hottest\" e i contatori di raccomandazioni dei singoli annunci provengono da Little Biggy stesso — noi ci limitiamo a mostrarli.\n\nNessuno di questi è una garanzia; sono riepiloghi di dati pubblici pensati per aiutarti a confrontare."
       },
       "archive": {
         "heading": "Politica di archiviazione",

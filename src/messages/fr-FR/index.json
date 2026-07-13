@@ -834,7 +834,12 @@
         "reasonOptional": "Raison (optionnelle)",
         "reasonPlaceholder": "Qu’avez-vous remarqué ? (arnaque, faux avis, problème d’expédition...)",
         "cancel": "Annuler",
-        "submitReport": "Soumettre le rapport"
+        "submitReport": "Soumettre le rapport",
+        "commentOptional": "Commentaire (optionnel)",
+        "endorsePlaceholder": "Qu'est-ce qui rend ce vendeur recommandable ? (envoi rapide, qualité, communication...)",
+        "submitEndorsement": "Envoyer la recommandation",
+        "endorsedNote": "Recommandation vérifiée par un modérateur",
+        "similarEndorsements": "{count, plural, one {1 recommandation similaire} other {# recommandations similaires}}"
       },
       "reviews": {
         "heading": "Avis",
@@ -1077,7 +1082,7 @@
   },
   "about": {
     "metadataTitle": "À propos de BiggyIndex — comment fonctionne l'index | BiggyIndex",
-    "metadataDescription": "Comment fonctionne BiggyIndex : un index indépendant, en lecture seule, des annonces publiques Little Biggy, actualisé environ toutes les 30 minutes, avec historique des prix, classement de popularité et données de confiance des vendeurs.",
+    "metadataDescription": "Comment fonctionne BiggyIndex : un index indépendant, en lecture seule, des annonces publiques Little Biggy, actualisé environ toutes les 30 minutes, avec historique des prix, statistiques d'avis et retours modérés sur les vendeurs.",
     "title": "À propos de BiggyIndex",
     "updated": "Dernière mise à jour : juillet 2026",
     "intro": "BiggyIndex est un index indépendant, en lecture seule, des offres publiquement répertoriées sur Little Biggy. Cette page explique ce qu'est le site, d'où proviennent ses données et comment les chiffres affichés sont établis — afin que vous puissiez juger par vous-même de la confiance à leur accorder.",
@@ -1092,7 +1097,7 @@
       },
       "whatWeCompute": {
         "heading": "Ce que nous calculons",
-        "body": "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Classement de popularité — un score fondé sur la récence et l'activité qui met en avant les annonces suscitant un intérêt récent ; c'est un indicateur approximatif, pas une mesure de qualité.\n• Confiance envers le vendeur — recommandations et signalements de la communauté tels qu'affichés sur Little Biggy, agrégés par vendeur.\n• Statistiques d'avis — notes et données de livraison agrégées à partir des avis publics de chaque annonce.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
+        "body": "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Statistiques d'avis — notes et délais de livraison agrégés à partir des avis publics de chaque annonce.\n• Retours sur les vendeurs — recommandations et signalements soumis par les visiteurs de BiggyIndex ; chacun est vérifié par un modérateur humain avant d'apparaître.\n\nCertains chiffres ne sont volontairement pas calculés par nous : l'ordre de tri « Hottest » et les compteurs de recommandations des annonces proviennent de Little Biggy lui-même — nous ne faisons que les afficher.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
       },
       "archive": {
         "heading": "Politique d'archivage",

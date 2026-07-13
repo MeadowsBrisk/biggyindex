@@ -834,7 +834,12 @@
         "reasonOptional": "Důvod (volitelné)",
         "reasonPlaceholder": "Čeho jste si všimli? (podvod, falešné recenze, problém s doručením...)",
         "cancel": "Zrušit",
-        "submitReport": "Odevzdat zprávu"
+        "submitReport": "Odevzdat zprávu",
+        "commentOptional": "Komentář (volitelné)",
+        "endorsePlaceholder": "Čím si tento prodejce zaslouží doporučení? (rychlé doručení, kvalita, komunikace...)",
+        "submitEndorsement": "Odeslat doporučení",
+        "endorsedNote": "Doporučení prověřené moderátorem",
+        "similarEndorsements": "{count, plural, one {1 podobné doporučení} few {# podobná doporučení} other {# podobných doporučení}}"
       },
       "reviews": {
         "heading": "Recenze",
@@ -1077,7 +1082,7 @@
   },
   "about": {
     "metadataTitle": "O BiggyIndexu — jak index funguje | BiggyIndex",
-    "metadataDescription": "Jak BiggyIndex funguje: nezávislý index veřejných nabídek Little Biggy určený pouze ke čtení, aktualizovaný zhruba každých 30 minut, s historií cen, žebříčkem popularity a údaji o důvěryhodnosti prodejců.",
+    "metadataDescription": "Jak BiggyIndex funguje: nezávislý index veřejných nabídek Little Biggy určený pouze ke čtení, aktualizovaný zhruba každých 30 minut, s historií cen, statistikami recenzí a moderovanou zpětnou vazbou k prodejcům.",
     "title": "O BiggyIndexu",
     "updated": "Naposledy aktualizováno v červenci 2026",
     "intro": "BiggyIndex je nezávislý index veřejně vypsaných nabídek Little Biggy, určený pouze ke čtení. Tato stránka vysvětluje, co web je, odkud pocházejí jeho data a jak vznikají čísla, která vidíte — abyste sami posoudili, nakolik jim věřit.",
@@ -1092,7 +1097,7 @@
       },
       "whatWeCompute": {
         "heading": "Co počítáme",
-        "body": "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Žebříček popularity — skóre založené na aktuálnosti a aktivitě, které vyzdvihuje nabídky s nedávným zájmem; je to hrubý ukazatel, ne měřítko kvality.\n• Důvěryhodnost prodejce — doporučení a nahlášení komunity tak, jak se zobrazují na Little Biggy, agregované podle prodejce.\n• Statistiky recenzí — hodnocení a údaje o doručení agregované z veřejných recenzí u každé nabídky.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
+        "body": "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Statistiky recenzí — hodnocení a doby doručení agregované z veřejných recenzí u každé nabídky.\n• Zpětná vazba k prodejcům — doporučení a nahlášení odeslaná návštěvníky BiggyIndexu; každé před zveřejněním zkontroluje lidský moderátor.\n\nNěkterá čísla záměrně nepočítáme: řazení \"Hottest\" a počty doporučení u jednotlivých položek pocházejí přímo z Little Biggy — my je pouze zobrazujeme.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
       },
       "archive": {
         "heading": "Zásady archivace",
