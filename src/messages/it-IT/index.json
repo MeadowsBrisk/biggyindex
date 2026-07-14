@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Storia dei prezzi",
-        "firstTracked": "Prima rilevazione"
+        "firstTracked": "Prima rilevazione",
+        "chartLabel": "Grafico dello storico dei prezzi"
       },
       "shipping": {
         "label": "Spedizione",
@@ -708,6 +709,7 @@
       "firstSeen": "Prima vista: {date}",
       "updated": "Aggiornato: {date}",
       "priceHistory": "Storia dei prezzi",
+      "priceHistoryChart": "Grafico dello storico dei prezzi",
       "reviews": "Recensioni",
       "moreFromSeller": "Altro da {seller}",
       "relatedInCategory": "Altro in {category} su Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Cookie funzionali e archiviazione locale",
-          "body": "Il sito utilizza solo una piccola quantità di archiviazione funzionale: un cookie che ricorda la tua lingua e il tuo mercato, e l'archiviazione locale del browser per le preferenze di visualizzazione come la modalità scura. Nulla di tutto questo ti identifica. Consulta la Cookie Policy per l'elenco completo."
+          "body": "Il sito utilizza solo una piccola quantità di archiviazione funzionale: un cookie che ricorda la tua lingua e il tuo mercato, e l'archiviazione locale del browser per le tue preferenze e la tua attività: impostazioni di visualizzazione come la modalità scura, più gli articoli salvati, il carrello e i venditori nascosti. Tutto resta sul tuo dispositivo, nulla ti identifica e nulla ci viene inviato. Consulta la Cookie Policy per l'elenco completo."
         },
         "listingData": {
           "heading": "Da dove provengono i nostri dati",
@@ -1194,9 +1196,9 @@
           "purpose": "Ricorda la tua lingua e il tuo mercato così le pagine si caricano nella lingua giusta."
         },
         "preferences": {
-          "name": "Preferenze di visualizzazione",
+          "name": "Preferenze e articoli salvati",
           "type": "Archiviazione locale",
-          "purpose": "Conserva impostazioni come la modalità scura e la valuta di visualizzazione nel tuo browser. Questi dati non lasciano mai il tuo dispositivo."
+          "purpose": "Conserva le tue preferenze e la tua attività nel browser: impostazioni di visualizzazione (modalità scura, colore d’accento, valuta, layout, ordinamento), gli articoli salvati e il carrello, i venditori nascosti e piccoli indicatori che evitano invii doppi dei moduli. Tutto resta sul tuo dispositivo — nulla ci viene inviato."
         }
       },
       "outro": "Poiché nessuna di queste archiviazioni ti traccia, non c’è alcun banner di consenso da chiudere. Se cancelli i dati del browser, il sito torna semplicemente alle impostazioni predefinite."

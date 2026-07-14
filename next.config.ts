@@ -24,6 +24,16 @@ const nextConfig: NextConfig = {
   // (matches food-aggregator). lib/r2-server.ts pulls it in for the
   // authenticated R2 API routes.
   serverExternalPackages: ["@aws-sdk/client-s3"],
+  // Disable STREAMED metadata for every user agent (not just Next's default
+  // html-limited-bot list). Why: PPR streams <meta>/<title>/canonical at the
+  // END of the body for browser UAs, and our CDN caches ONE copy per URL
+  // regardless of UA — so social scrapers (WhatsApp/Telegram/FB — no JS, most
+  // stop parsing early) were reading seller/item pages whose og:image sat at
+  // byte ~428k of a ~432k document → broken share previews. Blocking metadata
+  // costs TTFB only on the once-per-TTL origin render (these routes are
+  // CDN-cached); every cached copy then carries metadata in <head> for
+  // scrapers, Bing preview and non-rendering SEO tools alike.
+  htmlLimitedBots: /.*/,
   cacheComponents: true,
   cacheLife: {
     /** Browse pages — stale 1h, revalidate daily, expire weekly */
@@ -166,13 +176,18 @@ const nextConfig: NextConfig = {
     // the TTL applies exactly where the framework fails, nowhere else.
     //
     // TRADEOFF: TTL-based, NOT tag-based. revalidateTag will not purge these
-    // entries — worst-case HTML staleness is s-maxage (1h) + SWR background
-    // refresh. Prices drift ≤1h behind the ~30-min crawl; the item overlay
-    // re-fetches live data via /api/item-detail anyway. Unknown-ref 404s also
-    // cache for 1h — deliberate: the GSC validation bucket (2k dead URLs)
-    // was a pure invocation firehose.
+    // entries — worst-case HTML staleness is s-maxage + SWR background
+    // refresh. The item overlay re-fetches live data via /api/item-detail, so
+    // stale SSR prices are cosmetic. Unknown-ref 404s also cache — deliberate:
+    // the GSC validation bucket (2k dead URLs) was a pure invocation firehose.
+    //
+    // s-maxage raised 3600 → 21600 (6h) on 07-14: most long-tail URLs get hit
+    // by bots roughly once a day, and any hit past s-maxage serves stale but
+    // still fires ONE background revalidation (= a billed invocation). A
+    // longer fresh window is the only lever that removes those — day-1 post-
+    // fix usage (~4k/day) still projected too close to the 125k cap.
     const durable =
-      "public, durable, s-maxage=3600, stale-while-revalidate=86400";
+      "public, durable, s-maxage=21600, stale-while-revalidate=86400";
     const durableRules = [
       "/item/:ref*",
       "/seller/:id*",

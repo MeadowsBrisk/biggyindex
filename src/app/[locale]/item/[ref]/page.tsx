@@ -23,6 +23,7 @@ import {
 } from "@/components/ItemReviewsBlock";
 import { LocalizedText } from "@/components/LocalizedText";
 import { OutboundLink } from "@/components/OutboundLink";
+import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -977,6 +978,12 @@ export default async function ItemPage({ params }: ItemPageProps) {
                         </span>
                       </div>
                       <div className="ido-card__body">
+                        <PriceHistoryChart
+                          ph={priceHistory}
+                          sym={currency.symbol}
+                          rate={currency.rate}
+                          label={t("priceHistoryChart")}
+                        />
                         <ul className="ido-price-history__list">
                           {[...priceHistory]
                             .reverse()

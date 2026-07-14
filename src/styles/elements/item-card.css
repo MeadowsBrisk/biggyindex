@@ -1496,16 +1496,14 @@ html.bi-seed-hide [data-seed-skeleton] {
     max-width: 100%;
   }
 
-  /* ── Image: shrink the block, cap height, contain tall/portrait images
-     inside a subtle tinted letterbox frame so they aren't hard-cropped at
-     half width. ── */
+  /* ── Image: shrink the block and cap height. Images COVER the frame
+     (2026-07-14, was `contain` in a letterbox — cropping reads better at
+     half width than pillarboxed thumbnails; base .card-image is already
+     object-cover so no override needed). ── */
   .item-list-grid[data-mobile-cols="2"] .item-card-image {
     max-height: 150px;
     margin: 3px 3px 0;
     background: var(--surface-hover);
-  }
-  .item-list-grid[data-mobile-cols="2"] .card-image {
-    object-fit: contain;
   }
 
   /* ── HIDE everything that isn't category pill / image / title / seller
@@ -1518,7 +1516,9 @@ html.bi-seed-hide [data-seed-skeleton] {
        · seller meta row (ships-from flag, delivery days, Only/Hide)
        · the item rating chip beside the title
        · the expand arrow beside the title
-       · everything after the price area in the footer (Listed/Updated) */
+       · everything after the price area in the footer EXCEPT the
+         Listed/Updated timestamps (.card-timestamps re-shown compact,
+         bottom-right — 2026-07-14) */
   .item-list-grid[data-mobile-cols="2"] .card-content__description,
   .item-list-grid[data-mobile-cols="2"] .card-lb-btn,
   .item-list-grid[data-mobile-cols="2"] .pill-row,
@@ -1532,8 +1532,17 @@ html.bi-seed-hide [data-seed-skeleton] {
   .item-list-grid[data-mobile-cols="2"]
     .card-footer-gradient
     .card-price-area
-    ~ * {
+    ~ *:not(.card-timestamps) {
     display: none;
+  }
+
+  /* Timestamps in 2-col: slightly smaller + tighter so "Updated Xh ago" /
+     "Listed Xmo ago" sit unobtrusively bottom-right beside the price. */
+  .item-list-grid[data-mobile-cols="2"] .card-timestamps {
+    gap: 2px;
+  }
+  .item-list-grid[data-mobile-cols="2"] .card-timestamps > span {
+    font-size: 9px;
   }
 
   /* ── Body padding: minimal. ── */
@@ -1786,6 +1795,14 @@ html.bi-seed-hide [data-seed-skeleton] {
   align-items: flex-end;
   gap: 1px;
   text-align: right;
+}
+/* Freshness line under the /unit price — one compact "Updated 3h ago" (or
+   Listed fallback); hover title carries both values. */
+.irow-time {
+  font-size: 9px;
+  line-height: 1;
+  color: var(--muted-foreground, var(--muted));
+  white-space: nowrap;
 }
 .irow-price-main {
   font-size: 14.5px;

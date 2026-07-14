@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Historique des prix",
-        "firstTracked": "Premier relevé"
+        "firstTracked": "Premier relevé",
+        "chartLabel": "Graphique de l'historique des prix"
       },
       "shipping": {
         "label": "Livraison",
@@ -708,6 +709,7 @@
       "firstSeen": "Première vue : {date}",
       "updated": "Mise à jour : {date}",
       "priceHistory": "Historique des prix",
+      "priceHistoryChart": "Graphique de l'historique des prix",
       "reviews": "Avis",
       "moreFromSeller": "Plus de {seller}",
       "relatedInCategory": "Plus de {category} sur Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Cookies fonctionnels et stockage local",
-          "body": "Le site n’utilise qu’un minimum de stockage fonctionnel — un cookie qui mémorise votre langue et votre marché, et le stockage local du navigateur pour les préférences d’affichage comme le mode sombre. Rien de tout cela ne vous identifie. Consultez la politique de cookies pour la liste complète."
+          "body": "Le site n’utilise qu’un minimum de stockage fonctionnel — un cookie qui mémorise votre langue et votre marché, et le stockage local du navigateur pour vos préférences et votre activité : réglages d’affichage comme le mode sombre, plus vos articles enregistrés, votre panier et les vendeurs masqués. Tout reste sur votre appareil, rien ne vous identifie et rien ne nous est envoyé. Consultez la politique de cookies pour la liste complète."
         },
         "listingData": {
           "heading": "D’où viennent nos données",
@@ -1194,9 +1196,9 @@
           "purpose": "Mémorise votre langue et votre marché pour que les pages se chargent dans la bonne langue."
         },
         "preferences": {
-          "name": "Préférences d’affichage",
+          "name": "Préférences et articles enregistrés",
           "type": "Stockage local",
-          "purpose": "Conserve des réglages comme le mode sombre et la devise d’affichage dans votre navigateur. Ces données ne quittent jamais votre appareil."
+          "purpose": "Conserve vos préférences et votre activité dans votre navigateur : réglages d’affichage (mode sombre, couleur d’accent, devise, mise en page, tri), vos articles enregistrés et votre panier, les vendeurs masqués, ainsi que de petits marqueurs qui évitent les envois de formulaire en double. Tout reste sur votre appareil — rien ne nous est envoyé."
         }
       },
       "outro": "Comme aucun de ces stockages ne vous suit, il n’y a pas de bannière de consentement à fermer. Si vous effacez vos données de navigation, le site revient simplement à ses réglages par défaut."

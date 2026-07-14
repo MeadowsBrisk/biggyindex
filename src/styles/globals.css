@@ -3,6 +3,7 @@
 /* Element styles */
 @import "../styles/elements/item-card.css";
 @import "../styles/elements/item-detail-overlay.css";
+@import "../styles/elements/price-history-chart.css";
 @import "../styles/elements/modal-shell.css";
 @import "../styles/elements/review-card.css";
 @import "../styles/elements/photo-review-modal.css";

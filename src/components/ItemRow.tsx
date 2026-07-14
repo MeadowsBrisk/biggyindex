@@ -26,7 +26,7 @@ import {
   UNIT_DISPLAY_LABEL,
 } from "@/lib/variants";
 import { expandedRefNumAtom, toggleBookmarkAtom } from "@/store/atoms";
-import type { CardConfig } from "./ItemCard";
+import { type CardConfig, type RelativeAge, relativeAge } from "./ItemCard";
 
 function fmtPrice(
   min: number | null | undefined,
@@ -48,7 +48,8 @@ export function ItemRow({
   config: CardConfig;
   isBookmarked: boolean;
 }) {
-  const { cSym, cRate, sellersMap, includeShipping, itemIndex } = config;
+  const { cSym, cRate, sellersMap, includeShipping, itemIndex, clientNow } =
+    config;
   const t = useTranslations("browse.card");
   const locale = useLocale();
   const setRefNum = useSetAtom(expandedRefNumAtom);
@@ -84,6 +85,21 @@ export function ItemRow({
       ? item.sh.min
       : 0;
   const bestPpu = cheapestPpu(item.v, shipSurcharge, itemVariantContext(item));
+
+  // Compact freshness line under the price — updated when the crawler saw a
+  // real change, else the listed age. One line only; the row is too dense for
+  // the card footer's two-line stack (hover title carries the other value).
+  const updatedAge =
+    item.lua && item.lur && item.lur !== "N"
+      ? relativeAge(item.lua, clientNow)
+      : null;
+  const listedAge = relativeAge(item.fsa, clientNow);
+  const rowAge: { key: "updated" | "listed"; age: RelativeAge } | null =
+    updatedAge
+      ? { key: "updated", age: updatedAge }
+      : listedAge
+        ? { key: "listed", age: listedAge }
+        : null;
 
   return (
     <div className="irow">
@@ -173,6 +189,37 @@ export function ItemRow({
               {cSym}
               {(bestPpu.ppu * cRate).toFixed(2)}/
               {UNIT_DISPLAY_LABEL[bestPpu.unit] ?? bestPpu.unit}
+            </span>
+          )}
+          {rowAge && (
+            <span
+              className="irow-time"
+              title={
+                [
+                  updatedAge && item.lua
+                    ? t("updated", {
+                        time: t(`time.${updatedAge.unit}Ago`, {
+                          count: updatedAge.count,
+                        }),
+                      })
+                    : null,
+                  listedAge
+                    ? t("listed", {
+                        time: t(`time.${listedAge.unit}Ago`, {
+                          count: listedAge.count,
+                        }),
+                      })
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || undefined
+              }
+            >
+              {t(rowAge.key, {
+                time: t(`time.${rowAge.age.unit}Ago`, {
+                  count: rowAge.age.count,
+                }),
+              })}
             </span>
           )}
         </span>

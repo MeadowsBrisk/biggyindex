@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Price History",
-        "firstTracked": "First tracked"
+        "firstTracked": "First tracked",
+        "chartLabel": "Price history chart"
       },
       "shipping": {
         "label": "Shipping",
@@ -708,6 +709,7 @@
       "firstSeen": "First seen: {date}",
       "updated": "Updated: {date}",
       "priceHistory": "Price History",
+      "priceHistoryChart": "Price history chart",
       "reviews": "Reviews",
       "moreFromSeller": "More from {seller}",
       "relatedInCategory": "More {category} on Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Functional cookies and local storage",
-          "body": "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for display preferences such as dark mode. None of it identifies you. See the Cookie Policy for the full list."
+          "body": "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for your preferences and activity: display settings such as dark mode, plus your saved items, basket and hidden sellers. All of it stays on your device, none of it identifies you, and none of it is sent to us. See the Cookie Policy for the full list."
         },
         "listingData": {
           "heading": "Where our data comes from",
@@ -1194,9 +1196,9 @@
           "purpose": "Remembers your language and market so pages load in the right locale."
         },
         "preferences": {
-          "name": "Display preferences",
+          "name": "Preferences & saved items",
           "type": "Local storage",
-          "purpose": "Keeps settings like dark mode and display currency in your browser. This data never leaves your device."
+          "purpose": "Keeps your preferences and activity in your browser: display settings (dark mode, accent colour, currency, layout, sorting), your saved items and basket, hidden sellers, and small flags that stop forms being submitted twice. All of it stays on your device — it is never sent to us."
         }
       },
       "outro": "Because none of this storage tracks you, there is no consent banner to dismiss. If you clear your browser data, the site simply returns to its defaults."

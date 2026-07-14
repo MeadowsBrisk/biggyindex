@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Preisgeschichte",
-        "firstTracked": "Zuerst erfasst"
+        "firstTracked": "Zuerst erfasst",
+        "chartLabel": "Preisverlaufsdiagramm"
       },
       "shipping": {
         "label": "Versand",
@@ -708,6 +709,7 @@
       "firstSeen": "Zuerst gesehen: {date}",
       "updated": "Aktualisiert: {date}",
       "priceHistory": "Preisgeschichte",
+      "priceHistoryChart": "Preisverlaufsdiagramm",
       "reviews": "Rezensionen",
       "moreFromSeller": "Mehr von {seller}",
       "relatedInCategory": "Mehr {category} auf Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Funktionale Cookies und lokaler Speicher",
-          "body": "Die Seite nutzt nur wenig funktionalen Speicher – ein Locale-Cookie, das sich Sprache und Markt merkt, und den lokalen Browser-Speicher für Anzeigeeinstellungen wie den Dunkelmodus. Nichts davon identifiziert Sie. Die vollständige Liste steht in der Cookie-Richtlinie."
+          "body": "Die Seite nutzt nur wenig funktionalen Speicher – ein Locale-Cookie, das sich Sprache und Markt merkt, und den lokalen Browser-Speicher für Ihre Einstellungen und Aktivitäten: Anzeigeeinstellungen wie den Dunkelmodus sowie gespeicherte Artikel, Warenkorb und ausgeblendete Verkäufer. Alles bleibt auf Ihrem Gerät, nichts davon identifiziert Sie, und nichts wird an uns gesendet. Die vollständige Liste steht in der Cookie-Richtlinie."
         },
         "listingData": {
           "heading": "Woher unsere Daten stammen",
@@ -1194,9 +1196,9 @@
           "purpose": "Merkt sich Sprache und Markt, damit Seiten in der richtigen Sprachversion laden."
         },
         "preferences": {
-          "name": "Anzeigeeinstellungen",
+          "name": "Einstellungen & gespeicherte Artikel",
           "type": "Lokaler Speicher",
-          "purpose": "Speichert Einstellungen wie Dunkelmodus und Anzeigewährung in Ihrem Browser. Diese Daten verlassen nie Ihr Gerät."
+          "purpose": "Speichert Ihre Einstellungen und Aktivitäten in Ihrem Browser: Anzeigeeinstellungen (Dunkelmodus, Akzentfarbe, Währung, Layout, Sortierung), gespeicherte Artikel und Warenkorb, ausgeblendete Verkäufer sowie kleine Markierungen, die doppelte Formular-Übermittlungen verhindern. Alles bleibt auf Ihrem Gerät – nichts davon wird an uns gesendet."
         }
       },
       "outro": "Da nichts von diesem Speicher Sie verfolgt, gibt es kein Zustimmungsbanner zum Wegklicken. Wenn Sie Ihre Browserdaten löschen, kehrt die Seite einfach zu den Standardeinstellungen zurück."

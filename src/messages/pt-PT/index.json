@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Histórico de Preços",
-        "firstTracked": "Primeiro registo"
+        "firstTracked": "Primeiro registo",
+        "chartLabel": "Gráfico do histórico de preços"
       },
       "shipping": {
         "label": "Envio",
@@ -708,6 +709,7 @@
       "firstSeen": "Primeiro visto: {date}",
       "updated": "Atualizado: {date}",
       "priceHistory": "Histórico de Preços",
+      "priceHistoryChart": "Gráfico do histórico de preços",
       "reviews": "Avaliações",
       "moreFromSeller": "Mais de {seller}",
       "relatedInCategory": "Mais {category} no Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Cookies funcionais e armazenamento local",
-          "body": "O site usa apenas uma pequena quantidade de armazenamento funcional — um cookie de idioma que memoriza a sua língua e o seu mercado, e o armazenamento local do navegador para preferências de exibição como o modo escuro. Nada disso o identifica. Consulte a Política de Cookies para a lista completa."
+          "body": "O site usa apenas uma pequena quantidade de armazenamento funcional — um cookie de idioma que memoriza a sua língua e o seu mercado, e o armazenamento local do navegador para as suas preferências e atividade: definições de exibição como o modo escuro, além dos seus itens guardados, cesto e vendedores ocultados. Tudo fica no seu dispositivo, nada o identifica e nada é enviado para nós. Consulte a Política de Cookies para a lista completa."
         },
         "listingData": {
           "heading": "De onde vêm os nossos dados",
@@ -1194,9 +1196,9 @@
           "purpose": "Memoriza a sua língua e o seu mercado para que as páginas carreguem no idioma certo."
         },
         "preferences": {
-          "name": "Preferências de exibição",
+          "name": "Preferências e itens guardados",
           "type": "Armazenamento local",
-          "purpose": "Guarda definições como o modo escuro e a moeda de exibição no seu navegador. Estes dados nunca saem do seu dispositivo."
+          "purpose": "Guarda as suas preferências e atividade no seu navegador: definições de exibição (modo escuro, cor de destaque, moeda, layout, ordenação), os seus itens guardados e o cesto, vendedores ocultados e pequenos marcadores que evitam envios duplicados de formulários. Tudo fica no seu dispositivo — nada é enviado para nós."
         }
       },
       "outro": "Como nenhum deste armazenamento o rastreia, não há banner de consentimento para fechar. Se limpar os dados do navegador, o site volta simplesmente às predefinições."

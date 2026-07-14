@@ -144,13 +144,13 @@ function ExpandArrow() {
    and don't have meaningful "listed" dates ── */
 const FIRST_CRAWL_TS = new Date("2025-09-01T00:00:00Z").getTime();
 
-type RelativeAge = {
+export type RelativeAge = {
   unit: "minutes" | "hours" | "days" | "months";
   count: number;
 };
 
-/* ── Relative time (lightweight, no deps) ── */
-function relativeAge(
+/* ── Relative time (lightweight, no deps) — shared with ItemRow ── */
+export function relativeAge(
   iso: string | null | undefined,
   now: number | null,
 ): RelativeAge | null {
@@ -1401,17 +1401,18 @@ function ItemCardInner({
               </div>
             </div>
 
-            {/* Timestamps */}
+            {/* Timestamps — .card-timestamps keeps these visible in the 2-col
+                mobile layout (which hides every other post-price footer node) */}
             {clientNow == null ? (
               <div
-                className="flex flex-col items-end gap-1 opacity-0"
+                className="card-timestamps flex flex-col items-end gap-1 opacity-0"
                 aria-hidden="true"
               >
                 <span className="text-[10px] leading-none">0</span>
                 <span className="text-[10px] leading-none">0</span>
               </div>
             ) : (
-              <div className="flex flex-col items-end gap-1">
+              <div className="card-timestamps flex flex-col items-end gap-1">
                 {updated && (
                   <span
                     className="text-[10px] leading-none text-muted-foreground cursor-default"

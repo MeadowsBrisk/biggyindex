@@ -30,6 +30,7 @@ import {
   ItemReviewsBlock,
 } from "@/components/ItemReviewsBlock";
 import { LinkedText } from "@/components/LinkedText";
+import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
 import { SuggestLink } from "@/components/SuggestLink";
@@ -771,17 +772,14 @@ export function ItemDetailOverlay() {
                                   <tbody>
                                     {variantRows.map((row) => {
                                       const isBest = bestValueKey === row.key;
-                                      const totalPrice =
-                                        row.price + selectedShipCost;
-                                      // Recompute PPU with shipping surcharge folded in
-                                      // for display consistency when user picks a paid
-                                      // shipping option.
-                                      const totalPpu =
-                                        row.ppu != null &&
-                                        row.qty != null &&
-                                        row.qty > 0
-                                          ? totalPrice / row.qty
-                                          : row.ppu;
+                                      // The table shows the item's ACTUAL
+                                      // variant prices. Folding the selected
+                                      // shipping cost in here (as before) made
+                                      // the real item price unknowable for
+                                      // sellers with no free option — the
+                                      // shipping-included simulation lives in
+                                      // the headline price (with its truck
+                                      // icon) and the shipping chips below.
                                       return (
                                         <tr key={row.key}>
                                           <td>
@@ -795,18 +793,14 @@ export function ItemDetailOverlay() {
                                               )}
                                             </span>
                                           </td>
-                                          <td
-                                            className={`ido-table__price${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
-                                          >
-                                            {fmtPrice(totalPrice, cSym, cRate)}
+                                          <td className="ido-table__price">
+                                            {fmtPrice(row.price, cSym, cRate)}
                                           </td>
                                           {hasAnyPpu && (
-                                            <td
-                                              className={`ido-table__ppu${selectedShipCost > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
-                                            >
-                                              {totalPpu != null
+                                            <td className="ido-table__ppu">
+                                              {row.ppu != null
                                                 ? fmtPrice(
-                                                    totalPpu,
+                                                    row.ppu,
                                                     cSym,
                                                     cRate,
                                                   )
@@ -1185,6 +1179,13 @@ export function ItemDetailOverlay() {
                               </span>
                             </div>
                             <div className="ido-card__body">
+                              <PriceHistoryChart
+                                ph={priceHistory}
+                                sym={cSym}
+                                rate={cRate}
+                                label={t("priceHistory.chartLabel")}
+                                compact
+                              />
                               <ul className="ido-price-history__list">
                                 {[...priceHistory]
                                   .reverse()

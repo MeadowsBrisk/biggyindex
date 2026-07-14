@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Historie cen",
-        "firstTracked": "Poprvé zaznamenáno"
+        "firstTracked": "Poprvé zaznamenáno",
+        "chartLabel": "Graf historie cen"
       },
       "shipping": {
         "label": "Doprava",
@@ -708,6 +709,7 @@
       "firstSeen": "Poprvé viděn: {date}",
       "updated": "Aktualizováno: {date}",
       "priceHistory": "Historie cen",
+      "priceHistoryChart": "Graf historie cen",
       "reviews": "Recenze",
       "moreFromSeller": "Více od {seller}",
       "relatedInCategory": "Další {category} na Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Funkční cookies a lokální úložiště",
-          "body": "Web používá jen malé množství funkčního úložiště — cookie, které si pamatuje váš jazyk a trh, a lokální úložiště prohlížeče pro předvolby zobrazení, jako je tmavý režim. Nic z toho vás neidentifikuje. Úplný seznam najdete v Zásadách používání cookies."
+          "body": "Web používá jen malé množství funkčního úložiště — cookie, které si pamatuje váš jazyk a trh, a lokální úložiště prohlížeče pro vaše předvolby a aktivitu: nastavení zobrazení jako tmavý režim, plus uložené položky, košík a skryté prodejce. Vše zůstává ve vašem zařízení, nic vás neidentifikuje a nic se nám neodesílá. Úplný seznam najdete v Zásadách používání cookies."
         },
         "listingData": {
           "heading": "Odkud pocházejí naše data",
@@ -1194,9 +1196,9 @@
           "purpose": "Pamatuje si váš jazyk a trh, aby se stránky načítaly ve správném jazyce."
         },
         "preferences": {
-          "name": "Předvolby zobrazení",
+          "name": "Předvolby a uložené položky",
           "type": "Lokální úložiště",
-          "purpose": "Uchovává nastavení jako tmavý režim a měnu zobrazení ve vašem prohlížeči. Tato data nikdy neopustí vaše zařízení."
+          "purpose": "Uchovává vaše předvolby a aktivitu ve vašem prohlížeči: nastavení zobrazení (tmavý režim, barva akcentu, měna, rozložení, řazení), uložené položky a košík, skryté prodejce a malé značky, které brání dvojímu odeslání formulářů. Vše zůstává ve vašem zařízení — nic se nám neodesílá."
         }
       },
       "outro": "Protože vás nic z tohoto úložiště nesleduje, není tu žádný souhlasový banner k odklikání. Pokud smažete data prohlížeče, web se prostě vrátí k výchozímu nastavení."

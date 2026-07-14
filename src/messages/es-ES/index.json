@@ -668,7 +668,8 @@
       },
       "priceHistory": {
         "heading": "Historial de precios",
-        "firstTracked": "Primer registro"
+        "firstTracked": "Primer registro",
+        "chartLabel": "Gráfico del historial de precios"
       },
       "shipping": {
         "label": "Envío",
@@ -708,6 +709,7 @@
       "firstSeen": "Primera vez visto: {date}",
       "updated": "Actualizado: {date}",
       "priceHistory": "Historial de precios",
+      "priceHistoryChart": "Gráfico del historial de precios",
       "reviews": "Reseñas",
       "moreFromSeller": "Más de {seller}",
       "relatedInCategory": "Más {category} en Little Biggy"
@@ -1131,7 +1133,7 @@
         },
         "functionalStorage": {
           "heading": "Cookies funcionales y almacenamiento local",
-          "body": "El sitio solo usa una pequeña cantidad de almacenamiento funcional: una cookie de idioma que recuerda tu idioma y tu mercado, y el almacenamiento local del navegador para preferencias de visualización como el modo oscuro. Nada de esto te identifica. Consulta la Política de cookies para ver la lista completa."
+          "body": "El sitio solo usa una pequeña cantidad de almacenamiento funcional: una cookie de idioma que recuerda tu idioma y tu mercado, y el almacenamiento local del navegador para tus preferencias y actividad: ajustes de visualización como el modo oscuro, además de tus artículos guardados, la cesta y los vendedores ocultados. Todo permanece en tu dispositivo, nada te identifica y nada se nos envía. Consulta la Política de cookies para ver la lista completa."
         },
         "listingData": {
           "heading": "De dónde provienen nuestros datos",
@@ -1194,9 +1196,9 @@
           "purpose": "Recuerda tu idioma y tu mercado para que las páginas se carguen en el idioma correcto."
         },
         "preferences": {
-          "name": "Preferencias de visualización",
+          "name": "Preferencias y artículos guardados",
           "type": "Almacenamiento local",
-          "purpose": "Guarda ajustes como el modo oscuro y la moneda de visualización en tu navegador. Estos datos nunca salen de tu dispositivo."
+          "purpose": "Guarda tus preferencias y actividad en tu navegador: ajustes de visualización (modo oscuro, color de acento, moneda, diseño, orden), tus artículos guardados y la cesta, los vendedores ocultados y pequeñas marcas que evitan envíos duplicados de formularios. Todo permanece en tu dispositivo: nada se nos envía."
         }
       },
       "outro": "Como ninguno de estos almacenamientos te rastrea, no hay banner de consentimiento que cerrar. Si borras los datos del navegador, el sitio simplemente vuelve a sus valores predeterminados."

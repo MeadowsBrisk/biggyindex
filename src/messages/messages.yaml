@@ -4840,6 +4840,16 @@ item:
         el-GR: Πρώτη παρακολούθηση
         cs-CZ: Poprvé zaznamenáno
         pl-PL: Pierwszy zapis
+      chartLabel:
+        en-GB: Price history chart
+        de-DE: Preisverlaufsdiagramm
+        fr-FR: Graphique de l'historique des prix
+        pt-PT: Gráfico do histórico de preços
+        it-IT: Grafico dello storico dei prezzi
+        es-ES: Gráfico del historial de precios
+        el-GR: Γράφημα ιστορικού τιμών
+        cs-CZ: Graf historie cen
+        pl-PL: Wykres historii cen
     shipping:
       label:
         en-GB: Shipping
@@ -5163,6 +5173,16 @@ item:
       el-GR: Ιστορικό τιμών
       cs-CZ: Historie cen
       pl-PL: Historia cen
+    priceHistoryChart:
+      en-GB: Price history chart
+      de-DE: Preisverlaufsdiagramm
+      fr-FR: Graphique de l'historique des prix
+      pt-PT: Gráfico do histórico de preços
+      it-IT: Grafico dello storico dei prezzi
+      es-ES: Gráfico del historial de precios
+      el-GR: Γράφημα ιστορικού τιμών
+      cs-CZ: Graf historie cen
+      pl-PL: Wykres historii cen
     reviews:
       en-GB: Reviews
       de-DE: Rezensionen
@@ -8299,15 +8319,15 @@ legal:
           cs-CZ: "Funkční cookies a lokální úložiště"
           pl-PL: "Funkcjonalne pliki cookie i pamięć lokalna"
         body:
-          en-GB: "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for display preferences such as dark mode. None of it identifies you. See the Cookie Policy for the full list."
-          de-DE: "Die Seite nutzt nur wenig funktionalen Speicher – ein Locale-Cookie, das sich Sprache und Markt merkt, und den lokalen Browser-Speicher für Anzeigeeinstellungen wie den Dunkelmodus. Nichts davon identifiziert Sie. Die vollständige Liste steht in der Cookie-Richtlinie."
-          fr-FR: "Le site n’utilise qu’un minimum de stockage fonctionnel — un cookie qui mémorise votre langue et votre marché, et le stockage local du navigateur pour les préférences d’affichage comme le mode sombre. Rien de tout cela ne vous identifie. Consultez la politique de cookies pour la liste complète."
-          pt-PT: "O site usa apenas uma pequena quantidade de armazenamento funcional — um cookie de idioma que memoriza a sua língua e o seu mercado, e o armazenamento local do navegador para preferências de exibição como o modo escuro. Nada disso o identifica. Consulte a Política de Cookies para a lista completa."
-          it-IT: "Il sito utilizza solo una piccola quantità di archiviazione funzionale: un cookie che ricorda la tua lingua e il tuo mercato, e l'archiviazione locale del browser per le preferenze di visualizzazione come la modalità scura. Nulla di tutto questo ti identifica. Consulta la Cookie Policy per l'elenco completo."
-          es-ES: "El sitio solo usa una pequeña cantidad de almacenamiento funcional: una cookie de idioma que recuerda tu idioma y tu mercado, y el almacenamiento local del navegador para preferencias de visualización como el modo oscuro. Nada de esto te identifica. Consulta la Política de cookies para ver la lista completa."
-          el-GR: "Ο ιστότοπος χρησιμοποιεί μόνο ελάχιστη λειτουργική αποθήκευση — ένα cookie που θυμάται τη γλώσσα και την αγορά σας, και την τοπική αποθήκευση του προγράμματος περιήγησης για προτιμήσεις εμφάνισης όπως η σκοτεινή λειτουργία. Τίποτα από αυτά δεν σας ταυτοποιεί. Δείτε την Πολιτική Cookies για την πλήρη λίστα."
-          cs-CZ: "Web používá jen malé množství funkčního úložiště — cookie, které si pamatuje váš jazyk a trh, a lokální úložiště prohlížeče pro předvolby zobrazení, jako je tmavý režim. Nic z toho vás neidentifikuje. Úplný seznam najdete v Zásadách používání cookies."
-          pl-PL: "Strona korzysta tylko z niewielkiej ilości pamięci funkcjonalnej — pliku cookie zapamiętującego język i rynek oraz pamięci lokalnej przeglądarki dla preferencji wyświetlania, takich jak tryb ciemny. Nic z tego Cię nie identyfikuje. Pełna lista znajduje się w Polityce plików cookie."
+          en-GB: "The site uses a small amount of functional storage only — a locale cookie that remembers your language and market, and browser local storage for your preferences and activity: display settings such as dark mode, plus your saved items, basket and hidden sellers. All of it stays on your device, none of it identifies you, and none of it is sent to us. See the Cookie Policy for the full list."
+          de-DE: "Die Seite nutzt nur wenig funktionalen Speicher – ein Locale-Cookie, das sich Sprache und Markt merkt, und den lokalen Browser-Speicher für Ihre Einstellungen und Aktivitäten: Anzeigeeinstellungen wie den Dunkelmodus sowie gespeicherte Artikel, Warenkorb und ausgeblendete Verkäufer. Alles bleibt auf Ihrem Gerät, nichts davon identifiziert Sie, und nichts wird an uns gesendet. Die vollständige Liste steht in der Cookie-Richtlinie."
+          fr-FR: "Le site n’utilise qu’un minimum de stockage fonctionnel — un cookie qui mémorise votre langue et votre marché, et le stockage local du navigateur pour vos préférences et votre activité : réglages d’affichage comme le mode sombre, plus vos articles enregistrés, votre panier et les vendeurs masqués. Tout reste sur votre appareil, rien ne vous identifie et rien ne nous est envoyé. Consultez la politique de cookies pour la liste complète."
+          pt-PT: "O site usa apenas uma pequena quantidade de armazenamento funcional — um cookie de idioma que memoriza a sua língua e o seu mercado, e o armazenamento local do navegador para as suas preferências e atividade: definições de exibição como o modo escuro, além dos seus itens guardados, cesto e vendedores ocultados. Tudo fica no seu dispositivo, nada o identifica e nada é enviado para nós. Consulte a Política de Cookies para a lista completa."
+          it-IT: "Il sito utilizza solo una piccola quantità di archiviazione funzionale: un cookie che ricorda la tua lingua e il tuo mercato, e l'archiviazione locale del browser per le tue preferenze e la tua attività: impostazioni di visualizzazione come la modalità scura, più gli articoli salvati, il carrello e i venditori nascosti. Tutto resta sul tuo dispositivo, nulla ti identifica e nulla ci viene inviato. Consulta la Cookie Policy per l'elenco completo."
+          es-ES: "El sitio solo usa una pequeña cantidad de almacenamiento funcional: una cookie de idioma que recuerda tu idioma y tu mercado, y el almacenamiento local del navegador para tus preferencias y actividad: ajustes de visualización como el modo oscuro, además de tus artículos guardados, la cesta y los vendedores ocultados. Todo permanece en tu dispositivo, nada te identifica y nada se nos envía. Consulta la Política de cookies para ver la lista completa."
+          el-GR: "Ο ιστότοπος χρησιμοποιεί μόνο ελάχιστη λειτουργική αποθήκευση — ένα cookie που θυμάται τη γλώσσα και την αγορά σας, και την τοπική αποθήκευση του προγράμματος περιήγησης για τις προτιμήσεις και τη δραστηριότητά σας: ρυθμίσεις εμφάνισης όπως η σκοτεινή λειτουργία, καθώς και τα αποθηκευμένα προϊόντα, το καλάθι και τους κρυμμένους πωλητές. Όλα μένουν στη συσκευή σας, τίποτα δεν σας ταυτοποιεί και τίποτα δεν αποστέλλεται σε εμάς. Δείτε την Πολιτική Cookies για την πλήρη λίστα."
+          cs-CZ: "Web používá jen malé množství funkčního úložiště — cookie, které si pamatuje váš jazyk a trh, a lokální úložiště prohlížeče pro vaše předvolby a aktivitu: nastavení zobrazení jako tmavý režim, plus uložené položky, košík a skryté prodejce. Vše zůstává ve vašem zařízení, nic vás neidentifikuje a nic se nám neodesílá. Úplný seznam najdete v Zásadách používání cookies."
+          pl-PL: "Strona korzysta tylko z niewielkiej ilości pamięci funkcjonalnej — pliku cookie zapamiętującego język i rynek oraz pamięci lokalnej przeglądarki dla Twoich preferencji i aktywności: ustawień wyświetlania, takich jak tryb ciemny, a także zapisanych przedmiotów, koszyka i ukrytych sprzedawców. Wszystko pozostaje na Twoim urządzeniu, nic Cię nie identyfikuje i nic nie jest do nas wysyłane. Pełna lista znajduje się w Polityce plików cookie."
       listingData:
         heading:
           en-GB: "Where our data comes from"
@@ -8635,15 +8655,15 @@ legal:
           pl-PL: "Zapamiętuje Twój język i rynek, aby strony ładowały się we właściwej wersji językowej."
       preferences:
         name:
-          en-GB: "Display preferences"
-          de-DE: "Anzeigeeinstellungen"
-          fr-FR: "Préférences d’affichage"
-          pt-PT: "Preferências de exibição"
-          it-IT: "Preferenze di visualizzazione"
-          es-ES: "Preferencias de visualización"
-          el-GR: "Προτιμήσεις εμφάνισης"
-          cs-CZ: "Předvolby zobrazení"
-          pl-PL: "Preferencje wyświetlania"
+          en-GB: "Preferences & saved items"
+          de-DE: "Einstellungen & gespeicherte Artikel"
+          fr-FR: "Préférences et articles enregistrés"
+          pt-PT: "Preferências e itens guardados"
+          it-IT: "Preferenze e articoli salvati"
+          es-ES: "Preferencias y artículos guardados"
+          el-GR: "Προτιμήσεις & αποθηκευμένα προϊόντα"
+          cs-CZ: "Předvolby a uložené položky"
+          pl-PL: "Preferencje i zapisane przedmioty"
         type:
           en-GB: "Local storage"
           de-DE: "Lokaler Speicher"
@@ -8655,15 +8675,15 @@ legal:
           cs-CZ: "Lokální úložiště"
           pl-PL: "Pamięć lokalna"
         purpose:
-          en-GB: "Keeps settings like dark mode and display currency in your browser. This data never leaves your device."
-          de-DE: "Speichert Einstellungen wie Dunkelmodus und Anzeigewährung in Ihrem Browser. Diese Daten verlassen nie Ihr Gerät."
-          fr-FR: "Conserve des réglages comme le mode sombre et la devise d’affichage dans votre navigateur. Ces données ne quittent jamais votre appareil."
-          pt-PT: "Guarda definições como o modo escuro e a moeda de exibição no seu navegador. Estes dados nunca saem do seu dispositivo."
-          it-IT: "Conserva impostazioni come la modalità scura e la valuta di visualizzazione nel tuo browser. Questi dati non lasciano mai il tuo dispositivo."
-          es-ES: "Guarda ajustes como el modo oscuro y la moneda de visualización en tu navegador. Estos datos nunca salen de tu dispositivo."
-          el-GR: "Διατηρεί ρυθμίσεις όπως η σκοτεινή λειτουργία και το νόμισμα εμφάνισης στο πρόγραμμα περιήγησής σας. Αυτά τα δεδομένα δεν φεύγουν ποτέ από τη συσκευή σας."
-          cs-CZ: "Uchovává nastavení jako tmavý režim a měnu zobrazení ve vašem prohlížeči. Tato data nikdy neopustí vaše zařízení."
-          pl-PL: "Przechowuje w przeglądarce ustawienia takie jak tryb ciemny i waluta wyświetlania. Te dane nigdy nie opuszczają Twojego urządzenia."
+          en-GB: "Keeps your preferences and activity in your browser: display settings (dark mode, accent colour, currency, layout, sorting), your saved items and basket, hidden sellers, and small flags that stop forms being submitted twice. All of it stays on your device — it is never sent to us."
+          de-DE: "Speichert Ihre Einstellungen und Aktivitäten in Ihrem Browser: Anzeigeeinstellungen (Dunkelmodus, Akzentfarbe, Währung, Layout, Sortierung), gespeicherte Artikel und Warenkorb, ausgeblendete Verkäufer sowie kleine Markierungen, die doppelte Formular-Übermittlungen verhindern. Alles bleibt auf Ihrem Gerät – nichts davon wird an uns gesendet."
+          fr-FR: "Conserve vos préférences et votre activité dans votre navigateur : réglages d’affichage (mode sombre, couleur d’accent, devise, mise en page, tri), vos articles enregistrés et votre panier, les vendeurs masqués, ainsi que de petits marqueurs qui évitent les envois de formulaire en double. Tout reste sur votre appareil — rien ne nous est envoyé."
+          pt-PT: "Guarda as suas preferências e atividade no seu navegador: definições de exibição (modo escuro, cor de destaque, moeda, layout, ordenação), os seus itens guardados e o cesto, vendedores ocultados e pequenos marcadores que evitam envios duplicados de formulários. Tudo fica no seu dispositivo — nada é enviado para nós."
+          it-IT: "Conserva le tue preferenze e la tua attività nel browser: impostazioni di visualizzazione (modalità scura, colore d’accento, valuta, layout, ordinamento), gli articoli salvati e il carrello, i venditori nascosti e piccoli indicatori che evitano invii doppi dei moduli. Tutto resta sul tuo dispositivo — nulla ci viene inviato."
+          es-ES: "Guarda tus preferencias y actividad en tu navegador: ajustes de visualización (modo oscuro, color de acento, moneda, diseño, orden), tus artículos guardados y la cesta, los vendedores ocultados y pequeñas marcas que evitan envíos duplicados de formularios. Todo permanece en tu dispositivo: nada se nos envía."
+          el-GR: "Διατηρεί τις προτιμήσεις και τη δραστηριότητά σας στο πρόγραμμα περιήγησης: ρυθμίσεις εμφάνισης (σκοτεινή λειτουργία, χρώμα έμφασης, νόμισμα, διάταξη, ταξινόμηση), τα αποθηκευμένα προϊόντα και το καλάθι σας, κρυμμένους πωλητές και μικρές ενδείξεις που αποτρέπουν τις διπλές υποβολές φορμών. Όλα μένουν στη συσκευή σας — τίποτα δεν αποστέλλεται σε εμάς."
+          cs-CZ: "Uchovává vaše předvolby a aktivitu ve vašem prohlížeči: nastavení zobrazení (tmavý režim, barva akcentu, měna, rozložení, řazení), uložené položky a košík, skryté prodejce a malé značky, které brání dvojímu odeslání formulářů. Vše zůstává ve vašem zařízení — nic se nám neodesílá."
+          pl-PL: "Przechowuje w przeglądarce Twoje preferencje i aktywność: ustawienia wyświetlania (tryb ciemny, kolor akcentu, waluta, układ, sortowanie), zapisane przedmioty i koszyk, ukrytych sprzedawców oraz małe znaczniki zapobiegające podwójnemu wysyłaniu formularzy. Wszystko pozostaje na Twoim urządzeniu — nic nie jest do nas wysyłane."
     outro:
       en-GB: "Because none of this storage tracks you, there is no consent banner to dismiss. If you clear your browser data, the site simply returns to its defaults."
       de-DE: "Da nichts von diesem Speicher Sie verfolgt, gibt es kein Zustimmungsbanner zum Wegklicken. Wenn Sie Ihre Browserdaten löschen, kehrt die Seite einfach zu den Standardeinstellungen zurück."
