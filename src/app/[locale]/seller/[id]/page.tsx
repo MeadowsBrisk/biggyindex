@@ -192,22 +192,45 @@ function sellerDescription(data: SellerPageData, metaT: Translator): string {
     ? manifesto.slice(0, 150) + (manifesto.length > 150 ? "..." : "")
     : null;
   const feedback = data.detail.communityFeedback;
+  // TRUST DATA FIRST, manifesto excerpt LAST (2026-07-17): GSC shows "is X
+  // legit / X scam" queries ranking pos 3-8 with ~0% CTR — searchers want a
+  // verdict and the old excerpt-first description showed the seller's own
+  // marketing copy instead. Leading with rating/delivery/endorsements answers
+  // the intent inside the ~160-char snippet window; the excerpt survives only
+  // when there's room.
+  const rating =
+    data.seller.averageRating != null &&
+    data.seller.averageRating > 0 &&
+    data.seller.numberOfReviews > 0
+      ? metaT("rating", {
+          rating: data.seller.averageRating.toFixed(1),
+          count: data.seller.numberOfReviews,
+        })
+      : data.seller.numberOfReviews > 0
+        ? metaT("reviews", { count: data.seller.numberOfReviews })
+        : null;
+  const delivery =
+    data.seller.averageDaysToArrive != null &&
+    data.seller.averageDaysToArrive > 0
+      ? metaT("delivery", {
+          days: Math.round(data.seller.averageDaysToArrive),
+        })
+      : null;
   const stats = [
-    data.itemTotal > 0
-      ? metaT("activeListings", { count: data.itemTotal })
-      : null,
-    data.seller.numberOfReviews != null
-      ? metaT("reviews", { count: data.seller.numberOfReviews })
-      : null,
+    rating,
+    delivery,
     feedback?.endorseCount
       ? metaT("endorsements", { count: feedback.endorseCount })
       : null,
     feedback?.reportCount
       ? metaT("reports", { count: feedback.reportCount })
       : null,
+    data.itemTotal > 0
+      ? metaT("activeListings", { count: data.itemTotal })
+      : null,
   ].filter(Boolean);
 
-  return [name, excerpt, ...stats].filter(Boolean).join(" - ");
+  return [name, ...stats, excerpt].filter(Boolean).join(" - ");
 }
 
 export async function generateMetadata({

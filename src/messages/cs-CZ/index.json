@@ -756,6 +756,8 @@
     "visitStore": "Navštivte obchod",
     "meta": {
       "activeListings": "{count, plural, one {1 aktivní nabídka} few {# aktivní nabídky} other {# aktivních nabídek}}",
+      "rating": "hodnocení {rating}/10 z {count, plural, one {1 recenze kupujícího} few {# recenzí kupujících} other {# recenzí kupujících}}",
+      "delivery": "průměrné doručení za ~{days} {days, plural, one {den} few {dny} other {dní}}",
       "reviews": "{count, plural, one {1 recenze} few {# recenze} other {# recenzí}}",
       "endorsements": "{count, plural, one {1 doporučení komunity} few {# doporučení komunity} other {# doporučení komunity}}",
       "reports": "{count, plural, one {1 nahlášení komunity} few {# nahlášení komunity} other {# nahlášení komunity}}"
@@ -871,10 +873,27 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Recenze Little Biggy | BiggyIndex",
+      "metadataTitle": "Recenze Little Biggy — nejnovější hodnocení a fotky kupujících | BiggyIndex",
       "metadataDescription": "Nejnovější recenze Little Biggy od kupujících, s fotografiemi, hodnoceními a časy doručení.",
       "title": "Recenze Little Biggy",
       "subtitle": "{count, plural, one {1 nedávná recenze od kupujících na Little Biggy} few {# nedávné recenze od kupujících na Little Biggy} other {# nedávných recenzí od kupujících na Little Biggy}}",
+      "intro": "Toto je {count} nejnovějších recenzí kupujících indexovaných z Little Biggy, aktualizovaných v průběhu dne. Kupující v průměru hodnotí své objednávky {rating}/10 a doručení obvykle trvá přibližně {days, plural, one {den} few {# dny} other {# dní}}. Fotky, hodnocení a časy doručení pocházejí přímo z recenzí — nic neupravujeme ani nevybíráme.",
+      "introNoDelivery": "Toto je {count} nejnovějších recenzí kupujících indexovaných z Little Biggy, aktualizovaných v průběhu dne. Kupující v průměru hodnotí své objednávky {rating}/10. Fotky, hodnocení a časy doručení pocházejí přímo z recenzí — nic neupravujeme ani nevybíráme.",
+      "faq": {
+        "heading": "O těchto recenzích",
+        "source": {
+          "q": "Odkud tyto recenze pocházejí?",
+          "a": "Každou recenzi zde napsal kupující na Little Biggy po objednávce chráněné úschovou. Náš crawler indexuje nové recenze v průběhu dne a zobrazuje je bez úprav — včetně těch kritických."
+        },
+        "trust": {
+          "q": "Mohou prodejci své recenze falšovat?",
+          "a": "Recenze jsou navázané na objednávkový systém Little Biggy, takže nafouknout profil je těžší, než to vypadá. Spolehlivým signálem je vzorec, ne jednotlivá recenze — kompletní historie hodnocení, průměrná doba doručení a moderovaná zpětná vazba komunity jsou na stránce prodejce na BiggyIndexu."
+        },
+        "checkSeller": {
+          "q": "Jak si před objednávkou prověřím konkrétního prodejce?",
+          "a": "Otevřete stránku prodejce s kompletní historií recenzí, průměry doručení, doporučeními a nahlášeními komunity. Stejné statistiky jsou u každé nabídky, takže můžete prodejce porovnat, než na Little Biggy nakoupíte."
+        }
+      },
       "filters": {
         "all": "Všichni",
         "withPhotos": "S fotografiemi",

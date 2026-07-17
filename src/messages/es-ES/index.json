@@ -756,6 +756,8 @@
     "visitStore": "Visitar tienda",
     "meta": {
       "activeListings": "{count, plural, one {1 anuncio activo} other {# anuncios activos}}",
+      "rating": "valorado {rating}/10 según {count, plural, one {1 reseña de comprador} other {# reseñas de compradores}}",
+      "delivery": "entrega media en ~{days} {days, plural, one {día} other {días}}",
       "reviews": "{count, plural, one {1 reseña} other {# reseñas}}",
       "endorsements": "{count, plural, one {1 recomendación de la comunidad} other {# recomendaciones de la comunidad}}",
       "reports": "{count, plural, one {1 denuncia de la comunidad} other {# denuncias de la comunidad}}"
@@ -871,10 +873,27 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Reseñas Little Biggy | BiggyIndex",
+      "metadataTitle": "Reseñas Little Biggy — últimas valoraciones y fotos de compradores | BiggyIndex",
       "metadataDescription": "Las últimas reseñas de Little Biggy de los compradores, con fotos, valoraciones y plazos de entrega.",
       "title": "Reseñas de Little Biggy",
       "subtitle": "{count, plural, one {1 reseña reciente de compradores de Little Biggy} other {# reseñas recientes de compradores de Little Biggy}}",
+      "intro": "Estas son las {count} reseñas de compradores más recientes indexadas de Little Biggy, actualizadas a lo largo del día. De media, los compradores puntúan sus pedidos con {rating}/10, con una entrega que suele tardar {days, plural, one {un día} other {# días}}. Las fotos, valoraciones y plazos de entrega salen directamente de las reseñas: nada se edita ni se selecciona.",
+      "introNoDelivery": "Estas son las {count} reseñas de compradores más recientes indexadas de Little Biggy, actualizadas a lo largo del día. De media, los compradores puntúan sus pedidos con {rating}/10. Las fotos, valoraciones y plazos de entrega salen directamente de las reseñas: nada se edita ni se selecciona.",
+      "faq": {
+        "heading": "Acerca de estas reseñas",
+        "source": {
+          "q": "¿De dónde provienen estas reseñas?",
+          "a": "Cada reseña fue publicada por un comprador en Little Biggy tras un pedido protegido por depósito en garantía. Nuestro rastreador indexa nuevas reseñas a lo largo del día y las muestra sin editar, incluidas las críticas."
+        },
+        "trust": {
+          "q": "¿Pueden los vendedores falsificar sus reseñas?",
+          "a": "Las reseñas están vinculadas al sistema de pedidos de Little Biggy, lo que hace que inflar un perfil sea más difícil de lo que parece. La señal fiable es el patrón, no una reseña aislada: el historial completo de valoraciones, el tiempo medio de entrega y las opiniones moderadas de la comunidad están en la página del vendedor en BiggyIndex."
+        },
+        "checkSeller": {
+          "q": "¿Cómo compruebo a un vendedor concreto antes de pedir?",
+          "a": "Abre la página del vendedor para ver su historial completo de reseñas, medias de entrega, recomendaciones y denuncias de la comunidad. Las mismas estadísticas aparecen en cada anuncio, para comparar vendedores antes de comprar en Little Biggy."
+        }
+      },
       "filters": {
         "all": "Todos",
         "withPhotos": "Con fotos",

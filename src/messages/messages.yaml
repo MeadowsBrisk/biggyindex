@@ -5542,6 +5542,26 @@ seller:
       el-GR: "{count, plural, one {1 ενεργή καταχώριση} other {# ενεργές καταχωρίσεις}}"
       cs-CZ: "{count, plural, one {1 aktivní nabídka} few {# aktivní nabídky} other {# aktivních nabídek}}"
       pl-PL: "{count, plural, one {1 aktywna oferta} few {# aktywne oferty} many {# aktywnych ofert} other {# aktywnej oferty}}"
+    rating:
+      en-GB: "rated {rating}/10 from {count, plural, one {1 buyer review} other {# buyer reviews}}"
+      de-DE: "bewertet mit {rating}/10 aus {count, plural, one {1 Käuferbewertung} other {# Käuferbewertungen}}"
+      fr-FR: "noté {rating}/10 sur {count, plural, one {1 avis d'acheteur} other {# avis d'acheteurs}}"
+      pt-PT: "avaliado com {rating}/10 em {count, plural, one {1 avaliação de comprador} other {# avaliações de compradores}}"
+      it-IT: "valutato {rating}/10 da {count, plural, one {1 recensione di acquirente} other {# recensioni di acquirenti}}"
+      es-ES: "valorado {rating}/10 según {count, plural, one {1 reseña de comprador} other {# reseñas de compradores}}"
+      el-GR: "βαθμολογία {rating}/10 από {count, plural, one {1 κριτική αγοραστή} other {# κριτικές αγοραστών}}"
+      cs-CZ: "hodnocení {rating}/10 z {count, plural, one {1 recenze kupujícího} few {# recenzí kupujících} other {# recenzí kupujících}}"
+      pl-PL: "ocena {rating}/10 na podstawie {count, plural, one {1 recenzji kupującego} other {# recenzji kupujących}}"
+    delivery:
+      en-GB: "~{days, plural, one {1-day} other {#-day}} average delivery"
+      de-DE: "durchschnittliche Lieferung in ~{days} {days, plural, one {Tag} other {Tagen}}"
+      fr-FR: "livraison moyenne en ~{days} {days, plural, one {jour} other {jours}}"
+      pt-PT: "entrega média em ~{days} {days, plural, one {dia} other {dias}}"
+      it-IT: "consegna media in ~{days} {days, plural, one {giorno} other {giorni}}"
+      es-ES: "entrega media en ~{days} {days, plural, one {día} other {días}}"
+      el-GR: "μέση παράδοση σε ~{days} {days, plural, one {ημέρα} other {ημέρες}}"
+      cs-CZ: "průměrné doručení za ~{days} {days, plural, one {den} few {dny} other {dní}}"
+      pl-PL: "średnia dostawa w ~{days} {days, plural, one {dzień} other {dni}}"
     reviews:
       en-GB: "{count, plural, one {1 review} other {# reviews}}"
       de-DE: "{count, plural, one {1 Bewertung} other {# Bewertungen}}"
@@ -6504,15 +6524,15 @@ seller:
 reviews:
   page:
     metadataTitle:
-      en-GB: Little Biggy Reviews | BiggyIndex
-      de-DE: Little Biggy-Bewertungen | BiggyIndex
-      fr-FR: Avis Little Biggy | BiggyIndex
-      pt-PT: Avaliações Little Biggy | BiggyIndex
-      it-IT: Recensioni Little Biggy | BiggyIndex
-      es-ES: Reseñas Little Biggy | BiggyIndex
-      el-GR: Κριτικές Little Biggy | BiggyIndex
-      cs-CZ: Recenze Little Biggy | BiggyIndex
-      pl-PL: Recenzje Little Biggy | BiggyIndex
+      en-GB: "Little Biggy Reviews — Latest Buyer Ratings & Photos | BiggyIndex"
+      de-DE: "Little Biggy-Bewertungen — neueste Käuferbewertungen & Fotos | BiggyIndex"
+      fr-FR: "Avis Little Biggy — dernières notes et photos d'acheteurs | BiggyIndex"
+      pt-PT: "Avaliações Little Biggy — últimas classificações e fotos de compradores | BiggyIndex"
+      it-IT: "Recensioni Little Biggy — ultime valutazioni e foto degli acquirenti | BiggyIndex"
+      es-ES: "Reseñas Little Biggy — últimas valoraciones y fotos de compradores | BiggyIndex"
+      el-GR: "Κριτικές Little Biggy — τελευταίες βαθμολογίες & φωτογραφίες αγοραστών | BiggyIndex"
+      cs-CZ: "Recenze Little Biggy — nejnovější hodnocení a fotky kupujících | BiggyIndex"
+      pl-PL: "Recenzje Little Biggy — najnowsze oceny i zdjęcia kupujących | BiggyIndex"
     metadataDescription:
       en-GB: The latest Little Biggy reviews from buyers, with photos, ratings, and delivery times.
       de-DE: Die neuesten Little Biggy-Bewertungen von Käufern, mit Bildern, Bewertungen und Lieferzeiten.
@@ -6543,6 +6563,100 @@ reviews:
       el-GR: "{count, plural, one {1 πρόσφατη κριτική από αγοραστές του Little Biggy} other {# πρόσφατες κριτικές από αγοραστές του Little Biggy}}"
       cs-CZ: "{count, plural, one {1 nedávná recenze od kupujících na Little Biggy} few {# nedávné recenze od kupujících na Little Biggy} other {# nedávných recenzí od kupujících na Little Biggy}}"
       pl-PL: "{count, plural, one {1 niedawna recenzja od kupujących na Little Biggy} few {# niedawne recenzje od kupujących na Little Biggy} many {# niedawnych recenzji od kupujących na Little Biggy} other {# niedawnej recenzji od kupujących na Little Biggy}}"
+    intro:
+      en-GB: "These are the {count} most recent buyer reviews indexed from Little Biggy, refreshed throughout the day. Across them, buyers rate their orders {rating}/10 on average, with delivery typically taking about {days, plural, one {a day} other {# days}}. Photos, ratings and delivery times come straight from the reviews themselves — nothing is edited or curated."
+      de-DE: "Dies sind die {count} neuesten Käuferbewertungen, die wir von Little Biggy indexieren – mehrmals täglich aktualisiert. Im Durchschnitt bewerten Käufer ihre Bestellungen mit {rating}/10, die Lieferung dauert typischerweise etwa {days, plural, one {einen Tag} other {# Tage}}. Fotos, Bewertungen und Lieferzeiten stammen direkt aus den Bewertungen – nichts wird bearbeitet oder kuratiert."
+      fr-FR: "Voici les {count} avis d'acheteurs les plus récents indexés depuis Little Biggy, actualisés tout au long de la journée. En moyenne, les acheteurs notent leurs commandes {rating}/10, avec une livraison en environ {days, plural, one {un jour} other {# jours}}. Photos, notes et délais de livraison proviennent directement des avis — rien n'est modifié ni trié."
+      pt-PT: "Estas são as {count} avaliações de compradores mais recentes indexadas do Little Biggy, atualizadas ao longo do dia. Em média, os compradores classificam as suas encomendas com {rating}/10, com entrega tipicamente em cerca de {days, plural, one {um dia} other {# dias}}. Fotos, classificações e prazos de entrega vêm diretamente das avaliações — nada é editado ou selecionado."
+      it-IT: "Queste sono le {count} recensioni di acquirenti più recenti indicizzate da Little Biggy, aggiornate durante la giornata. In media gli acquirenti valutano i loro ordini {rating}/10, con consegna tipicamente in circa {days, plural, one {un giorno} other {# giorni}}. Foto, valutazioni e tempi di consegna vengono direttamente dalle recensioni — nulla è modificato o selezionato."
+      es-ES: "Estas son las {count} reseñas de compradores más recientes indexadas de Little Biggy, actualizadas a lo largo del día. De media, los compradores puntúan sus pedidos con {rating}/10, con una entrega que suele tardar {days, plural, one {un día} other {# días}}. Las fotos, valoraciones y plazos de entrega salen directamente de las reseñas: nada se edita ni se selecciona."
+      el-GR: "Αυτές είναι οι {count} πιο πρόσφατες κριτικές αγοραστών που ευρετηριάζουμε από το Little Biggy, ανανεωμένες κατά τη διάρκεια της ημέρας. Κατά μέσο όρο, οι αγοραστές βαθμολογούν τις παραγγελίες τους με {rating}/10, με παράδοση συνήθως σε περίπου {days, plural, one {μία ημέρα} other {# ημέρες}}. Φωτογραφίες, βαθμολογίες και χρόνοι παράδοσης προέρχονται απευθείας από τις κριτικές — τίποτα δεν επεξεργάζεται ή επιλέγεται."
+      cs-CZ: "Toto je {count} nejnovějších recenzí kupujících indexovaných z Little Biggy, aktualizovaných v průběhu dne. Kupující v průměru hodnotí své objednávky {rating}/10 a doručení obvykle trvá přibližně {days, plural, one {den} few {# dny} other {# dní}}. Fotky, hodnocení a časy doručení pocházejí přímo z recenzí — nic neupravujeme ani nevybíráme."
+      pl-PL: "Oto {count} najnowszych recenzji kupujących zindeksowanych z Little Biggy, odświeżanych w ciągu dnia. Kupujący oceniają swoje zamówienia średnio na {rating}/10, a dostawa trwa zwykle około {days, plural, one {jednego dnia} other {# dni}}. Zdjęcia, oceny i czasy dostawy pochodzą wprost z recenzji — niczego nie redagujemy ani nie wybieramy."
+    introNoDelivery:
+      en-GB: "These are the {count} most recent buyer reviews indexed from Little Biggy, refreshed throughout the day. Across them, buyers rate their orders {rating}/10 on average. Photos, ratings and delivery times come straight from the reviews themselves — nothing is edited or curated."
+      de-DE: "Dies sind die {count} neuesten Käuferbewertungen, die wir von Little Biggy indexieren – mehrmals täglich aktualisiert. Im Durchschnitt bewerten Käufer ihre Bestellungen mit {rating}/10. Fotos, Bewertungen und Lieferzeiten stammen direkt aus den Bewertungen – nichts wird bearbeitet oder kuratiert."
+      fr-FR: "Voici les {count} avis d'acheteurs les plus récents indexés depuis Little Biggy, actualisés tout au long de la journée. En moyenne, les acheteurs notent leurs commandes {rating}/10. Photos, notes et délais de livraison proviennent directement des avis — rien n'est modifié ni trié."
+      pt-PT: "Estas são as {count} avaliações de compradores mais recentes indexadas do Little Biggy, atualizadas ao longo do dia. Em média, os compradores classificam as suas encomendas com {rating}/10. Fotos, classificações e prazos de entrega vêm diretamente das avaliações — nada é editado ou selecionado."
+      it-IT: "Queste sono le {count} recensioni di acquirenti più recenti indicizzate da Little Biggy, aggiornate durante la giornata. In media gli acquirenti valutano i loro ordini {rating}/10. Foto, valutazioni e tempi di consegna vengono direttamente dalle recensioni — nulla è modificato o selezionato."
+      es-ES: "Estas son las {count} reseñas de compradores más recientes indexadas de Little Biggy, actualizadas a lo largo del día. De media, los compradores puntúan sus pedidos con {rating}/10. Las fotos, valoraciones y plazos de entrega salen directamente de las reseñas: nada se edita ni se selecciona."
+      el-GR: "Αυτές είναι οι {count} πιο πρόσφατες κριτικές αγοραστών που ευρετηριάζουμε από το Little Biggy, ανανεωμένες κατά τη διάρκεια της ημέρας. Κατά μέσο όρο, οι αγοραστές βαθμολογούν τις παραγγελίες τους με {rating}/10. Φωτογραφίες, βαθμολογίες και χρόνοι παράδοσης προέρχονται απευθείας από τις κριτικές — τίποτα δεν επεξεργάζεται ή επιλέγεται."
+      cs-CZ: "Toto je {count} nejnovějších recenzí kupujících indexovaných z Little Biggy, aktualizovaných v průběhu dne. Kupující v průměru hodnotí své objednávky {rating}/10. Fotky, hodnocení a časy doručení pocházejí přímo z recenzí — nic neupravujeme ani nevybíráme."
+      pl-PL: "Oto {count} najnowszych recenzji kupujących zindeksowanych z Little Biggy, odświeżanych w ciągu dnia. Kupujący oceniają swoje zamówienia średnio na {rating}/10. Zdjęcia, oceny i czasy dostawy pochodzą wprost z recenzji — niczego nie redagujemy ani nie wybieramy."
+    faq:
+      heading:
+        en-GB: "About these reviews"
+        de-DE: "Über diese Bewertungen"
+        fr-FR: "À propos de ces avis"
+        pt-PT: "Sobre estas avaliações"
+        it-IT: "Informazioni su queste recensioni"
+        es-ES: "Acerca de estas reseñas"
+        el-GR: "Σχετικά με αυτές τις κριτικές"
+        cs-CZ: "O těchto recenzích"
+        pl-PL: "O tych recenzjach"
+      source:
+        q:
+          en-GB: "Where do these reviews come from?"
+          de-DE: "Woher stammen diese Bewertungen?"
+          fr-FR: "D'où proviennent ces avis ?"
+          pt-PT: "De onde vêm estas avaliações?"
+          it-IT: "Da dove provengono queste recensioni?"
+          es-ES: "¿De dónde provienen estas reseñas?"
+          el-GR: "Από πού προέρχονται αυτές οι κριτικές;"
+          cs-CZ: "Odkud tyto recenze pocházejí?"
+          pl-PL: "Skąd pochodzą te recenzje?"
+        a:
+          en-GB: "Every review here was posted by a buyer on Little Biggy after an escrow-protected order. Our crawler indexes new reviews throughout the day and shows them unedited — including the critical ones."
+          de-DE: "Jede Bewertung hier wurde von einem Käufer auf Little Biggy nach einer treuhandgesicherten Bestellung verfasst. Unser Crawler indexiert neue Bewertungen über den Tag verteilt und zeigt sie unbearbeitet – auch die kritischen."
+          fr-FR: "Chaque avis a été publié par un acheteur sur Little Biggy après une commande protégée par séquestre. Notre robot indexe les nouveaux avis tout au long de la journée et les affiche sans modification — y compris les avis critiques."
+          pt-PT: "Cada avaliação aqui foi publicada por um comprador no Little Biggy após uma encomenda protegida por caução. O nosso crawler indexa novas avaliações ao longo do dia e mostra-as sem edição — incluindo as críticas."
+          it-IT: "Ogni recensione è stata pubblicata da un acquirente su Little Biggy dopo un ordine protetto da deposito a garanzia. Il nostro crawler indicizza le nuove recensioni durante la giornata e le mostra senza modifiche — comprese quelle critiche."
+          es-ES: "Cada reseña fue publicada por un comprador en Little Biggy tras un pedido protegido por depósito en garantía. Nuestro rastreador indexa nuevas reseñas a lo largo del día y las muestra sin editar, incluidas las críticas."
+          el-GR: "Κάθε κριτική εδώ δημοσιεύτηκε από αγοραστή στο Little Biggy μετά από παραγγελία με προστασία μεσεγγύησης. Ο crawler μας ευρετηριάζει νέες κριτικές κατά τη διάρκεια της ημέρας και τις εμφανίζει χωρίς επεξεργασία — και τις αρνητικές."
+          cs-CZ: "Každou recenzi zde napsal kupující na Little Biggy po objednávce chráněné úschovou. Náš crawler indexuje nové recenze v průběhu dne a zobrazuje je bez úprav — včetně těch kritických."
+          pl-PL: "Każdą recenzję opublikował kupujący na Little Biggy po zamówieniu chronionym depozytem. Nasz crawler indeksuje nowe recenzje w ciągu dnia i pokazuje je bez zmian — także te krytyczne."
+      trust:
+        q:
+          en-GB: "Can sellers fake their reviews?"
+          de-DE: "Können Verkäufer ihre Bewertungen fälschen?"
+          fr-FR: "Les vendeurs peuvent-ils falsifier leurs avis ?"
+          pt-PT: "Os vendedores podem falsificar as suas avaliações?"
+          it-IT: "I venditori possono falsificare le loro recensioni?"
+          es-ES: "¿Pueden los vendedores falsificar sus reseñas?"
+          el-GR: "Μπορούν οι πωλητές να πλαστογραφήσουν τις κριτικές τους;"
+          cs-CZ: "Mohou prodejci své recenze falšovat?"
+          pl-PL: "Czy sprzedawcy mogą fałszować swoje recenzje?"
+        a:
+          en-GB: "Reviews are tied to Little Biggy's order system, which makes padding a profile harder than it looks. The reliable signal is the pattern rather than any single review — a seller's full rating history, average delivery time and moderated community feedback are all shown on their BiggyIndex seller page."
+          de-DE: "Bewertungen sind an das Bestellsystem von Little Biggy gebunden, was das Aufpolstern eines Profils schwerer macht, als es aussieht. Das verlässliche Signal ist das Muster, nicht die einzelne Bewertung – die komplette Bewertungshistorie, die durchschnittliche Lieferzeit und das moderierte Community-Feedback eines Verkäufers stehen auf seiner BiggyIndex-Verkäuferseite."
+          fr-FR: "Les avis sont liés au système de commandes de Little Biggy, ce qui rend le gonflage d'un profil plus difficile qu'il n'y paraît. Le signal fiable, c'est la tendance plutôt qu'un avis isolé — l'historique complet des notes, le délai moyen de livraison et les retours communautaires modérés figurent sur la page vendeur BiggyIndex."
+          pt-PT: "As avaliações estão ligadas ao sistema de encomendas do Little Biggy, o que torna inflacionar um perfil mais difícil do que parece. O sinal fiável é o padrão e não uma avaliação isolada — o histórico completo de classificações, o tempo médio de entrega e o feedback comunitário moderado estão na página do vendedor no BiggyIndex."
+          it-IT: "Le recensioni sono legate al sistema di ordini di Little Biggy, il che rende gonfiare un profilo più difficile di quanto sembri. Il segnale affidabile è lo schema complessivo, non la singola recensione — lo storico completo delle valutazioni, i tempi medi di consegna e il feedback moderato della community sono sulla pagina venditore di BiggyIndex."
+          es-ES: "Las reseñas están vinculadas al sistema de pedidos de Little Biggy, lo que hace que inflar un perfil sea más difícil de lo que parece. La señal fiable es el patrón, no una reseña aislada: el historial completo de valoraciones, el tiempo medio de entrega y las opiniones moderadas de la comunidad están en la página del vendedor en BiggyIndex."
+          el-GR: "Οι κριτικές συνδέονται με το σύστημα παραγγελιών του Little Biggy, κάτι που κάνει το «φούσκωμα» ενός προφίλ πιο δύσκολο απ' ό,τι φαίνεται. Το αξιόπιστο σήμα είναι το μοτίβο και όχι μία μεμονωμένη κριτική — το πλήρες ιστορικό βαθμολογιών, ο μέσος χρόνος παράδοσης και τα ελεγμένα σχόλια της κοινότητας εμφανίζονται στη σελίδα πωλητή του BiggyIndex."
+          cs-CZ: "Recenze jsou navázané na objednávkový systém Little Biggy, takže nafouknout profil je těžší, než to vypadá. Spolehlivým signálem je vzorec, ne jednotlivá recenze — kompletní historie hodnocení, průměrná doba doručení a moderovaná zpětná vazba komunity jsou na stránce prodejce na BiggyIndexu."
+          pl-PL: "Recenzje są powiązane z systemem zamówień Little Biggy, więc sztuczne podbijanie profilu jest trudniejsze, niż się wydaje. Wiarygodnym sygnałem jest wzorzec, a nie pojedyncza recenzja — pełna historia ocen, średni czas dostawy i moderowane opinie społeczności znajdują się na stronie sprzedawcy w BiggyIndex."
+      checkSeller:
+        q:
+          en-GB: "How do I check a specific seller before ordering?"
+          de-DE: "Wie prüfe ich einen bestimmten Verkäufer vor der Bestellung?"
+          fr-FR: "Comment vérifier un vendeur précis avant de commander ?"
+          pt-PT: "Como verifico um vendedor específico antes de encomendar?"
+          it-IT: "Come controllo un venditore specifico prima di ordinare?"
+          es-ES: "¿Cómo compruebo a un vendedor concreto antes de pedir?"
+          el-GR: "Πώς ελέγχω έναν συγκεκριμένο πωλητή πριν παραγγείλω;"
+          cs-CZ: "Jak si před objednávkou prověřím konkrétního prodejce?"
+          pl-PL: "Jak sprawdzić konkretnego sprzedawcę przed zamówieniem?"
+        a:
+          en-GB: "Open the seller's page for their complete review history, delivery averages, community endorsements and reports. The same stats appear on every listing, so you can compare sellers side by side before you buy on Little Biggy."
+          de-DE: "Öffnen Sie die Verkäuferseite für die komplette Bewertungshistorie, Lieferdurchschnitte, Community-Empfehlungen und Meldungen. Dieselben Werte erscheinen bei jedem Angebot, sodass Sie Verkäufer direkt vergleichen können, bevor Sie auf Little Biggy kaufen."
+          fr-FR: "Ouvrez la page du vendeur pour consulter l'historique complet des avis, les délais moyens de livraison, les recommandations et signalements de la communauté. Les mêmes statistiques figurent sur chaque annonce, ce qui permet de comparer les vendeurs avant d'acheter sur Little Biggy."
+          pt-PT: "Abra a página do vendedor para ver o histórico completo de avaliações, médias de entrega, recomendações e denúncias da comunidade. As mesmas estatísticas aparecem em cada anúncio, para poder comparar vendedores antes de comprar no Little Biggy."
+          it-IT: "Apri la pagina del venditore per lo storico completo delle recensioni, i tempi medi di consegna, le raccomandazioni e le segnalazioni della community. Le stesse statistiche compaiono su ogni annuncio, così puoi confrontare i venditori prima di acquistare su Little Biggy."
+          es-ES: "Abre la página del vendedor para ver su historial completo de reseñas, medias de entrega, recomendaciones y denuncias de la comunidad. Las mismas estadísticas aparecen en cada anuncio, para comparar vendedores antes de comprar en Little Biggy."
+          el-GR: "Ανοίξτε τη σελίδα του πωλητή για το πλήρες ιστορικό κριτικών, τους μέσους χρόνους παράδοσης, τις συστάσεις και τις αναφορές της κοινότητας. Τα ίδια στατιστικά εμφανίζονται σε κάθε καταχώριση, ώστε να συγκρίνετε πωλητές πριν αγοράσετε στο Little Biggy."
+          cs-CZ: "Otevřete stránku prodejce s kompletní historií recenzí, průměry doručení, doporučeními a nahlášeními komunity. Stejné statistiky jsou u každé nabídky, takže můžete prodejce porovnat, než na Little Biggy nakoupíte."
+          pl-PL: "Otwórz stronę sprzedawcy, aby zobaczyć pełną historię recenzji, średnie czasy dostawy, polecenia i zgłoszenia społeczności. Te same statystyki widnieją przy każdej ofercie, więc możesz porównać sprzedawców, zanim kupisz na Little Biggy."
     filters:
       all:
         en-GB: All

@@ -756,6 +756,8 @@
     "visitStore": "Visitar loja",
     "meta": {
       "activeListings": "{count, plural, one {1 anúncio ativo} other {# anúncios ativos}}",
+      "rating": "avaliado com {rating}/10 em {count, plural, one {1 avaliação de comprador} other {# avaliações de compradores}}",
+      "delivery": "entrega média em ~{days} {days, plural, one {dia} other {dias}}",
       "reviews": "{count, plural, one {1 avaliação} other {# avaliações}}",
       "endorsements": "{count, plural, one {1 recomendação da comunidade} other {# recomendações da comunidade}}",
       "reports": "{count, plural, one {1 denúncia da comunidade} other {# denúncias da comunidade}}"
@@ -871,10 +873,27 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Avaliações Little Biggy | BiggyIndex",
+      "metadataTitle": "Avaliações Little Biggy — últimas classificações e fotos de compradores | BiggyIndex",
       "metadataDescription": "As últimas avaliações Little Biggy dos compradores, com fotos, classificações e prazos de entrega.",
       "title": "Avaliações Little Biggy",
       "subtitle": "{count, plural, one {1 avaliação recente de compradores Little Biggy} other {# avaliações recentes de compradores Little Biggy}}",
+      "intro": "Estas são as {count} avaliações de compradores mais recentes indexadas do Little Biggy, atualizadas ao longo do dia. Em média, os compradores classificam as suas encomendas com {rating}/10, com entrega tipicamente em cerca de {days, plural, one {um dia} other {# dias}}. Fotos, classificações e prazos de entrega vêm diretamente das avaliações — nada é editado ou selecionado.",
+      "introNoDelivery": "Estas são as {count} avaliações de compradores mais recentes indexadas do Little Biggy, atualizadas ao longo do dia. Em média, os compradores classificam as suas encomendas com {rating}/10. Fotos, classificações e prazos de entrega vêm diretamente das avaliações — nada é editado ou selecionado.",
+      "faq": {
+        "heading": "Sobre estas avaliações",
+        "source": {
+          "q": "De onde vêm estas avaliações?",
+          "a": "Cada avaliação aqui foi publicada por um comprador no Little Biggy após uma encomenda protegida por caução. O nosso crawler indexa novas avaliações ao longo do dia e mostra-as sem edição — incluindo as críticas."
+        },
+        "trust": {
+          "q": "Os vendedores podem falsificar as suas avaliações?",
+          "a": "As avaliações estão ligadas ao sistema de encomendas do Little Biggy, o que torna inflacionar um perfil mais difícil do que parece. O sinal fiável é o padrão e não uma avaliação isolada — o histórico completo de classificações, o tempo médio de entrega e o feedback comunitário moderado estão na página do vendedor no BiggyIndex."
+        },
+        "checkSeller": {
+          "q": "Como verifico um vendedor específico antes de encomendar?",
+          "a": "Abra a página do vendedor para ver o histórico completo de avaliações, médias de entrega, recomendações e denúncias da comunidade. As mesmas estatísticas aparecem em cada anúncio, para poder comparar vendedores antes de comprar no Little Biggy."
+        }
+      },
       "filters": {
         "all": "Todos",
         "withPhotos": "Com fotografias",

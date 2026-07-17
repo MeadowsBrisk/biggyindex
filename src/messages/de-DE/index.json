@@ -756,6 +756,8 @@
     "visitStore": "Besuche den Shop",
     "meta": {
       "activeListings": "{count, plural, one {1 aktives Angebot} other {# aktive Angebote}}",
+      "rating": "bewertet mit {rating}/10 aus {count, plural, one {1 Käuferbewertung} other {# Käuferbewertungen}}",
+      "delivery": "durchschnittliche Lieferung in ~{days} {days, plural, one {Tag} other {Tagen}}",
       "reviews": "{count, plural, one {1 Bewertung} other {# Bewertungen}}",
       "endorsements": "{count, plural, one {1 Community-Empfehlung} other {# Community-Empfehlungen}}",
       "reports": "{count, plural, one {1 Community-Meldung} other {# Community-Meldungen}}"
@@ -871,10 +873,27 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Little Biggy-Bewertungen | BiggyIndex",
+      "metadataTitle": "Little Biggy-Bewertungen — neueste Käuferbewertungen & Fotos | BiggyIndex",
       "metadataDescription": "Die neuesten Little Biggy-Bewertungen von Käufern, mit Bildern, Bewertungen und Lieferzeiten.",
       "title": "Little Biggy-Bewertungen",
       "subtitle": "{count, plural, one {1 aktuelle Bewertung von Little Biggy Käufern} other {# aktuelle Bewertungen von Little Biggy Käufern}}",
+      "intro": "Dies sind die {count} neuesten Käuferbewertungen, die wir von Little Biggy indexieren – mehrmals täglich aktualisiert. Im Durchschnitt bewerten Käufer ihre Bestellungen mit {rating}/10, die Lieferung dauert typischerweise etwa {days, plural, one {einen Tag} other {# Tage}}. Fotos, Bewertungen und Lieferzeiten stammen direkt aus den Bewertungen – nichts wird bearbeitet oder kuratiert.",
+      "introNoDelivery": "Dies sind die {count} neuesten Käuferbewertungen, die wir von Little Biggy indexieren – mehrmals täglich aktualisiert. Im Durchschnitt bewerten Käufer ihre Bestellungen mit {rating}/10. Fotos, Bewertungen und Lieferzeiten stammen direkt aus den Bewertungen – nichts wird bearbeitet oder kuratiert.",
+      "faq": {
+        "heading": "Über diese Bewertungen",
+        "source": {
+          "q": "Woher stammen diese Bewertungen?",
+          "a": "Jede Bewertung hier wurde von einem Käufer auf Little Biggy nach einer treuhandgesicherten Bestellung verfasst. Unser Crawler indexiert neue Bewertungen über den Tag verteilt und zeigt sie unbearbeitet – auch die kritischen."
+        },
+        "trust": {
+          "q": "Können Verkäufer ihre Bewertungen fälschen?",
+          "a": "Bewertungen sind an das Bestellsystem von Little Biggy gebunden, was das Aufpolstern eines Profils schwerer macht, als es aussieht. Das verlässliche Signal ist das Muster, nicht die einzelne Bewertung – die komplette Bewertungshistorie, die durchschnittliche Lieferzeit und das moderierte Community-Feedback eines Verkäufers stehen auf seiner BiggyIndex-Verkäuferseite."
+        },
+        "checkSeller": {
+          "q": "Wie prüfe ich einen bestimmten Verkäufer vor der Bestellung?",
+          "a": "Öffnen Sie die Verkäuferseite für die komplette Bewertungshistorie, Lieferdurchschnitte, Community-Empfehlungen und Meldungen. Dieselben Werte erscheinen bei jedem Angebot, sodass Sie Verkäufer direkt vergleichen können, bevor Sie auf Little Biggy kaufen."
+        }
+      },
       "filters": {
         "all": "Alle",
         "withPhotos": "Mit Fotos",

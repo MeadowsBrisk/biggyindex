@@ -756,6 +756,8 @@
     "visitStore": "Visit store",
     "meta": {
       "activeListings": "{count, plural, one {1 active listing} other {# active listings}}",
+      "rating": "rated {rating}/10 from {count, plural, one {1 buyer review} other {# buyer reviews}}",
+      "delivery": "~{days, plural, one {1-day} other {#-day}} average delivery",
       "reviews": "{count, plural, one {1 review} other {# reviews}}",
       "endorsements": "{count, plural, one {1 community endorsement} other {# community endorsements}}",
       "reports": "{count, plural, one {1 community report} other {# community reports}}"
@@ -871,10 +873,27 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Little Biggy Reviews | BiggyIndex",
+      "metadataTitle": "Little Biggy Reviews — Latest Buyer Ratings & Photos | BiggyIndex",
       "metadataDescription": "The latest Little Biggy reviews from buyers, with photos, ratings, and delivery times.",
       "title": "Little Biggy Reviews",
       "subtitle": "{count, plural, one {1 recent review from Little Biggy buyers} other {# recent reviews from Little Biggy buyers}}",
+      "intro": "These are the {count} most recent buyer reviews indexed from Little Biggy, refreshed throughout the day. Across them, buyers rate their orders {rating}/10 on average, with delivery typically taking about {days, plural, one {a day} other {# days}}. Photos, ratings and delivery times come straight from the reviews themselves — nothing is edited or curated.",
+      "introNoDelivery": "These are the {count} most recent buyer reviews indexed from Little Biggy, refreshed throughout the day. Across them, buyers rate their orders {rating}/10 on average. Photos, ratings and delivery times come straight from the reviews themselves — nothing is edited or curated.",
+      "faq": {
+        "heading": "About these reviews",
+        "source": {
+          "q": "Where do these reviews come from?",
+          "a": "Every review here was posted by a buyer on Little Biggy after an escrow-protected order. Our crawler indexes new reviews throughout the day and shows them unedited — including the critical ones."
+        },
+        "trust": {
+          "q": "Can sellers fake their reviews?",
+          "a": "Reviews are tied to Little Biggy's order system, which makes padding a profile harder than it looks. The reliable signal is the pattern rather than any single review — a seller's full rating history, average delivery time and moderated community feedback are all shown on their BiggyIndex seller page."
+        },
+        "checkSeller": {
+          "q": "How do I check a specific seller before ordering?",
+          "a": "Open the seller's page for their complete review history, delivery averages, community endorsements and reports. The same stats appear on every listing, so you can compare sellers side by side before you buy on Little Biggy."
+        }
+      },
       "filters": {
         "all": "All",
         "withPhotos": "With photos",

@@ -128,6 +128,30 @@ export default async function ReviewsPage({
     }
   }
 
+  // Aggregate stats for the SSR intro paragraph — real prose content signals
+  // for review-intent queries (/reviews sat at pos ~34 with 1k+ imps and a
+  // near-text-free above-the-fold; 2026-07 GSC pass). Computed here inside the
+  // cached page body so generateMetadata stays IO-free (uncached IO there
+  // would flip the route to PPR-dynamic no-store).
+  const rated = allReviews.filter((r) => r.rating > 0);
+  const avgRating =
+    rated.length > 0
+      ? (rated.reduce((sum, r) => sum + r.rating, 0) / rated.length).toFixed(1)
+      : null;
+  const withDelivery = allReviews.filter(
+    (r) => r.daysToArrive != null && r.daysToArrive >= 0,
+  );
+  const avgDelivery =
+    withDelivery.length > 0
+      ? Math.round(
+          withDelivery.reduce((sum, r) => sum + (r.daysToArrive ?? 0), 0) /
+            withDelivery.length,
+        )
+      : null;
+
+  const t = await getTranslations({ locale, namespace: "reviews.page" });
+  const FAQ_KEYS = ["source", "trust", "checkSeller"] as const;
+
   return (
     <>
       <RouteDataLoader
@@ -137,7 +161,43 @@ export default async function ReviewsPage({
       />
       <SiteHeader />
       <main className="min-h-screen bg-background">
-        <ReviewsPageClient reviews={allReviews} />
+        <ReviewsPageClient
+          reviews={allReviews}
+          intro={
+            avgRating != null
+              ? avgDelivery != null
+                ? t("intro", {
+                    count: allReviews.length,
+                    rating: avgRating,
+                    days: avgDelivery,
+                  })
+                : t("introNoDelivery", {
+                    count: allReviews.length,
+                    rating: avgRating,
+                  })
+              : null
+          }
+        />
+
+        {/* FAQ — crawlable prose for review-intent queries; mirrors the
+            honest tone of /about. Server-rendered, translated. */}
+        <section className="mx-auto max-w-6xl px-4 pb-14">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {t("faq.heading")}
+          </h2>
+          <div className="space-y-5 max-w-3xl">
+            {FAQ_KEYS.map((key) => (
+              <div key={key}>
+                <h3 className="text-sm font-semibold text-foreground mb-1">
+                  {t(`faq.${key}.q`)}
+                </h3>
+                <p className="text-sm text-muted leading-relaxed">
+                  {t(`faq.${key}.a`)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
       <SiteFooter locale={locale} />
     </>

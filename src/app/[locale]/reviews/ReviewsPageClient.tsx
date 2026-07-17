@@ -34,6 +34,9 @@ interface ReviewCardData {
 
 interface Props {
   reviews: ReviewCardData[];
+  /** Server-computed intro paragraph (aggregate stats prose); null when the
+      feed is empty or unrated. SSR'd here so it sits under the H1. */
+  intro?: string | null;
 }
 
 /* ReviewsPageClient no longer accepts `now` as a prop —
@@ -344,7 +347,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
   );
 }
 
-export function ReviewsPageClient({ reviews }: Props) {
+export function ReviewsPageClient({ reviews, intro }: Props) {
   const t = useTranslations("reviews.page");
   const [now, setNow] = useState(0);
   useEffect(() => {
@@ -382,6 +385,11 @@ export function ReviewsPageClient({ reviews }: Props) {
         <p className="text-muted text-sm">
           {t("subtitle", { count: reviews.length })}
         </p>
+        {intro && (
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted">
+            {intro}
+          </p>
+        )}
       </div>
 
       {/* Filters */}

@@ -756,6 +756,8 @@
     "visitStore": "Visiter la boutique",
     "meta": {
       "activeListings": "{count, plural, one {1 annonce active} other {# annonces actives}}",
+      "rating": "noté {rating}/10 sur {count, plural, one {1 avis d'acheteur} other {# avis d'acheteurs}}",
+      "delivery": "livraison moyenne en ~{days} {days, plural, one {jour} other {jours}}",
       "reviews": "{count, plural, one {1 avis} other {# avis}}",
       "endorsements": "{count, plural, one {1 recommandation de la communauté} other {# recommandations de la communauté}}",
       "reports": "{count, plural, one {1 signalement de la communauté} other {# signalements de la communauté}}"
@@ -871,10 +873,27 @@
   },
   "reviews": {
     "page": {
-      "metadataTitle": "Avis Little Biggy | BiggyIndex",
+      "metadataTitle": "Avis Little Biggy — dernières notes et photos d'acheteurs | BiggyIndex",
       "metadataDescription": "Les derniers avis Little Biggy des acheteurs, avec photos, notes et délais de livraison.",
       "title": "Avis Little Biggy",
       "subtitle": "{count, plural, one {1 avis récent d’acheteurs Little Biggy} other {# avis récents d’acheteurs Little Biggy}}",
+      "intro": "Voici les {count} avis d'acheteurs les plus récents indexés depuis Little Biggy, actualisés tout au long de la journée. En moyenne, les acheteurs notent leurs commandes {rating}/10, avec une livraison en environ {days, plural, one {un jour} other {# jours}}. Photos, notes et délais de livraison proviennent directement des avis — rien n'est modifié ni trié.",
+      "introNoDelivery": "Voici les {count} avis d'acheteurs les plus récents indexés depuis Little Biggy, actualisés tout au long de la journée. En moyenne, les acheteurs notent leurs commandes {rating}/10. Photos, notes et délais de livraison proviennent directement des avis — rien n'est modifié ni trié.",
+      "faq": {
+        "heading": "À propos de ces avis",
+        "source": {
+          "q": "D'où proviennent ces avis ?",
+          "a": "Chaque avis a été publié par un acheteur sur Little Biggy après une commande protégée par séquestre. Notre robot indexe les nouveaux avis tout au long de la journée et les affiche sans modification — y compris les avis critiques."
+        },
+        "trust": {
+          "q": "Les vendeurs peuvent-ils falsifier leurs avis ?",
+          "a": "Les avis sont liés au système de commandes de Little Biggy, ce qui rend le gonflage d'un profil plus difficile qu'il n'y paraît. Le signal fiable, c'est la tendance plutôt qu'un avis isolé — l'historique complet des notes, le délai moyen de livraison et les retours communautaires modérés figurent sur la page vendeur BiggyIndex."
+        },
+        "checkSeller": {
+          "q": "Comment vérifier un vendeur précis avant de commander ?",
+          "a": "Ouvrez la page du vendeur pour consulter l'historique complet des avis, les délais moyens de livraison, les recommandations et signalements de la communauté. Les mêmes statistiques figurent sur chaque annonce, ce qui permet de comparer les vendeurs avant d'acheter sur Little Biggy."
+        }
+      },
       "filters": {
         "all": "Tous",
         "withPhotos": "Avec des photos",
