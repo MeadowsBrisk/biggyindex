@@ -42,3 +42,6 @@ next-env.d.ts
 
 # i18n — generated from src/messages/messages.yaml by `yarn i18n:build`
 /src/messages/*/index.json
+
+# Local Netlify folder
+.netlify

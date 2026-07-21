@@ -24,16 +24,28 @@ const nextConfig: NextConfig = {
   // (matches food-aggregator). lib/r2-server.ts pulls it in for the
   // authenticated R2 API routes.
   serverExternalPackages: ["@aws-sdk/client-s3"],
-  // Disable STREAMED metadata for every user agent (not just Next's default
-  // html-limited-bot list). Why: PPR streams <meta>/<title>/canonical at the
-  // END of the body for browser UAs, and our CDN caches ONE copy per URL
-  // regardless of UA — so social scrapers (WhatsApp/Telegram/FB — no JS, most
-  // stop parsing early) were reading seller/item pages whose og:image sat at
-  // byte ~428k of a ~432k document → broken share previews. Blocking metadata
-  // costs TTFB only on the once-per-TTL origin render (these routes are
-  // CDN-cached); every cached copy then carries metadata in <head> for
-  // scrapers, Bing preview and non-rendering SEO tools alike.
-  htmlLimitedBots: /.*/,
+  // ── DO NOT set htmlLimitedBots to a catch-all. ─────────────────────────────
+  // REVERTED 2026-07-21. We briefly ran `htmlLimitedBots: /.*/` (2026-07-14) to
+  // force BLOCKING metadata for every UA, trying to fix social share previews
+  // (og:image was streaming at byte ~428k, past where WhatsApp/Telegram stop
+  // parsing). It made things strictly worse: item/seller are param-less
+  // fallback shells, so every render is a PPR *resume*, and Next hard-codes
+  // `serveStreamingMetadata: true` at export time (next/dist/export/worker.js)
+  // while the runtime honoured our regex and used the blocking variant. The two
+  // render different elements in the same slot (next/dist/lib/metadata/metadata.js
+  // — `<div hidden>` when streaming vs `<__next_metadata_boundary__>` when not),
+  // so React aborted the boundary:
+  //   "Expected the resume to render <div> ... instead it rendered
+  //    <__next_metadata_boundary__>"  → $RX() → client-rendered metadata.
+  // Measured live on 2026-07-21: item/seller pages served `</head>` at byte 4837
+  // with NO <title>, NO canonical, NO og:* for any non-JS consumer — and because
+  // netlify-vary does NOT include user-agent, that one metadata-less copy was
+  // cached and served to Googlebot/Bingbot/WhatsApp alike. Upstream bugs:
+  // vercel/next.js#93401 and #95406 (both open as of 16.2.10).
+  // Streamed metadata (late in body, but PRESENT) beats blocking metadata that
+  // gets dropped. If social previews need fixing again, give scrapers their own
+  // cache entry (UA-detect in proxy.ts → marker query param + Netlify-Vary),
+  // do NOT reach for htmlLimitedBots.
   cacheComponents: true,
   cacheLife: {
     /** Browse pages — stale 1h, revalidate daily, expire weekly */
