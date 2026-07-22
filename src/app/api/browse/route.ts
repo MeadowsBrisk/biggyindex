@@ -40,16 +40,33 @@ export async function GET(request: Request) {
 
   const version = browseDataVersion(items);
   const etag = `"${mkt}-${version}"`;
-  const pinned = url.searchParams.has("v");
 
+  // ── Cache-Control is UNCONDITIONAL. Do not reintroduce a `?v=` ternary. ────
+  // Until 2026-07-21 this read:
+  //   const pinned = url.searchParams.has("v");
+  //   "Cache-Control": pinned ? "public, max-age=31536000, immutable"
+  //                           : "public, max-age=0, must-revalidate"
+  // That is unsafe here, and it is the SAME shape as the July 13 /browse
+  // noindex incident (see next.config.ts headers()): Netlify's cache key for
+  // this route is `netlify-vary: query=__nextDataReq|_rsc` — our `v` param is
+  // NOT part of it. So whichever request populates the durable entry decides
+  // the Cache-Control served to EVERYONE. Measured live: a `?v=1` request came
+  // back `public,max-age=0,must-revalidate` (the pin silently did nothing), and
+  // the reverse race would pin a YEAR of immutable browser caching on clients
+  // that never asked for it — unfixable without a purge users can't receive.
+  // Freshness is already governed by the ETag (content-addressed on
+  // browseDataVersion), which is the correct mechanism. Keep one value.
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ETag: etag,
-    "Cache-Control": pinned
-      ? "public, max-age=31536000, immutable"
-      : "public, max-age=0, must-revalidate",
+    "Cache-Control": "public, max-age=0, must-revalidate",
+    // s-maxage 900 → 21600 (2026-07-21): the payload is content-addressed by
+    // ETag, so a longer edge TTL costs no correctness — a stale entry still
+    // revalidates to a 304 against the same version. 15 min was forcing a
+    // billed origin render every quarter hour per market during the Netlify
+    // Free-tier invocation incident.
     "Netlify-CDN-Cache-Control":
-      "public, durable, s-maxage=900, stale-while-revalidate=86400",
+      "public, durable, s-maxage=21600, stale-while-revalidate=86400",
     Vary: "Accept-Encoding",
   };
 

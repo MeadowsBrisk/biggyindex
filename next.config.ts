@@ -212,6 +212,12 @@ const nextConfig: NextConfig = {
       headers: [{ key: "Netlify-CDN-Cache-Control", value: durable }],
     }));
 
+    // /robots.txt needs no rule here: it is a route handler
+    // (src/app/robots.txt/route.ts) that sets its own cacheable headers —
+    // the sitemap.xml shape. It was BRIEFLY a metadata route (robots.ts)
+    // whose `await headers()` call made every hit a billed origin invocation
+    // on all 10 hosts; see the route file's comment for the history.
+
     return durableRules;
   },
 };
