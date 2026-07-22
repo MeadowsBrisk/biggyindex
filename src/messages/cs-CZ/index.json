@@ -731,7 +731,8 @@
       "bannerDelisted": "Staženo {date}",
       "titleSuffix": "(již není v nabídce)",
       "lastKnownPrice": "Poslední známá cena",
-      "lastKnownShipping": "Poslední známé poštovné"
+      "lastKnownShipping": "Poslední známé poštovné",
+      "englishAvailable": "Tato nabídka je v angličtině dostupná na biggyindex.com"
     },
     "legacyModal": {
       "close": "Zavřít",

@@ -731,7 +731,8 @@
       "bannerDelisted": "Retiré le {date}",
       "titleSuffix": "(n’est plus référencé)",
       "lastKnownPrice": "Dernier prix connu",
-      "lastKnownShipping": "Derniers frais d’envoi connus"
+      "lastKnownShipping": "Derniers frais d’envoi connus",
+      "englishAvailable": "Cette annonce est disponible en anglais sur biggyindex.com"
     },
     "legacyModal": {
       "close": "Fermer",

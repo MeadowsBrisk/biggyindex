@@ -731,7 +731,8 @@
       "bannerDelisted": "Αποσύρθηκε στις {date}",
       "titleSuffix": "(δεν διατίθεται πλέον)",
       "lastKnownPrice": "Τελευταία γνωστή τιμή",
-      "lastKnownShipping": "Τελευταία γνωστά μεταφορικά"
+      "lastKnownShipping": "Τελευταία γνωστά μεταφορικά",
+      "englishAvailable": "Αυτή η καταχώριση είναι διαθέσιμη στα αγγλικά στο biggyindex.com"
     },
     "legacyModal": {
       "close": "Κλείσιμο",

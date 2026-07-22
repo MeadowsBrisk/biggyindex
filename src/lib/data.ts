@@ -340,11 +340,14 @@ export async function loadMergedDetail(
 
 // ─── Little Biggy live status (public uptime blob) ──────────────
 //
-// Written by the crawler to `shared/status.json` in the data bucket.
+// Written by the crawler to `shared/status.json` in the data bucket —
+// by full index runs AND by the 10-minute status-ping function (2026-07-22).
 // Contract (see /littlebiggy-status page): a rolling window of the last
-// ~48 reachability checks (~24h). The blob ships separately from this
-// frontend, so the loader NEVER throws — a missing/malformed blob
-// degrades to `null` and the page renders an "unknown" state.
+// ~144 reachability checks (≈24h at the densest 10-min cadence; the cap
+// lives crawler-side in shared/status/status.ts RECENT_CHECKS_CAP). The
+// blob ships separately from this frontend, so the loader NEVER throws —
+// a missing/malformed blob degrades to `null` and the page renders an
+// "unknown" state.
 
 export interface StatusCheck {
   /** ISO timestamp of the check */
@@ -362,7 +365,7 @@ export interface LittleBiggyStatus {
   lastUpAt: string;
   /** ISO timestamp of the last observed outage, or null if never seen down */
   lastDownAt: string | null;
-  /** Most recent checks, oldest→newest (last ~48 ≈ 24h) */
+  /** Most recent checks, oldest→newest (last ~144 ≈ 24h at 10-min pings) */
   recentChecks: StatusCheck[];
 }
 
@@ -438,13 +441,18 @@ export async function loadArchiveManifest(
  * relisted ref and MUST be ignored unless manifested. Returns null when the
  * ref isn't archived or either fetch fails — callers fall through to their
  * not-found flow.
+ *
+ * `manifest` may be passed by callers that already hold it (the item page's
+ * loader reads the manifest once to decide archived-ness, then hands it in
+ * here so the blob isn't gated on a second identical fetch).
  */
 export async function loadArchivedDetail(
   ref: string,
   market = "gb",
+  manifest?: ArchiveManifest,
 ): Promise<ArchivedDetailBlob | null> {
-  const manifest = await loadArchiveManifest(market);
-  const entry = manifest[ref];
+  const resolvedManifest = manifest ?? (await loadArchiveManifest(market));
+  const entry = resolvedManifest[ref];
   if (!entry) return null;
 
   const blob = await readR2JSON<ArchivedDetailBlob>(

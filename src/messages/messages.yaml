@@ -5358,6 +5358,16 @@ item:
       el-GR: Τελευταία γνωστά μεταφορικά
       cs-CZ: Poslední známé poštovné
       pl-PL: Ostatnia znana wysyłka
+    englishAvailable:
+      en-GB: This listing is available in English on biggyindex.com
+      de-DE: Dieser Eintrag ist auf Englisch unter biggyindex.com verfügbar
+      fr-FR: Cette annonce est disponible en anglais sur biggyindex.com
+      pt-PT: Este anúncio está disponível em inglês em biggyindex.com
+      it-IT: Questo annuncio è disponibile in inglese su biggyindex.com
+      es-ES: Este anuncio está disponible en inglés en biggyindex.com
+      el-GR: Αυτή η καταχώριση είναι διαθέσιμη στα αγγλικά στο biggyindex.com
+      cs-CZ: Tato nabídka je v angličtině dostupná na biggyindex.com
+      pl-PL: Ta oferta jest dostępna w języku angielskim na biggyindex.com
   legacyModal:
     close:
       en-GB: Close

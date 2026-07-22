@@ -95,6 +95,14 @@ interface PageMetadataOptions {
   }>;
   /** og:type override — e.g. "product" for item pages. Default "website". */
   ogType?: "website" | "product";
+  /**
+   * Emit `robots: noindex, follow` when true. Used for the narrow class of
+   * never-translated foreign-market archived items — kept out of the index
+   * (the English copy on biggyindex.com is the one that should rank) while
+   * still letting crawlers follow the cross-link to it. `follow` stays on so
+   * the outbound English link passes crawl signal.
+   */
+  noindex?: boolean;
 }
 
 interface ResolvedOgImage {
@@ -113,6 +121,7 @@ export function pageMetadata({
   alternateMarkets = ALL_MARKETS,
   images,
   ogType = "website",
+  noindex = false,
 }: PageMetadataOptions): Metadata {
   const url = absoluteUrl(market, path);
   const metaDescription = compactMetaDescription(description, 160);
@@ -169,6 +178,14 @@ export function pageMetadata({
       images: ogImages.map((image) => image.url),
     },
   };
+
+  // noindex,follow: keep this URL out of the index but let crawlers follow
+  // its links (notably the English cross-link on never-translated foreign
+  // archived items). Canonical/hreflang stay as-is — Google ignores hreflang
+  // on a noindexed page, so a self-only cluster here is harmless.
+  if (noindex) {
+    metadata.robots = { index: false, follow: true };
+  }
 
   // Next 16's metadata resolver REJECTS og:type "product" at runtime
   // ("Invalid OpenGraph type: product" — and the throw drops ALL meta

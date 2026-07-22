@@ -731,7 +731,8 @@
       "bannerDelisted": "Rimosso il {date}",
       "titleSuffix": "(non più in vendita)",
       "lastKnownPrice": "Ultimo prezzo noto",
-      "lastKnownShipping": "Ultima spedizione nota"
+      "lastKnownShipping": "Ultima spedizione nota",
+      "englishAvailable": "Questo annuncio è disponibile in inglese su biggyindex.com"
     },
     "legacyModal": {
       "close": "Chiudi",

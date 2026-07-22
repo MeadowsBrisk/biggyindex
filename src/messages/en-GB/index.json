@@ -731,7 +731,8 @@
       "bannerDelisted": "Delisted {date}",
       "titleSuffix": "(no longer listed)",
       "lastKnownPrice": "Last known price",
-      "lastKnownShipping": "Last known shipping"
+      "lastKnownShipping": "Last known shipping",
+      "englishAvailable": "This listing is available in English on biggyindex.com"
     },
     "legacyModal": {
       "close": "Close",

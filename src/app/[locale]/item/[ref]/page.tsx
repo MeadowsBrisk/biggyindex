@@ -31,6 +31,7 @@ import { categoryToSlug } from "@/lib/categories";
 import {
   type ArchivedDetailBlob,
   loadArchivedDetail,
+  loadArchiveManifest,
   loadItems,
   loadMergedDetail,
 } from "@/lib/data";
@@ -39,6 +40,7 @@ import { getItemGalleryImages } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
 import {
   ALL_MARKETS,
+  ENGLISH_MARKETS,
   localeToMarket,
   type MarketCode,
 } from "@/lib/market/market";
@@ -213,6 +215,36 @@ function itemReviewsFromDetail(
   });
 }
 
+/**
+ * Best non-empty display name for an item.
+ *
+ * The market-localized `n` is preferred, then the English original `nEn`.
+ * Delisted foreign snapshots can carry an EMPTY `n` (and, when never
+ * translated, no `nEn`) — an empty name would yield a bare `<h1>` and a
+ * " de {seller}" title. In that case fall back to the first line of the
+ * description, then the ref, so the name slot is NEVER empty.
+ */
+function itemDisplayName(item: MergedDetailBlob): string {
+  const localized = decodeEntities(item.n ?? "").trim();
+  if (localized) return localized;
+
+  const english = item.nEn ? decodeEntities(item.nEn).trim() : "";
+  if (english) return english;
+
+  const desc = decodeEntities(item.d ?? item.dEn ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (desc) {
+    const firstLine = desc.split(/[.\n]/)[0].trim();
+    const candidate = firstLine || desc;
+    return candidate.length > 70
+      ? `${candidate.slice(0, 70).trimEnd()}…`
+      : candidate;
+  }
+
+  return String(item.refNum ?? item.id ?? "");
+}
+
 function itemMetadataDescription(
   item: MergedDetailBlob,
   metaT: Translator,
@@ -300,8 +332,21 @@ interface ItemDetailResult {
  * Cached item-detail load, shared by generateMetadata AND the ItemPage body so
  * the R2 fetches happen once per (ref, market) — the cache key MUST include the
  * market: GB/IE share English copy but are distinct markets/hosts with
- * distinct data. Live blob first; delisted items fall back to the
- * manifest-gated archive snapshot.
+ * distinct data.
+ *
+ * Archived-ness is decided by the archive MANIFEST first, not by which blob
+ * happens to exist. The crawler never deletes the live `item-detail` blob on
+ * delist, so an orphan live blob outlives the listing; trusting it would render
+ * a delisted item as a fully-live page (InStock, live CTA, no banner). So:
+ * if the ref is in the market's archive manifest AND is NOT in the current live
+ * items list (the manifest self-heals on relist, but the live-list check guards
+ * the lag window), we serve the manifest-gated ARCHIVE snapshot and force
+ * live=null even when an orphan live blob exists. Only refs the manifest doesn't
+ * claim take the normal path: live blob first, archive snapshot as fallback.
+ *
+ * The manifest is read once here and handed to loadArchivedDetail so it isn't
+ * gated on a second identical fetch. loadItems(mkt) is only touched for refs the
+ * manifest actually contains, so the common live path stays a single blob read.
  *
  * This wrapper exists so generateMetadata performs ZERO uncached IO — a
  * single raw fetch there marks the whole response dynamic under
@@ -321,8 +366,23 @@ async function loadItemDetail(
   cacheTag("item-detail");
   cacheTag("items");
 
+  const manifest = await loadArchiveManifest(mkt);
+  if (manifest[ref]) {
+    // Manifest claims this ref as delisted. Confirm it isn't currently live
+    // (relist self-heal can lag the manifest sweep) before trusting the
+    // archive snapshot over any orphan live blob.
+    const liveItems = await loadItems(mkt);
+    const stillLive = liveItems.some(
+      (candidate) => String(candidate.refNum ?? candidate.id) === ref,
+    );
+    if (!stillLive) {
+      const archived = await loadArchivedDetail(ref, mkt, manifest);
+      return { live: null, archived };
+    }
+  }
+
   const live = await loadMergedDetail(ref, mkt);
-  const archived = live ? null : await loadArchivedDetail(ref, mkt);
+  const archived = live ? null : await loadArchivedDetail(ref, mkt, manifest);
   return { live, archived };
 }
 
@@ -344,8 +404,17 @@ export async function generateMetadata({
   // throwing here guarantees crawlers the status.
   if (!item) notFound();
 
-  const name = decodeEntities(item.n);
+  const name = itemDisplayName(item);
   const seller = item.sn ? decodeEntities(item.sn) : null;
+
+  // Narrow noindex class: a delisted item on a NON-English market that was
+  // never translated (no `nEn` — the crawler only stamps it when a real
+  // translation differs from the English original). Its English twin on
+  // biggyindex.com is the page that should rank, so keep this one out of the
+  // index. GB/IE archived items and translated foreign archived items stay
+  // fully indexable.
+  const neverTranslatedForeignArchive =
+    archived != null && !ENGLISH_MARKETS.includes(market) && !item.nEn;
   const image = getItemGalleryImages(item, "full", { forceStatic: true })[0];
   const presence = await itemMarketPresence();
   // The page can render from the shared detail blob for an item already
@@ -393,6 +462,7 @@ export async function generateMetadata({
     alternateMarkets,
     images: image ? [{ url: image, alt: name }] : undefined,
     ogType: "product",
+    noindex: neverTranslatedForeignArchive,
   });
 }
 
@@ -492,9 +562,19 @@ export default async function ItemPage({ params }: ItemPageProps) {
   const isArchived = archived != null;
   const archivedDate = isArchived ? fmtDate(archived.arc?.at) : null;
 
-  const translatedName = decodeEntities(item.n);
+  // Never-translated foreign archived item: point visitors (and crawlers) at
+  // the canonical English page on the apex host, which stays indexable while
+  // this one is noindexed. Same predicate as generateMetadata's noindex gate.
+  const showEnglishCrossLink =
+    isArchived && !ENGLISH_MARKETS.includes(market) && !item.nEn;
+  const englishItemUrl = `https://biggyindex.com/item/${encodeURIComponent(ref)}`;
+
+  const name = itemDisplayName(item);
   const englishName = item.nEn ? decodeEntities(item.nEn) : null;
-  const name = translatedName;
+  // Keep the localized name for the "show original" toggle, but never let an
+  // empty market name collapse the toggle's translated side — fall back to the
+  // resolved display name.
+  const translatedName = decodeEntities(item.n ?? "") || name;
   const translatedDesc = item.d ? decodeEntities(item.d) : null;
   const englishDesc = item.dEn ? decodeEntities(item.dEn) : null;
   const images = getItemGalleryImages(item);
@@ -659,6 +739,16 @@ export default async function ItemPage({ params }: ItemPageProps) {
             {archivedDate && (
               <p className="mt-0.5 text-xs text-amber-700/90 dark:text-amber-200/80">
                 {archiveT("bannerDelisted", { date: archivedDate })}
+              </p>
+            )}
+            {showEnglishCrossLink && (
+              <p className="mt-1.5 text-xs text-amber-700/90 dark:text-amber-200/80">
+                <a
+                  href={englishItemUrl}
+                  className="font-medium underline underline-offset-2 transition-colors hover:text-amber-900 dark:hover:text-amber-100"
+                >
+                  {archiveT("englishAvailable")}
+                </a>
               </p>
             )}
           </div>
