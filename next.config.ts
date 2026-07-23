@@ -198,8 +198,26 @@ const nextConfig: NextConfig = {
     // still fires ONE background revalidation (= a billed invocation). A
     // longer fresh window is the only lever that removes those — day-1 post-
     // fix usage (~4k/day) still projected too close to the 125k cap.
+    //
+    // ── EMERGENCY: s-maxage 21600 → 2592000 (30 DAYS), 2026-07-22. ─────────
+    // REVERT TO 21600 ON 2026-08-01 when the billing period resets.
+    // Measured Jul-22 afternoon (post-Cloudflare-rules): ~1,990 invocations/day
+    // vs a survival rate of ~1,570/day — the residual burn is exactly this
+    // class: bots revisit each of ~9.3k long-tail URLs every 4-7 days, so at
+    // ANY TTL below ~4 days essentially every visit lands stale and fires a
+    // billed SWR revalidation (billed/day ≈ N × min(λ, 1/TTL); λ ≈ 0.235/day
+    // binds until TTL > 1/λ). 7 days sits on the crossover and buys almost
+    // nothing — the honest choices are 6h or 30d. At 30d: ~2,000/day → ~500.
+    // KNOWN COSTS (accepted for the 10-day emergency, wrong permanently):
+    //   • These entries are TTL-based — revalidateTag can NOT flush them. A
+    //     delisted/changed item's SSR HTML can persist up to 30d (the overlay
+    //     refetches live data client-side; Cloudflare in front caps what
+    //     browsers see at its own 2h edge TTL, but it re-fetches the same
+    //     stale durable copy).
+    //   • Unknown-ref 200 shells (noindexed) also persist 30d — a URL probed
+    //     before its item existed stays a shell until Aug 1.
     const durable =
-      "public, durable, s-maxage=21600, stale-while-revalidate=86400";
+      "public, durable, s-maxage=2592000, stale-while-revalidate=2592000";
     const durableRules = [
       "/item/:ref*",
       "/seller/:id*",
