@@ -16,10 +16,25 @@ import type { Locale } from "./routing";
  *
  * Deliberately EXCLUDED (server-only, verified via grep of useTranslations):
  *   - site      → generateMetadata + home page.tsx (getTranslations)
- *   - footer    → SiteFooter (getTranslations)
  *   - legal     → privacy/terms/cookies pages (getTranslations)   [~5 KB]
  *   - category  → category/[slug]/page.tsx (getTranslations)      [~8 KB]
  *   - sort      → no consumer; client sort UI uses browse.toolbar.sort
+ *
+ * DOTTED PATHS ARE SUPPORTED. An entry may be a top-level namespace ("home")
+ * or a dotted sub-path ("footer.statusLink"). A dotted entry ships ONLY that
+ * subtree, rebuilt at the same shape, so `useTranslations("footer")` +
+ * `t("statusLink")` still resolves. Use it when a client component needs one
+ * leaf of an otherwise server-only namespace — shipping the whole namespace
+ * to every page just to satisfy one string is pure payload waste.
+ *
+ * The outage surfaces are exactly that case: <HeroStatusStrip> (homepage)
+ * reads `littleBiggyStatus.status.down` + `footer.statusLink`, and
+ * <StatusRelativeTime> (status page) needs runtime ICU pluralisation of
+ * `littleBiggyStatus.status.lastChecked*` (the count advances on the client,
+ * so it cannot be pre-resolved server-side). Shipping both namespaces whole
+ * cost ~5.76 KB uncompressed per page; the two sub-paths below cost ~2.1 KB.
+ * They deliberately REUSE the existing copy rather than forking it into
+ * `home`.
  *
  * Keep alphabetical for easy diffing.
  */
@@ -29,10 +44,12 @@ export const CLIENT_NAMESPACES = [
   "categories",
   "common",
   "errors",
+  "footer.statusLink",
   "header",
   "home",
   "item",
   "lbGuide",
+  "littleBiggyStatus.status",
   "markets",
   "nav",
   "reviews",
@@ -46,24 +63,67 @@ export type ClientNamespace = (typeof CLIENT_NAMESPACES)[number];
 /** The full generated catalog shape (values are nested message trees). */
 export type Messages = Record<string, unknown>;
 
-/** Only the namespaces a client component may reference. */
-export type ClientMessages = Pick<Messages, ClientNamespace>;
+/**
+ * The subset shipped to the client. Deliberately the loose catalog shape:
+ * entries may be dotted sub-paths, so the result is a partial tree rather
+ * than a `Pick` over top-level keys.
+ */
+export type ClientMessages = Messages;
 
 /**
- * Lodash-style pick over top-level keys — no dependency, no deep clone
- * (values are shared by reference; they are never mutated). Silently skips
- * keys absent from the source so a stale namespace name can't crash the app,
- * but the dev guard in IntlClientProvider still surfaces genuine misses.
+ * Pick a subset of the catalog by namespace or dotted sub-path.
+ *
+ * - `"home"`              → ships the whole `home` namespace.
+ * - `"footer.statusLink"` → ships `{ footer: { statusLink } }` only.
+ *
+ * No dependency and no deep clone — picked values are shared by reference and
+ * are never mutated. Missing paths are skipped silently so a stale entry can't
+ * crash the app; the dev guard in IntlClientProvider still surfaces genuine
+ * misses loudly.
+ *
+ * Sub-paths of the SAME namespace merge rather than overwrite, so
+ * ["a.b", "a.c"] yields { a: { b, c } }. Listing a bare namespace alongside a
+ * sub-path of it (["a", "a.b"]) is redundant — last write wins — so don't.
  */
 export function pickMessages(
   messages: Messages,
   namespaces: readonly string[] = CLIENT_NAMESPACES,
 ): ClientMessages {
   const out: Messages = {};
+
   for (const ns of namespaces) {
-    if (ns in messages) out[ns] = messages[ns];
+    if (!ns.includes(".")) {
+      if (ns in messages) out[ns] = messages[ns];
+      continue;
+    }
+
+    const parts = ns.split(".");
+
+    // Walk the source to the requested leaf/subtree.
+    let src: unknown = messages;
+    for (const part of parts) {
+      if (typeof src !== "object" || src === null || !(part in src)) {
+        src = undefined;
+        break;
+      }
+      src = (src as Record<string, unknown>)[part];
+    }
+    if (src === undefined) continue;
+
+    // Rebuild the same shape in the output, merging with anything already
+    // placed there by a sibling sub-path.
+    let target = out;
+    for (const part of parts.slice(0, -1)) {
+      const existing = target[part];
+      if (typeof existing !== "object" || existing === null) {
+        target[part] = {};
+      }
+      target = target[part] as Messages;
+    }
+    target[parts[parts.length - 1]] = src;
   }
-  return out as ClientMessages;
+
+  return out;
 }
 
 /** Re-export for callers that want a stable signature alongside the locale. */

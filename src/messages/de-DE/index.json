@@ -51,6 +51,27 @@
       "approximateWhenConverted": "Ungefähr bei Umrechnung",
       "language": "Sprache",
       "english": "Englisch"
+    },
+    "verify": {
+      "trigger": "Offiziell",
+      "heading": "Offizielle Little Biggy Links",
+      "opensInNewTab": "(öffnet in einem neuen Tab)",
+      "canonBorg": {
+        "label": "canon borg",
+        "description": "Ankündigungen & PGP"
+      },
+      "mirrors": {
+        "label": "Federation-Mirrors",
+        "description": "Geprüfte Mirrors & Onion"
+      },
+      "littlebiggy": {
+        "label": "LittleBiggy",
+        "description": "Der Marktplatz"
+      },
+      "status": {
+        "label": "LB-Status",
+        "description": "Ist die Seite online?"
+      }
     }
   },
   "footer": {
@@ -92,7 +113,29 @@
       "uptimeTitle": "Letzte Prüfungen (letzte 24 Stunden)",
       "uptimeUp": "Erreichbar",
       "uptimeDown": "Nicht erreichbar",
-      "uptimeEmpty": "Noch kein Prüfverlauf vorhanden."
+      "uptimeEmpty": "Noch kein Prüfverlauf vorhanden.",
+      "lastCheckedDays": "{count, plural, one {Zuletzt vor 1 Tag geprüft} other {Zuletzt vor # Tagen geprüft}}",
+      "lastCheckedAbsolute": "Zuletzt geprüft {time} UTC",
+      "lastOutageJustNow": "Letzter Ausfall gerade eben",
+      "lastOutageMinutes": "{count, plural, one {Letzter Ausfall vor 1 Minute} other {Letzter Ausfall vor # Minuten}}",
+      "lastOutageHours": "{count, plural, one {Letzter Ausfall vor 1 Stunde} other {Letzter Ausfall vor # Stunden}}",
+      "lastOutageDays": "{count, plural, one {Letzter Ausfall vor 1 Tag} other {Letzter Ausfall vor # Tagen}}",
+      "lastOutageAbsolute": "Letzter Ausfall {time} UTC",
+      "noRecentOutages": "Keine Ausfälle verzeichnet",
+      "uptimePercent": "{pct} % erreichbar",
+      "uptimeMixed": "Teilweise erreichbar",
+      "uptimeNoData": "Keine Daten",
+      "uptimeAxisStart": "vor 24 Std.",
+      "uptimeAxisEnd": "Jetzt",
+      "uptimeCaption": "{checks, plural, one {1 Prüfung} other {# Prüfungen}} · mittlere Antwortzeit {ms} ms",
+      "uptimeCaptionNoLatency": "{checks, plural, one {1 Prüfung} other {# Prüfungen}} in diesem Zeitraum",
+      "bucketTitle": "{range} · {up}/{total} Prüfungen erreichbar",
+      "bucketTitleNoData": "{range} · keine Prüfungen"
+    },
+    "verify": {
+      "heading": "Stelle sicher, dass du beim echten Little Biggy bist",
+      "headingDown": "Kein Zugriff? Probiere diese",
+      "body": "Es gibt Phishing-Klone von Little Biggy. Diese Seiten belegen, dass du im echten Ökosystem bist — und dort postet die Community bei Ausfällen."
     },
     "sections": {
       "isDown": {
@@ -257,6 +300,10 @@
           "sellOrShip": {
             "q": "Verkaufst oder verschickst du Gegenstände?",
             "a": "Nein. Biggy Index ist schreibgeschützt und schickt dich zurück zu Little Biggy, um deine Bestellung abzuschließen."
+          },
+          "realSite": {
+            "q": "Woher weiß ich, dass ich auf dem echten Little Biggy bin?",
+            "a": "Es gibt Phishing-Klone von Little Biggy, deshalb lohnt sich eine Prüfung. Die folgenden Seiten sind Little Biggys eigene kanonische Quellen — canon borg veröffentlicht Ankündigungen und PGP-Schlüssel, und die Federation-Seite listet die geprüften Mirror-Domains und die Onion-Adresse für den Fall, dass die Hauptseite nicht erreichbar ist. Setze ein Lesezeichen auf littlebiggy.org, statt Suchergebnissen mit anderen Endungen zu vertrauen."
           },
           "dataSource": {
             "q": "Woher stammen die Daten?",

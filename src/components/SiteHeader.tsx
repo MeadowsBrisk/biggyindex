@@ -4,9 +4,12 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   Cannabis,
   ChevronDown,
+  Compass,
   Menu,
   Settings,
   ShoppingCart,
+  Star,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +18,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { MobileVerifyLinks, VerifyDropdown } from "@/components/VerifyLinks";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { CATEGORIES, MARKETS } from "@/lib/constants";
 import {
@@ -150,6 +154,14 @@ export function SiteHeader() {
           {/* Right side: basket + market/currency dropdown + settings + theme toggle + mobile menu */}
           <div className="flex items-center gap-2">
             <BasketButton />
+            {/* Verification links (canonical LB pages + our status page).
+                `md` and up, not `sm`: at exactly 640px the German/Czech nav
+                labels already fill the bar, so adding anything at `sm` made
+                the header overflow (measured: +90px on de-DE /about @640).
+                Below `md` the mobile drawer carries the same list. */}
+            <span className="hidden md:block">
+              <VerifyDropdown />
+            </span>
             {/* Market/locale flag dropdown — desktop only. On mobile it moves
                 into the hamburger drawer (see <MobileNav>) to save header space. */}
             <span className="hidden sm:block">
@@ -454,11 +466,14 @@ function MarketDropdown() {
 function MobileMenuButton() {
   const [open, setOpen] = useAtom(mobileMenuOpenAtom);
   const tMobileMenu = useTranslations("header.mobileMenu");
+  // `after:-inset-[5px]` grows the HIT area from 34px to 44px without moving a
+  // single computed box — the drawer's close button uses the identical trick,
+  // so the X still lands exactly where the hamburger was.
   return (
     <button
       type="button"
       onClick={() => setOpen((o) => !o)}
-      className="sm:hidden rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer"
+      className="relative sm:hidden rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer after:absolute after:-inset-[5px] after:content-['']"
       aria-label={open ? tMobileMenu("close") : tMobileMenu("open")}
     >
       {open ? <X size={18} /> : <Menu size={18} />}
@@ -515,10 +530,12 @@ function MobileNav() {
 
   if (!open) return null;
 
+  // Icon reservations across this surface: `Store` is spent on the LittleBiggy
+  // verify row, `LayoutGrid` on grid-view in the Toolbar, `Heart` on bookmarks.
   const links = [
-    { href: "/browse", label: tNav("browse") },
-    { href: "/sellers", label: tNav("sellers") },
-    { href: "/reviews", label: tNav("reviews") },
+    { href: "/browse", label: tNav("browse"), Icon: Compass },
+    { href: "/sellers", label: tNav("sellers"), Icon: Users },
+    { href: "/reviews", label: tNav("reviews"), Icon: Star },
   ];
 
   return (
@@ -550,46 +567,86 @@ function MobileNav() {
         >
           <BrandLogo />
         </Link>
+        {/* `after:-inset-[5px]` → 44px hit area with zero layout change, so
+            the X stays pixel-aligned with the hamburger it replaced. */}
         <button
           type="button"
           onClick={close}
-          className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer"
+          className="relative rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover cursor-pointer after:absolute after:-inset-[5px] after:content-['']"
           aria-label={tMobileMenu("close")}
         >
           <X size={18} />
         </button>
       </div>
 
-      {/* Body — vertically centered when short, scrolls when the market list is
-          expanded. `min-h-full` on the inner column keeps short content centered
-          without clipping tall content. */}
+      {/* Body — one list, one row primitive, four labelled groups.
+          Top-anchored and full-bleed (`px-1`, no `max-w-sm`, no
+          `justify-center`): vertical centring made the top gap depend on
+          content height, and a centred 384px column pushed the row icons out
+          of line with the top bar's logo. Now every row icon sits exactly
+          16px (4px column pad + 12px row pad) from the viewport edge. */}
       <div className="menu-modal-body flex-1 overflow-y-auto overscroll-contain">
-        <div className="mx-auto flex min-h-full w-full max-w-sm flex-col justify-center gap-7 px-5 py-8">
-          <nav className="flex flex-col gap-1">
-            {links.map((link) => {
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  prefetch={false}
-                  onClick={() => setOpen(false)}
-                  className={`rounded-xl px-4 py-3 text-lg font-semibold transition-colors ${
-                    active
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-[var(--surface-hover)]"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+        <div className="mx-auto flex w-full flex-col gap-7 px-1 pt-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
+          <nav aria-labelledby="menu-nav-heading">
+            {/* `mb-2` (not pb-2) so the eyebrow→first-row gap is a real 8px. */}
+            <h2
+              id="menu-nav-heading"
+              className="mb-2 px-3 text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted"
+            >
+              {tMobileMenu("label")}
+            </h2>
+            <div className="flex flex-col gap-1">
+              {links.map(({ href, label, Icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    prefetch={false}
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={`relative flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
+                      active
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-[var(--surface-hover)] active:bg-[var(--surface-hover)]"
+                    }`}
+                  >
+                    {/* Gradient rail — the drawer's answer to HeaderNavLink's
+                        active underline, and a non-colour cue for the active
+                        state (text-primary alone is ~3.3:1 on light). */}
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full"
+                        style={{ background: "var(--accent-gradient)" }}
+                      />
+                    )}
+                    <Icon
+                      size={18}
+                      className={
+                        active ? "shrink-0 text-primary" : "shrink-0 text-muted"
+                      }
+                    />
+                    <span className="min-w-0 flex-1 truncate text-base font-semibold leading-6">
+                      {label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
           </nav>
 
-          <div className="border-t border-[var(--border)]" />
+          {/* Verification links — the canonical LittleBiggy pages plus our own
+              status page. Same list as the desktop <VerifyDropdown>. Sits in
+              the drawer's gap-7 rhythm, so 28px clear of its neighbours. The
+              old `border-t` divider is gone: it existed to paper over the
+              nav↔verify style clash, and the eyebrows now do that grouping. */}
+          <MobileVerifyLinks onNavigate={() => setOpen(false)} />
 
           {/* Market / language switcher — collapsed behind a single trigger so
-              the drawer isn't dominated by the full market list. */}
+              the drawer isn't dominated by the full market list. Renders its
+              own `gap-7` wrapper so Market and Language are siblings on the
+              same 28px rhythm as the groups above. */}
           <MobileMarketSwitch onNavigate={() => setOpen(false)} />
         </div>
       </div>
@@ -622,70 +679,93 @@ function MobileMarketSwitch({ onNavigate }: { onNavigate: () => void }) {
   const current = MARKETS.find((m) => m.code === market) ?? MARKETS[0];
 
   return (
-    <div>
-      <div className="px-1 pb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
-        {tMarketMenu("market")}
+    // Market and Language are two sibling groups on the drawer's 28px rhythm.
+    <div className="flex flex-col gap-7">
+      {/* biome-ignore lint/a11y/useSemanticElements: <fieldset> carries UA
+          border/padding/margin that would break the drawer's gap-only rhythm,
+          and these are labelled groups of links/buttons, not form controls. */}
+      <div role="group" aria-labelledby="menu-market-heading">
+        <h2
+          id="menu-market-heading"
+          className="mb-2 px-3 text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted"
+        >
+          {tMarketMenu("market")}
+        </h2>
+
+        {/* Collapsed trigger — current market; tap to reveal the full list.
+            Borderless, like every other list row in the drawer. */}
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-foreground transition-colors hover:bg-[var(--surface-hover)] active:bg-[var(--surface-hover)]"
+        >
+          <CountryFlag code={current.code} size={18} />
+          <span className="min-w-0 flex-1 truncate text-[15px] font-medium leading-5">
+            {tMarkets(current.code)}
+          </span>
+          <span className="shrink-0 text-[11px] leading-4 text-muted">
+            {current.currencySymbol} {current.currency}
+          </span>
+          <ChevronDown
+            size={16}
+            aria-hidden="true"
+            className={`shrink-0 text-muted transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {/* Expanded market list. */}
+        {expanded && (
+          <div className="menu-reveal mt-1 flex flex-col gap-1">
+            {MARKETS.map((m) => (
+              <button
+                key={m.code}
+                type="button"
+                onClick={() => handleMarketSelect(m.code)}
+                aria-current={market === m.code ? "true" : undefined}
+                className={`flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors ${
+                  market === m.code
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted hover:bg-[var(--surface-hover)] hover:text-foreground"
+                }`}
+              >
+                <CountryFlag code={m.code} size={18} />
+                <span className="min-w-0 flex-1 truncate text-[15px] font-medium leading-5">
+                  {tMarkets(m.code)}
+                </span>
+                <span className="shrink-0 text-[11px] leading-4 opacity-70">
+                  {m.currencySymbol} {m.currency}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Collapsed trigger — current market; tap to reveal the full list. */}
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center gap-2.5 rounded-xl border border-[var(--border)] bg-surface px-3 py-2.5 text-sm transition-colors hover:bg-surface-hover cursor-pointer"
-        aria-expanded={expanded}
-      >
-        <CountryFlag code={current.code} size={20} />
-        <span className="flex-1 text-left font-medium text-foreground">
-          {tMarkets(current.code)}
-        </span>
-        <span className="text-xs text-muted">
-          {current.currencySymbol} {current.currency}
-        </span>
-        <ChevronDown
-          size={16}
-          className={`text-muted transition-transform ${expanded ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {/* Expanded market list. */}
-      {expanded && (
-        <div className="menu-reveal mt-1.5 flex flex-col gap-0.5">
-          {MARKETS.map((m) => (
-            <button
-              key={m.code}
-              type="button"
-              onClick={() => handleMarketSelect(m.code)}
-              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors cursor-pointer ${
-                market === m.code
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted hover:bg-surface-hover hover:text-foreground"
-              }`}
-            >
-              <CountryFlag code={m.code} size={18} />
-              <span className="flex-1 text-left">{tMarkets(m.code)}</span>
-              <span className="text-xs opacity-60">
-                {m.currencySymbol} {m.currency}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Language toggle — only on non-English markets, matching the desktop
-          dropdown. Persists per-origin via forceEnglishAtom. */}
+          dropdown. Persists per-origin via forceEnglishAtom. It is a control,
+          not a list, so the CONTAINER carries the single border and the
+          segments carry none. */}
       {showLanguageToggle && (
-        <>
-          <div className="mt-4 px-1 pb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+        // biome-ignore lint/a11y/useSemanticElements: see the Market group above.
+        <div role="group" aria-labelledby="menu-language-heading">
+          <h2
+            id="menu-language-heading"
+            className="mb-2 px-3 text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted"
+          >
             {tMarketMenu("language")}
-          </div>
-          <div className="flex gap-1.5">
+          </h2>
+          {/* `mx-1` lines the control's outer edge up with the row hover
+              fills, not with the 16px text inset. */}
+          <div className="mx-1 flex gap-1 rounded-xl border border-[var(--border)] bg-surface p-1">
             <button
               type="button"
               onClick={() => setForceEnglish(false)}
-              className={`flex-1 rounded-lg px-2 py-2 text-xs font-medium transition-colors cursor-pointer ${
+              aria-pressed={!forceEnglish}
+              className={`min-h-11 flex-1 cursor-pointer truncate rounded-lg px-3 text-[13px] font-medium transition-colors ${
                 !forceEnglish
-                  ? "bg-primary/15 text-primary border border-primary/30"
-                  : "bg-surface border border-[var(--border)] text-muted hover:text-foreground"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               {tMarkets(market)}
@@ -693,16 +773,17 @@ function MobileMarketSwitch({ onNavigate }: { onNavigate: () => void }) {
             <button
               type="button"
               onClick={() => setForceEnglish(true)}
-              className={`flex-1 rounded-lg px-2 py-2 text-xs font-medium transition-colors cursor-pointer ${
+              aria-pressed={forceEnglish}
+              className={`min-h-11 flex-1 cursor-pointer truncate rounded-lg px-3 text-[13px] font-medium transition-colors ${
                 forceEnglish
-                  ? "bg-primary/15 text-primary border border-primary/30"
-                  : "bg-surface border border-[var(--border)] text-muted hover:text-foreground"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               {tMarketMenu("english")}
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

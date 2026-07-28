@@ -19,10 +19,14 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { StatusRelativeTime } from "@/components/status/StatusRelativeTime";
+import { UptimeCard } from "@/components/status/UptimeCard";
+import { VerifyCard } from "@/components/status/VerifyCard";
 import { CATEGORY_SLUGS, slugToCategory } from "@/lib/categories";
 import { loadLittleBiggyStatus } from "@/lib/data";
 import { localeToMarket } from "@/lib/market/market";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { buildUptimeWindow } from "@/lib/status-window";
 
 export async function generateMetadata({
   params,
@@ -44,14 +48,11 @@ export async function generateMetadata({
 type StatusState = "up" | "down" | "unknown";
 
 /**
- * Minutes since the last check, computed server-side inside the cached
- * render. `cacheLife("status")` (revalidate 5m) re-stamps this so it never
- * drifts more than the revalidate window — the honest "X ago" the page needs.
+ * Deterministic absolute timestamp — a pure function of (iso, locale) with a
+ * fixed UTC zone and NO clock read, so it is safe to bake into the cached
+ * HTML. Relative "N minutes ago" strings are computed client-side by
+ * <StatusRelativeTime>; computing them here would freeze them into the cache.
  */
-function minutesSince(iso: string): number {
-  return Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
-}
-
 function formatTime(iso: string, locale: string): string {
   try {
     return new Intl.DateTimeFormat(locale, {
@@ -108,14 +109,13 @@ export default async function LittleBiggyStatusPage({
   const statusLabel = t(`status.${state}`);
   const statusDetail = t(`status.${state}Detail`);
 
-  const diffMin = status ? minutesSince(status.lastCheckedAt) : 0;
-  const checkedLabel = !status
-    ? null
-    : diffMin < 1
-      ? t("status.lastCheckedJustNow")
-      : diffMin < 60
-        ? t("status.lastCheckedMinutes", { count: diffMin })
-        : t("status.lastCheckedHours", { count: Math.round(diffMin / 60) });
+  const uptime = status
+    ? buildUptimeWindow(status.recentChecks, status.lastCheckedAt)
+    : null;
+
+  // Down or unknown → the escape route (verified links) comes BEFORE the
+  // statistics. Up → evidence first, anti-phishing context after.
+  const verifyFirst = state !== "up";
 
   const SECTION_KEYS = ["isDown", "address", "login", "legit"] as const;
 
@@ -123,7 +123,7 @@ export default async function LittleBiggyStatusPage({
     <>
       <SiteHeader />
       <main className="min-h-screen bg-background">
-        <div className="mx-auto max-w-3xl px-4 py-12">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
           <h1 className="text-3xl font-bold text-foreground">{t("heading")}</h1>
           <p className="mt-3 text-sm text-muted leading-relaxed">
             {t("intro")}
@@ -132,7 +132,7 @@ export default async function LittleBiggyStatusPage({
           {/* Live status indicator */}
           <section
             aria-live="polite"
-            className={`mt-8 rounded-2xl border p-5 ${ind.ring}`}
+            className={`mt-8 rounded-2xl border p-5 sm:p-6 ${ind.ring}`}
           >
             <div className="flex items-center gap-3">
               <span className="relative flex h-3 w-3">
@@ -153,63 +153,72 @@ export default async function LittleBiggyStatusPage({
               {statusDetail}
             </p>
 
+            {/* Meta block — a real 16px rule above and below, never collapsed
+                padding. Both relative lines are client leaves so they can't
+                freeze inside this page's `"use cache"` scope; the absolute
+                label they fall back to is built here, deterministically. */}
             {status && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                {checkedLabel}
-                {state === "down" && (
-                  <>
-                    {" · "}
+              <div className="mt-4 flex flex-col gap-1.5 border-t border-border pt-4 text-xs text-muted">
+                <StatusRelativeTime
+                  iso={status.lastCheckedAt}
+                  absoluteLabel={t("status.lastCheckedAbsolute", {
+                    time: formatTime(status.lastCheckedAt, locale),
+                  })}
+                  keyPrefix="lastChecked"
+                />
+                {state === "down" ? (
+                  <span>
                     {t("status.lastSeenUp", {
                       time: formatTime(status.lastUpAt, locale),
                     })}
-                  </>
+                  </span>
+                ) : status.lastDownAt ? (
+                  <StatusRelativeTime
+                    iso={status.lastDownAt}
+                    absoluteLabel={t("status.lastOutageAbsolute", {
+                      time: formatTime(status.lastDownAt, locale),
+                    })}
+                    keyPrefix="lastOutage"
+                  />
+                ) : (
+                  <span>{t("status.noRecentOutages")}</span>
                 )}
-              </p>
+              </div>
             )}
           </section>
 
-          {/* Uptime strip */}
-          {status && (
-            <section className="mt-6">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                {t("status.uptimeTitle")}
-              </h2>
-              {status.recentChecks.length > 0 ? (
-                <>
-                  <div className="flex flex-wrap gap-[3px]">
-                    {status.recentChecks.map((check) => (
-                      <span
-                        key={check.at}
-                        title={`${formatTime(check.at, locale)} — ${
-                          check.up
-                            ? t("status.uptimeUp")
-                            : t("status.uptimeDown")
-                        }${check.latencyMs != null ? ` (${check.latencyMs}ms)` : ""}`}
-                        className={`h-6 w-[6px] rounded-sm ${
-                          check.up ? "bg-emerald-500/80" : "bg-rose-500/80"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500/80" />
-                      {t("status.uptimeUp")}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-rose-500/80" />
-                      {t("status.uptimeDown")}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted">{t("status.uptimeEmpty")}</p>
-              )}
-            </section>
+          {/* Escape route first when we can't confirm LB is up. */}
+          {verifyFirst && (
+            <VerifyCard
+              locale={locale}
+              headingKey="headingDown"
+              className="mt-4"
+            />
+          )}
+
+          {/* Uptime — 24 fixed hourly buckets, never wraps. Not rendered at all
+              when the window is empty: an all-grey strip under a "0% reachable"
+              chip would be a lie, not a chart. */}
+          {status &&
+            uptime &&
+            (uptime.total > 0 ? (
+              <UptimeCard
+                window={uptime}
+                locale={locale}
+                className={verifyFirst ? "mt-8" : "mt-4"}
+              />
+            ) : (
+              <p className="mt-4 text-sm text-muted">
+                {t("status.uptimeEmpty")}
+              </p>
+            ))}
+
+          {!verifyFirst && (
+            <VerifyCard locale={locale} headingKey="heading" className="mt-8" />
           )}
 
           {/* Guide sections */}
-          <div className="mt-12 space-y-8">
+          <div className="mt-12 space-y-10">
             {SECTION_KEYS.map((key) => (
               <section key={key} id={key === "legit" ? "legit" : undefined}>
                 <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
@@ -252,7 +261,7 @@ export default async function LittleBiggyStatusPage({
               channel's bot posts LB down/up alerts, so this page is the
               natural place to offer the subscription. */}
           {process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL && (
-            <section className="mt-8 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+            <section className="mt-10 rounded-2xl border border-primary/30 bg-primary/5 p-5">
               <p className="text-sm font-medium text-foreground">
                 {t("telegram.copy")}
               </p>
@@ -289,7 +298,10 @@ export default async function LittleBiggyStatusPage({
             </Link>
 
             <div className="mt-6 border-t border-border pt-4">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {/* Canonical group eyebrow. `text-muted` not
+                  `text-muted-foreground`: the latter is ~2.5:1 on the light
+                  background and fails WCAG 1.4.3 at this size. */}
+              <span className="text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted">
                 {t("cta.categoriesTitle")}
               </span>
               <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">

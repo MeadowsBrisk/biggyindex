@@ -424,6 +424,111 @@ header:
       el-GR: Αγγλικά
       cs-CZ: Angličtina
       pl-PL: Angielski
+  # Verification / official-links menu. These are the canonical LittleBiggy
+  # pages a user can check to confirm they are in the real ecosystem (phishing
+  # clones are a real risk), plus our own uptime page. "canon borg",
+  # "LittleBiggy" and "littlebiggy.zone" are proper nouns — never translated.
+  verify:
+    # "Verify"/"Verified links" was ambiguous — verified BY WHOM? These links
+    # are Little Biggy's own canonical pages, so name them plainly. Trigger
+    # stays one short word (it sits in a crowded header and is icon-only below
+    # xl); the popover/drawer heading carries the full meaning.
+    trigger:
+      en-GB: Official
+      de-DE: Offiziell
+      fr-FR: Officiel
+      pt-PT: Oficial
+      it-IT: Ufficiale
+      es-ES: Oficial
+      el-GR: Επίσημα
+      cs-CZ: Oficiální
+      pl-PL: Oficjalne
+    heading:
+      en-GB: Official Little Biggy links
+      de-DE: Offizielle Little Biggy Links
+      fr-FR: Liens officiels Little Biggy
+      pt-PT: Ligações oficiais Little Biggy
+      it-IT: Link ufficiali Little Biggy
+      es-ES: Enlaces oficiales de Little Biggy
+      el-GR: Επίσημοι σύνδεσμοι Little Biggy
+      cs-CZ: Oficiální odkazy Little Biggy
+      pl-PL: Oficjalne linki Little Biggy
+    opensInNewTab:
+      en-GB: (opens in a new tab)
+      de-DE: (öffnet in einem neuen Tab)
+      fr-FR: (s'ouvre dans un nouvel onglet)
+      pt-PT: (abre num novo separador)
+      it-IT: (si apre in una nuova scheda)
+      es-ES: (se abre en una pestaña nueva)
+      el-GR: (ανοίγει σε νέα καρτέλα)
+      cs-CZ: (otevře se na nové kartě)
+      pl-PL: (otwiera się w nowej karcie)
+    canonBorg:
+      label: canon borg
+      description:
+        en-GB: Announcements & PGP
+        de-DE: Ankündigungen & PGP
+        fr-FR: Annonces et PGP
+        pt-PT: Anúncios e PGP
+        it-IT: Annunci e PGP
+        es-ES: Anuncios y PGP
+        el-GR: Ανακοινώσεις & PGP
+        cs-CZ: Oznámení a PGP
+        pl-PL: Ogłoszenia i PGP
+    mirrors:
+      label:
+        en-GB: Federation mirrors
+        de-DE: Federation-Mirrors
+        fr-FR: Miroirs Federation
+        pt-PT: Espelhos Federation
+        it-IT: Mirror Federation
+        es-ES: Espejos Federation
+        el-GR: Federation mirrors
+        cs-CZ: Federation mirrory
+        pl-PL: Mirrory Federation
+      description:
+        en-GB: Verified mirrors & onion
+        de-DE: Geprüfte Mirrors & Onion
+        fr-FR: Miroirs vérifiés et onion
+        pt-PT: Espelhos verificados e onion
+        it-IT: Mirror verificati e onion
+        es-ES: Espejos verificados y onion
+        el-GR: Επαληθευμένα mirrors & onion
+        cs-CZ: Ověřené mirrory a onion
+        pl-PL: Zweryfikowane mirrory i onion
+    littlebiggy:
+      label: LittleBiggy
+      description:
+        en-GB: The marketplace
+        de-DE: Der Marktplatz
+        fr-FR: La marketplace
+        pt-PT: O mercado
+        it-IT: Il marketplace
+        es-ES: El mercado
+        el-GR: Η αγορά
+        cs-CZ: Tržiště
+        pl-PL: Rynek
+    status:
+      label:
+        en-GB: LB status
+        de-DE: LB-Status
+        fr-FR: État de LB
+        pt-PT: Estado do LB
+        it-IT: Stato LB
+        es-ES: Estado de LB
+        el-GR: Κατάσταση LB
+        cs-CZ: Stav LB
+        pl-PL: Status LB
+      description:
+        en-GB: Is the site up?
+        de-DE: Ist die Seite online?
+        fr-FR: Le site est-il en ligne ?
+        pt-PT: O site está online?
+        it-IT: Il sito è online?
+        es-ES: ¿El sitio está activo?
+        el-GR: Λειτουργεί ο ιστότοπος;
+        cs-CZ: Funguje web?
+        pl-PL: Czy strona działa?
 
 footer:
   ctaTitle:
@@ -751,6 +856,209 @@ littleBiggyStatus:
       el-GR: Δεν υπάρχει ακόμη ιστορικό ελέγχων.
       cs-CZ: Zatím žádná historie kontrol.
       pl-PL: Brak historii sprawdzeń.
+    lastCheckedDays:
+      en-GB: "{count, plural, one {Last checked 1 day ago} other {Last checked # days ago}}"
+      de-DE: "{count, plural, one {Zuletzt vor 1 Tag geprüft} other {Zuletzt vor # Tagen geprüft}}"
+      fr-FR: "{count, plural, one {Vérifié il y a 1 jour} other {Vérifié il y a # jours}}"
+      pt-PT: "{count, plural, one {Verificado há 1 dia} other {Verificado há # dias}}"
+      it-IT: "{count, plural, one {Controllato 1 giorno fa} other {Controllato # giorni fa}}"
+      es-ES: "{count, plural, one {Comprobado hace 1 día} other {Comprobado hace # días}}"
+      el-GR: "{count, plural, one {Ελέγχθηκε πριν από 1 ημέρα} other {Ελέγχθηκε πριν από # ημέρες}}"
+      cs-CZ: "{count, plural, one {Zkontrolováno před 1 dnem} few {Zkontrolováno před # dny} other {Zkontrolováno před # dny}}"
+      pl-PL: "{count, plural, one {Sprawdzono 1 dzień temu} few {Sprawdzono # dni temu} many {Sprawdzono # dni temu} other {Sprawdzono # dnia temu}}"
+    lastCheckedAbsolute:
+      en-GB: "Last checked {time} UTC"
+      de-DE: "Zuletzt geprüft {time} UTC"
+      fr-FR: "Vérifié le {time} UTC"
+      pt-PT: "Verificado em {time} UTC"
+      it-IT: "Controllato il {time} UTC"
+      es-ES: "Comprobado el {time} UTC"
+      el-GR: "Ελέγχθηκε στις {time} UTC"
+      cs-CZ: "Zkontrolováno {time} UTC"
+      pl-PL: "Sprawdzono {time} UTC"
+    lastOutageJustNow:
+      en-GB: Last outage just now
+      de-DE: Letzter Ausfall gerade eben
+      fr-FR: Dernière panne à l'instant
+      pt-PT: Última falha agora mesmo
+      it-IT: Ultima interruzione proprio ora
+      es-ES: Última caída justo ahora
+      el-GR: Τελευταία διακοπή μόλις τώρα
+      cs-CZ: Poslední výpadek právě teď
+      pl-PL: Ostatnia awaria przed chwilą
+    lastOutageMinutes:
+      en-GB: "{count, plural, one {Last outage 1 minute ago} other {Last outage # minutes ago}}"
+      de-DE: "{count, plural, one {Letzter Ausfall vor 1 Minute} other {Letzter Ausfall vor # Minuten}}"
+      fr-FR: "{count, plural, one {Dernière panne il y a 1 minute} other {Dernière panne il y a # minutes}}"
+      pt-PT: "{count, plural, one {Última falha há 1 minuto} other {Última falha há # minutos}}"
+      it-IT: "{count, plural, one {Ultima interruzione 1 minuto fa} other {Ultima interruzione # minuti fa}}"
+      es-ES: "{count, plural, one {Última caída hace 1 minuto} other {Última caída hace # minutos}}"
+      el-GR: "{count, plural, one {Τελευταία διακοπή πριν από 1 λεπτό} other {Τελευταία διακοπή πριν από # λεπτά}}"
+      cs-CZ: "{count, plural, one {Poslední výpadek před 1 minutou} few {Poslední výpadek před # minutami} other {Poslední výpadek před # minutami}}"
+      pl-PL: "{count, plural, one {Ostatnia awaria 1 minutę temu} few {Ostatnia awaria # minuty temu} many {Ostatnia awaria # minut temu} other {Ostatnia awaria # minuty temu}}"
+    lastOutageHours:
+      en-GB: "{count, plural, one {Last outage 1 hour ago} other {Last outage # hours ago}}"
+      de-DE: "{count, plural, one {Letzter Ausfall vor 1 Stunde} other {Letzter Ausfall vor # Stunden}}"
+      fr-FR: "{count, plural, one {Dernière panne il y a 1 heure} other {Dernière panne il y a # heures}}"
+      pt-PT: "{count, plural, one {Última falha há 1 hora} other {Última falha há # horas}}"
+      it-IT: "{count, plural, one {Ultima interruzione 1 ora fa} other {Ultima interruzione # ore fa}}"
+      es-ES: "{count, plural, one {Última caída hace 1 hora} other {Última caída hace # horas}}"
+      el-GR: "{count, plural, one {Τελευταία διακοπή πριν από 1 ώρα} other {Τελευταία διακοπή πριν από # ώρες}}"
+      cs-CZ: "{count, plural, one {Poslední výpadek před 1 hodinou} few {Poslední výpadek před # hodinami} other {Poslední výpadek před # hodinami}}"
+      pl-PL: "{count, plural, one {Ostatnia awaria 1 godzinę temu} few {Ostatnia awaria # godziny temu} many {Ostatnia awaria # godzin temu} other {Ostatnia awaria # godziny temu}}"
+    lastOutageDays:
+      en-GB: "{count, plural, one {Last outage 1 day ago} other {Last outage # days ago}}"
+      de-DE: "{count, plural, one {Letzter Ausfall vor 1 Tag} other {Letzter Ausfall vor # Tagen}}"
+      fr-FR: "{count, plural, one {Dernière panne il y a 1 jour} other {Dernière panne il y a # jours}}"
+      pt-PT: "{count, plural, one {Última falha há 1 dia} other {Última falha há # dias}}"
+      it-IT: "{count, plural, one {Ultima interruzione 1 giorno fa} other {Ultima interruzione # giorni fa}}"
+      es-ES: "{count, plural, one {Última caída hace 1 día} other {Última caída hace # días}}"
+      el-GR: "{count, plural, one {Τελευταία διακοπή πριν από 1 ημέρα} other {Τελευταία διακοπή πριν από # ημέρες}}"
+      cs-CZ: "{count, plural, one {Poslední výpadek před 1 dnem} few {Poslední výpadek před # dny} other {Poslední výpadek před # dny}}"
+      pl-PL: "{count, plural, one {Ostatnia awaria 1 dzień temu} few {Ostatnia awaria # dni temu} many {Ostatnia awaria # dni temu} other {Ostatnia awaria # dnia temu}}"
+    lastOutageAbsolute:
+      en-GB: "Last outage {time} UTC"
+      de-DE: "Letzter Ausfall {time} UTC"
+      fr-FR: "Dernière panne le {time} UTC"
+      pt-PT: "Última falha em {time} UTC"
+      it-IT: "Ultima interruzione il {time} UTC"
+      es-ES: "Última caída el {time} UTC"
+      el-GR: "Τελευταία διακοπή στις {time} UTC"
+      cs-CZ: "Poslední výpadek {time} UTC"
+      pl-PL: "Ostatnia awaria {time} UTC"
+    noRecentOutages:
+      en-GB: No outages recorded
+      de-DE: Keine Ausfälle verzeichnet
+      fr-FR: Aucune panne enregistrée
+      pt-PT: Sem falhas registadas
+      it-IT: Nessuna interruzione registrata
+      es-ES: Sin caídas registradas
+      el-GR: Δεν έχουν καταγραφεί διακοπές
+      cs-CZ: Žádné zaznamenané výpadky
+      pl-PL: Brak zarejestrowanych awarii
+    uptimePercent:
+      en-GB: "{pct}% reachable"
+      de-DE: "{pct} % erreichbar"
+      fr-FR: "{pct} % joignable"
+      pt-PT: "{pct}% acessível"
+      it-IT: "{pct}% raggiungibile"
+      es-ES: "{pct}% accesible"
+      el-GR: "{pct}% προσβάσιμο"
+      cs-CZ: "{pct} % dostupné"
+      pl-PL: "{pct}% dostępny"
+    uptimeMixed:
+      en-GB: Partly reachable
+      de-DE: Teilweise erreichbar
+      fr-FR: Partiellement joignable
+      pt-PT: Parcialmente acessível
+      it-IT: Parzialmente raggiungibile
+      es-ES: Parcialmente accesible
+      el-GR: Μερικώς προσβάσιμο
+      cs-CZ: Částečně dostupné
+      pl-PL: Częściowo dostępny
+    uptimeNoData:
+      en-GB: No data
+      de-DE: Keine Daten
+      fr-FR: Aucune donnée
+      pt-PT: Sem dados
+      it-IT: Nessun dato
+      es-ES: Sin datos
+      el-GR: Χωρίς δεδομένα
+      cs-CZ: Žádná data
+      pl-PL: Brak danych
+    uptimeAxisStart:
+      en-GB: 24 h ago
+      de-DE: vor 24 Std.
+      fr-FR: il y a 24 h
+      pt-PT: há 24 h
+      it-IT: 24 h fa
+      es-ES: hace 24 h
+      el-GR: πριν 24 ώ.
+      cs-CZ: před 24 h
+      pl-PL: 24 godz. temu
+    uptimeAxisEnd:
+      en-GB: Now
+      de-DE: Jetzt
+      fr-FR: Maintenant
+      pt-PT: Agora
+      it-IT: Ora
+      es-ES: Ahora
+      el-GR: Τώρα
+      cs-CZ: Teď
+      pl-PL: Teraz
+    uptimeCaption:
+      en-GB: "{checks, plural, one {1 check} other {# checks}} · median response {ms} ms"
+      de-DE: "{checks, plural, one {1 Prüfung} other {# Prüfungen}} · mittlere Antwortzeit {ms} ms"
+      fr-FR: "{checks, plural, one {1 vérification} other {# vérifications}} · réponse médiane {ms} ms"
+      pt-PT: "{checks, plural, one {1 verificação} other {# verificações}} · resposta mediana {ms} ms"
+      it-IT: "{checks, plural, one {1 controllo} other {# controlli}} · risposta mediana {ms} ms"
+      es-ES: "{checks, plural, one {1 comprobación} other {# comprobaciones}} · respuesta mediana {ms} ms"
+      el-GR: "{checks, plural, one {1 έλεγχος} other {# έλεγχοι}} · διάμεση απόκριση {ms} ms"
+      cs-CZ: "{checks, plural, one {1 kontrola} few {# kontroly} other {# kontrol}} · medián odezvy {ms} ms"
+      pl-PL: "{checks, plural, one {1 sprawdzenie} few {# sprawdzenia} many {# sprawdzeń} other {# sprawdzenia}} · mediana odpowiedzi {ms} ms"
+    uptimeCaptionNoLatency:
+      en-GB: "{checks, plural, one {1 check} other {# checks}} in this window"
+      de-DE: "{checks, plural, one {1 Prüfung} other {# Prüfungen}} in diesem Zeitraum"
+      fr-FR: "{checks, plural, one {1 vérification} other {# vérifications}} sur cette période"
+      pt-PT: "{checks, plural, one {1 verificação} other {# verificações}} neste período"
+      it-IT: "{checks, plural, one {1 controllo} other {# controlli}} in questo intervallo"
+      es-ES: "{checks, plural, one {1 comprobación} other {# comprobaciones}} en este periodo"
+      el-GR: "{checks, plural, one {1 έλεγχος} other {# έλεγχοι}} σε αυτό το διάστημα"
+      cs-CZ: "{checks, plural, one {1 kontrola} few {# kontroly} other {# kontrol}} v tomto období"
+      pl-PL: "{checks, plural, one {1 sprawdzenie} few {# sprawdzenia} many {# sprawdzeń} other {# sprawdzenia}} w tym okresie"
+    bucketTitle:
+      en-GB: "{range} · {up}/{total} checks reachable"
+      de-DE: "{range} · {up}/{total} Prüfungen erreichbar"
+      fr-FR: "{range} · {up}/{total} vérifications joignables"
+      pt-PT: "{range} · {up}/{total} verificações acessíveis"
+      it-IT: "{range} · {up}/{total} controlli raggiungibili"
+      es-ES: "{range} · {up}/{total} comprobaciones accesibles"
+      el-GR: "{range} · {up}/{total} έλεγχοι προσβάσιμοι"
+      cs-CZ: "{range} · {up}/{total} kontrol dostupných"
+      pl-PL: "{range} · {up}/{total} sprawdzeń dostępnych"
+    bucketTitleNoData:
+      en-GB: "{range} · no checks"
+      de-DE: "{range} · keine Prüfungen"
+      fr-FR: "{range} · aucune vérification"
+      pt-PT: "{range} · sem verificações"
+      it-IT: "{range} · nessun controllo"
+      es-ES: "{range} · sin comprobaciones"
+      el-GR: "{range} · χωρίς ελέγχους"
+      cs-CZ: "{range} · žádné kontroly"
+      pl-PL: "{range} · brak sprawdzeń"
+  # Anti-phishing card on the status page. The LINK labels/descriptions are
+  # reused from `header.verify` — one list, one copy set, three surfaces.
+  verify:
+    heading:
+      en-GB: Make sure you're on the real Little Biggy
+      de-DE: Stelle sicher, dass du beim echten Little Biggy bist
+      fr-FR: Assure-toi d'être sur le vrai Little Biggy
+      pt-PT: Certifica-te de que estás no verdadeiro Little Biggy
+      it-IT: Assicurati di essere sul vero Little Biggy
+      es-ES: Asegúrate de estar en el Little Biggy real
+      el-GR: Βεβαιωθείτε ότι βρίσκεστε στο πραγματικό Little Biggy
+      cs-CZ: Ujistěte se, že jste na pravém Little Biggy
+      pl-PL: Upewnij się, że jesteś na prawdziwym Little Biggy
+    headingDown:
+      en-GB: Can't reach it? Try these
+      de-DE: Kein Zugriff? Probiere diese
+      fr-FR: Impossible d'y accéder ? Essaie ceci
+      pt-PT: Não consegues aceder? Experimenta estes
+      it-IT: Non riesci a raggiungerlo? Prova questi
+      es-ES: ¿No puedes acceder? Prueba estos
+      el-GR: Δεν μπορείτε να συνδεθείτε; Δοκιμάστε αυτά
+      cs-CZ: Nedostanete se tam? Zkuste tyto
+      pl-PL: Nie możesz się połączyć? Wypróbuj te
+    body:
+      en-GB: Phishing clones of Little Biggy exist. These are the pages that prove you're in the real ecosystem — and where the community posts during an outage.
+      de-DE: Es gibt Phishing-Klone von Little Biggy. Diese Seiten belegen, dass du im echten Ökosystem bist — und dort postet die Community bei Ausfällen.
+      fr-FR: Des clones de phishing de Little Biggy existent. Ce sont les pages qui prouvent que tu es dans le vrai écosystème — et où la communauté publie pendant une panne.
+      pt-PT: Existem clones de phishing do Little Biggy. Estas são as páginas que provam que estás no ecossistema real — e onde a comunidade publica durante uma falha.
+      it-IT: Esistono cloni di phishing di Little Biggy. Queste sono le pagine che dimostrano che sei nell'ecosistema reale — e dove la community scrive durante un'interruzione.
+      es-ES: Existen clones de phishing de Little Biggy. Estas son las páginas que demuestran que estás en el ecosistema real — y donde la comunidad publica durante una caída.
+      el-GR: Υπάρχουν κλώνοι phishing του Little Biggy. Αυτές είναι οι σελίδες που αποδεικνύουν ότι βρίσκεστε στο πραγματικό οικοσύστημα — και εκεί δημοσιεύει η κοινότητα σε διακοπή.
+      cs-CZ: Existují phishingové klony Little Biggy. Toto jsou stránky, které dokazují, že jste ve skutečném ekosystému — a kde komunita píše během výpadku.
+      pl-PL: Istnieją phishingowe klony Little Biggy. To są strony, które potwierdzają, że jesteś w prawdziwym ekosystemie — i gdzie społeczność pisze podczas awarii.
   sections:
     isDown:
       heading:
@@ -1831,6 +2139,31 @@ home:
             el-GR: Όχι. Biggy Index είναι μόνο για ανάγνωση και σας στέλνει πίσω στο Little Biggy για να ολοκληρώσετε την παραγγελία σας.
             cs-CZ: Ne. Biggy Index je pouze pro čtení a posílá vás zpět do Little Biggy, abyste dokončili objednávku.
             pl-PL: Nie. Biggy Index jest tylko do odczytu i odsyła cię z powrotem do Little Biggy, aby dokończyć zamówienie.
+        # The canonical-link list renders under this answer (FaqSection's
+        # VERIFY_LINKS_FAQ_KEY). The homepage has no SiteHeader, so this is the
+        # only above-the-footer route to those links there. Keep the answer
+        # link-free prose — the links are rendered separately, not inlined.
+        realSite:
+          q:
+            en-GB: How do I know I'm on the real Little Biggy?
+            de-DE: Woher weiß ich, dass ich auf dem echten Little Biggy bin?
+            fr-FR: Comment savoir si je suis sur le vrai Little Biggy ?
+            pt-PT: Como sei que estou no Little Biggy verdadeiro?
+            it-IT: Come faccio a sapere se sono sul vero Little Biggy?
+            es-ES: ¿Cómo sé que estoy en el Little Biggy real?
+            el-GR: Πώς ξέρω ότι βρίσκομαι στο πραγματικό Little Biggy;
+            cs-CZ: Jak poznám, že jsem na skutečném Little Biggy?
+            pl-PL: Skąd mam wiedzieć, że jestem na prawdziwym Little Biggy?
+          a:
+            en-GB: Phishing clones of Little Biggy exist, so it is worth checking. The pages below are Little Biggy's own canonical sources — canon borg posts announcements and PGP keys, and the federation page lists the verified mirror domains and onion address to use if the main site is unreachable. Bookmark littlebiggy.org rather than trusting search results on other extensions.
+            de-DE: Es gibt Phishing-Klone von Little Biggy, deshalb lohnt sich eine Prüfung. Die folgenden Seiten sind Little Biggys eigene kanonische Quellen — canon borg veröffentlicht Ankündigungen und PGP-Schlüssel, und die Federation-Seite listet die geprüften Mirror-Domains und die Onion-Adresse für den Fall, dass die Hauptseite nicht erreichbar ist. Setze ein Lesezeichen auf littlebiggy.org, statt Suchergebnissen mit anderen Endungen zu vertrauen.
+            fr-FR: Des clones de phishing de Little Biggy existent, il vaut donc la peine de vérifier. Les pages ci-dessous sont les sources canoniques de Little Biggy — canon borg publie les annonces et les clés PGP, et la page federation liste les domaines miroirs vérifiés ainsi que l'adresse onion à utiliser si le site principal est injoignable. Mettez littlebiggy.org en favori plutôt que de vous fier aux résultats de recherche sur d'autres extensions.
+            pt-PT: Existem clones de phishing do Little Biggy, por isso vale a pena verificar. As páginas abaixo são as fontes canónicas do próprio Little Biggy — o canon borg publica anúncios e chaves PGP, e a página federation lista os domínios espelho verificados e o endereço onion a usar se o site principal estiver inacessível. Guarda littlebiggy.org nos favoritos em vez de confiares em resultados de pesquisa noutras extensões.
+            it-IT: Esistono cloni di phishing di Little Biggy, quindi vale la pena verificare. Le pagine qui sotto sono le fonti canoniche di Little Biggy — canon borg pubblica annunci e chiavi PGP, e la pagina federation elenca i domini mirror verificati e l'indirizzo onion da usare se il sito principale è irraggiungibile. Aggiungi littlebiggy.org ai preferiti invece di fidarti dei risultati di ricerca su altre estensioni.
+            es-ES: Existen clones de phishing de Little Biggy, así que conviene comprobarlo. Las páginas siguientes son las fuentes canónicas del propio Little Biggy — canon borg publica anuncios y claves PGP, y la página federation lista los dominios espejo verificados y la dirección onion que usar si el sitio principal no está accesible. Guarda littlebiggy.org en marcadores en lugar de fiarte de resultados de búsqueda con otras extensiones.
+            el-GR: Υπάρχουν κλώνοι phishing του Little Biggy, οπότε αξίζει να ελέγξετε. Οι παρακάτω σελίδες είναι οι κανονικές πηγές του ίδιου του Little Biggy — ο canon borg δημοσιεύει ανακοινώσεις και κλειδιά PGP, και η σελίδα federation παραθέτει τους επαληθευμένους κατοπτρικούς τομείς και τη διεύθυνση onion για την περίπτωση που ο κύριος ιστότοπος δεν είναι προσβάσιμος. Αποθηκεύστε το littlebiggy.org στους σελιδοδείκτες αντί να εμπιστεύεστε αποτελέσματα αναζήτησης με άλλες καταλήξεις.
+            cs-CZ: Existují phishingové klony Little Biggy, takže se vyplatí ověřit. Níže uvedené stránky jsou vlastní kanonické zdroje Little Biggy — canon borg zveřejňuje oznámení a PGP klíče a stránka federation uvádí ověřené zrcadlové domény a onion adresu pro případ, že hlavní web není dostupný. Přidejte si littlebiggy.org do záložek místo spoléhání na výsledky vyhledávání s jinými koncovkami.
+            pl-PL: Istnieją phishingowe klony Little Biggy, więc warto sprawdzić. Poniższe strony to własne kanoniczne źródła Little Biggy — canon borg publikuje ogłoszenia i klucze PGP, a strona federation wymienia zweryfikowane domeny lustrzane oraz adres onion na wypadek, gdyby główna witryna była niedostępna. Dodaj littlebiggy.org do zakładek zamiast ufać wynikom wyszukiwania z innymi końcówkami.
         dataSource:
           q:
             en-GB: Where does the data come from?

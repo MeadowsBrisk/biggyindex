@@ -51,6 +51,27 @@
       "approximateWhenConverted": "Aproximação quando convertida",
       "language": "Idioma",
       "english": "Inglês"
+    },
+    "verify": {
+      "trigger": "Oficial",
+      "heading": "Ligações oficiais Little Biggy",
+      "opensInNewTab": "(abre num novo separador)",
+      "canonBorg": {
+        "label": "canon borg",
+        "description": "Anúncios e PGP"
+      },
+      "mirrors": {
+        "label": "Espelhos Federation",
+        "description": "Espelhos verificados e onion"
+      },
+      "littlebiggy": {
+        "label": "LittleBiggy",
+        "description": "O mercado"
+      },
+      "status": {
+        "label": "Estado do LB",
+        "description": "O site está online?"
+      }
     }
   },
   "footer": {
@@ -92,7 +113,29 @@
       "uptimeTitle": "Verificações recentes (últimas 24 horas)",
       "uptimeUp": "Acessível",
       "uptimeDown": "Inacessível",
-      "uptimeEmpty": "Ainda sem histórico de verificações."
+      "uptimeEmpty": "Ainda sem histórico de verificações.",
+      "lastCheckedDays": "{count, plural, one {Verificado há 1 dia} other {Verificado há # dias}}",
+      "lastCheckedAbsolute": "Verificado em {time} UTC",
+      "lastOutageJustNow": "Última falha agora mesmo",
+      "lastOutageMinutes": "{count, plural, one {Última falha há 1 minuto} other {Última falha há # minutos}}",
+      "lastOutageHours": "{count, plural, one {Última falha há 1 hora} other {Última falha há # horas}}",
+      "lastOutageDays": "{count, plural, one {Última falha há 1 dia} other {Última falha há # dias}}",
+      "lastOutageAbsolute": "Última falha em {time} UTC",
+      "noRecentOutages": "Sem falhas registadas",
+      "uptimePercent": "{pct}% acessível",
+      "uptimeMixed": "Parcialmente acessível",
+      "uptimeNoData": "Sem dados",
+      "uptimeAxisStart": "há 24 h",
+      "uptimeAxisEnd": "Agora",
+      "uptimeCaption": "{checks, plural, one {1 verificação} other {# verificações}} · resposta mediana {ms} ms",
+      "uptimeCaptionNoLatency": "{checks, plural, one {1 verificação} other {# verificações}} neste período",
+      "bucketTitle": "{range} · {up}/{total} verificações acessíveis",
+      "bucketTitleNoData": "{range} · sem verificações"
+    },
+    "verify": {
+      "heading": "Certifica-te de que estás no verdadeiro Little Biggy",
+      "headingDown": "Não consegues aceder? Experimenta estes",
+      "body": "Existem clones de phishing do Little Biggy. Estas são as páginas que provam que estás no ecossistema real — e onde a comunidade publica durante uma falha."
     },
     "sections": {
       "isDown": {
@@ -257,6 +300,10 @@
           "sellOrShip": {
             "q": "Vendes ou envias itens?",
             "a": "Não. Biggy Index é só leitura e envia-te de volta para Little Biggy para completar a tua encomenda."
+          },
+          "realSite": {
+            "q": "Como sei que estou no Little Biggy verdadeiro?",
+            "a": "Existem clones de phishing do Little Biggy, por isso vale a pena verificar. As páginas abaixo são as fontes canónicas do próprio Little Biggy — o canon borg publica anúncios e chaves PGP, e a página federation lista os domínios espelho verificados e o endereço onion a usar se o site principal estiver inacessível. Guarda littlebiggy.org nos favoritos em vez de confiares em resultados de pesquisa noutras extensões."
           },
           "dataSource": {
             "q": "De onde vêm os dados?",

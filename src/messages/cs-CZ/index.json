@@ -51,6 +51,27 @@
       "approximateWhenConverted": "Přibližné při převodu",
       "language": "Jazyk",
       "english": "Angličtina"
+    },
+    "verify": {
+      "trigger": "Oficiální",
+      "heading": "Oficiální odkazy Little Biggy",
+      "opensInNewTab": "(otevře se na nové kartě)",
+      "canonBorg": {
+        "label": "canon borg",
+        "description": "Oznámení a PGP"
+      },
+      "mirrors": {
+        "label": "Federation mirrory",
+        "description": "Ověřené mirrory a onion"
+      },
+      "littlebiggy": {
+        "label": "LittleBiggy",
+        "description": "Tržiště"
+      },
+      "status": {
+        "label": "Stav LB",
+        "description": "Funguje web?"
+      }
     }
   },
   "footer": {
@@ -92,7 +113,29 @@
       "uptimeTitle": "Nedávné kontroly (posledních 24 hodin)",
       "uptimeUp": "Dostupné",
       "uptimeDown": "Nedostupné",
-      "uptimeEmpty": "Zatím žádná historie kontrol."
+      "uptimeEmpty": "Zatím žádná historie kontrol.",
+      "lastCheckedDays": "{count, plural, one {Zkontrolováno před 1 dnem} few {Zkontrolováno před # dny} other {Zkontrolováno před # dny}}",
+      "lastCheckedAbsolute": "Zkontrolováno {time} UTC",
+      "lastOutageJustNow": "Poslední výpadek právě teď",
+      "lastOutageMinutes": "{count, plural, one {Poslední výpadek před 1 minutou} few {Poslední výpadek před # minutami} other {Poslední výpadek před # minutami}}",
+      "lastOutageHours": "{count, plural, one {Poslední výpadek před 1 hodinou} few {Poslední výpadek před # hodinami} other {Poslední výpadek před # hodinami}}",
+      "lastOutageDays": "{count, plural, one {Poslední výpadek před 1 dnem} few {Poslední výpadek před # dny} other {Poslední výpadek před # dny}}",
+      "lastOutageAbsolute": "Poslední výpadek {time} UTC",
+      "noRecentOutages": "Žádné zaznamenané výpadky",
+      "uptimePercent": "{pct} % dostupné",
+      "uptimeMixed": "Částečně dostupné",
+      "uptimeNoData": "Žádná data",
+      "uptimeAxisStart": "před 24 h",
+      "uptimeAxisEnd": "Teď",
+      "uptimeCaption": "{checks, plural, one {1 kontrola} few {# kontroly} other {# kontrol}} · medián odezvy {ms} ms",
+      "uptimeCaptionNoLatency": "{checks, plural, one {1 kontrola} few {# kontroly} other {# kontrol}} v tomto období",
+      "bucketTitle": "{range} · {up}/{total} kontrol dostupných",
+      "bucketTitleNoData": "{range} · žádné kontroly"
+    },
+    "verify": {
+      "heading": "Ujistěte se, že jste na pravém Little Biggy",
+      "headingDown": "Nedostanete se tam? Zkuste tyto",
+      "body": "Existují phishingové klony Little Biggy. Toto jsou stránky, které dokazují, že jste ve skutečném ekosystému — a kde komunita píše během výpadku."
     },
     "sections": {
       "isDown": {
@@ -257,6 +300,10 @@
           "sellOrShip": {
             "q": "Prodáváte nebo posíláte předměty?",
             "a": "Ne. Biggy Index je pouze pro čtení a posílá vás zpět do Little Biggy, abyste dokončili objednávku."
+          },
+          "realSite": {
+            "q": "Jak poznám, že jsem na skutečném Little Biggy?",
+            "a": "Existují phishingové klony Little Biggy, takže se vyplatí ověřit. Níže uvedené stránky jsou vlastní kanonické zdroje Little Biggy — canon borg zveřejňuje oznámení a PGP klíče a stránka federation uvádí ověřené zrcadlové domény a onion adresu pro případ, že hlavní web není dostupný. Přidejte si littlebiggy.org do záložek místo spoléhání na výsledky vyhledávání s jinými koncovkami."
           },
           "dataSource": {
             "q": "Odkud data pocházejí?",

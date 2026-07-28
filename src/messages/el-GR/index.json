@@ -51,6 +51,27 @@
       "approximateWhenConverted": "Κατά προσέγγιση κατά τη μετατροπή",
       "language": "Γλώσσα",
       "english": "Αγγλικά"
+    },
+    "verify": {
+      "trigger": "Επίσημα",
+      "heading": "Επίσημοι σύνδεσμοι Little Biggy",
+      "opensInNewTab": "(ανοίγει σε νέα καρτέλα)",
+      "canonBorg": {
+        "label": "canon borg",
+        "description": "Ανακοινώσεις & PGP"
+      },
+      "mirrors": {
+        "label": "Federation mirrors",
+        "description": "Επαληθευμένα mirrors & onion"
+      },
+      "littlebiggy": {
+        "label": "LittleBiggy",
+        "description": "Η αγορά"
+      },
+      "status": {
+        "label": "Κατάσταση LB",
+        "description": "Λειτουργεί ο ιστότοπος;"
+      }
     }
   },
   "footer": {
@@ -92,7 +113,29 @@
       "uptimeTitle": "Πρόσφατοι έλεγχοι (τελευταίες 24 ώρες)",
       "uptimeUp": "Προσβάσιμο",
       "uptimeDown": "Μη προσβάσιμο",
-      "uptimeEmpty": "Δεν υπάρχει ακόμη ιστορικό ελέγχων."
+      "uptimeEmpty": "Δεν υπάρχει ακόμη ιστορικό ελέγχων.",
+      "lastCheckedDays": "{count, plural, one {Ελέγχθηκε πριν από 1 ημέρα} other {Ελέγχθηκε πριν από # ημέρες}}",
+      "lastCheckedAbsolute": "Ελέγχθηκε στις {time} UTC",
+      "lastOutageJustNow": "Τελευταία διακοπή μόλις τώρα",
+      "lastOutageMinutes": "{count, plural, one {Τελευταία διακοπή πριν από 1 λεπτό} other {Τελευταία διακοπή πριν από # λεπτά}}",
+      "lastOutageHours": "{count, plural, one {Τελευταία διακοπή πριν από 1 ώρα} other {Τελευταία διακοπή πριν από # ώρες}}",
+      "lastOutageDays": "{count, plural, one {Τελευταία διακοπή πριν από 1 ημέρα} other {Τελευταία διακοπή πριν από # ημέρες}}",
+      "lastOutageAbsolute": "Τελευταία διακοπή στις {time} UTC",
+      "noRecentOutages": "Δεν έχουν καταγραφεί διακοπές",
+      "uptimePercent": "{pct}% προσβάσιμο",
+      "uptimeMixed": "Μερικώς προσβάσιμο",
+      "uptimeNoData": "Χωρίς δεδομένα",
+      "uptimeAxisStart": "πριν 24 ώ.",
+      "uptimeAxisEnd": "Τώρα",
+      "uptimeCaption": "{checks, plural, one {1 έλεγχος} other {# έλεγχοι}} · διάμεση απόκριση {ms} ms",
+      "uptimeCaptionNoLatency": "{checks, plural, one {1 έλεγχος} other {# έλεγχοι}} σε αυτό το διάστημα",
+      "bucketTitle": "{range} · {up}/{total} έλεγχοι προσβάσιμοι",
+      "bucketTitleNoData": "{range} · χωρίς ελέγχους"
+    },
+    "verify": {
+      "heading": "Βεβαιωθείτε ότι βρίσκεστε στο πραγματικό Little Biggy",
+      "headingDown": "Δεν μπορείτε να συνδεθείτε; Δοκιμάστε αυτά",
+      "body": "Υπάρχουν κλώνοι phishing του Little Biggy. Αυτές είναι οι σελίδες που αποδεικνύουν ότι βρίσκεστε στο πραγματικό οικοσύστημα — και εκεί δημοσιεύει η κοινότητα σε διακοπή."
     },
     "sections": {
       "isDown": {
@@ -257,6 +300,10 @@
           "sellOrShip": {
             "q": "Πουλάτε ή αποστέλλετε αντικείμενα;",
             "a": "Όχι. Biggy Index είναι μόνο για ανάγνωση και σας στέλνει πίσω στο Little Biggy για να ολοκληρώσετε την παραγγελία σας."
+          },
+          "realSite": {
+            "q": "Πώς ξέρω ότι βρίσκομαι στο πραγματικό Little Biggy;",
+            "a": "Υπάρχουν κλώνοι phishing του Little Biggy, οπότε αξίζει να ελέγξετε. Οι παρακάτω σελίδες είναι οι κανονικές πηγές του ίδιου του Little Biggy — ο canon borg δημοσιεύει ανακοινώσεις και κλειδιά PGP, και η σελίδα federation παραθέτει τους επαληθευμένους κατοπτρικούς τομείς και τη διεύθυνση onion για την περίπτωση που ο κύριος ιστότοπος δεν είναι προσβάσιμος. Αποθηκεύστε το littlebiggy.org στους σελιδοδείκτες αντί να εμπιστεύεστε αποτελέσματα αναζήτησης με άλλες καταλήξεις."
           },
           "dataSource": {
             "q": "Από πού προέρχονται τα δεδομένα;",

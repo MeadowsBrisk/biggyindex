@@ -5,6 +5,7 @@ import { CommunityReviews } from "@/components/home/CommunityReviews";
 import { EmbassySection } from "@/components/home/EmbassySection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { HeroSection } from "@/components/home/HeroSection";
+import { HeroStatusStrip } from "@/components/home/HeroStatusStrip";
 import { QuickStartGuide } from "@/components/home/QuickStartGuide";
 import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
 import { WhatsNewSection } from "@/components/home/WhatsNewSection";
@@ -135,6 +136,18 @@ export default async function HomePage({
           here is already awaited inside this cached render and none of the
           sections use dynamic APIs, so inlining them costs nothing at
           request time and makes first paint layout-stable. */}
+      {/* Outage strip — IN FLOW, ABOVE the hero (moved out of HeroSection
+          2026-07-27). It renders an empty zero-height wrapper unless Little
+          Biggy is explicitly down on a fresh check, so the up-state costs
+          nothing. It cannot live inside HeroSection: that section is
+          `min-h-[100svh] justify-center`, so once its content column exceeds
+          the viewport the column clamps to top:0 and an absolutely-positioned
+          band underneath it gets painted over by the logo (measured: 62px
+          overlap at 360x640 through 390x844, 44px at 1440x700). In flow it
+          simply pushes the hero down during an outage, which is the correct
+          behaviour for an outage banner. */}
+      <HeroStatusStrip />
+
       <HeroSection
         totalItems={feed.hero.totalItems}
         totalSellers={feed.hero.totalSellers}

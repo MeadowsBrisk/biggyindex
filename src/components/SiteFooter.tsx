@@ -22,6 +22,9 @@ export async function SiteFooter({
   locale: string;
 }) {
   const t = await getTranslations({ locale, namespace: "footer" });
+  // Shared with the header's Verify popover so the authenticity links read
+  // identically wherever they appear.
+  const tVerify = await getTranslations({ locale, namespace: "header.verify" });
   const tCategories = await getTranslations({
     locale,
     namespace: "categories",
@@ -98,7 +101,15 @@ export async function SiteFooter({
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("community")}
               </span>
-              <div className="flex items-center gap-4">
+              {/* flex-wrap + gap-y: this row now carries up to six links and
+                  must not overflow at 360px. The two authenticity links
+                  (canon borg / Federation mirrors) are duplicated from the
+                  header's Verify popover ON PURPOSE — the homepage is
+                  hero-led and renders NO SiteHeader, and the header trigger
+                  only appears from md up, so the footer is what actually
+                  makes them reachable site-wide. Labels reuse the
+                  header.verify.* keys so the wording stays in sync. */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
                 <a
                   href="https://littlebiggy.org"
                   target="_blank"
@@ -106,6 +117,26 @@ export async function SiteFooter({
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
                 >
                   Little Biggy
+                  <ExternalLink size={13} className="text-muted" />
+                </a>
+                <a
+                  href="https://littlebiggy.org/4791812"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${tVerify("canonBorg.label")} ${tVerify("opensInNewTab")}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {tVerify("canonBorg.label")}
+                  <ExternalLink size={13} className="text-muted" />
+                </a>
+                <a
+                  href="https://littlebiggy.zone"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${tVerify("mirrors.label")} ${tVerify("opensInNewTab")}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {tVerify("mirrors.label")}
                   <ExternalLink size={13} className="text-muted" />
                 </a>
                 <a
@@ -145,8 +176,14 @@ export async function SiteFooter({
               </p>
             </div>
 
-            {/* Legal links */}
-            <nav className="flex gap-6 text-sm">
+            {/* Legal links.
+                flex-wrap + gap-x-5: at 360px the German labels ("Über uns",
+                "Datenschutz", "Nutzungsbedingungen", "Cookies") measured
+                370.6px on one nowrap line, which was the sole cause of
+                horizontal page scroll on /de-DE/* on narrow phones. Wrapping
+                to two centred lines fixes it; gap-y-2 keeps the second line
+                off the first. */}
+            <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm sm:justify-end">
               <Link
                 href="/about"
                 prefetch={false}

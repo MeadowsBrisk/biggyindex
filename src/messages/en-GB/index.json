@@ -51,6 +51,27 @@
       "approximateWhenConverted": "Approximate when converted",
       "language": "Language",
       "english": "English"
+    },
+    "verify": {
+      "trigger": "Official",
+      "heading": "Official Little Biggy links",
+      "opensInNewTab": "(opens in a new tab)",
+      "canonBorg": {
+        "label": "canon borg",
+        "description": "Announcements & PGP"
+      },
+      "mirrors": {
+        "label": "Federation mirrors",
+        "description": "Verified mirrors & onion"
+      },
+      "littlebiggy": {
+        "label": "LittleBiggy",
+        "description": "The marketplace"
+      },
+      "status": {
+        "label": "LB status",
+        "description": "Is the site up?"
+      }
     }
   },
   "footer": {
@@ -92,7 +113,29 @@
       "uptimeTitle": "Recent checks (last 24 hours)",
       "uptimeUp": "Reachable",
       "uptimeDown": "Unreachable",
-      "uptimeEmpty": "No recent check history yet."
+      "uptimeEmpty": "No recent check history yet.",
+      "lastCheckedDays": "{count, plural, one {Last checked 1 day ago} other {Last checked # days ago}}",
+      "lastCheckedAbsolute": "Last checked {time} UTC",
+      "lastOutageJustNow": "Last outage just now",
+      "lastOutageMinutes": "{count, plural, one {Last outage 1 minute ago} other {Last outage # minutes ago}}",
+      "lastOutageHours": "{count, plural, one {Last outage 1 hour ago} other {Last outage # hours ago}}",
+      "lastOutageDays": "{count, plural, one {Last outage 1 day ago} other {Last outage # days ago}}",
+      "lastOutageAbsolute": "Last outage {time} UTC",
+      "noRecentOutages": "No outages recorded",
+      "uptimePercent": "{pct}% reachable",
+      "uptimeMixed": "Partly reachable",
+      "uptimeNoData": "No data",
+      "uptimeAxisStart": "24 h ago",
+      "uptimeAxisEnd": "Now",
+      "uptimeCaption": "{checks, plural, one {1 check} other {# checks}} · median response {ms} ms",
+      "uptimeCaptionNoLatency": "{checks, plural, one {1 check} other {# checks}} in this window",
+      "bucketTitle": "{range} · {up}/{total} checks reachable",
+      "bucketTitleNoData": "{range} · no checks"
+    },
+    "verify": {
+      "heading": "Make sure you're on the real Little Biggy",
+      "headingDown": "Can't reach it? Try these",
+      "body": "Phishing clones of Little Biggy exist. These are the pages that prove you're in the real ecosystem — and where the community posts during an outage."
     },
     "sections": {
       "isDown": {
@@ -257,6 +300,10 @@
           "sellOrShip": {
             "q": "Do you sell or ship items?",
             "a": "No. Biggy Index is read-only and sends you back to Little Biggy to complete your order."
+          },
+          "realSite": {
+            "q": "How do I know I'm on the real Little Biggy?",
+            "a": "Phishing clones of Little Biggy exist, so it is worth checking. The pages below are Little Biggy's own canonical sources — canon borg posts announcements and PGP keys, and the federation page lists the verified mirror domains and onion address to use if the main site is unreachable. Bookmark littlebiggy.org rather than trusting search results on other extensions."
           },
           "dataSource": {
             "q": "Where does the data come from?",
