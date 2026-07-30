@@ -555,7 +555,7 @@
         "sellers": "Sellers"
       },
       "attrs": {
-        "effect": "Type",
+        "effect": "Strain type",
         "micron": "Micron",
         "filtration": "Filtration",
         "texture": "Texture",
@@ -697,7 +697,7 @@
       "attributes": {
         "heading": "Attributes",
         "labels": {
-          "effect": "Type",
+          "effect": "Strain type",
           "cbd": "CBD",
           "grow": "Grow",
           "imported": "Imported",

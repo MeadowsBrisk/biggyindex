@@ -555,7 +555,7 @@
         "sellers": "Prodejci"
       },
       "attrs": {
-        "effect": "Typ",
+        "effect": "Typ odrůdy",
         "micron": "Micron",
         "filtration": "Filtrace",
         "texture": "Textura",
@@ -697,7 +697,7 @@
       "attributes": {
         "heading": "Atributy",
         "labels": {
-          "effect": "Typ",
+          "effect": "Typ odrůdy",
           "cbd": "CBD",
           "grow": "Rost",
           "imported": "Dovezený",

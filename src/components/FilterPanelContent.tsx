@@ -883,7 +883,9 @@ function AttrFilterGroup({
               key={value}
               type="button"
               onClick={() => onToggle(value)}
-              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border inline-flex items-center gap-1.5 ${
+              /* `capitalize` is display-only — `value` stays the raw lowercase
+                 filter key for onToggle / selected / the URL param. */
+              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border inline-flex items-center gap-1.5 capitalize ${
                 selected.includes(value)
                   ? "border-primary/40 bg-primary/20 text-primary"
                   : "border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"

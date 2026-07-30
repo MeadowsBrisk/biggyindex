@@ -367,7 +367,7 @@ function MarketDropdown() {
         <div className="absolute right-0 top-full mt-1 z-[100] w-56 rounded-xl border border-[var(--border)] bg-card shadow-xl">
           {/* Market list */}
           <div className="p-1.5">
-            <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
+            <div className="px-2 py-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted">
               {tMarketMenu("market")}
             </div>
             {MARKETS.map((m) => (
@@ -396,7 +396,7 @@ function MarketDropdown() {
           {/* Currency selector — options are derived per-market so the
               local currency is always offered alongside GBP and USD. */}
           <div className="p-1.5">
-            <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
+            <div className="px-2 py-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted">
               {tMarketMenu("displayPricesIn")}
             </div>
             <div className="flex gap-1 px-1 pb-1">
@@ -427,7 +427,7 @@ function MarketDropdown() {
             <>
               <div className="mx-2 border-t border-[var(--border)]" />
               <div className="p-1.5">
-                <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted">
+                <div className="px-2 py-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.08em] text-muted">
                   {tMarketMenu("language")}
                 </div>
                 <div className="flex gap-1 px-1 pb-1">

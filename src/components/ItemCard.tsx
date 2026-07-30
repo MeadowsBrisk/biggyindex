@@ -181,9 +181,9 @@ function variantDisplayLabel(
 }
 
 /**
- * Card pill — shows category · subcategory with an optional strain group dot.
+ * Card pill — shows category · subcategory.
  * When browsing inside a category, shows just the subcategory (or category if no sub).
- * Strain group (Indica/Sativa/Hybrid) shown as a small colored dot for Flower, Shake, Hash.
+ * Strain type (Indica/Sativa/Hybrid) is rendered separately by `StrainTypeChip`.
  */
 function CardPill({
   item,
@@ -197,12 +197,6 @@ function CardPill({
   const firstSub = item.sc?.[0];
   const cat = item.c ?? "Other";
 
-  // Effect group from attributes (Indica/Sativa/Hybrid) — only show when browsing Flower/Shake
-  const group =
-    activeCategory === "Flower" || activeCategory === "Shake"
-      ? (item.at?.effect?.[0] ?? null)
-      : null;
-
   // Build label: "Category · Sub" when browsing All, just "Sub" or "Category" when inside a category
   let label: string;
   if (inCategory) {
@@ -213,14 +207,24 @@ function CardPill({
 
   return (
     <span className="card-pill card-pill--image glass text-[10px] font-medium pointer-events-auto">
-      {group && (
-        <span
-          className={`card-pill__group-dot card-pill__group-dot--${group.toLowerCase()}`}
-        />
-      )}
       {label}
     </span>
   );
+}
+
+/**
+ * Strain-type chip — Indica / Sativa / Hybrid.
+ *
+ * Replaces the old 6px colour dot (2026-07-28). The dot was hover-gated with
+ * the rest of the card overlay AND encoded meaning in colour alone, so it was
+ * both invisible at rest and unreadable over busy product photos. The word is
+ * now the cue; the tint only reinforces it.
+ */
+function StrainTypeChip({ group }: { group: string | null }) {
+  if (!group) return null;
+  const key = group.toLowerCase();
+  if (key !== "indica" && key !== "sativa" && key !== "hybrid") return null;
+  return <span className={`strain-chip strain-chip--${key}`}>{key}</span>;
 }
 
 /**
@@ -313,6 +317,12 @@ function ItemCardInner({
   const imgSizes = CARD_IMG_SIZES(mobileGridCols);
   const displayName = forceEnglish && item.nEn ? item.nEn : item.n;
   const displayDesc = forceEnglish && item.dEn ? item.dEn : item.d;
+  // Strain type (Indica/Sativa/Hybrid) — only surfaced when browsing Flower/Shake,
+  // where the distinction is meaningful. Rendered as an always-visible chip.
+  const strainGroup =
+    activeCategory === "Flower" || activeCategory === "Shake"
+      ? (item.at?.effect?.[0] ?? null)
+      : null;
   const itemMeta = useMemo(
     () => getItemBrowseMeta(itemIndex, item),
     [itemIndex, item],
@@ -872,9 +882,15 @@ function ItemCardInner({
 
           {/* Category / subcategory pill + bookmark button overlay */}
           <div className="card-controls absolute inset-x-0 top-0 z-10 flex items-start justify-between p-2 pointer-events-none">
-            <div className="flex items-start gap-1">
-              <CardPill item={item} activeCategory={activeCategory} />
-              <LowConfidenceBadge cf={item.cf} />
+            {/* always-show: the strain chip stays legible at rest; the category
+                pill and confidence badge keep the original hover reveal via the
+                inner wrapper. */}
+            <div className="flex items-start gap-1 always-show">
+              <StrainTypeChip group={strainGroup} />
+              <span className="card-controls__hover-group flex items-start gap-1">
+                <CardPill item={item} activeCategory={activeCategory} />
+                <LowConfidenceBadge cf={item.cf} />
+              </span>
             </div>
             <Tooltip
               content={

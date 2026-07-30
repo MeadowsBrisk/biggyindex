@@ -107,9 +107,17 @@ function ratingColor(rating: number): string {
   return "text-emerald-500";
 }
 
+// NOTE: this page derives attribute labels from the raw key and does NOT go
+// through next-intl — "Potency"/"Size" have always been hardcoded English, so
+// every label here is English on every locale. That's a pre-existing gap, not
+// something the "effect" line below introduces; wiring the whole function to
+// `attributes.labels.*` is the real fix when someone has the appetite.
 function attributeLabel(key: string): string {
   if (key === "mg") return "Potency";
   if (key === "mlSize") return "Size";
+  // Keep in step with attributes.labels.effect — the modal reads "Strain type"
+  // and the bare key would render as "Effect" here.
+  if (key === "effect") return "Strain type";
   return key
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/^./, (char) => char.toUpperCase());

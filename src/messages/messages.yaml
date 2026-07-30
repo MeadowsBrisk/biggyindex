@@ -3864,15 +3864,15 @@ browse:
         pl-PL: Sprzedawcy
     attrs:
       effect:
-        en-GB: Type
-        de-DE: Typ
-        fr-FR: Type
-        pt-PT: Tipo
-        it-IT: Tipo
-        es-ES: Tipo
-        el-GR: Τύπος
-        cs-CZ: Typ
-        pl-PL: Typ
+        en-GB: Strain type
+        de-DE: Sortentyp
+        fr-FR: Type de variété
+        pt-PT: Tipo de estirpe
+        it-IT: Tipo di varietà
+        es-ES: Tipo de variedad
+        el-GR: Τύπος ποικιλίας
+        cs-CZ: Typ odrůdy
+        pl-PL: Typ odmiany
       micron:
         en-GB: Micron
         de-DE: Micron
@@ -5013,15 +5013,15 @@ item:
         pl-PL: Atrybuty
       labels:
         effect:
-          en-GB: Type
-          de-DE: Typ
-          fr-FR: Type
-          pt-PT: Tipo
-          it-IT: Tipo
-          es-ES: Tipo
-          el-GR: Τύπος
-          cs-CZ: Typ
-          pl-PL: Typ
+          en-GB: Strain type
+          de-DE: Sortentyp
+          fr-FR: Type de variété
+          pt-PT: Tipo de estirpe
+          it-IT: Tipo di varietà
+          es-ES: Tipo de variedad
+          el-GR: Τύπος ποικιλίας
+          cs-CZ: Typ odrůdy
+          pl-PL: Typ odmiany
         cbd:
           en-GB: CBD
           de-DE: CBD

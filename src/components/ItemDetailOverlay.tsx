@@ -341,8 +341,7 @@ export function ItemDetailOverlay() {
   // suppress the outbound CTA entirely (mirrors the server page's archived
   // rendering, which replaces it with seller links).
   const isArchivedDetail =
-    (mergedDetail as { archived?: boolean } | null)?.archived === true &&
-    !item;
+    (mergedDetail as { archived?: boolean } | null)?.archived === true && !item;
   const littleBiggyUrl =
     displayItem && !isArchivedDetail
       ? getLittleBiggyItemUrl(displayItem)
@@ -799,11 +798,7 @@ export function ItemDetailOverlay() {
                                           {hasAnyPpu && (
                                             <td className="ido-table__ppu">
                                               {row.ppu != null
-                                                ? fmtPrice(
-                                                    row.ppu,
-                                                    cSym,
-                                                    cRate,
-                                                  )
+                                                ? fmtPrice(row.ppu, cSym, cRate)
                                                 : "—"}
                                             </td>
                                           )}

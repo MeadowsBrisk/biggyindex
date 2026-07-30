@@ -555,7 +555,7 @@
         "sellers": "Πωλητές"
       },
       "attrs": {
-        "effect": "Τύπος",
+        "effect": "Τύπος ποικιλίας",
         "micron": "Μικρον",
         "filtration": "Διήθηση",
         "texture": "Υφή",
@@ -697,7 +697,7 @@
       "attributes": {
         "heading": "Χαρακτηριστικά",
         "labels": {
-          "effect": "Τύπος",
+          "effect": "Τύπος ποικιλίας",
           "cbd": "CBD",
           "grow": "Καλλιεργώ",
           "imported": "Εισαγόμενος",

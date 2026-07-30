@@ -555,7 +555,7 @@
         "sellers": "Vendedores"
       },
       "attrs": {
-        "effect": "Tipo",
+        "effect": "Tipo de estirpe",
         "micron": "Micron",
         "filtration": "Filtração",
         "texture": "Textura",
@@ -697,7 +697,7 @@
       "attributes": {
         "heading": "Atributos",
         "labels": {
-          "effect": "Tipo",
+          "effect": "Tipo de estirpe",
           "cbd": "CBD",
           "grow": "Crescer",
           "imported": "Importados",

@@ -555,7 +555,7 @@
         "sellers": "Venditori"
       },
       "attrs": {
-        "effect": "Tipo",
+        "effect": "Tipo di varietà",
         "micron": "Micron",
         "filtration": "Filtrazione",
         "texture": "Texture",
@@ -697,7 +697,7 @@
       "attributes": {
         "heading": "Attributi",
         "labels": {
-          "effect": "Tipo",
+          "effect": "Tipo di varietà",
           "cbd": "CBD",
           "grow": "Cresci",
           "imported": "Importato",

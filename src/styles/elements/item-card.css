@@ -219,6 +219,21 @@ html.bi-seed-hide [data-seed-skeleton] {
   }
 }
 
+/* Inner hover gate: the strain chip is always-show, but the category pill and
+   confidence badge inside it keep the original reveal-on-hover behaviour. */
+.card-controls__hover-group {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+.item-card:hover .card-controls__hover-group {
+  opacity: 1;
+}
+@media (hover: none) {
+  .card-controls__hover-group {
+    opacity: 1;
+  }
+}
+
 /* Bookmark button — shares the frosted glass base with .card-lb-btn for consistency. */
 .bookmark-btn {
   @apply rounded-full p-2 border cursor-pointer;
@@ -695,24 +710,37 @@ html.bi-seed-hide [data-seed-skeleton] {
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
-/* Strain group dot — Indica (purple), Sativa (amber), Hybrid (green) */
-.card-pill__group-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+/* Strain-type chip — Indica (violet), Sativa (amber), Hybrid (green).
+   Always sits over a product photo, so it carries its own dark scrim and
+   fixed white text rather than theme tokens: the tint is a reinforcement
+   cue, the word is the actual label. */
+.strain-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
   flex-shrink: 0;
+  pointer-events: none;
+  color: #fff;
+  background: color-mix(in srgb, var(--strain-tint) 32%, rgba(9, 9, 11, 0.78));
+  border: 1px solid color-mix(in srgb, var(--strain-tint) 55%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
 }
-
-.card-pill__group-dot--indica {
-  background: #a78bfa;
+.strain-chip--indica {
+  --strain-tint: #a78bfa;
 }
-
-.card-pill__group-dot--sativa {
-  background: #fbbf24;
+.strain-chip--sativa {
+  --strain-tint: #fbbf24;
 }
-
-.card-pill__group-dot--hybrid {
-  background: #34d399;
+.strain-chip--hybrid {
+  --strain-tint: #34d399;
 }
 
 /* ==========================================================================
@@ -1605,6 +1633,9 @@ html.bi-seed-hide [data-seed-skeleton] {
   /* ── Category pill on the image: smaller. ── */
   .item-list-grid[data-mobile-cols="2"] .card-controls {
     padding: 5px;
+    /* Keeps a gutter between the (truncating) pill group and the bookmark
+       heart on the narrowest cards — see the overflow guard below. */
+    gap: 4px;
   }
   .item-list-grid[data-mobile-cols="2"] .card-pill--image {
     font-size: 9px;
@@ -1612,9 +1643,26 @@ html.bi-seed-hide [data-seed-skeleton] {
     border-radius: 5px;
     gap: 3px;
   }
-  .item-list-grid[data-mobile-cols="2"] .card-pill__group-dot {
-    width: 5px;
-    height: 5px;
+  .item-list-grid[data-mobile-cols="2"] .strain-chip {
+    font-size: 8px;
+    padding: 1px 5px;
+    letter-spacing: 0.05em;
+  }
+  /* Overflow guard: touch devices ((hover: none)) show the strain chip AND the
+     category pill on the same row, so on a ~132px card (320px viewport, 2-up) a
+     long subcategory used to push the bookmark heart outside the card. The chip
+     is fixed width; the pill truncates instead. */
+  .item-list-grid[data-mobile-cols="2"] .card-controls > .always-show,
+  .item-list-grid[data-mobile-cols="2"] .card-controls__hover-group {
+    min-width: 0;
+  }
+  .item-list-grid[data-mobile-cols="2"]
+    .card-controls__hover-group
+    .card-pill--image {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── Bookmark heart: keep it, but tone down the mobile touch-target bump

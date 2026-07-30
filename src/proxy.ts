@@ -16,8 +16,9 @@
  * missed. netlify.toml + next.config keep mirror rules for portability and
  * for dotted paths (/sitemap-*.xml) that the matcher below skips.
  */
-import createMiddleware from "next-intl/middleware";
+
 import { type NextRequest, NextResponse } from "next/server";
+import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
