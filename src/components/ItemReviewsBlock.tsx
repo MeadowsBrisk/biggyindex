@@ -13,7 +13,7 @@ export interface ItemReview {
   created: number;
   rating: number;
   daysToArrive: number | null;
-  segments: { type: string; value: string }[];
+  segments: { type: string; value?: string; url?: string }[];
   item?: { refNum: string; name: string; id: number };
 }
 
@@ -47,8 +47,7 @@ export function ItemReviewsBlock({
     () =>
       reviews.filter((review) =>
         review.segments?.some(
-          (segment) =>
-            segment.type === "text" && segment.value?.trim().length > 0,
+          (segment) => segment.type === "text" && !!segment.value?.trim(),
         ),
       ).length,
     [reviews],
@@ -59,8 +58,7 @@ export function ItemReviewsBlock({
       textOnly
         ? reviews.filter((review) =>
             review.segments?.some(
-              (segment) =>
-                segment.type === "text" && segment.value?.trim().length > 0,
+              (segment) => segment.type === "text" && !!segment.value?.trim(),
             ),
           )
         : reviews,

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import type { KeyboardEvent, MouseEvent } from "react";
+import type { ComponentType, KeyboardEvent, MouseEvent } from "react";
 import {
   lazy,
   Suspense,
@@ -21,6 +21,8 @@ import {
   useRef,
   useState,
 } from "react";
+import type { Swiper as SwiperInstance } from "swiper/types";
+import type { WhatsNewCarouselSlide } from "@/components/home/WhatsNewCarousel";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
 import {
@@ -30,6 +32,11 @@ import {
 } from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
+
+type WhatsNewCarouselComponent = ComponentType<{
+  slides: WhatsNewCarouselSlide[];
+  onSwiper: (swiper: SwiperInstance) => void;
+}>;
 
 interface ReviewStats {
   avg?: number | null;
@@ -71,6 +78,7 @@ const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
 
 interface TimeAgoCopy {
   justNow: string;
+  minutesAgo: (count: number) => string;
   hoursAgo: (count: number) => string;
   oneDayAgo: string;
   daysAgo: (count: number) => string;
@@ -99,10 +107,18 @@ function formatPrice(
   return lo;
 }
 
-function timeAgo(dateStr: string, copy: TimeAgoCopy, now: number): string {
+export function timeAgo(
+  dateStr: string,
+  copy: TimeAgoCopy,
+  now: number,
+): string {
   const diff = Math.max(0, now - new Date(dateStr).getTime());
+  // Minute granularity under the hour: a seller's whole freshly-indexed
+  // inventory used to read "Just now" for a full hour, which isn't honest.
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 5) return copy.justNow;
+  if (minutes < 60) return copy.minutesAgo(minutes);
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return copy.justNow;
   if (hours < 24) return copy.hoursAgo(hours);
   const days = Math.floor(hours / 24);
   if (days === 1) return copy.oneDayAgo;
@@ -410,6 +426,7 @@ export function WhatsNewSection({
       alternateImageAlt: (item) => t("alternateImageAlt", { item }),
       time: {
         justNow: t("time.justNow"),
+        minutesAgo: (count) => t("time.minutesAgo", { count }),
         hoursAgo: (count) => t("time.hoursAgo", { count }),
         oneDayAgo: t("time.oneDayAgo"),
         daysAgo: (count) => t("time.daysAgo", { count }),
@@ -421,11 +438,85 @@ export function WhatsNewSection({
   const header = useRevealOnScroll<HTMLDivElement>();
   const carousel = useRevealOnScroll<HTMLDivElement>();
 
-  // CSS scroll-snap strip (replaces Swiper — kept it out of the home page's
-  // critical bundle). The prev/next buttons advance by one card width; no
-  // looping (the Swiper setup had none either).
+  const slides: WhatsNewCarouselSlide[] = useMemo(
+    () =>
+      items.map((item) => ({
+        key: `${activeTab}-${item.id}`,
+        content: (
+          <HomeItemCard
+            item={item}
+            currencySymbol={currencySymbol}
+            exchangeRate={exchangeRate}
+            copy={itemCardCopy}
+            now={now}
+          />
+        ),
+      })),
+    [items, activeTab, currencySymbol, exchangeRate, itemCardCopy, now],
+  );
+
+  // The strip ships as a CSS scroll-snap list (server-rendered, no JS) and
+  // upgrades to Swiper once the section is near the viewport. Scroll-snap has
+  // touch drag but no MOUSE drag, which is the interaction the owner wants
+  // back; Swiper is loaded lazily so it stays out of the critical bundle.
+  const stripRef = useRef<HTMLDivElement | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const swiperRef = useRef<SwiperInstance | null>(null);
+  const [Carousel, setCarousel] = useState<WhatsNewCarouselComponent | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const node = stripRef.current;
+    if (!node) return;
+    let cancelled = false;
+    const load = () => {
+      import("@/components/home/WhatsNewCarousel").then(
+        (mod) => {
+          if (!cancelled) setCarousel(() => mod.default);
+        },
+        () => {
+          // Chunk failed to load — the scroll-snap strip keeps working.
+        },
+      );
+    };
+    if (typeof IntersectionObserver === "undefined") {
+      load();
+      return () => {
+        cancelled = true;
+      };
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          observer.disconnect();
+          load();
+        }
+      },
+      // Start fetching a screenful early so the upgrade has landed by the
+      // time the strip is actually reachable.
+      { rootMargin: "600px 0px" },
+    );
+    observer.observe(node);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, []);
+
+  const handleSwiper = useCallback((swiper: SwiperInstance) => {
+    swiperRef.current = swiper;
+  }, []);
+
+  // Arrow buttons page the Swiper once it's live, else nudge the snap strip
+  // by one card width. No looping (the original Swiper setup had none).
   const scrollByCard = useCallback((direction: 1 | -1) => {
+    const swiper = swiperRef.current;
+    if (swiper && !swiper.destroyed) {
+      if (direction === 1) swiper.slideNext();
+      else swiper.slidePrev();
+      return;
+    }
     const scroller = scrollerRef.current;
     if (!scroller) return;
     const slide = scroller.querySelector<HTMLElement>(".whats-new-slide");
@@ -500,39 +591,35 @@ export function WhatsNewSection({
         </div>
       </div>
 
-      {/* Card strip — CSS scroll-snap (Swiper removed from the critical bundle) */}
-      <div className="overflow-hidden">
+      {/* Card strip — server-rendered CSS scroll-snap, upgraded to Swiper on
+          the client (see the lazy import above). */}
+      <div ref={stripRef} className="overflow-hidden">
         <div
           ref={carousel.ref}
           data-revealed={carousel.revealed}
           className="reveal-fade"
         >
           {/* Re-keyed on tab change so the enter animation replays (and the
-              scroll position resets) — CSS stand-in for AnimatePresence
-              mode="wait". Card widths per breakpoint replicate the previous
-              Swiper slidesPerView/spaceBetween config (see whats-new.css). */}
+              scroll position / Swiper instance resets) — CSS stand-in for
+              AnimatePresence mode="wait". Card widths per breakpoint match
+              the Swiper slidesPerView/spaceBetween ladder (whats-new.css). */}
           <div key={activeTab} className="tab-switch-fade">
-            <div
-              ref={scrollerRef}
-              className="whats-new-scroller"
-              // biome-ignore lint/a11y/noNoninteractiveTabindex: horizontal scroller must be keyboard-scrollable
-              tabIndex={0}
-            >
-              {items.map((item) => (
-                <div
-                  key={`${activeTab}-${item.id}`}
-                  className="whats-new-slide"
-                >
-                  <HomeItemCard
-                    item={item}
-                    currencySymbol={currencySymbol}
-                    exchangeRate={exchangeRate}
-                    copy={itemCardCopy}
-                    now={now}
-                  />
-                </div>
-              ))}
-            </div>
+            {Carousel ? (
+              <Carousel slides={slides} onSwiper={handleSwiper} />
+            ) : (
+              <div
+                ref={scrollerRef}
+                className="whats-new-scroller"
+                // biome-ignore lint/a11y/noNoninteractiveTabindex: horizontal scroller must be keyboard-scrollable
+                tabIndex={0}
+              >
+                {slides.map((slide) => (
+                  <div key={slide.key} className="whats-new-slide">
+                    {slide.content}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

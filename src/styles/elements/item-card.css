@@ -743,6 +743,22 @@ html.bi-seed-hide [data-seed-skeleton] {
   --strain-tint: #34d399;
 }
 
+/* On-surface variant — item detail modal + static item page. The base chip
+   carries a dark photo-scrim + fixed white text (it always sits over a
+   product image on the browse card); on the detail card background use theme
+   tokens instead so it stays legible in light AND dark — the tint is only an
+   18% wash behind the themed foreground text. Slightly larger type at detail
+   scale (10px vs the card's 9px). */
+.strain-chip--surface {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--strain-tint) 18%, transparent);
+  border-color: color-mix(in srgb, var(--strain-tint) 45%, transparent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  font-size: 10px;
+  margin: 0;
+}
+
 /* ==========================================================================
    Seller Card — compact row with avatar initial, name, badges
    ========================================================================== */

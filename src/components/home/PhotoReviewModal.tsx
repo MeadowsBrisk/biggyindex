@@ -22,13 +22,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowRight, ExternalLink, Star, Truck, User, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
+import { ReviewPhotoImg } from "@/components/ReviewPhotoImg";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
+import { getReviewPhotoUrl, getSellerImageUrl } from "@/lib/images";
 import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
 import {
   expandedRefNumAtom,
@@ -44,6 +53,7 @@ const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
 interface TimeAgoParts {
   key:
     | "time.justNow"
+    | "time.minutesAgo"
     | "time.hoursAgo"
     | "time.oneDayAgo"
     | "time.daysAgo"
@@ -53,8 +63,12 @@ interface TimeAgoParts {
 
 function timeAgoParts(dateStr: string, now: number): TimeAgoParts {
   const diff = Math.max(0, now - new Date(dateStr).getTime());
+  // Minute granularity under the hour — matches CommunityReviews /
+  // WhatsNewSection (see the note on their `timeAgo`).
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 5) return { key: "time.justNow" };
+  if (minutes < 60) return { key: "time.minutesAgo", count: minutes };
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return { key: "time.justNow" };
   if (hours < 24) return { key: "time.hoursAgo", count: hours };
   const days = Math.floor(hours / 24);
   if (days === 1) return { key: "time.oneDayAgo" };
@@ -95,6 +109,12 @@ export function PhotoReviewModal() {
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
   const [zoomIndex, setZoomIndex] = useState(0);
   const [clientNow, setClientNow] = useState<number | null>(null);
+  // Optimised 96px seller avatar — the raw `sellerAvatar` is the marketplace
+  // original (multi-MB) rendered at 36px. Track the failed URL rather than a
+  // boolean so the flag resets by itself when a different review opens; on
+  // failure we show the initials/User placeholder, never the original.
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
+  const avatarUrl = getSellerImageUrl(review?.sellerAvatar);
   const isOpen = review != null;
 
   useEffect(() => {
@@ -142,6 +162,26 @@ export function PhotoReviewModal() {
   useBodyScrollLock(isOpen);
 
   const images = useMemo(() => review?.images ?? [], [review]);
+  // Raw URLs whose optimised CDN `full.avif` has actually loaded in the grid
+  // below. The zoom gallery only upgrades a photo to the CDN variant once
+  // that proof exists — otherwise it keeps the raw LB URL, so a CDN miss
+  // (photo not yet mirrored) can never produce a broken zoom slide. Keyed by
+  // raw URL, so it stays valid across different reviews.
+  const [cdnLoaded, setCdnLoaded] = useState<Set<string>>(() => new Set());
+  const markCdnLoaded = useCallback((rawUrl: string) => {
+    setCdnLoaded((prev) =>
+      prev.has(rawUrl) ? prev : new Set(prev).add(rawUrl),
+    );
+  }, []);
+  const zoomImages = useMemo(
+    () =>
+      images.map((rawUrl) =>
+        cdnLoaded.has(rawUrl)
+          ? (getReviewPhotoUrl(rawUrl, "full") ?? rawUrl)
+          : rawUrl,
+      ),
+    [images, cdnLoaded],
+  );
   const createdAgo = useMemo(() => {
     if (!review || clientNow == null) return null;
     const parts = timeAgoParts(review.createdAt, clientNow);
@@ -212,10 +252,11 @@ export function PhotoReviewModal() {
                   className="absolute inset-0 flex items-center justify-center overflow-hidden cursor-zoom-in"
                   aria-label={t("zoomImage")}
                 >
-                  {/* biome-ignore lint/performance/noImgElement: review images are arbitrary marketplace URLs */}
-                  <img
-                    src={images[0]}
+                  <ReviewPhotoImg
+                    rawUrl={images[0]}
+                    size="full"
                     alt={review.itemName ?? t("reviewPhoto")}
+                    onCdnLoad={markCdnLoaded}
                     className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-[1.02]"
                   />
                 </button>
@@ -249,11 +290,12 @@ export function PhotoReviewModal() {
                           "row-span-2 aspect-auto",
                       )}
                     >
-                      {/* biome-ignore lint/performance/noImgElement: review images are arbitrary marketplace URLs */}
-                      <img
-                        src={src}
+                      <ReviewPhotoImg
+                        rawUrl={src}
+                        size="full"
                         alt=""
                         loading="lazy"
+                        onCdnLoad={markCdnLoaded}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                       />
                     </button>
@@ -264,7 +306,7 @@ export function PhotoReviewModal() {
               {images.length > 0 && (
                 <Suspense fallback={null}>
                   <ImageZoomPreview
-                    imageUrls={images}
+                    imageUrls={zoomImages}
                     alt={review.itemName ?? t("reviewPhoto")}
                     openSignal={zoomSignal}
                     startIndex={zoomIndex}
@@ -294,13 +336,14 @@ export function PhotoReviewModal() {
 
                 {/* Seller + item */}
                 <div className="flex items-start gap-3 mb-4">
-                  {review.sellerAvatar ? (
+                  {avatarUrl && failedAvatarUrl !== avatarUrl ? (
                     // biome-ignore lint/performance/noImgElement: seller avatar is an arbitrary marketplace URL
                     <img
-                      src={review.sellerAvatar}
+                      src={avatarUrl}
                       alt={review.sellerName ?? ""}
                       className="h-9 w-9 rounded-full object-cover border border-border shrink-0"
                       loading="lazy"
+                      onError={() => setFailedAvatarUrl(avatarUrl)}
                     />
                   ) : (
                     <div className="h-9 w-9 rounded-full bg-muted/20 border border-border flex items-center justify-center shrink-0">

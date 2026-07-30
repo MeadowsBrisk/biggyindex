@@ -13,10 +13,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ReviewPhotoImg } from "@/components/ReviewPhotoImg";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
+import { getSellerImageUrl, toIconVariantUrl } from "@/lib/images";
 import { expandedRefNumAtom, photoReviewModalAtom } from "@/store/atoms";
 
 interface ReviewCardData {
@@ -53,6 +55,7 @@ const STAR_POSITIONS = [0, 1, 2, 3, 4] as const;
 
 interface TimeAgoCopy {
   justNow: string;
+  minutesAgo: (count: number) => string;
   hoursAgo: (count: number) => string;
   oneDayAgo: string;
   daysAgo: (count: number) => string;
@@ -133,8 +136,12 @@ function StarRatingDark({
 
 function timeAgo(dateStr: string, copy: TimeAgoCopy, now: number): string {
   const diff = Math.max(0, now - new Date(dateStr).getTime());
+  // Minute granularity under the hour: "Just now" is only honest for the
+  // first few minutes — a whole feed stamped "Just now" for 59 minutes isn't.
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 5) return copy.justNow;
+  if (minutes < 60) return copy.minutesAgo(minutes);
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return copy.justNow;
   if (hours < 24) return copy.hoursAgo(hours);
   const days = Math.floor(hours / 24);
   if (days === 1) return copy.oneDayAgo;
@@ -165,6 +172,12 @@ function PhotoReviewCard({
   const [failedImages, setFailedImages] = useState<Set<string>>(
     () => new Set(),
   );
+  const markImageDead = useCallback((src: string) => {
+    setFailedImages((current) => new Set(current).add(src));
+  }, []);
+  // Optimised 96px avatar (see note on `avatarUrl` in MarqueeReviewCard).
+  const avatarUrl = getSellerImageUrl(review.sellerAvatar);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const visibleImages = useMemo(
     () => images.filter((src) => !failedImages.has(src)),
     [images, failedImages],
@@ -188,15 +201,15 @@ function PhotoReviewCard({
       {visibleImages.length > 0 ? (
         <div className="absolute inset-0">
           {visibleImages.map((src, imageIndex) => (
-            // biome-ignore lint/performance/noImgElement: review images are arbitrary marketplace URLs
-            <img
+            // Optimised CDN thumb with raw-LB fallback; only photos dead on
+            // BOTH sources are pruned (previously any raw failure pruned).
+            <ReviewPhotoImg
               key={src}
-              src={src}
+              rawUrl={src}
+              size="thumb"
               alt={review.itemName ?? copy.fallbackReviewPhoto}
               loading="lazy"
-              onError={() => {
-                setFailedImages((current) => new Set(current).add(src));
-              }}
+              onDead={markImageDead}
               className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-[1.03] motion-reduce:transition-none ${
                 imageIndex === activeIndex ? "opacity-100" : "opacity-0"
               }`}
@@ -225,15 +238,16 @@ function PhotoReviewCard({
           {/* Seller avatar with tooltip */}
           <SellerAvatarTooltip
             sellerName={review.sellerName ?? copy.fallbackSeller}
-            imageUrl={review.sellerAvatar ?? null}
+            imageUrl={avatarUrl ?? null}
             showInitialTooltip
           >
-            {review.sellerAvatar ? (
+            {avatarUrl && !avatarFailed ? (
               <img
-                src={review.sellerAvatar}
+                src={avatarUrl}
                 alt={review.sellerName ?? copy.fallbackSeller}
                 className="w-5 h-5 rounded-full object-cover border border-white/20 shrink-0"
                 loading="lazy"
+                onError={() => setAvatarFailed(true)}
               />
             ) : (
               <div className="w-5 h-5 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0">
@@ -307,6 +321,15 @@ function MarqueeReviewCard({
 }) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const canOpen = !!review.refNum;
+  // `sellerAvatar` is the RAW marketplace original (multi-MB, one animated
+  // GIF is 5.3MB) rendered in a 24px slot — always serve the 96px optimised
+  // crop instead. `itemImage` already arrives optimised but at the 600px
+  // `thumb` tier, so drop it to the `icon` tier. Both fall back to the
+  // existing placeholder on error; deliberately NEVER back to the original.
+  const avatarUrl = getSellerImageUrl(review.sellerAvatar);
+  const itemImageUrl = toIconVariantUrl(review.itemImage);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const [itemImageFailed, setItemImageFailed] = useState(false);
 
   const cardClassName = `w-70 sm:w-80 shrink-0 text-left rounded-xl border border-border bg-card p-3 flex flex-col transition-colors select-none ${
     canOpen
@@ -336,15 +359,16 @@ function MarqueeReviewCard({
           {/* Seller avatar with tooltip */}
           <SellerAvatarTooltip
             sellerName={review.sellerName ?? copy.fallbackSeller}
-            imageUrl={review.sellerAvatar ?? null}
+            imageUrl={avatarUrl ?? null}
             showInitialTooltip
           >
-            {review.sellerAvatar ? (
+            {avatarUrl && !avatarFailed ? (
               <img
-                src={review.sellerAvatar}
+                src={avatarUrl}
                 alt={review.sellerName ?? copy.fallbackSeller}
                 className="w-6 h-6 rounded-full object-cover border border-border shrink-0"
                 loading="lazy"
+                onError={() => setAvatarFailed(true)}
               />
             ) : (
               <div className="w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center shrink-0">
@@ -367,15 +391,16 @@ function MarqueeReviewCard({
           {/* Product thumbnail with hover tooltip */}
           <SellerAvatarTooltip
             sellerName={review.itemName ?? copy.fallbackProduct}
-            imageUrl={review.itemImage ?? null}
+            imageUrl={itemImageUrl ?? null}
             tooltipSize={160}
           >
-            {review.itemImage ? (
+            {itemImageUrl && !itemImageFailed ? (
               <img
-                src={review.itemImage}
+                src={itemImageUrl}
                 alt={review.itemName ?? copy.fallbackProduct}
                 className="w-6 h-6 rounded object-cover border border-border"
                 loading="lazy"
+                onError={() => setItemImageFailed(true)}
               />
             ) : (
               <div className="w-6 h-6 rounded bg-surface border border-border flex items-center justify-center">
@@ -669,6 +694,7 @@ export function CommunityReviews({
       },
       time: {
         justNow: t("time.justNow"),
+        minutesAgo: (count) => t("time.minutesAgo", { count }),
         hoursAgo: (count) => t("time.hoursAgo", { count }),
         oneDayAgo: t("time.oneDayAgo"),
         daysAgo: (count) => t("time.daysAgo", { count }),

@@ -235,7 +235,9 @@ export interface SellerReview {
   created: number;
   rating: number;
   daysToArrive: number | null;
-  segments: { type: string; value: string }[];
+  /** Review body parts. `text` segments carry `value`; `image` segments
+      carry the photo URL in `url` (legacy payloads used `value`). */
+  segments: { type: string; value?: string; url?: string }[];
   item: { refNum: string; name: string; id: number; imageUrl?: string };
   itemImage?: string;
 }

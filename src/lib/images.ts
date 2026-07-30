@@ -393,6 +393,37 @@ export function isAnimated(url: string | null | undefined): boolean {
 }
 
 /**
+ * Get optimised CDN URL for a buyer review photo.
+ *
+ * Review photos are mirrored by the crawler's `review-images` stage under the
+ * SAME FNV-1a URL-hash contract as item images and seller avatars: hash the
+ * STORED segment URL verbatim (normalisation collapses rotating LB subdomains
+ * and strips query/fragment — see `normalizeImageUrl`, which is a two-sided
+ * contract with the crawler's `shared/hash.ts`; any change must ship to both
+ * atomically or every mirrored photo is orphaned). No new data is plumbed —
+ * the CDN URL is derived from the raw URL already present in every review
+ * payload.
+ *
+ * A photo can legitimately be missing from the CDN (brand-new photo the daily
+ * mirror pass hasn't seen, failed optimisation, GC'd archive photo), so
+ * render through `ReviewPhotoImg`, which falls back to the raw LB URL on
+ * error — photos are user content with no placeholder equivalent, the
+ * deliberate opposite of the avatar fall-back-to-initials decision.
+ *
+ * @param rawUrl - Raw stored photo URL (review segment `url`/`value`)
+ * @param size - 'thumb' (600px) for tiles/cards, 'full' for modals/zoom
+ */
+export function getReviewPhotoUrl(
+  rawUrl: string | null | undefined,
+  size: Extract<ImageSize, "thumb" | "full"> = "thumb",
+): string | undefined {
+  if (!rawUrl) return undefined;
+  const hash = hashUrl(rawUrl);
+  if (isAnimatedUrl(rawUrl)) return `${CDN_PREFIX}/${hash}/anim.webp`;
+  return `${CDN_PREFIX}/${hash}/${size}.avif`;
+}
+
+/**
  * Get optimised seller avatar URL.
  * Hashes the source URL to derive the CDN path (same FNV-1a as crawler).
  * Defaults to the tiny avatar crop. GIF avatars use animated icon.webp.
@@ -409,4 +440,30 @@ export function getSellerImageUrl(
     }`;
   }
   return getImageUrl(hash, sourceUrl, size);
+}
+
+/**
+ * Downgrade an ALREADY-optimised CDN image URL to its 96px `icon` tier.
+ *
+ * Some payloads (notably the home feed's review rows) carry pre-built CDN
+ * URLs at the 600px `thumb.avif` / animated `anim.webp` tier. When such an
+ * image is rendered in a 24px slot that's ~15x more pixels than needed, so
+ * this maps it to the `icon` sibling the crawler emits for every hash.
+ * Inverse of the upgrade `SellerAvatarTooltip` applies for its hover preview.
+ *
+ * Non-CDN URLs (raw marketplace originals) and unrecognised tiers pass
+ * through untouched — hash them with `getItemImageUrl`/`getSellerImageUrl`
+ * instead.
+ */
+export function toIconVariantUrl(
+  url: string | null | undefined,
+): string | undefined {
+  if (!url) return undefined;
+  if (!url.startsWith(`${CDN_PREFIX}/`)) return url;
+  const slash = url.lastIndexOf("/");
+  const file = url.slice(slash + 1);
+  const dir = url.slice(0, slash + 1);
+  if (file === "anim.webp") return `${dir}icon.webp`;
+  if (file === "thumb.avif" || file === "full.avif") return `${dir}icon.avif`;
+  return url;
 }

@@ -11,8 +11,9 @@ import {
   useMemo,
   useState,
 } from "react";
+import { ReviewPhotoImg } from "@/components/ReviewPhotoImg";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
-import { getSellerImageUrl } from "@/lib/images";
+import { getReviewPhotoUrl, getSellerImageUrl } from "@/lib/images";
 import { expandedRefNumAtom, sellerModalIdAtom } from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
@@ -91,14 +92,21 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 interface TimeAgoParts {
-  key: "justNow" | "hoursAgo" | "oneDayAgo" | "daysAgo" | "monthsAgo";
+  key: "justNow" | "minutesAgo" | "hoursAgo" | "oneDayAgo" | "daysAgo" | "monthsAgo";
   count?: number;
 }
 
 function timeAgoParts(dateStr: string, now: number): TimeAgoParts {
   const diff = now - new Date(dateStr).getTime();
   const hours = Math.floor(diff / 3_600_000);
-  if (hours < 1) return { key: "justNow" };
+  // Same honesty rule as the home sections (2026-07-30): "Just now" used to
+  // cover a full hour, so a seller uploading inventory showed a wall of
+  // "Just now" cards long after the fact. Reserve it for < 5 minutes.
+  if (hours < 1) {
+    const minutes = Math.floor(diff / 60_000);
+    if (minutes < 5) return { key: "justNow" };
+    return { key: "minutesAgo", count: minutes };
+  }
   if (hours < 24) return { key: "hoursAgo", count: hours };
   const days = Math.floor(hours / 24);
   if (days === 1) return { key: "oneDayAgo" };
@@ -155,6 +163,26 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
     setZoomIndex(index);
     setZoomSignal((s) => (s ?? 0) + 1);
   }, []);
+
+  // Raw photo URLs whose optimised CDN thumb has actually loaded — proof the
+  // hash is mirrored, so the zoom gallery can upgrade to the CDN `full.avif`
+  // sibling. Unproven photos keep the raw LB URL in zoom (the zoom slides
+  // have no fallback of their own).
+  const [cdnLoaded, setCdnLoaded] = useState<Set<string>>(() => new Set());
+  const markCdnLoaded = useCallback((rawUrl: string) => {
+    setCdnLoaded((prev) =>
+      prev.has(rawUrl) ? prev : new Set(prev).add(rawUrl),
+    );
+  }, []);
+  const zoomImages = useMemo(
+    () =>
+      (review.images ?? []).map((rawUrl) =>
+        cdnLoaded.has(rawUrl)
+          ? (getReviewPhotoUrl(rawUrl, "full") ?? rawUrl)
+          : rawUrl,
+      ),
+    [review.images, cdnLoaded],
+  );
 
   const itemThumb = hasItemImage ? (
     /* eslint-disable-next-line @next/next/no-img-element */
@@ -320,11 +348,12 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
                 onClick={() => openZoom(i)}
                 className="cursor-zoom-in"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={img}
+                <ReviewPhotoImg
+                  rawUrl={img}
+                  size="thumb"
                   alt={t("reviewPhoto", { index: i + 1 })}
                   loading="lazy"
+                  onCdnLoad={markCdnLoaded}
                   className="h-16 w-16 rounded-lg object-cover border border-border hover:scale-105 hover:ring-2 hover:ring-primary/40 transition-all"
                 />
               </button>
@@ -332,8 +361,8 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
             {zoomSignal != null && (
               <Suspense fallback={null}>
                 <ImageZoomPreview
-                  imageUrl={review.images![zoomIndex]}
-                  imageUrls={review.images}
+                  imageUrl={zoomImages[zoomIndex]}
+                  imageUrls={zoomImages}
                   startIndex={zoomIndex}
                   alt={t("reviewPhoto", { index: zoomIndex + 1 })}
                   openSignal={zoomSignal}

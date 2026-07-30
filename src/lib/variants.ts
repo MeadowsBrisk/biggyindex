@@ -153,6 +153,26 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   tubs: "tub",
   pot: "pot",
   pots: "pot",
+  // 2026-07-30 ppu audit: count nouns sellers use as the sale unit.
+  // "1 slab hash" (live tXQGrwGeGAiBAytiIwxfqCIe, $400) previously failed to
+  // parse, and the modal's bare-number fallback rendered the flat total as a
+  // fabricated £300+/g — recognising these nouns is what disarms that.
+  // NOTE: slab is deliberately NOT in PRICEABLE_SINGLE_UNITS — trade folklore
+  // says ~100g but one live listing says 28g, so a lone slab gets an honest
+  // no-ppu rather than an invented denominator. syringe/spray/seed/slice/drop
+  // ARE priceable: the unit is the product ("25 syringes rso").
+  slab: "slab",
+  slabs: "slab",
+  syringe: "syringe",
+  syringes: "syringe",
+  spray: "spray",
+  sprays: "spray",
+  seed: "seed",
+  seeds: "seed",
+  slice: "slice",
+  slices: "slice",
+  drop: "drop",
+  drops: "drop",
   // Pharmaceutical packaging. Explicit "strip of N" labels expand to tabs;
   // otherwise strip stays a count unit because blister sizes vary.
   strip: "strip",
@@ -241,6 +261,23 @@ const NUM = String.raw`(?:\d+(?:\.\d+)?|\.\d+)`;
  * and matches anywhere, so a leading-decimal alt would let it mis-split a glued
  * fraction (the `\b` sits between "." and a digit). No such string exists in the
  * live corpus, but the plain token avoids introducing the risk.
+ *
+ * ── 2026-07-30 ppu-audit contracts (fixtures in tools/audit-ppu.ts) ──
+ *   "10000 mg 10x 1000mg …"  → 10 carts   (TOTAL_MG_PACK_RE, vape ctx; the
+ *                                          total is NEVER shown as /unit)
+ *   "5000 mg 5x 1g …"        → 5 carts    (inner g → ×1000, corroborated)
+ *   "1000 mg biskante d9"    → 1 cart     (potency collapse unchanged)
+ *   "600 mg 10x 50mg …"      → 600mg      (does NOT corroborate → honest mg
+ *                                          total, qty-1 collapse suppressed)
+ *   "strawberry 5x50mg (250mg)" → 5 pcs   (bracket total corroborates)
+ *   "1 slab hash"            → 1 slab     (count parse, NOT priceable — no
+ *                                          fabricated per-gram figure)
+ *   "1 ×20mli rso …"         → 20ml      (mil/mli typo prep)
+ *   "7 grans 7g gumbo"       → 7g         (grans typo prep)
+ *   "20 20 0.4g pieces …"    → 8g         (dup-collapse preserves the count)
+ *   "4 blue inhalers"        → 4 inhalers (one-adjective COUNT_RE tolerance)
+ * The full fixture corpus runs via:
+ *   cd dashboard && yarn test:variants
  */
 
 /** Ounce-family patterns. Slang canonicalizes to grams; numeric oz preserves "Noz". */
@@ -281,6 +318,31 @@ const MULTIPACK_MG_RE = new RegExp(
   `^(\\d+)\\s*(?:x|×)\\s*(${NUM})\\s*(?:mg|milligram|milligrams)\\b`,
   "i",
 );
+
+/**
+ * 2026-07-30: leading TOTAL dose followed by an inner "N x M" pack spec —
+ * "10000 mg 10x 1000mg the10/10boys mix" / "5000 mg 5x 1g voice of plant".
+ * Multi-device menu sellers write the pack total first, so the start-anchored
+ * MULTIPACK_MG_RE never fires and MG_RE + potencyProductUnit collapsed the
+ * whole pack to qty=1 device — rendering the pack TOTAL as the per-unit price
+ * (live items K1yaxsTV1RuYqMWRfVQLcJZK: $450 pack shown as £337.82/unit;
+ * o93eJBEpuWRnt3vDZoSVp4IQ: $465 as £349.08). The branch only fires when the
+ * numbers corroborate (total ≈ N × per, inner g → ×1000), so a strain cross
+ * like "gelato 41 x zkittles" can never match — self-proving, never guessed.
+ * Comma decimals allowed (some sellers write "2,5"); parse swaps , → .
+ */
+const TOTAL_MG_PACK_RE =
+  /^(\d+(?:[.,]\d+)?)\s*mg\b[^a-z0-9]{0,6}(\d+)\s*(?:x|×)\s*(\d+(?:[.,]\d+)?)\s*(mg|milligrams?|grams?|g)\b/i;
+
+/**
+ * 2026-07-30: mid-string potency pack with a corroborating bracketed total —
+ * "strawberry 5x50mg (250mg)" / "vanilla fudge 5x85mg (425mg)" (live
+ * lakE0WvHUBYIGSpsQXOIQrzI / HiDljchrBYzz5AlLmShQIKai, previously unparsed).
+ * A mid-string "N x M mg" ALONE is too strain-cross-prone to trust — the
+ * branch requires the bracketed total to equal N × M (double corroboration).
+ */
+const MG_PACK_ANYWHERE_RE = /(\d+)\s*(?:x|×)\s*(\d+(?:[.,]\d+)?)\s*mg\b/i;
+const MG_BRACKET_TOTAL_RE = /\(\s*(\d+(?:[.,]\d+)?)\s*mg\s*\)/i;
 
 /** "2x1ml cart" / "pick and mix (2x1ml cart)" → total ml. */
 const MULTIPACK_ML_RE = new RegExp(
@@ -365,9 +427,19 @@ const LB_RE = /^(\d+(?:\.\d+)?)\s*lb\b/i;
 const STRIP_OF_COUNT_RE =
   /^(\d+(?:\.\d+)?)\s*strips?\s+of\s+(\d+(?:\.\d+)?)(?:\s+\d+(?:\.\d+)?\s*(?:mg|ug|mcg))?\b/i;
 
-/** "3 packs", "30 20mg tablets", "1 each 200ug papers". */
+/**
+ * "3 packs", "30 20mg tablets", "1 each 200ug papers".
+ * 2026-07-30: tolerates ONE interposed adjective between the count and a
+ * KNOWN count noun — "4 blue inhalers", "1 sample pack" (live
+ * IHi877d6kVEisPPsItnPnG1i / 7LQEXldxb9DknItvWdWYLn0L, previously unparsed).
+ * The interposed word must NOT itself be a count noun (negative lookahead),
+ * so every previously-matching label still matches identically, and no new
+ * denominators are invented — only known nouns recognised through one word.
+ * NO dash tolerance: "1 14-pk pacific stone" must keep falling through to
+ * BARE_COUNT_RE (14 joints via pre-roll context), not become "14 packs".
+ */
 const COUNT_RE = new RegExp(
-  `^(\\d+(?:\\.\\d+)?)\\s*(?:(?:each|total)\\s*)?(?:\\d+(?:\\.\\d+)?\\s*(?:mg|ug|mcg)\\s*)?(${COUNT_UNIT_ALT})\\b`,
+  `^(\\d+(?:\\.\\d+)?)\\s*(?:(?:each|total)\\s*)?(?:\\d+(?:\\.\\d+)?\\s*(?:mg|ug|mcg)\\s*)?(?:(?!(?:${COUNT_UNIT_ALT})\\b)[a-z]{2,12}\\s+)?(${COUNT_UNIT_ALT})\\b`,
   "i",
 );
 
@@ -543,8 +615,21 @@ function cleanResidual(raw: string): string | null {
  * number (".77") counts as a number here, so the strip fires for it too.
  */
 function preprocessRaw(s: string): string {
-  // 1) Collapse 2 or 3 identical leading numbers.
-  s = s.replace(/^(\d+)\s+\1(?:\s+\1)?\s+/, "");
+  // 1) Collapse 2 or 3 identical leading numbers — EXCEPT when the duplicate
+  //    is immediately followed by a number+weight/volume token: then the dup
+  //    is a real count the platform doubled, and dropping both copies loses a
+  //    20× multiplier. "20 20 0.4g pieces chocolates" (live
+  //    9eOVLmMejpEflvoqGTG0JIUf, 2026-07-30) must become "20 0.4g pieces …"
+  //    (MULTIPACK_RE → 8g), not "0.4g pieces …" ($78 rendered as ~$195/g).
+  //    "1 1 baja blast" (no weight after the dup) still collapses fully.
+  const dupKeep = s.match(
+    /^(\d+)\s+\1\s+(?=(?:\d+(?:\.\d+)?|\.\d+)\s*(?:g|gram|grams|ml|milliliter|milliliters)\b)/,
+  );
+  if (dupKeep) {
+    s = s.slice(dupKeep[1].length + 1).trimStart();
+  } else {
+    s = s.replace(/^(\d+)\s+\1(?:\s+\1)?\s+/, "");
+  }
   // 2) Strip leading "1 " when the next token is a number — including a
   //    leading-decimal number (".77") — (platform prefix quirk).
   //    Only strip "1 " specifically — "1" is the always-added prefix.
@@ -605,6 +690,14 @@ export function parseVariant(
   // Normalize "0z" typo → "oz" BEFORE preprocessRaw so its leading-"1 " strip
   // doesn't mistake the "0" for a real digit and eat the real quantity.
   clean = clean.replace(/(\d+(?:\.\d+)?)\s*0z\b/gi, "$1 oz");
+  // 2026-07-30 typo family for ml — "1 ×1mil rso", "1 ×20mli" (live Quality
+  // RSO jMYBaXTY3d0DVludz5yXEfJX, $30–$830 ladder, previously unparsed).
+  // Digit-anchored so strain words never match ("4 mile high": "mile" fails
+  // the \b). Same lexical-prep approach as the shipped 0z→oz fix above.
+  clean = clean.replace(/(\d)\s*m(?:il|li)s?\b/gi, "$1 ml");
+  // "grans" → "grams" ("7 grans 7g gumbo", live yjhluaijXHWZ61MUmKlmVl4n —
+  // that row even carries a corroborating inline "7g").
+  clean = clean.replace(/\bgrans\b/gi, "grams");
   clean = preprocessRaw(clean);
 
   /* Oz-family (check first so "quarter"/"half"/"zip" don't fall through). */
@@ -663,6 +756,39 @@ export function parseVariant(
       strain: residual,
       variant: v,
     };
+  }
+
+  /* Mid-string mg pack with corroborating bracketed total:
+     "strawberry 5x50mg (250mg)" → 5 pieces (context noun when known).
+     Both numbers must agree — without the bracket, no match (see
+     MG_PACK_ANYWHERE_RE notes). Per-piece, never mg→g equivalence. */
+  const packAny = clean.match(MG_PACK_ANYWHERE_RE);
+  if (packAny) {
+    const bracket = clean.match(MG_BRACKET_TOTAL_RE);
+    if (bracket) {
+      const count = parseInt(packAny[1], 10);
+      const per = parseFloat(packAny[2].replace(",", "."));
+      const total = parseFloat(bracket[1].replace(",", "."));
+      const expected = count * per;
+      if (
+        count > 1 &&
+        expected > 0 &&
+        Math.abs(total - expected) / expected <= 0.01
+      ) {
+        const unit = contextUnit(context) ?? "pc";
+        // cleanResidual strips the "(250mg)" bracket on its own.
+        const residual = residualWithoutMatch(clean, packAny);
+        const lab = formatCountLabel(count, unit);
+        return {
+          qty: count,
+          unit,
+          weightLabel: lab,
+          originalLabel: `${count}×${per}mg`,
+          strain: residual,
+          variant: v,
+        };
+      }
+    }
   }
 
   /* Multi-pack ml: "pick and mix (2x1ml cart)" → total 2ml. */
@@ -965,12 +1091,62 @@ export function parseVariant(
     };
   }
 
+  /* Leading total + inner pack: "10000 mg 10x 1000mg …" → N devices.
+     Must run BEFORE the MG_RE branch or the leading total routes into the
+     potencyProductUnit qty=1 collapse (the owner-reported /unit=total bug).
+     Per-DEVICE, not per-mg and not mg→g: the good rows on the same items
+     ("500 mg red astare" → £18.77/vape) already use the device denominator,
+     so pack rows land in the same comparable column. */
+  const totalPack = clean.match(TOTAL_MG_PACK_RE);
+  if (totalPack) {
+    const total = parseFloat(totalPack[1].replace(",", "."));
+    const count = parseInt(totalPack[2], 10);
+    const per = parseFloat(totalPack[3].replace(",", "."));
+    const perMg = /^g/i.test(totalPack[4]) ? per * 1000 : per;
+    const expected = count * perMg;
+    // Corroboration gate: only trust the pack reading when the leading total
+    // equals N × per-unit (±1% for comma-decimal rounding). Mismatch → fall
+    // through to the honest paths below; never guess a denominator.
+    if (
+      count > 1 &&
+      expected > 0 &&
+      Math.abs(total - expected) / expected <= 0.01
+    ) {
+      const unit = contextUnit(context) ?? "pc";
+      const residual = cleanResidual(clean.slice(totalPack[0].length));
+      const lab = formatCountLabel(count, unit);
+      return {
+        qty: count,
+        unit,
+        weightLabel: lab,
+        originalLabel: `${count}×${perMg}mg`,
+        strain: residual,
+        variant: v,
+      };
+    }
+  }
+
   /* Dose: "500 mg". */
   const mg = clean.match(MG_RE);
   if (mg) {
     const qty = parseFloat(mg[1]);
-    const residual = cleanResidual(clean.slice(mg[0].length));
-    const potencyUnit = potencyProductUnit(residual, context);
+    const afterMg = clean.slice(mg[0].length);
+    const residual = cleanResidual(afterMg);
+    // 2026-07-30 unresolved-pack guard: if the text after the mg total still
+    // carries an "N x M" multiplier (i.e. TOTAL_MG_PACK_RE's corroboration
+    // gate rejected it), do NOT collapse to a single device — that renders
+    // the pack total as a confident per-unit price. Checked against the
+    // PRE-cleanResidual text: cleanResidual's INNER_WEIGHT_RE deletes the
+    // inner "1000mg", leaving only a bare "10x" in the strain.
+    // /i matters: sellers write "10X 50mg" as often as "10x" — without it an
+    // uppercase pack that failed TOTAL_MG_PACK_RE's corroboration slipped past
+    // this guard and rendered the flat total as a confident per-unit price
+    // ("600 mg 10X 50mg mix" → £300.00/cart). Caught by adversarial verify
+    // 2026-07-30.
+    const unresolvedPack = /\b\d+\s*(?:x|×)\s*\d/i.test(afterMg);
+    const potencyUnit = unresolvedPack
+      ? null
+      : potencyProductUnit(residual, context);
     if (potencyUnit) {
       const lab = formatCountLabel(1, potencyUnit.unit);
       return {
@@ -1079,6 +1255,13 @@ function formatCountLabel(qty: number, unit: string): string {
     pot: "pot",
     strip: "strip",
     item: "item",
+    // 2026-07-30 ppu audit nouns (see COUNT_LABEL_CANONICAL).
+    slab: "slab",
+    syringe: "syringe",
+    spray: "spray",
+    seed: "seed",
+    slice: "slice",
+    drop: "drop",
   };
   const word = base[unit] ?? unit;
   if (qty === 1) return `${qty} ${word}`;
@@ -1207,6 +1390,15 @@ const PRICEABLE_SINGLE_UNITS = new Set([
   "cube",
   "vape",
   "inhaler",
+  // 2026-07-30: the unit IS the product for these ("25 syringes rso",
+  // "10 sprays live resin spray") — per-unit pricing is meaningful at qty 1.
+  // slab is deliberately ABSENT (mass folklore, see COUNT_LABEL_CANONICAL):
+  // a qty-1 slab yields an honest no-ppu, never an invented per-gram figure.
+  "syringe",
+  "spray",
+  "seed",
+  "slice",
+  "drop",
 ]);
 
 /**
@@ -1245,6 +1437,12 @@ export const UNIT_DISPLAY_LABEL: Record<string, string> = {
   pot: "pot",
   strip: "strip",
   item: "item",
+  slab: "slab",
+  syringe: "syringe",
+  spray: "spray",
+  seed: "seed",
+  slice: "slice",
+  drop: "drop",
 };
 
 /**

@@ -182,6 +182,7 @@
     "photoReviewModal": {
       "time": {
         "justNow": "Právě teď",
+        "minutesAgo": "{count}m",
         "hoursAgo": "{count}h",
         "oneDayAgo": "Před 1 dnem",
         "daysAgo": "{count}d",
@@ -373,6 +374,7 @@
       "alternateImageAlt": "{item} alternativa",
       "time": {
         "justNow": "Právě teď",
+        "minutesAgo": "{count}m",
         "hoursAgo": "{count}h",
         "oneDayAgo": "Před 1 dnem",
         "daysAgo": "{count} dny zpátky",
@@ -437,6 +439,7 @@
       "deliveryDays": "{count}d",
       "time": {
         "justNow": "Právě teď",
+        "minutesAgo": "{count}m",
         "hoursAgo": "{count}h",
         "oneDayAgo": "Před 1 dnem",
         "daysAgo": "{count}d",
@@ -682,7 +685,8 @@
         "removeFromBasket": "Odebrat z košíku",
         "bestValue": "Nejlepší poměr cena/výkon",
         "pricePerUnit": "Cena za {unit}",
-        "unit": "Jednotka"
+        "unit": "Jednotka",
+        "noPpu": "Velikost nebyla rozpoznána"
       },
       "meta": {
         "rating": "Hodnocení",
@@ -950,6 +954,7 @@
       "noMatches": "Žádné recenze s tímto filtrem nesouhlasí",
       "row": {
         "justNow": "Právě teď",
+        "minutesAgo": "{count}m",
         "hoursAgo": "{count}h",
         "oneDayAgo": "Před 1 dnem",
         "daysAgo": "{count}d",

@@ -21,7 +21,7 @@ import { type Locale, routing } from "@/i18n/routing";
 import { computeCustomAccentVars } from "@/lib/accent";
 import { IMAGE_CDN_ORIGIN } from "@/lib/images";
 import { localeToMarket } from "@/lib/market/market";
-import { marketBaseUrl } from "@/lib/seo/metadata";
+import { marketBaseUrl, SITE_ICONS } from "@/lib/seo/metadata";
 
 /**
  * Pre-hydration boot script — runs synchronously before first paint on every
@@ -76,6 +76,10 @@ export async function generateMetadata({
     applicationName: site.title,
     title: `${site.title} | ${site.tagline}`,
     description: site.description,
+    // Re-declared here (not just on the root layout): a child segment's
+    // `icons` replaces the parent's, so omitting it would blank the tab icon
+    // for every page under [locale]. See SITE_ICONS for the full rationale.
+    icons: SITE_ICONS,
   };
 }
 

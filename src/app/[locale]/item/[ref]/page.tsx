@@ -25,6 +25,11 @@ import { LocalizedText } from "@/components/LocalizedText";
 import { OutboundLink } from "@/components/OutboundLink";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
+import {
+  firstEffectValue,
+  isStrainGroup,
+  StrainTypeChip,
+} from "@/components/StrainTypeChip";
 import { SuggestLink } from "@/components/SuggestLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { categoryToSlug } from "@/lib/categories";
@@ -74,7 +79,11 @@ interface RawDetailReview {
   created?: number | null;
   rating?: unknown;
   daysToArrive?: number | null;
-  segments?: Array<{ type?: string | null; value?: string | null }> | null;
+  segments?: Array<{
+    type?: string | null;
+    value?: string | null;
+    url?: string | null;
+  }> | null;
   item?: {
     refNum?: string | number | null;
     name?: string | null;
@@ -190,14 +199,16 @@ function itemReviewsFromDetail(
         : null;
     const segments = Array.isArray(raw.segments)
       ? raw.segments.flatMap((segment) => {
-          if (
-            !segment ||
-            typeof segment.type !== "string" ||
-            typeof segment.value !== "string"
-          ) {
-            return [];
-          }
-          return [{ type: segment.type, value: segment.value }];
+          if (!segment || typeof segment.type !== "string") return [];
+          // `text` segments carry `value`; `image` segments carry the photo
+          // URL in `url` (legacy payloads used `value`). Keep both so review
+          // photos render on the item page instead of being dropped.
+          const segValue =
+            typeof segment.value === "string" ? segment.value : undefined;
+          const segUrl =
+            typeof segment.url === "string" ? segment.url : undefined;
+          if (segValue == null && segUrl == null) return [];
+          return [{ type: segment.type, value: segValue, url: segUrl }];
         })
       : [];
     const rawItemId = toFiniteNumber(raw.item?.id ?? null);
@@ -623,20 +634,56 @@ export default async function ItemPage({ params }: ItemPageProps) {
           label: decodeEntities(variant.d || parsed?.originalLabel || "-"),
           price: variant.usd,
           ppu,
+          unit: parsed?.unit ?? null,
           unitLabel,
         };
       }) ?? [];
 
+  // Best value uses the modal's per-unit grouping: only compare rows with
+  // the same unit (a cross-unit min once crowned a $60/cart row over a
+  // $130/g one) and only within groups of >=2 rows; cheapest ppu wins.
   const bestPpuKey = (() => {
     if (variantRows.length <= 1) return null;
-    let best: { key: string; ppu: number } | null = null;
+    const byUnit = new Map<string, { key: string; ppu: number }[]>();
     for (const row of variantRows) {
-      if (row.ppu != null && (!best || row.ppu < best.ppu)) {
-        best = { key: row.key, ppu: row.ppu };
+      if (row.ppu == null || row.unit == null) continue;
+      const arr = byUnit.get(row.unit) ?? [];
+      arr.push({ key: row.key, ppu: row.ppu });
+      byUnit.set(row.unit, arr);
+    }
+    let best: { key: string; ppu: number } | null = null;
+    for (const arr of byUnit.values()) {
+      if (arr.length <= 1) continue;
+      for (const r of arr) {
+        if (!best || r.ppu < best.ppu) best = r;
       }
     }
     return best?.key ?? null;
   })();
+
+  // Same header-unit vote as the modal: only ppu-bearing rows vote; exactly
+  // one distinct unit -> "/<unit>" header with bare-number cells, otherwise
+  // a generic "/unit" header with a per-row "/<unit>" suffix on every cell.
+  const ppuUnits = new Set(
+    variantRows
+      .filter((row) => row.ppu != null)
+      .map((row) => row.unitLabel)
+      .filter((u): u is string => u != null),
+  );
+  const hasAnyPpu = ppuUnits.size > 0;
+  const mixedUnits = ppuUnits.size > 1;
+  const headerUnit = mixedUnits
+    ? detailT("variants.unit")
+    : ([...ppuUnits][0] ?? detailT("variants.unit"));
+
+  // Strain type renders as a tinted chip beside the category pills (same on
+  // the modal); the redundant one-word "Strain type" attributes row is
+  // dropped whenever the chip rendered, kept only for unrecognised values.
+  const strainGroup = firstEffectValue(item.at?.effect);
+  const strainChipShown = isStrainGroup(strainGroup);
+  const visibleAttrs = strainChipShown
+    ? attrs.filter((row) => row.key !== "effect")
+    : attrs;
 
   // ─── Structured data (Product + BreadcrumbList) ────────────────────
   const canonicalUrl = absoluteUrl(market, `/item/${encodeURIComponent(ref)}`);
@@ -785,6 +832,10 @@ export default async function ItemPage({ params }: ItemPageProps) {
                       {subcategory}
                     </span>
                   ))}
+                  {/* Strain type in the first line the eye scans — no
+                      category gate on detail surfaces (data presence is
+                      the signal). Same placement as the modal. */}
+                  <StrainTypeChip group={strainGroup} surface />
                 </div>
 
                 <div className="flex items-start justify-between gap-2">
@@ -884,7 +935,17 @@ export default async function ItemPage({ params }: ItemPageProps) {
                                 ? archiveT("lastKnownPrice")
                                 : detailT("variants.price")}
                             </th>
-                            <th>{detailT("variants.unit")}</th>
+                            {hasAnyPpu && (
+                              <th>
+                                <abbr
+                                  title={detailT("variants.pricePerUnit", {
+                                    unit: headerUnit,
+                                  })}
+                                >
+                                  /{headerUnit}
+                                </abbr>
+                              </th>
+                            )}
                           </tr>
                         </thead>
                         <tbody>
@@ -903,12 +964,23 @@ export default async function ItemPage({ params }: ItemPageProps) {
                               <td className="ido-table__price">
                                 {fmtMoney(variant.price)}
                               </td>
-                              <td className="ido-table__ppu">
-                                {variant.ppu != null &&
-                                variant.unitLabel != null
-                                  ? `${fmtMoney(variant.ppu)}/${variant.unitLabel}`
-                                  : "-"}
-                              </td>
+                              {hasAnyPpu && (
+                                <td className="ido-table__ppu">
+                                  {variant.ppu != null ? (
+                                    mixedUnits ? (
+                                      `${fmtMoney(variant.ppu)}/${variant.unitLabel}`
+                                    ) : (
+                                      fmtMoney(variant.ppu)
+                                    )
+                                  ) : (
+                                    // Honest fallback — never the flat total
+                                    // in the ppu column.
+                                    <span title={detailT("variants.noPpu")}>
+                                      –
+                                    </span>
+                                  )}
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>
@@ -1041,7 +1113,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
                     </div>
                   </div>
 
-                  {attrs.length > 0 && (
+                  {visibleAttrs.length > 0 && (
                     <div className="ido-card">
                       <div className="ido-card__head">
                         <h2 className="ido-card__title">
@@ -1050,7 +1122,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
                       </div>
                       <div className="ido-card__body">
                         <dl className="ido-attr-grid">
-                          {attrs.map(({ key, label, values }) => (
+                          {visibleAttrs.map(({ key, label, values }) => (
                             <Fragment key={key}>
                               <dt className="ido-attr-grid__label">{label}</dt>
                               <dd className="ido-attr-grid__values">

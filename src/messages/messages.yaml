@@ -1344,6 +1344,16 @@ home:
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
         pl-PL: Przed chwilą
+      minutesAgo:
+        en-GB: "{count}m ago"
+        de-DE: Vor {count}m
+        fr-FR: Il y a {count}m
+        pt-PT: "{count}m atrás"
+        it-IT: "{count}m fa"
+        es-ES: "{count}m"
+        el-GR: "{count}m πριν"
+        cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -2533,6 +2543,16 @@ home:
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
         pl-PL: Przed chwilą
+      minutesAgo:
+        en-GB: "{count}m ago"
+        de-DE: Vor {count}m
+        fr-FR: Il y a {count}m
+        pt-PT: "{count}m atrás"
+        it-IT: "{count}m fa"
+        es-ES: "{count}m"
+        el-GR: "{count}m πριν"
+        cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -2955,6 +2975,16 @@ home:
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
         pl-PL: Przed chwilą
+      minutesAgo:
+        en-GB: "{count}m ago"
+        de-DE: Vor {count}m
+        fr-FR: Il y a {count}m
+        pt-PT: "{count}m atrás"
+        it-IT: "{count}m fa"
+        es-ES: "{count}m"
+        el-GR: "{count}m πριν"
+        cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h
@@ -4938,6 +4968,18 @@ item:
         el-GR: μονάδα
         cs-CZ: Jednotka
         pl-PL: Jednostka
+      # Tooltip on the "–" price-per-unit cell for variants whose size the
+      # parser could not recognise (honest fallback — never a fabricated /g).
+      noPpu:
+        en-GB: Size not recognised
+        de-DE: Größe nicht erkannt
+        fr-FR: Taille non reconnue
+        pt-PT: Tamanho não reconhecido
+        it-IT: Dimensione non riconosciuta
+        es-ES: Tamaño no reconocido
+        el-GR: Το μέγεθος δεν αναγνωρίστηκε
+        cs-CZ: Velikost nebyla rozpoznána
+        pl-PL: Nie rozpoznano rozmiaru
     meta:
       rating:
         en-GB: Rating
@@ -7052,6 +7094,16 @@ reviews:
         el-GR: Μόλις τώρα
         cs-CZ: Právě teď
         pl-PL: Przed chwilą
+      minutesAgo:
+        en-GB: "{count}m ago"
+        de-DE: Vor {count}m
+        fr-FR: Il y a {count}m
+        pt-PT: "{count}m atrás"
+        it-IT: "{count}m fa"
+        es-ES: "{count}m"
+        el-GR: "{count}m πριν"
+        cs-CZ: "{count}m"
+        pl-PL: "{count}m temu"
       hoursAgo:
         en-GB: "{count}h ago"
         de-DE: Vor {count}h

@@ -199,8 +199,12 @@ const nextConfig: NextConfig = {
     // longer fresh window is the only lever that removes those — day-1 post-
     // fix usage (~4k/day) still projected too close to the 125k cap.
     //
-    // ── EMERGENCY: s-maxage 21600 → 2592000 (30 DAYS), 2026-07-22. ─────────
-    // REVERT TO 21600 ON 2026-08-01 when the billing period resets.
+    // ── EMERGENCY s-maxage 2592000 (30 DAYS) REVERTED 2026-07-30 → 21600. ──
+    // (Applied 2026-07-22 for the July cap crisis; reverted ahead of the
+    // Aug-1 Netlify switch-back so the deploy Netlify builds BEFORE the DNS
+    // switch already carries the sane TTL. After the switch, Purge Everything
+    // on Cloudflare so lingering 30-day durable entries don't outlive it —
+    // see docs/AUGUST-1-REVERT-CHECKLIST.md.) Historical rationale kept below:
     // Measured Jul-22 afternoon (post-Cloudflare-rules): ~1,990 invocations/day
     // vs a survival rate of ~1,570/day — the residual burn is exactly this
     // class: bots revisit each of ~9.3k long-tail URLs every 4-7 days, so at
@@ -217,7 +221,7 @@ const nextConfig: NextConfig = {
     //   • Unknown-ref 200 shells (noindexed) also persist 30d — a URL probed
     //     before its item existed stays a shell until Aug 1.
     const durable =
-      "public, durable, s-maxage=2592000, stale-while-revalidate=2592000";
+      "public, durable, s-maxage=21600, stale-while-revalidate=86400";
     const durableRules = [
       "/item/:ref*",
       "/seller/:id*",

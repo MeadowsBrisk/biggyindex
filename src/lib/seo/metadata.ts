@@ -21,6 +21,33 @@ const DEFAULT_OG_IMAGE = {
   type: "image/png",
 } as const;
 
+/**
+ * Browser-tab + touch icons, declared explicitly rather than left to the
+ * app-dir file convention.
+ *
+ * Chrome picks the LARGEST `rel=icon` it is offered, so the old
+ * `src/app/icon.png` convention file (192x192) beat the real 48px brand mark
+ * in the tab strip — it has been deleted and the tab icon is pinned here.
+ *
+ * IMPORTANT: setting `icons` in metadata REPLACES the app-dir icon file
+ * convention for that segment and everything below it, which is why the
+ * apple-touch entry has to be listed too (`src/app/apple-icon.png` no longer
+ * emits anything). `/apple-touch-icon.png` in `public/` is byte-identical to
+ * it. The 192/512 PNGs live on in `manifest.json` for install/home-screen use.
+ *
+ * Shared by the root layout (so the root 404 gets them) and the locale layout
+ * (which would otherwise override the root's with nothing).
+ */
+export const SITE_ICONS: Metadata["icons"] = {
+  icon: [
+    { url: "/favicon.ico", sizes: "48x48" },
+    { url: "/favicon.png", type: "image/png", sizes: "48x48" },
+  ],
+  apple: [
+    { url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" },
+  ],
+};
+
 export const SEO_LOCALE_FOR: Record<MarketCode, string> = {
   GB: "en",
   IE: "en-IE",

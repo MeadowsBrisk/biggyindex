@@ -2,10 +2,20 @@
 
 import { Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { ReviewPhotoImg } from "@/components/ReviewPhotoImg";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
+import { getReviewPhotoUrl } from "@/lib/images";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
@@ -13,7 +23,10 @@ const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 
 interface ReviewSegment {
   type: string;
-  value: string;
+  /** Text content for `text` segments; legacy image segments used it too. */
+  value?: string;
+  /** Photo URL for `image` segments (the current crawler shape). */
+  url?: string;
 }
 
 export interface Review {
@@ -128,12 +141,35 @@ export function ReviewCard({
     for (const seg of review.segments ?? []) {
       if (seg.type === "text" && seg.value?.trim()) {
         textParts.push(decodeEntities(seg.value.trim()));
-      } else if (seg.type === "image" && seg.value) {
-        imgs.push(seg.value);
+      } else if (seg.type === "image") {
+        // Current crawler blobs put the photo URL in `url`; legacy payloads
+        // used `value`. Accept both so photos render on item/seller surfaces.
+        const photoUrl = seg.url ?? seg.value;
+        if (photoUrl) imgs.push(photoUrl);
       }
     }
     return { text: textParts.join("\n\n") || null, imageUrls: imgs };
   }, [review.segments]);
+
+  // Raw photo URLs whose optimised CDN thumb has actually loaded — proof the
+  // hash is mirrored, so the zoom gallery can upgrade to the CDN `full.avif`
+  // sibling. Unproven photos keep the raw LB URL in zoom (the zoom slides
+  // have no fallback of their own).
+  const [cdnLoaded, setCdnLoaded] = useState<Set<string>>(() => new Set());
+  const markCdnLoaded = useCallback((rawUrl: string) => {
+    setCdnLoaded((prev) =>
+      prev.has(rawUrl) ? prev : new Set(prev).add(rawUrl),
+    );
+  }, []);
+  const zoomImages = useMemo(
+    () =>
+      imageUrls.map((rawUrl) =>
+        cdnLoaded.has(rawUrl)
+          ? (getReviewPhotoUrl(rawUrl, "full") ?? rawUrl)
+          : rawUrl,
+      ),
+    [imageUrls, cdnLoaded],
+  );
 
   const panelClass = panelClassForScore(review.rating);
   const createdAgo = useMemo(() => {
@@ -215,12 +251,13 @@ export function ReviewCard({
                 }}
                 className="w-12 h-12 rounded-md overflow-hidden bg-surface border border-border cursor-pointer hover:opacity-80 transition-opacity"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
+                <ReviewPhotoImg
+                  rawUrl={src}
+                  size="thumb"
                   alt={t("imageAlt", { index: idx + 1 })}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  onCdnLoad={markCdnLoaded}
                 />
               </button>
             ))}
@@ -243,7 +280,7 @@ export function ReviewCard({
       {imageUrls.length > 0 && zoomSignal && (
         <Suspense fallback={null}>
           <ImageZoomPreview
-            imageUrls={imageUrls}
+            imageUrls={zoomImages}
             alt={t("imageAlt", { index: zoomIndex + 1 })}
             openSignal={zoomSignal}
             startIndex={zoomIndex}

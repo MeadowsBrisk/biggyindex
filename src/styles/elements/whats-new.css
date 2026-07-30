@@ -1,17 +1,24 @@
 /* ── What's New card strip (home) ──
-   CSS scroll-snap replacement for the old Swiper carousel — keeps Swiper
-   (+ its CSS) out of the home page's critical bundle. Card widths per
-   breakpoint reproduce the previous Swiper config exactly:
+   CSS scroll-snap strip: what the SERVER renders, and what stands in until
+   the lazily-imported Swiper shell (components/home/WhatsNewCarousel.tsx)
+   lands — that keeps Swiper (+ its CSS) out of the home page's critical
+   bundle while still restoring mouse drag, which scroll-snap can't do.
+
+   Card widths per breakpoint reproduce the Swiper config exactly, so the
+   upgrade is layout-identical:
 
      slidesPerView 1.4 @base (gap 12), 2.2 @480, 3 @640,
      4 @900 (gap 14), 5 @1200 (gap 16), 6 @1600, 8 @2200
 
    Swiper's slide width formula is (100% - gap*(perView-1)) / perView; the
-   calc() below is that formula with the constants folded in. No looping
-   (the Swiper setup had none). One intentional difference: on <480px the
-   old config centered the active slide; the snap strip left-aligns with a
-   1rem gutter instead (scroll-snap can't offset the first slide to center
-   without dead space). */
+   calc() below is that formula with the constants folded in. KEEP THE TWO IN
+   SYNC (BREAKPOINTS in WhatsNewCarousel.tsx). No looping. One intentional
+   difference: on <480px the old config centered the active slide; the snap
+   strip left-aligns with a 1rem gutter instead (scroll-snap can't offset the
+   first slide to center without dead space).
+
+   `.whats-new-slide` is also the SwiperSlide class once Swiper takes over;
+   Swiper writes an inline width there, which wins over the calc() below. */
 
 .whats-new-scroller {
   display: flex;

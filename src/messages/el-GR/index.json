@@ -182,6 +182,7 @@
     "photoReviewModal": {
       "time": {
         "justNow": "Μόλις τώρα",
+        "minutesAgo": "{count}m πριν",
         "hoursAgo": "{count}h πριν",
         "oneDayAgo": "1 ημέρα Πριν",
         "daysAgo": "{count}d πριν",
@@ -373,6 +374,7 @@
       "alternateImageAlt": "{item} εναλλακτικό",
       "time": {
         "justNow": "Μόλις τώρα",
+        "minutesAgo": "{count}m πριν",
         "hoursAgo": "{count}h πριν",
         "oneDayAgo": "1 ημέρα Πριν",
         "daysAgo": "{count} μέρες πριν",
@@ -437,6 +439,7 @@
       "deliveryDays": "{count}d",
       "time": {
         "justNow": "Μόλις τώρα",
+        "minutesAgo": "{count}m πριν",
         "hoursAgo": "{count}h πριν",
         "oneDayAgo": "1 ημέρα Πριν",
         "daysAgo": "{count}d πριν",
@@ -682,7 +685,8 @@
         "removeFromBasket": "Αφαίρεση από το καλάθι",
         "bestValue": "Η καλύτερη αξία",
         "pricePerUnit": "Τιμή ανά {unit}",
-        "unit": "μονάδα"
+        "unit": "μονάδα",
+        "noPpu": "Το μέγεθος δεν αναγνωρίστηκε"
       },
       "meta": {
         "rating": "Βαθμολογία",
@@ -950,6 +954,7 @@
       "noMatches": "Δεν υπάρχουν κριτικές που να ταιριάζουν με αυτό το φίλτρο",
       "row": {
         "justNow": "Μόλις τώρα",
+        "minutesAgo": "{count}m πριν",
         "hoursAgo": "{count}h πριν",
         "oneDayAgo": "1 ημέρα Πριν",
         "daysAgo": "{count}d πριν",

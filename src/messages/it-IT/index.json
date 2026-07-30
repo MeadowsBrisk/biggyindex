@@ -182,6 +182,7 @@
     "photoReviewModal": {
       "time": {
         "justNow": "Proprio adesso",
+        "minutesAgo": "{count}m fa",
         "hoursAgo": "{count}h fa",
         "oneDayAgo": "1 giorno fa",
         "daysAgo": "{count}d fa",
@@ -373,6 +374,7 @@
       "alternateImageAlt": "{item} alternativa",
       "time": {
         "justNow": "Proprio adesso",
+        "minutesAgo": "{count}m fa",
         "hoursAgo": "{count}h fa",
         "oneDayAgo": "1 giorno fa",
         "daysAgo": "{count} giorni fa",
@@ -437,6 +439,7 @@
       "deliveryDays": "{count}d",
       "time": {
         "justNow": "Proprio adesso",
+        "minutesAgo": "{count}m fa",
         "hoursAgo": "{count}h fa",
         "oneDayAgo": "1 giorno fa",
         "daysAgo": "{count}d fa",
@@ -682,7 +685,8 @@
         "removeFromBasket": "Rimuovi dal cestino",
         "bestValue": "Miglior rapporto qualità-prezzo",
         "pricePerUnit": "Prezzo per {unit}",
-        "unit": "Unità"
+        "unit": "Unità",
+        "noPpu": "Dimensione non riconosciuta"
       },
       "meta": {
         "rating": "Valutazione",
@@ -950,6 +954,7 @@
       "noMatches": "Nessuna recensione corrisponde a questo filtro",
       "row": {
         "justNow": "Proprio adesso",
+        "minutesAgo": "{count}m fa",
         "hoursAgo": "{count}h fa",
         "oneDayAgo": "1 giorno fa",
         "daysAgo": "{count}d fa",

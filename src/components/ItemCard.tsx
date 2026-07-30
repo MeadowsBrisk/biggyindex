@@ -24,6 +24,7 @@ import {
 } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
+import { StrainTypeChip } from "@/components/StrainTypeChip";
 import { useAddToast } from "@/components/Toast";
 import { Tooltip } from "@/components/Tooltip";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
@@ -210,21 +211,6 @@ function CardPill({
       {label}
     </span>
   );
-}
-
-/**
- * Strain-type chip — Indica / Sativa / Hybrid.
- *
- * Replaces the old 6px colour dot (2026-07-28). The dot was hover-gated with
- * the rest of the card overlay AND encoded meaning in colour alone, so it was
- * both invisible at rest and unreadable over busy product photos. The word is
- * now the cue; the tint only reinforces it.
- */
-function StrainTypeChip({ group }: { group: string | null }) {
-  if (!group) return null;
-  const key = group.toLowerCase();
-  if (key !== "indica" && key !== "sativa" && key !== "hybrid") return null;
-  return <span className={`strain-chip strain-chip--${key}`}>{key}</span>;
 }
 
 /**

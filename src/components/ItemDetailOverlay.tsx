@@ -33,6 +33,7 @@ import { LinkedText } from "@/components/LinkedText";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
+import { isStrainGroup, StrainTypeChip } from "@/components/StrainTypeChip";
 import { SuggestLink } from "@/components/SuggestLink";
 import { useAddToast } from "@/components/Toast";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
@@ -435,20 +436,36 @@ export function ItemDetailOverlay() {
     // For weight-based categories a bare-number variant label ("7", "14 mixed") implies grams.
     const weightCats = new Set(["Flower", "Shake", "Hash", "Concentrates"]);
     const isWeightCat = weightCats.has(displayItem.c ?? "");
-    const BARE_NUM_RE = /^\s*(\d+(?:\.\d+)?)(?:\s|$|[^a-zA-Z])/;
+    // Number must end at a word boundary (whitespace or end of label) — no
+    // backtracking into "10x50mg" (which once invented a 1g parse from the
+    // leading "1" of "10x…").
+    const BARE_NUM_RE = /^(\d+(?:\.\d+)?)(?=\s|$)/;
     return displayItem.v
       .filter((v) => v.usd > 0)
       .map((v, i) => {
         const parsed = parseVariant(v, variantContext);
         let grams = parsed?.grams ?? null;
         let effectiveParsed: { unit: string; qty: number } | null = parsed;
-        // Weight-category fallback: bare-number labels ("7", "14 mixed") are grams.
-        if (grams == null && isWeightCat) {
-          const label = v.dEn || v.d || "";
+        // Weight-category fallback: bare-number labels ("7", "14 mixed") are
+        // grams. Gated on parsed == null — a successful ml/mg/count parse is
+        // NEVER overridden with a fabricated per-gram figure (an RSO "100 ml"
+        // ladder used to render under a "/g" header because grams was null).
+        if (parsed == null && isWeightCat) {
+          // Same lexical prep as the parser's first step (emoji strip + trim).
+          const label = (v.dEn || v.d || "")
+            .replace(/[\u{1F300}-\u{1FFFF}]/gu, "")
+            .trim();
           const m = BARE_NUM_RE.exec(label);
           if (m) {
+            const residual = label.slice(m[0].length).trim();
+            const residualWords = residual.split(/\s+/).filter(Boolean);
+            // Honest fallback only: the rest of the label must carry no
+            // digits and at most one word ("14 mixed" → 14 g, but
+            // "1 care package 4 items" stays unparsed).
+            const residualOk =
+              !/\d/.test(residual) && residualWords.length <= 1;
             const n = parseFloat(m[1]);
-            if (Number.isFinite(n) && n > 0 && n <= 2000) {
+            if (residualOk && Number.isFinite(n) && n > 0 && n <= 2000) {
               grams = n;
               effectiveParsed = { unit: "g", qty: n };
             }
@@ -592,6 +609,15 @@ export function ItemDetailOverlay() {
                             {sc}
                           </span>
                         ))}
+                        {/* Strain type in the first line the eye scans —
+                            no category gate here (unlike the browse card):
+                            on a detail view the data's presence is the
+                            signal. Replaces the "Strain type" row that used
+                            to hide at the bottom of the attributes card. */}
+                        <StrainTypeChip
+                          group={displayItem.at?.effect}
+                          surface
+                        />
                       </div>
 
                       {/* Name + global Show-in-English toggle. The
@@ -717,20 +743,23 @@ export function ItemDetailOverlay() {
                         {variantRows &&
                           variantRows.length > 0 &&
                           (() => {
-                            // Dominant unit across rows for the header label.
-                            // If units are mixed we still show a generic "/unit".
-                            const hasAnyPpu = variantRows.some(
-                              (r) => r.ppu != null,
-                            );
-                            const units = new Set(
+                            // Header unit is voted ONLY by rows that actually
+                            // have a ppu — a specific "/g" header renders only
+                            // when 100% of ppu-bearing rows are gram-priced.
+                            // Mixed units → generic "/unit" header AND every
+                            // ppu cell carries its own per-row "/<unit>"
+                            // suffix so denominators are never cross-read.
+                            const ppuUnits = new Set(
                               variantRows
+                                .filter((r) => r.ppu != null)
                                 .map((r) => r.unitLabel)
                                 .filter((u): u is string => u != null),
                             );
-                            const headerUnit =
-                              units.size === 1
-                                ? [...units][0]
-                                : t("variants.unit");
+                            const hasAnyPpu = ppuUnits.size > 0;
+                            const mixedUnits = ppuUnits.size > 1;
+                            const headerUnit = mixedUnits
+                              ? t("variants.unit")
+                              : ([...ppuUnits][0] ?? t("variants.unit"));
                             return (
                               <div className="ido-card ido-card--variants">
                                 <div className="ido-table__caption">
@@ -797,9 +826,21 @@ export function ItemDetailOverlay() {
                                           </td>
                                           {hasAnyPpu && (
                                             <td className="ido-table__ppu">
-                                              {row.ppu != null
-                                                ? fmtPrice(row.ppu, cSym, cRate)
-                                                : "—"}
+                                              {row.ppu != null ? (
+                                                mixedUnits ? (
+                                                  `${fmtPrice(row.ppu, cSym, cRate)}/${row.unitLabel}`
+                                                ) : (
+                                                  fmtPrice(row.ppu, cSym, cRate)
+                                                )
+                                              ) : (
+                                                // Honest fallback — never the
+                                                // flat total in the ppu column.
+                                                <span
+                                                  title={t("variants.noPpu")}
+                                                >
+                                                  –
+                                                </span>
+                                              )}
                                             </td>
                                           )}
                                           <td className="ido-table__action">
@@ -1089,6 +1130,18 @@ export function ItemDetailOverlay() {
                               displayItem.at,
                             )) {
                               if (key === "tier") continue;
+                              // Strain type already rendered as the tinted
+                              // chip beside the category pills — a duplicate
+                              // one-word row here is exactly the redundancy
+                              // the chip replaced. Kept only as a defensive
+                              // fallback for unrecognised effect values.
+                              if (
+                                key === "effect" &&
+                                isStrainGroup(
+                                  Array.isArray(vals) ? vals[0] : vals,
+                                )
+                              )
+                                continue;
                               const label = ATTR_LABEL_KEYS.has(key)
                                 ? t(`attributes.labels.${key}`)
                                 : key;
