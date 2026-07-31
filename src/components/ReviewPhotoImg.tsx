@@ -26,7 +26,8 @@
  * browser does not replay `error` events), so a CDN miss can never leave a
  * permanently broken image. `onCdnLoad` fires only when the optimised
  * variant genuinely loaded, which parents use as proof the hash is mirrored
- * before upgrading zoom galleries to CDN `full.avif`.
+ * before pointing zoom galleries at the same mirrored object (reviews have
+ * a single thumb.avif variant — full quality, LB caps uploads at ~400w).
  */
 
 import { useCallback, useRef, useState } from "react";
@@ -39,11 +40,7 @@ interface ReviewPhotoImgProps
   > {
   /** Raw LittleBiggy photo URL (the stored review-segment string). */
   rawUrl: string;
-  /** CDN tier to attempt first: 600px `thumb` for tiles/cards, `full` for
-      modal/lightbox surfaces. */
-  size?: "thumb" | "full";
-  /** The optimised CDN variant actually loaded — the hash is mirrored, so
-      sibling variants (e.g. `full.avif` for zoom) exist too. */
+  /** The optimised CDN variant actually loaded — proof the hash is mirrored. */
   onCdnLoad?: (rawUrl: string) => void;
   /** Both the CDN variant AND the raw original failed to load. */
   onDead?: (rawUrl: string) => void;
@@ -51,7 +48,6 @@ interface ReviewPhotoImgProps
 
 export function ReviewPhotoImg({
   rawUrl,
-  size = "thumb",
   onCdnLoad,
   onDead,
   alt,
@@ -66,7 +62,7 @@ export function ReviewPhotoImg({
   if (state.for !== rawUrl) setState({ for: rawUrl, stage: "cdn" });
   const stage = state.for === rawUrl ? state.stage : "cdn";
 
-  const cdnUrl = getReviewPhotoUrl(rawUrl, size);
+  const cdnUrl = getReviewPhotoUrl(rawUrl);
   const src = stage === "cdn" && cdnUrl ? cdnUrl : rawUrl;
 
   const handleError = useCallback(() => {

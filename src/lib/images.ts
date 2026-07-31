@@ -410,17 +410,20 @@ export function isAnimated(url: string | null | undefined): boolean {
  * error — photos are user content with no placeholder equivalent, the
  * deliberate opposite of the avatar fall-back-to-initials decision.
  *
+ * Review photos have exactly ONE mirrored variant — `{hash}/thumb.avif`.
+ * LB size-limits review uploads (~400w) and the 600px thumb tier never
+ * upscales, so the mirror IS full quality; separate tiers would store
+ * byte-duplicate pixels (owner call, 2026-07-31 — crawler's singleVariant
+ * mode). Tiles AND zoom views use the same object.
+ *
  * @param rawUrl - Raw stored photo URL (review segment `url`/`value`)
- * @param size - 'thumb' (600px) for tiles/cards, 'full' for modals/zoom
  */
 export function getReviewPhotoUrl(
   rawUrl: string | null | undefined,
-  size: Extract<ImageSize, "thumb" | "full"> = "thumb",
 ): string | undefined {
   if (!rawUrl) return undefined;
   const hash = hashUrl(rawUrl);
-  if (isAnimatedUrl(rawUrl)) return `${CDN_PREFIX}/${hash}/anim.webp`;
-  return `${CDN_PREFIX}/${hash}/${size}.avif`;
+  return `${CDN_PREFIX}/${hash}/thumb.avif`;
 }
 
 /**

@@ -206,7 +206,6 @@ function PhotoReviewCard({
             <ReviewPhotoImg
               key={src}
               rawUrl={src}
-              size="thumb"
               alt={review.itemName ?? copy.fallbackReviewPhoto}
               loading="lazy"
               onDead={markImageDead}

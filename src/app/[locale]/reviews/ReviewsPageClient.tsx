@@ -165,8 +165,8 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
   }, []);
 
   // Raw photo URLs whose optimised CDN thumb has actually loaded — proof the
-  // hash is mirrored, so the zoom gallery can upgrade to the CDN `full.avif`
-  // sibling. Unproven photos keep the raw LB URL in zoom (the zoom slides
+  // hash is mirrored, so zoom can use the same mirrored object (single
+  // thumb.avif variant — full quality, LB caps review uploads at ~400w). Unproven photos keep the raw LB URL in zoom (the zoom slides
   // have no fallback of their own).
   const [cdnLoaded, setCdnLoaded] = useState<Set<string>>(() => new Set());
   const markCdnLoaded = useCallback((rawUrl: string) => {
@@ -178,7 +178,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
     () =>
       (review.images ?? []).map((rawUrl) =>
         cdnLoaded.has(rawUrl)
-          ? (getReviewPhotoUrl(rawUrl, "full") ?? rawUrl)
+          ? (getReviewPhotoUrl(rawUrl) ?? rawUrl)
           : rawUrl,
       ),
     [review.images, cdnLoaded],
@@ -350,7 +350,6 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
               >
                 <ReviewPhotoImg
                   rawUrl={img}
-                  size="thumb"
                   alt={t("reviewPhoto", { index: i + 1 })}
                   loading="lazy"
                   onCdnLoad={markCdnLoaded}

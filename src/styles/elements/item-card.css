@@ -714,24 +714,45 @@ html.bi-seed-hide [data-seed-skeleton] {
    Always sits over a product photo, so it carries its own dark scrim and
    fixed white text rather than theme tokens: the tint is a reinforcement
    cue, the word is the actual label. */
+/* Strain group dot — Indica (violet), Sativa (amber), Hybrid (green).
+   Lives INSIDE the card's category pill (and the detail chip below), never as
+   its own element. The word carries the meaning; the dot is reinforcement. */
+.card-pill__group-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.card-pill__group-dot--indica {
+  background: #a78bfa;
+}
+.card-pill__group-dot--sativa {
+  background: #fbbf24;
+}
+.card-pill__group-dot--hybrid {
+  background: #34d399;
+}
+
+/* Strain chip on the DETAIL surfaces only (modal + static item page pill
+   row). Deliberately identical metrics to its sibling subcategory pills
+   (`rounded-md bg-surface px-2 py-0.5 text-xs`) — same type size, same
+   casing (sentence case, no uppercase), same shape — the only differences
+   are the dot and a faint tint so the eye can find it. 2026-07-31: replaces
+   an earlier uppercase-white-on-scrim chip that matched nothing else on the
+   site. */
 .strain-chip {
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
-  border-radius: 5px;
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.334;
   white-space: nowrap;
   flex-shrink: 0;
-  pointer-events: none;
-  color: #fff;
-  background: color-mix(in srgb, var(--strain-tint) 32%, rgba(9, 9, 11, 0.78));
-  border: 1px solid color-mix(in srgb, var(--strain-tint) 55%, transparent);
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  backdrop-filter: blur(var(--glass-blur));
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--strain-tint) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--strain-tint) 35%, transparent);
 }
 .strain-chip--indica {
   --strain-tint: #a78bfa;
@@ -742,21 +763,8 @@ html.bi-seed-hide [data-seed-skeleton] {
 .strain-chip--hybrid {
   --strain-tint: #34d399;
 }
-
-/* On-surface variant — item detail modal + static item page. The base chip
-   carries a dark photo-scrim + fixed white text (it always sits over a
-   product image on the browse card); on the detail card background use theme
-   tokens instead so it stays legible in light AND dark — the tint is only an
-   18% wash behind the themed foreground text. Slightly larger type at detail
-   scale (10px vs the card's 9px). */
-.strain-chip--surface {
-  color: var(--foreground);
-  background: color-mix(in srgb, var(--strain-tint) 18%, transparent);
-  border-color: color-mix(in srgb, var(--strain-tint) 45%, transparent);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  font-size: 10px;
-  margin: 0;
+.strain-chip .card-pill__group-dot {
+  background: var(--strain-tint);
 }
 
 /* ==========================================================================
@@ -1659,26 +1667,37 @@ html.bi-seed-hide [data-seed-skeleton] {
     border-radius: 5px;
     gap: 3px;
   }
-  .item-list-grid[data-mobile-cols="2"] .strain-chip {
-    font-size: 8px;
-    padding: 1px 5px;
-    letter-spacing: 0.05em;
+  .item-list-grid[data-mobile-cols="2"] .card-pill__group-dot {
+    width: 5px;
+    height: 5px;
   }
-  /* Overflow guard: touch devices ((hover: none)) show the strain chip AND the
-     category pill on the same row, so on a ~132px card (320px viewport, 2-up) a
-     long subcategory used to push the bookmark heart outside the card. The chip
-     is fixed width; the pill truncates instead. */
+  /* Overflow guard: the always-visible pill now carries strain + category on
+     one line, so on a ~132px card (320px viewport, 2-up) a long subcategory
+     used to push the bookmark heart outside the card. The pill truncates
+     instead. */
   .item-list-grid[data-mobile-cols="2"] .card-controls > .always-show,
   .item-list-grid[data-mobile-cols="2"] .card-controls__hover-group {
     min-width: 0;
   }
   .item-list-grid[data-mobile-cols="2"]
-    .card-controls__hover-group
+    .card-controls
+    > .always-show
     .card-pill--image {
     display: block;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  /* display:block above disables the pill's flex gap, so the dot needs its
+     own spacing + alignment in the truncating variant. */
+  .item-list-grid[data-mobile-cols="2"]
+    .card-controls
+    > .always-show
+    .card-pill--image
+    .card-pill__group-dot {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 3px;
   }
 
   /* ── Bookmark heart: keep it, but tone down the mobile touch-target bump

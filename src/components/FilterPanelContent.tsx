@@ -872,7 +872,18 @@ function AttrFilterGroup({
       storageKey={`attr-${attrKey}`}
       activeCount={selected.length}
     >
-      <div className="flex flex-wrap gap-1.5">
+      {/* The effect group is always exactly three options (Hybrid/Sativa/
+          Indica), and free-wrapping pills put the third on its own line —
+          messy for a fixed-size set. A 3-column grid keeps them on one row
+          at any sidebar width; every other attribute keeps the wrap layout
+          since its option count varies. Same pill styling in both. */}
+      <div
+        className={
+          attrKey === "effect"
+            ? "grid grid-cols-3 gap-1.5"
+            : "flex flex-wrap gap-1.5"
+        }
+      >
         {sorted.map(([value, count]) => {
           const dotColor =
             attrKey === "effect"
@@ -885,7 +896,11 @@ function AttrFilterGroup({
               onClick={() => onToggle(value)}
               /* `capitalize` is display-only — `value` stays the raw lowercase
                  filter key for onToggle / selected / the URL param. */
-              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer border inline-flex items-center gap-1.5 capitalize ${
+              className={`rounded-md py-1 text-xs font-medium cursor-pointer border inline-flex items-center capitalize ${
+                attrKey === "effect"
+                  ? "justify-center gap-1 px-1 min-w-0"
+                  : "gap-1.5 px-3"
+              } ${
                 selected.includes(value)
                   ? "border-primary/40 bg-primary/20 text-primary"
                   : "border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
@@ -898,7 +913,8 @@ function AttrFilterGroup({
                   aria-hidden="true"
                 />
               )}
-              {value} <span className="opacity-60">{count}</span>
+              <span className="truncate">{value}</span>{" "}
+              <span className="opacity-60 text-[10px]">{count}</span>
             </button>
           );
         })}

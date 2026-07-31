@@ -835,7 +835,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
                   {/* Strain type in the first line the eye scans — no
                       category gate on detail surfaces (data presence is
                       the signal). Same placement as the modal. */}
-                  <StrainTypeChip group={strainGroup} surface />
+                  <StrainTypeChip group={strainGroup} />
                 </div>
 
                 <div className="flex items-start justify-between gap-2">

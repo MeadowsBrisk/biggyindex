@@ -162,7 +162,7 @@ export function PhotoReviewModal() {
   useBodyScrollLock(isOpen);
 
   const images = useMemo(() => review?.images ?? [], [review]);
-  // Raw URLs whose optimised CDN `full.avif` has actually loaded in the grid
+  // Raw URLs whose optimised CDN thumb has actually loaded in the grid
   // below. The zoom gallery only upgrades a photo to the CDN variant once
   // that proof exists — otherwise it keeps the raw LB URL, so a CDN miss
   // (photo not yet mirrored) can never produce a broken zoom slide. Keyed by
@@ -177,7 +177,7 @@ export function PhotoReviewModal() {
     () =>
       images.map((rawUrl) =>
         cdnLoaded.has(rawUrl)
-          ? (getReviewPhotoUrl(rawUrl, "full") ?? rawUrl)
+          ? (getReviewPhotoUrl(rawUrl) ?? rawUrl)
           : rawUrl,
       ),
     [images, cdnLoaded],
@@ -254,7 +254,6 @@ export function PhotoReviewModal() {
                 >
                   <ReviewPhotoImg
                     rawUrl={images[0]}
-                    size="full"
                     alt={review.itemName ?? t("reviewPhoto")}
                     onCdnLoad={markCdnLoaded}
                     className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-[1.02]"
@@ -292,7 +291,6 @@ export function PhotoReviewModal() {
                     >
                       <ReviewPhotoImg
                         rawUrl={src}
-                        size="full"
                         alt=""
                         loading="lazy"
                         onCdnLoad={markCdnLoaded}

@@ -616,7 +616,6 @@ export function ItemDetailOverlay() {
                             to hide at the bottom of the attributes card. */}
                         <StrainTypeChip
                           group={displayItem.at?.effect}
-                          surface
                         />
                       </div>
 

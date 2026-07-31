@@ -24,7 +24,6 @@ import {
 } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
-import { StrainTypeChip } from "@/components/StrainTypeChip";
 import { useAddToast } from "@/components/Toast";
 import { Tooltip } from "@/components/Tooltip";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
@@ -182,16 +181,24 @@ function variantDisplayLabel(
 }
 
 /**
- * Card pill — shows category · subcategory.
+ * Card pill — shows [strain] · category · subcategory in ONE pill.
  * When browsing inside a category, shows just the subcategory (or category if no sub).
- * Strain type (Indica/Sativa/Hybrid) is rendered separately by `StrainTypeChip`.
+ *
+ * The strain type (Indica/Sativa/Hybrid) is PART OF this pill — coloured dot +
+ * the word, joined into the existing " · " chain — not a separate element.
+ * (2026-07-31: a short-lived separate uppercase chip in its own style sat next
+ * to this pill with different reveal timing; owner feedback was emphatic that
+ * the strain belongs inside the category pill in the card's own visual
+ * language. This is that.)
  */
 function CardPill({
   item,
   activeCategory,
+  strainGroup,
 }: {
   item: Item;
   activeCategory: string;
+  strainGroup: string | null;
 }) {
   const tCategories = useTranslations("categories");
   const inCategory = activeCategory !== "All" && item.c === activeCategory;
@@ -208,6 +215,15 @@ function CardPill({
 
   return (
     <span className="card-pill card-pill--image glass text-[10px] font-medium pointer-events-auto">
+      {strainGroup && (
+        <>
+          <span
+            className={`card-pill__group-dot card-pill__group-dot--${strainGroup.toLowerCase()}`}
+            aria-hidden="true"
+          />
+          {`${strainGroup} · `}
+        </>
+      )}
       {label}
     </span>
   );
@@ -868,13 +884,16 @@ function ItemCardInner({
 
           {/* Category / subcategory pill + bookmark button overlay */}
           <div className="card-controls absolute inset-x-0 top-0 z-10 flex items-start justify-between p-2 pointer-events-none">
-            {/* always-show: the strain chip stays legible at rest; the category
-                pill and confidence badge keep the original hover reveal via the
-                inner wrapper. */}
+            {/* The category pill (strain included) is always visible — the
+                whole point is reading a card's category without hovering it.
+                Only the low-confidence "?" badge keeps the hover reveal. */}
             <div className="flex items-start gap-1 always-show">
-              <StrainTypeChip group={strainGroup} />
+              <CardPill
+                item={item}
+                activeCategory={activeCategory}
+                strainGroup={strainGroup}
+              />
               <span className="card-controls__hover-group flex items-start gap-1">
-                <CardPill item={item} activeCategory={activeCategory} />
                 <LowConfidenceBadge cf={item.cf} />
               </span>
             </div>

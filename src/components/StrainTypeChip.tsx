@@ -1,15 +1,15 @@
 /**
- * Strain-type chip — Indica / Sativa / Hybrid.
+ * Strain-type chip — Indica / Sativa / Hybrid. DETAIL SURFACES ONLY (item
+ * modal + static item page pill rows).
  *
- * Replaces the old 6px colour dot (2026-07-28). The dot was hover-gated with
- * the rest of the card overlay AND encoded meaning in colour alone, so it was
- * both invisible at rest and unreadable over busy product photos. The word is
- * now the cue; the tint only reinforces it.
- *
- * Shared across the browse card (over-photo variant, dark scrim + white text)
- * and the item detail surfaces (modal + static page), where `surface` swaps in
- * theme-token colours via `.strain-chip--surface` — the base chip's fixed
- * white text is illegible on the light card background.
+ * Styled to be indistinguishable in metrics from its sibling subcategory
+ * pills (`rounded-md bg-surface px-2 py-0.5 text-xs`) — sentence case, same
+ * type size, same shape — with a coloured dot and a faint tint as the only
+ * differences. On BROWSE CARDS the strain is NOT this component: it renders
+ * inside the category pill itself (see CardPill in ItemCard.tsx). 2026-07-31:
+ * an earlier version was a separate uppercase white-on-scrim chip on the
+ * cards; owner feedback was emphatic that it matched nothing else on the
+ * site — never reintroduce a one-off style for this.
  *
  * No hooks — safe in Server Components (the static item page imports it).
  */
@@ -36,20 +36,19 @@ export function firstEffectValue(
 
 export function StrainTypeChip({
   group,
-  surface = false,
 }: {
   group: string | string[] | null | undefined;
-  /** On-surface variant for detail views (theme tokens, 10px, no scrim). */
-  surface?: boolean;
 }) {
   const first = firstEffectValue(group);
   if (!isStrainGroup(first)) return null;
   const key = first.toLowerCase();
+  // Sentence case, matching every other pill on the site — nothing else in
+  // these views shouts in uppercase, so neither does this.
+  const label = key.charAt(0).toUpperCase() + key.slice(1);
   return (
-    <span
-      className={`strain-chip strain-chip--${key}${surface ? " strain-chip--surface" : ""}`}
-    >
-      {key}
+    <span className={`strain-chip strain-chip--${key}`}>
+      <span className="card-pill__group-dot" aria-hidden="true" />
+      {label}
     </span>
   );
 }
