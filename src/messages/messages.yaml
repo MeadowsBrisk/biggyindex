@@ -651,6 +651,18 @@ footer:
     el-GR: © {year} Biggy Index. Οι τιμές που εμφανίζονται ενδέχεται να διαφέρουν - ελέγχετε πάντα το κατάστημα για τις πιο πρόσφατες τιμές.
     cs-CZ: © {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě.
     pl-PL: © {year} Biggy Index. Ceny mogą się różnić – zawsze sprawdź sklep pod kątem najnowszych cen.
+  # Accessible name/tooltip for the GitHub source link beside the copyright
+  # line. The visible text is just "GitHub" (language-neutral).
+  github:
+    en-GB: Source code on GitHub
+    de-DE: Quellcode auf GitHub
+    fr-FR: Code source sur GitHub
+    pt-PT: Código-fonte no GitHub
+    it-IT: Codice sorgente su GitHub
+    es-ES: Código fuente en GitHub
+    el-GR: Πηγαίος κώδικας στο GitHub
+    cs-CZ: Zdrojový kód na GitHubu
+    pl-PL: Kod źródłowy na GitHubie
 
 littleBiggyStatus:
   telegram:

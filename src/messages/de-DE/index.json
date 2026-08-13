@@ -86,7 +86,8 @@
     "terms": "Nutzungsbedingungen",
     "cookies": "Cookies",
     "categoriesTitle": "Kategorien",
-    "copyright": "© {year} Biggy Index. Die angezeigten Preise können variieren – prüfen Sie immer den Laden für die neuesten Preise."
+    "copyright": "© {year} Biggy Index. Die angezeigten Preise können variieren – prüfen Sie immer den Laden für die neuesten Preise.",
+    "github": "Quellcode auf GitHub"
   },
   "littleBiggyStatus": {
     "telegram": {

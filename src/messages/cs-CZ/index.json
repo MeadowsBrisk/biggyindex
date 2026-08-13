@@ -86,7 +86,8 @@
     "terms": "Podmínky",
     "cookies": "Cookies",
     "categoriesTitle": "Kategorie",
-    "copyright": "© {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě."
+    "copyright": "© {year} Biggy Index. Ceny se mohou lišit – vždy si zkontrolujte nejnovější ceny v obchodě.",
+    "github": "Zdrojový kód na GitHubu"
   },
   "littleBiggyStatus": {
     "telegram": {

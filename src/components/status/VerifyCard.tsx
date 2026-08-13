@@ -52,7 +52,7 @@ export async function VerifyCard({ locale, headingKey, className }: Props) {
       </div>
 
       <div className="mt-3 flex flex-col gap-1">
-        {links.map(({ key, href, Icon }) => (
+        {links.map(({ key, href, display, Icon }) => (
           <a
             key={key}
             href={href}
@@ -76,6 +76,15 @@ export async function VerifyCard({ locale, headingKey, className }: Props) {
                   aria-hidden="true"
                   className="shrink-0 text-muted"
                 />
+              </span>
+              {/* The raw address, visible per the LB operators' request —
+                  this card is the roomy no-truncation surface, so it shows
+                  BOTH the URL and the translated description. The URL line
+                  sits directly under the label (same 2px rhythm) and reads
+                  in the foreground tone: on an anti-phishing card the
+                  address IS the payload, not metadata. */}
+              <span className="mt-0.5 block break-all text-[12px] leading-4 text-foreground">
+                {display}
               </span>
               <span className="mt-0.5 block text-[11px] leading-4 text-muted">
                 {tv(`${key}.description`)}

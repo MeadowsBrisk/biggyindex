@@ -1,7 +1,8 @@
-import { ArrowRight, Cannabis, ExternalLink } from "lucide-react";
+import { ArrowRight, Cannabis, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CATEGORY_SLUGS, slugToCategory } from "@/lib/categories";
+import { GITHUB_REPO_URL, VERIFY_LINKS } from "@/lib/verify-links";
 
 /**
  * SiteFooter — distinct from food-agg: gradient top bar, centered layout, cannabis branding.
@@ -29,6 +30,10 @@ export async function SiteFooter({
     locale,
     namespace: "categories",
   });
+  // Indexed lookup into the single canonical link list — the footer renders a
+  // hand-ordered subset interleaved with community links, so it can't map the
+  // array directly, but hrefs/addresses must never be retyped here.
+  const verify = Object.fromEntries(VERIFY_LINKS.map((l) => [l.key, l]));
 
   return (
     <footer className={`mt-auto${hideBrowseCta ? " pt-12" : ""}`}>
@@ -107,38 +112,32 @@ export async function SiteFooter({
                   header's Verify popover ON PURPOSE — the homepage is
                   hero-led and renders NO SiteHeader, and the header trigger
                   only appears from md up, so the footer is what actually
-                  makes them reachable site-wide. Labels reuse the
-                  header.verify.* keys so the wording stays in sync. */}
+                  makes them reachable site-wide.
+
+                  The three LB links show their RAW ADDRESSES as the link
+                  text (LB operators' request: visible URLs demonstrate
+                  legitimacy and help users memorise them). The addresses
+                  come from VERIFY_LINKS `display` so every surface shows
+                  byte-identical strings; the translated labels survive in
+                  the aria-labels. Reddit/Telegram keep their names — they
+                  are community links, not authenticity anchors. */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
-                <a
-                  href="https://littlebiggy.org"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
-                >
-                  Little Biggy
-                  <ExternalLink size={13} className="text-muted" />
-                </a>
-                <a
-                  href="https://littlebiggy.org/4791812"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${tVerify("canonBorg.label")} ${tVerify("opensInNewTab")}`}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
-                >
-                  {tVerify("canonBorg.label")}
-                  <ExternalLink size={13} className="text-muted" />
-                </a>
-                <a
-                  href="https://littlebiggy.zone"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${tVerify("mirrors.label")} ${tVerify("opensInNewTab")}`}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
-                >
-                  {tVerify("mirrors.label")}
-                  <ExternalLink size={13} className="text-muted" />
-                </a>
+                {(["littlebiggy", "canonBorg", "mirrors"] as const).map(
+                  (key) => (
+                    <a
+                      key={key}
+                      href={verify[key].href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${tVerify(`${key}.label`)} ${tVerify("opensInNewTab")}`}
+                      title={tVerify(`${key}.label`)}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {verify[key].display}
+                      <ExternalLink size={13} className="text-muted" />
+                    </a>
+                  ),
+                )}
                 <a
                   href="https://www.reddit.com/r/LittleBiggy/"
                   target="_blank"
@@ -215,10 +214,26 @@ export async function SiteFooter({
             </nav>
           </div>
 
-          {/* Copyright */}
-          <p className="text-center text-xs text-muted-foreground">
-            {t("copyright", { year: COPYRIGHT_YEAR })}
-          </p>
+          {/* Copyright + source. The GitHub link sits with the copyright
+              line, not the community row: it is about THIS site (auditable
+              source, AGPL-3.0), not about the LB ecosystem. Icon + one word
+              keeps it quiet; the aria-label carries the full meaning. */}
+          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+            <p className="text-center">
+              {t("copyright", { year: COPYRIGHT_YEAR })}
+            </p>
+            <a
+              href={GITHUB_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${t("github")} ${tVerify("opensInNewTab")}`}
+              title={t("github")}
+              className="inline-flex items-center gap-1.5 font-medium text-muted hover:text-primary transition-colors"
+            >
+              <Github size={14} aria-hidden="true" />
+              GitHub
+            </a>
+          </div>
         </div>
       </div>
     </footer>

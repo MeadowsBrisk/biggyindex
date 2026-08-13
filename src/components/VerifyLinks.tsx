@@ -106,9 +106,14 @@ export function VerifyDropdown() {
               {t("heading")}
             </div>
             <div className="flex flex-col gap-0.5">
-              {VERIFY_LINKS.map(({ key, href, external, Icon }) => {
+              {VERIFY_LINKS.map(({ key, href, display, external, Icon }) => {
                 const label = t(`${key}.label`);
                 const description = t(`${key}.description`);
+                // The secondary line is the RAW ADDRESS, not the translated
+                // description — the LB operators asked for the actual URLs
+                // to be visible (legitimacy + memorisation). The description
+                // survives as the row tooltip and in the aria-label, and is
+                // still rendered in full on /littlebiggy-status.
                 const body = (
                   <>
                     <Icon size={16} className="mt-0.5 shrink-0 text-muted" />
@@ -125,7 +130,7 @@ export function VerifyDropdown() {
                         )}
                       </span>
                       <span className="mt-0.5 block truncate text-[11px] text-muted">
-                        {description}
+                        {display}
                       </span>
                     </span>
                   </>
@@ -141,6 +146,7 @@ export function VerifyDropdown() {
                       href={href}
                       prefetch={false}
                       onClick={close}
+                      title={description}
                       className={className}
                     >
                       {body}
@@ -156,7 +162,8 @@ export function VerifyDropdown() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={close}
-                    aria-label={`${label} ${t("opensInNewTab")}`}
+                    title={description}
+                    aria-label={`${label} — ${description} ${t("opensInNewTab")}`}
                     className={className}
                   >
                     {body}
@@ -200,9 +207,12 @@ export function MobileVerifyLinks({ onNavigate }: { onNavigate: () => void }) {
       </h2>
 
       <div className="flex flex-col gap-1">
-        {VERIFY_LINKS.map(({ key, href, external, Icon }) => {
+        {VERIFY_LINKS.map(({ key, href, display, external, Icon }) => {
           const label = t(`${key}.label`);
           const description = t(`${key}.description`);
+          // Secondary line = the raw address (see the desktop popover note):
+          // the LB operators asked for the actual URLs to be visible. The
+          // translated description stays in the aria-label.
           const body = (
             <>
               <Icon size={18} className="shrink-0 text-muted" />
@@ -220,7 +230,7 @@ export function MobileVerifyLinks({ onNavigate }: { onNavigate: () => void }) {
                   )}
                 </span>
                 <span className="mt-0.5 block truncate text-[11px] leading-4 text-muted">
-                  {description}
+                  {display}
                 </span>
               </span>
             </>
@@ -249,7 +259,7 @@ export function MobileVerifyLinks({ onNavigate }: { onNavigate: () => void }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={onNavigate}
-              aria-label={`${label} ${t("opensInNewTab")}`}
+              aria-label={`${label} — ${description} ${t("opensInNewTab")}`}
               className={className}
             >
               {body}

@@ -63,8 +63,62 @@ User-Agent: PetalBot
 Disallow: /
 `;
 
+// Hosts that are allowed to advertise themselves to crawlers. Anything else —
+// *.vercel.app, *.netlify.app, staging, deploy previews — gets a blanket
+// Disallow instead of the real ruleset.
+//
+// WHY: getMarketFromHost() falls back to "GB" for unrecognised hosts, so every
+// mirror of this app used to serve `Allow: /` and was fully crawlable. During
+// the July 2026 Vercel bridge that meant biggyindex-frontend.vercel.app was a
+// publicly indexable duplicate of the whole site. Pages do emit a canonical
+// pointing at biggyindex.com, which limits the damage, but canonical is a hint
+// and robots is a directive — and Vercel's free "Standard Protection" does NOT
+// cover a project's production *.vercel.app URL (that needs a paid plan), so
+// this route is the only lever we actually control. Keeping the mirror
+// reachable-but-unindexable is deliberate: the Vercel project stays a working
+// escape hatch we can verify against before flipping DNS.
+const CRAWLABLE_HOSTS = new Set<string>([
+  "biggyindex.com",
+  "www.biggyindex.com",
+  "ie.biggyindex.com",
+  "de.biggyindex.com",
+  "fr.biggyindex.com",
+  "pt.biggyindex.com",
+  "it.biggyindex.com",
+  "es.biggyindex.com",
+  "gr.biggyindex.com",
+  "cz.biggyindex.com",
+  "pl.biggyindex.com",
+]);
+
+const MIRROR_BODY = `User-Agent: *
+Disallow: /
+`;
+
+function isCrawlableHost(hostHeader: string | null): boolean {
+  const h = String(hostHeader ?? "")
+    .toLowerCase()
+    .split(":")[0];
+  if (!h) return false;
+  // Local development should behave like production, not like a mirror.
+  if (h === "localhost" || h === "127.0.0.1") return true;
+  return CRAWLABLE_HOSTS.has(h);
+}
+
 export function GET(request: NextRequest): NextResponse {
-  const market = getMarketFromHost(request.headers.get("host"));
+  const host = request.headers.get("host");
+
+  if (!isCrawlableHost(host)) {
+    return new NextResponse(MIRROR_BODY, {
+      headers: {
+        "Cache-Control": "public, s-maxage=43200, stale-while-revalidate=86400",
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Robots-Tag": "noindex",
+      },
+    });
+  }
+
+  const market = getMarketFromHost(host);
   const baseUrl = DOMAINS[market] ?? DOMAINS.GB;
 
   return new NextResponse(`${BODY_RULES}\nSitemap: ${baseUrl}/sitemap.xml\n`, {

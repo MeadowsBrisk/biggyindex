@@ -45,3 +45,10 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Private operational docs — infra runbooks with Cloudflare zone/account IDs,
+# origin IPs and incident notes. MUST NEVER be committed: this repo is public.
+/docs/
+
+# Local translation QA dumps
+/.translation-reports/
