@@ -124,15 +124,15 @@ src/
 └── proxy.ts              # Edge middleware: locale routing + legacy redirects
 ```
 
-## Contributing
+## Issues & feedback
 
-Issues and PRs are welcome — bug reports, translation fixes and accessibility
-improvements especially. Keep in mind:
+This repo is public primarily so the site's users can **audit** what it does, not as a
+community project — development happens here, and we're not looking for pull requests.
 
-- The crawler and its data pipeline are not part of this repo; issues about data
-  *content* (miscategorised items, stale prices) are still useful — file them here.
-- `yarn lint` and `npx tsc --noEmit` must pass.
-- UI copy changes go in `messages.yaml`, never in the generated JSON.
+**Bug reports and suggestions are very welcome as issues**: broken pages, wrong data
+(miscategorised items, stale prices — the crawler isn't in this repo, but file those
+here anyway), translation mistakes, accessibility problems. If something looks off,
+say so; you don't need a patch attached.
 
 ## License
 

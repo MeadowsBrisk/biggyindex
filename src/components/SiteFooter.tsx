@@ -99,29 +99,30 @@ export async function SiteFooter({
             </div>
           </nav>
 
-          {/* Community + links row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-border pt-8 mb-8">
-            {/* Community */}
-            <div className="flex flex-col items-center sm:items-start gap-2 max-w-md">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("community")}
-              </span>
-              {/* flex-wrap + gap-y: this row now carries up to six links and
-                  must not overflow at 360px. The two authenticity links
-                  (canon borg / Federation mirrors) are duplicated from the
-                  header's Verify popover ON PURPOSE — the homepage is
-                  hero-led and renders NO SiteHeader, and the header trigger
-                  only appears from md up, so the footer is what actually
-                  makes them reachable site-wide.
+          {/* Official links + Community + Legal row.
+              Three groups: below md they stack centred (gap-8 = 32px between
+              groups); from md they sit side by side. The authenticity links
+              are duplicated from the header's Verify popover ON PURPOSE —
+              the homepage is hero-led and renders NO SiteHeader, so the
+              footer is what makes them reachable site-wide.
 
-                  The three LB links show their RAW ADDRESSES as the link
-                  text (LB operators' request: visible URLs demonstrate
-                  legitimacy and help users memorise them). The addresses
-                  come from VERIFY_LINKS `display` so every surface shows
-                  byte-identical strings; the translated labels survive in
-                  the aria-labels. Reddit/Telegram keep their names — they
-                  are community links, not authenticity anchors. */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
+              Spacing rhythm inside each group (matches the verify popover):
+                eyebrow → first row   mb-3   (12px)
+                official rows         gap-2  (8px between two-line rows)
+                label → URL           mt-0.5 (2px)
+                community links       gap-x-4 gap-y-2 */}
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-6 border-t border-border pt-8 mb-8">
+            {/* Official Little Biggy links — the same two-line
+                label-over-address rows as the header popover / status card,
+                so the raw URLs are visible WITH their meaning attached
+                (a bare "littlebiggy.org/4791812" on its own was confusing).
+                Addresses come from VERIFY_LINKS `display`; labels reuse
+                header.verify.* keys so wording stays in sync everywhere. */}
+            <div className="flex flex-col items-center md:items-start">
+              <span className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {tVerify("heading")}
+              </span>
+              <div className="flex flex-col items-center md:items-start gap-2">
                 {(["littlebiggy", "canonBorg", "mirrors"] as const).map(
                   (key) => (
                     <a
@@ -129,15 +130,29 @@ export async function SiteFooter({
                       href={verify[key].href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`${tVerify(`${key}.label`)} ${tVerify("opensInNewTab")}`}
-                      title={tVerify(`${key}.label`)}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                      aria-label={`${tVerify(`${key}.label`)} — ${tVerify(`${key}.description`)} ${tVerify("opensInNewTab")}`}
+                      title={tVerify(`${key}.description`)}
+                      className="group flex flex-col items-center md:items-start"
                     >
-                      {verify[key].display}
-                      <ExternalLink size={13} className="text-muted" />
+                      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                        {tVerify(`${key}.label`)}
+                        <ExternalLink size={13} className="text-muted" />
+                      </span>
+                      <span className="mt-0.5 text-xs text-muted">
+                        {verify[key].display}
+                      </span>
                     </a>
                   ),
                 )}
+              </div>
+            </div>
+
+            {/* Community */}
+            <div className="flex flex-col items-center md:items-start gap-2 max-w-md">
+              <span className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("community")}
+              </span>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2">
                 <a
                   href="https://www.reddit.com/r/LittleBiggy/"
                   target="_blank"
@@ -170,7 +185,7 @@ export async function SiteFooter({
                   {t("statusLink")}
                 </Link>
               </div>
-              <p className="text-xs text-muted text-center sm:text-left">
+              <p className="text-xs text-muted text-center md:text-left">
                 {t("communityCopy")}
               </p>
             </div>
@@ -182,7 +197,7 @@ export async function SiteFooter({
                 horizontal page scroll on /de-DE/* on narrow phones. Wrapping
                 to two centred lines fixes it; gap-y-2 keeps the second line
                 off the first. */}
-            <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm sm:justify-end">
+            <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm md:justify-end">
               <Link
                 href="/about"
                 prefetch={false}
