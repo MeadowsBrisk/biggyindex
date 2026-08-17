@@ -314,11 +314,14 @@ body {
  * rather than two distinct fades. Slight scale on the incoming page
  * gives a sense of forward motion without obvious zoom.
  *
- * NOTE: requires `experimental.viewTransition: true` in next.config.ts.
- * Next wraps Link navigations in document.startViewTransition() and
- * waits for the new route to render before triggering the cross-fade,
- * so a hot prefetch (`prefetch` on the Link + `'use cache'` on the
- * page) eliminates any Suspense-fallback flash in between.
+ * NOTE (updated for Next 16.3): `experimental.viewTransition` no longer
+ * exists — Next removed the automatic document.startViewTransition()
+ * wrapping of Link navigations in 16.3 (replaced by React's opt-in
+ * <ViewTransition> component). This block therefore only animates
+ * CROSS-DOCUMENT (hard) navigations via the `@view-transition` rule
+ * below; client-side navigations swap instantly. To restore the SPA
+ * cross-fade, wrap page content in React <ViewTransition> per
+ * nextjs.org/docs/app/guides/view-transitions.
  */
 @view-transition {
   navigation: auto;

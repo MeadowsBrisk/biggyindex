@@ -16,8 +16,18 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   experimental: {
-    viewTransition: true,
-    prefetchInlining: true,
+    // 16.3 UPGRADE NOTES (2026-08):
+    //  • `viewTransition` REMOVED — the flag no longer exists in Next 16.3.
+    //    Its behaviour (auto-wrapping every Link navigation in
+    //    document.startViewTransition()) was dropped by Next in favour of
+    //    React's per-element <ViewTransition> component, which works with no
+    //    config. Consequence: the site-wide SPA-navigation cross-fade defined
+    //    in globals.css no longer fires on client navigations — only on
+    //    cross-document (hard) loads via the CSS `@view-transition` rule. If
+    //    the polish is missed, reintroduce it with <ViewTransition> wrappers
+    //    per the guide: nextjs.org/docs/app/guides/view-transitions.
+    //  • `prefetchInlining` removed here — it became the DEFAULT in 16.3
+    //    (small prefetch payloads are bundled automatically).
     cachedNavigations: true,
   },
   // Keep the AWS SDK external instead of bundling it into server routes

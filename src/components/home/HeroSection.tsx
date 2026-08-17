@@ -154,13 +154,12 @@ export function HeroSection({
           {/* Hero CTA — the one navigation we DO prefetch (high-traffic
               home → browse hop). Other links across the site stay
               prefetch={false} to keep RSC fetches off the critical path.
-              No manual onClick / useTransition — Next.js wraps Link
-              navigations in document.startViewTransition() automatically
-              when experimental.viewTransition is enabled (next.config.ts),
-              and CSS in globals.css does the cross-fade. Manual
-              router.push() would bypass that wrapping AND poisoned the
-              click feedback through bfcache (frozen isPending=true on
-              Back-button restore). */}
+              No manual onClick / useTransition — a plain Link keeps
+              bfcache behaviour sane (manual router.push() poisoned the
+              click feedback: frozen isPending=true on Back-button
+              restore). Since Next 16.3 removed experimental.viewTransition,
+              this hop no longer cross-fades (see next.config.ts notes);
+              restoring it means React <ViewTransition> wrappers. */}
           <Link
             href="/browse"
             prefetch
