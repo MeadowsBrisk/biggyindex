@@ -74,4 +74,4 @@ export const VERIFY_LINKS: readonly VerifyLink[] = [
  * affiliation, and a security-conscious user can audit what this site does.
  */
 export const GITHUB_REPO_URL =
-  "https://github.com/MeadowsBrisk/biggyindex-frontend";
+  "https://github.com/MeadowsBrisk/biggyindex";
