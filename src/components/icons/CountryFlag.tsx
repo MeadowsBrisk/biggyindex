@@ -1,7 +1,7 @@
 /**
  * CountryFlag — small circular SVG flag for market countries.
  * Simplified stripe-based representations that render crisply at 14–20 px.
- * Adapted from food-aggregator pattern. Add more flags as new markets launch.
+ * Add more flags as new markets launch.
  */
 
 const S = 100; // viewBox size

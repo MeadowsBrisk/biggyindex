@@ -1,12 +1,4 @@
-/**
- * Data loading helpers for BiggyIndex v2.
- *
- * Mirrors food-aggregator pattern:
- * - `loadItems()` returns browse-optimised items (descriptions truncated, hash-first images)
- * - `loadSellers()` returns seller list
- * - `loadItemByRef()` loads a single item's full detail from per-item R2 file
- * - `stripBrowseFields()` trims fields unused by browse components
- */
+/** R2 data loaders: browse items, sellers, item detail, archive and status. */
 
 import { cacheLife, cacheTag } from "next/cache";
 import { IMAGE_VARIANT_VERSION } from "./imageVariants";
@@ -21,10 +13,8 @@ import type {
 
 // ─── Archive types (crawler contract) ───────────────────────────
 //
-// Written by the crawler's archive stage
-// (dashboard/scripts/unified-crawler/stages/archive/logic.ts).
-// ref ∈ manifest ⇔ archived; manifest keys and indexed_items refs are
-// kept strictly disjoint by the crawler.
+// Written by the crawler's archive stage. ref ∈ manifest ⇔ archived;
+// manifest keys and indexed_items refs are kept strictly disjoint.
 
 /**
  * Entry in the per-market archive manifest
@@ -71,9 +61,9 @@ export interface ArchiveStamp {
 }
 
 /**
- * Archived snapshot blob — the full merged detail blob as last seen,
- * plus the archive stamp. backfill-v1 snapshots may lack ih/ish entirely
- * (no-image state) and have empty shOpts.
+ * Archived snapshot blob — the merged detail blob as last seen, plus the
+ * archive stamp. backfill-v1 snapshots may lack ih/ish entirely (no-image
+ * state) and have empty shOpts.
  */
 export interface ArchivedDetailBlob extends MergedDetailBlob {
   arc?: ArchiveStamp;
@@ -93,23 +83,14 @@ function truncateDesc(text: string, max = 260): string {
 }
 
 /**
- * Strip fields unused by browse components to shrink RSC payload.
+ * Strip fields unused by browse components to shrink the RSC payload.
+ * `d` is truncated to ~260 chars (CSS line-clamp handles visual clipping;
+ * the full text comes from the item detail API). Raw `i`/`is` are left in
+ * place as fallbacks for items whose optimized image hashes aren't confirmed.
  *
- * - `d` — truncated to ~260 chars; CSS line-clamp handles visual clipping.
- *         Full description available via item detail API.
- * - `dEn`, `nEn` — translation originals not used on browse.
- * - `lur` — last update reason only shown in item detail.
- *
- * NOTE: public index output now prefers crawler-stamped `ih`/`ish` hashes.
- * Raw `i`/`is` may still be present for items whose optimized images are not
- * confirmed yet, so the loader leaves those fallback fields untouched.
- */
-/**
- * @param market lowercase market code. On English markets (GB, IE) the
- *   English original (`nEn`/`dEn`) duplicates `n`/`d`, so strip them.
- *   On translated markets we KEEP them so the global "Show in English"
- *   toggle (`forceEnglishAtom`) can swap to originals on browse cards
- *   without re-fetching. Strips on `dEn` truncation match `d`.
+ * @param market lowercase market code. On English markets `nEn`/`dEn`
+ *   duplicate `n`/`d` and are dropped; on translated markets they are kept so
+ *   the "Show in English" toggle can swap originals without re-fetching.
  */
 function stripBrowseFields(items: Item[], market: string): Item[] {
   const isEnglishMarket = market === "gb" || market === "ie";
@@ -119,33 +100,27 @@ function stripBrowseFields(items: Item[], market: string): Item[] {
       delete item.dEn;
       delete item.nEn;
     } else {
-      // Truncate the English description to the same length as the
-      // translated one — the toggle should swap "the same length of text"
-      // not surprise users with a much longer / shorter blurb.
+      // Truncate to the same length as `d` so the toggle swaps like for like.
       if (item.dEn) item.dEn = truncateDesc(item.dEn);
-      // Drop nEn if it's identical to n (untranslated item) — keeps the
-      // payload small for items where translation didn't add anything.
+      // Identical means untranslated — no reason to ship it twice.
       if (item.nEn && item.nEn === item.n) delete item.nEn;
     }
-    // Normalize legacy .net share links to .org (canonical domain). Belt-and-braces
-    // with the R2 fix-net-to-org script — covers any items that slip through.
+    // Normalize legacy .net share links to the canonical .org domain.
     if (item.sl && item.sl.includes("littlebiggy.net")) {
       item.sl = item.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
     }
-    // Keep any remaining raw image fields as fallback for not-yet-optimized items.
-    // Keep `lur` — shown on hover title ("Images changed, -3 variants") and used
-    // by ItemCard to decide whether to show "Updated X ago". Only a few KB total.
+    // `lur` is deliberately kept: ItemCard uses it for the hover title and to
+    // decide whether to show "Updated X ago". Costs only a few KB.
   }
   return items;
 }
 
 /**
- * Strip seller fields unused by browse to shrink payload.
- * `url` is a littlebiggy.net URL we don't want in the frontend.
+ * Strip seller fields unused by browse to shrink the payload.
+ * `url` is an upstream marketplace link we don't ship to the frontend.
  */
 function stripSellerFields(sellers: Seller[]): Seller[] {
   for (const seller of sellers) {
-    // url is a littlebiggy.net link — strip from frontend payload
     delete (seller as unknown as Record<string, unknown>).url;
   }
   return sellers;
@@ -154,18 +129,15 @@ function stripSellerFields(sellers: Seller[]): Seller[] {
 // ─── Browse data version ────────────────────────────────────────
 
 /**
- * Stable short version of the browse dataset — changes whenever the dataset
- * meaningfully changes. Used to version /api/browse URLs so browsers can
- * cache the payload immutably across visits (pattern from food-aggregator).
+ * Stable short version of the browse dataset, used to version /api/browse URLs
+ * so browsers can cache the payload immutably.
  *
- * Hashes per-item id/lua/lur/prices/variant-count/category rather than just
- * count+max(lua): repair scripts can REVERT lua values (making the max
- * unchanged), and an unchanged version would leave browsers pinned to the
- * pre-repair payload forever via the immutable cache.
+ * Hashes per-item id/lua/lur/prices/variant-count/category rather than
+ * count+max(lua): a repair that reverts `lua` leaves the max unchanged, and an
+ * unchanged version pins browsers to the stale payload forever.
  *
- * Hotness (`h`) is deliberately excluded — it drifts every crawl, and any
- * crawl that matters also touches lua/price/variants on some item, so the
- * version still rolls over when real changes land.
+ * Hotness (`h`) is excluded — it drifts every crawl, and any crawl that
+ * matters also moves lua/price/variants on some item.
  */
 export function browseDataVersion(items: Item[]): string {
   let h = 5381;
@@ -210,15 +182,15 @@ export type VariantWidthsByHash = Record<string, number[]>;
 /**
  * Load the hash → variant-widths map from the shared image-meta aggregate.
  *
- * The variants (`{hash}/w320.avif`, …) are per-hash in R2, so a single global
- * lookup keyed by hash is authoritative regardless of which item references it.
- * Only entries stamped `variantV >= IMAGE_VARIANT_VERSION` with a non-empty
- * width list are included — legacy / tiny-source hashes are simply absent, and
- * their cards fall back to the plain `thumb.avif` with no srcset.
+ * Variants (`{hash}/w320.avif`, …) are per-hash in R2, so one global lookup
+ * keyed by hash is authoritative regardless of which item references it. Only
+ * entries stamped `variantV >= IMAGE_VARIANT_VERSION` with a non-empty width
+ * list are included; anything else is absent and its card falls back to plain
+ * `thumb.avif` with no srcset.
  *
- * Cached like the item data ('items' profile + tag) so the crawler's existing
- * revalidation rolls this over in lockstep with the grid, and the ~625KB
- * aggregate is fetched at most once per revalidation window per instance.
+ * Cached under the 'items' profile + tag so crawler revalidation rolls it over
+ * in lockstep with the grid, and the large aggregate is fetched at most once
+ * per revalidation window per instance.
  */
 export async function loadVariantWidths(): Promise<VariantWidthsByHash> {
   "use cache";
@@ -273,7 +245,7 @@ export async function loadSellerDetail(
   return detail;
 }
 
-/** Load pre-built home feed — single R2 read replaces 5 separate loads. */
+/** Load the pre-built home feed (one R2 read for the whole page). */
 export async function loadHomeFeed(market = "gb"): Promise<HomeFeed | null> {
   return readR2JSON<HomeFeed>(R2Keys.homeFeed(market));
 }
@@ -340,14 +312,12 @@ export async function loadMergedDetail(
 
 // ─── Little Biggy live status (public uptime blob) ──────────────
 //
-// Written by the crawler to `shared/status.json` in the data bucket —
-// by full index runs AND by the 10-minute status-ping function (2026-07-22).
-// Contract (see /littlebiggy-status page): a rolling window of the last
-// ~144 reachability checks (≈24h at the densest 10-min cadence; the cap
-// lives crawler-side in shared/status/status.ts RECENT_CHECKS_CAP). The
-// blob ships separately from this frontend, so the loader NEVER throws —
-// a missing/malformed blob degrades to `null` and the page renders an
-// "unknown" state.
+// Written by the crawler to `shared/status.json` in the data bucket, by full
+// index runs and by the status-ping function. Contract: a rolling window of
+// the last ~144 reachability checks (≈24h at a 10-min cadence; the cap lives
+// crawler-side). The blob ships independently of this frontend, so the loader
+// must NEVER throw — missing or malformed degrades to `null` and the page
+// renders an "unknown" state.
 
 export interface StatusCheck {
   /** ISO timestamp of the check */
@@ -376,10 +346,9 @@ function isIsoish(value: unknown): value is string {
 /**
  * Load + validate the public Little Biggy status blob.
  *
- * Plain loader — the /littlebiggy-status page caches it under the short
- * `status` profile. Returns null (unknown state) on any fetch failure OR
- * shape mismatch, so a not-yet-written / partial blob can never 500 or
- * render a broken indicator.
+ * Uncached — the /littlebiggy-status page caches it under the short `status`
+ * profile. Returns null (unknown state) on any fetch failure or shape
+ * mismatch, so a partial blob can never 500 or render a broken indicator.
  */
 export async function loadLittleBiggyStatus(): Promise<LittleBiggyStatus | null> {
   const raw = await readR2JSON<unknown>(R2Keys.status);
@@ -419,11 +388,10 @@ export async function loadLittleBiggyStatus(): Promise<LittleBiggyStatus | null>
 /**
  * Load the archive manifest for a market (delisted refs → summary entries).
  *
- * Plain loader — same idiom as loadMergedDetail: callers cache. The item
- * page reads it inside a `'use cache'` scope tagged `item-detail`, which the
- * crawler revalidates whenever any market's manifest changes (archive,
- * relist, or applied backfill); the API/sitemap routes rely on their CDN
- * cache headers.
+ * Uncached — callers own caching, as with loadMergedDetail. The item page
+ * reads it inside a `'use cache'` scope tagged `item-detail`, revalidated by
+ * the crawler whenever a market's manifest changes; API/sitemap routes rely
+ * on their CDN cache headers instead.
  */
 export async function loadArchiveManifest(
   market = "gb",
@@ -438,13 +406,11 @@ export async function loadArchiveManifest(
  * Load the archived snapshot for a delisted item.
  *
  * Gated on the manifest: an orphan snapshot blob may exist for a live or
- * relisted ref and MUST be ignored unless manifested. Returns null when the
- * ref isn't archived or either fetch fails — callers fall through to their
- * not-found flow.
+ * relisted ref and MUST be ignored unless manifested, or a delisted page
+ * renders for an item that is still on sale. Returns null when the ref isn't
+ * archived or either fetch fails — callers fall through to not-found.
  *
- * `manifest` may be passed by callers that already hold it (the item page's
- * loader reads the manifest once to decide archived-ness, then hands it in
- * here so the blob isn't gated on a second identical fetch).
+ * Pass `manifest` if you already hold it, to avoid a second identical fetch.
  */
 export async function loadArchivedDetail(
   ref: string,
@@ -465,8 +431,8 @@ export async function loadArchivedDetail(
     blob.sl = blob.sl.replace(/littlebiggy\.net/g, "littlebiggy.org");
   }
 
-  // Belt-and-braces: if a snapshot ever predates the arc stamp, fall back
-  // to the manifest's archivedAt so consumers always get a delist date.
+  // Snapshots predating the arc stamp fall back to the manifest's archivedAt
+  // so consumers always get a delist date.
   if (!blob.arc?.at) {
     blob.arc = { src: "live", v: 1, ...blob.arc, at: entry.at };
   }

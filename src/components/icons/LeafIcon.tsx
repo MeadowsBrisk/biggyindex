@@ -1,6 +1,4 @@
-/**
- * Cannabis leaf SVG icon — ported from old-biggyindex.
- */
+/** Cannabis leaf SVG icon. */
 export default function LeafIcon({ className }: { className?: string }) {
   return (
     <svg

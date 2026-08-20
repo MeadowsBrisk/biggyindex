@@ -9,6 +9,7 @@ import { HeroStatusStrip } from "@/components/home/HeroStatusStrip";
 import { QuickStartGuide } from "@/components/home/QuickStartGuide";
 import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
 import { WhatsNewSection } from "@/components/home/WhatsNewSection";
+import { PageTransition } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadHomeFeed } from "@/lib/data";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
@@ -116,7 +117,7 @@ export default async function HomePage({
   };
 
   return (
-    <>
+    <PageTransition>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
@@ -127,25 +128,23 @@ export default async function HomePage({
           __html: serializeJsonLd(organizationJsonLd),
         }}
       />
-      {/* NOTE: deliberately NO <Suspense> around the home sections. Under
-          cacheComponents, React outlines every Suspense boundary in the
-          prerendered document: the shell shipped with six empty <template>
-          placeholders followed by the footer, the section HTML streamed in
-          afterwards as hidden chunks, and the footer visibly painted at the
-          top of the page before being pushed down ~500ms later. All data
-          here is already awaited inside this cached render and none of the
-          sections use dynamic APIs, so inlining them costs nothing at
-          request time and makes first paint layout-stable. */}
-      {/* Outage strip — IN FLOW, ABOVE the hero (moved out of HeroSection
-          2026-07-27). It renders an empty zero-height wrapper unless Little
-          Biggy is explicitly down on a fresh check, so the up-state costs
-          nothing. It cannot live inside HeroSection: that section is
-          `min-h-[100svh] justify-center`, so once its content column exceeds
-          the viewport the column clamps to top:0 and an absolutely-positioned
-          band underneath it gets painted over by the logo (measured: 62px
-          overlap at 360x640 through 390x844, 44px at 1440x700). In flow it
-          simply pushes the hero down during an outage, which is the correct
-          behaviour for an outage banner. */}
+      {/* Deliberately NO <Suspense> around the home sections. Under
+          cacheComponents React outlines every Suspense boundary in the
+          prerendered document, so the shell ships empty <template>
+          placeholders with the footer directly beneath them — the footer
+          paints near the top and is pushed down when the sections stream in.
+          All data here is already awaited inside this cached render and no
+          section uses dynamic APIs, so inlining costs nothing at request time
+          and makes first paint layout-stable. */}
+      {/* Outage strip — IN FLOW, ABOVE the hero. It renders a zero-height
+          wrapper unless the upstream marketplace is explicitly down on a fresh
+          check, so the up-state costs nothing. It cannot live inside
+          HeroSection: that section is `min-h-[100svh] justify-center`, so once
+          its content column exceeds the viewport the column clamps to top:0 and
+          an absolutely-positioned band underneath it is painted over by the
+          logo (tens of px of overlap at phone widths). In flow it simply
+          pushes the hero down during an outage, which
+          is the correct behaviour for an outage banner. */}
       <HeroStatusStrip />
 
       <HeroSection
@@ -180,6 +179,6 @@ export default async function HomePage({
       <FaqSection />
 
       <SiteFooter locale={locale} />
-    </>
+    </PageTransition>
   );
 }

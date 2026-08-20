@@ -35,9 +35,8 @@ export { bucketGrams } from "@/lib/browse/item-index";
 // ─── Photo review modal payload ─────────────────────────────────
 
 /**
- * Payload for the home-page photo review modal. Mirrors the home-feed review
- * shape because that's the data source — the modal just needs to display
- * seller/item context, the text, and the full-size images.
+ * Payload for the home-page photo review modal — the home-feed review shape,
+ * since that is the data source (seller/item context, text, full-size images).
  */
 export type PhotoReviewModalPayload = HomeFeedReview;
 
@@ -99,14 +98,12 @@ export const sellersMapAtom = atom<Map<string, Seller>>((get) => {
 
 export const isLoadingAtom = atom<boolean>(true);
 
-/** True once URL params have been applied to filter atoms */
-// NOTE: write-only since the veil removal (no readers) — kept because
-// UrlSync still stamps it; safe to delete together with its writer.
+/** True once URL params have been applied to filter atoms. Write-only: UrlSync
+ *  stamps it, nothing reads it — safe to delete along with its writer. */
 export const urlSyncDoneAtom = atom<boolean>(false);
 
-/** True once DataLoader has mounted on the current page */
-// NOTE: write-only since the veil removal (no readers) — kept because
-// DataLoader still stamps it; safe to delete together with its writer.
+/** True once DataLoader has mounted on the current page. Write-only: DataLoader
+ *  stamps it, nothing reads it — safe to delete along with its writer. */
 export const dataLoaderActiveAtom = atom<boolean>(false);
 
 // ─── Theme ──────────────────────────────────────────────────────
@@ -175,9 +172,9 @@ export const thumbnailAspectAtom = atomWithStorage<ThumbnailAspect>(
   "square",
 );
 
-/** Item card density: 'comfortable' (default spacing) or 'compact'
- *  (shorter image, 1-line description, tighter paddings). Respects the
- *  user's thumbnailAspect choice — compact just scales it down. */
+/** Item card density: 'comfortable' (default spacing) or 'compact' (shorter
+ *  image, 1-line description, tighter paddings). Compact scales the user's
+ *  thumbnailAspect choice down rather than overriding it. */
 export type ViewMode = "comfortable" | "compact";
 export const viewModeAtom = atomWithStorage<ViewMode>(
   "viewMode",
@@ -190,38 +187,35 @@ export const viewModeAtom = atomWithStorage<ViewMode>(
  *  column counts and list view are untouched (see item-card.css, the rule is
  *  scoped inside `@media (max-width: 639px)` on `.item-list-grid`). */
 export type MobileGridCols = 1 | 2;
-// Plain atomWithStorage (no getOnInit) — matches viewLayoutAtom/viewModeAtom.
-// The value is written into SSR'd markup (the seed grid's data-mobile-cols), so
-// the default must equal the server value to avoid a hydration mismatch. The
-// boot veil that used to mask the 1→2 snap is gone: SeedParamsScript now
-// detects a persisted non-default value pre-paint and swaps the seed grid for
-// skeletons (html.bi-seed-hide + html.bi-cols-2), so users never watch real
-// cards reflow. getOnInit here would risk React reverting to the server
-// default on mismatch.
+// No getOnInit (matches viewLayoutAtom/viewModeAtom): this value is serialized
+// into SSR markup (the seed grid's data-mobile-cols), so the first client render
+// must equal the server default or React can revert it on hydration mismatch.
+// SeedParamsScript covers the gap — it detects a persisted non-default pre-paint
+// and swaps the seed grid for skeletons (html.bi-seed-hide + html.bi-cols-2), so
+// real cards are never seen reflowing.
 export const mobileGridColsAtom = atomWithStorage<MobileGridCols>(
   "mobileGridCols",
   1,
 );
 
 /** Accent color swatch — 'green' is default, others are easter-egg options.
- *  Applied post-hydration by AccentSync (SettingsSync.tsx) AND pre-paint by
- *  the boot script in app/[locale]/layout.tsx (named accents → data-accent
+ *  Applied post-hydration by AccentSync (SettingsSync.tsx) AND pre-paint by the
+ *  boot script in app/[locale]/layout.tsx (named accents → data-accent
  *  attribute, 'custom' → inline CSS vars via lib/accent.ts). Storage keys and
  *  the '#6366f1' custom default are duplicated in that script — keep in sync,
  *  or returning users get an accent flash at hydration.
  *
- *  getOnInit is REQUIRED on both atoms: without it, the first client render
- *  sees the defaults ('green' / '#6366f1') and AccentSync's effect fires once
- *  with those values — removeAttribute('data-accent') + clearCustomAccent() —
- *  wiping the boot script's pre-paint stamp for one painted frame before
- *  jotai's onMount flips the atom to the stored value and the effect
- *  re-stamps it (= the accent flash). With getOnInit the first render already
- *  holds the stored value, so the effect's first run rewrites the identical
- *  attribute/vars and hydration stays a visual no-op. Safe here because
- *  nothing accent-driven is in SSR markup: AccentSync renders null,
- *  SettingsModal renders null while closed, and data-accent/the inline vars
- *  live on <html> outside React's render output (contrast mobileGridColsAtom
- *  above, where the value IS serialized into SSR markup). */
+ *  getOnInit is REQUIRED on both atoms. Without it the first client render holds
+ *  the defaults, so AccentSync's effect fires with those and wipes the boot
+ *  script's pre-paint stamp for one painted frame before jotai swaps in the
+ *  stored value — the accent flash. With it, the effect's first run rewrites the
+ *  identical attribute/vars and hydration is a visual no-op. Safe here only
+ *  because nothing accent-driven is in SSR markup: data-accent and the inline
+ *  vars live on <html>, outside React's render output (contrast
+ *  mobileGridColsAtom above, whose value IS serialized into SSR markup).
+ *  Safe only while no component reading these atoms emits markup during
+ *  hydration — AccentSync returns null, and SettingsModal returns null while
+ *  closed. */
 export type AccentColor =
   | "green"
   | "blue"
@@ -335,10 +329,9 @@ export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
 // ─── Sort ───────────────────────────────────────────────────────
 
 /**
- * Persisted sort key. A validating storage layer coerces any stale/removed
- * value (e.g. an old `localStorage.sortKey === "name"` after that sort was
- * dropped) back to the default rather than leaving an unknown key active that
- * no pill/option could match.
+ * Persisted sort key. The validating storage layer coerces an unknown or removed
+ * stored value back to the default, so a key no pill/option can match never
+ * stays active.
  */
 const sortKeyStorage = {
   getItem(key: string, initialValue: SortKey): SortKey {
@@ -367,10 +360,9 @@ export const sortDirAtom = atomWithStorage<SortDir>(
 );
 
 /**
- * Per-session shuffle seed for the "Shuffle" sort. NOT persisted — a fresh
- * seed each session (and each explicit Shuffle re-select) so the order is
- * stable within a session but doesn't reshuffle on every unrelated atom
- * change. Mirrors food-aggregator's randomSeedAtom.
+ * Per-session shuffle seed for the "Shuffle" sort. NOT persisted — a fresh seed
+ * per session (and per explicit Shuffle re-select) keeps the order stable within
+ * a session without reshuffling on unrelated atom changes.
  */
 export const randomSeedAtom = atom<number>(
   Math.floor(Math.random() * 0x7fffffff),
@@ -384,12 +376,11 @@ export const viewLayoutAtom = atomWithStorage<ViewLayout>("viewLayout", "grid");
 
 /** Filter panel open state — persisted so it remembers between sessions.
  *  Default `false` so SSR output matches a cold client; otherwise the panel
- *  flashes open on first paint and animates closed once atomWithStorage
- *  hydrates the user's stored `false`. Matches food-aggregator.
+ *  flashes open on first paint and animates closed once storage hydrates.
  *  The layout boot script reads this storage key pre-paint and stamps
- *  html.bi-panel-open when true, revealing FilterPanel's SSR'd skeleton
- *  placeholder so the open sidebar's 280px column is reserved from first
- *  paint (no pop-in at hydration). Keep the key in sync with that script. */
+ *  html.bi-panel-open when true, revealing FilterPanel's SSR'd skeleton so the
+ *  open sidebar's 280px column is reserved from first paint (no pop-in at
+ *  hydration). Keep the key in sync with that script. */
 export const filterPanelOpenAtom = atomWithStorage<boolean>(
   "filterPanelOpen",
   false,
@@ -408,9 +399,9 @@ export const footerVisibleAtom = atom<boolean>(false);
 
 // ─── Hydration gate ─────────────────────────────────────────────
 
-/** True once the client has mounted and atomWithStorage has had one rAF */
-// NOTE: no readers since the veil removal — only HydrationGate writes it
-// (gateCompleteAtom is the consumer-facing signal).
+/** True once the client has mounted and atomWithStorage has had one rAF.
+ *  Write-only: HydrationGate stamps it, and gateCompleteAtom below is the
+ *  consumer-facing signal. */
 export const clientReadyAtom = atom<boolean>(false);
 
 /**
@@ -426,23 +417,13 @@ export const gateCompleteAtom = atom<boolean>(false);
 /**
  * Current market code (e.g. "GB", "PT").
  *
- * Intentionally NOT persisted via `atomWithStorage`. The market is
- * determined by the request host (`pt.biggyindex.com` → PT) and is
- * hydrated per-render via `<MarketHydrate>` in the locale layout. A
- * persisted value would create three bugs:
- *
- *   1. Each subdomain has its own localStorage, so the value stored on
- *      `biggyindex.com` doesn't help when the user lands on
- *      `pt.biggyindex.com` — the new origin would default to "GB" until
- *      a write happens.
- *   2. Stale values leak across sessions: a user who once switched to
- *      PT from `biggyindex.com` would, on a later visit to the apex,
- *      see the dropdown stuck on PT even though the page is rendering
- *      GB data (host-pinned by proxy.ts).
- *   3. The market never changes within a session except by navigating
- *      to a different host, in which case the new host's hydration is
- *      authoritative — there is no scenario where re-reading a stored
- *      value is the right answer.
+ * Intentionally NOT persisted via `atomWithStorage`. The market is determined by
+ * the request host (`pt.biggyindex.com` → PT, host-pinned by proxy.ts) and is
+ * hydrated per-render via `<MarketHydrate>` in the locale layout. localStorage
+ * is per-origin, so a stored value can never help another market's subdomain,
+ * and it can go stale against the host-pinned data actually being rendered. The
+ * market only changes by navigating to a different host, where the new host's
+ * hydration is authoritative — a stored value is never the right answer.
  */
 export const marketAtom = atom<string>("GB");
 export const currencySymbolAtom = atom<string>("£");
@@ -453,10 +434,10 @@ export const currencySymbolAtom = atom<string>("£");
 export type DisplayCurrency = "GBP" | "USD" | "EUR" | "CZK" | "PLN";
 
 /**
- * User's *explicit* display-currency override. `null` means "no choice
- * yet — fall back to the market's native currency". Persisted per-origin
- * so user choices stick across sessions, but each market starts on its
- * own native currency rather than inheriting GBP from another origin.
+ * User's *explicit* display-currency override. `null` means "no choice yet —
+ * fall back to the market's native currency". Persisted per-origin, so choices
+ * stick across sessions while each market still starts on its own native
+ * currency instead of inheriting another origin's.
  */
 export const displayCurrencyOverrideAtom =
   atomWithStorage<DisplayCurrency | null>("displayCurrency", null);
@@ -535,11 +516,10 @@ export const bookmarksSetAtom = atom<Set<string>>(
 );
 
 /**
- * Count of bookmarks that still match a currently-listed item. The persisted
- * `bookmarksAtom` accumulates refs for items that have since delisted (kept on
- * purpose — items can be relisted), so its raw `.length` overstates the saved
- * count shown in the UI. This intersects against the loaded items using the
- * same refNum-or-id key ItemGrid uses for `isBookmarked`.
+ * Count of bookmarks that still match a currently-listed item. `bookmarksAtom`
+ * deliberately keeps refs for delisted items (they can be relisted), so its raw
+ * `.length` overstates the saved count shown in the UI. Intersects against the
+ * loaded items using the same refNum-or-id key ItemGrid uses for `isBookmarked`.
  */
 export const activeBookmarksCountAtom = atom<number>((get) => {
   const bookmarks = get(bookmarksSetAtom);
@@ -614,28 +594,25 @@ export const sortedItemsAtom = atom<Item[]>(
 );
 
 /**
- * Compact signature of the user's *active view* — everything that legitimately
- * defines "which result set, in which order" EXCEPT the underlying data
- * (`itemsAtom`/`itemIndexAtom`). It mirrors the inputs of `browseInputAtom`
- * minus the item data, plus `marketAtom`.
+ * Compact signature of the user's *active view* — everything that defines "which
+ * result set, in which order" EXCEPT the underlying data
+ * (`itemsAtom`/`itemIndexAtom`). Mirrors `browseInputAtom`'s inputs minus the
+ * item data, plus `marketAtom`.
  *
- * Why: `sortedItemsAtom` produces a new array reference whenever EITHER the
- * user changes a filter/sort OR fresh data lands (crawler ran, router.refresh).
- * ItemGrid needs to tell those apart — a user-initiated view change should
- * reset progressive rendering to the first batch and scroll to top, but a
- * background data swap under a deep-scrolled reader must NOT (that truncated
- * the list and jumped the page — the reported bug). When this signature is
- * unchanged but `sortedItemsAtom`'s reference changed, it was a data swap.
+ * `sortedItemsAtom` yields a new array reference both when the user changes a
+ * filter/sort and when fresh data lands (crawler ran, router.refresh). ItemGrid
+ * must tell those apart: a user-initiated view change resets progressive
+ * rendering to the first batch and scrolls to top, but a background data swap
+ * must not — that truncates the list and jumps a deep-scrolled reader.
+ * Signature unchanged + new array reference = data swap.
  *
- * NOT included: the bookmark *set* contents (only relevant while
- * `bookmarksOnly` is on). Toggling a bookmark while browsing bookmarks-only
- * therefore preserves scroll position instead of yanking the list — the same
- * "don't disrupt the reader" intent, applied to an in-place set edit. The
- * `bookmarksOnly` toggle itself IS included, so entering/leaving that view
- * still resets, exactly as before.
+ * NOT included: the bookmark *set* contents (only relevant while `bookmarksOnly`
+ * is on), so toggling a bookmark inside the bookmarks-only view preserves scroll
+ * position instead of yanking the list. The `bookmarksOnly` toggle itself IS
+ * included, so entering/leaving that view still resets.
  *
- * `randomSeed` is only folded in when the shuffle sort is active, so a fresh
- * session seed never forces a reset under a non-shuffle sort.
+ * `randomSeed` is folded in only under the shuffle sort, so a fresh session seed
+ * never forces a reset under any other sort.
  */
 export const browseViewSignatureAtom = atom<string>((get) => {
   const pr = get(priceRangeAtom);
@@ -764,8 +741,8 @@ export const basketAtom = atomWithStorage<BasketEntry[]>("basket", []);
  * Per-seller basket shipping selection.
  * Keyed by the lower-cased seller name (the same key used in `Basket.tsx` groups).
  * Value: the label of the selected shipping option — `null` / missing means
- * "no shipping selected" (matches old-biggyindex checkbox OFF). The special
- * sentinel `"__cheapest__"` means "use the cheapest available option".
+ * "no shipping selected". The sentinel `"__cheapest__"` means "use the cheapest
+ * available option".
  */
 export const basketShipSelectionAtom = atomWithStorage<
   Record<string, string | null>

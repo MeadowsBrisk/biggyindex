@@ -9,25 +9,25 @@ import { VERIFY_LINKS } from "@/lib/verify-links";
 /**
  * Verification links — LittleBiggy's canonical / authenticity pages.
  *
- * This is a user-protection affordance, not a promo badge: phishing clones of
- * LittleBiggy are a real risk, so these are the pages a user checks to confirm
- * they're in the real ecosystem (PGP-signed announcements, verified mirror
- * domains, the onion address) and to find the marketplace when it's down.
- * Our own /littlebiggy-status uptime page belongs in the same cluster.
+ * A user-protection affordance, not a promo badge: phishing clones are a real
+ * risk, so these are the pages a user checks to confirm they are in the real
+ * ecosystem (PGP-signed announcements, verified mirror domains, the onion
+ * address) and to find the marketplace when it is down. Our own
+ * /littlebiggy-status uptime page belongs in the same cluster.
  *
  * Two presentations, one link list:
  *  • <VerifyDropdown>    — desktop (>= sm) popover in the header control cluster
  *  • <MobileVerifyLinks> — a section inside the mobile hamburger drawer
  *
  * The list itself lives in `@/lib/verify-links` (a plain, non-client module)
- * so the Server-Component <VerifyCard> on /littlebiggy-status renders the very
- * same four entries without this file's client graph.
+ * so the Server-Component <VerifyCard> on /littlebiggy-status can render the
+ * same entries without pulling in this file's client graph.
  */
 
 /**
  * Desktop popover.
  *
- * Spacing rhythm (deliberate — no 0px gaps):
+ * Spacing rhythm (no 0px gaps):
  *   panel padding      p-1.5           (6px)
  *   section label      px-2 pt-1 mb-1  (4px gap down to the first row)
  *   rows list          gap-0.5         (2px between rows)
@@ -80,9 +80,9 @@ export function VerifyDropdown() {
         title={t("trigger")}
       >
         <ShieldCheck size={18} className="text-muted" />
-        {/* Text only from `xl`. Between md and xl the header row is already
+        {/* Text only from `xl`: between md and xl the header row is already
             tight (the /browse category nav alone overflows it at 1024px), so
-            the control degrades to icon + chevron; the accessible name comes
+            the control degrades to icon + chevron. The accessible name comes
             from aria-label/title either way. */}
         <span className="hidden xl:inline whitespace-nowrap text-xs text-muted">
           {t("trigger")}
@@ -109,11 +109,11 @@ export function VerifyDropdown() {
               {VERIFY_LINKS.map(({ key, href, display, external, Icon }) => {
                 const label = t(`${key}.label`);
                 const description = t(`${key}.description`);
-                // The secondary line is the RAW ADDRESS, not the translated
-                // description — the LB operators asked for the actual URLs
-                // to be visible (legitimacy + memorisation). The description
-                // survives as the row tooltip and in the aria-label, and is
-                // still rendered in full on /littlebiggy-status.
+                // Secondary line is the RAW ADDRESS, not the translated
+                // description — a product requirement, not a style choice:
+                // seeing the actual URLs is what makes them verifiable and
+                // memorisable. The description stays as the row tooltip /
+                // aria-label and is shown in full on /littlebiggy-status.
                 const body = (
                   <>
                     <Icon size={16} className="mt-0.5 shrink-0 text-muted" />
@@ -189,9 +189,8 @@ export function VerifyDropdown() {
  *
  * Rows are BORDERLESS and sit directly on `--background` — the same primitive
  * as the drawer's nav rows and the desktop popover's rows. Borders mark
- * containers, never list rows (a bordered row on `bg-surface` re-created a
- * "card stack" reading that made this list look like a different species from
- * the nav above it).
+ * containers, never list rows: a bordered row on `bg-surface` reads as a card
+ * stack and breaks the drawer's single list language.
  */
 export function MobileVerifyLinks({ onNavigate }: { onNavigate: () => void }) {
   const t = useTranslations("header.verify");
@@ -210,9 +209,8 @@ export function MobileVerifyLinks({ onNavigate }: { onNavigate: () => void }) {
         {VERIFY_LINKS.map(({ key, href, display, external, Icon }) => {
           const label = t(`${key}.label`);
           const description = t(`${key}.description`);
-          // Secondary line = the raw address (see the desktop popover note):
-          // the LB operators asked for the actual URLs to be visible. The
-          // translated description stays in the aria-label.
+          // Secondary line = the raw address (see the desktop popover note).
+          // The translated description stays in the aria-label.
           const body = (
             <>
               <Icon size={18} className="shrink-0 text-muted" />

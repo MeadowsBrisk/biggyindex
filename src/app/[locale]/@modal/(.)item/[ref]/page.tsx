@@ -1,19 +1,16 @@
 /**
- * Intercepting route — bridges Next.js App Router navigation
- * to the Jotai-driven ItemDetailOverlay.
+ * Intercepting route — bridges App Router navigation to the Jotai-driven
+ * ItemDetailOverlay. Clicking an item card (`<Link href="/item/123">`) renders
+ * this instead of the full page: it sets `expandedRefNumAtom` so the overlay
+ * opens with animations, and renders nothing itself (the overlay lives in
+ * layout.tsx).
  *
- * When the user clicks an item card (`<Link href="/item/123">`),
- * this intercepting route renders instead of the full page.
- * It sets `expandedRefNumAtom` so the overlay opens with animations,
- * then renders nothing itself (the overlay lives in layout.tsx).
- *
- * NOTE (matches food-agg): No `"use cache"` / cacheLife here.
- * Intercepting routes are only hit via client-side navigation (never
- * by bots), so ISR caching just wastes write units. More importantly,
- * under Next.js 16 cacheComponents, caching this page forces the
- * prerenderer into the surrounding layout (which holds client-only
- * nuqs + Jotai providers reading uncached request state), triggering
- * the "Uncached data outside Suspense" blocking-route error.
+ * Deliberately NO `"use cache"` / cacheLife. Intercepting routes are only hit
+ * via client-side navigation, never by bots, so ISR caching just wastes write
+ * units — and under cacheComponents, caching this page pulls the prerenderer
+ * into the surrounding layout, whose client-only nuqs + Jotai providers read
+ * uncached request state, raising the "Uncached data outside Suspense"
+ * blocking-route error.
  */
 
 import { OverlayBridge } from "./OverlayBridge";

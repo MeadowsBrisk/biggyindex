@@ -40,10 +40,9 @@ import {
 export function Toolbar({ initialCount }: { initialCount?: number }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Publish the live toolbar height to `--toolbar-h` so the filter sidebar
-  // (which is sticky below the toolbar) can pin flush against it. The toolbar
-  // changes height across breakpoints (mobile gets a 2nd row) so a hardcoded
-  // `top-[44px]` left visible gaps / overlaps when scrolling.
+  // Publish the live toolbar height to `--toolbar-h` so the sticky filter
+  // sidebar can pin flush against it. The toolbar's height changes across
+  // breakpoints, so any hardcoded offset leaves gaps or overlaps on scroll.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -78,8 +77,8 @@ export function Toolbar({ initialCount }: { initialCount?: number }) {
           <ResultCount initialCount={initialCount} />
         </div>
 
-        {/* Active filters moved to the ActiveFilterBar above the grid (the
-            grouped accent card) — the in-toolbar strip was cramped/overflowy. */}
+        {/* Spacer. Active filters render in ActiveFilterBar above the grid,
+            not here — the toolbar row has no room for them. */}
         <div className="min-w-0 flex-1" />
 
         {/* Saved → sort → layout, pinned to the far right. */}
@@ -91,11 +90,10 @@ export function Toolbar({ initialCount }: { initialCount?: number }) {
       </div>
 
       {/* Mobile row (single, compact): filters (left) · saved · sort · view
-          (right). The three inline view toggles (layout / per-row / card-size)
-          are consolidated into one labelled "View" popover (ViewMenu). The
-          result count is NOT in the bar on mobile — inline it collided with the
-          right-hand controls at ~360px — it renders as its own muted line above
-          the grid (MobileResultCount). The right cluster is `ml-auto shrink-0`. */}
+          (right). The layout / per-row / card-size toggles are consolidated
+          into one "View" popover (ViewMenu). The result count is deliberately
+          NOT in this bar — inline it collides with the right-hand controls at
+          ~360px — it renders above the grid as MobileResultCount. */}
       <div className="flex sm:hidden items-center gap-1.5 px-3 py-1.5">
         <FilterToggle />
         <div className="flex items-center gap-1.5 ml-auto shrink-0">
@@ -112,9 +110,9 @@ export function Toolbar({ initialCount }: { initialCount?: number }) {
 
 function BookmarkToggle() {
   const t = useTranslations("browse.toolbar");
-  // Count only bookmarks that still match a listed item — the persisted list
-  // keeps refs for delisted items (they can be relisted), so the raw length
-  // overstated the saved count shown here.
+  // Count only bookmarks that still match a listed item: the persisted list
+  // keeps refs for delisted items (they can be relisted), so its raw length
+  // overstates the saved count.
   const count = useAtomValue(activeBookmarksCountAtom);
   const [active, setActive] = useAtom(bookmarksOnlyAtom);
 
@@ -153,9 +151,9 @@ function BookmarkToggle() {
 
 function ResultCount({ initialCount }: { initialCount?: number }) {
   const t = useTranslations("browse.toolbar");
-  // Explicit locale for number formatting: bare toLocaleString() differs
-  // between the server ICU default and the browser locale — a hydration
-  // mismatch on non-English markets now that the count is server-rendered.
+  // Explicit locale for number formatting: a bare toLocaleString() differs
+  // between the server ICU default and the browser locale, which hydration-
+  // mismatches on non-English markets since the count is server-rendered.
   const locale = useLocale();
   const filtered = useAtomValue(filteredItemsAtom);
   const total = useAtomValue(itemsAtom);
@@ -165,10 +163,9 @@ function ResultCount({ initialCount }: { initialCount?: number }) {
   // fall back to the server-known total until items land client-side.
   const totalCount = total.length > 0 ? total.length : (initialCount ?? 0);
 
-  // Distinct sellers among the currently-visible (filtered) items — mirrors
-  // roast-radar's `new Set(items.map(i => i.sid)).size`. Deriving straight
-  // from the visible set (rather than the seller-facet atom) keeps the count
-  // honest even when explicit sellers are selected.
+  // Distinct sellers among the currently-visible (filtered) items. Derive
+  // from the visible set rather than the seller-facet atom so the count stays
+  // honest when explicit sellers are selected.
   const sellerCount = new Set(
     filtered.map((i) => i.sid).filter((sid): sid is number => sid != null),
   ).size;
@@ -265,9 +262,9 @@ function SortPills() {
 
   return (
     <div className="sort-bar">
-      {/* Decorative sort glyph — matches roast-radar. Direction itself is
-          toggled by re-clicking the active pill (trailing arrow), so this is
-          presentational only, not a separate toggle. */}
+      {/* Decorative sort glyph. Direction is toggled by re-clicking the
+          active pill (trailing arrow), so this is presentational only, not a
+          control. */}
       <ArrowUpDown
         size={13}
         className="hidden text-muted lg:block sort-bar__lead"

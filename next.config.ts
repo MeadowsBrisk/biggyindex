@@ -5,58 +5,36 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   turbopack: {
-    // Pin Turbopack's root to THIS project. The workspace root
-    // (E:\my-sites\biggy-index-v2) has its own package.json + yarn.lock for
-    // the `r2` CLI, so without an explicit root Turbopack infers the whole
-    // ~9 GB workspace (old-biggyindex, dashboard, food-aggregator-example,
-    // …) as root and watches/resolves across all of it — which makes every
-    // dev compile take 10-20s and the watcher thrash. food-aggregator has no
-    // parent lockfile, so it gets a correctly-scoped root for free; we have
-    // to pin it. Must be absolute (Turbopack warns otherwise).
+    // Pin Turbopack's root to THIS project. The parent directory carries its
+    // own package.json + yarn.lock, so without an explicit root Turbopack
+    // infers the whole enclosing workspace and watches/resolves across all of
+    // it, making dev compiles slow and thrashing the watcher. Must be absolute
+    // (Turbopack warns otherwise).
     root: __dirname,
   },
   experimental: {
-    // 16.3 UPGRADE NOTES (2026-08):
-    //  • `viewTransition` REMOVED — the flag no longer exists in Next 16.3.
-    //    Its behaviour (auto-wrapping every Link navigation in
-    //    document.startViewTransition()) was dropped by Next in favour of
-    //    React's per-element <ViewTransition> component, which works with no
-    //    config. Consequence: the site-wide SPA-navigation cross-fade defined
-    //    in globals.css no longer fires on client navigations — only on
-    //    cross-document (hard) loads via the CSS `@view-transition` rule. If
-    //    the polish is missed, reintroduce it with <ViewTransition> wrappers
-    //    per the guide: nextjs.org/docs/app/guides/view-transitions.
-    //  • `prefetchInlining` removed here — it became the DEFAULT in 16.3
-    //    (small prefetch payloads are bundled automatically).
+    // Client-side cache for visited routes (needs Cache Components).
+    // There is no `viewTransition` flag on Next >= 16.3: navigation
+    // cross-fades come from React's <ViewTransition> (components/
+    // PageTransition.tsx), and `prefetchInlining` is the default.
     cachedNavigations: true,
   },
-  // Keep the AWS SDK external instead of bundling it into server routes
-  // (matches food-aggregator). lib/r2-server.ts pulls it in for the
-  // authenticated R2 API routes.
+  // Keep the AWS SDK external instead of bundling it into server routes —
+  // lib/r2-server.ts pulls it in for the authenticated R2 API routes.
   serverExternalPackages: ["@aws-sdk/client-s3"],
-  // ── DO NOT set htmlLimitedBots to a catch-all. ─────────────────────────────
-  // REVERTED 2026-07-21. We briefly ran `htmlLimitedBots: /.*/` (2026-07-14) to
-  // force BLOCKING metadata for every UA, trying to fix social share previews
-  // (og:image was streaming at byte ~428k, past where WhatsApp/Telegram stop
-  // parsing). It made things strictly worse: item/seller are param-less
-  // fallback shells, so every render is a PPR *resume*, and Next hard-codes
-  // `serveStreamingMetadata: true` at export time (next/dist/export/worker.js)
-  // while the runtime honoured our regex and used the blocking variant. The two
-  // render different elements in the same slot (next/dist/lib/metadata/metadata.js
-  // — `<div hidden>` when streaming vs `<__next_metadata_boundary__>` when not),
-  // so React aborted the boundary:
-  //   "Expected the resume to render <div> ... instead it rendered
-  //    <__next_metadata_boundary__>"  → $RX() → client-rendered metadata.
-  // Measured live on 2026-07-21: item/seller pages served `</head>` at byte 4837
-  // with NO <title>, NO canonical, NO og:* for any non-JS consumer — and because
-  // netlify-vary does NOT include user-agent, that one metadata-less copy was
-  // cached and served to Googlebot/Bingbot/WhatsApp alike. Upstream bugs:
-  // vercel/next.js#93401 and #95406 (both open as of 16.2.10).
-  // Streamed metadata (late in body, but PRESENT) beats blocking metadata that
-  // gets dropped. If social previews need fixing again, give scrapers their own
-  // cache entry (UA-detect in proxy.ts → marker query param + Netlify-Vary),
-  // do NOT reach for htmlLimitedBots.
+  // DO NOT set `htmlLimitedBots` to a catch-all. Item/seller pages are
+  // param-less PPR fallback shells; a catch-all regex makes their resumed
+  // renders disagree with the exported shell about streamed-vs-blocking
+  // metadata, React aborts the boundary, and pages get cached WITHOUT any
+  // <title>/canonical/og:* for every non-JS consumer (the CDN cache does not
+  // vary on user-agent). Upstream: vercel/next.js#93401, #95406.
+  // If social previews ever need blocking metadata, give scrapers their own
+  // cache entry (UA-detect in proxy.ts → marker param + Netlify-Vary).
   cacheComponents: true,
+  // `partialPrefetching` is deliberately OFF: with a `[locale]` root param
+  // the layout must await `params`, which excludes every route from instant
+  // shells, and the fix (next/root-params) doesn't resolve under Turbopack
+  // as of 16.3.1. Revisit together when that lands.
   cacheLife: {
     /** Browse pages — stale 1h, revalidate daily, expire weekly */
     items: { stale: 3600, revalidate: 86400, expire: 604800 },
@@ -83,8 +61,8 @@ const nextConfig: NextConfig = {
       // v1 page renames
       { source: "/home", destination: "/", permanent: true },
       { source: "/latest-reviews", destination: "/reviews", permanent: true },
-      // v1 localized item/seller paths (ported from v1 netlify.toml 301s;
-      // /producto added for symmetry — v1 only had the seller-side /vendedor)
+      // v1 localized item/seller paths. /producto has no v1 counterpart and is
+      // here only so the Spanish pair matches the other locales.
       { source: "/produit/:ref", destination: "/item/:ref", permanent: true },
       { source: "/produkt/:ref", destination: "/item/:ref", permanent: true },
       {
@@ -166,70 +144,35 @@ const nextConfig: NextConfig = {
     const LOCALE_SEG =
       ":locale(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)";
 
-    // ── REMOVED (2026-07-13): query-conditioned X-Robots noindex on /browse.
-    // Netlify's CDN caches /browse under ONE key that IGNORES filter queries
-    // (netlify-vary only includes __nextDataReq|_rsc). A `has`-matched
-    // noindex response for /browse?cat=… therefore gets CACHED and served for
-    // the BARE hub too — observed live: bare /browse returned
-    // `x-robots-tag: noindex` minutes after a filtered request populated the
-    // entry. Query-conditional headers are structurally unsafe for any
-    // query-ignoring cache key; do NOT reintroduce in any layer that runs at
-    // or behind the CDN. The /browse canonical tag carries the dedup burden
-    // (filtered URLs canonicalise to /browse), which GSC shows working.
+    // Never emit query-conditional headers on /browse — no X-Robots noindex
+    // matched on filter params. The CDN caches /browse under ONE key that
+    // ignores those queries (netlify-vary covers only __nextDataReq|_rsc), so
+    // a header matched for /browse?cat=… gets cached and served for the bare
+    // hub too. This is unsafe in any layer at or behind the CDN. The /browse
+    // canonical tag carries the dedup burden instead.
 
     // ── Durable-CDN fallback for the PPR-postponed long tail ──────────────
-    // ACTIVATED 2026-07-13 (was the prepared fallback below round 3). Source
-    // dive confirmed why the framework path cannot cache these on Netlify:
-    // under cacheComponents every route is PPR; a runtime render that
-    // postpones (x-nextjs-postponed) emits `private,no-store`
-    // (next/dist/server/lib/cache-control.js maps revalidate:0), the
-    // fallback-shell/upgrade recovery paths never run on this stack, and
-    // @netlify/plugin-nextjs run/headers.js copies that no-store verbatim to
-    // netlify-cdn-cache-control → the CDN never stores it → EVERY bot hit on
-    // ~23k item/seller/category/archive URLs was a billed function invocation
-    // (the July 2026 usage blowout).
+    // The framework path cannot cache these on Netlify: under cacheComponents
+    // every route is PPR, and a runtime render that postpones emits
+    // `private,no-store`, which the Netlify adapter copies verbatim into
+    // netlify-cdn-cache-control. The CDN then stores nothing, so every bot hit
+    // on the ~23k item/seller/category URLs is a billed function invocation.
     //
-    // Why this is safe for healthy responses: run/headers.js only applies its
-    // own mapping when the response has `x-nextjs-cache` OR lacks a
-    // pre-existing netlify-cdn-cache-control. Prerendered/ISR responses carry
-    // x-nextjs-cache → the runtime still derives their native tag-purgeable
-    // caching and OVERRIDES this header. Postponed responses carry no
-    // x-nextjs-cache → this header survives → the CDN stores them. Net effect:
-    // the TTL applies exactly where the framework fails, nowhere else.
+    // Safe for healthy responses: the adapter only applies its own mapping to a
+    // response carrying `x-nextjs-cache` or lacking netlify-cdn-cache-control.
+    // Prerendered/ISR responses carry it, so their native tag-purgeable caching
+    // still overrides this header; postponed responses don't, so it survives.
     //
-    // TRADEOFF: TTL-based, NOT tag-based. revalidateTag will not purge these
-    // entries — worst-case HTML staleness is s-maxage + SWR background
-    // refresh. The item overlay re-fetches live data via /api/item-detail, so
-    // stale SSR prices are cosmetic. Unknown-ref 404s also cache — deliberate:
-    // the GSC validation bucket (2k dead URLs) was a pure invocation firehose.
+    // TRADEOFF: TTL-based, not tag-based — revalidateTag will NOT purge these
+    // entries, so worst-case HTML staleness is s-maxage plus the SWR refresh.
+    // The item overlay re-fetches live data via /api/item-detail, so stale SSR
+    // prices are cosmetic. Unknown-ref responses cache too, deliberately: dead
+    // URLs are otherwise a pure invocation firehose — note a ref probed before
+    // its item existed keeps 404ing for the full window, and revalidateTag
+    // can't clear it.
     //
-    // s-maxage raised 3600 → 21600 (6h) on 07-14: most long-tail URLs get hit
-    // by bots roughly once a day, and any hit past s-maxage serves stale but
-    // still fires ONE background revalidation (= a billed invocation). A
-    // longer fresh window is the only lever that removes those — day-1 post-
-    // fix usage (~4k/day) still projected too close to the 125k cap.
-    //
-    // ── EMERGENCY s-maxage 2592000 (30 DAYS) REVERTED 2026-07-30 → 21600. ──
-    // (Applied 2026-07-22 for the July cap crisis; reverted ahead of the
-    // Aug-1 Netlify switch-back so the deploy Netlify builds BEFORE the DNS
-    // switch already carries the sane TTL. After the switch, Purge Everything
-    // on Cloudflare so lingering 30-day durable entries don't outlive it —
-    // see docs/AUGUST-1-REVERT-CHECKLIST.md.) Historical rationale kept below:
-    // Measured Jul-22 afternoon (post-Cloudflare-rules): ~1,990 invocations/day
-    // vs a survival rate of ~1,570/day — the residual burn is exactly this
-    // class: bots revisit each of ~9.3k long-tail URLs every 4-7 days, so at
-    // ANY TTL below ~4 days essentially every visit lands stale and fires a
-    // billed SWR revalidation (billed/day ≈ N × min(λ, 1/TTL); λ ≈ 0.235/day
-    // binds until TTL > 1/λ). 7 days sits on the crossover and buys almost
-    // nothing — the honest choices are 6h or 30d. At 30d: ~2,000/day → ~500.
-    // KNOWN COSTS (accepted for the 10-day emergency, wrong permanently):
-    //   • These entries are TTL-based — revalidateTag can NOT flush them. A
-    //     delisted/changed item's SSR HTML can persist up to 30d (the overlay
-    //     refetches live data client-side; Cloudflare in front caps what
-    //     browsers see at its own 2h edge TTL, but it re-fetches the same
-    //     stale durable copy).
-    //   • Unknown-ref 200 shells (noindexed) also persist 30d — a URL probed
-    //     before its item existed stays a shell until Aug 1.
+    // Any hit past s-maxage still fires one billed background revalidation, so
+    // the fresh window — not SWR — is the lever on invocation count.
     const durable =
       "public, durable, s-maxage=21600, stale-while-revalidate=86400";
     const durableRules = [
@@ -245,10 +188,9 @@ const nextConfig: NextConfig = {
     }));
 
     // /robots.txt needs no rule here: it is a route handler
-    // (src/app/robots.txt/route.ts) that sets its own cacheable headers —
-    // the sitemap.xml shape. It was BRIEFLY a metadata route (robots.ts)
-    // whose `await headers()` call made every hit a billed origin invocation
-    // on all 10 hosts; see the route file's comment for the history.
+    // (src/app/robots.txt/route.ts) that sets its own cacheable headers, in
+    // the same shape as sitemap.xml. See that file for why it must not become
+    // a metadata route.
 
     return durableRules;
   },

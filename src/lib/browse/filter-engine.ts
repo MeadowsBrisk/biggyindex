@@ -242,7 +242,7 @@ function applyFilters(
   });
 }
 
-/** Stable per-seed hash (FNV-ish) — same construction as food-aggregator. */
+/** Stable per-seed hash (FNV-ish). */
 function seededHash(str: string, seed: number): number {
   let hash = (seed ^ 0x9e3779b9) >>> 0;
   for (let index = 0; index < str.length; index++) {

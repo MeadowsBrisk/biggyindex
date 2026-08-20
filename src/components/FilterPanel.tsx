@@ -168,7 +168,7 @@ export function FilterPanel() {
   return (
     <>
       {/* Mobile: invisible left-edge tap zone that opens the filter drawer,
-          with a subtle indicator bar. Mirrors Roast Radar — gives phones a
+          with a subtle indicator bar — gives phones a
           thumb-reachable strip on the screen edge to open filters without
           reaching for the toolbar button. Only when the drawer is closed; sits
           just below the sticky toolbar (var(--toolbar-h)). w-7 (28px): 16px

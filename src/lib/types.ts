@@ -16,9 +16,8 @@ export interface ItemVariant {
   /** Price in USD */
   usd: number;
   /*
-   * Crawler-stamped parse results (stampIndexVariants in the unified
-   * crawler — a 1:1 port of this repo's lib/variants.ts parser). When
-   * present, parseVariant() uses them and skips the regex parse.
+   * Crawler-stamped parse results, produced by a 1:1 port of lib/variants.ts.
+   * When present, parseVariant() uses them and skips the regex parse.
    */
   /** Grams — weight-bearing variants (qty=g, unit='g' implied) */
   g?: number;
@@ -108,11 +107,11 @@ export interface Item {
   is?: string[] | null;
   /** Primary optimized image hash */
   ih?: string | null;
-  /** Additional optimized image hashes, positionally matching `is` during transition */
+  /** Additional optimized image hashes, positionally matching `is` */
   ish?: Array<string | null> | null;
   /** Primary image is animated */
   ia?: 1 | 0 | boolean | null;
-  /** Additional image animated flags, positionally matching `is` during transition */
+  /** Additional image animated flags, positionally matching `is` */
   isa?: Array<1 | 0 | boolean | null> | null;
   /** Seller ID */
   sid?: number | null;
@@ -151,9 +150,9 @@ export interface Item {
   /**
    * Responsive card-variant widths (browse payload only, added by
    * /api/browse). Bitmask per image slot, index-parallel to
-   * [primary, ...gallery] hashes, over CARD_VARIANT_WIDTHS (see
-   * lib/imageVariants.ts). Omitted when the item has no variants; animated
-   * slots are 0. Consumed client-side by `buildItemVariantWidthMap`.
+   * [primary, ...gallery] hashes, over CARD_VARIANT_WIDTHS. Omitted when the
+   * item has no variants; animated slots are 0. Read back client-side by
+   * `buildItemVariantWidthMap`.
    */
   vw?: number[];
   /** v2 filterable attributes */
@@ -177,13 +176,11 @@ export interface PriceSnapshot {
 // ─── Merged Detail Blob ─────────────────────────────────────────────
 
 /**
- * The per-market item-detail blob from R2.
+ * The per-market item-detail blob from R2 — a flat, self-contained item, so
+ * the overlay renders from it alone without indexed_items.json in the store.
  *
- * This is a flat, self-contained item: the overlay can render entirely
- * from this blob without needing indexed_items.json in the Jotai store.
- *
- * Built by the merge-detail crawler stage from:
- *   core blob + shipping blob + index-meta (price history)
+ * Built by the crawler's merge-detail stage from the core blob, the shipping
+ * blob and index-meta (price history).
  */
 export interface MergedDetailBlob extends Item {
   /** Full item reviews from the crawler */
@@ -303,8 +300,7 @@ export interface Market {
 
 /** Pre-shaped review card from home-feed.json */
 export interface HomeFeedReview {
-  /** LittleBiggy review id. Optional because older home-feed blobs pre-date
-      the field — newer crawls always populate it. */
+  /** LittleBiggy review id. Optional: older home-feed blobs omit it. */
   id?: number | null;
   sellerId: string;
   sellerName: string | null;

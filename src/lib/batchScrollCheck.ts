@@ -1,17 +1,12 @@
 /**
- * Batched scroll-overflow check (ported from food-aggregator).
+ * Batched scroll-overflow check.
  *
- * Multiple components (ItemCard pill strips) need to check whether their
- * content overflows horizontally (`scrollWidth > clientWidth`) and set
- * `data-scrollable` / `data-scrolled` / `data-at-end` attributes for CSS.
- *
- * Doing this per-card causes read→write→read forced-reflow thrashing when
- * many cards mount in interleaved commits (progressive render chunks).
- * This module collects all pending elements and processes them in a single
- * rAF:
- *   Phase 1: read scrollWidth/clientWidth/scrollLeft for ALL elements
- *            (one reflow)
- *   Phase 2: write data-* attributes for ALL elements (no reflow)
+ * Components (ItemCard pill strips) need to know whether their content
+ * overflows horizontally and set `data-scrollable` / `data-scrolled` /
+ * `data-at-end` for CSS. Checking per-card thrashes layout with
+ * read→write→read forced reflows when many cards mount in interleaved
+ * commits, so all pending elements are processed in one rAF: read every
+ * element first (one reflow), then write every attribute (no reflow).
  */
 
 const pending: HTMLElement[] = [];

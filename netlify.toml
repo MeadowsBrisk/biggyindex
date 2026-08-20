@@ -10,17 +10,15 @@
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_R2_DATA_URL,NEXT_PUBLIC_R2_IMAGES_URL,NEXT_PUBLIC_SUGGESTIONS_API,R2_DATA_V2_BUCKET,R2_IMAGES_BUCKET"
 
 # ---------------------------------------------------------------------------
-# v1 → v2 redirect map (SEO recovery).
+# v1 → v2 redirect map (SEO recovery). These MUST live here, not only in
+# next.config.ts redirects(): the next-intl proxy runs as an edge function that
+# rewrites /home → /en-GB/home before the origin router sees it, so the config
+# source never matches. CDN-level rules run ahead of that edge function and win.
+# next.config.ts keeps a mirror for portability, but only dot-containing paths
+# (/sitemap-*.xml) fire there, since the proxy matcher skips them.
 #
-# These MUST live here, not (only) in next.config.ts redirects(): on Netlify
-# the next-intl proxy runs as an edge function BEFORE the origin, rewriting
-# /home → /en-GB/home so the config redirect source never matches. CDN-level
-# rules run before the edge function and win. (next.config.ts keeps a mirror
-# of these rules for portability; only dot-containing paths like
-# /sitemap-*.xml actually fire there because the proxy matcher skips them.)
-#
-# Rules are host-relative except the locale-prefix ones, so every market
-# subdomain redirects its own legacy paths. First match wins.
+# Host-relative except the locale-prefix rules, so each market subdomain
+# redirects its own legacy paths. First match wins.
 # ---------------------------------------------------------------------------
 
 [[redirects]]

@@ -1,12 +1,10 @@
 /**
- * Full item page - SEO-crawlable, server-rendered.
- * Reached via direct URL or when JS is disabled.
+ * Full item page — SEO-crawlable, server-rendered; reached via direct URL or
+ * when JS is disabled. Renders the merged detail blob (reviews, price history,
+ * shipping).
  *
- * Uses `item-detail` cache tag so revalidation of browse pages
- * doesn't trigger regeneration of all detail pages (and vice versa).
- *
- * Loads the merged detail blob (reviews, price history, shipping)
- * for a complete item view with a sticky "Browse the Index" top bar.
+ * Tagged `item-detail` so browse revalidation doesn't regenerate every detail
+ * page, and vice versa.
  */
 
 import type { Metadata } from "next";
@@ -116,11 +114,9 @@ function ratingColor(rating: number): string {
   return "text-emerald-500";
 }
 
-// NOTE: this page derives attribute labels from the raw key and does NOT go
-// through next-intl — "Potency"/"Size" have always been hardcoded English, so
-// every label here is English on every locale. That's a pre-existing gap, not
-// something the "effect" line below introduces; wiring the whole function to
-// `attributes.labels.*` is the real fix when someone has the appetite.
+// Labels are derived from the raw key and never pass through next-intl, so
+// every label renders in English on every locale. Wiring this to
+// `attributes.labels.*` is the real fix.
 function attributeLabel(key: string): string {
   if (key === "mg") return "Potency";
   if (key === "mlSize") return "Size";
@@ -201,8 +197,8 @@ function itemReviewsFromDetail(
       ? raw.segments.flatMap((segment) => {
           if (!segment || typeof segment.type !== "string") return [];
           // `text` segments carry `value`; `image` segments carry the photo
-          // URL in `url` (legacy payloads used `value`). Keep both so review
-          // photos render on the item page instead of being dropped.
+          // URL in `url` (older payloads used `value`). Keep both or review
+          // photos get dropped.
           const segValue =
             typeof segment.value === "string" ? segment.value : undefined;
           const segUrl =
@@ -235,13 +231,12 @@ function itemReviewsFromDetail(
 }
 
 /**
- * Best non-empty display name for an item.
+ * Best non-empty display name: market-localized `n`, then English `nEn`.
  *
- * The market-localized `n` is preferred, then the English original `nEn`.
- * Delisted foreign snapshots can carry an EMPTY `n` (and, when never
- * translated, no `nEn`) — an empty name would yield a bare `<h1>` and a
- * " de {seller}" title. In that case fall back to the first line of the
- * description, then the ref, so the name slot is NEVER empty.
+ * Delisted foreign snapshots can carry an EMPTY `n` and, when never translated,
+ * no `nEn` — which would yield a bare `<h1>` and a " de {seller}" title. Fall
+ * back to the first line of the description, then the ref, so the name slot is
+ * NEVER empty.
  */
 function itemDisplayName(item: MergedDetailBlob): string {
   const localized = decodeEntities(item.n ?? "").trim();
@@ -304,12 +299,12 @@ function itemMetadataDescription(
 /**
  * Markets in which each item ref currently exists, keyed by ref.
  *
- * Mirrors the presence map itemsSitemap() builds so page-level hreflang
- * and sitemap hreflang emit identical clusters — a self-only page cluster
- * contradicting a full sitemap cluster makes Google discard both.
+ * Must mirror the presence map itemsSitemap() builds so page-level and sitemap
+ * hreflang emit identical clusters — a self-only page cluster contradicting a
+ * full sitemap cluster makes Google discard both.
  *
- * Cached once for ALL item pages (one read of each market's item list),
- * so metadata generation never fetches presence per item.
+ * Cached once for ALL item pages (one read per market item list), so metadata
+ * generation never fetches presence per item.
  */
 async function itemMarketPresence(): Promise<Record<string, MarketCode[]>> {
   "use cache";
@@ -348,30 +343,27 @@ interface ItemDetailResult {
 }
 
 /**
- * Cached item-detail load, shared by generateMetadata AND the ItemPage body so
- * the R2 fetches happen once per (ref, market) — the cache key MUST include the
- * market: GB/IE share English copy but are distinct markets/hosts with
- * distinct data.
+ * Cached item-detail load shared by generateMetadata AND the ItemPage body, so
+ * the R2 fetches happen once per (ref, market). The cache key MUST include the
+ * market: GB/IE share English copy but are distinct markets/hosts with distinct
+ * data.
  *
- * Archived-ness is decided by the archive MANIFEST first, not by which blob
- * happens to exist. The crawler never deletes the live `item-detail` blob on
- * delist, so an orphan live blob outlives the listing; trusting it would render
- * a delisted item as a fully-live page (InStock, live CTA, no banner). So:
- * if the ref is in the market's archive manifest AND is NOT in the current live
- * items list (the manifest self-heals on relist, but the live-list check guards
- * the lag window), we serve the manifest-gated ARCHIVE snapshot and force
- * live=null even when an orphan live blob exists. Only refs the manifest doesn't
- * claim take the normal path: live blob first, archive snapshot as fallback.
+ * Archived-ness is decided by the archive MANIFEST, not by which blob happens
+ * to exist. The crawler never deletes the live `item-detail` blob on delist, so
+ * an orphan live blob outlives the listing and trusting it would render a
+ * delisted item as a fully-live page (InStock, live CTA, no banner). A ref the
+ * manifest claims AND that is absent from the live items list (the manifest
+ * self-heals on relist; the live-list check guards that lag window) serves the
+ * archive snapshot with live=null. Refs the manifest doesn't claim take the
+ * normal path: live blob first, archive snapshot as fallback.
  *
- * The manifest is read once here and handed to loadArchivedDetail so it isn't
- * gated on a second identical fetch. loadItems(mkt) is only touched for refs the
- * manifest actually contains, so the common live path stays a single blob read.
+ * The manifest is read once and handed to loadArchivedDetail so it isn't gated
+ * on a second identical fetch; loadItems(mkt) is only touched for refs the
+ * manifest contains, so the common live path stays a single blob read.
  *
- * This wrapper exists so generateMetadata performs ZERO uncached IO — a
- * single raw fetch there marks the whole response dynamic under
- * cacheComponents, and Next emits `private,no-store` (every visitor and
- * crawler hits origin). With all metadata IO cached the page gets the same
- * durable CDN TTL as /browse.
+ * This wrapper exists so generateMetadata performs ZERO uncached IO — a single
+ * raw fetch there marks the whole response dynamic under cacheComponents and
+ * Next emits `private,no-store`, sending every visitor and crawler to origin.
  *
  * INVARIANT: unknown refs return {null, null} — the nulls travel OUT of the
  * cache scope and the CALLER throws notFound(). Never throw it in here.
@@ -387,9 +379,9 @@ async function loadItemDetail(
 
   const manifest = await loadArchiveManifest(mkt);
   if (manifest[ref]) {
-    // Manifest claims this ref as delisted. Confirm it isn't currently live
-    // (relist self-heal can lag the manifest sweep) before trusting the
-    // archive snapshot over any orphan live blob.
+    // Confirm the ref isn't currently live (relist self-heal can lag the
+    // manifest sweep) before trusting the archive snapshot over an orphan
+    // live blob.
     const liveItems = await loadItems(mkt);
     const stillLive = liveItems.some(
       (candidate) => String(candidate.refNum ?? candidate.id) === ref,
@@ -428,10 +420,9 @@ export async function generateMetadata({
 
   // Narrow noindex class: a delisted item on a NON-English market that was
   // never translated (no `nEn` — the crawler only stamps it when a real
-  // translation differs from the English original). Its English twin on
-  // biggyindex.com is the page that should rank, so keep this one out of the
-  // index. GB/IE archived items and translated foreign archived items stay
-  // fully indexable.
+  // translation differs from the English original). Its English twin on the
+  // apex host (biggyindex.com) is the page that should rank. GB/IE archived
+  // items and translated foreign archived items stay fully indexable.
   const neverTranslatedForeignArchive =
     archived != null && !ENGLISH_MARKETS.includes(market) && !item.nEn;
   const image = getItemGalleryImages(item, "full", { forceStatic: true })[0];
@@ -440,10 +431,9 @@ export async function generateMetadata({
   // delisted in this market — the cluster must still self-reference the
   // canonical's own market or Google treats it as invalid.
   //
-  // ARCHIVED pages are always self-only: the ref may still be LIVE in other
-  // markets (their pages/sitemaps emit clusters that exclude this market),
-  // so advertising a cross-market cluster here would be non-reciprocal.
-  // This also matches archiveSitemap's deliberate self-only entries.
+  // ARCHIVED pages are always self-only (matching archiveSitemap): the ref may
+  // still be LIVE in other markets, whose clusters exclude this market, so a
+  // cross-market cluster here would be non-reciprocal.
   const presenceMarkets = presence[ref] ?? [];
   const alternateMarkets = archived
     ? [market]
@@ -490,10 +480,9 @@ const PRERENDER_ITEM_COUNT = 24;
 
 /**
  * A NON-EMPTY generateStaticParams is what flips this route from PPR-dynamic
- * (private,no-store + x-nextjs-postponed on every hit) to durably-cached ISR —
- * the exact change that flipped /category/[slug] in round 2. An ABSENT (or
- * empty) one does NOT work here, despite food-aggregator's item route caching
- * without one, because of a structural difference:
+ * (private,no-store + x-nextjs-postponed on every hit) to durably-cached ISR.
+ * An absent or empty one does NOT work here, because of a structural
+ * constraint:
  *
  * This route sits under the `[locale]` ROOT param (app/[locale] is directly
  * under the root app/layout.tsx). Next's buildAppStaticPaths
@@ -502,26 +491,26 @@ const PRERENDER_ITEM_COUNT = 24;
  * by assignStaticShellMetadata UNLESS that shell's trie node has a concrete
  * child param. With no child ref, the whole-page 'use cache' body (which awaits
  * params.ref) yields an EMPTY shell for every locale → the route is treated as
- * fully dynamic and Netlify never durably caches it (observed in rounds 1-2).
- * Supplying >=1 concrete ref per locale gives each shell a child →
- * throwOnEmptyStaticShell=false → the route registers as static-with-fallback:
- * enumerated refs prerender; NON-enumerated refs render on demand then durably
- * cache (fallback ISR, old fallback:'blocking'); unknown refs still hit
- * notFound() during that render → real 404.
+ * fully dynamic and never durably cached. Supplying >=1 concrete ref per locale
+ * gives each shell a child → throwOnEmptyStaticShell=false → the route
+ * registers as static-with-fallback: enumerated refs prerender; NON-enumerated
+ * refs render on demand then durably cache (fallback ISR, the legacy
+ * fallback:'blocking'); unknown refs still hit notFound() during that render →
+ * real 404.
  *
- * food-aggregator's item route has NO `[locale]` root param (single domain,
- * top-level `[slug]`): its base route gets a PRERENDER fallback with zero root
- * params and caches WITHOUT generateStaticParams — a pattern that does NOT
- * transfer to a route nested under a root param.
+ * A route with NO `[locale]` root param (single domain, top-level `[slug]`)
+ * gets a PRERENDER fallback with zero root params and caches WITHOUT
+ * generateStaticParams — a pattern that does NOT transfer to a route nested
+ * under a root param.
  *
  * Returns ONLY { ref }; the parent [locale] segment supplies { locale } and
  * Next merges them (mirrors category/[slug] returning only { slug }).
  *
- * Runs at BUILD on Netlify. loadItems reads PUBLIC R2 over plain fetch
- * (lib/r2 readR2JSON — no credentials, no headers()/cookies()), safe outside
- * request context. ANY failure → a single sentinel ref that renders the
- * not-found path: the array is NEVER empty (EmptyGenerateStaticParamsError)
- * and the build NEVER fails on a transient R2 blip.
+ * Runs at BUILD. loadItems reads PUBLIC R2 over plain fetch (lib/r2 readR2JSON
+ * — no credentials, no headers()/cookies()), safe outside request context. ANY
+ * failure → a single sentinel ref that renders the not-found path: the array is
+ * NEVER empty (EmptyGenerateStaticParamsError) and the build never fails on a
+ * transient R2 blip.
  */
 export async function generateStaticParams(): Promise<Array<{ ref: string }>> {
   try {
@@ -546,9 +535,9 @@ export async function generateStaticParams(): Promise<Array<{ ref: string }>> {
 export default async function ItemPage({ params }: ItemPageProps) {
   "use cache";
   cacheLife("item-detail");
-  // Both tags: the page body is item-detail data, but the related/more-from
-  // sections derive from the items dataset — an "items" revalidation must
-  // refresh them too or they'd link delisted items for up to 48h.
+  // Both tags: the body is item-detail data, but the related/more-from sections
+  // derive from the items dataset — an "items" revalidation must refresh them
+  // too or they link delisted items for up to 48h.
   cacheTag("item-detail");
   cacheTag("items");
 
@@ -569,10 +558,9 @@ export default async function ItemPage({ params }: ItemPageProps) {
   const fmtMoney = (usd: number) =>
     `${currency.symbol}${(usd * currency.rate).toFixed(2)}`;
 
-  // Live blob first; delisted items render as full archived pages from the
-  // manifest-gated snapshot. Archive fetch failures return null and fall
-  // through to notFound() with the truly-unknown refs. Same cached loader
-  // as generateMetadata — the data is fetched once per (ref, market).
+  // Same cached loader as generateMetadata, so data is fetched once per
+  // (ref, market). Archive fetch failures return null and fall through to
+  // notFound() with the truly-unknown refs.
   const { live, archived } = await loadItemDetail(ref, mkt);
   const item = live ?? archived;
 
@@ -639,9 +627,9 @@ export default async function ItemPage({ params }: ItemPageProps) {
         };
       }) ?? [];
 
-  // Best value uses the modal's per-unit grouping: only compare rows with
-  // the same unit (a cross-unit min once crowned a $60/cart row over a
-  // $130/g one) and only within groups of >=2 rows; cheapest ppu wins.
+  // Best value uses the modal's per-unit grouping: only compare rows sharing a
+  // unit — a cross-unit minimum crowns a cheap per-cart row over a per-gram one
+  // — and only within groups of >=2 rows; cheapest ppu wins.
   const bestPpuKey = (() => {
     if (variantRows.length <= 1) return null;
     const byUnit = new Map<string, { key: string; ppu: number }[]>();
@@ -676,9 +664,9 @@ export default async function ItemPage({ params }: ItemPageProps) {
     ? detailT("variants.unit")
     : ([...ppuUnits][0] ?? detailT("variants.unit"));
 
-  // Strain type renders as a tinted chip beside the category pills (same on
-  // the modal); the redundant one-word "Strain type" attributes row is
-  // dropped whenever the chip rendered, kept only for unrecognised values.
+  // Strain type renders as a tinted chip beside the category pills (same as the
+  // modal); the redundant "Strain type" attributes row is dropped whenever the
+  // chip rendered, kept only for unrecognised values.
   const strainGroup = firstEffectValue(item.at?.effect);
   const strainChipShown = isStrainGroup(strainGroup);
   const visibleAttrs = strainChipShown
@@ -757,17 +745,16 @@ export default async function ItemPage({ params }: ItemPageProps) {
 
   return (
     <>
-      {/* og:type "product" — Next's metadata resolver rejects it
-          (pageMetadata suppresses the default og:type for item pages), so
-          it's rendered directly; React 19 hoists it into <head>. Lives inside
-          the cached page body so nothing dynamic sits outside the cache
-          scope (a dynamic shell would make Next postpone the whole route). */}
+      {/* og:type "product" — Next's metadata resolver rejects it (pageMetadata
+          suppresses the default og:type for item pages), so it's rendered
+          directly and React 19 hoists it into <head>. Must stay inside the
+          cached body: anything dynamic outside the cache scope makes Next
+          postpone the whole route. */}
       <meta property="og:type" content="product" />
-      {/* NO manual <link rel="preload"> for the LCP gallery image: React's
-          Fizz renderer AUTO-emits an image preload for any SSR'd <img> that
-          is loading="eager" + fetchPriority="high" (ItemDetailGallery's
-          static first image qualifies), so a manual link just duplicates it
-          in <head> — and unlike a manual href it can never drift from the
+      {/* No manual <link rel="preload"> for the LCP gallery image: React's Fizz
+          renderer auto-emits one for any SSR'd <img> with loading="eager" +
+          fetchPriority="high" (ItemDetailGallery's static first image
+          qualifies). A manual link only duplicates it and can drift from the
           src the gallery actually renders. */}
       <script
         type="application/ld+json"
@@ -832,9 +819,9 @@ export default async function ItemPage({ params }: ItemPageProps) {
                       {subcategory}
                     </span>
                   ))}
-                  {/* Strain type in the first line the eye scans — no
-                      category gate on detail surfaces (data presence is
-                      the signal). Same placement as the modal. */}
+                  {/* Strain type sits in the first line the eye scans, with no
+                      category gate on detail surfaces (data presence is the
+                      signal). Same placement as the modal. */}
                   <StrainTypeChip group={strainGroup} />
                 </div>
 

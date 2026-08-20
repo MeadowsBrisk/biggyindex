@@ -2,15 +2,13 @@ import { maskToWidths, widthsToMask } from "@/lib/imageVariants";
 import type { Item } from "@/lib/types";
 
 /**
- * FNV-1a hash for stable URL-to-filename mapping.
+ * URL normalization for the FNV-1a image hash — a two-sided contract with the
+ * crawler's image optimizer, which derives R2 keys the same way. Both MUST
+ * produce identical output for the same input, so any change has to ship to
+ * both at once.
  *
- * Used by:
- * - Crawler image optimizer (R2 keys during crawl)
- * - Frontend (CDN URL construction)
- *
- * Both MUST produce identical output for the same input. URLs are normalized
- * first so the same image served from rotating LittleBiggy subdomains
- * (i2/i3/i4.littlebiggy.org or .net) hashes to the same key. Otherwise a
+ * Normalizing collapses the rotating LittleBiggy subdomains
+ * (i2/i3/i4.littlebiggy.org or .net) and strips query/fragment; without it a
  * subdomain rotation orphans every optimized image.
  */
 export function normalizeImageUrl(url: string): string {
@@ -73,23 +71,18 @@ export function getImageUrl(
  * Convert an optimised AVIF CDN URL into its WebP sibling for social-share
  * metadata (og:image / twitter:image).
  *
- * Rationale: on-page <img>/gallery use AVIF (best compression, universal
- * browser support), but social scrapers — Facebook, WhatsApp, Twitter/X,
- * Slack, iMessage — CANNOT decode AVIF, so an AVIF og:image renders as a
- * missing/blank preview. WebP is decodable by all of them.
+ * On-page images use AVIF, but social scrapers (Facebook, WhatsApp, X, Slack,
+ * iMessage) cannot decode it — an AVIF og:image renders as a blank preview.
  *
  * Only rewrites optimised CDN AVIF URLs (…/full.avif, …/thumb.avif,
- * …/icon.avif). Already-WebP URLs (…/anim.webp), raw source URLs and any
- * non-CDN URL pass through untouched.
+ * …/icon.avif). Already-WebP URLs, raw source URLs and any non-CDN URL pass
+ * through untouched.
  *
- * IMPORTANT: the crawler image pipeline must emit the matching WebP variant
- * for the returned URL to resolve. As of this writing the optimizer
- * (dashboard/scripts/unified-crawler/stages/images/optimizer.ts) emits WebP
- * ONLY for animated GIFs (anim.webp / icon.webp) — the static product tiers
- * (full/thumb/icon) are AVIF-only. Until the crawler backfills full.webp,
- * this helper produces a URL that 404s on the CDN. It is intentionally
- * forward-compatible: the moment the crawler emits full.webp, item shares
- * start working with no further frontend change.
+ * IMPORTANT: the returned URL only resolves if the crawler's image pipeline
+ * emits the matching WebP variant for that tier. Where it emits AVIF only,
+ * the URL 404s on the CDN. WebP siblings exist only for animated hashes
+ * (anim.webp / icon.webp); the static full/thumb/icon tiers are AVIF-only
+ * unless the crawler backfills them, so their rewritten URLs 404 until it does.
  */
 export function getOgImageUrl(url: string | undefined): string | undefined {
   if (!url) return url;
@@ -216,11 +209,11 @@ export function getItemGalleryImages(
 // ─── Responsive card srcset ────────────────────────────────────────
 //
 // The crawler emits fixed-width AVIF renders (`{hash}/w320.avif`, w640, w1024)
-// beside the legacy 600px `thumb.avif`, and records the widths that exist per
-// hash in the shared image-meta aggregate. These helpers turn that width data
-// into an honest `srcSet` for grid cards. The fallback `src` stays `thumb.avif`
-// so legacy / no-variant / animated hashes are unaffected — we NEVER emit a
-// descriptor for a width that isn't recorded, so no `srcset` candidate can 404.
+// beside the 600px `thumb.avif` and records which widths exist per hash in the
+// shared image-meta aggregate. These helpers turn that into a card `srcSet`.
+// NEVER emit a descriptor for a width that isn't recorded — an unrecorded
+// candidate 404s. The fallback `src` stays `thumb.avif`, so legacy /
+// no-variant / animated hashes are unaffected.
 
 /** Resolved primary image hash for an item (stamped `ih`, else hashed `i`). */
 export function getItemPrimaryHash(
@@ -264,11 +257,11 @@ function itemImageSlots(
 }
 
 /**
- * Build the compact `vw` field for an item: a bitmask per image slot
- * (index-parallel to [primary, ...gallery]) over CARD_VARIANT_WIDTHS. Animated
- * and unknown slots are 0. Returns `undefined` when no slot has variants, so
- * the field can be omitted from the payload entirely. Trailing zero slots are
- * trimmed to save bytes — the client tolerates a short array. (Server-side.)
+ * Build the compact `vw` field for an item (server-side): a bitmask per image
+ * slot (index-parallel to [primary, ...gallery]) over CARD_VARIANT_WIDTHS.
+ * Animated and unknown slots are 0. Returns `undefined` when no slot has
+ * variants, so the field can be omitted from the payload. Trailing zero slots
+ * are trimmed to save bytes — the client tolerates a short array.
  */
 export function itemVariantMasks(
   item: Pick<Item, "i" | "ih" | "ia" | "is" | "ish" | "isa">,
@@ -395,26 +388,19 @@ export function isAnimated(url: string | null | undefined): boolean {
 /**
  * Get optimised CDN URL for a buyer review photo.
  *
- * Review photos are mirrored by the crawler's `review-images` stage under the
- * SAME FNV-1a URL-hash contract as item images and seller avatars: hash the
- * STORED segment URL verbatim (normalisation collapses rotating LB subdomains
- * and strips query/fragment — see `normalizeImageUrl`, which is a two-sided
- * contract with the crawler's `shared/hash.ts`; any change must ship to both
- * atomically or every mirrored photo is orphaned). No new data is plumbed —
- * the CDN URL is derived from the raw URL already present in every review
- * payload.
+ * Mirrored by the crawler under the same FNV-1a URL-hash contract as item
+ * images and seller avatars: hash the STORED segment URL verbatim (see
+ * `normalizeImageUrl`). The CDN URL is derived from the raw URL already
+ * present in every review payload — no extra data is plumbed.
  *
- * A photo can legitimately be missing from the CDN (brand-new photo the daily
- * mirror pass hasn't seen, failed optimisation, GC'd archive photo), so
- * render through `ReviewPhotoImg`, which falls back to the raw LB URL on
- * error — photos are user content with no placeholder equivalent, the
- * deliberate opposite of the avatar fall-back-to-initials decision.
+ * A photo can legitimately be missing from the CDN (not yet mirrored, failed
+ * optimisation, garbage-collected), so render through `ReviewPhotoImg`, which
+ * falls back to the raw upstream URL on error — user photos have no
+ * placeholder equivalent, unlike avatars falling back to initials.
  *
- * Review photos have exactly ONE mirrored variant — `{hash}/thumb.avif`.
- * LB size-limits review uploads (~400w) and the 600px thumb tier never
- * upscales, so the mirror IS full quality; separate tiers would store
- * byte-duplicate pixels (owner call, 2026-07-31 — crawler's singleVariant
- * mode). Tiles AND zoom views use the same object.
+ * Exactly ONE mirrored variant exists, `{hash}/thumb.avif`, used by both tiles
+ * and zoom: uploads are size-limited (~400w) and the 600px thumb tier never
+ * upscales, so extra tiers would store byte-duplicate pixels.
  *
  * @param rawUrl - Raw stored photo URL (review segment `url`/`value`)
  */
@@ -448,15 +434,14 @@ export function getSellerImageUrl(
 /**
  * Downgrade an ALREADY-optimised CDN image URL to its 96px `icon` tier.
  *
- * Some payloads (notably the home feed's review rows) carry pre-built CDN
- * URLs at the 600px `thumb.avif` / animated `anim.webp` tier. When such an
- * image is rendered in a 24px slot that's ~15x more pixels than needed, so
- * this maps it to the `icon` sibling the crawler emits for every hash.
- * Inverse of the upgrade `SellerAvatarTooltip` applies for its hover preview.
+ * Some payloads (notably the home feed's review rows) carry pre-built CDN URLs
+ * at the 600px `thumb.avif` / animated `anim.webp` tier. Rendering one in a
+ * 24px slot ships ~15x more pixels than needed, so this maps it to the `icon`
+ * sibling the crawler emits for every hash. Inverse of the upgrade
+ * `SellerAvatarTooltip` applies for its hover preview.
  *
- * Non-CDN URLs (raw marketplace originals) and unrecognised tiers pass
- * through untouched — hash them with `getItemImageUrl`/`getSellerImageUrl`
- * instead.
+ * Non-CDN URLs (raw marketplace originals) and unrecognised tiers pass through
+ * untouched — hash those with `getItemImageUrl`/`getSellerImageUrl` instead.
  */
 export function toIconVariantUrl(
   url: string | null | undefined,

@@ -128,11 +128,10 @@ export default async function ReviewsPage({
     }
   }
 
-  // Aggregate stats for the SSR intro paragraph — real prose content signals
-  // for review-intent queries (/reviews sat at pos ~34 with 1k+ imps and a
-  // near-text-free above-the-fold; 2026-07 GSC pass). Computed here inside the
-  // cached page body so generateMetadata stays IO-free (uncached IO there
-  // would flip the route to PPR-dynamic no-store).
+  // Aggregate stats for the SSR intro paragraph — prose content for
+  // review-intent queries, which an otherwise text-free above-the-fold cannot
+  // rank for. Computed inside the cached page body so generateMetadata stays
+  // IO-free: uncached IO there flips the route to PPR-dynamic no-store.
   const rated = allReviews.filter((r) => r.rating > 0);
   const avgRating =
     rated.length > 0

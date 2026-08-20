@@ -113,8 +113,8 @@ export function timeAgo(
   now: number,
 ): string {
   const diff = Math.max(0, now - new Date(dateStr).getTime());
-  // Minute granularity under the hour: a seller's whole freshly-indexed
-  // inventory used to read "Just now" for a full hour, which isn't honest.
+  // Minute granularity under the hour: without it a seller's whole
+  // freshly-indexed inventory reads "Just now" for a full hour.
   const minutes = Math.floor(diff / 60_000);
   if (minutes < 5) return copy.justNow;
   if (minutes < 60) return copy.minutesAgo(minutes);
@@ -145,7 +145,7 @@ function StarRating({ avg }: { avg: number }) {
   );
 }
 
-/* -- Expand arrow (matches /browse ItemCard) -- */
+/* -- Expand arrow (mirrors the /browse ItemCard glyph) -- */
 function ExpandArrow() {
   return (
     <svg
@@ -163,7 +163,7 @@ function ExpandArrow() {
   );
 }
 
-/** Home page item card -- simplified version of /browse ItemCard. Opens overlay via expandedRefNumAtom. */
+/** Home item card — simplified /browse ItemCard; opens the detail overlay. */
 function HomeItemCard({
   item,
   currencySymbol,
@@ -181,7 +181,7 @@ function HomeItemCard({
   const setSellerModalId = useSetAtom(sellerModalIdAtom);
   const [zoomSignal, setZoomSignal] = useState<number | null>(null);
 
-  // Get the second image (not the primary) for hover crossfade
+  // Second image (not the primary) drives the hover crossfade.
   const secondImage =
     item.images && item.images.length > 1 ? item.images[1] : null;
   const hasReviews =
@@ -206,7 +206,7 @@ function HomeItemCard({
     if (item.sellerId != null) setSellerModalId(String(item.sellerId));
   };
   const handleSellerClick = (event: MouseEvent<HTMLSpanElement>) => {
-    // preventDefault stops the enclosing item anchor from navigating
+    // preventDefault stops the enclosing item anchor from navigating.
     event.preventDefault();
     event.stopPropagation();
     openSellerModal();
@@ -222,7 +222,7 @@ function HomeItemCard({
   return (
     <div className="item-card group">
       <div className="item-card-inner">
-        {/* Image area - clickable for zoom */}
+        {/* Image area — clickable for zoom */}
         <button
           type="button"
           onClick={() => setZoomSignal(Date.now())}
@@ -263,7 +263,8 @@ function HomeItemCard({
           )}
         </button>
 
-        {/* Clickable body -- real link for crawlers; left-click opens overlay */}
+        {/* Clickable body — real link so crawlers see a URL; left-click opens
+            the overlay instead. */}
         <a
           href={itemHref}
           onClick={(e) => {
@@ -283,10 +284,9 @@ function HomeItemCard({
               </span>
             </div>
 
-            {/* Seller row — avatar + name, both open SellerModal.
-                NOTE: uses spans with role=button (not <button>/<a>) because the
-                enclosing card-content is an <a>, and nested interactive
-                elements are invalid HTML. */}
+            {/* Seller row — avatar + name, both open SellerModal. These must
+                stay spans with role=button: the enclosing card-content is an
+                <a>, and nested interactive elements are invalid HTML. */}
             <div className="seller-card mt-1.5">
               <SellerAvatarTooltip
                 sellerName={sellerName}
@@ -410,8 +410,8 @@ export function WhatsNewSection({
   const [activeTab, setActiveTab] = useState<Tab>("newest");
   const { symbol, rate } = useAtomValue(currencyDisplayAtom);
 
-  // Two-pass render: first render must match SSR output (exchangeRates starts
-  // empty → rate=1) so hydration succeeds. After mount, switch to real rate.
+  // Two-pass render: the first render must match SSR output (exchangeRates
+  // starts empty → rate 1) or hydration mismatches. Real rate after mount.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const currencySymbol = mounted ? symbol : "\u00A3";
@@ -456,9 +456,9 @@ export function WhatsNewSection({
   );
 
   // The strip ships as a CSS scroll-snap list (server-rendered, no JS) and
-  // upgrades to Swiper once the section is near the viewport. Scroll-snap has
-  // touch drag but no MOUSE drag, which is the interaction the owner wants
-  // back; Swiper is loaded lazily so it stays out of the critical bundle.
+  // upgrades to Swiper once the section nears the viewport: scroll-snap gives
+  // touch drag but no MOUSE drag. Swiper is loaded lazily so it stays out of
+  // the critical bundle.
   const stripRef = useRef<HTMLDivElement | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const swiperRef = useRef<SwiperInstance | null>(null);
@@ -508,8 +508,8 @@ export function WhatsNewSection({
     swiperRef.current = swiper;
   }, []);
 
-  // Arrow buttons page the Swiper once it's live, else nudge the snap strip
-  // by one card width. No looping (the original Swiper setup had none).
+  // Arrow buttons page the Swiper once it is live, otherwise nudge the snap
+  // strip by one card width. No looping in either mode.
   const scrollByCard = useCallback((direction: 1 | -1) => {
     const swiper = swiperRef.current;
     if (swiper && !swiper.destroyed) {
@@ -530,7 +530,7 @@ export function WhatsNewSection({
 
   return (
     <section className="py-20 bg-background">
-      {/* Header area - contained */}
+      {/* Header area — contained */}
       <div className="max-w-7xl mx-auto px-4">
         <div
           ref={header.ref}
@@ -568,7 +568,7 @@ export function WhatsNewSection({
               ))}
             </div>
 
-            {/* Scroll arrows - desktop only */}
+            {/* Scroll arrows — desktop only */}
             <div className="hidden md:flex items-center gap-2">
               <button
                 type="button"
@@ -599,10 +599,10 @@ export function WhatsNewSection({
           data-revealed={carousel.revealed}
           className="reveal-fade"
         >
-          {/* Re-keyed on tab change so the enter animation replays (and the
-              scroll position / Swiper instance resets) — CSS stand-in for
-              AnimatePresence mode="wait". Card widths per breakpoint match
-              the Swiper slidesPerView/spaceBetween ladder (whats-new.css). */}
+          {/* Re-keyed on tab change so the enter animation replays and the
+              scroll position / Swiper instance reset. Card widths per
+              breakpoint must stay in step with the Swiper
+              slidesPerView/spaceBetween ladder in whats-new.css. */}
           <div key={activeTab} className="tab-switch-fade">
             {Carousel ? (
               <Carousel slides={slides} onSwiper={handleSwiper} />

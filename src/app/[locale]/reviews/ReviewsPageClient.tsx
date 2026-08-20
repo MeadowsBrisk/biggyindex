@@ -40,8 +40,8 @@ interface Props {
   intro?: string | null;
 }
 
-/* ReviewsPageClient no longer accepts `now` as a prop —
-   it's computed client-side to avoid breaking "use cache" */
+/* `now` is computed on the client, never passed in as a prop: a server-side
+   timestamp would make the "use cache" parent render time-dependent. */
 
 type FilterMode = "all" | "with-images" | "with-text";
 
@@ -99,9 +99,9 @@ interface TimeAgoParts {
 function timeAgoParts(dateStr: string, now: number): TimeAgoParts {
   const diff = now - new Date(dateStr).getTime();
   const hours = Math.floor(diff / 3_600_000);
-  // Same honesty rule as the home sections (2026-07-30): "Just now" used to
-  // cover a full hour, so a seller uploading inventory showed a wall of
-  // "Just now" cards long after the fact. Reserve it for < 5 minutes.
+  // Same honesty rule as the home sections: reserve "Just now" for < 5 minutes.
+  // Letting it cover a full hour turns a bulk upload into a wall of "Just now"
+  // cards long after the fact.
   if (hours < 1) {
     const minutes = Math.floor(diff / 60_000);
     if (minutes < 5) return { key: "justNow" };
@@ -164,10 +164,10 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
     setZoomSignal((s) => (s ?? 0) + 1);
   }, []);
 
-  // Raw photo URLs whose optimised CDN thumb has actually loaded — proof the
-  // hash is mirrored, so zoom can use the same mirrored object (single
-  // thumb.avif variant — full quality, LB caps review uploads at ~400w). Unproven photos keep the raw LB URL in zoom (the zoom slides
-  // have no fallback of their own).
+  // Raw photo URLs whose optimised CDN thumb has loaded — proof the hash is
+  // mirrored, so zoom can reuse that object (one full-quality thumb.avif;
+  // review uploads are capped at ~400w upstream). Unproven photos keep the raw
+  // upstream URL, since zoom slides have no fallback of their own.
   const [cdnLoaded, setCdnLoaded] = useState<Set<string>>(() => new Set());
   const markCdnLoaded = useCallback((rawUrl: string) => {
     setCdnLoaded((prev) =>

@@ -78,9 +78,9 @@ import {
 /* ── Helpers ── */
 
 /* Human-friendly labels + value formatters for item attributes (`at` field).
-   `cbd` and `imported` were dropped — too many false positives, and "imported"
-   is implicit for non-domestic items (already conveyed by the ships-from
-   flag). The crawler's pipeline.ts also drops these at index time. */
+   `cbd` and `imported` are deliberately absent: too many false positives, and
+   "imported" is implicit for non-domestic items (the ships-from flag already
+   says it). The crawler's pipeline.ts drops both at index time. */
 const ATTR_LABEL_KEYS = new Set<string>([
   "effect",
   "grow",
@@ -436,9 +436,8 @@ export function ItemDetailOverlay() {
     // For weight-based categories a bare-number variant label ("7", "14 mixed") implies grams.
     const weightCats = new Set(["Flower", "Shake", "Hash", "Concentrates"]);
     const isWeightCat = weightCats.has(displayItem.c ?? "");
-    // Number must end at a word boundary (whitespace or end of label) — no
-    // backtracking into "10x50mg" (which once invented a 1g parse from the
-    // leading "1" of "10x…").
+    // Number must end at a word boundary (whitespace or end of label) so
+    // "10x50mg" can't yield a 1 g parse from its leading "1".
     const BARE_NUM_RE = /^(\d+(?:\.\d+)?)(?=\s|$)/;
     return displayItem.v
       .filter((v) => v.usd > 0)
@@ -447,9 +446,9 @@ export function ItemDetailOverlay() {
         let grams = parsed?.grams ?? null;
         let effectiveParsed: { unit: string; qty: number } | null = parsed;
         // Weight-category fallback: bare-number labels ("7", "14 mixed") are
-        // grams. Gated on parsed == null — a successful ml/mg/count parse is
-        // NEVER overridden with a fabricated per-gram figure (an RSO "100 ml"
-        // ladder used to render under a "/g" header because grams was null).
+        // grams. Gated on parsed == null — never override a successful
+        // ml/mg/count parse with a fabricated per-gram figure, or e.g. a
+        // "100 ml" ladder ends up rendering under a "/g" header.
         if (parsed == null && isWeightCat) {
           // Same lexical prep as the parser's first step (emoji strip + trim).
           const label = (v.dEn || v.d || "")
@@ -609,22 +608,19 @@ export function ItemDetailOverlay() {
                             {sc}
                           </span>
                         ))}
-                        {/* Strain type in the first line the eye scans —
-                            no category gate here (unlike the browse card):
-                            on a detail view the data's presence is the
-                            signal. Replaces the "Strain type" row that used
-                            to hide at the bottom of the attributes card. */}
+                        {/* Strain type in the first line the eye scans. No
+                            category gate here (unlike the browse card): on a
+                            detail view the data's presence is the signal. */}
                         <StrainTypeChip
                           group={displayItem.at?.effect}
                         />
                       </div>
 
-                      {/* Name + global Show-in-English toggle. The
-                          toggle lives next to the name (top of the panel)
-                          rather than in the description heading because
-                          it now affects the WHOLE site (item card names,
-                          card descriptions, variant labels, etc.) — not
-                          just this overlay's description. */}
+                      {/* Name + global Show-in-English toggle. The toggle sits
+                          beside the name rather than in the description
+                          heading because it affects the WHOLE site (card
+                          names, descriptions, variant labels), not just this
+                          overlay's description. */}
                       <div className="flex items-start justify-between gap-3">
                         <h2 className="text-xl font-bold text-foreground flex-1 min-w-0">
                           {name}
@@ -800,10 +796,10 @@ export function ItemDetailOverlay() {
                                     {variantRows.map((row) => {
                                       const isBest = bestValueKey === row.key;
                                       // The table shows the item's ACTUAL
-                                      // variant prices. Folding the selected
-                                      // shipping cost in here (as before) made
-                                      // the real item price unknowable for
-                                      // sellers with no free option — the
+                                      // variant prices. Never fold the
+                                      // selected shipping cost in here — for
+                                      // sellers with no free option it makes
+                                      // the real item price unknowable. The
                                       // shipping-included simulation lives in
                                       // the headline price (with its truck
                                       // icon) and the shipping chips below.
@@ -1054,14 +1050,12 @@ export function ItemDetailOverlay() {
                               </div>
                             )}
                           </div>
-                          {/* Last-update reason from the crawler
-                              (e.g. "Images changed, -3 variants"). Stamped on
-                              the item's index entry as `lur` whenever the diff
-                              detector catches a meaningful change. Rendered as
-                              a full-width note inside the card, divided from
-                              the stat cells, so it always shows in full (vital
-                              info) and wraps freely without distorting the
-                              flexible stat cells above. */}
+                          {/* Crawler's last-update reason (`lur`, e.g. "Images
+                              changed, -3 variants"), stamped on the item's
+                              index entry when the diff detector catches a
+                              meaningful change. Full-width note rather than a
+                              stat cell so it wraps freely and always shows in
+                              full. */}
                           {displayItem.lua && displayItem.lur && (
                             <p className="ido-meta-reason">
                               <RefreshCw
@@ -1085,10 +1079,6 @@ export function ItemDetailOverlay() {
                             <h3 className="ido-card__title">
                               {t("description.heading")}
                             </h3>
-                            {/* ShowOriginalToggle moved to top of overlay
-                                (next to item name) — it's a global toggle
-                                now, not just for description, so the new
-                                placement is more discoverable. */}
                           </div>
                           <div className="ido-card__body">
                             {(() => {
@@ -1129,11 +1119,10 @@ export function ItemDetailOverlay() {
                               displayItem.at,
                             )) {
                               if (key === "tier") continue;
-                              // Strain type already rendered as the tinted
-                              // chip beside the category pills — a duplicate
-                              // one-word row here is exactly the redundancy
-                              // the chip replaced. Kept only as a defensive
-                              // fallback for unrecognised effect values.
+                              // Strain type already renders as the tinted chip
+                              // beside the category pills, so skip the
+                              // duplicate one-word row. Unrecognised effect
+                              // values still fall through to a normal row.
                               if (
                                 key === "effect" &&
                                 isStrainGroup(
@@ -1341,9 +1330,9 @@ export function ItemDetailOverlay() {
                 </div>
 
                 {/* ── Mobile bottom action bar (<48rem) ──
-                  Fixed to the viewport: Suggest icon + Prev / Next + LB CTA.
-                  Mirrors the old-biggyindex pattern so users always have
-                  navigation and the outbound CTA in reach. Hidden at md+. */}
+                  Fixed to the viewport: Suggest icon + Prev / Next + LB CTA,
+                  so navigation and the outbound CTA are always in reach.
+                  Hidden at md+. */}
                 <div className="ido-mobile-actions">
                   <SuggestLink
                     refNum={displayItem.refNum ?? displayItem.id}

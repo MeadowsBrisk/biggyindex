@@ -3,20 +3,15 @@
 /**
  * Swiper shell for the home "What's New" strip.
  *
- * Loaded LAZILY by WhatsNewSection (dynamic import on first intersection), so
- * Swiper + its CSS stay out of the home page's critical bundle — the reason
- * the perf pass replaced it with a CSS scroll-snap strip in the first place.
- * That strip is still what the server renders and what stands in until this
- * chunk lands; it uses the same slidesPerView/spaceBetween ladder (see
- * styles/elements/whats-new.css), so the swap is layout-identical.
+ * Loaded LAZILY by WhatsNewSection (dynamic import on first intersection) so
+ * Swiper and its CSS stay out of the home page's critical bundle. The
+ * server-rendered CSS scroll-snap strip stands in until this chunk lands and
+ * uses the same slidesPerView/spaceBetween ladder (styles/elements/
+ * whats-new.css), so the swap is layout-identical — keep the two in step.
  *
- * Why bring Swiper back at all: scroll-snap gives touch drag but NO mouse
- * drag. Swiper's defaults (simulateTouch, followFinger, longSwipes,
- * snap-on-release) are the hand-feel the food-aggregator home carousels have
- * — see E:\my-sites\food-aggregator\components\home\carousel.tsx, which also
- * runs on stock interaction defaults. Only the layout ladder differs, and it
- * deliberately mirrors this site's existing breakpoints rather than
- * food-agg's, so the pre-hydration fallback and the Swiper agree.
+ * Swiper earns its place because scroll-snap gives touch drag but NO mouse
+ * drag; Swiper's stock defaults (simulateTouch, followFinger, longSwipes,
+ * snap-on-release) supply exactly that.
  */
 
 import {
@@ -42,8 +37,8 @@ const BREAKPOINTS = {
 /**
  * Padding/negative-margin pair copied from `.whats-new-scroller`: the box
  * space keeps card hover shadows inside Swiper's `overflow: hidden` without
- * moving the strip. Inline (not a class) because swiper.css declares
- * `.swiper { padding: 0 }` and lands after our stylesheet.
+ * moving the strip. Must stay inline rather than a class — swiper.css
+ * declares `.swiper { padding: 0 }` and lands after our stylesheet.
  */
 const SWIPER_STYLE = {
   padding: "8px 1rem 20px",
@@ -76,14 +71,13 @@ export default function WhatsNewCarousel({
   );
 
   /**
-   * Drag-then-click guard. During a pointer drag Swiper sets
-   * `instance.allowClick = false`, but its built-in `preventClicksPropagation`
-   * only swallows the click while the swiper is still animating — a settled
-   * drag-release still fires a native click that React forwards to the card's
-   * `onClick`, opening the item overlay. This capture-phase handler sits on
-   * the shell wrapper and calls `stopPropagation` (which also stops the
-   * NATIVE event, so React's root bubble listener never runs). Genuine clicks
-   * keep `allowClick === true` and pass straight through.
+   * Drag-then-click guard. Swiper sets `instance.allowClick = false` during a
+   * pointer drag, but its `preventClicksPropagation` only swallows the click
+   * while the swiper is still animating — a settled drag-release still fires
+   * a native click that React forwards to the card's `onClick`, opening the
+   * item overlay. This capture-phase handler stops the NATIVE event, so
+   * React's root bubble listener never runs. Genuine clicks keep
+   * `allowClick === true` and pass straight through.
    */
   const handleClickCapture = useCallback((event: ReactMouseEvent) => {
     // `allowClick` is a runtime flag Swiper does not publish in its types.

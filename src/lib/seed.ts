@@ -32,8 +32,8 @@ export interface SeedItem {
    */
   p?: string | null;
   /**
-   * Rating average (1-10 scale). Only present when > 0 — mirrors the live
-   * card's rating-chip gate so we don't render a "0.0" placeholder.
+   * Rating average (1-10 scale). Only present when > 0 — mirrors the live card's
+   * rating-chip gate so no "0.0" placeholder is rendered.
    */
   ra?: number | null;
   /** Rating count — only present alongside `ra`. */
@@ -47,10 +47,10 @@ export interface SeedItem {
 }
 
 /**
- * Format a USD min/max range into the display currency.
- * 1:1 with ItemCard's `fmtPrice` so the seed price reads identically to the
- * price the live card swaps in. Returns null (not "N/A") when min is missing
- * so the seed can reserve the price box height without printing filler.
+ * Format a USD min/max range into the display currency. Must stay 1:1 with
+ * ItemCard's `fmtPrice` so the seed price reads identically to the price the
+ * live card swaps in. Returns null (not "N/A") when min is missing, so the seed
+ * can reserve the price box height without printing filler.
  */
 function fmtSeedPrice(
   min: number | null | undefined,
@@ -77,22 +77,21 @@ export interface BuildSeedOptions {
   /**
    * Global hash → card-variant-widths lookup (from `loadVariantWidths`). When
    * provided, non-animated primary images get a `vw` list for a responsive
-   * srcset. Omitted → seeds render the plain `thumb.avif` (unchanged).
+   * srcset. Omitted → seeds render the plain `thumb.avif`.
    */
   variantWidths?: (hash: string) => number[] | undefined;
 }
 
 /**
  * Build lightweight seed items for the server-rendered loading state.
- * Sorted by hotness descending — mirrors the client's boot sort
- * (DEFAULT_SORT_KEY "hottest" / DEFAULT_SORT_DIR "desc") so the SSR grid
- * and the hydrated grid agree. Trimmed to essential, high-visibility fields.
+ * Sorted by hotness descending — must mirror the client's boot sort
+ * (DEFAULT_SORT_KEY "hottest" / DEFAULT_SORT_DIR "desc") so the SSR grid and the
+ * hydrated grid agree. Trimmed to essential, high-visibility fields.
  *
- * This runs server-side in page.tsx — gives the browser real <img> tags in
- * the initial HTML so the preload scanner discovers them immediately, gives
- * crawlers real /item/{ref} links with the item name as anchor text, and now
- * pre-formats the currency-converted price + rating + category pill so a seed
- * card reads as a complete card (not an image-with-missing-text stub) before
+ * Runs server-side in page.tsx, so the initial HTML carries real <img> tags for
+ * the preload scanner and real /item/{ref} links with the item name as anchor
+ * text for crawlers. Price, rating and category pill are pre-formatted so a seed
+ * card reads as a complete card, not an image-with-missing-text stub, before
  * live data lands.
  */
 export function buildSeedItems(

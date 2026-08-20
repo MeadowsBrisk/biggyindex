@@ -207,8 +207,6 @@
     box-shadow:
       0 25px 60px rgba(0, 0, 0, 0.2),
       0 4px 16px rgba(0, 0, 0, 0.1);
-    /* height: min(52rem, calc(100dvh - 4rem)); */
-
     height: min(54rem, calc(100dvh - 4rem));
     max-height: calc(100dvh - 4rem);
     overflow: hidden;
@@ -317,10 +315,10 @@
 }
 
 /* ── Center column (item info) ──
-   On mobile the .ido-panel is the scroll container; on md+ .ido-center
-   itself scrolls. Uses plain block layout so position:sticky on the tabs
-   works flush against the column top. Top padding is moved onto
-   .ido-center__header so the sticky tabs have a border-box edge to stick to. */
+   Scroll container is .ido-panel on mobile, .ido-center itself on md+.
+   Must stay plain block layout, and top padding must live on
+   .ido-center__header rather than here, or the sticky tabs lose the
+   border-box edge they stick to. */
 .ido-center {
   min-width: 0;
   flex: 1;
@@ -379,12 +377,10 @@
   }
 }
 
-/* Flag/suggest button \u2014 pinned bottom-LEFT of the panel on desktop,
-   mirroring the .ido-lb-btn on the bottom-right. Hidden on mobile
-   (<48rem) because the mobile copy of SuggestLink renders inline under
-   the reviews section there. We attach it to the panel (not .ido-right)
-   so it stays at the same visual level as the LittleBiggy button even
-   when the reviews column is scrolled. */
+/* Flag/suggest button: pinned bottom-left of the panel on desktop, mirroring
+   .ido-lb-btn bottom-right. Anchored to the panel rather than .ido-right so
+   it holds its position while the reviews column scrolls. Hidden below 48rem,
+   where SuggestLink renders inline under the reviews section instead. */
 .ido-suggest-bottom {
   display: none;
 }
@@ -400,11 +396,11 @@
 }
 
 /* ── Scroll-spy tabs (sticky at top of center column) ──
-   The nearest scroll ancestor is .ido-center (md+) or .ido-panel (mobile).
-   Mobile presents a full-width segmented control (matching old-biggyindex
-   3-tab pattern); tablet+ falls back to compact inline pills. The negative
-   horizontal margin makes the bar reach the container edges so the sticky
-   background fully covers scrolling content beneath. */
+   Nearest scroll ancestor is .ido-center (md+) or .ido-panel (mobile).
+   Mobile is a full-width segmented control, tablet+ compact inline pills.
+   The negative horizontal margin is required: it stretches the bar to the
+   container edges so the sticky background fully covers content scrolling
+   beneath it. */
 .ido-tabs {
   position: sticky;
   top: 0;
@@ -676,11 +672,10 @@
 }
 
 /* ── Meta strip (rating / delivery / listed / updated) ──
-   A single rounded card of four uniform stat cells. Cells share identical
-   vertical rhythm (small muted label + bold value) so the group reads as
-   one designed component regardless of whether it wraps to 1 / 2 / 4
-   columns. No per-cell backgrounds, no nested radii \u2014 just a light divider
-   between cells on 2-col and 4-col layouts. */
+   One rounded card of uniform stat cells. Cells share the same vertical
+   rhythm (small muted label + bold value) so the group still reads as one
+   component whether it wraps to 1, 2 or 4 columns. No per-cell backgrounds or
+   nested radii — a hairline divider is the only separation. */
 .ido-meta-strip {
   display: flex;
   flex-direction: column;
@@ -691,10 +686,9 @@
   background: color-mix(in srgb, var(--surface) 55%, transparent);
 }
 
-/* Stat cells live in a flex-wrap row. `flex: 1 1 <basis>` lets the present
-   cells grow to fill the row, so a half-populated strip (e.g. only Listed +
-   Updated) splits the width evenly instead of leaving dead grid columns.
-   Cells wrap to a new line on narrow widths. */
+/* Flex-wrap row, not a grid: `flex: 1 1 <basis>` lets the cells that are
+   present grow to fill the row, so a half-populated strip splits the width
+   evenly instead of leaving dead columns. */
 .ido-meta-cells {
   display: flex;
   flex-wrap: wrap;
@@ -755,10 +749,8 @@
   font-size: 0.75rem;
 }
 
-/* Full-width update-reason note inside the meta card. Divided from the stat
-   cells by a hairline so it reads as part of the card rather than an orphaned
-   line. The reason is vital info and can be long, so it wraps freely and is
-   never clipped. */
+/* Full-width update-reason note inside the meta card. The reason can be long
+   and must never be clipped, so it wraps freely rather than truncating. */
 .ido-meta-reason {
   display: flex;
   align-items: flex-start;
@@ -847,9 +839,8 @@
 }
 
 /* ── Attributes (spec-sheet layout) ──
-   Two-column dl: short label column ("Effect", "Origin", "Grow"), wide
-   value column with wrapping chips. Far more readable than a wall of
-   key+value pills, especially when an item has 3-6 attribute keys. */
+   Two-column dl: short label column, wide value column of wrapping chips.
+   Stays readable when an item carries several attribute keys. */
 .ido-attr-grid {
   display: grid;
   grid-template-columns: minmax(5.5rem, max-content) 1fr;
@@ -920,9 +911,9 @@
   }
 }
 
-/* ── "Read more reviews at:" hint — sits as the last child of the reviews
-   list/column. Plain text, no background, no sticky. Reviews column has
-   padding-bottom to ensure it clears the absolute LB button below. */
+/* ── Trailing hint, last child of the reviews list/column. The column's
+   padding-bottom is what keeps it clear of the absolutely-positioned LB
+   button below. ── */
 .ido-reviews-hint {
   font-size: 0.75rem;
   color: var(--muted);
@@ -931,11 +922,10 @@
   margin-top: 1rem;
 }
 
-/* ── "View on LittleBiggy" CTA.
-   Mobile: fixed full-width pill pinned to the bottom of the viewport
-     so it stays visible while the panel scrolls. Panel bottom padding
-     (.ido-panel on mobile) reserves space so content isn't obscured.
-   Tablet+: absolute bottom-right of the panel, inline pill. */
+/* ── Outbound CTA. Tablet+: absolute bottom-right of the panel. Mobile: a
+   fixed full-width pill pinned to the viewport bottom, which is why
+   .ido-panel carries bottom padding there — without it the pill covers the
+   tail of the content. ── */
 .ido-lb-btn {
   display: inline-flex;
   position: absolute;
@@ -966,8 +956,8 @@
   user-select: none;
 }
 
-/* Mobile (<48rem): the .ido-mobile-actions bar provides the LB CTA so
-   the panel-anchored .ido-lb-btn is hidden to avoid a duplicate. */
+/* Below 48rem the .ido-mobile-actions bar supplies the CTA, so the
+   panel-anchored copy must hide or it renders twice. */
 @media (max-width: 47.999rem) {
   .ido-lb-btn {
     display: none;
@@ -1027,10 +1017,8 @@
   }
 }
 
-/* ── Mobile bottom action bar (<48rem) ──
-   Fixed full-width bar at the bottom of the viewport: Suggest icon +
-   Prev / Next + LittleBiggy CTA. Hidden on tablet+ (md+) where the
-   panel-anchored .ido-lb-btn and .ido-suggest-bottom take over. */
+/* ── Mobile bottom action bar (<48rem) — suggest + prev/next + outbound CTA.
+   Hidden on tablet+, where .ido-lb-btn and .ido-suggest-bottom take over. ── */
 .ido-mobile-actions {
   display: none;
 }
@@ -1118,11 +1106,10 @@
 }
 
 /* ── Nav arrows (overlay, outside panel) ──
-   On mobile (<48rem) we use `display: contents` so the wrapper is a
-   pass-through: the .ido-panel inherits the backdrop's flex layout
-   directly and the nav-zone buttons are hidden individually. Using
-   `display: none` here would also hide the panel (the panel is a child)
-   which would make the entire overlay vanish at mobile widths. */
+   Mobile uses `display: contents` so the wrapper passes through and .ido-panel
+   inherits the backdrop's flex layout; the nav zones are hidden individually.
+   Do NOT use `display: none` here — the panel is a child of this wrapper, so
+   that hides the entire overlay at mobile widths. ── */
 .ido-nav-wrapper {
   display: contents;
 }
@@ -1202,9 +1189,8 @@
 .ido-image-area {
   position: relative;
   width: 100%;
-  /* Mobile: breathing room around the gallery — top clears the close
-     button (2.25rem wide + 0.875rem inset ≈ 3.125rem). Side gutters
-     prevent the image from going edge-to-edge which looked cramped. */
+  /* Mobile: top padding clears the close button (2.25rem + 0.875rem inset);
+     side gutters keep the image off the viewport edges. */
   padding: 3rem 0.875rem 0;
 }
 
@@ -1242,11 +1228,10 @@
   transform: scale(1.04);
 }
 
-/* Static (pre-Swiper) image — Swiper is lazy-loaded only for multi-image
-   galleries; until the chunk lands ItemDetailGallery renders a plain
-   <button><img></button> inside the same .ido-swiper container. These
-   rules mirror the .swiper-slide img styles above so the swap-in is
-   pixel-identical (the container's aspect-ratio pins the dimensions). */
+/* Static (pre-Swiper) image. Swiper is lazy-loaded only for multi-image
+   galleries; until the chunk lands, the gallery renders a plain button+img in
+   the same .ido-swiper container. Keep these rules in sync with the
+   .swiper-slide img styles above or the swap-in visibly jumps. */
 .ido-swiper--static > button {
   display: block;
   width: 100%;

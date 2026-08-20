@@ -5,11 +5,10 @@
  * Styled to be indistinguishable in metrics from its sibling subcategory
  * pills (`rounded-md bg-surface px-2 py-0.5 text-xs`) — sentence case, same
  * type size, same shape — with a coloured dot and a faint tint as the only
- * differences. On BROWSE CARDS the strain is NOT this component: it renders
- * inside the category pill itself (see CardPill in ItemCard.tsx). 2026-07-31:
- * an earlier version was a separate uppercase white-on-scrim chip on the
- * cards; owner feedback was emphatic that it matched nothing else on the
- * site — never reintroduce a one-off style for this.
+ * differences. Never give it a one-off style of its own; it has to read as
+ * part of the surrounding pill row. On BROWSE CARDS the strain is NOT this
+ * component: it renders inside the category pill (see CardPill in
+ * ItemCard.tsx).
  *
  * No hooks — safe in Server Components (the static item page imports it).
  */

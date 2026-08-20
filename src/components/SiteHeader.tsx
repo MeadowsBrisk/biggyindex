@@ -60,9 +60,8 @@ function nativeCurrencyForMarket(market: string): DisplayCurrency {
 }
 
 /**
- * Build the currency options shown in the market dropdown for a given
- * market: native currency first (so it's the obvious default visually),
- * then GBP and USD as common alternatives, deduped.
+ * Currency options for a market's dropdown: native currency first (the
+ * visual default), then GBP and USD as alternatives, deduped.
  */
 function currencyOptionsFor(
   market: string,
@@ -80,7 +79,7 @@ function currencyOptionsFor(
 
 /**
  * SiteHeader — scrolls naturally with the page (not sticky).
- * Distinct from food-agg: gradient accent bar, bold logo with glow, market flag.
+ * Gradient accent bar, bold logo with glow, market flag.
  */
 export function SiteHeader() {
   const [category, setCategory] = useAtom(categoryAtom);
@@ -155,15 +154,14 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             <BasketButton />
             {/* Verification links (canonical LB pages + our status page).
-                `md` and up, not `sm`: at exactly 640px the German/Czech nav
-                labels already fill the bar, so adding anything at `sm` made
-                the header overflow (measured: +90px on de-DE /about @640).
-                Below `md` the mobile drawer carries the same list. */}
+                `md` and up, not `sm`: at 640px the longest translated nav
+                labels already fill the bar, so anything extra at `sm`
+                overflows the header. Below `md` the drawer carries the list. */}
             <span className="hidden md:block">
               <VerifyDropdown />
             </span>
-            {/* Market/locale flag dropdown — desktop only. On mobile it moves
-                into the hamburger drawer (see <MobileNav>) to save header space. */}
+            {/* Market/locale flag dropdown — desktop only; on mobile it lives
+                in the hamburger drawer (see <MobileNav>) to save header space. */}
             <span className="hidden sm:block">
               <MarketDropdown />
             </span>
@@ -181,9 +179,9 @@ export function SiteHeader() {
 }
 
 /**
- * Brand logo (icon + wordmark). Shared between the site header and the mobile
- * menu's top bar so the two are pixel-identical. Callers wrap it in a `group`
- * element (Link) — the icon's hover rotate keys off that group.
+ * Brand logo (icon + wordmark). Shared by the site header and the mobile
+ * drawer's top bar so the two are pixel-identical. Callers must wrap it in a
+ * `group` element — the icon's hover rotate keys off that group.
  */
 function BrandLogo() {
   return (
@@ -249,11 +247,11 @@ function BasketButton() {
 }
 
 /**
- * Shared market-switch navigation. Given a market code, navigates to the
+ * Shared market-switch navigation: given a market code, navigate to the
  * equivalent URL on that market's origin (production) or locale path prefix
- * (dev). Does NOT write `marketAtom` — the atom is hydrated per-origin on load
- * (see <MarketHydrate>). Used by both the desktop dropdown and the mobile
- * hamburger switcher so the routing logic lives in one place.
+ * (dev). Does NOT write `marketAtom` — the atom is hydrated per-origin on
+ * load (see <MarketHydrate>). Used by both the desktop dropdown and the
+ * mobile drawer so the routing logic lives in one place.
  */
 function useMarketSelect(currentMarket: string, onNavigate?: () => void) {
   return useCallback(
@@ -263,9 +261,9 @@ function useMarketSelect(currentMarket: string, onNavigate?: () => void) {
       if (code === currentMarket) return;
 
       // In production each market is its own subdomain (see `domains` in
-      // src/i18n/routing.ts and `marketToHost`). The atom flip alone
-      // doesn't change the SSR-rendered data — host detection in proxy.ts
-      // pins the locale per request — so we need a real navigation.
+      // src/i18n/routing.ts and `marketToHost`). Flipping the atom alone
+      // can't change the SSR-rendered data — proxy.ts pins the locale per
+      // request from the host — so a real navigation is required.
       if (typeof window === "undefined") return;
       const path = window.location.pathname;
       const search = window.location.search;
@@ -273,17 +271,15 @@ function useMarketSelect(currentMarket: string, onNavigate?: () => void) {
 
       if (isHostBasedEnv(window.location.hostname)) {
         // Cross-origin → full page load. Preserve path + query + hash so
-        // a user on `/browse?cat=Flower` stays on the equivalent URL on
-        // the new market's host.
+        // the user lands on the equivalent URL on the new market's host.
         const targetHost = marketToHost(code as MarketCode);
         window.location.assign(`https://${targetHost}${path}${search}${hash}`);
         return;
       }
 
-      // Dev / staging fallback (localhost, lbindex.vip, etc.) — domains
-      // are disabled in routing.ts when not in production, so locales
-      // live under path prefixes instead. Strip any existing locale
-      // prefix and replace with the target one.
+      // Dev / staging fallback: routing.ts disables domains outside
+      // production, so locales live under path prefixes. Strip any
+      // existing locale prefix and replace it with the target one.
       const targetLocale = marketToLocale(code as MarketCode);
       const stripped = path.replace(
         /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)(?=\/|$)/,
@@ -301,10 +297,9 @@ function useMarketSelect(currentMarket: string, onNavigate?: () => void) {
 
 function MarketDropdown() {
   const market = useAtomValue(marketAtom);
-  // Effective (display) for highlighting the active button; override
-  // (writable) for persisting the user's explicit pick. Reading the
-  // derived atom means an unset override correctly highlights the
-  // market's native currency by default.
+  // Effective (derived) currency highlights the active button; the override
+  // atom persists an explicit pick. Reading the derived atom means an unset
+  // override still highlights the market's native currency.
   const displayCurrency = useAtomValue(displayCurrencyAtom);
   const setDisplayCurrencyOverride = useSetAtom(displayCurrencyOverrideAtom);
   const [forceEnglish, setForceEnglish] = useAtom(forceEnglishAtom);
@@ -420,9 +415,8 @@ function MarketDropdown() {
             </div>
           </div>
 
-          {/* Language toggle — only on non-English markets. Lets users
-              flip the UI to English source copy without digging into an
-              item overlay. Persists per-origin via forceEnglishAtom. */}
+          {/* Language toggle — non-English markets only. Flips the UI to the
+              English source copy; persists per-origin via forceEnglishAtom. */}
           {showLanguageToggle && (
             <>
               <div className="mx-2 border-t border-[var(--border)]" />
@@ -466,9 +460,9 @@ function MarketDropdown() {
 function MobileMenuButton() {
   const [open, setOpen] = useAtom(mobileMenuOpenAtom);
   const tMobileMenu = useTranslations("header.mobileMenu");
-  // `after:-inset-[5px]` grows the HIT area from 34px to 44px without moving a
-  // single computed box — the drawer's close button uses the identical trick,
-  // so the X still lands exactly where the hamburger was.
+  // `after:-inset-[5px]` grows the hit area from 34px to 44px without moving
+  // any computed box. The drawer's close button uses the identical trick so
+  // the X lands exactly where the hamburger was.
   return (
     <button
       type="button"
@@ -499,9 +493,9 @@ function MobileNav() {
     }, 180);
   }, [setOpen]);
 
-  // Safety net: close on route change. SiteHeader re-mounts per page, so this
-  // rarely fires (the ref re-inits on mount) — nav-link taps close the menu
-  // directly below — but it guards any external navigation while open.
+  // Safety net only: SiteHeader remounts per route, so the ref re-inits and
+  // this comparison rarely fires. Nav-link taps close the drawer directly —
+  // do not rely on this instead.
   useEffect(() => {
     if (previousPathnameRef.current !== pathname) {
       previousPathnameRef.current = pathname;
@@ -530,8 +524,8 @@ function MobileNav() {
 
   if (!open) return null;
 
-  // Icon reservations across this surface: `Store` is spent on the LittleBiggy
-  // verify row, `LayoutGrid` on grid-view in the Toolbar, `Heart` on bookmarks.
+  // Icons already spoken for elsewhere in the UI: `Store` (LittleBiggy verify
+  // row), `LayoutGrid` (Toolbar grid view), `Heart` (bookmarks).
   const links = [
     { href: "/browse", label: tNav("browse"), Icon: Compass },
     { href: "/sellers", label: tNav("sellers"), Icon: Users },
@@ -548,10 +542,9 @@ function MobileNav() {
       aria-label={tMobileMenu("label")}
       tabIndex={-1}
     >
-      {/* Gradient accent bar — the site header has this 3px bar above its row,
-          so replicating it here keeps the logo and bottom border aligned (the
-          menu is a fixed overlay at top:0; without the bar everything sat 3px
-          too high). */}
+      {/* Gradient accent bar — the drawer is a fixed overlay at top:0, so it
+          must replicate the header's 3px bar or its logo and bottom border sit
+          3px above the header's. */}
       <div
         className="h-[3px] shrink-0"
         style={{ background: "var(--accent-gradient)" }}
@@ -567,8 +560,8 @@ function MobileNav() {
         >
           <BrandLogo />
         </Link>
-        {/* `after:-inset-[5px]` → 44px hit area with zero layout change, so
-            the X stays pixel-aligned with the hamburger it replaced. */}
+        {/* `after:-inset-[5px]` → 44px hit area with zero layout change, so the
+            X stays pixel-aligned with the hamburger it replaced. */}
         <button
           type="button"
           onClick={close}
@@ -579,11 +572,11 @@ function MobileNav() {
         </button>
       </div>
 
-      {/* Body — one list, one row primitive, four labelled groups.
-          Top-anchored and full-bleed (`px-1`, no `max-w-sm`, no
-          `justify-center`): vertical centring made the top gap depend on
-          content height, and a centred 384px column pushed the row icons out
-          of line with the top bar's logo. Now every row icon sits exactly
+      {/* Body — one list, one row primitive, labelled groups. Keep it
+          top-anchored and full-bleed (`px-1`, no `max-w-sm`, no
+          `justify-center`): vertical centring makes the top gap depend on
+          content height, and a centred fixed-width column pushes row icons out
+          of line with the top bar's logo. As written, every row icon sits
           16px (4px column pad + 12px row pad) from the viewport edge. */}
       <div className="menu-modal-body flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto flex w-full flex-col gap-7 px-1 pt-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
@@ -612,8 +605,8 @@ function MobileNav() {
                     }`}
                   >
                     {/* Gradient rail — the drawer's answer to HeaderNavLink's
-                        active underline, and a non-colour cue for the active
-                        state (text-primary alone is ~3.3:1 on light). */}
+                        active underline, and a required non-colour cue:
+                        text-primary alone is only ~3.3:1 on light. */}
                     {active && (
                       <span
                         aria-hidden="true"
@@ -636,17 +629,16 @@ function MobileNav() {
             </div>
           </nav>
 
-          {/* Verification links — the canonical LittleBiggy pages plus our own
-              status page. Same list as the desktop <VerifyDropdown>. Sits in
-              the drawer's gap-7 rhythm, so 28px clear of its neighbours. The
-              old `border-t` divider is gone: it existed to paper over the
-              nav↔verify style clash, and the eyebrows now do that grouping. */}
+          {/* Verification links — canonical LittleBiggy pages plus our status
+              page; same list as the desktop <VerifyDropdown>. Sits in the
+              drawer's gap-7 rhythm, so 28px clear of its neighbours. No
+              divider rule: the eyebrow headings carry the grouping. */}
           <MobileVerifyLinks onNavigate={() => setOpen(false)} />
 
           {/* Market / language switcher — collapsed behind a single trigger so
-              the drawer isn't dominated by the full market list. Renders its
-              own `gap-7` wrapper so Market and Language are siblings on the
-              same 28px rhythm as the groups above. */}
+              the drawer isn't dominated by the market list. Renders its own
+              `gap-7` wrapper so Market and Language sit on the same 28px
+              rhythm as the groups above. */}
           <MobileMarketSwitch onNavigate={() => setOpen(false)} />
         </div>
       </div>
@@ -655,15 +647,13 @@ function MobileNav() {
 }
 
 /**
- * Market + language switcher for the mobile hamburger drawer. Reuses the same
- * market-navigation and `forceEnglishAtom` logic as the desktop
- * <MarketDropdown> right-cluster control (currency picking stays desktop-only —
- * it's an advanced option and the drawer is meant to be compact).
+ * Market + language switcher for the mobile drawer. Shares the market
+ * navigation and `forceEnglishAtom` logic with the desktop <MarketDropdown>;
+ * currency picking stays desktop-only to keep the drawer compact.
  *
- * The market list is collapsed behind a single trigger that shows the current
- * market — expanding it reveals the full list. This keeps the drawer from being
- * dominated by ~10 market rows. The compact 2-button language toggle (non-English
- * markets only) stays visible below.
+ * The market list is collapsed behind a trigger showing the current market so
+ * the drawer isn't dominated by the full market list. The 2-button language
+ * toggle (non-English markets only) stays visible below.
  */
 function MobileMarketSwitch({ onNavigate }: { onNavigate: () => void }) {
   const market = useAtomValue(marketAtom);
@@ -742,9 +732,9 @@ function MobileMarketSwitch({ onNavigate }: { onNavigate: () => void }) {
         )}
       </div>
 
-      {/* Language toggle — only on non-English markets, matching the desktop
-          dropdown. Persists per-origin via forceEnglishAtom. It is a control,
-          not a list, so the CONTAINER carries the single border and the
+      {/* Language toggle — non-English markets only, matching the desktop
+          dropdown; persists per-origin via forceEnglishAtom. It is a control,
+          not a list, so the container carries the single border and the
           segments carry none. */}
       {showLanguageToggle && (
         // biome-ignore lint/a11y/useSemanticElements: see the Market group above.

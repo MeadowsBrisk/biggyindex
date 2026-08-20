@@ -38,7 +38,7 @@ interface ActiveGroup {
 }
 
 /**
- * Active filters as a grouped bar above the grid (ported from Roast Radar):
+ * Active filters as a grouped bar above the grid:
  * a rounded accent-tinted card where each filter family gets a small uppercase
  * label and removable chips, with a Clear-all on the right. Replaces the
  * cramped single-line pill strip that overflowed inside the toolbar.

@@ -4,49 +4,39 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 /**
- * Refreshes the current route when the user returns to a tab that's been
- * hidden longer than `STALE_AFTER_MS` — without a full page reload.
+ * Refreshes the current route when the user returns to a tab that has been
+ * hidden longer than `STALE_AFTER_MS`, without a full page reload.
  *
- * Why: Next.js 16's client-side segment cache (enabled via
- * `experimental.cachedNavigations: true` in next.config.ts) keeps the
- * already-rendered RSC payload in memory across same-session navigations.
- * That's great for snappy back/forward, but it means a user who left the
- * tab open while the crawler ran a fresh index will see stale data on
- * return — until they hard-refresh. The crawler revalidates the *server*
- * cache via /api/revalidate after every run, but the client never fetches
- * the new payload until something prompts it.
+ * Why: the client-side segment cache (`experimental.cachedNavigations` in
+ * next.config.ts) keeps the rendered RSC payload in memory across same-session
+ * navigations. The crawler revalidates the *server* cache via /api/revalidate
+ * after each run, but a client with the tab left open never re-fetches the new
+ * payload unless something prompts it. `router.refresh()` re-fetches this route's RSC and
+ * re-renders with fresh data — no flash, no reload, atoms preserved.
  *
- * `router.refresh()` re-fetches the current route's RSC and re-renders
- * with the new data, no flash, no full reload, atoms preserved.
+ * Triggers: `visibilitychange` to "visible" after a long-enough hide, and
+ * `pageshow` with `event.persisted` (bfcache restore).
  *
- * Triggers:
- *   - `visibilitychange` to "visible" after the tab was hidden long enough
- *   - `pageshow` with `event.persisted` (bfcache restore — same idea)
- *
- * Deep-scroll guard: a refresh that lands new data while the user is reading
- * far down the /browse grid re-fetches the browse RSC; if the crawler ran
- * meanwhile, DataLoader swaps in a new item array and the default "hottest"
- * sort can reshuffle under the reader's viewport. On mobile every
- * app-switch / screen-lock fires `visibilitychange`, so a deep reader was
- * getting the rug pulled out repeatedly ("the list refreshes every time I
- * scroll"). So when the tab returns while scrolled past `SCROLL_DEFER_PX`, we
- * DON'T refresh immediately — we defer it until the reader scrolls back near
- * the top (where a reshuffle is expected and harmless), or until the next full
- * navigation refreshes anyway. Near-top readers keep the original snappy
- * freshness behavior. (ItemGrid separately preserves scroll depth even if a
- * refresh does land, so this is belt-and-braces against reshuffle churn.)
+ * Deep-scroll guard: a refresh can swap in a new item array, and the default
+ * "hottest" sort then reshuffles under the reader's viewport. On mobile every
+ * app-switch and screen-lock fires `visibilitychange`, so an unguarded refresh
+ * pulls the rug out repeatedly. Past `SCROLL_DEFER_PX` the refresh is deferred
+ * until the reader scrolls back near the top (where a reshuffle is expected)
+ * or the next navigation refreshes anyway; near-top readers refresh at once.
+ * ItemGrid separately preserves scroll depth if a refresh does land, so this
+ * guard is belt-and-braces.
  *
  * Renders nothing.
  */
 
-const STALE_AFTER_MS = 2 * 60 * 1000; // 2 minutes — well below the 30-min crawler cadence
+const STALE_AFTER_MS = 2 * 60 * 1000; // well below the crawler's index cadence
 const SCROLL_DEFER_PX = 600; // past this, defer the refresh rather than disrupt the reader
 
 export function RouterRefreshOnReturn() {
   const router = useRouter();
   const hiddenAtRef = useRef<number | null>(null);
-  // Set when a return-refresh was deferred because the reader was scrolled
-  // deep; a scroll listener flushes it once they're back near the top.
+  // Set when a return-refresh is deferred because the reader is scrolled
+  // deep; the scroll listener flushes it once they are back near the top.
   const pendingRefreshRef = useRef(false);
 
   useEffect(() => {
@@ -77,8 +67,8 @@ export function RouterRefreshOnReturn() {
     };
 
     const onPageShow = (event: PageTransitionEvent) => {
-      // bfcache restore — equivalent to "tab returned"; refresh defensively
-      // so frozen React state from the cached page picks up newer RSC.
+      // bfcache restore is equivalent to "tab returned": refresh so the
+      // frozen React state from the cached page picks up newer RSC.
       if (event.persisted) {
         refreshOrDefer();
       }

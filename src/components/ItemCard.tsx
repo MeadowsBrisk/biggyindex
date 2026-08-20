@@ -86,9 +86,9 @@ export interface CardConfig {
   includeShipping: boolean;
   pauseGifs: boolean;
   thumbAspect: string;
-  /** When true, cards use the "full" image variant instead of "thumb"
-   *  for sharper rendering on hi-DPI displays. Backed by
-   *  `highResImagesAtom` (Settings → "High-res images"). */
+  /** Use the "full" image variant instead of "thumb" — sharper on hi-DPI
+   *  displays, larger transfers. Backed by `highResImagesAtom`
+   *  (Settings → "High-res images"). */
   highRes: boolean;
   activeCategory: string;
   itemIndex: ItemIndex;
@@ -140,10 +140,9 @@ function ExpandArrow() {
   );
 }
 
-/* ── Relative time (lightweight, no deps) — lives in @/lib/relative-age so
-   non-card surfaces (the /littlebiggy-status "last checked" leaf) can import
-   it without pulling this module's graph. Re-exported here so ItemRow's
-   existing `from "./ItemCard"` import keeps working. ── */
+/* ── Relative time — defined in @/lib/relative-age so non-card surfaces can
+   import it without pulling this module's graph, re-exported here for
+   consumers that import it `from "./ItemCard"`. ── */
 export { type RelativeAge, relativeAge };
 
 /* ── Format price with currency symbol + rate ── */
@@ -184,12 +183,10 @@ function variantDisplayLabel(
  * Card pill — shows [strain] · category · subcategory in ONE pill.
  * When browsing inside a category, shows just the subcategory (or category if no sub).
  *
- * The strain type (Indica/Sativa/Hybrid) is PART OF this pill — coloured dot +
- * the word, joined into the existing " · " chain — not a separate element.
- * (2026-07-31: a short-lived separate uppercase chip in its own style sat next
- * to this pill with different reveal timing; owner feedback was emphatic that
- * the strain belongs inside the category pill in the card's own visual
- * language. This is that.)
+ * The strain type (Indica/Sativa/Hybrid) belongs INSIDE this pill — coloured
+ * dot + the word, joined into the existing " · " chain. Never split it out
+ * into a chip of its own with its own style or reveal timing; the pill is the
+ * card's visual language for this information.
  */
 function CardPill({
   item,
@@ -255,7 +252,7 @@ function LowConfidenceBadge({ cf }: { cf?: number | null }) {
 }
 
 /**
- * Product card — food-agg structure adapted for cannabis marketplace.
+ * Product card.
  * Uses item-card CSS classes from styles/elements/item-card.css.
  */
 function ItemCardInner({
@@ -307,20 +304,19 @@ function ItemCardInner({
   const addToast = useAddToast();
 
   // Global "Show in English" toggle. On translated markets the loader
-  // (lib/data.ts) keeps `nEn` / `dEn` so we can swap to the original
-  // without re-fetching. Falls back gracefully when fields are missing
-  // (English markets, untranslated items).
+  // (lib/data.ts) keeps `nEn` / `dEn` alongside the localized fields, so the
+  // swap needs no re-fetch; falls back when those fields are absent (English
+  // markets, untranslated items).
   const forceEnglish = useAtomValue(forceEnglishAtom);
-  // Mobile grid density (1 | 2 cards per row). Only affects the trailing
+  // Mobile grid density (1 | 2 cards per row). Only feeds the trailing
   // (<640px) clause of the responsive `sizes` hint: at 2-up a card is ~half
-  // the viewport, so 50vw avoids fetching double-resolution images. All other
-  // breakpoints are unchanged.
+  // the viewport, so 50vw avoids fetching double-resolution images.
   const mobileGridCols = useAtomValue(mobileGridColsAtom);
   const imgSizes = CARD_IMG_SIZES(mobileGridCols);
   const displayName = forceEnglish && item.nEn ? item.nEn : item.n;
   const displayDesc = forceEnglish && item.dEn ? item.dEn : item.d;
-  // Strain type (Indica/Sativa/Hybrid) — only surfaced when browsing Flower/Shake,
-  // where the distinction is meaningful. Rendered as an always-visible chip.
+  // Strain type (Indica/Sativa/Hybrid) — only meaningful for Flower/Shake, so
+  // it is surfaced only while browsing those categories.
   const strainGroup =
     activeCategory === "Flower" || activeCategory === "Shake"
       ? (item.at?.effect?.[0] ?? null)
@@ -417,10 +413,8 @@ function ItemCardInner({
         ? "aspect-[3/2]"
         : "aspect-square";
 
-  // CDN image URLs — hash raw URLs to R2 CDN paths.
-  // Animated GIFs use anim.webp unless the user has paused GIFs.
-  // `highRes` (Settings → "High-res images") swaps "thumb" for "full"
-  // — sharper on hi-DPI screens at the cost of bigger transfers.
+  // CDN image URLs — raw URLs are hashed to R2 CDN paths. Animated GIFs use
+  // anim.webp unless GIFs are paused; `highRes` swaps "thumb" for "full".
   const cardImageSize = highRes ? "full" : "thumb";
   const thumbSrc = getItemPrimaryImage(item, cardImageSize, {
     forceStatic: pauseGifs,
@@ -432,10 +426,9 @@ function ItemCardInner({
   const hoverSrc = galleryThumbs[1] ?? null;
 
   // Responsive srcset from the item's compact `vw` field (built server-side in
-  // /api/browse). `cardImageSrcSet` no-ops for non-thumb URLs, so high-res mode
-  // (full.avif) and animated images (anim.webp) automatically get NO srcset and
-  // keep serving the plain `src` exactly as before. The `sizes` hint below was
-  // authored for this and is now live.
+  // /api/browse). `cardImageSrcSet` no-ops for non-thumb URLs, so high-res
+  // mode (full.avif) and animated images (anim.webp) get NO srcset and keep
+  // serving the plain `src`.
   const variantWidthMap = useMemo(() => buildItemVariantWidthMap(item), [item]);
   const thumbSrcSet = cardImageSrcSet(thumbSrc, variantWidthMap);
   const hoverSrcSet = hoverSrc
@@ -595,17 +588,12 @@ function ItemCardInner({
   // Clear weight selection if strain makes it unavailable
   // (done in handleStrainClick instead of useEffect to avoid cascading renders)
 
-  // Display price: show range until a weight or quantity is selected.
-  //
-  // When nothing is selected we previously used `item.uMin` / `item.uMax`
-  // (computed by the crawler across ALL variants). That can include
-  // sample/promo variants without a parsed weight — which then never
-  // show up in the weight pills, so the visible range disagreed with
-  // every pickable option ("cheapest 3.5g is £111, range says £74…").
-  //
-  // Now: if the item has weight or quantity groups, derive the range
-  // from THOSE so the headline matches the pills exactly. Fall back to
-  // uMin/uMax only for single-variant or otherwise un-grouped items.
+  // Display price: a range until a weight or quantity is selected. Derive it
+  // from the weight/quantity groups whenever they exist so the headline
+  // matches the pills exactly. `item.uMin`/`uMax` span ALL variants, including
+  // sample/promo ones with no parsed weight that never become a pill, so they
+  // can advertise a price no pickable option offers. Fall back to uMin/uMax
+  // only for single-variant or otherwise un-grouped items.
   const groupRange = useMemo(() => {
     const groups = weightGroups ?? quantityGroups;
     if (!groups || groups.length === 0) return null;
@@ -750,12 +738,12 @@ function ItemCardInner({
     displayPrice != null &&
     displayPriceMax !== displayPrice;
 
-  // ── Drag-to-scroll for variant strips (food-agg PillRow pattern) ──
+  // ── Drag-to-scroll for variant strips (PillRow pattern) ──
   const strainStripRef = useRef<HTMLDivElement>(null);
   const weightStripRef = useRef<HTMLDivElement>(null);
 
-  // Batched globally via lib/batchScrollCheck — all cards mounting in the
-  // same tick share one rAF (all layout reads, then all dataset writes), so
+  // Batched globally via lib/batchScrollCheck: cards mounting in the same tick
+  // share one rAF (all layout reads, then all dataset writes), so
   // progressive-render chunks can't interleave reads and writes into
   // forced-reflow thrash.
   useEffect(() => {
@@ -1049,7 +1037,7 @@ function ItemCardInner({
                     )}
                     {communityEndorsements > 0 && (
                       /* Icon + bare count — the translated phrase lives in the
-                         tooltip; "2 endorsed" inline crowded the badge row. */
+                         tooltip so the badge row stays narrow. */
                       <span
                         className="seller-card__badge seller-card__badge--endorsement"
                         title={t("endorsed", { count: communityEndorsements })}

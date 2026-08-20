@@ -1,9 +1,8 @@
 /* ==========================================================================
-   Active filter bar — ported from Roast Radar (Claude Design "Browse
-   Redesign"). A rounded, accent-tinted card at the top of the grid column;
-   groups separated by a hairline; each value a chip (flag + label + ×);
-   accent Clear-all. Uses --accent, which follows the user's selected accent
-   colour (SettingsSync sets it on <html>), so the bar re-tints live.
+   Active filter bar — accent-tinted card above the grid: groups split by a
+   hairline, each value a chip, accent Clear-all. Tints from --accent, which
+   SettingsSync sets on <html> to track the user's accent choice, so the bar
+   re-tints live.
    ========================================================================== */
 
 .active-bar {
@@ -58,9 +57,8 @@
   color: var(--accent);
 }
 
-/* Exclusion chips (e.g. excluded subcategories) read as "not this": muted
-   red tint + strikethrough on the label so they're clearly distinct from
-   the include chips. */
+/* Exclusion chips read as "not this": red tint + strikethrough, so they are
+   never mistaken for include chips. */
 .active-chip--excluded {
   background: color-mix(in srgb, #ef4444 12%, var(--surface));
   color: #ef4444;

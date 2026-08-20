@@ -1,40 +1,36 @@
 import type { Locale } from "./routing";
 
 /**
- * Top-level message namespaces that CLIENT components actually consume via
+ * Top-level message namespaces that CLIENT components consume via
  * `useTranslations(...)`. Only these are shipped into the RSC payload / HTML
  * through <NextIntlClientProvider>. Server Components use `getTranslations`
  * (from next-intl/server) and read the FULL catalog via the request config —
  * they do NOT depend on this list.
  *
- * ┌───────────────────────────────────────────────────────────────────────┐
- * │  ⚠️  ADDING A `useTranslations("x")` CALL TO A 'use client' COMPONENT?  │
- * │      You MUST add the top-level namespace "x" here, or the string will  │
- * │      render as its raw key in the browser (and log a loud dev error —   │
- * │      see IntlClientProvider's onError guard).                           │
- * └───────────────────────────────────────────────────────────────────────┘
+ * ADDING A `useTranslations("x")` CALL TO A 'use client' COMPONENT? You MUST add
+ * the top-level namespace "x" here, or the string renders as its raw key in the
+ * browser (IntlClientProvider's onError guard logs it loudly in dev).
  *
- * Deliberately EXCLUDED (server-only, verified via grep of useTranslations):
+ * Deliberately EXCLUDED as server-only:
  *   - site      → generateMetadata + home page.tsx (getTranslations)
- *   - legal     → privacy/terms/cookies pages (getTranslations)   [~5 KB]
- *   - category  → category/[slug]/page.tsx (getTranslations)      [~8 KB]
+ *   - legal     → privacy/terms/cookies pages (getTranslations) — large
+ *                 namespace, never promote to the client list
+ *   - category  → category/[slug]/page.tsx (getTranslations) — large
+ *                 namespace, never promote to the client list
  *   - sort      → no consumer; client sort UI uses browse.toolbar.sort
  *
- * DOTTED PATHS ARE SUPPORTED. An entry may be a top-level namespace ("home")
- * or a dotted sub-path ("footer.statusLink"). A dotted entry ships ONLY that
+ * DOTTED PATHS ARE SUPPORTED. An entry may be a top-level namespace ("home") or
+ * a dotted sub-path ("footer.statusLink"). A dotted entry ships ONLY that
  * subtree, rebuilt at the same shape, so `useTranslations("footer")` +
- * `t("statusLink")` still resolves. Use it when a client component needs one
- * leaf of an otherwise server-only namespace — shipping the whole namespace
- * to every page just to satisfy one string is pure payload waste.
+ * `t("statusLink")` still resolves. Use it when a client component needs one leaf
+ * of an otherwise server-only namespace — shipping the whole namespace to every
+ * page just to satisfy one string is pure payload waste.
  *
- * The outage surfaces are exactly that case: <HeroStatusStrip> (homepage)
- * reads `littleBiggyStatus.status.down` + `footer.statusLink`, and
- * <StatusRelativeTime> (status page) needs runtime ICU pluralisation of
- * `littleBiggyStatus.status.lastChecked*` (the count advances on the client,
- * so it cannot be pre-resolved server-side). Shipping both namespaces whole
- * cost ~5.76 KB uncompressed per page; the two sub-paths below cost ~2.1 KB.
- * They deliberately REUSE the existing copy rather than forking it into
- * `home`.
+ * The status surfaces are that case: <HeroStatusStrip> reads
+ * `littleBiggyStatus.status.down` + `footer.statusLink`, and <StatusRelativeTime>
+ * needs runtime ICU pluralisation of `littleBiggyStatus.status.lastChecked*`
+ * (the count advances on the client, so it cannot be pre-resolved server-side).
+ * Both reuse the existing copy rather than forking it into `home`.
  *
  * Keep alphabetical for easy diffing.
  */
@@ -76,10 +72,9 @@ export type ClientMessages = Messages;
  * - `"home"`              → ships the whole `home` namespace.
  * - `"footer.statusLink"` → ships `{ footer: { statusLink } }` only.
  *
- * No dependency and no deep clone — picked values are shared by reference and
- * are never mutated. Missing paths are skipped silently so a stale entry can't
- * crash the app; the dev guard in IntlClientProvider still surfaces genuine
- * misses loudly.
+ * No deep clone — picked values are shared by reference and must never be
+ * mutated. Missing paths are skipped silently so a stale entry can't crash the
+ * app; the dev guard in IntlClientProvider still surfaces genuine misses loudly.
  *
  * Sub-paths of the SAME namespace merge rather than overwrite, so
  * ["a.b", "a.c"] yields { a: { b, c } }. Listing a bare namespace alongside a

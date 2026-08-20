@@ -31,7 +31,7 @@ import type { CardConfig } from "./ItemCard";
 import { ItemCard } from "./ItemCard";
 import { ItemRow } from "./ItemRow";
 
-// ─── Progressive rendering (ported from food-agg) ──────────────────
+// ─── Progressive rendering ──────────────────
 
 const COLS = 4;
 const INITIAL_ROWS = 9;
@@ -55,12 +55,12 @@ function useProgressiveRender<T extends { id: string | number }>(
   // The reset key is the user's active-view SIGNATURE, not the raw item count.
   // `sortedItemsAtom` emits a new array both when the user changes a
   // filter/sort AND when fresh data lands (crawler ran → router.refresh
-  // refetched the browse RSC). Only the former should snap back to the first
-  // batch; the latter under a deep-scrolled reader truncated the list and
-  // collapsed the page height (the reported bug).
+  // refetched the browse RSC). Only the former may snap back to the first
+  // batch — resetting on the latter truncates the list under a deep-scrolled
+  // reader and collapses the page height.
   if (signature !== prevSignature) {
     // User changed their view (filter/sort/search/category/market/…): reset to
-    // the first batch, exactly as before.
+    // the first batch.
     setPrevSignature(signature);
     setPrevLength(items.length);
     setRenderCount(Math.min(items.length, INITIAL_BATCH));
@@ -68,8 +68,7 @@ function useProgressiveRender<T extends { id: string | number }>(
     // Same view, new data reference (background swap, or the seed→live boot
     // swap): PRESERVE how far the user had scrolled. Clamp to the new length,
     // floored at INITIAL_BATCH so the boot transition (renderCount 0 while the
-    // store is empty → first live array) still reveals a full first batch
-    // rather than freezing at 0.
+    // store is empty) still reveals a full first batch rather than freezing.
     setPrevLength(items.length);
     setRenderCount((prev) =>
       Math.min(items.length, Math.max(prev, INITIAL_BATCH)),
@@ -117,18 +116,15 @@ function useProgressiveRender<T extends { id: string | number }>(
 
 /**
  * Lightweight card rendered during loading (before Jotai hydrates).
- * Contains a real <img> so the browser preload scanner discovers images
- * immediately from the server HTML, and is a real <a href="/item/{ref}">
- * so crawlers get a linked catalog with the item name as anchor text.
- * No onClick — pre-hydration a tap navigating to the item page is correct.
- * No client hooks — renders identically on the server so the seed HTML is
- * complete for crawlers.
+ * Keep it a real <img> inside a real <a href="/item/{ref}">: the preload
+ * scanner then finds images straight from the server HTML, and crawlers get a
+ * linked catalog with the item name as anchor text. No onClick (pre-hydration
+ * a tap should navigate) and no client hooks, so the server HTML is complete.
  *
- * Fields are pre-shaped by buildSeedItems (server): the price string (`p`) is
- * already currency-converted to match the live card's footer format, the
- * rating (`ra`/`rc`) mirrors the live rating chip, and the category pill
- * (`cl`/`sc0`) mirrors the live CardPill — closing the visible content gap so
- * a seed reads as a complete card, not an image-with-missing-text stub.
+ * Fields are pre-shaped by buildSeedItems (server) — price (`p`) already
+ * currency-converted, rating (`ra`/`rc`) and category pill (`cl`/`sc0`)
+ * mirroring the live card — so a seed reads as a complete card rather than an
+ * image-with-missing-text stub.
  */
 function SeedCard({
   item,
@@ -156,14 +152,13 @@ function SeedCard({
       <div className="item-card-inner">
         <div className="item-card-image aspect-square">
           {imageUrl ? (
-            /* <picture> wrapper is React's documented escape hatch from
-               Fizz's automatic image preloading: without it, SSR'd
-               eager+high imgs get promoted into a CACHED HTTP Link
-               preload header that also rides the /browse RSC prefetch —
-               browsers then warn about unused preloads on OTHER pages
-               (seen live on the homepage). The preload scanner still
-               discovers the img from the HTML immediately; only the
-               header/link auto-emit is suppressed. */
+            /* <picture> is React's documented escape hatch from Fizz's
+               automatic image preloading: without it an SSR'd eager+high
+               img is promoted into a CACHED HTTP Link preload header that
+               also rides the /browse RSC prefetch, so other pages warn
+               about unused preloads. The preload scanner still discovers
+               the img from the HTML; only the header auto-emit is
+               suppressed. */
             <picture>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -275,11 +270,11 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
 
   // Smooth-scroll to top when the user changes their VIEW (filter/sort/search/
   // category/market/…), keyed on the same signature the progressive renderer
-  // resets on. Deliberately NOT keyed on the `items` reference: a background
-  // data swap (crawler ran → router.refresh) or the seed→live boot swap both
-  // produce a new `items` array with an UNCHANGED signature, and scrolling a
-  // deep reader to the top for those would be the very disruption we're fixing.
-  // Skips initial mount; only scrolls if the user is already near the top.
+  // resets on. Never key this on the `items` reference: a background data swap
+  // (router.refresh) or the seed→live boot swap produces a new `items` array
+  // with an UNCHANGED signature, and yanking a deep-scrolled reader to the top
+  // for those is exactly what must not happen. Skips initial mount; only
+  // scrolls if the user is already near the top.
   const prevSignatureRef = useRef(viewSignature);
   useEffect(() => {
     if (prevSignatureRef.current !== viewSignature) {
@@ -290,7 +285,7 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
     }
   }, [viewSignature]);
 
-  // Read shared atoms once here — avoids per-card subscriptions (food-agg pattern)
+  // Read shared atoms once here — avoids per-card subscriptions
   const currentMarket = useAtomValue(marketAtom) || DEFAULT_MARKET;
   const { symbol: cSym, rate: cRate } = useAtomValue(currencyDisplayAtom);
   const sellersMap = useAtomValue(sellersMapAtom);
@@ -308,23 +303,17 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
   const itemIndex = useAtomValue(itemIndexAtom);
   const [clientNow, setClientNow] = useState<number | null>(null);
 
-  // `clientNow` is the "now" reference fed to relative-time formatters on
-  // each card ("listed 3m ago"). It MUST be bumped when items change —
-  // otherwise router.refresh() (e.g. RouterRefreshOnReturn) brings in
-  // newer data with `lua` timestamps that are later than the cached now,
-  // and `relativeAge` returns null on every card (its `ms < 0` guard).
-  // Three triggers, all cheap:
-  //   1. Items reference change (data arrival, also fires on filter/sort
-  //      but that's benign — same clientNow within the same second).
-  //   2. Slow interval so a user sitting on a static page eventually
-  //      sees "3m ago" advance to "4m ago".
-  //   3. Tab return — covers the case where router.refresh hasn't fired
-  //      yet (e.g. < 2 min hidden) but times still drifted.
-  // `items` is intentionally a trigger-only sentinel — a new array
-  // reference means fresh data arrived (router.refresh, filter change)
-  // and we want a fresh `now` for relative-time formatting on the cards.
-  // Reading items.length inside the effect makes the dep "used" so biome's
-  // exhaustive-deps rule doesn't flag it.
+  // `clientNow` is the "now" reference fed to the cards' relative-time
+  // formatters ("listed 3m ago"). It MUST be bumped when items change:
+  // router.refresh brings in data whose `lua` timestamps are later than a
+  // stale now, and `relativeAge` then returns null on every card (its
+  // `ms < 0` guard). Three cheap triggers: a new items reference (filter/sort
+  // also fires it — harmless, same second), a slow interval so an idle page
+  // still ticks over, and tab return — which is NOT redundant with
+  // RouterRefreshOnReturn, since that only refreshes after a long-enough hide
+  // and defers entirely for a deep-scrolled reader.
+  // `items` is a trigger-only sentinel — reading items.length inside the
+  // effect marks the dep "used" for biome's exhaustive-deps rule.
   useEffect(() => {
     void items.length;
     setClientNow(Date.now());
@@ -381,17 +370,15 @@ export function ItemGrid({ seedItems }: { seedItems?: SeedItem[] }) {
   // skeleton flash for data that's already in memory.
   if (isLoading && items.length === 0) {
     // Seed cards until live data lands. Seeds mirror the default sort
-    // (hottest desc), so on a plain /browse load the live swap-in is
-    // content-identical and dimension-stable. When the URL carries filter
-    // params (shared links like /browse?cat=Flower) the seeds would show
-    // the UNFILTERED default set — the page is cached path-only, so the
-    // server can't vary on searchParams. For that case the layout's inline
-    // script (SeedParamsScript; SeedParamsSync on client navs) sets
-    // `html.bi-seed-hide` before
-    // first paint; CSS then hides the seed grid and reveals the skeleton
-    // grid below (same grid container → no layout shift, and the toolbar/
-    // header above are never hidden). Crawlers fetch /browse without
-    // params, so the SEO-critical raw HTML keeps the full linked seed grid.
+    // (hottest desc), so a plain /browse load swaps in content-identical and
+    // dimension-stable. The page is cached path-only, so the server cannot
+    // vary on searchParams: with filter params in the URL (shared links like
+    // /browse?cat=Flower) the seeds would show the UNFILTERED default set, so
+    // the layout's inline script (SeedParamsScript; SeedParamsSync on client
+    // navs) sets `html.bi-seed-hide` before first paint and CSS hides the seed
+    // grid in favour of the skeleton grid below (same grid container → no
+    // layout shift; the toolbar/header are never hidden). Crawlers fetch
+    // /browse without params, so the raw HTML keeps the full linked seed grid.
     if (seedItems?.length) {
       return (
         <>

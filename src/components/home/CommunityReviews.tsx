@@ -137,7 +137,7 @@ function StarRatingDark({
 function timeAgo(dateStr: string, copy: TimeAgoCopy, now: number): string {
   const diff = Math.max(0, now - new Date(dateStr).getTime());
   // Minute granularity under the hour: "Just now" is only honest for the
-  // first few minutes — a whole feed stamped "Just now" for 59 minutes isn't.
+  // first few minutes, not for a whole feed stamped that way for 59.
   const minutes = Math.floor(diff / 60_000);
   if (minutes < 5) return copy.justNow;
   if (minutes < 60) return copy.minutesAgo(minutes);
@@ -175,7 +175,7 @@ function PhotoReviewCard({
   const markImageDead = useCallback((src: string) => {
     setFailedImages((current) => new Set(current).add(src));
   }, []);
-  // Optimised 96px avatar (see note on `avatarUrl` in MarqueeReviewCard).
+  // Optimised 96px avatar (see the `avatarUrl` note in MarqueeReviewCard).
   const avatarUrl = getSellerImageUrl(review.sellerAvatar);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const visibleImages = useMemo(
@@ -201,8 +201,8 @@ function PhotoReviewCard({
       {visibleImages.length > 0 ? (
         <div className="absolute inset-0">
           {visibleImages.map((src, imageIndex) => (
-            // Optimised CDN thumb with raw-LB fallback; only photos dead on
-            // BOTH sources are pruned (previously any raw failure pruned).
+            // Optimised CDN thumb with raw-LB fallback; a photo is pruned
+            // only when BOTH sources fail.
             <ReviewPhotoImg
               key={src}
               rawUrl={src}
@@ -277,7 +277,7 @@ function PhotoReviewCard({
     </>
   );
 
-  // Real item link for crawlers when the item is known; left-click keeps the modal UX
+  // Real item link so crawlers see a URL; left-click keeps the modal UX.
   return review.refNum ? (
     <a
       href={`/item/${encodeURIComponent(String(review.refNum))}`}
@@ -320,11 +320,11 @@ function MarqueeReviewCard({
 }) {
   const setRefNum = useSetAtom(expandedRefNumAtom);
   const canOpen = !!review.refNum;
-  // `sellerAvatar` is the RAW marketplace original (multi-MB, one animated
-  // GIF is 5.3MB) rendered in a 24px slot — always serve the 96px optimised
-  // crop instead. `itemImage` already arrives optimised but at the 600px
-  // `thumb` tier, so drop it to the `icon` tier. Both fall back to the
-  // existing placeholder on error; deliberately NEVER back to the original.
+  // `sellerAvatar` is the RAW marketplace original (can be multiple MB)
+  // rendered in a 24px slot — always serve the 96px optimised crop instead.
+  // `itemImage` arrives optimised but at the 600px `thumb` tier, so drop it
+  // to `icon`. Both fall back to the placeholder on error, NEVER to the
+  // original.
   const avatarUrl = getSellerImageUrl(review.sellerAvatar);
   const itemImageUrl = toIconVariantUrl(review.itemImage);
   const [avatarFailed, setAvatarFailed] = useState(false);
@@ -345,7 +345,8 @@ function MarqueeReviewCard({
         </span>
       </div>
 
-      {/* Middle: review text (fades at bottom if clamped; click card to read full via detail overlay) */}
+      {/* Middle: review text — fades out at the bottom when clamped; the card
+          click opens the detail overlay with the full text. */}
       {review.text && (
         <p className="text-[12.5px] text-foreground/80 leading-relaxed line-clamp-5 mb-1.5 flex-1 min-h-0 mask-[linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]">
           {review.text}
@@ -420,7 +421,7 @@ function MarqueeReviewCard({
     </>
   );
 
-  // Real item link for crawlers; left-click keeps the modal UX
+  // Real item link so crawlers see a URL; left-click keeps the modal UX.
   return canOpen ? (
     <a
       href={`/item/${encodeURIComponent(String(review.refNum))}`}
@@ -501,8 +502,8 @@ function MarqueeRow({
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
 
-  // Build the card list once — we duplicate for seamless looping. The clone
-  // copy gets tabIndex -1 so keyboard users don't Tab through every card twice.
+  // Built twice: the second copy is the clone that makes the loop seamless.
+  // It gets tabIndex -1 so keyboard users don't Tab every card twice.
   const buildCards = (isClone: boolean) => {
     const items: React.ReactNode[] = [];
     reviews.forEach((review) => {
@@ -553,12 +554,12 @@ function MarqueeRow({
         {/* First copy — the real, interactive one */}
         {cards}
         {/* Clone for the seamless -50% loop. `display:contents` keeps each
-            card a direct flex item (gap + width unchanged, so the loop stays
-            pixel-identical); `aria-hidden` drops the duplicate from the a11y
-            tree and the clone cards carry tabIndex -1 so Tab skips them.
-            Deliberately NOT `inert`: the clone is on-screen half the loop and
-            must stay mouse-clickable. Wrapping also scopes the reused keys so
-            they don't collide with the first copy's siblings. */}
+            card a direct flex item so gap and width are unchanged and the loop
+            stays pixel-identical; `aria-hidden` drops the duplicate from the
+            a11y tree and the clone cards carry tabIndex -1 so Tab skips them.
+            Deliberately NOT `inert`: the clone is on-screen for half the loop
+            and must stay mouse-clickable. The wrapper also scopes the reused
+            keys away from the first copy's siblings. */}
         <div className="contents" aria-hidden="true">
           {cloneCards}
         </div>

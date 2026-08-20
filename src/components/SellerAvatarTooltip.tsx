@@ -22,7 +22,6 @@ interface SellerAvatarTooltipProps {
 /**
  * Cursor-following tooltip that shows a larger seller logo/banner image
  * with seller name on hover. Portal-rendered to document.body.
- * Ported from food-aggregator-example.
  */
 export function SellerAvatarTooltip({
   sellerName,

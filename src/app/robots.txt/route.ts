@@ -5,17 +5,13 @@ import { getMarketFromHost } from "@/lib/market/market";
  * Market-aware robots.txt — blocks known bad bots and disallows
  * filter query param URLs to avoid duplicate content.
  *
- * ── Why a route handler and not src/app/robots.ts (MetadataRoute.Robots) ──
- * This WAS a metadata route calling `await headers()` for the Host. Under
- * cacheComponents that dynamic access made the route fully no-store, and the
- * Netlify runtime forwarded EVERY robots.txt hit to the origin function —
- * measured 2026-07-21/22: consecutive GETs each returned `cache-status:
- * "Netlify Durable"; fwd=bypass` with distinct x-nf-request-ids, on all 10
- * hosts. One billed invocation per crawler politeness-check, forever.
- * /sitemap.xml (this exact route-handler shape, reading the Host from the
- * request object instead of the headers() API) is the proven control: it
- * caches durably per host (`"Netlify Durable"; hit; ttl=43199`). Mirror it.
- * Output is byte-identical to what the metadata route rendered.
+ * Must stay a route handler; do NOT port it to src/app/robots.ts
+ * (MetadataRoute.Robots). A metadata route needs `await headers()` to read the
+ * Host, and under cacheComponents that dynamic access makes the route no-store,
+ * so the Netlify runtime forwards every hit to the origin function — one billed
+ * invocation per crawler politeness-check. Reading the Host off the request
+ * object instead keeps the response cacheable durably per host, the same shape
+ * sitemap.xml/route.ts uses.
  */
 
 const DOMAINS: Record<string, string> = {
@@ -31,17 +27,16 @@ const DOMAINS: Record<string, string> = {
   PL: "https://pl.biggyindex.com",
 };
 
-// Explicit /api allows so the WRS renderer can fetch the browse dataset +
-// rates and render the full catalog during the rendering wave. Google
-// resolves by most-specific path, but explicit Allow entries above the
-// blanket /api/ disallow make the intent clear.
+// Explicit /api allows so the renderer can fetch the browse dataset + rates
+// and render the full catalog. Google resolves by most-specific path, but
+// listing them above the blanket /api/ disallow makes the intent clear.
 //
-// "/browse?cat=" re-opens ONLY the category-filter form for crawling. Under
+// "/browse?cat=" opens ONLY the category-filter form for crawling: under
 // Google's longest-match rule the allow's 12 literal chars beat the
 // "/browse?*" disallow's 8 ("/browse?"), so /browse?cat=Flower is fetchable
-// while every other filter combo (q/pmin/pmax/sellers/sub/excl) stays
-// blocked. Crawlable != indexable: filtered URLs canonicalise to /browse,
-// so Googlebot follows the links and passes equity without indexing them.
+// while every other filter combo (q/pmin/pmax/sellers/sub/excl) stays blocked.
+// Crawlable != indexable — filtered URLs canonicalise to /browse, so links are
+// followed and pass equity without being indexed.
 const BODY_RULES = `User-Agent: *
 Allow: /
 Allow: /api/browse
@@ -63,20 +58,14 @@ User-Agent: PetalBot
 Disallow: /
 `;
 
-// Hosts that are allowed to advertise themselves to crawlers. Anything else —
-// *.vercel.app, *.netlify.app, staging, deploy previews — gets a blanket
-// Disallow instead of the real ruleset.
-//
-// WHY: getMarketFromHost() falls back to "GB" for unrecognised hosts, so every
-// mirror of this app used to serve `Allow: /` and was fully crawlable. During
-// the July 2026 Vercel bridge that meant biggyindex-frontend.vercel.app was a
-// publicly indexable duplicate of the whole site. Pages do emit a canonical
-// pointing at biggyindex.com, which limits the damage, but canonical is a hint
-// and robots is a directive — and Vercel's free "Standard Protection" does NOT
-// cover a project's production *.vercel.app URL (that needs a paid plan), so
-// this route is the only lever we actually control. Keeping the mirror
-// reachable-but-unindexable is deliberate: the Vercel project stays a working
-// escape hatch we can verify against before flipping DNS.
+// Hosts allowed to advertise themselves to crawlers. Anything else — platform
+// subdomains, staging, deploy previews — gets a blanket Disallow instead of
+// the real ruleset. Without this list, getMarketFromHost()'s fallback to "GB"
+// makes every mirror serve `Allow: /`, i.e. a fully crawlable duplicate of the
+// whole site. Pages emit a canonical at the apex, but canonical is a hint and
+// robots is a directive, and platform-side protection generally cannot be
+// applied to a production preview URL. Mirrors stay reachable-but-unindexable
+// on purpose, so they remain usable for verification.
 const CRAWLABLE_HOSTS = new Set<string>([
   "biggyindex.com",
   "www.biggyindex.com",
@@ -123,11 +112,10 @@ export function GET(request: NextRequest): NextResponse {
 
   return new NextResponse(`${BODY_RULES}\nSitemap: ${baseUrl}/sitemap.xml\n`, {
     headers: {
-      // Same proven shape as sitemap.xml/route.ts — the Netlify runtime maps
-      // the s-maxage into netlify-cdn-cache-control and stores it durably per
-      // host. Content only changes on deploy; 12h keeps a robots edit
-      // propagating within half a day (a deploy does not reliably purge
-      // TTL-based durable entries).
+      // The Netlify runtime maps this s-maxage into netlify-cdn-cache-control
+      // and stores the response durably per host. Content only changes on
+      // deploy, and a deploy does not reliably purge TTL-based durable
+      // entries, so 12h bounds how long a robots edit takes to propagate.
       "Cache-Control": "public, s-maxage=43200, stale-while-revalidate=86400",
       "Content-Type": "text/plain; charset=utf-8",
     },

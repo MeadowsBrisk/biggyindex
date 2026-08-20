@@ -9,20 +9,19 @@ import { R2Keys, readR2JSON } from "@/lib/r2";
 /**
  * Homepage outage strip.
  *
- * The homepage renders NO SiteHeader, so the Verify popover and the status
- * link are unreachable above the fold — the footer is six sections down.
- * This closes that gap, and ONLY for the down state: when Little Biggy is up
- * (the ~always case) this renders null and costs the hero nothing.
+ * The homepage renders no SiteHeader, so the Verify popover and the status
+ * link are unreachable above the fold. This closes that gap, and only for the
+ * down state: when the marketplace is up this renders null and costs the hero
+ * nothing.
  *
- * CLIENT-ONLY BY NECESSITY. HomePage is `'use cache'` on the `items` profile
- * (revalidate 86400). A nested `'use cache'` on the `status` profile
- * (revalidate 300) would cap the WHOLE homepage at a 5-minute life and
- * multiply Netlify function invocations; `<Suspense>` is banned on this page
- * (see the comment at app/[locale]/page.tsx:129). So: one deferred fetch
- * straight off the public R2 CDN — no API route, no serverless hit.
+ * CLIENT-ONLY BY NECESSITY. The homepage is `'use cache'` on the long-lived
+ * `items` profile. Nesting the short-lived `status` profile would cap the
+ * whole homepage at that shorter life and multiply function invocations, and
+ * `<Suspense>` must not be used on this page (see app/[locale]/page.tsx). Hence
+ * one deferred fetch straight off the public R2 CDN — no API route.
  *
- * NEVER render a relative timestamp here. There is no cache re-stamp on this
- * page, so "checked X ago" would freeze. Freshness is enforced by refusing to
+ * NEVER render a relative timestamp here: nothing re-stamps this page, so
+ * "checked X ago" would freeze. Freshness is enforced instead by refusing to
  * render a blob older than MAX_BLOB_AGE_MS.
  */
 
@@ -64,30 +63,20 @@ export function HeroStatusStrip() {
   // later appearance is announced. role="status" must live on the wrapper,
   // NOT on the <Link> — it would override the link role.
   //
-  // The CTA text is `rose-700 / dark:rose-300`, deliberately one step off the
-  // status page's rose-600/400, because it sits on a tinted band (rose-600 on
-  // the light tint ≈ 4.6:1; rose-700 ≈ 6.4:1). Do not "fix" it back.
+  // The CTA text is `rose-700 / dark:rose-300`, one step off the status
+  // page's rose-600/400, because it sits on a tinted band (rose-600 on the
+  // light tint is ~4.6:1; rose-700 is ~6.4:1). Do not "fix" it back.
   //
-  // ── IN NORMAL FLOW, ON PURPOSE (changed 2026-07-27) ───────────────────
-  // This was `absolute inset-x-0 top-0 z-10` inside HeroSection, to guarantee
-  // zero layout shift. That is unsatisfiable: HeroSection is
-  // `min-h-[100svh] justify-center`, so as soon as its content column is
-  // taller than the viewport the column clamps to top:0 and the absolute band
-  // sits UNDERNEATH it — both are z-10 and the column is later in the DOM, so
-  // the 48px logo mark painted straight over the band's text. Measured
-  // overlap: 62px at 360x640/740/800 and 390x844, 44px at 1440x700 — i.e.
-  // every phone and any short desktop window, not an edge case.
+  // KEEP THIS IN NORMAL FLOW. Absolutely positioning it inside HeroSection to
+  // avoid layout shift does not work: HeroSection is `min-h-[100svh]
+  // justify-center`, so once its content column is taller than the viewport
+  // the column clamps to top:0 and paints straight over the band's text. In
+  // flow the band simply pushes the hero down and can never overlap. The up
+  // state stays shift-free either way — it renders an empty zero-height
+  // wrapper — and a shift when the site is down is correct banner behaviour.
   //
-  // In flow it simply pushes the hero down and can never overlap anything.
-  // The "no layout shift" purity was only ever protecting the UP state, and
-  // that is untouched: when LB is up this renders an empty zero-height
-  // wrapper. When LB is DOWN a 44px shift is the correct, expected behaviour
-  // of an outage banner — and the component mounts client-side after a
-  // deferred fetch anyway, so its appearance was always going to be a visual
-  // change regardless of positioning.
-  //
-  // `min-h-11` is a FLOOR, not a fixed height — de/el wrap to two lines and
-  // the band grows, which is now genuinely harmless.
+  // `min-h-11` is a FLOOR, not a fixed height: locales that wrap to two lines
+  // grow the band, which is fine.
   return (
     <div role="status" aria-live="polite" className="relative z-10">
       {down && (

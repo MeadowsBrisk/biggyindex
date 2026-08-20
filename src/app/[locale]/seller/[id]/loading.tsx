@@ -1,11 +1,10 @@
 /**
  * Route-level loading skeleton for seller pages.
  *
- * Besides the UX nicety, this mirrors /item/[ref]/loading.tsx deliberately:
- * item/[ref] is the ONLY param route whose runtime renders stay storable in
- * prod, and the presence of a route-level Suspense boundary is the sole
- * structural difference from seller/category (2026-07 caching investigation).
- * Kept in lockstep with the durable-CDN fallback in next.config.ts.
+ * More than a UX nicety: a route-level Suspense boundary is believed to be the
+ * structural difference that keeps a param route's runtime renders storable,
+ * so this mirrors /item/[ref]/loading.tsx and stays in lockstep with the
+ * durable-CDN fallback in next.config.ts.
  */
 export default function Loading() {
   return (

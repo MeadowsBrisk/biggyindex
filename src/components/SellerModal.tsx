@@ -44,7 +44,7 @@ import {
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
 const REVIEW_SKELETON_KEYS = ["first", "second", "third", "fourth", "fifth"];
 
-/** Rating-based badge color (matches old biggyindex review-panel-N pattern) */
+/** Rating-based badge colour bucket. */
 function ratingBucketClass(rating: number): string {
   if (rating <= 2)
     return "border-red-400/40 bg-red-500/10 dark:border-red-500/30 dark:bg-red-500/15";
@@ -129,9 +129,9 @@ export function SellerModal() {
     }, 150);
   }, [setSellerId]);
 
-  // Register with history manager so pressing Back closes the modal
-  // (rather than navigating away). Nested zoom overlays push their own entry
-  // on top — so Back closes zoom first, then a second Back closes this modal.
+  // Register with the history manager so Back closes the modal rather than
+  // navigating away. Nested zoom overlays push their own entry on top, so
+  // Back closes zoom first and a second Back closes this modal.
   const { closeOverlay: closeViaHistory } = useHistoryState({
     id: `seller-modal-${sellerId ?? "none"}`,
     type: "modal",
@@ -150,13 +150,10 @@ export function SellerModal() {
     return () => document.removeEventListener("keydown", onKey);
   }, [sellerId, closeViaHistory]);
 
-  // Lock body scroll via the ref-counted hook so stacking with another
-  // open modal (typically ItemDetailOverlay opened first → SellerModal
-  // opened on top from a card click) doesn't fight on `body.style.overflow`.
-  // Previously this was a hand-rolled effect on `document.body.style.overflow`
-  // — which clashed with ItemDetailOverlay's `useBodyScrollLock`-driven
-  // lock on `<html>` and was a likely culprit for the "header disappears
-  // when nested" visual glitch.
+  // Lock body scroll through the ref-counted hook, never by hand-setting
+  // `document.body.style.overflow`: this modal stacks on top of
+  // ItemDetailOverlay, which locks `<html>` via the same hook, and two
+  // independent locks fight on unmount.
   useBodyScrollLock(!!sellerId);
 
   // Image from detail — optimized via CDN
@@ -164,7 +161,7 @@ export function SellerModal() {
   const img = getSellerImageUrl(rawImg) ?? null;
   const zoomImg = getSellerImageUrl(rawImg, "full") ?? img;
 
-  // Share link (matches old-biggyindex: prefer share, fall back to sellerUrl)
+  // Share link — prefer `share`, fall back to `sellerUrl`.
   const shareLink = useMemo(() => {
     if (!detail) return null;
     if (typeof detail.share === "string" && detail.share) {
@@ -235,10 +232,9 @@ export function SellerModal() {
       closeViaHistory();
       return;
     }
-    // Navigate to /browse with the seller in the URL. Intentionally do NOT
-    // touch atoms here — on the source page (e.g. /sellers) UrlSync Phase 2
-    // would immediately race router.push and clobber the destination URL.
-    // /browse's DataLoader reads ?sellers= on mount and hydrates the atom.
+    // Navigate to /browse with the seller in the URL. Do NOT touch atoms
+    // here: on the source page UrlSync would race router.push and clobber the
+    // destination URL. /browse's DataLoader reads ?sellers= on mount.
     historyManager.remove(`seller-modal-${sellerId}`);
     setSellerId(null);
     router.push(`/browse?sellers=${encodeURIComponent(sellerId)}`);
@@ -268,11 +264,10 @@ export function SellerModal() {
         role="presentation"
         className={`modal-panel modal-panel--xl modal-panel--seller${closing ? " modal-panel--closing" : ""}`}
         style={{
-          /* On mobile: natural height + overall panel scroll (matches the
-             v1 SellerOverlay pattern). Both columns stack and the panel
-             itself scrolls so reviews aren't squished into a tiny inner
-             container. On desktop the seller summary stays fixed while the
-             reviews list owns the scroll. */
+          /* Mobile: natural height, panel owns the scroll — both columns
+             stack so reviews aren't squished into a tiny inner container.
+             Desktop: the seller summary stays put and the reviews list owns
+             its own scroll. */
           maxHeight: "calc(100dvh - 1rem)",
           padding: 0,
         }}
@@ -290,10 +285,10 @@ export function SellerModal() {
 
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 md:h-full md:min-h-0 md:flex-1">
           {/* ── Left column: seller info ──
-              md:overflow-y-auto (not hidden): long manifestos + the community
-              feedback block exceed the panel height — without its own scroll
-              the column just clips at the panel edge on desktop. pb-8 keeps
-              the last block (feedback actions) off the modal's bottom edge. */}
+              md:overflow-y-auto (not hidden): long manifestos plus the
+              community feedback block exceed the panel height, and without
+              its own scroll the column clips at the panel edge on desktop.
+              pb-8 keeps the last block off the modal's bottom edge. */}
           <div className="min-w-0 p-5 pb-8 md:min-h-0 md:overflow-y-auto md:border-r border-border">
             {/* Identity */}
             <div className="flex items-start gap-4">
@@ -410,10 +405,11 @@ export function SellerModal() {
                 </div>
               ) : detail?.manifesto ? (
                 (() => {
-                  // Crawler's translate stage stores per-locale manifesto
-                  // translations at `detail.translations.locales[<locale>].manifesto`.
-                  // Default to translated (matches surrounding UI), switch to
-                  // original via the global Show-in-English toggle.
+                  // The crawler's translate stage writes per-locale manifesto
+                  // translations to
+                  // `detail.translations.locales[<locale>].manifesto`.
+                  // Default to translated (matches the surrounding UI);
+                  // the global Show-in-English toggle switches to original.
                   const targetLocale = marketToLocale(
                     market as Parameters<typeof marketToLocale>[0],
                   );
@@ -451,11 +447,10 @@ export function SellerModal() {
           </div>
 
           {/* ── Right column: reviews ──
-              On mobile: just stacks below the seller-info column and
-              flows naturally inside the panel's outer scroll.
-              On desktop: independent overflow column (md:min-h-0
-              md:overflow-hidden) so the inner reviews list owns its
-              own scroll alongside the seller info. */}
+              Mobile: stacks below the seller-info column and flows inside the
+              panel's outer scroll. Desktop: independent overflow column
+              (md:min-h-0 md:overflow-hidden) so the inner reviews list scrolls
+              alongside the seller info. */}
           <div className="min-w-0 flex flex-col md:min-h-0 md:overflow-hidden relative">
             {/* Reviews header (pr-14 reserves space for the close X) */}
             <div className="sticky top-0 z-10 bg-card border-b border-border px-5 py-3 pr-14">
@@ -545,9 +540,9 @@ export function SellerModal() {
               )}
             </div>
 
-            {/* Reviews list — mobile: natural flow inside the panel
-                scroll (no inner scroller). Desktop: own scrollable area
-                so it doesn't drag the seller-info column with it. */}
+            {/* Reviews list — mobile: natural flow inside the panel scroll (no
+                inner scroller). Desktop: its own scrollable area so scrolling
+                reviews doesn't drag the seller-info column with it. */}
             <div className="overflow-x-hidden px-5 py-3 space-y-3 md:flex-1 md:min-h-0 md:overflow-y-auto">
               {loading && reviews.length === 0 ? (
                 <div className="space-y-4 animate-pulse">
@@ -603,7 +598,8 @@ export function SellerModal() {
               <div className="pb-16" />
             </div>
 
-            {/* Outbound "Visit {seller}" button — reuses ItemDetailOverlay LB button */}
+            {/* Outbound "Visit {seller}" button — shares ItemDetailOverlay's
+                `.ido-lb-btn` styling. */}
             {shareLink && (
               <a
                 href={shareLink}

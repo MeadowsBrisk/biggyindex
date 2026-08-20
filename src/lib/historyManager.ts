@@ -1,9 +1,6 @@
 /**
- * Centralized history state manager for modal/overlay navigation.
- * Ensures consistent back button behavior — pressing Back closes the
- * topmost overlay instead of navigating away.
- *
- * Ported from food-aggregator-example.
+ * Centralized history state for modal/overlay navigation: pressing Back
+ * closes the topmost overlay instead of navigating away.
  */
 
 type OverlayType = "zoom" | "filter" | "pricing" | "modal";
@@ -61,8 +58,8 @@ class HistoryManager {
 
   /** Push a new overlay onto the history stack */
   push(type: OverlayType, id: string): void {
-    // If this id is already in the stack (e.g. React Strict Mode re-mount),
-    // skip the duplicate pushState to keep browser history in sync.
+    // A duplicate id (e.g. a Strict Mode re-mount) must not pushState twice,
+    // or the browser history desyncs from the stack.
     if (this.stack.some((e) => e.id === id)) return;
 
     this.stack.push({ id, type, timestamp: Date.now() });
@@ -121,8 +118,8 @@ class HistoryManager {
   }
 
   /**
-   * Remove an overlay from the internal stack without calling history.back().
-   * Useful for nested overlays that should close without triggering route navigation.
+   * Remove an overlay from the stack without calling history.back() — for
+   * nested overlays that must close without triggering route navigation.
    */
   remove(id: string): void {
     const index = this.stack.findIndex((e) => e.id === id);

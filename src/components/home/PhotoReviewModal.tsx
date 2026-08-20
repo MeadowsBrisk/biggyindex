@@ -1,21 +1,14 @@
 "use client";
 
 /**
- * PhotoReviewModal
+ * PhotoReviewModal — opened from the home-page photo-review masonry wall.
  *
- * Opened from the home-page photo-review masonry wall. Previously clicking a
- * photo tile just opened the item-detail overlay, which meant:
- *   1. The reviewer's photos weren't actually zoomable (the overlay's image
- *      gallery is the item's photos, not the review's).
- *   2. The review text was truncated and there was no way to read it all.
- *   3. There was no clear "open the item" vs "read the full review on
- *      LittleBiggy" affordance.
- *
- * This modal fixes those by giving the review its own full-screen surface:
- *   - Zoomable gallery on the left (reuses the site-wide ImageZoomPreview).
- *   - Full review text + seller/item context on the right.
- *   - Primary actions: "Open item" (opens the item-detail overlay and jumps
- *     to this specific review if it exists there) and "View on LittleBiggy".
+ * The review gets its own surface rather than reusing the item-detail overlay,
+ * whose gallery shows the ITEM's photos and clamps the review text:
+ *   - Zoomable gallery of the review's photos (site-wide ImageZoomPreview).
+ *   - Full, unclamped review text plus seller/item context.
+ *   - "Open item" (item-detail overlay, scrolled to this review) and
+ *     "View on LittleBiggy" as distinct actions.
  */
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -63,7 +56,7 @@ interface TimeAgoParts {
 
 function timeAgoParts(dateStr: string, now: number): TimeAgoParts {
   const diff = Math.max(0, now - new Date(dateStr).getTime());
-  // Minute granularity under the hour — matches CommunityReviews /
+  // Minute granularity under the hour — matches CommunityReviews and
   // WhatsNewSection (see the note on their `timeAgo`).
   const minutes = Math.floor(diff / 60_000);
   if (minutes < 5) return { key: "time.justNow" };
@@ -110,9 +103,9 @@ export function PhotoReviewModal() {
   const [zoomIndex, setZoomIndex] = useState(0);
   const [clientNow, setClientNow] = useState<number | null>(null);
   // Optimised 96px seller avatar — the raw `sellerAvatar` is the marketplace
-  // original (multi-MB) rendered at 36px. Track the failed URL rather than a
-  // boolean so the flag resets by itself when a different review opens; on
-  // failure we show the initials/User placeholder, never the original.
+  // original (can be multiple MB) rendered at 36px. Track the failed URL
+  // rather than a boolean so the flag resets itself when a different review
+  // opens; on failure show the placeholder, never the original.
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const avatarUrl = getSellerImageUrl(review?.sellerAvatar);
   const isOpen = review != null;
@@ -162,11 +155,11 @@ export function PhotoReviewModal() {
   useBodyScrollLock(isOpen);
 
   const images = useMemo(() => review?.images ?? [], [review]);
-  // Raw URLs whose optimised CDN thumb has actually loaded in the grid
-  // below. The zoom gallery only upgrades a photo to the CDN variant once
-  // that proof exists — otherwise it keeps the raw LB URL, so a CDN miss
-  // (photo not yet mirrored) can never produce a broken zoom slide. Keyed by
-  // raw URL, so it stays valid across different reviews.
+  // Raw URLs whose optimised CDN thumb has actually loaded in the grid below.
+  // The zoom gallery upgrades a photo to the CDN variant only once that proof
+  // exists, otherwise it keeps the raw URL — so a CDN miss (photo not yet
+  // mirrored) can never produce a broken zoom slide. Keyed by raw URL, so it
+  // stays valid across reviews.
   const [cdnLoaded, setCdnLoaded] = useState<Set<string>>(() => new Set());
   const markCdnLoaded = useCallback((rawUrl: string) => {
     setCdnLoaded((prev) =>
@@ -198,7 +191,7 @@ export function PhotoReviewModal() {
       setExpandedRefNum(review.refNum);
     }
     // Close this modal so the history stack lines up: the overlay pushes its
-    // own entry; pressing back from the overlay goes home, not back here.
+    // own entry, and Back from there should go home, not return here.
     setReview(null);
   };
 
@@ -232,11 +225,9 @@ export function PhotoReviewModal() {
               "flex flex-col md:flex-row",
             )}
           >
-            {/* Left: Image gallery.
-                Single image => large clickable hero. Multiple images =>
-                responsive grid so every photo from the review is visible;
-                clicking any tile opens the site-wide zoom gallery starting
-                at that index. */}
+            {/* Left: image gallery. One image → large clickable hero; several
+                → responsive grid so every photo in the review is visible.
+                Clicking a tile opens the zoom gallery at that index. */}
             <div className="relative flex-1 min-h-60 md:min-h-115 bg-black/90 md:w-1/2 overflow-y-auto">
               {images.length === 0 ? (
                 <div className="flex h-full w-full items-center justify-center text-white/40 text-sm">
@@ -282,8 +273,8 @@ export function PhotoReviewModal() {
                       })}
                       className={cx(
                         "relative aspect-square overflow-hidden rounded-md bg-black/60 group cursor-zoom-in",
-                        // First image spans 2x2 when there are >=3 so the
-                        // grid doesn't look awkwardly sparse.
+                        // First image spans 2x2 at 3 photos so the grid
+                        // doesn't read as sparse.
                         images.length === 3 &&
                           idx === 0 &&
                           "row-span-2 aspect-auto",
@@ -378,10 +369,9 @@ export function PhotoReviewModal() {
                 )}
               </div>
 
-              {/* Footer actions. "Open item" matches the site-wide primary
-                  CTA (.ido-lb-btn): pill shape, primary fill, arrow that
-                  slides on hover. "View on LittleBiggy" is a quiet ghost
-                  button so the primary action owns the spotlight. */}
+              {/* Footer actions. "Open item" matches the site-wide primary CTA
+                  (.ido-lb-btn); "View on LittleBiggy" stays a quiet ghost
+                  button so the primary action owns the emphasis. */}
               <div className="border-t border-border bg-surface/60 p-4 flex flex-col sm:flex-row gap-2">
                 {review.refNum && (
                   <button

@@ -4,8 +4,7 @@ import { Flag } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 /**
- * Opens the /suggest/<ref> page in a centered popup window,
- * matching the food-aggregator pattern exactly.
+ * Opens the /suggest/<ref> page in a centered popup window.
  *
  * With `iconOnly`, renders as a compact square icon button with a native
  * tooltip via `title` (no label text).

@@ -1,19 +1,18 @@
 /**
  * Relative-time helper (lightweight, no deps).
  *
- * Extracted from ItemCard so non-card surfaces (e.g. the /littlebiggy-status
- * "last checked N minutes ago" leaf) can reuse it without pulling ItemCard's
- * whole module graph into their bundle. ItemCard re-exports it, so
- * `ItemRow.tsx`'s existing import path keeps working unchanged.
+ * Lives outside ItemCard so non-card surfaces (e.g. the status page's "last
+ * checked N minutes ago" leaf) can reuse it without pulling ItemCard's whole
+ * module graph into their bundle. ItemCard re-exports it, so existing import
+ * paths through ItemCard keep working — keep the re-export.
  *
  * Deliberately takes `now` as an argument rather than reading the clock: the
  * caller supplies a client-stamped `clientNow`, which is what keeps cached
  * server HTML free of wall-clock values.
  */
 
-/* ── First crawl batch cutoff — items with fsa on or before this date
-   were already on the marketplace when we started crawling (2025-08-31)
-   and don't have meaningful "listed" dates ── */
+/* First-crawl cutoff — items whose fsa falls on or before this were already
+   listed when indexing began, so their fsa is not a real "listed" date. */
 export const FIRST_CRAWL_TS = new Date("2025-09-01T00:00:00Z").getTime();
 
 export type RelativeAge = {
@@ -29,7 +28,7 @@ export function relativeAge(
   if (!iso) return null;
   const ts = new Date(iso).getTime();
   if (Number.isNaN(ts)) return null;
-  if (ts < FIRST_CRAWL_TS) return null; // Pre-dates our crawling — no real listed date
+  if (ts < FIRST_CRAWL_TS) return null; // Pre-dates indexing — no real listed date
   const ms = now - ts;
   if (ms < 0) return null;
   const mins = Math.floor(ms / 60_000);

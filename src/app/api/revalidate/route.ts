@@ -12,8 +12,6 @@ interface RevalidatePayload {
  *
  * On-demand ISR cache bust. Called after a crawl completes.
  * Validates a shared secret to prevent abuse.
- *
- * Pattern from: food-aggregator-example/app/api/revalidate/route.ts
  */
 export async function POST(request: NextRequest) {
   let payload: RevalidatePayload = {};

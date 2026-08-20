@@ -8,11 +8,10 @@ import {
 } from "@/lib/market/market";
 
 /**
- * Site-wide default social-share image, served from `frontend/public`.
- * 1200x630 PNG — the standard og:image / summary_large_image aspect ratio.
- * Emitted (at the market's absolute host) whenever a page passes no images
- * of its own, so hub and legal pages always yield a rich card instead of a
- * bare `summary` with no preview.
+ * Site-wide default social-share image. 1200x630 PNG — the standard og:image /
+ * summary_large_image ratio. Emitted at the market's absolute host whenever a
+ * page passes no images of its own, so hub and legal pages still yield a rich
+ * card rather than a bare `summary` with no preview.
  */
 const DEFAULT_OG_IMAGE = {
   path: "/og-image.png",
@@ -22,21 +21,17 @@ const DEFAULT_OG_IMAGE = {
 } as const;
 
 /**
- * Browser-tab + touch icons, declared explicitly rather than left to the
- * app-dir file convention.
+ * Browser-tab + touch icons, pinned here rather than left to the app-dir file
+ * convention: Chrome picks the LARGEST `rel=icon` offered, so a large
+ * `src/app/icon.png` would win the tab strip over the 48px brand mark.
  *
- * Chrome picks the LARGEST `rel=icon` it is offered, so the old
- * `src/app/icon.png` convention file (192x192) beat the real 48px brand mark
- * in the tab strip — it has been deleted and the tab icon is pinned here.
+ * IMPORTANT: setting `icons` REPLACES the app-dir icon convention for this
+ * segment and everything below it, so every icon must be listed here —
+ * including apple-touch. The 192/512 PNGs stay in `manifest.json` for
+ * install / home-screen use.
  *
- * IMPORTANT: setting `icons` in metadata REPLACES the app-dir icon file
- * convention for that segment and everything below it, which is why the
- * apple-touch entry has to be listed too (`src/app/apple-icon.png` no longer
- * emits anything). `/apple-touch-icon.png` in `public/` is byte-identical to
- * it. The 192/512 PNGs live on in `manifest.json` for install/home-screen use.
- *
- * Shared by the root layout (so the root 404 gets them) and the locale layout
- * (which would otherwise override the root's with nothing).
+ * Shared by the root layout (so the root 404 gets them) and the locale layout,
+ * which would otherwise override the root's with nothing.
  */
 export const SITE_ICONS: Metadata["icons"] = {
   icon: [
@@ -123,11 +118,10 @@ interface PageMetadataOptions {
   /** og:type override — e.g. "product" for item pages. Default "website". */
   ogType?: "website" | "product";
   /**
-   * Emit `robots: noindex, follow` when true. Used for the narrow class of
-   * never-translated foreign-market archived items — kept out of the index
-   * (the English copy on biggyindex.com is the one that should rank) while
-   * still letting crawlers follow the cross-link to it. `follow` stays on so
-   * the outbound English link passes crawl signal.
+   * Emit `robots: noindex, follow`. For never-translated foreign-market
+   * archived items: keep the duplicate out of the index so the English copy
+   * ranks, while `follow` still passes crawl signal down its English
+   * cross-link.
    */
   noindex?: boolean;
 }
@@ -154,10 +148,9 @@ export function pageMetadata({
   const metaDescription = compactMetaDescription(description, 160);
   const validImages = images?.filter((image) => image.url);
 
-  // Page-supplied images (item/seller/category): rewrite optimised AVIF CDN
-  // URLs to WebP so social scrapers can decode them, and tag each with its
-  // MIME type. When a page supplies no image, fall back to the site-wide
-  // default so EVERY page (hubs, legal, ...) yields a rich share card.
+  // Rewrite optimised AVIF CDN URLs to WebP so social scrapers can decode
+  // them, and tag each with its MIME type. With no page-supplied image, fall
+  // back to the site-wide default so every page yields a rich share card.
   const ogImages: ResolvedOgImage[] = validImages?.length
     ? validImages.map((image) => {
         const ogUrl = getOgImageUrl(image.url) ?? image.url;
@@ -197,8 +190,7 @@ export function pageMetadata({
       images: ogImages,
     },
     twitter: {
-      // We always emit at least the default image, so the large card is
-      // always valid.
+      // Safe unconditionally: at least the default image is always emitted.
       card: "summary_large_image",
       title,
       description: metaDescription,
@@ -206,20 +198,17 @@ export function pageMetadata({
     },
   };
 
-  // noindex,follow: keep this URL out of the index but let crawlers follow
-  // its links (notably the English cross-link on never-translated foreign
-  // archived items). Canonical/hreflang stay as-is — Google ignores hreflang
-  // on a noindexed page, so a self-only cluster here is harmless.
+  // Canonical/hreflang stay as-is alongside noindex: hreflang is ignored on a
+  // noindexed page, so the self-only cluster it leaves behind is harmless.
   if (noindex) {
     metadata.robots = { index: false, follow: true };
   }
 
-  // Next 16's metadata resolver REJECTS og:type "product" at runtime
-  // ("Invalid OpenGraph type: product" — and the throw drops ALL meta
-  // tags for the page), so it can't be set here. Instead, suppress the
-  // default og:type and let the page render
-  // <meta property="og:type" content="product" /> itself — React 19
-  // hoists it into <head>.
+  // Next 16's metadata resolver throws on og:type "product" ("Invalid
+  // OpenGraph type"), and the throw drops ALL meta tags for the page. So
+  // suppress the default og:type here and let the page render its own
+  // <meta property="og:type" content="product" />, which React hoists
+  // into <head>.
   if (ogType !== "website" && metadata.openGraph) {
     delete (metadata.openGraph as { type?: string }).type;
   }

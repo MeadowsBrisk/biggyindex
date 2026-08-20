@@ -1,6 +1,5 @@
 /* ==========================================================================
-   Item Card Styles — BiggyIndex v2
-   Adapted from food-aggregator patterns, cannabis-specific identity.
+   Item Card Styles
    ========================================================================== */
 
 /* ==========================================================================
@@ -32,12 +31,10 @@
   }
 }
 
-/* ── Pre-hydration seed grid guard ──
-   /browse SSR HTML always contains the default seed grid (page is cached
-   path-only). When the URL carries filter params, SeedParamsScript sets
-   html.bi-seed-hide before first paint: the seed grid hides and the
-   dimension-matched skeleton grid (SSR'd alongside it, see ItemGrid)
-   shows instead — no overlay, header/toolbar untouched. */
+/* Pre-hydration seed grid guard. /browse is cached path-only, so its SSR HTML
+   always carries the default seed grid. When the URL has filter params,
+   SeedParamsScript stamps html.bi-seed-hide before first paint to swap the
+   seed grid for the dimension-matched skeleton grid SSR'd beside it. */
 [data-seed-skeleton] {
   display: none;
 }
@@ -50,10 +47,10 @@ html.bi-seed-hide [data-seed-skeleton] {
   display: grid;
 }
 
-/* Persisted 2-per-row mobile layout (html.bi-cols-2, stamped by the same
-   pre-hydration script from localStorage.mobileGridCols): render the
-   skeleton grid in 2 columns so the skeleton→live swap keeps the column
-   count stable. Mirrors .item-list-grid[data-mobile-cols="2"]. */
+/* Persisted 2-per-row mobile layout (html.bi-cols-2, stamped pre-paint from
+   localStorage.mobileGridCols): the skeleton must mirror
+   .item-list-grid[data-mobile-cols="2"] so the skeleton→live swap keeps the
+   column count stable. */
 @media (max-width: 639px) {
   html.bi-cols-2 [data-seed-skeleton].item-list-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -179,7 +176,7 @@ html.bi-seed-hide [data-seed-skeleton] {
   z-index: 1;
 }
 
-/* Hover image — sits on top, fades in after delay (food-agg timings) */
+/* Hover image — sits on top, fades in after delay */
 .card-image--hover {
   position: absolute;
   inset: 0;
@@ -399,8 +396,7 @@ html.bi-seed-hide [data-seed-skeleton] {
 }
 
 /* ==========================================================================
-   Card Content (clickable body area)
-   BiggyIndex-distinct: left accent border on hover
+   Card Content (clickable body area) — left accent border on hover
    ========================================================================== */
 
 .card-content {
@@ -613,7 +609,7 @@ html.bi-seed-hide [data-seed-skeleton] {
   opacity: 1;
 }
 
-/* ── Arrow fly-out / fly-in transition (SiteButton-inspired) ── */
+/* ── Arrow fly-out / fly-in transition ── */
 
 .card-arrow {
   position: absolute;
@@ -710,10 +706,6 @@ html.bi-seed-hide [data-seed-skeleton] {
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
-/* Strain-type chip — Indica (violet), Sativa (amber), Hybrid (green).
-   Always sits over a product photo, so it carries its own dark scrim and
-   fixed white text rather than theme tokens: the tint is a reinforcement
-   cue, the word is the actual label. */
 /* Strain group dot — Indica (violet), Sativa (amber), Hybrid (green).
    Lives INSIDE the card's category pill (and the detail chip below), never as
    its own element. The word carries the meaning; the dot is reinforcement. */
@@ -734,12 +726,9 @@ html.bi-seed-hide [data-seed-skeleton] {
 }
 
 /* Strain chip on the DETAIL surfaces only (modal + static item page pill
-   row). Deliberately identical metrics to its sibling subcategory pills
-   (`rounded-md bg-surface px-2 py-0.5 text-xs`) — same type size, same
-   casing (sentence case, no uppercase), same shape — the only differences
-   are the dot and a faint tint so the eye can find it. 2026-07-31: replaces
-   an earlier uppercase-white-on-scrim chip that matched nothing else on the
-   site. */
+   row). Metrics must stay identical to its sibling subcategory pills
+   (`rounded-md bg-surface px-2 py-0.5 text-xs`) — same size, sentence case,
+   same shape; only the dot and a faint tint set it apart. */
 .strain-chip {
   display: inline-flex;
   align-items: center;
@@ -785,9 +774,6 @@ html.bi-seed-hide [data-seed-skeleton] {
   @apply flex items-center justify-center shrink-0 relative;
   width: 26px;
   height: 26px;
-
-  /* width: 24px;
-  height: 24px; */
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
@@ -846,9 +832,9 @@ html.bi-seed-hide [data-seed-skeleton] {
   @apply truncate;
 }
 
-/* "Ships from <flag>" badge \u2014 compact text + inline country flag, with a
-   tooltip showing the full country name. Replaces "Ships from United Kingdom"
-   which overflowed on narrow cards. */
+/* "Ships from <flag>" badge: compact text + inline country flag; the full
+   country name lives in the tooltip because spelling it out overflows
+   narrow cards. */
 .seller-card__ship-flag {
   @apply inline-flex items-center gap-1 shrink-0;
   line-height: 1;
@@ -981,7 +967,7 @@ html.bi-seed-hide [data-seed-skeleton] {
    Variant Size Buttons — weight + price selectors
    ========================================================================== */
 
-/* ── PillRow — horizontal scroll strip with drag + gradient (food-agg port) ── */
+/* ── PillRow — horizontal scroll strip with drag + gradient ── */
 
 /* Spacer: reserves strain-row height when no strains exist, keeping weight rows aligned */
 .pill-row-spacer {
@@ -1034,12 +1020,10 @@ html.bi-seed-hide [data-seed-skeleton] {
   @apply absolute right-0 top-0 bottom-0 flex items-center justify-end pointer-events-none;
   padding-right: 6px;
   padding-left: 52px;
-  /* Always fade to the hover card colour. The overflow is only visible while
-     the card is hovered (opacity:1), at which point .item-card-inner is also
-     var(--card-hover) \u2014 so the gradient blends seamlessly. On hover-off
-     only opacity animates; the gradient colour never changes, avoiding the
-     "flash" that CSS custom properties cause (they aren't animatable without
-     @property registration, so a var swap would snap instantly). */
+  /* Always fade to the hover card colour: the overflow is only visible while
+     the card is hovered, when .item-card-inner is also var(--card-hover).
+     Only opacity animates; swapping the gradient colour would snap, since
+     custom properties aren't interpolable without @property registration. */
   background: linear-gradient(
     to left,
     var(--card-hover, var(--surface)) 0%,
@@ -1066,12 +1050,9 @@ html.bi-seed-hide [data-seed-skeleton] {
   display: none;
 }
 
-/* At-end: fade out smoothly instead of snapping off so the gradient eases
-   away as the user finishes scrolling. No !important \u2014 we want the
-   :hover rule to still be able to keep it visible if the user hovers while
-   at the end (unlikely, but harmless). Opacity is already 0 on base; this
-   rule exists mainly to beat the :hover rule by specificity when the user
-   has scrolled to the end. */
+/* At-end: fade out instead of snapping off. Deliberately no !important, so
+   the :hover rule can still win; this exists to beat that rule on
+   specificity once the strip is scrolled to the end. */
 .pill-row__scroll[data-at-end="true"] ~ .pill-row__overflow {
   opacity: 0;
 }
@@ -1090,9 +1071,9 @@ html.bi-seed-hide [data-seed-skeleton] {
   }
 }
 
-/* Remove the edge fade-mask once the user has scrolled or reached the end \u2014
-   mask-image can't interpolate between values, so we swap to an equivalent
-   no-op gradient to avoid a jarring snap. */
+/* Drop the edge fade-mask once scrolled or at the end. mask-image can't
+   interpolate, so swap to an equivalent no-op gradient rather than to none,
+   which would snap. */
 .pill-row__scroll[data-scrolled="true"],
 .pill-row__scroll[data-at-end="true"] {
   -webkit-mask-image: linear-gradient(to right, black 100%, transparent 100%);
@@ -1414,12 +1395,10 @@ html.bi-seed-hide [data-seed-skeleton] {
 }
 
 /* ==========================================================================
-   Compact density (mobile only) — keeps the vertical card layout but
-   removes ~40-50% of the card height by capping the image, clamping the
-   description to 1 line, hiding the strain row, and tightening paddings.
-   Respects the user's thumbnailAspect choice (square/4:3/3:2) — we only
-   cap absolute height so very tall images don't dominate.
-   Activated when .item-list-grid has data-view="compact".
+   Compact density (mobile only), via .item-list-grid[data-view="compact"].
+   Keeps the vertical card layout but roughly halves card height: capped
+   image, 1-line description, no strain row, tighter paddings. Only absolute
+   height is capped, so the user's thumbnailAspect choice still applies.
    ========================================================================== */
 
 @media (max-width: 639px) {
@@ -1440,11 +1419,10 @@ html.bi-seed-hide [data-seed-skeleton] {
     max-width: 100%;
   }
 
-  /* Cap the image height and switch from cover → contain so tall/portrait
-     images aren't aggressively cropped. The tinted background fills the
-     letterbox area — --surface-hover is already slightly darker than
-     --surface in light mode and slightly lighter in dark mode, so it
-     reads as a subtle frame in both themes. */
+  /* Cap image height and use contain so tall/portrait images aren't
+     aggressively cropped. --surface-hover fills the letterbox: it is darker
+     than --surface in light mode and lighter in dark, so it frames the image
+     in both themes. */
   .item-list-grid[data-view="compact"] .item-card-image {
     max-height: 180px;
     background: var(--surface-hover);
@@ -1463,9 +1441,9 @@ html.bi-seed-hide [data-seed-skeleton] {
     padding-bottom: 3.25rem !important;
   }
 
-  /* Description — 1 line instead of default. Base rule pins a fixed
-     3-line height to keep card grids aligned; override both the clamp
-     and the height so compact mode actually shrinks. */
+  /* Description — 1 line. The base rule pins a fixed 3-line height to keep
+     grids aligned, so the clamp AND the height must both be overridden or
+     nothing shrinks. */
   .item-list-grid[data-view="compact"] .card-content__description {
     -webkit-line-clamp: 1 !important;
     line-clamp: 1 !important;
@@ -1478,9 +1456,8 @@ html.bi-seed-hide [data-seed-skeleton] {
     min-height: 0 !important;
   }
 
-  /* Hide strain chip row in compact mode — it's nice-to-have and costs
-     an entire row of height. Weight/quantity row stays because it drives
-     the displayed price. */
+  /* Hide the strain chip row — it costs a whole row of height. The
+     weight/quantity row stays: it drives the displayed price. */
   .item-list-grid[data-view="compact"] .pill-row:first-of-type {
     display: none;
   }
@@ -1505,33 +1482,18 @@ html.bi-seed-hide [data-seed-skeleton] {
 }
 
 /* ==========================================================================
-   Mobile "2 cards per row" grid density (mobileGridColsAtom = 2).
-   Ported from food-aggregator's `.item-list-grid--compact`. Purely CSS-driven
-   via the `data-mobile-cols="2"` attribute on the grid container — the card
-   component is unchanged; half-width cards are achieved by hiding/shrinking
-   children with descendant selectors.
+   Mobile "2 cards per row" density (mobileGridColsAtom = 2), driven purely by
+   `data-mobile-cols="2"` on the grid container — the card component is
+   unchanged; half-width cards come from hiding/shrinking children.
 
-   SCOPED inside `@media (max-width: 639px)` so it is a strict no-op at ≥640px
-   (where the base grid already goes 2+ columns from its own breakpoints).
-   Therefore this can NEVER affect desktop layout, and it lives on
-   `.item-list-grid` only, so list view (`.item-list-rows`) is untouched.
+   Shows only: category pill (on image), image, 2-line title, seller name,
+   price + per-unit, timestamps. Everything else is hidden. Sizes assume a
+   ~180px-wide card.
 
-   Aim: a tidy, readable half-width card — image, name (clamped), seller name,
-   category pill (overlaid on image), item rating, price + PPU — not a cramped
-   full card. Orthogonal to `data-view` density: both attributes can coexist.
-   ========================================================================== */
-
-/* ==========================================================================
-   Ground-up 2-cards-per-row mobile card (mobileGridColsAtom = 2).
-   Modelled on roast-radar's compact 2-col card: an information-light,
-   legible card that shows only — category pill (on image), image,
-   title (2-line clamp), seller name, price + per-unit. NOTHING else:
-   no variant/size pills, no outbound "Little Biggy" button, no description,
-   no seller badges/meta, no Listed/Updated timestamps.
-
-   Everything is sized for a ~180px-wide card. Scoped entirely to
-   .item-list-grid[data-mobile-cols="2"] inside this max-width:639px media
-   query so 1-col, desktop grid, and list view are untouched.
+   Everything MUST stay inside `@media (max-width: 639px)` and scoped to
+   `.item-list-grid[data-mobile-cols="2"]`, so it is a strict no-op for
+   desktop (where the base grid already goes multi-column) and for list view
+   (`.item-list-rows`). Orthogonal to `data-view` density — both can coexist.
    ========================================================================== */
 
 @media (max-width: 639px) {
@@ -1548,29 +1510,20 @@ html.bi-seed-hide [data-seed-skeleton] {
     max-width: 100%;
   }
 
-  /* ── Image: shrink the block and cap height. Images COVER the frame
-     (2026-07-14, was `contain` in a letterbox — cropping reads better at
-     half width than pillarboxed thumbnails; base .card-image is already
-     object-cover so no override needed). ── */
+  /* ── Image: shrink the block and cap height. Images cover the frame —
+     cropping reads better at half width than pillarboxing, and base
+     .card-image is already object-cover, so no override is needed. ── */
   .item-list-grid[data-mobile-cols="2"] .item-card-image {
     max-height: 150px;
     margin: 3px 3px 0;
     background: var(--surface-hover);
   }
 
-  /* ── HIDE everything that isn't category pill / image / title / seller
-     name / price+PPU. ──
-       · description
-       · the outbound "Little Biggy" button
-       · ALL variant rows: strain pill row, weight/quantity pill rows,
-         their spacers, the single-variant fallback select
-       · seller rating/endorsement/shipping badges
-       · seller meta row (ships-from flag, delivery days, Only/Hide)
-       · the item rating chip beside the title
-       · the expand arrow beside the title
-       · everything after the price area in the footer EXCEPT the
-         Listed/Updated timestamps (.card-timestamps re-shown compact,
-         bottom-right — 2026-07-14) */
+  /* ── Hide everything that isn't category pill / image / title / seller
+     name / price+PPU: description, outbound button, all variant rows and
+     their spacers, seller badges and meta row, the item-rating chip and
+     expand arrow beside the title, and every footer sibling after the price
+     area except .card-timestamps. ── */
   .item-list-grid[data-mobile-cols="2"] .card-content__description,
   .item-list-grid[data-mobile-cols="2"] .card-lb-btn,
   .item-list-grid[data-mobile-cols="2"] .pill-row,
@@ -1588,8 +1541,8 @@ html.bi-seed-hide [data-seed-skeleton] {
     display: none;
   }
 
-  /* Timestamps in 2-col: slightly smaller + tighter so "Updated Xh ago" /
-     "Listed Xmo ago" sit unobtrusively bottom-right beside the price. */
+  /* Timestamps: smaller + tighter so they sit unobtrusively bottom-right
+     beside the price. */
   .item-list-grid[data-mobile-cols="2"] .card-timestamps {
     gap: 2px;
   }
@@ -1602,14 +1555,14 @@ html.bi-seed-hide [data-seed-skeleton] {
     padding: 5px 6px 0 !important;
   }
 
-  /* Drastically reduce the footer reserve — only price + PPU remain below,
-     so we don't need the tall 5rem (pb-20) gap. */
+  /* Only price + PPU + timestamps remain in the footer, so the tall pb-20
+     reserve is unnecessary. */
   .item-list-grid[data-mobile-cols="2"] .pb-20 {
     padding-bottom: 2.5rem !important;
   }
 
-  /* ── Title: readable ~11.5px with a 2-LINE clamp (base clamps to 1 line
-     which truncates to a single word at this width). ── */
+  /* ── Title: 2-line clamp — the base 1-line clamp truncates to a single
+     word at this width. ── */
   .item-list-grid[data-mobile-cols="2"] .card-content__title {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -1621,8 +1574,7 @@ html.bi-seed-hide [data-seed-skeleton] {
     white-space: normal;
   }
 
-  /* ── Seller row: keep avatar + name, compact. Shrink the avatar, drop the
-     name to ~10.5px, tighten the top margin. ── */
+  /* ── Seller row: avatar + name only, compact. ── */
   .item-list-grid[data-mobile-cols="2"] .seller-card {
     margin-top: 4px !important;
     gap: 5px;
@@ -1640,7 +1592,7 @@ html.bi-seed-hide [data-seed-skeleton] {
     line-height: 1.2;
   }
 
-  /* ── Footer: price ~13px, per-unit ~9.5px, tight padding. ── */
+  /* ── Footer: price, per-unit, tight padding. ── */
   .item-list-grid[data-mobile-cols="2"] .card-footer-gradient {
     padding: 0.25rem 0.5rem 0.4375rem;
   }
@@ -1657,8 +1609,8 @@ html.bi-seed-hide [data-seed-skeleton] {
   /* ── Category pill on the image: smaller. ── */
   .item-list-grid[data-mobile-cols="2"] .card-controls {
     padding: 5px;
-    /* Keeps a gutter between the (truncating) pill group and the bookmark
-       heart on the narrowest cards — see the overflow guard below. */
+    /* Gutter between the truncating pill group and the bookmark heart on the
+       narrowest cards — see the overflow guard below. */
     gap: 4px;
   }
   .item-list-grid[data-mobile-cols="2"] .card-pill--image {
@@ -1671,10 +1623,9 @@ html.bi-seed-hide [data-seed-skeleton] {
     width: 5px;
     height: 5px;
   }
-  /* Overflow guard: the always-visible pill now carries strain + category on
-     one line, so on a ~132px card (320px viewport, 2-up) a long subcategory
-     used to push the bookmark heart outside the card. The pill truncates
-     instead. */
+  /* Overflow guard: the always-visible pill carries strain + category on one
+     line, so on a ~132px card (320px viewport, 2-up) a long subcategory would
+     push the bookmark heart outside the card. Truncate the pill instead. */
   .item-list-grid[data-mobile-cols="2"] .card-controls > .always-show,
   .item-list-grid[data-mobile-cols="2"] .card-controls__hover-group {
     min-width: 0;
@@ -1700,8 +1651,8 @@ html.bi-seed-hide [data-seed-skeleton] {
     margin-right: 3px;
   }
 
-  /* ── Bookmark heart: keep it, but tone down the mobile touch-target bump
-     (p-2.5 / 20px svg) so it stays proportional on a ~180px card. ── */
+  /* ── Bookmark heart: undo the mobile touch-target bump so it stays
+     proportional on a ~180px card. ── */
   .item-list-grid[data-mobile-cols="2"] .bookmark-btn {
     padding: 6px;
   }
@@ -1713,7 +1664,6 @@ html.bi-seed-hide [data-seed-skeleton] {
 
 /* ==========================================================================
    List view — one compact scanning row per item (viewLayoutAtom = 'list').
-   Ported from food-aggregator's .irow layout, adapted to biggy tokens.
    ========================================================================== */
 
 .item-list-rows {

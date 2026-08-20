@@ -6,9 +6,9 @@ export type AnnouncementSeverity = "info" | "warning" | "success";
  * To show a banner: flip `active: true`, edit messages, redeploy.
  * Use `{{mbr}}` for a mobile-only line break inside messages.
  *
- * Why hardcoded: banner is used rarely (a few times a year — launches, holidays).
- * An R2 fetch on every request — even cached — costs more than it's worth
- * when the config changes maybe 3 times a year. Redeploy-to-update is fine.
+ * Hardcoded on purpose: the banner runs a handful of times a year (launches,
+ * holidays), so an R2 fetch per request — even a cached one — costs more than
+ * redeploy-to-update is worth.
  */
 export interface AnnouncementBannerConfig {
   id: string;

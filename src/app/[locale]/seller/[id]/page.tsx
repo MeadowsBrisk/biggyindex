@@ -192,12 +192,10 @@ function sellerDescription(data: SellerPageData, metaT: Translator): string {
     ? manifesto.slice(0, 150) + (manifesto.length > 150 ? "..." : "")
     : null;
   const feedback = data.detail.communityFeedback;
-  // TRUST DATA FIRST, manifesto excerpt LAST (2026-07-17): GSC shows "is X
-  // legit / X scam" queries ranking pos 3-8 with ~0% CTR — searchers want a
-  // verdict and the old excerpt-first description showed the seller's own
-  // marketing copy instead. Leading with rating/delivery/endorsements answers
-  // the intent inside the ~160-char snippet window; the excerpt survives only
-  // when there's room.
+  // Trust data first, manifesto excerpt last. Search intent on a seller page is
+  // "is this seller legit", so rating/delivery/endorsements must land inside
+  // the ~160-char snippet window; the seller's own marketing copy only
+  // survives when there's room left.
   const rating =
     data.seller.averageRating != null &&
     data.seller.averageRating > 0 &&
@@ -255,13 +253,12 @@ export async function generateMetadata({
   });
   const description = sellerDescription(data, metaT);
 
-  // Route through pageMetadata for the shared SEO surface: description
-  // compaction, og:locale, the WebP-rewritten default og:image + twitter
-  // defaults, and hreflang. alternateMarkets = the presence-based
-  // sellerMarkets (load-bearing) — pageMetadata's alternateLanguagesForPath
-  // reproduces the old alternateLanguages() cluster exactly. No images passed:
-  // seller avatars are small/often absent, so the 1200x630 default og card is
-  // the richer share preview.
+  // pageMetadata supplies the shared SEO surface: description compaction,
+  // og:locale, the WebP-rewritten default og:image, twitter defaults, hreflang.
+  // alternateMarkets must be the presence-based sellerMarkets, not ALL_MARKETS
+  // — a seller absent from a market has no page there. No images passed: seller
+  // avatars are small and often absent, so the 1200x630 default og card is the
+  // richer share preview.
   return pageMetadata({
     market: data.market,
     path: sellerPath(sellerId),
@@ -272,42 +269,39 @@ export async function generateMetadata({
 }
 
 /**
- * Sellers prerendered at build. Was top-12; raised to cover the whole roster
- * (~83 live sellers, 2026-07) after the usage investigation showed runtime
- * renders of non-prerendered sellers are PPR-postponed → uncacheable on
- * Netlify — build prerenders are the only framework-native cached copies.
- * The cap only guards build time against roster explosions.
+ * Sellers prerendered at build. Sized to cover the whole live roster: runtime
+ * renders of non-prerendered sellers are PPR-postponed and therefore
+ * uncacheable, so build prerenders are the only framework-native cached copies.
+ * The cap only guards build time against roster explosions — 200 leaves
+ * roughly 2x headroom over the current live roster.
  */
 const PRERENDER_SELLER_COUNT = 200;
 
 /**
  * A NON-EMPTY generateStaticParams is what flips this route from PPR-dynamic
- * (private,no-store + x-nextjs-postponed on every hit) to durably-cached ISR —
- * the exact change that flipped /category/[slug] in round 2. It is REQUIRED
- * here (even though food-aggregator's store route caches without one) because
- * this route sits under the `[locale]` ROOT param (app/[locale] is directly
- * under the root app/layout.tsx).
+ * (private,no-store + x-nextjs-postponed on every hit) to durably-cached ISR.
+ * It is REQUIRED here because this route sits under the `[locale]` ROOT param
+ * (app/[locale] is directly under the root app/layout.tsx).
  *
  * Next's buildAppStaticPaths (next/dist/build/static-paths/app.js) emits, per
  * locale, a PARTIAL static shell `/{loc}/seller/[id]` whose
  * `throwOnEmptyStaticShell` is set true UNLESS the shell's trie node has a
  * concrete child param. With no child id the whole-page 'use cache' body (which
  * awaits params.id) yields an EMPTY shell per locale → the route stays fully
- * dynamic and Netlify never durably caches it (observed rounds 1-2). Supplying
- * >=1 concrete id per locale gives each shell a child →
- * throwOnEmptyStaticShell=false → the route registers as static-with-fallback:
- * enumerated ids prerender; NON-enumerated ids render on demand then durably
- * cache (fallback ISR); dead/unknown ids hit notFound() during that render →
- * real 404 (finally fixing the dead-seller soft-404). food-aggregator's store
- * route has NO root param, so its base route gets a PRERENDER fallback with
- * zero root params and caches without this — not transferable here.
+ * dynamic and is never durably cached. Supplying >=1 concrete id per locale
+ * gives each shell a child → throwOnEmptyStaticShell=false → the route
+ * registers as static-with-fallback: enumerated ids prerender; NON-enumerated
+ * ids render on demand then durably cache (fallback ISR); dead/unknown ids hit
+ * notFound() during that render → real 404 instead of a soft one. A route with
+ * NO root param would get a PRERENDER fallback with zero root params and cache
+ * without this — not the shape this route has.
  *
  * Returns ONLY { id }; the parent [locale] segment supplies { locale }.
  *
  * Runs at BUILD. loadSellers reads PUBLIC R2 over plain fetch (no credentials,
  * no headers()/cookies()), safe outside request context. ANY failure → the
  * sentinel id "0" (no such seller → renders notFound): the array is NEVER empty
- * (EmptyGenerateStaticParamsError) and the build NEVER fails on an R2 blip.
+ * (EmptyGenerateStaticParamsError) and the build never fails on an R2 blip.
  */
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   try {
@@ -333,15 +327,14 @@ export async function generateStaticParams(): Promise<Array<{ id: string }>> {
 
 export default async function SellerPage({ params }: SellerPageProps) {
   // Whole-page cache (mirrors /browse) so the route prerenders as a unit with
-  // NO dynamic shell — the previous <Suspense>-wrapped content became a PPR
-  // postponed hole that Netlify served private,no-store on every hit.
+  // NO dynamic shell — wrapping the content in <Suspense> instead turns it into
+  // a PPR postponed hole served private,no-store on every hit.
   //
-  // Folding the existence check inside this cache scope also STRENGTHENS the
-  // 404 semantics the old pre-Suspense getMarketSellerIds gate protected:
-  // notFound() now fires during the unit prerender (before any bytes flush),
-  // so dead sellers get a real HTTP 404 that is itself durably cached —
-  // getSellerPageData returns null for ids absent from THIS market (GB/IE
-  // distinct), so per-market correctness is preserved.
+  // Keeping the existence check inside this cache scope means notFound() fires
+  // during the unit prerender, before any bytes flush, so dead sellers get a
+  // real HTTP 404 that is itself durably cached. getSellerPageData returns null
+  // for ids absent from THIS market (GB/IE are distinct), preserving per-market
+  // correctness.
   "use cache";
   cacheLife("sellers");
   cacheTag("sellers");

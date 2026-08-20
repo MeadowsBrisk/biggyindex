@@ -1,14 +1,13 @@
 /* ==========================================================================
-   Sidebar scroll area — thin/compact scrollbar (ported from food-aggregator's
-   sidebar.css, thumb adapted to the theme accent). The 3px transparent border
-   + background-clip insets the thumb to ~4px so it reads as a slim bar — and
-   unlike a bg-coloured border it works over any backdrop (panel uses
-   --background, the expandable seller list uses --surface).
+   Sidebar scroll area — slim scrollbar, thumb tinted by the theme accent.
+   The thumb is inset with a transparent border + background-clip rather than
+   a background-coloured border, so it works over any backdrop (the panel is
+   --background, the expandable seller list --surface).
    ========================================================================== */
 
-/* NB: do NOT set `scrollbar-width`/`scrollbar-color` here — in Chromium their
-   presence disables ::-webkit-scrollbar entirely and you get the wide native
-   scrollbar (with arrows). Webkit-only, matching food-agg. */
+/* Do NOT add `scrollbar-width`/`scrollbar-color` here: in Chromium their mere
+   presence disables ::-webkit-scrollbar and the wide native scrollbar (with
+   arrows) comes back. */
 .sidebar-scroll::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -37,15 +36,13 @@
 }
 
 /* ── Pre-paint filter panel placeholder (desktop /browse) ──
-   The layout's boot script stamps html.bi-panel-open before first paint when
-   the user left the panel open (localStorage.filterPanelOpen). That reveals
-   the SSR'd 280px skeleton column FilterPanel renders next to its <aside>,
-   so the sidebar slot is reserved from the very first frame instead of the
-   panel popping in at hydration. FilterPanel removes the class (layout
-   effect) in the same commit the hydrated aside takes its real width —
-   after that this rule can never fight a manual close. The element only
-   exists on /browse, so a stale class on other routes is inert. md+ only,
-   matching the desktop aside (mobile uses the drawer). */
+   The boot script stamps html.bi-panel-open before first paint when
+   localStorage says the panel was left open, revealing the SSR'd skeleton
+   column so the sidebar slot is reserved from frame one instead of popping in
+   at hydration. FilterPanel drops the class in the same commit the hydrated
+   aside takes its real width, so this rule can never fight a manual close.
+   md+ only — mobile uses the drawer. The placeholder only exists on /browse,
+   so a stale html.bi-panel-open on other routes is inert. */
 .bi-panel-placeholder {
   display: none;
 }

@@ -1,15 +1,14 @@
 /**
  * Category landing page — SEO-crawlable, fully server-rendered.
  *
- * Reclaims v1's ranked /category/{slug} URLs (netlify.toml held them on a
- * 302 → /browse until this shipped). No client data fetching: the grid is
- * plain <a href="/item/{ref}"> cards in the initial HTML, so crawlers get
- * a linked catalog with item names as anchor text (same rationale as the
- * browse SeedCards).
+ * No client data fetching: the grid is plain <a href="/item/{ref}"> cards in
+ * the initial HTML, so crawlers get a linked catalog with item names as anchor
+ * text (same rationale as the browse SeedCards).
  *
- * NO prices anywhere — SSR currency conversion is broken sitewide
- * (USD numbers with local symbols), so cards render image + name + seller
- * only, matching the SeedCard convention.
+ * NO prices on this grid: cards render image + name + seller only (SeedCard
+ * convention). Rendering a price here means routing it through
+ * lib/market/currency.ts — a raw USD number under a local symbol is worse than
+ * no number.
  */
 
 import { ArrowRight, Package } from "lucide-react";
@@ -43,11 +42,11 @@ interface CategoryPageProps {
 
 /**
  * Every category landing slug is known at build time (no data fetch), so the
- * route prerenders per (locale × slug) exactly like /browse instead of
- * falling into PPR's postponed-shell mode (which Netlify marks
- * private,no-store and never durably caches). Unknown slugs still render
- * on-demand and hit notFound() below → real 404. locale combinations come
- * from the parent [locale] segment's own generateStaticParams.
+ * route prerenders per (locale × slug) exactly like /browse instead of falling
+ * into PPR's postponed-shell mode, which is marked private,no-store and never
+ * durably cached. Unknown slugs still render on demand and hit notFound() below
+ * → real 404. Locale combinations come from the parent [locale] segment's own
+ * generateStaticParams.
  */
 export function generateStaticParams() {
   return CATEGORY_SLUGS.map((slug) => ({ slug }));
@@ -61,9 +60,9 @@ const JSONLD_ITEM_LIMIT = 50;
 const SUBCATEGORY_LIMIT = 8;
 
 /**
- * Per-category item counts for metadata titles. Cached with the same
- * profile/tag as the page body (mirrors browse's browseItemCount) so
- * generateMetadata doesn't pay an uncached R2 fetch per request and the
+ * Per-category item counts for metadata titles. Cached with the same profile
+ * and tag as the page body (mirrors browse's browseItemCount) so
+ * generateMetadata never pays an uncached R2 fetch per request and the
  * "{count}+" title revalidates in lockstep with the grid.
  */
 async function categoryCounts(mkt: string): Promise<Record<string, number>> {
@@ -148,8 +147,7 @@ function CategoryItemCard({
 }) {
   const name = decodeEntities(item.n);
   const imageUrl = getItemPrimaryImage(item, "thumb", { forceStatic: true });
-  // Responsive srcset — skip animated sources (no w-variants). The `sizes`
-  // hint below was authored for this and is now live.
+  // Responsive srcset — skip animated sources, which have no width variants.
   const primaryHash = isItemPrimaryAnimated(item)
     ? undefined
     : getItemPrimaryHash(item);

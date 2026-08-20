@@ -61,7 +61,7 @@ function fetchBrowseData(url: string): Promise<Item[]> {
  * Filter/config state arrives as props; the item dataset is fetched from
  * /api/browse (browser-cached immutably per data version) rather than being
  * serialized into the RSC payload — keeps ~900KB out of every browse
- * document. Matches the food-agg DataLoader pattern.
+ * document.
  */
 export function DataLoader({
   dataUrl,

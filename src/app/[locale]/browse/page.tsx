@@ -8,6 +8,7 @@ import { FilterPanel } from "@/components/FilterPanel";
 import { FooterSentinel } from "@/components/FooterSentinel";
 import { ItemGrid } from "@/components/ItemGrid";
 import { MobileResultCount } from "@/components/MobileResultCount";
+import { PageTransition } from "@/components/PageTransition";
 import { SeedParamsSync } from "@/components/SeedParamsSync";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -112,10 +113,10 @@ export default async function BrowsePage({
     variantWidths: (hash) => variantWidths[hash],
   });
 
-  // Items are NOT inlined into the RSC payload (was ~900KB of flight data).
-  // The client fetches them from /api/browse; the version-pinned URL is
-  // browser-cached immutably, so repeat visits and router.refresh() cost
-  // zero bytes until the dataset actually changes.
+  // Items are NOT inlined into the RSC payload — that costs ~900KB of flight
+  // data. The client fetches them from /api/browse; the version-pinned URL is
+  // browser-cached immutably, so repeat visits and router.refresh() cost zero
+  // bytes until the dataset actually changes.
   const dataUrl = `/api/browse?mkt=${mkt}&v=${browseDataVersion(itemList)}`;
 
   // ItemList structured data: top 50 by hotness — mirrors the grid's
@@ -138,7 +139,7 @@ export default async function BrowsePage({
   };
 
   return (
-    <>
+    <PageTransition>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
@@ -163,18 +164,16 @@ export default async function BrowsePage({
           right border runs flush into the toolbar. */}
       <main className="mx-auto px-4">
         {/* SEO h1 — sr-only because the browse layout is deliberately
-            toolbar-first (SiteHeader → Toolbar → grid); any visible heading
-            would push the toolbar down and change the Phase-1 "pixel
-            identical" layout. Screen readers and crawlers still get a
-            keyworded page heading. */}
+            toolbar-first (SiteHeader → Toolbar → grid) and a visible heading
+            would push the toolbar down. Screen readers and crawlers still get
+            a keyworded page heading. */}
         <h1 className="sr-only">{t("heading")}</h1>
         <div className="flex gap-0">
           <FilterPanel />
 
-          {/* `pl-4` at all widths (not just md): on mobile the left gutter
-              gives the fixed edge-swipe tap zone (FilterPanel) visible room so
-              it reads as tappable, matching Roast Radar. On desktop it's the
-              gap from the filter sidebar. */}
+          {/* `pl-4` at all widths, not just md: on mobile the left gutter gives
+              the fixed edge-swipe tap zone (FilterPanel) visible room so it
+              reads as tappable; on desktop it is the gap from the sidebar. */}
           <div className="flex-1 min-w-0 py-4 pl-4">
             <ActiveFilterBar />
             <MobileResultCount initialCount={itemList.length} />
@@ -185,6 +184,6 @@ export default async function BrowsePage({
 
       <FooterSentinel />
       <SiteFooter hideBrowseCta locale={locale} />
-    </>
+    </PageTransition>
   );
 }

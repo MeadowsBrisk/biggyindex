@@ -1,14 +1,10 @@
 /**
- * Authenticated R2 client for server-side writes.
- *
- * Used by API routes that need to persist data (nav events, etc.).
- * Frontend public reads still use the fetch-based r2.ts — this module
- * is exclusively for server-side S3-authenticated operations.
+ * Authenticated R2 client for server-side writes (API routes that persist data,
+ * e.g. nav events). Public frontend reads go through the fetch-based r2.ts —
+ * this module is exclusively for S3-authenticated operations.
  *
  * Env vars: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
  * Bucket:   biggyindex-data-v2
- *
- * Pattern from: food-aggregator-example/lib/r2.ts
  */
 
 import {
@@ -50,9 +46,7 @@ function getClient(): S3Client {
 
 // ─── Read (authenticated) ───────────────────────────────────────
 
-/**
- * Read JSON from R2 (authenticated). Returns null for missing keys.
- */
+/** Read JSON from R2 (authenticated). Returns null for missing keys. */
 export async function readR2JSON<T = unknown>(key: string): Promise<T | null> {
   try {
     const res = await getClient().send(
@@ -72,9 +66,7 @@ export async function readR2JSON<T = unknown>(key: string): Promise<T | null> {
 
 // ─── Write (authenticated) ──────────────────────────────────────
 
-/**
- * Write JSON to R2 (authenticated).
- */
+/** Write JSON to R2 (authenticated). */
 export async function writeR2JSON(key: string, data: unknown): Promise<void> {
   await getClient().send(
     new PutObjectCommand({
@@ -88,9 +80,7 @@ export async function writeR2JSON(key: string, data: unknown): Promise<void> {
 
 // ─── List (authenticated) ───────────────────────────────────────
 
-/**
- * List object keys by prefix. Handles pagination automatically.
- */
+/** List object keys by prefix. Handles pagination automatically. */
 export async function listR2Keys(prefix: string): Promise<string[]> {
   const keys: string[] = [];
   let token: string | undefined;
@@ -116,9 +106,7 @@ export async function listR2Keys(prefix: string): Promise<string[]> {
 
 // ─── Delete (authenticated) ─────────────────────────────────────
 
-/**
- * Batch-delete R2 keys. Handles batches of up to 1000 per call.
- */
+/** Batch-delete R2 keys. Chunked to the S3 API's 1000-keys-per-call limit. */
 export async function deleteR2Keys(keys: string[]): Promise<void> {
   if (keys.length === 0) return;
 

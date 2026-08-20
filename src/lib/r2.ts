@@ -6,20 +6,18 @@
  *   2. biggyindex-images  — optimized AVIF/WebP item images
  *
  * Frontend only needs public URL reads (no S3 credentials).
- * Fetch-level caching is disabled (cache: 'no-store') because callers
- * use page-level `'use cache'` + `cacheLife()` — avoids Next.js
- * fetch data cache's 2 MB entry limit.
- *
- * Pattern from: food-aggregator-example/lib/r2.ts
+ * Fetch-level caching is disabled (cache: 'no-store') because callers cache at
+ * page level with `'use cache'` + `cacheLife()`; the fetch data cache would
+ * reject these payloads anyway under its 2 MB per-entry limit.
  */
 
 import { R2_DATA_PUBLIC_URL, R2_IMAGES_PUBLIC_URL } from "./constants";
 
 /**
  * Normalize a configured public bucket URL — accepts bare hostnames
- * (`cdn.biggyindex.com`) or full URLs (`https://cdn.biggyindex.com`)
- * and always returns an absolute https URL with no trailing slash.
- * Mirrors the helper in lib/images.ts so both code paths agree.
+ * (`cdn.biggyindex.com`) or full URLs (`https://cdn.biggyindex.com`) and always
+ * returns an absolute https URL with no trailing slash. Mirrors the helper in
+ * lib/images.ts; keep the two in sync so both code paths build the same URL.
  */
 function toAbsoluteBase(value: string): string {
   const trimmed = value.replace(/\/+$/, "");

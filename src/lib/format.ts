@@ -8,7 +8,7 @@ export function fmtPrice(
   return `${sym}${(val * rate).toFixed(2)}`;
 }
 
-/** Format a price change between two values. Returns e.g. "↓ 15%" or "↑ 8%", or null if equal. */
+/** Format a price change between two values, e.g. "↓ 15%" / "↑ 8%". Null if equal. */
 export function formatPriceChange(
   oldPrice: number,
   newPrice: number,
@@ -58,9 +58,8 @@ export function formatDateTime(iso: string): string {
 
 /**
  * Decode basic HTML entities (&amp;, &quot;, &#x2026;, &hellip;, numeric
- * references, etc.) into plain text. Ported from old-biggyindex
- * `lib/core/format.ts` — handles nested entities (e.g. `&amp;hellip;`) by
- * iterating up to 3 times, and covers the common named entities the crawler
+ * references, etc.) into plain text. Iterates up to 3 times so nested entities
+ * (e.g. `&amp;hellip;`) resolve; the table covers the named entities the crawler
  * surfaces in product/variant/review strings.
  */
 const ENTITY_NAMES: Record<string, string> = {

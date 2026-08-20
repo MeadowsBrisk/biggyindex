@@ -7,10 +7,10 @@
  * Scope rules:
  *  - Raw `variant.d` is NEVER mutated. The overlay renders it verbatim.
  *  - This module is pure: called from atoms (filtering / sort) and ItemCard (chip row).
- *  - The crawler stamps parse results onto index variants using a 1:1 port
- *    of this parser (dashboard/scripts/unified-crawler/shared/logic/variantStamp.ts).
- *    Fix parsing bugs in BOTH files, then run the parity tool:
- *    dashboard/scripts/unified-crawler/tools/compare-variant-parsers.ts
+ *  - The crawler stamps parse results onto index variants with a 1:1 port of
+ *    this parser, living in the crawler repo (scripts/unified-crawler):
+ *    `shared/logic/variantStamp.ts`. Fix parsing bugs in BOTH files, then run
+ *    the parity tool (`tools/compare-variant-parsers.ts`).
  */
 
 import type { Item, ItemVariant } from "./types";
@@ -153,14 +153,12 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   tubs: "tub",
   pot: "pot",
   pots: "pot",
-  // 2026-07-30 ppu audit: count nouns sellers use as the sale unit.
-  // "1 slab hash" (live tXQGrwGeGAiBAytiIwxfqCIe, $400) previously failed to
-  // parse, and the modal's bare-number fallback rendered the flat total as a
-  // fabricated £300+/g — recognising these nouns is what disarms that.
-  // NOTE: slab is deliberately NOT in PRICEABLE_SINGLE_UNITS — trade folklore
-  // says ~100g but one live listing says 28g, so a lone slab gets an honest
-  // no-ppu rather than an invented denominator. syringe/spray/seed/slice/drop
-  // ARE priceable: the unit is the product ("25 syringes rso").
+  // Count nouns sellers use as the sale unit. Recognising them is what stops
+  // the bare-number fallback rendering a flat pack total as a per-gram price.
+  // NOTE: slab is deliberately NOT in PRICEABLE_SINGLE_UNITS — slab mass is
+  // not standardised, so a lone slab gets an honest no-ppu rather than an
+  // invented denominator. syringe/spray/seed/slice/drop ARE priceable: the
+  // unit is the product ("25 syringes rso").
   slab: "slab",
   slabs: "slab",
   syringe: "syringe",
@@ -233,51 +231,36 @@ export function itemVariantContext(item: Pick<Item, "n" | "c" | "sc">): string {
 
 /**
  * Numeric-token fragment used inside quantity regexes (oz/g/ml/mg).
- * Accepts a normal decimal ("3.5", "28") OR a leading-decimal ("​.77" = 0.77,
- * ".5ml"). The full-decimal alternative is listed first so "3.5" is captured
- * whole and never truncated to ".5". Only the numeric token is widened — the
- * surrounding anchoring of each pattern is left exactly as it was, so this does
- * not loosen where a quantity may appear (e.g. sentence punctuation before a
- * space-separated number like "grade a. 5g" is still not a leading-decimal).
+ * Accepts a normal decimal ("3.5", "28") OR a leading-decimal (".77", ".5ml").
+ * The full-decimal alternative is listed first so "3.5" is captured whole and
+ * never truncated to ".5".
+ * Widen only the token, never a pattern's anchoring — "grade a. 5g" must not
+ * read as .5g.
  */
 const NUM = String.raw`(?:\d+(?:\.\d+)?|\.\d+)`;
 
 /*
- * ── Parse regression cases (leading-decimal + counted-ml multipack) ──
- * These are covered by the parity tool corpus, but are documented here so a
- * future edit to NUM / the ml multipack rules has an at-a-glance contract.
- * (No standalone test stage; wiring one into cli.ts is non-trivial.)
+ * ── Parse contracts ──
+ * At-a-glance contract for edits to NUM or the ml/mg pack rules. Fixture
+ * corpus: the crawler repo's tools/audit-ppu.ts (yarn test:variants there).
  *
- *   "1 .77oz bar punch"      → 21.56g   (0.77oz; leading-"1 " strip + .77)
- *   "10 .2g"                 → 2g       (10 × 0.2g via MULTIPACK_RE)
- *   ".5g"                    → 0.5g     (WEIGHT_RE leading-decimal)
- *   "5 1ml message …"        → 5ml      (MULTIPACK_ML_COUNT_RE, 5×1ml)
- *   "2 1ml message …"        → 2ml      (MULTIPACK_ML_COUNT_RE, 2×1ml)
- *   "10 1ml carts"           → 10ml     (COUNTED_ML_RE keeps its path)
- *   "2x1ml cart"             → 2ml      (MULTIPACK_ML_RE keeps its path)
- *   "1 500 ml lemonchillo"   → 500ml    ("1 " stripped → plain ML_RE, NOT 1×500)
- *
- * ML_RE keeps a PLAIN numeric token (no leading-decimal): it is `\b`-anchored
- * and matches anywhere, so a leading-decimal alt would let it mis-split a glued
- * fraction (the `\b` sits between "." and a digit). No such string exists in the
- * live corpus, but the plain token avoids introducing the risk.
- *
- * ── 2026-07-30 ppu-audit contracts (fixtures in tools/audit-ppu.ts) ──
- *   "10000 mg 10x 1000mg …"  → 10 carts   (TOTAL_MG_PACK_RE, vape ctx; the
- *                                          total is NEVER shown as /unit)
- *   "5000 mg 5x 1g …"        → 5 carts    (inner g → ×1000, corroborated)
- *   "1000 mg biskante d9"    → 1 cart     (potency collapse unchanged)
- *   "600 mg 10x 50mg …"      → 600mg      (does NOT corroborate → honest mg
- *                                          total, qty-1 collapse suppressed)
- *   "strawberry 5x50mg (250mg)" → 5 pcs   (bracket total corroborates)
- *   "1 slab hash"            → 1 slab     (count parse, NOT priceable — no
- *                                          fabricated per-gram figure)
- *   "1 ×20mli rso …"         → 20ml      (mil/mli typo prep)
- *   "7 grans 7g gumbo"       → 7g         (grans typo prep)
- *   "20 20 0.4g pieces …"    → 8g         (dup-collapse preserves the count)
- *   "4 blue inhalers"        → 4 inhalers (one-adjective COUNT_RE tolerance)
- * The full fixture corpus runs via:
- *   cd dashboard && yarn test:variants
+ *   "1 .77oz bar punch"         → 21.56g     (leading-"1 " strip + .77)
+ *   "10 .2g"                    → 2g         (MULTIPACK_RE)
+ *   ".5g"                       → 0.5g       (WEIGHT_RE leading-decimal)
+ *   "5 1ml message …"           → 5ml        (MULTIPACK_ML_COUNT_RE)
+ *   "10 1ml carts"              → 10ml       (COUNTED_ML_RE)
+ *   "2x1ml cart"                → 2ml        (MULTIPACK_ML_RE)
+ *   "1 500 ml lemonchillo"      → 500ml      ("1 " stripped, NOT 1×500)
+ *   "10000 mg 10x 1000mg …"     → 10 carts   (pack total never shown as /unit)
+ *   "5000 mg 5x 1g …"           → 5 carts    (inner g → ×1000, corroborated)
+ *   "1000 mg biskante d9"       → 1 cart     (potency collapse)
+ *   "600 mg 10x 50mg …"         → 600mg      (no corroboration → honest total)
+ *   "strawberry 5x50mg (250mg)" → 5 pcs      (bracket total corroborates)
+ *   "1 slab hash"               → 1 slab     (count parse, NOT priceable)
+ *   "1 ×20mli rso …"            → 20ml       (mil/mli typo prep)
+ *   "7 grans 7g gumbo"          → 7g         (grans typo prep)
+ *   "20 20 0.4g pieces …"       → 8g         (dup-collapse keeps the count)
+ *   "4 blue inhalers"           → 4 inhalers (one-adjective COUNT_RE tolerance)
  */
 
 /** Ounce-family patterns. Slang canonicalizes to grams; numeric oz preserves "Noz". */
@@ -320,24 +303,21 @@ const MULTIPACK_MG_RE = new RegExp(
 );
 
 /**
- * 2026-07-30: leading TOTAL dose followed by an inner "N x M" pack spec —
- * "10000 mg 10x 1000mg the10/10boys mix" / "5000 mg 5x 1g voice of plant".
- * Multi-device menu sellers write the pack total first, so the start-anchored
- * MULTIPACK_MG_RE never fires and MG_RE + potencyProductUnit collapsed the
- * whole pack to qty=1 device — rendering the pack TOTAL as the per-unit price
- * (live items K1yaxsTV1RuYqMWRfVQLcJZK: $450 pack shown as £337.82/unit;
- * o93eJBEpuWRnt3vDZoSVp4IQ: $465 as £349.08). The branch only fires when the
- * numbers corroborate (total ≈ N × per, inner g → ×1000), so a strain cross
- * like "gelato 41 x zkittles" can never match — self-proving, never guessed.
- * Comma decimals allowed (some sellers write "2,5"); parse swaps , → .
+ * Leading TOTAL dose followed by an inner "N x M" pack spec —
+ * "10000 mg 10x 1000mg mix" / "5000 mg 5x 1g voice of plant". Multi-device
+ * menu sellers write the pack total first, so the start-anchored
+ * MULTIPACK_MG_RE never fires and MG_RE + potencyProductUnit would collapse
+ * the whole pack to qty=1 device, rendering the pack TOTAL as the per-unit
+ * price. The branch only fires when the numbers corroborate (total ≈ N × per,
+ * inner g → ×1000), so a strain cross like "gelato 41 x zkittles" can never
+ * match. Comma decimals allowed ("2,5"); parse swaps , → .
  */
 const TOTAL_MG_PACK_RE =
   /^(\d+(?:[.,]\d+)?)\s*mg\b[^a-z0-9]{0,6}(\d+)\s*(?:x|×)\s*(\d+(?:[.,]\d+)?)\s*(mg|milligrams?|grams?|g)\b/i;
 
 /**
- * 2026-07-30: mid-string potency pack with a corroborating bracketed total —
- * "strawberry 5x50mg (250mg)" / "vanilla fudge 5x85mg (425mg)" (live
- * lakE0WvHUBYIGSpsQXOIQrzI / HiDljchrBYzz5AlLmShQIKai, previously unparsed).
+ * Mid-string potency pack with a corroborating bracketed total —
+ * "strawberry 5x50mg (250mg)" / "vanilla fudge 5x85mg (425mg)".
  * A mid-string "N x M mg" ALONE is too strain-cross-prone to trust — the
  * branch requires the bracketed total to equal N × M (double corroboration).
  */
@@ -361,10 +341,9 @@ const COUNTED_ML_RE = new RegExp(
  * ml: a start-anchored count + per-unit ml with NO x/× separator and NO
  * carts/vapes suffix (COUNTED_ML_RE handles the suffixed form, MULTIPACK_ML_RE
  * the x/× form). Anchored at start so it never fires mid-sentence, and the
- * count is a plain integer. Interplay note: preprocessRaw strips a leading
- * platform "1 " before a number, so "1 500 ml lemonchillo" becomes
- * "500 ml lemonchillo" and falls through to plain ML_RE (500ml), never
- * 1×500ml here.
+ * count is a plain integer. preprocessRaw strips a leading platform "1 " before
+ * a number, so "1 500 ml lemonchillo" falls through to plain ML_RE (500ml)
+ * rather than parsing as 1×500ml here.
  */
 const MULTIPACK_ML_COUNT_RE = new RegExp(
   `^(\\d+)\\s+(${NUM})\\s*(?:ml|milliliter|milliliters)\\b`,
@@ -400,8 +379,7 @@ const PACK_MULT_RE = /\b(\d+)\s*x?\s*pack/i;
  * pattern is `\b`-anchored and matches anywhere in the string, so a leading-
  * decimal alternative would let `\b` sit between a word char and "." and
  * mis-capture the fractional tail of a glued number (e.g. "kush2.5ml" → ".5").
- * Leading-decimal ml never reaches here anyway — `\b` prefers the digit run
- * ("​.5ml" → "5"), so widening the token buys nothing and only adds risk.
+ * Leading-decimal ml never reaches here anyway — `\b` prefers the digit run.
  */
 const ML_RE = /\b(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
 
@@ -429,12 +407,11 @@ const STRIP_OF_COUNT_RE =
 
 /**
  * "3 packs", "30 20mg tablets", "1 each 200ug papers".
- * 2026-07-30: tolerates ONE interposed adjective between the count and a
- * KNOWN count noun — "4 blue inhalers", "1 sample pack" (live
- * IHi877d6kVEisPPsItnPnG1i / 7LQEXldxb9DknItvWdWYLn0L, previously unparsed).
- * The interposed word must NOT itself be a count noun (negative lookahead),
- * so every previously-matching label still matches identically, and no new
- * denominators are invented — only known nouns recognised through one word.
+ * Tolerates ONE interposed adjective between the count and a KNOWN count noun
+ * — "4 blue inhalers", "1 sample pack". The interposed word must NOT itself be
+ * a count noun (negative lookahead), so labels that match without an adjective
+ * are unaffected and no new denominators are invented — only known nouns are
+ * recognised through one word.
  * NO dash tolerance: "1 14-pk pacific stone" must keep falling through to
  * BARE_COUNT_RE (14 joints via pre-roll context), not become "14 packs".
  */
@@ -617,11 +594,10 @@ function cleanResidual(raw: string): string | null {
 function preprocessRaw(s: string): string {
   // 1) Collapse 2 or 3 identical leading numbers — EXCEPT when the duplicate
   //    is immediately followed by a number+weight/volume token: then the dup
-  //    is a real count the platform doubled, and dropping both copies loses a
-  //    20× multiplier. "20 20 0.4g pieces chocolates" (live
-  //    9eOVLmMejpEflvoqGTG0JIUf, 2026-07-30) must become "20 0.4g pieces …"
-  //    (MULTIPACK_RE → 8g), not "0.4g pieces …" ($78 rendered as ~$195/g).
-  //    "1 1 baja blast" (no weight after the dup) still collapses fully.
+  //    is a real count the platform doubled, and dropping both copies loses the
+  //    multiplier. "20 20 0.4g pieces chocolates" must become "20 0.4g pieces …"
+  //    (MULTIPACK_RE → 8g), not "0.4g pieces …" (per-gram price then ~20× too
+  //    high). "1 1 baja blast" (no weight after the dup) still collapses fully.
   const dupKeep = s.match(
     /^(\d+)\s+\1\s+(?=(?:\d+(?:\.\d+)?|\.\d+)\s*(?:g|gram|grams|ml|milliliter|milliliters)\b)/,
   );
@@ -690,13 +666,10 @@ export function parseVariant(
   // Normalize "0z" typo → "oz" BEFORE preprocessRaw so its leading-"1 " strip
   // doesn't mistake the "0" for a real digit and eat the real quantity.
   clean = clean.replace(/(\d+(?:\.\d+)?)\s*0z\b/gi, "$1 oz");
-  // 2026-07-30 typo family for ml — "1 ×1mil rso", "1 ×20mli" (live Quality
-  // RSO jMYBaXTY3d0DVludz5yXEfJX, $30–$830 ladder, previously unparsed).
-  // Digit-anchored so strain words never match ("4 mile high": "mile" fails
-  // the \b). Same lexical-prep approach as the shipped 0z→oz fix above.
+  // ml typo family — "1 ×1mil rso", "1 ×20mli". Digit-anchored so strain words
+  // never match ("4 mile high": "mile" fails the \b).
   clean = clean.replace(/(\d)\s*m(?:il|li)s?\b/gi, "$1 ml");
-  // "grans" → "grams" ("7 grans 7g gumbo", live yjhluaijXHWZ61MUmKlmVl4n —
-  // that row even carries a corroborating inline "7g").
+  // "grans" → "grams" ("7 grans 7g gumbo").
   clean = clean.replace(/\bgrans\b/gi, "grams");
   clean = preprocessRaw(clean);
 
@@ -1092,11 +1065,10 @@ export function parseVariant(
   }
 
   /* Leading total + inner pack: "10000 mg 10x 1000mg …" → N devices.
-     Must run BEFORE the MG_RE branch or the leading total routes into the
-     potencyProductUnit qty=1 collapse (the owner-reported /unit=total bug).
-     Per-DEVICE, not per-mg and not mg→g: the good rows on the same items
-     ("500 mg red astare" → £18.77/vape) already use the device denominator,
-     so pack rows land in the same comparable column. */
+     Must run BEFORE the MG_RE branch, or the leading total routes into the
+     potencyProductUnit qty=1 collapse and the pack total is rendered as the
+     per-unit price. Priced per-DEVICE, not per-mg and not mg→g, so pack rows
+     land in the same comparable column as single-device rows. */
   const totalPack = clean.match(TOTAL_MG_PACK_RE);
   if (totalPack) {
     const total = parseFloat(totalPack[1].replace(",", "."));
@@ -1132,17 +1104,13 @@ export function parseVariant(
     const qty = parseFloat(mg[1]);
     const afterMg = clean.slice(mg[0].length);
     const residual = cleanResidual(afterMg);
-    // 2026-07-30 unresolved-pack guard: if the text after the mg total still
-    // carries an "N x M" multiplier (i.e. TOTAL_MG_PACK_RE's corroboration
-    // gate rejected it), do NOT collapse to a single device — that renders
-    // the pack total as a confident per-unit price. Checked against the
-    // PRE-cleanResidual text: cleanResidual's INNER_WEIGHT_RE deletes the
-    // inner "1000mg", leaving only a bare "10x" in the strain.
-    // /i matters: sellers write "10X 50mg" as often as "10x" — without it an
-    // uppercase pack that failed TOTAL_MG_PACK_RE's corroboration slipped past
-    // this guard and rendered the flat total as a confident per-unit price
-    // ("600 mg 10X 50mg mix" → £300.00/cart). Caught by adversarial verify
-    // 2026-07-30.
+    // Unresolved-pack guard: if the text after the mg total still carries an
+    // "N x M" multiplier (i.e. TOTAL_MG_PACK_RE's corroboration gate rejected
+    // it), do NOT collapse to a single device — that renders the pack total as
+    // a confident per-unit price. Checked against the PRE-cleanResidual text:
+    // cleanResidual's INNER_WEIGHT_RE deletes the inner "1000mg", leaving only
+    // a bare "10x" in the strain. /i matters — sellers write "10X 50mg" as
+    // often as "10x", and an uppercase pack would slip past the guard.
     const unresolvedPack = /\b\d+\s*(?:x|×)\s*\d/i.test(afterMg);
     const potencyUnit = unresolvedPack
       ? null
@@ -1255,7 +1223,7 @@ function formatCountLabel(qty: number, unit: string): string {
     pot: "pot",
     strip: "strip",
     item: "item",
-    // 2026-07-30 ppu audit nouns (see COUNT_LABEL_CANONICAL).
+    // Sale-unit nouns (see COUNT_LABEL_CANONICAL).
     slab: "slab",
     syringe: "syringe",
     spray: "spray",
@@ -1390,9 +1358,9 @@ const PRICEABLE_SINGLE_UNITS = new Set([
   "cube",
   "vape",
   "inhaler",
-  // 2026-07-30: the unit IS the product for these ("25 syringes rso",
-  // "10 sprays live resin spray") — per-unit pricing is meaningful at qty 1.
-  // slab is deliberately ABSENT (mass folklore, see COUNT_LABEL_CANONICAL):
+  // The unit IS the product for these ("25 syringes rso", "10 sprays live
+  // resin spray") — per-unit pricing is meaningful at qty 1. slab is
+  // deliberately ABSENT (unstandardised mass, see COUNT_LABEL_CANONICAL):
   // a qty-1 slab yields an honest no-ppu, never an invented per-gram figure.
   "syringe",
   "spray",
@@ -1446,8 +1414,7 @@ export const UNIT_DISPLAY_LABEL: Record<string, string> = {
 };
 
 /**
- * Per-unit price for any parsed quantity. Mirrors old-biggyindex
- * `perUnitSuffix`: returns `price / qty` for any unit, or null when PPU
+ * Per-unit price for any parsed quantity: `price / qty`, or null when PPU
  * would be meaningless (qty missing, qty <= 0, or qty === 1 on ambiguous
  * packaging count units like pack/bag/jar).
  */

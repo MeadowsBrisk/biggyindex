@@ -5,14 +5,13 @@ import { CATEGORY_SLUGS, slugToCategory } from "@/lib/categories";
 import { GITHUB_REPO_URL, VERIFY_LINKS } from "@/lib/verify-links";
 
 /**
- * SiteFooter — distinct from food-agg: gradient top bar, centered layout, cannabis branding.
+ * SiteFooter — gradient top bar, centered layout, cannabis branding.
  */
 
 // Module scope, NOT render scope: under cacheComponents, `new Date()` inside
 // an uncached Server Component render is a fatal next-prerender-current-time
-// build error (it broke prerendering of the @modal fallback shell). Module
-// init runs outside the render clock-check; the value refreshes on every
-// deploy/cold start, which is plenty for a copyright year.
+// build error. Module init runs outside the render clock-check, and the value
+// refreshes on every deploy/cold start — plenty for a copyright year.
 const COPYRIGHT_YEAR = new Date().getFullYear();
 
 export async function SiteFooter({
@@ -30,8 +29,8 @@ export async function SiteFooter({
     locale,
     namespace: "categories",
   });
-  // Indexed lookup into the single canonical link list — the footer renders a
-  // hand-ordered subset interleaved with community links, so it can't map the
+  // Indexed lookup into the canonical link list. The footer renders a
+  // hand-ordered subset interleaved with community links so it can't map the
   // array directly, but hrefs/addresses must never be retyped here.
   const verify = Object.fromEntries(VERIFY_LINKS.map((l) => [l.key, l]));
 
@@ -102,9 +101,9 @@ export async function SiteFooter({
           {/* Official links + Community + Legal row.
               Three groups: below md they stack centred (gap-8 = 32px between
               groups); from md they sit side by side. The authenticity links
-              are duplicated from the header's Verify popover ON PURPOSE —
-              the homepage is hero-led and renders NO SiteHeader, so the
-              footer is what makes them reachable site-wide.
+              duplicate the header's Verify popover ON PURPOSE — the homepage
+              is hero-led and renders no SiteHeader, so the footer is what
+              makes them reachable site-wide.
 
               Spacing rhythm inside each group (matches the verify popover):
                 eyebrow → first row   mb-3   (12px)
@@ -114,8 +113,7 @@ export async function SiteFooter({
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-6 border-t border-border pt-8 mb-8">
             {/* Official Little Biggy links — the same two-line
                 label-over-address rows as the header popover / status card,
-                so the raw URLs are visible WITH their meaning attached
-                (a bare "littlebiggy.org/4791812" on its own was confusing).
+                so a raw URL is never shown without its meaning attached.
                 Addresses come from VERIFY_LINKS `display`; labels reuse
                 header.verify.* keys so wording stays in sync everywhere. */}
             <div className="flex flex-col items-center md:items-start">
@@ -162,10 +160,10 @@ export async function SiteFooter({
                   Reddit
                   <ExternalLink size={13} className="text-muted" />
                 </a>
-                {/* Telegram channel — appears once the channel exists and
-                    NEXT_PUBLIC_TELEGRAM_CHANNEL_URL is set on the frontend
-                    Netlify site (e.g. https://t.me/biggyindex). Inlined at
-                    build time, so setting/changing it needs a redeploy. */}
+                {/* Telegram channel — rendered only when
+                    NEXT_PUBLIC_TELEGRAM_CHANNEL_URL is set in the frontend
+                    site's env. Inlined at build time, so setting or changing
+                    it needs a redeploy. */}
                 {process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL && (
                   <a
                     href={process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL}
@@ -190,13 +188,10 @@ export async function SiteFooter({
               </p>
             </div>
 
-            {/* Legal links.
-                flex-wrap + gap-x-5: at 360px the German labels ("Über uns",
-                "Datenschutz", "Nutzungsbedingungen", "Cookies") measured
-                370.6px on one nowrap line, which was the sole cause of
-                horizontal page scroll on /de-DE/* on narrow phones. Wrapping
-                to two centred lines fixes it; gap-y-2 keeps the second line
-                off the first. */}
+            {/* Legal links. Keep flex-wrap + gap-x-5: the longest translated
+                labels exceed 360px on one nowrap line, which forces
+                horizontal page scroll on narrow phones. gap-y-2 keeps the
+                wrapped second line off the first. */}
             <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm md:justify-end">
               <Link
                 href="/about"
@@ -229,10 +224,10 @@ export async function SiteFooter({
             </nav>
           </div>
 
-          {/* Copyright + source. The GitHub link sits with the copyright
-              line, not the community row: it is about THIS site (auditable
-              source, AGPL-3.0), not about the LB ecosystem. Icon + one word
-              keeps it quiet; the aria-label carries the full meaning. */}
+          {/* Copyright + source. The GitHub link belongs on the copyright
+              line, not the community row: it is about this site's own
+              auditable source (AGPL-3.0), not the LB ecosystem. Icon + one
+              word keeps it quiet; the aria-label carries the full meaning. */}
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <p className="text-center">
               {t("copyright", { year: COPYRIGHT_YEAR })}

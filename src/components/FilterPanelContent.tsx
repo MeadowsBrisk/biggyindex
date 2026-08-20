@@ -305,8 +305,7 @@ export function FilterPanelContent({
   return (
     <div className="flex h-full flex-col">
       {/* Header bar — mobile only. The desktop panel is toggled from the
-          toolbar's Filters button, so its own close X was redundant (mirrors
-          food-aggregator, which dropped the desktop header entirely). The
+          toolbar's Filters button, so its own close X was redundant. The
           mobile drawer still needs an explicit close affordance. */}
       <div className="ido-filter-header flex h-10 items-center justify-between border-b border-border px-3 md:hidden">
         <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">

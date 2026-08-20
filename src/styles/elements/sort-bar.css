@@ -32,7 +32,7 @@
   background: var(--surface-hover);
 }
 
-/* Active — green tinted pill, matching the site's toggle pattern */
+/* Active — tinted pill, matching the site's toggle pattern */
 .sort-bar__btn--active {
   color: var(--primary);
   background: color-mix(in srgb, var(--primary) 12%, transparent);
@@ -57,15 +57,15 @@
   flex-shrink: 0;
 }
 
-/* Decorative lead glyph before the pills (roast-radar parity) */
+/* Decorative lead glyph before the pills */
 .sort-bar__lead {
   margin-right: 2px;
   flex-shrink: 0;
 }
 
 /* ==========================================================================
-   Sort Select (mobile) — glass-styled native select + direction toggle
-   to match the toolbar's frosted aesthetic.
+   Sort Select (mobile) — native select + direction toggle, styled to match
+   the toolbar's frosted controls.
    ========================================================================== */
 
 .sort-select {
@@ -77,8 +77,8 @@
 .sort-select__field {
   appearance: none;
   -webkit-appearance: none;
-  /* Match the other toolbar controls: fixed 32px height, neutral outline,
-     transparent fill (the toolbar itself supplies the frosted backdrop). */
+  /* Matches the other toolbar controls: 32px height, neutral outline,
+     transparent fill — the toolbar itself supplies the frosted backdrop. */
   height: 32px;
   background-color: transparent;
   border: 1px solid var(--border);
@@ -119,7 +119,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Square button matching the 32px control height + neutral outline. */
+  /* Square button matching the 32px control height. */
   width: 32px;
   height: 32px;
   border-radius: 8px;

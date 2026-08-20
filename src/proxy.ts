@@ -8,13 +8,14 @@
  *
  * In dev (localhost), defaults to en-GB / GB market.
  *
- * LEGACY REDIRECTS LIVE HERE, not (only) in netlify.toml or next.config:
- * on Netlify this middleware runs as an edge function BEFORE both
- * netlify.toml [[redirects]] and next.config redirects(), so it is the only
- * layer guaranteed to see the original v1 path — verified in production
- * where /home reached the origin as /en-GB/home and every lower-layer rule
- * missed. netlify.toml + next.config keep mirror rules for portability and
- * for dotted paths (/sitemap-*.xml) that the matcher below skips.
+ * LEGACY REDIRECTS LIVE HERE, not (only) in netlify.toml or next.config: this
+ * middleware runs as an edge function ahead of next.config redirects(), so it
+ * is the layer guaranteed to see the original v1 path. By the time the origin
+ * router matches, /home has become /en-GB/home and every rule keyed on the
+ * bare path misses. netlify.toml + next.config keep mirror rules for
+ * portability and for dotted paths (/sitemap-*.xml) the matcher below skips.
+ * Full precedence order: netlify.toml redirects > this proxy > next.config
+ * redirects().
  */
 
 import { type NextRequest, NextResponse } from "next/server";
@@ -56,13 +57,13 @@ const LOCALE_PREFIX_HOSTS: Record<string, string> = {
 function legacyRedirect(request: NextRequest): NextResponse | null {
   const { pathname, search } = request.nextUrl;
 
-  // Legacy v1 domain (lbindex.vip) → canonical apex. Runs FIRST so the alias
-  // never serves duplicate 200s — the canonical tag only mitigates, a 301 is
-  // the correct fix. Read the real Host header (nextUrl.host can be the
-  // deployment host on the edge), lowercase it and strip any port. localhost/
-  // dev and every *.biggyindex.com host fall through untouched; the GB_HOSTS
-  // mapping stays in place so requests still reaching the app on that host
-  // during DNS propagation resolve as GB.
+  // Legacy domain → canonical apex. Runs FIRST so the alias never serves
+  // duplicate 200s; a canonical tag only mitigates, a 301 is the fix. Must
+  // read the real Host header — nextUrl.host can be the deployment host on the
+  // edge — lowercased with any port stripped. localhost and every
+  // *.biggyindex.com host fall through untouched. Keep lbindex.vip in GB_HOSTS
+  // regardless — the matcher below exempts /api and dotted paths, so those
+  // requests reach the app on the legacy host without ever hitting this 301.
   const requestHost = (request.headers.get("host") ?? "")
     .toLowerCase()
     .split(":")[0];

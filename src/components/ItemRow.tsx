@@ -5,8 +5,7 @@
  * (viewLayoutAtom === "list"). A scanning layout: small thumb, name +
  * category/subcategory pill + key attributes + rating, seller, price + PPU.
  * Everything richer (gallery, variants, description) lives one click away in
- * the item detail overlay — same as the cards. Ported from food-aggregator's
- * ItemRow, adapted to biggy's item shape + minified keys.
+ * the item detail overlay, same as the cards.
  */
 
 import { useSetAtom } from "jotai";
@@ -86,9 +85,9 @@ export function ItemRow({
       : 0;
   const bestPpu = cheapestPpu(item.v, shipSurcharge, itemVariantContext(item));
 
-  // Compact freshness line under the price — updated when the crawler saw a
-  // real change, else the listed age. One line only; the row is too dense for
-  // the card footer's two-line stack (hover title carries the other value).
+  // Compact freshness line under the price — the updated age when the crawler
+  // saw a real change, else the listed age. One line only (the row is too
+  // dense for the card footer's two-line stack); the title carries both.
   const updatedAge =
     item.lua && item.lur && item.lur !== "N"
       ? relativeAge(item.lua, clientNow)

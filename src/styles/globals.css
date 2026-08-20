@@ -33,12 +33,10 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Frosted glass surface (matches the --frosted-bg/--frosted-blur pattern
-   from the old project). Hardcoded rgba so backdrop-filter is never
-   shadowed by Tailwind layer ordering or @theme token rewrites.
-   Any element with .glass gets:
-     - translucent base tint (so the blur has something to multiply)
-     - 20px gaussian blur on everything rendered behind it
+   Frosted glass surface. The tokens behind these use hardcoded rgba rather
+   than @theme colours so backdrop-filter is never shadowed by Tailwind layer
+   ordering or token rewrites. .glass gives a translucent tint (the blur needs
+   something to multiply against) plus a blur of everything behind it.
    ───────────────────────────────────────────────────────────── */
 @layer utilities {
   .glass {
@@ -53,10 +51,8 @@
   }
 }
 
-/*
- * Dark variant — matches the element with [data-theme] AND its descendants.
- * Uses :where() for zero-specificity so it doesn't fight inline styles.
- */
+/* Dark variant — matches the [data-theme] element AND its descendants.
+   :where() keeps specificity at zero so it never fights inline styles. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 html {
@@ -111,7 +107,7 @@ html {
   }
 
   [data-theme="dark"] {
-    /* Deep charcoal with green undertone — distinct from food-agg's navy */
+    /* Deep charcoal with green undertone */
     --background: #0c0f0c;
     --foreground: #e8ece8;
     --surface: #161b16;
@@ -289,11 +285,10 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  /* "Twemoji Country Flags" is loaded by FlagFontPolyfill on Windows where
-     the OS doesn't render regional indicator pairs as flags (Segoe UI Emoji
-     ships no flag glyphs). The polyfill scopes the @font-face via
-     unicode-range to U+1F1E6–U+1F1FF, so it has zero effect on any other
-     character and zero impact on platforms that already support flags. */
+  /* "Twemoji Country Flags" is loaded by FlagFontPolyfill on platforms whose
+     system emoji font ships no flag glyphs for regional indicator pairs. The
+     @font-face is scoped by unicode-range to U+1F1E6–U+1F1FF, so it affects
+     no other character and costs nothing where flags already render. */
   font-family: "Twemoji Country Flags", var(--font-sans), system-ui, sans-serif;
 }
 
@@ -307,22 +302,13 @@ body {
 }
 
 /* Page navigation fade transition (View Transitions API).
- *
- * Old + new run concurrently by default, so the visible duration is the
- * longer of the two. We use matched timings (260ms each) with a soft
- * cubic-bezier so the cross-fade reads as a single smooth "shimmy"
- * rather than two distinct fades. Slight scale on the incoming page
- * gives a sense of forward motion without obvious zoom.
- *
- * NOTE (updated for Next 16.3): `experimental.viewTransition` no longer
- * exists — Next removed the automatic document.startViewTransition()
- * wrapping of Link navigations in 16.3 (replaced by React's opt-in
- * <ViewTransition> component). This block therefore only animates
- * CROSS-DOCUMENT (hard) navigations via the `@view-transition` rule
- * below; client-side navigations swap instantly. To restore the SPA
- * cross-fade, wrap page content in React <ViewTransition> per
- * nextjs.org/docs/app/guides/view-transitions.
- */
+   Old and new run concurrently, so the timings must match (260ms each) or the
+   cross-fade reads as two distinct fades. The sub-1% scale is deliberate —
+   forward motion without a visible zoom.
+
+   Two triggers share these keyframes so every route change looks the same:
+   cross-document loads via the `@view-transition` rule below, and client-side
+   navigations via React <ViewTransition> wrappers tagging `.page-xfade`. */
 @view-transition {
   navigation: auto;
 }
@@ -332,6 +318,15 @@ body {
 }
 
 ::view-transition-new(root) {
+  animation: page-fade-in 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* React <ViewTransition enter/exit="page-xfade"> — client-side navs. */
+::view-transition-old(.page-xfade) {
+  animation: page-fade-out 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+::view-transition-new(.page-xfade) {
   animation: page-fade-in 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
@@ -360,7 +355,9 @@ body {
 /* Honour the user's reduced-motion preference. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-new(root),
+  ::view-transition-old(.page-xfade),
+  ::view-transition-new(.page-xfade) {
     animation-duration: 1ms;
   }
 }
