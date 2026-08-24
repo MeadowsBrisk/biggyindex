@@ -111,6 +111,16 @@ function staticSitemap(baseUrl: string): MetadataRoute.Sitemap {
         languages: alternateLanguagesForPath("/about", ALL_MARKETS),
       },
     },
+    // Price-per-gram index — recomputed whenever the items dataset
+    // revalidates, so daily like the category landing pages.
+    {
+      url: `${baseUrl}/prices`,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+      alternates: {
+        languages: alternateLanguagesForPath("/prices", ALL_MARKETS),
+      },
+    },
     // Live Little Biggy status page — hourly changefreq reflects the live
     // uptime indicator revalidating far faster than the other hubs.
     {

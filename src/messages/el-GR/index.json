@@ -34,7 +34,8 @@
     "ES": "Ισπανία",
     "GR": "Ελλάδα",
     "CZ": "Δημοκρατία της Τσεχίας",
-    "PL": "Πολωνία"
+    "PL": "Πολωνία",
+    "NL": "Κάτω Χώρες"
   },
   "header": {
     "basket": {
@@ -81,6 +82,7 @@
     "community": "Κοινότητα",
     "communityCopy": "Ενώστε τη συζήτηση. Μοιραστείτε εμπειρίες, κάντε ερωτήσεις ή ελέγξτε τη φήμη των πωλητών.",
     "statusLink": "Κατάσταση Little Biggy",
+    "pricesLink": "Cannabis prices",
     "about": "Σχετικά",
     "privacy": "Απόρρητο",
     "terms": "Όροι",
@@ -111,7 +113,7 @@
       "lastCheckedMinutes": "{count, plural, one {Ελέγχθηκε πριν από 1 λεπτό} other {Ελέγχθηκε πριν από # λεπτά}}",
       "lastCheckedHours": "{count, plural, one {Ελέγχθηκε πριν από 1 ώρα} other {Ελέγχθηκε πριν από # ώρες}}",
       "lastSeenUp": "Τελευταία φορά online στις {time}",
-      "uptimeTitle": "Πρόσφατοι έλεγχοι (τελευταίες 24 ώρες)",
+      "uptimeTitle": "Πρόσφατοι έλεγχοι (τελευταίες {hours} ώρες)",
       "uptimeUp": "Προσβάσιμο",
       "uptimeDown": "Μη προσβάσιμο",
       "uptimeEmpty": "Δεν υπάρχει ακόμη ιστορικό ελέγχων.",
@@ -126,7 +128,7 @@
       "uptimePercent": "{pct}% προσβάσιμο",
       "uptimeMixed": "Μερικώς προσβάσιμο",
       "uptimeNoData": "Χωρίς δεδομένα",
-      "uptimeAxisStart": "πριν 24 ώ.",
+      "uptimeAxisStart": "πριν {hours} ώ.",
       "uptimeAxisEnd": "Τώρα",
       "uptimeCaption": "{checks, plural, one {1 έλεγχος} other {# έλεγχοι}} · διάμεση απόκριση {ms} ms",
       "uptimeCaptionNoLatency": "{checks, plural, one {1 έλεγχος} other {# έλεγχοι}} σε αυτό το διάστημα",
@@ -1308,5 +1310,52 @@
         "other": "Τα Άλλα είναι η κατηγορία-συλλέκτης για καταχωρίσεις που δεν ταιριάζουν στις κύριες κατηγορίες: προϊόντα CBD, σπόροι, αξεσουάρ όπως grinders και είδη στριφτού, και τα μεμονωμένα αντικείμενα που οι πωλητές βάζουν δίπλα στο κύριο μενού τους. Αξίζει μια ματιά πού και πού, γιατί οι νέοι τύποι προϊόντων συνήθως προσγειώνονται πρώτα εδώ, πριν υπάρξουν αρκετές καταχωρίσεις για δική τους κατηγορία. Περιμένετε το περιεχόμενο να αλλάζει από εβδομάδα σε εβδομάδα καθώς οι πωλητές ανανεώνουν το απόθεμα. Κάθε καταχώριση έχει τα ίδια ευρετηριασμένα δεδομένα με τον υπόλοιπο ιστότοπο — τιμή, ιστορικό πωλητή, βαθμολογίες κριτικών και επιλογές αποστολής — ώστε ένα ασυνήθιστο αντικείμενο να ελέγχεται ακριβώς όπως ένα συνηθισμένο."
       }
     }
+  },
+  "prices": {
+    "meta": {
+      "titleGB": "UK Cannabis Prices — Live Price Per Gram Index",
+      "title": "Cannabis Prices in {market} — Price Per Gram Index",
+      "descriptionGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
+      "description": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
+      "descriptionNoCountGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings.",
+      "descriptionNoCount": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+    },
+    "headingGB": "UK Cannabis Prices: Price Per Gram",
+    "heading": "Cannabis Prices in {market}: Price Per Gram",
+    "intro": "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}",
+    "empty": "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up.",
+    "stats": {
+      "overallMedianLabel": "Median price per gram",
+      "categoryMedianLabel": "{category} median",
+      "cheapestLabel": "Cheapest per gram",
+      "perGram": "{price}/g"
+    },
+    "table": {
+      "heading": "Price per gram by category",
+      "category": "Category",
+      "listings": "Listings",
+      "median": "Median /g",
+      "range": "Typical range",
+      "from": "From",
+      "caption": "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+    },
+    "bestValue": {
+      "heading": "Best value per gram right now",
+      "intro": "The cheapest live per-gram asking prices across all gram-priced listings — usually the largest weight tier of each listing.",
+      "rank": "#",
+      "item": "Item",
+      "seller": "Seller",
+      "category": "Category",
+      "pricePerGram": "Price /g"
+    },
+    "methodology": {
+      "heading": "Methodology",
+      "source": "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex.",
+      "inclusion": "Only listings with a gram-denominated option count; price per gram = listed price ÷ grams for each option.",
+      "refresh": "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them.",
+      "honesty": "These are the prices sellers ask, not a street-price survey and not completed-sale data."
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbPrices": "Prices"
   }
 }

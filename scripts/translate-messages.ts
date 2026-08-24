@@ -17,7 +17,7 @@ const SRC = resolve(ROOT, "src/messages/messages.yaml");
 const REPORT_DIR = resolve(ROOT, ".translation-reports");
 
 const FALLBACK_LOCALE = "en-GB";
-const ENGLISH_LOCALES = new Set(["en-GB", "en-IE"]);
+const ENGLISH_LOCALES = new Set(["en-GB", "en-IE", "en-NL"]);
 const DEFAULT_ENDPOINT = "https://api.cognitive.microsofttranslator.com";
 const API_VERSION = "3.0";
 const DEFAULT_BATCH_SIZE = 50;

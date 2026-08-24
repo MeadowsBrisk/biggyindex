@@ -25,6 +25,7 @@ const DOMAINS: Record<string, string> = {
   GR: "https://gr.biggyindex.com",
   CZ: "https://cz.biggyindex.com",
   PL: "https://pl.biggyindex.com",
+  NL: "https://nl.biggyindex.com",
 };
 
 // Explicit /api allows so the renderer can fetch the browse dataset + rates
@@ -78,6 +79,7 @@ const CRAWLABLE_HOSTS = new Set<string>([
   "gr.biggyindex.com",
   "cz.biggyindex.com",
   "pl.biggyindex.com",
+  "nl.biggyindex.com",
 ]);
 
 const MIRROR_BODY = `User-Agent: *

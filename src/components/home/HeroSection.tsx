@@ -180,8 +180,8 @@ export function HeroSection({
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
             {t("markets")}
           </span>
-          {/* Wraps to multiple rows on narrow screens so 9-10 markets never run
-              off the edge; stays a single inline row from sm up. */}
+          {/* Wraps to multiple rows on narrow screens so the full market list
+              never runs off the edge; stays a single inline row from sm up. */}
           <div className="flex flex-wrap items-center justify-center gap-3">
             {MARKETS.map((m) => {
               const marketCode = m.code as MarketCode;

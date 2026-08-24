@@ -129,93 +129,87 @@ export default async function LittleBiggyStatusPage({
             {t("intro")}
           </p>
 
-          {/* Live status indicator */}
+          {/* Live status + recent history — one card, two sections. The
+              tinted region carries the verdict; the strip below is its
+              evidence. Hairline separation, single border. */}
           <section
             aria-live="polite"
-            className={`mt-8 rounded-2xl border p-5 sm:p-6 ${ind.ring}`}
+            className="mt-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-surface"
           >
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-3 w-3">
-                {state !== "unknown" && (
+            <div className={`border-b p-5 sm:p-6 ${ind.ring}`}>
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-3 w-3">
+                  {state !== "unknown" && (
+                    <span
+                      className={`absolute inline-flex h-full w-full rounded-full opacity-60 ${ind.dot} ${state === "up" ? "animate-ping" : ""}`}
+                    />
+                  )}
                   <span
-                    className={`absolute inline-flex h-full w-full rounded-full opacity-60 ${ind.dot} ${state === "up" ? "animate-ping" : ""}`}
+                    className={`relative inline-flex h-3 w-3 rounded-full ${ind.dot}`}
                   />
-                )}
-                <span
-                  className={`relative inline-flex h-3 w-3 rounded-full ${ind.dot}`}
-                />
-              </span>
-              <span className={`text-lg font-semibold ${ind.text}`}>
-                {statusLabel}
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-muted leading-relaxed">
-              {statusDetail}
-            </p>
+                </span>
+                <span className={`text-lg font-semibold ${ind.text}`}>
+                  {statusLabel}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-muted leading-relaxed">
+                {statusDetail}
+              </p>
 
-            {/* Meta block — a real 16px rule above and below, never collapsed
+              {/* Meta block — a real 16px rule above and below, never collapsed
                 padding. Both relative lines are client leaves so they can't
                 freeze inside this page's `"use cache"` scope; the absolute
                 label they fall back to is built here, deterministically. */}
-            {status && (
-              <div className="mt-4 flex flex-col gap-1.5 border-t border-border pt-4 text-xs text-muted">
-                <StatusRelativeTime
-                  iso={status.lastCheckedAt}
-                  absoluteLabel={t("status.lastCheckedAbsolute", {
-                    time: formatTime(status.lastCheckedAt, locale),
-                  })}
-                  keyPrefix="lastChecked"
-                />
-                {state === "down" ? (
-                  <span>
-                    {t("status.lastSeenUp", {
-                      time: formatTime(status.lastUpAt, locale),
-                    })}
-                  </span>
-                ) : status.lastDownAt ? (
+              {status && (
+                <div className="mt-4 flex flex-col gap-1.5 border-t border-border pt-4 text-xs text-muted">
                   <StatusRelativeTime
-                    iso={status.lastDownAt}
-                    absoluteLabel={t("status.lastOutageAbsolute", {
-                      time: formatTime(status.lastDownAt, locale),
+                    iso={status.lastCheckedAt}
+                    absoluteLabel={t("status.lastCheckedAbsolute", {
+                      time: formatTime(status.lastCheckedAt, locale),
                     })}
-                    keyPrefix="lastOutage"
+                    keyPrefix="lastChecked"
                   />
-                ) : (
-                  <span>{t("status.noRecentOutages")}</span>
-                )}
-              </div>
-            )}
-          </section>
+                  {state === "down" ? (
+                    <span>
+                      {t("status.lastSeenUp", {
+                        time: formatTime(status.lastUpAt, locale),
+                      })}
+                    </span>
+                  ) : status.lastDownAt ? (
+                    <StatusRelativeTime
+                      iso={status.lastDownAt}
+                      absoluteLabel={t("status.lastOutageAbsolute", {
+                        time: formatTime(status.lastDownAt, locale),
+                      })}
+                      keyPrefix="lastOutage"
+                    />
+                  ) : (
+                    <span>{t("status.noRecentOutages")}</span>
+                  )}
+                </div>
+              )}
+            </div>
 
-          {/* Escape route first when we can't confirm LB is up. */}
-          {verifyFirst && (
-            <VerifyCard
-              locale={locale}
-              headingKey="headingDown"
-              className="mt-4"
-            />
-          )}
-
-          {/* Uptime — 24 fixed hourly buckets, never wraps. Not rendered at all
-              when the window is empty: an all-grey strip under a "0% reachable"
-              chip would be a lie, not a chart. */}
-          {status &&
-            uptime &&
-            (uptime.total > 0 ? (
+            {/* History section. Not rendered when the window is empty: an
+                all-grey strip under a percent chip would be a lie. */}
+            {status && uptime && uptime.total > 0 ? (
               <UptimeCard
                 window={uptime}
                 locale={locale}
-                className={verifyFirst ? "mt-8" : "mt-4"}
+                className="p-5 sm:p-6"
               />
             ) : (
-              <p className="mt-4 text-sm text-muted">
+              <p className="p-5 text-sm text-muted sm:p-6">
                 {t("status.uptimeEmpty")}
               </p>
-            ))}
+            )}
+          </section>
 
-          {!verifyFirst && (
-            <VerifyCard locale={locale} headingKey="heading" className="mt-8" />
-          )}
+          <VerifyCard
+            locale={locale}
+            headingKey={verifyFirst ? "headingDown" : "heading"}
+            className="mt-4"
+          />
 
           {/* Real-address block: domain-guess searches (littlebiggy.net,
               .com, typos) need the literal answer on-page. */}

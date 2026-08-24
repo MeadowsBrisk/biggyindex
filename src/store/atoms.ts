@@ -471,6 +471,7 @@ function marketNativeCurrency(market: string): DisplayCurrency {
     case "IT":
     case "ES":
     case "GR":
+    case "NL":
       return "EUR";
     default:
       return "GBP";

@@ -15,7 +15,8 @@ export type MarketCode =
   | "ES"
   | "GR"
   | "CZ"
-  | "PL";
+  | "PL"
+  | "NL";
 
 const GB_HOSTS = new Set([
   "biggyindex.com",
@@ -48,6 +49,7 @@ export function getMarketFromHost(
     if (h.startsWith("gr.")) return "GR";
     if (h.startsWith("cz.")) return "CZ";
     if (h.startsWith("pl.")) return "PL";
+    if (h.startsWith("nl.")) return "NL";
     return "GB";
   }
 
@@ -61,6 +63,7 @@ export function getMarketFromHost(
   if (/\bgr[.-]/.test(h)) return "GR";
   if (/\bcz[.-]/.test(h)) return "CZ";
   if (/\bpl[.-]/.test(h)) return "PL";
+  if (/\bnl[.-]/.test(h)) return "NL";
 
   return "GB";
 }
@@ -106,6 +109,8 @@ export function localeToMarket(locale: string | undefined): MarketCode {
     case "pl-PL":
     case "pl":
       return "PL";
+    case "en-NL":
+      return "NL";
     default:
       return "GB";
   }
@@ -132,6 +137,8 @@ export function marketToLocale(market: MarketCode): string {
       return "cs-CZ";
     case "PL":
       return "pl-PL";
+    case "NL":
+      return "en-NL";
     default:
       return "en-GB";
   }
@@ -148,6 +155,7 @@ export const ALL_MARKETS: MarketCode[] = [
   "GR",
   "CZ",
   "PL",
+  "NL",
 ];
 
 /**
@@ -178,13 +186,15 @@ export function marketToHost(market: MarketCode): string {
       return "cz.biggyindex.com";
     case "PL":
       return "pl.biggyindex.com";
+    case "NL":
+      return "nl.biggyindex.com";
     default:
       return "biggyindex.com";
   }
 }
 
 /** Markets where the UI is English (skip translation toggle, reuse en-GB copy). */
-export const ENGLISH_MARKETS: MarketCode[] = ["GB", "IE"];
+export const ENGLISH_MARKETS: MarketCode[] = ["GB", "IE", "NL"];
 
 /** Market code → native currency symbol. */
 export function marketCurrencySymbol(market: MarketCode | string): string {
@@ -202,6 +212,7 @@ export function marketCurrencySymbol(market: MarketCode | string): string {
     case "IT":
     case "ES":
     case "GR":
+    case "NL":
       return "€";
     default:
       return "£";

@@ -3,7 +3,7 @@
 **[biggyindex.com](https://biggyindex.com)** — an independent, open-source index for
 [Little Biggy](https://littlebiggy.org). BiggyIndex crawls the marketplace, categorises
 every listing, tracks prices, reviews and seller history over time, and serves it all as a
-fast, filterable catalogue across ten European market editions.
+fast, filterable catalogue across eleven European market editions.
 
 This repository is the complete production frontend. It is public so that the
 security-conscious people who use it don't have to take our word for what it does —
@@ -26,8 +26,8 @@ read the source, build it, compare.
 - **Review feed** — buyer reviews with photos, mirrored and optimised.
 - **[Little Biggy status](https://biggyindex.com/littlebiggy-status)** — independent
   uptime monitoring, probed every 10 minutes.
-- **Ten market editions** on subdomains (GB, IE, DE, FR, PT, IT, ES, GR, CZ, PL) with
-  full UI translation in nine languages and market-local currency display.
+- **Eleven market editions** on subdomains (GB, IE, NL, DE, FR, PT, IT, ES, GR, CZ, PL)
+  with full UI translation in nine languages and market-local currency display.
 
 ## How it works
 
@@ -59,7 +59,7 @@ revalidation endpoint here when something actually changed.
 | UI state | [Jotai](https://jotai.org) |
 | Filter state | [nuqs](https://nuqs.dev) — URL-synced, back-button-friendly |
 | Styling | Tailwind CSS v4 (CSS-first `@theme`, dark/light) |
-| i18n | [next-intl](https://next-intl.dev) v4, 10 locales from one YAML source |
+| i18n | [next-intl](https://next-intl.dev) v4, 11 locales from one YAML source |
 | Validation | zod |
 | Lint/format | Biome |
 
@@ -125,9 +125,6 @@ src/
 ```
 
 ## Issues & feedback
-
-This repo is public primarily so the site's users can **audit** what it does, not as a
-community project — development happens here, and we're not looking for pull requests.
 
 **Bug reports and suggestions are very welcome as issues**: broken pages, wrong data
 (miscategorised items, stale prices — the crawler isn't in this repo, but file those

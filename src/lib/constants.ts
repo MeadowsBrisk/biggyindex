@@ -104,6 +104,14 @@ export const MARKETS: Market[] = [
     locale: "pl-PL",
     flag: "🇵🇱",
   },
+  {
+    code: "NL",
+    name: "Netherlands",
+    currency: "EUR",
+    currencySymbol: "€",
+    locale: "en-NL",
+    flag: "🇳🇱",
+  },
 ];
 
 export const DEFAULT_MARKET = "GB";

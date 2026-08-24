@@ -6,17 +6,19 @@ import type {
 } from "@/lib/status-window";
 
 /**
- * 24-hour uptime strip for /littlebiggy-status.
+ * Hourly uptime strip for /littlebiggy-status.
  *
- * Server component: pure, cacheable, zero client JS. Every value it renders
- * comes from `buildUptimeWindow()`, which is anchored to the blob's own
- * `lastCheckedAt` — so nothing here reads the wall clock inside the page's
- * `"use cache"` scope.
+ * Server component: pure and cacheable — every value comes from
+ * `buildUptimeWindow()`, anchored to the blob's own timestamps, so nothing
+ * here reads the wall clock inside the page's `"use cache"` scope.
  *
- * THE STRIP NEVER WRAPS. It is a `flex` row (default `nowrap`) of exactly 24
- * `flex-1 min-w-0` segments, so flexbox does the width maths and wrapping is
- * structurally impossible at any viewport. Re-adding `flex-wrap`, or removing
- * `flex-1` / `min-w-0` from the segments, re-breaks that.
+ * Renders as a borderless section: the page composes it into the live-status
+ * card under a hairline, so status and history read as one module.
+ *
+ * THE STRIP NEVER WRAPS. It is a `flex` row (default `nowrap`) of `flex-1
+ * min-w-0` segments inside an `overflow-hidden rounded` track, so flexbox
+ * does the width maths and wrapping is structurally impossible. Re-adding
+ * `flex-wrap`, or removing `flex-1` / `min-w-0`, re-breaks that.
  */
 
 const BUCKET_CLASS: Record<BucketState, string> = {
@@ -53,28 +55,39 @@ export async function UptimeCard({ window: w, locale, className }: Props) {
       ? t("status.uptimeCaption", { checks: w.total, ms: w.medianLatencyMs })
       : t("status.uptimeCaptionNoLatency", { checks: w.total });
 
+  const hasMixed = w.buckets.some((b) => b.state === "mixed");
+  const hasDown = w.buckets.some((b) => b.state === "down");
+  const hasGap = w.buckets.some((b) => b.state === "none");
+
+  // The percent chip's tint follows the worst state in the window, so the
+  // number and the strip can never disagree.
+  const chipClass = hasDown
+    ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+    : hasMixed
+      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+      : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
+
   return (
-    <section
-      className={`${className ?? ""} rounded-2xl border border-[var(--border)] bg-surface p-4 sm:p-5`}
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        {/* Card title: sentence case, `min-w-0` so long locales wrap instead
-            of pushing the percent chip off-screen. */}
+    <section className={className ?? ""}>
+      <div className="flex items-center justify-between gap-3">
+        {/* `min-w-0` so long locales wrap instead of pushing the chip out. */}
         <h2 className="min-w-0 text-sm font-semibold text-foreground">
-          {t("status.uptimeTitle")}
+          {t("status.uptimeTitle", { hours: w.windowHours })}
         </h2>
         {w.uptimePct != null && (
-          <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
+          <span
+            className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${chipClass}`}
+          >
             {percentLabel}
           </span>
         )}
       </div>
 
-      {/* Screen readers get one sentence instead of 24 unlabelled nodes. */}
+      {/* Screen readers get one sentence instead of N unlabelled nodes. */}
       <div
         role="img"
         aria-label={`${percentLabel}. ${captionLabel}`}
-        className="mt-3 flex items-stretch gap-[2px] sm:gap-[3px]"
+        className="mt-3 flex h-6 items-stretch gap-px overflow-hidden rounded-md sm:h-7"
       >
         {w.buckets.map((b) => (
           <span
@@ -88,37 +101,39 @@ export async function UptimeCard({ window: w, locale, className }: Props) {
                     total: b.total,
                   })
             }
-            className={`h-8 min-w-0 flex-1 rounded-[2px] ${BUCKET_CLASS[b.state]}`}
+            className={`min-w-0 flex-1 ${BUCKET_CLASS[b.state]}`}
           />
         ))}
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-[11px] leading-4 text-muted">
-        <span>{t("status.uptimeAxisStart")}</span>
+      <div className="mt-1.5 flex items-center justify-between text-[11px] leading-4 text-muted">
+        <span>{t("status.uptimeAxisStart", { hours: w.windowHours })}</span>
         <span>{t("status.uptimeAxisEnd")}</span>
       </div>
 
-      {/* Colour is never the sole channel: the legend names all four states. */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--border)] pt-3 text-[11px] leading-4 text-muted">
+      {/* Legend + caption share one row; colour is never the sole channel.
+          The "no data" swatch appears only when a gap is actually shown. */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] leading-4 text-muted">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-[2px] bg-emerald-600 dark:bg-emerald-500" />
+          <span className="h-2 w-2 rounded-sm bg-emerald-600 dark:bg-emerald-500" />
           {t("status.uptimeUp")}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-[2px] bg-amber-600 dark:bg-amber-400" />
+          <span className="h-2 w-2 rounded-sm bg-amber-600 dark:bg-amber-400" />
           {t("status.uptimeMixed")}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-[2px] bg-rose-600 dark:bg-rose-500" />
+          <span className="h-2 w-2 rounded-sm bg-rose-600 dark:bg-rose-500" />
           {t("status.uptimeDown")}
         </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-[2px] bg-[var(--border)]" />
-          {t("status.uptimeNoData")}
-        </span>
+        {hasGap && (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-sm bg-[var(--border)]" />
+            {t("status.uptimeNoData")}
+          </span>
+        )}
+        <span className="ml-auto tabular-nums">{captionLabel}</span>
       </div>
-
-      <p className="mt-2 text-[11px] leading-4 text-muted">{captionLabel}</p>
     </section>
   );
 }

@@ -32,6 +32,8 @@ export interface UptimeBucket {
 
 export interface UptimeWindow {
   buckets: UptimeBucket[];
+  /** Hours the trimmed strip actually spans (= buckets.length). */
+  windowHours: number;
   /** Checks INSIDE the window — not `recentChecks.length`. */
   total: number;
   upCount: number;
@@ -98,8 +100,16 @@ export function buildUptimeWindow(
     ? Math.round(latencies[Math.floor(latencies.length / 2)])
     : null;
 
+  // Trim leading empty buckets: the blob retains slightly less history than
+  // the rounded 24-hour window, so the oldest hour(s) can never fill. A
+  // permanent grey lead-in reads as missing data when it is really absent
+  // window. Interior gaps (a real monitoring outage) are kept.
+  const firstData = buckets.findIndex((b) => b.total > 0);
+  const trimmed = firstData > 0 ? buckets.slice(firstData) : buckets;
+
   return {
-    buckets,
+    buckets: trimmed,
+    windowHours: trimmed.length,
     total,
     upCount,
     downCount: total - upCount,

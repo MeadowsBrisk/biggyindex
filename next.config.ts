@@ -142,7 +142,7 @@ const nextConfig: NextConfig = {
     // source (dev + any unrewritten request) and the locale-prefixed variant
     // (prod). Locale list must track src/i18n/routing.ts.
     const LOCALE_SEG =
-      ":locale(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)";
+      ":locale(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL|en-NL)";
 
     // Never emit query-conditional headers on /browse — no X-Robots noindex
     // matched on filter params. The CDN caches /browse under ONE key that

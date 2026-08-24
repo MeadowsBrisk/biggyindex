@@ -56,7 +56,7 @@ function nativeCurrencyForMarket(market: string): DisplayCurrency {
   if (market === "GB") return "GBP";
   if (market === "CZ") return "CZK";
   if (market === "PL") return "PLN";
-  return "EUR"; // IE, DE, FR, PT, IT, ES, GR
+  return "EUR"; // IE, DE, FR, PT, IT, ES, GR, NL
 }
 
 /**
@@ -282,7 +282,7 @@ function useMarketSelect(currentMarket: string, onNavigate?: () => void) {
       // existing locale prefix and replace it with the target one.
       const targetLocale = marketToLocale(code as MarketCode);
       const stripped = path.replace(
-        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL)(?=\/|$)/,
+        /^\/(en-GB|en-IE|de-DE|fr-FR|pt-PT|it-IT|es-ES|el-GR|cs-CZ|pl-PL|en-NL)(?=\/|$)/,
         "",
       );
       const nextPath =

@@ -182,6 +182,13 @@ export async function SiteFooter({
                 >
                   {t("statusLink")}
                 </Link>
+                <Link
+                  href="/prices"
+                  prefetch={false}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {t("pricesLink")}
+                </Link>
               </div>
               <p className="text-xs text-muted text-center md:text-left">
                 {t("communityCopy")}

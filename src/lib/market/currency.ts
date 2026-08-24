@@ -33,6 +33,7 @@ export const MARKET_CURRENCY_CODE: Record<MarketCode, CurrencyCode> = {
   GR: "EUR",
   CZ: "CZK",
   PL: "PLN",
+  NL: "EUR",
 };
 
 /** Mirrors CURRENCY_SYMBOLS in store/atoms.ts. */

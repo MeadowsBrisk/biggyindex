@@ -54,6 +54,7 @@ export const SEO_LOCALE_FOR: Record<MarketCode, string> = {
   GR: "el",
   CZ: "cs",
   PL: "pl",
+  NL: "en-NL",
 };
 
 export function normalizeSeoPath(path: string): string {

@@ -38,6 +38,7 @@ $locales:
   - el-GR
   - cs-CZ
   - pl-PL
+  - en-NL
 
 site:
   title: BiggyIndex
@@ -64,6 +65,7 @@ site:
     el-GR: "Βρείτε κάνναβη στο Little Biggy: όλες οι καταχωρίσεις littlebiggy ανά κατηγορία, τιμή, πωλητή, κριτικές και αποστολή."
     cs-CZ: "Procházejte nabídky konopí na Little Biggy: všechny nabídky littlebiggy podle kategorie, ceny, prodejce, recenzí a dopravy."
     pl-PL: "Przeglądaj oferty konopi na Little Biggy: wszystkie oferty littlebiggy według kategorii, ceny, sprzedawcy, recenzji i wysyłki."
+    en-NL: "Browse cannabis in the Netherlands on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
 
 nav:
   browse:
@@ -330,6 +332,16 @@ markets:
     el-GR: Πολωνία
     cs-CZ: Polsko
     pl-PL: Polska
+  NL:
+    en-GB: Netherlands
+    de-DE: Niederlande
+    fr-FR: Pays-Bas
+    pt-PT: Países Baixos
+    it-IT: Paesi Bassi
+    es-ES: Países Bajos
+    el-GR: Κάτω Χώρες
+    cs-CZ: Nizozemsko
+    pl-PL: Holandia
 
 header:
   basket:
@@ -592,6 +604,7 @@ footer:
     el-GR: Κατάσταση Little Biggy
     cs-CZ: Stav Little Biggy
     pl-PL: Status Little Biggy
+  pricesLink: Cannabis prices
   about:
     en-GB: About
     de-DE: Über uns
@@ -831,15 +844,15 @@ littleBiggyStatus:
       cs-CZ: "Naposledy online v {time}"
       pl-PL: "Ostatnio dostępny o {time}"
     uptimeTitle:
-      en-GB: Recent checks (last 24 hours)
-      de-DE: Letzte Prüfungen (letzte 24 Stunden)
-      fr-FR: Vérifications récentes (dernières 24 heures)
-      pt-PT: Verificações recentes (últimas 24 horas)
-      it-IT: Controlli recenti (ultime 24 ore)
-      es-ES: Comprobaciones recientes (últimas 24 horas)
-      el-GR: Πρόσφατοι έλεγχοι (τελευταίες 24 ώρες)
-      cs-CZ: Nedávné kontroly (posledních 24 hodin)
-      pl-PL: Ostatnie sprawdzenia (ostatnie 24 godziny)
+      en-GB: Recent checks (last {hours} hours)
+      de-DE: Letzte Prüfungen (letzte {hours} Stunden)
+      fr-FR: Vérifications récentes (dernières {hours} heures)
+      pt-PT: Verificações recentes (últimas {hours} horas)
+      it-IT: Controlli recenti (ultime {hours} ore)
+      es-ES: Comprobaciones recientes (últimas {hours} horas)
+      el-GR: Πρόσφατοι έλεγχοι (τελευταίες {hours} ώρες)
+      cs-CZ: Nedávné kontroly (posledních {hours} hodin)
+      pl-PL: Ostatnie sprawdzenia (ostatnie {hours} godziny)
     uptimeUp:
       en-GB: Reachable
       de-DE: Erreichbar
@@ -981,15 +994,15 @@ littleBiggyStatus:
       cs-CZ: Žádná data
       pl-PL: Brak danych
     uptimeAxisStart:
-      en-GB: 24 h ago
-      de-DE: vor 24 Std.
-      fr-FR: il y a 24 h
-      pt-PT: há 24 h
-      it-IT: 24 h fa
-      es-ES: hace 24 h
-      el-GR: πριν 24 ώ.
-      cs-CZ: před 24 h
-      pl-PL: 24 godz. temu
+      en-GB: "{hours} h ago"
+      de-DE: "vor {hours} Std."
+      fr-FR: "il y a {hours} h"
+      pt-PT: "há {hours} h"
+      it-IT: "{hours} h fa"
+      es-ES: "hace {hours} h"
+      el-GR: "πριν {hours} ώ."
+      cs-CZ: "před {hours} h"
+      pl-PL: "{hours} godz. temu"
     uptimeAxisEnd:
       en-GB: Now
       de-DE: Jetzt
@@ -1731,6 +1744,7 @@ home:
             el-GR: Αγοράστε μερικά ευρώ παραπάνω από όσα χρειάζεστε και στρογγυλοποιήστε προς τα πάνω. Αυτό το επιπλέον buffer καλύπτει τα τέλη δικτύου ή τη μεταβλητότητα των κρυπτονομισμάτων.
             cs-CZ: Kupte si o pár korun víc, než potřebujete, a zaokrouhlete nahoru. Tato dodatečná rezerva pokrývá síťové poplatky nebo volatilitu kryptoměn.
             pl-PL: Kup za kilka złotych więcej niż potrzebujesz i zaokrąglij w górę. Ten dodatkowy bufor pokrywa opłaty sieciowe lub zmienność kryptowalut.
+            en-NL: Buy a few euro more than you need and round up. That extra buffer covers network fees or crypto volatility.
         peerToPeer:
           label:
             en-GB: Want to skip the exchange?
@@ -2098,6 +2112,7 @@ home:
           es-ES: Los vendedores suelen marcar tu pedido como enviado en un día laborable. Los tiempos de entrega dependen del vendedor y de tu ubicación, pero la mayoría de los pedidos llegan en pocos días.
           el-GR: Οι πωλητές συνήθως επισημαίνουν την παραγγελία σας ως αποστολή εντός μίας εργάσιμης ημέρας. Οι χρόνοι παράδοσης εξαρτώνται από τον πωλητή και την τοποθεσία σας, αλλά οι περισσότερες παραγγελίες φτάνουν εντός λίγων ημερών.
           cs-CZ: Prodejci obvykle označí vaši objednávku jako odeslánou do jednoho pracovního dne. Doba doručení závisí na prodejci a vaší lokalitě, ale většina objednávek dorazí během několika dnů.
+          en-NL: Sellers typically mark your order as shipped within one business day. Delivery times depend on the seller and your location, but most orders arrive within a few days.
           pl-PL: Sprzedawcy zazwyczaj oznaczają zamówienie jako wysłane w ciągu jednego dnia roboczego. Czas dostawy zależy od sprzedawcy i lokalizacji, ale większość zamówień dociera w ciągu kilku dni.
         late:
           en-GB: If your order is late, contact the seller through Little Biggy first - most issues get resolved quickly. Only open a dispute as a last resort.
@@ -2175,6 +2190,7 @@ home:
             el-GR: Το Biggy Index παρέχει έναν ευκολότερο τρόπο περιήγησης στην αγορά Little Biggy, με κατηγοριοποίηση αντικειμένων, πρόσθετες επιλογές ταξινόμησης και άλλα εύχρηστα εργαλεία προσαρμοσμένα για αγοραστές στην Ελλάδα.
             cs-CZ: Biggy Index poskytuje jednodušší způsob procházení Little Biggy tržiště, s kategorizací položek, dalšími možnostmi třídění a dalšími užitečnými nástroji přizpůsobenými zákazníkům v Česku.
             pl-PL: Biggy Index ułatwia przeglądanie rynku Little Biggy, oferując kategoryzację produktów, dodatkowe opcje sortowania oraz inne przydatne narzędzia dostosowane do klientów w Polsce.
+            en-NL: The Biggy Index provides an easier way to browse the Little Biggy marketplace, with item categorisation, additional sorting options, and other handy tools tailored for shoppers in the Netherlands.
         sellOrShip:
           q:
             en-GB: Do you sell or ship items?
@@ -2340,6 +2356,7 @@ home:
             el-GR: Πώς μπορώ να αγοράσω Bitcoin στην Ελλάδα;
             cs-CZ: Jak si mohu koupit Bitcoin v Česku?
             pl-PL: Jak kupić Bitcoina w Polsce?
+            en-NL: How do I buy Bitcoin in the Netherlands?
           a:
             en-GB: Most buyers use Revolut, Monzo, Kraken, or Coinbase. Top up in pounds, purchase the amount of BTC shown at checkout, and allow a few pounds for network or exchanging fees.
             en-IE: Most buyers use Revolut, Kraken, or Coinbase. Top up in euros, purchase the amount of BTC shown at checkout, and allow a few euro for network or exchanging fees.
@@ -2351,6 +2368,7 @@ home:
             el-GR: Οι περισσότεροι αγοραστές χρησιμοποιούν Revolut, Monzo, Kraken ή Coinbase. Φορτώστε σε ευρώ, αγοράστε το ποσό BTC που εμφανίζεται στο ταμείο και αφήστε μερικά ευρώ για χρεώσεις δικτύου ή ανταλλαγής.
             cs-CZ: Většina kupujících používá Revolut, Monzo, Kraken nebo Coinbase. Dobijte si účet v korunách, kupte částku BTC zobrazenou při placení a nechte si pár set korun rezervu na síťové a směnné poplatky.
             pl-PL: Większość kupujących korzysta z Revolut, Monzo, Kraken lub Coinbase. Doładuj konto w złotówkach, kup ilość BTC pokazaną przy kasie i zostaw kilkadziesiąt złotych na opłaty sieciowe i wymiany.
+            en-NL: Most buyers use Revolut, Kraken, or Coinbase. Top up in euros, purchase the amount of BTC shown at checkout, and allow a few euro for network or exchanging fees.
         wallet:
           q:
             en-GB: Do I need my own wallet first?
@@ -2447,6 +2465,7 @@ home:
             el-GR: Τι ισχύει με τη νομιμότητα στην Ελλάδα;
             cs-CZ: A co legálnost v Česku?
             pl-PL: A co z legalnością w Polsce?
+            en-NL: What about Dutch legality?
           a:
             en-GB: Cannabis laws still apply. You are responsible for staying within local regulations and verifying every detail on Little Biggy.
             de-DE: Die Cannabisgesetze gelten weiterhin. Sie sind dafür verantwortlich, sich an die lokalen Vorschriften zu halten und jedes Detail Little Biggy zu überprüfen.
@@ -3655,6 +3674,7 @@ browse:
         el-GR: €/g
         cs-CZ: Kč/g
         pl-PL: zł/g
+        en-NL: €/g
       shuffle:
         en-GB: Shuffle
         de-DE: Mischen
@@ -10593,3 +10613,51 @@ category:
           strony — cenę, historię sprzedawcy, oceny recenzji i opcje
           wysyłki — więc nietypowy przedmiot można zweryfikować dokładnie
           tak samo jak zwyczajny.
+
+# ─── /prices — cannabis price-per-gram index ─────────────────────────
+# All copy is en-GB for now; other locales inherit until a batch
+# translation pass fills them in. The *GB keys carry the UK wording used
+# on the apex host; the generic keys interpolate the localized market
+# name from the `markets` namespace.
+prices:
+  meta:
+    titleGB: "UK Cannabis Prices — Live Price Per Gram Index"
+    title: "Cannabis Prices in {market} — Price Per Gram Index"
+    descriptionGB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
+    description: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
+    descriptionNoCountGB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+    descriptionNoCount: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+  headingGB: "UK Cannabis Prices: Price Per Gram"
+  heading: "Cannabis Prices in {market}: Price Per Gram"
+  intro: "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}"
+  # Rendered when a market has no gram-priced listings yet.
+  empty: "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up."
+  stats:
+    overallMedianLabel: "Median price per gram"
+    categoryMedianLabel: "{category} median"
+    cheapestLabel: "Cheapest per gram"
+    perGram: "{price}/g"
+  table:
+    heading: "Price per gram by category"
+    category: Category
+    listings: Listings
+    median: "Median /g"
+    range: "Typical range"
+    from: From
+    caption: "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+  bestValue:
+    heading: "Best value per gram right now"
+    intro: "The cheapest live per-gram asking prices across all gram-priced listings — usually the largest weight tier of each listing."
+    rank: "#"
+    item: Item
+    seller: Seller
+    category: Category
+    pricePerGram: "Price /g"
+  methodology:
+    heading: Methodology
+    source: "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex."
+    inclusion: "Only listings with a gram-denominated option count; price per gram = listed price ÷ grams for each option."
+    refresh: "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them."
+    honesty: "These are the prices sellers ask, not a street-price survey and not completed-sale data."
+  breadcrumbHome: Home
+  breadcrumbPrices: Prices
