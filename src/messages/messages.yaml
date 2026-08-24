@@ -10622,7 +10622,9 @@ category:
 prices:
   meta:
     titleGB: "UK Cannabis Prices — Live Price Per Gram Index"
-    title: "Cannabis Prices in {market} — Price Per Gram Index"
+    title:
+      en-GB: "Cannabis Prices in {market} — Price Per Gram Index"
+      en-NL: "Cannabis Prices in the Netherlands — Price Per Gram Index"
     descriptionGB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
     description: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
     descriptionNoCountGB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
@@ -10645,18 +10647,36 @@ prices:
     range: "Typical range"
     from: From
     caption: "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+  scopeNote: "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content."
   bestValue:
-    heading: "Best value per gram right now"
-    intro: "The cheapest live per-gram asking prices across all gram-priced listings — usually the largest weight tier of each listing."
+    heading: "Best value right now"
+    intro: "The cheapest live asking prices per gram, one listing per seller. Bulk shake and trim genuinely undercut everything else, so each category gets its own board rather than one shake-dominated list."
+    flowerBoard: Flower
+    hashBoard: Hash
+    shakeBoard: "Shake & trim"
     rank: "#"
     item: Item
     seller: Seller
-    category: Category
     pricePerGram: "Price /g"
+  vapes:
+    heading: "Vape carts"
+    intro: "Vapes sell per device, not per gram — sellers list 1g and 1ml carts interchangeably, so a weight comparison against flower would mislead. Typical single-cart asking prices:"
+    tileLabel: "{size} cart"
+    tileMeta: "{items, plural, one {# listing} other {# listings}} · {sellers, plural, one {# seller} other {# sellers}}"
+    medianLabel: "Typical 1ml vape cart price"
+  distillate:
+    heading: "Distillate, per ml"
+    intro: "Bulk distillate is volume-priced with steep size discounts — one blended figure would swing with whichever pack sizes happen to be listed, so it's quoted per ml inside a size band."
+    bandSmall: "Up to 5ml"
+    bandMid: "5–50ml"
+    bandLarge: "50ml+"
+    perMl: "{price}/ml"
+    tileMeta: "{count, plural, one {# listing} other {# listings}}"
   methodology:
     heading: Methodology
     source: "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex."
-    inclusion: "Only listings with a gram-denominated option count; price per gram = listed price ÷ grams for each option."
+    scope: "Per-gram statistics include flower, shake, hash and concentrates only. Vapes are quoted per cart and distillate per ml; edibles and other products are excluded because their listed weight is not cannabis weight."
+    inclusion: "Only listings with a weight-denominated option count; price per gram = listed price ÷ grams for each option. Placeholder prices and implausible per-gram figures are dropped."
     refresh: "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them."
     honesty: "These are the prices sellers ask, not a street-price survey and not completed-sale data."
   breadcrumbHome: Home

@@ -169,9 +169,7 @@ export function PhotoReviewModal() {
   const zoomImages = useMemo(
     () =>
       images.map((rawUrl) =>
-        cdnLoaded.has(rawUrl)
-          ? (getReviewPhotoUrl(rawUrl) ?? rawUrl)
-          : rawUrl,
+        cdnLoaded.has(rawUrl) ? (getReviewPhotoUrl(rawUrl) ?? rawUrl) : rawUrl,
       ),
     [images, cdnLoaded],
   );

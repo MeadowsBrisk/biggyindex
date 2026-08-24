@@ -1,5 +1,5 @@
-import { ViewTransition } from "react";
 import type { ReactNode } from "react";
+import { ViewTransition } from "react";
 
 /**
  * Cross-fades a page's content during client-side navigations.

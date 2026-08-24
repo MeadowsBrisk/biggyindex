@@ -611,9 +611,7 @@ export function ItemDetailOverlay() {
                         {/* Strain type in the first line the eye scans. No
                             category gate here (unlike the browse card): on a
                             detail view the data's presence is the signal. */}
-                        <StrainTypeChip
-                          group={displayItem.at?.effect}
-                        />
+                        <StrainTypeChip group={displayItem.at?.effect} />
                       </div>
 
                       {/* Name + global Show-in-English toggle. The toggle sits

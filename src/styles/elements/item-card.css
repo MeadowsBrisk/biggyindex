@@ -1641,8 +1641,7 @@ html.bi-seed-hide [data-seed-skeleton] {
   }
   /* display:block above disables the pill's flex gap, so the dot needs its
      own spacing + alignment in the truncating variant. */
-  .item-list-grid[data-mobile-cols="2"]
-    .card-controls
+  .item-list-grid[data-mobile-cols="2"] .card-controls
     > .always-show
     .card-pill--image
     .card-pill__group-dot {

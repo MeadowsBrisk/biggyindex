@@ -95,10 +95,19 @@ function buildItemBrowseMeta(item: Item): ItemBrowseMeta {
     }
   }
 
+  // Variant strain stamps join the searchable text: menu listings often
+  // carry strains ONLY in their variants ("28g mochi", "3.5 g cherry pie"),
+  // invisible to a name+description search.
+  const variantStrains = new Set<string>();
+  for (const variant of item.v ?? []) {
+    if (variant.st) variantStrains.add(variant.st);
+  }
+
   return {
     key: itemIndexKey(item),
     bookmarkKey: item.refNum ? String(item.refNum) : String(item.id),
-    searchText: `${item.n} ${item.d ?? ""} ${item.sn ?? ""}`.toLowerCase(),
+    searchText:
+      `${item.n} ${item.d ?? ""} ${item.sn ?? ""} ${[...variantStrains].join(" ")}`.toLowerCase(),
     sellerId: item.sid != null ? String(item.sid) : "",
     // Normalize via shipFromCode so the filter facet buckets are flag
     // codes (gb, nl, multi, unknown) — same key the card flag uses, so

@@ -164,9 +164,7 @@ export function ReviewCard({
   const zoomImages = useMemo(
     () =>
       imageUrls.map((rawUrl) =>
-        cdnLoaded.has(rawUrl)
-          ? (getReviewPhotoUrl(rawUrl) ?? rawUrl)
-          : rawUrl,
+        cdnLoaded.has(rawUrl) ? (getReviewPhotoUrl(rawUrl) ?? rawUrl) : rawUrl,
       ),
     [imageUrls, cdnLoaded],
   );

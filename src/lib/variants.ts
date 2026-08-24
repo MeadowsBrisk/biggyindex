@@ -153,6 +153,8 @@ const COUNT_LABEL_CANONICAL: Record<string, string> = {
   tubs: "tub",
   pot: "pot",
   pots: "pot",
+  tray: "tray",
+  trays: "tray",
   // Count nouns sellers use as the sale unit. Recognising them is what stops
   // the bare-number fallback rendering a flat pack total as a per-gram price.
   // NOTE: slab is deliberately NOT in PRICEABLE_SINGLE_UNITS — slab mass is
@@ -261,6 +263,11 @@ const NUM = String.raw`(?:\d+(?:\.\d+)?|\.\d+)`;
  *   "7 grans 7g gumbo"          → 7g         (grans typo prep)
  *   "20 20 0.4g pieces …"       → 8g         (dup-collapse keeps the count)
  *   "4 blue inhalers"           → 4 inhalers (one-adjective COUNT_RE tolerance)
+ *   "2 g x2 message strain"     → 4g         (trailing bundle multiplier)
+ *   "1 g gelato x zkittles"     → 1g         (strain cross is NOT a multiplier)
+ *   "1 half tray"               → 1 tray     (bare fraction + count noun)
+ *   "1 .5ml .5ml d9 carts"      → 0.5ml      (leading-decimal ml)
+ *   "quarter pound mixed"       → null       (never 7g; no lb-slang path)
  */
 
 /** Ounce-family patterns. Slang canonicalizes to grams; numeric oz preserves "Noz". */
@@ -273,9 +280,15 @@ const OZ_PATTERNS: {
   label?: string;
 }[] = [
   { re: /\beighth\b|⅛|\b1\/8\s*(?:oz)?\b/i, grams: 3.5, label: "3.5g" },
-  { re: /\bquarter\b|¼|\b1\/4\s*(?:oz)?\b/i, grams: 7, label: "7g" },
+  // Lookaheads: "quarter pound"/"half gram" are 113g/0.5g, never 7g/14g —
+  // no pattern reads them, so they take the honest-null path.
   {
-    re: /\bhalf\s*(?:oz|ounce)?\b|½\s*(?:oz)?\b|\b1\/2\s*(?:oz)?\b/i,
+    re: /\bquarter\b(?!\s+(?:pound|lb))|¼|\b1\/4\s*(?:oz)?\b/i,
+    grams: 7,
+    label: "7g",
+  },
+  {
+    re: /\bhalf(?!\s+(?:pound|lb|gram|grams))\s*(?:oz|ounce)?\b|½\s*(?:oz)?\b|\b1\/2\s*(?:oz)?\b/i,
     grams: 14,
     label: "14g",
   },
@@ -286,6 +299,14 @@ const OZ_PATTERNS: {
     mult: 28,
   },
 ];
+
+/**
+ * A bare fraction word beside a count noun portions the CONTAINER, not an
+ * ounce: "1 half tray" is half a tray of cakes, never 14g. Explicit oz forms
+ * ("half oz", "1/2") are exempt — only the lone word gets the veto.
+ */
+const BARE_FRACTION_RE = /^(?:eighth|quarter|half)$/i;
+const COUNT_NOUN_ANYWHERE_RE = new RegExp(`\\b(?:${COUNT_UNIT_ALT})\\b`, "i");
 
 /** "3.5 g", "3.5g", "3.5 gram", "14 grams", ".5g" — at start of string. */
 const WEIGHT_RE = new RegExp(`^(${NUM})\\s*(g|gram|grams)\\b`, "i");
@@ -374,14 +395,14 @@ const COUNT_UNIT_WITH_VOLUME_RE = new RegExp(
 const PACK_MULT_RE = /\b(\d+)\s*x?\s*pack/i;
 
 /**
- * "1 ml", "10ml", "og kush 1ml".
- * Deliberately keeps the plain numeric token (no leading-decimal NUM): this
- * pattern is `\b`-anchored and matches anywhere in the string, so a leading-
- * decimal alternative would let `\b` sit between a word char and "." and
- * mis-capture the fractional tail of a glued number (e.g. "kush2.5ml" → ".5").
- * Leading-decimal ml never reaches here anyway — `\b` prefers the digit run.
+ * "1 ml", "10ml", "og kush 1ml", ".5ml carts".
+ * Matches anywhere in the string. The lookbehind replaces plain `\b` anchoring
+ * so the leading-decimal alternative is safe: a match can never start on the
+ * fractional tail of a glued number ("kush2.5ml" still reads 2.5, never .5),
+ * while a genuine leading-decimal (".5ml carts") reads 0.5 instead of 5.
  */
-const ML_RE = /\b(\d+(?:\.\d+)?)\s*(?:ml|milliliter|milliliters)\b/i;
+const ML_RE =
+  /(?<![\d.])(\d+(?:\.\d+)?|\.\d+)\s*(?:ml|milliliter|milliliters)\b/i;
 
 /** "500 mg" — dose units, typically edibles. */
 const MG_RE = new RegExp(`^(${NUM})\\s*(?:mg|milligram|milligrams)\\b`, "i");
@@ -681,6 +702,14 @@ export function parseVariant(
     const matchedText = m[0];
     const start = m.index ?? 0;
     const end = start + matchedText.length;
+    if (
+      BARE_FRACTION_RE.test(matchedText.trim()) &&
+      COUNT_NOUN_ANYWHERE_RE.test(
+        `${clean.slice(0, start)} ${clean.slice(end)}`,
+      )
+    ) {
+      continue;
+    }
     const residual = cleanResidual(
       `${clean.slice(0, start)} ${clean.slice(end)}`.trim(),
     );
@@ -982,6 +1011,30 @@ export function parseVariant(
     const perUnit = parseFloat(wm[1]);
     const afterWeight = clean.slice(wm[0].length);
 
+    // Trailing bundle multiplier directly after the weight: "2 g x3" is
+    // 3 × 2g. Anchored at the start of afterWeight so a strain cross
+    // ("1 g gelato x zkittles") can't match, and the /-lookahead blocks
+    // fraction names ("x 10/10"). Bundle price ladders corroborate the
+    // reading (xN price ≈ N × single); the per-unit stamp rendered 2-4x
+    // inflated per-gram figures.
+    const xm = afterWeight.match(/^\s*(?:x|×)\s*(\d+)\b(?!\s*\/)/i);
+    if (xm) {
+      const count = parseInt(xm[1], 10);
+      if (count > 1) {
+        const totalGrams = round2(perUnit * count);
+        const residual = cleanResidual(afterWeight.slice(xm[0].length));
+        return {
+          qty: totalGrams,
+          unit: "g",
+          grams: totalGrams,
+          weightLabel: `${totalGrams}g`,
+          originalLabel: `${count}×${perUnit}g`,
+          strain: residual,
+          variant: v,
+        };
+      }
+    }
+
     // Weight × pack multiplier — creates separate tier per pack count.
     const packM = afterWeight.match(PACK_MULT_RE);
     if (packM) {
@@ -1103,6 +1156,26 @@ export function parseVariant(
   if (mg) {
     const qty = parseFloat(mg[1]);
     const afterMg = clean.slice(mg[0].length);
+    // Trailing bundle multiplier directly after the dose: "500 mg x4" is
+    // 4 × 500mg. Same anchoring discipline as the weight branch — and it
+    // must run before the potency collapse, which would otherwise render
+    // the bundle total as one confident device.
+    const mgXm = afterMg.match(/^\s*(?:x|×)\s*(\d+)\b(?!\s*\/)/i);
+    if (mgXm) {
+      const count = parseInt(mgXm[1], 10);
+      if (count > 1) {
+        const total = qty * count;
+        const lab = `${total}mg`;
+        return {
+          qty: total,
+          unit: "mg",
+          weightLabel: lab,
+          originalLabel: `${count}×${qty}mg`,
+          strain: cleanResidual(afterMg.slice(mgXm[0].length)),
+          variant: v,
+        };
+      }
+    }
     const residual = cleanResidual(afterMg);
     // Unresolved-pack guard: if the text after the mg total still carries an
     // "N x M" multiplier (i.e. TOTAL_MG_PACK_RE's corroboration gate rejected
@@ -1221,6 +1294,7 @@ function formatCountLabel(qty: number, unit: string): string {
     box: "box",
     tub: "tub",
     pot: "pot",
+    tray: "tray",
     strip: "strip",
     item: "item",
     // Sale-unit nouns (see COUNT_LABEL_CANONICAL).
@@ -1403,6 +1477,7 @@ export const UNIT_DISPLAY_LABEL: Record<string, string> = {
   bag: "bag",
   tub: "tub",
   pot: "pot",
+  tray: "tray",
   strip: "strip",
   item: "item",
   slab: "slab",

@@ -92,7 +92,13 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 interface TimeAgoParts {
-  key: "justNow" | "minutesAgo" | "hoursAgo" | "oneDayAgo" | "daysAgo" | "monthsAgo";
+  key:
+    | "justNow"
+    | "minutesAgo"
+    | "hoursAgo"
+    | "oneDayAgo"
+    | "daysAgo"
+    | "monthsAgo";
   count?: number;
 }
 
@@ -177,9 +183,7 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
   const zoomImages = useMemo(
     () =>
       (review.images ?? []).map((rawUrl) =>
-        cdnLoaded.has(rawUrl)
-          ? (getReviewPhotoUrl(rawUrl) ?? rawUrl)
-          : rawUrl,
+        cdnLoaded.has(rawUrl) ? (getReviewPhotoUrl(rawUrl) ?? rawUrl) : rawUrl,
       ),
     [review.images, cdnLoaded],
   );
