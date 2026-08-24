@@ -75,8 +75,7 @@ export function HeroSection({
             and Chrome ignores opacity:0 paints, so a mount-fade here
             self-inflicted ~750ms of LCP. Render immediately. */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground text-center tracking-tight leading-tight">
-          {t("title.line1")}
-          <br />
+          {t("title.line1")} <br />
           <span className="text-primary">{t("title.highlight")}</span>
         </h1>
 

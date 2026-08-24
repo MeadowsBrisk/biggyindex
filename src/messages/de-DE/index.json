@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Cannabis auf Little Biggy durchsuchen",
+    "tagline": "Der Little Biggy Index — Alle Angebote, Verkäufer & Preise",
     "description": "Cannabis auf Little Biggy durchsuchen: alle littlebiggy-Angebote nach Kategorie, Preis, Verkäufer, Bewertungen und Versand indexiert."
   },
   "nav": {
@@ -13,7 +13,7 @@
   "categories": {
     "all": "Alle",
     "Flower": "Blüten",
-    "Shake": "Schütteln",
+    "Shake": "Shake",
     "Hash": "Hash",
     "Concentrates": "Konzentrate",
     "Distillate": "Destillat",
@@ -95,7 +95,7 @@
       "button": "Telegram-Kanal beitreten"
     },
     "meta": {
-      "title": "Ist Little Biggy down? Live-Status & Zugangs-Guide | BiggyIndex",
+      "title": "littlebiggy.org — Ist es down? Echte Adresse & Live-Status",
       "description": "Ist littlebiggy.org gerade online oder offline? Ein Live-Status mit Verlauf, der offiziellen Adresse, Login-Hilfe und Tipps bei Ausfällen — alle paar Minuten aktualisiert."
     },
     "heading": "Ist Little Biggy down?",
@@ -137,6 +137,11 @@
       "heading": "Stelle sicher, dass du beim echten Little Biggy bist",
       "headingDown": "Kein Zugriff? Probiere diese",
       "body": "Es gibt Phishing-Klone von Little Biggy. Diese Seiten belegen, dass du im echten Ökosystem bist — und dort postet die Community bei Ausfällen."
+    },
+    "addresses": {
+      "heading": "Welche Adresse ist das echte Little Biggy?",
+      "body": "Der Marktplatz liegt unter littlebiggy.org — das ist die einzige offizielle Adresse. Geprüfte Spiegel-Domains stehen auf littlebiggy.zone. Seiten unter littlebiggy.net, littlebiggy.com oder ähnlichen Schreibweisen sind nicht der Marktplatz und können Phishing-Klone sein.",
+      "tip": "Speichere littlebiggy.org als Lesezeichen oder schau bei Zweifeln auf dieser Seite nach."
     },
     "sections": {
       "isDown": {
@@ -482,7 +487,7 @@
       "metadataTitle": "{count}+ Cannabis-Angebote auf Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Cannabis-Angebote auf Little Biggy durchsuchen | BiggyIndex",
       "heading": "Cannabis-Angebote auf Little Biggy durchsuchen",
-      "metadataDescription": "Der Live-Index aller Little-Biggy-Angebote — filtern nach Preis, Kategorie und Verkäuferbewertungen, mit Preisverlauf und Bewertungsdaten, die Little Biggy selbst nicht zeigt."
+      "metadataDescription": "Alle Little Biggy Artikel in einem Live-Index — filtern nach Preis, Kategorie und Verkäuferbewertung, plus Preisverlauf und Bewertungsdaten."
     },
     "allCategories": "Alle Kategorien",
     "noResults": "Keine Produkte passen zu Ihren Filtern",
@@ -767,10 +772,10 @@
       "relatedInCategory": "Mehr {category} auf Little Biggy"
     },
     "meta": {
-      "title": "{name} von {seller} — Bewertungen & Preise | BiggyIndex",
-      "titleNoSeller": "{name} — Bewertungen & Preise | BiggyIndex",
-      "titleArchived": "{name} von {seller} {suffix} | BiggyIndex",
-      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "title": "{name} von {seller} — Bewertungen & Preise",
+      "titleNoSeller": "{name} — Bewertungen & Preise",
+      "titleArchived": "{name} von {seller} {suffix}",
+      "titleArchivedNoSeller": "{name} {suffix}",
       "soldBy": "Verkauft von {seller} auf Little Biggy.",
       "browseFallback": "{name} von {seller} auf Little Biggy ansehen.",
       "browseFallbackNoSeller": "{name} auf Little Biggy ansehen.",
@@ -850,7 +855,7 @@
       "noSellersFound": "Keine Verkäufer gefunden"
     },
     "detail": {
-      "metadataTitle": "{seller} — Bewertungen & Vertrauen | BiggyIndex",
+      "metadataTitle": "{seller} auf Little Biggy — Bewertungen & Vertrauen",
       "notFoundTitle": "Verkäufer nicht gefunden | BiggyIndex",
       "backToSellers": "Verkäufer",
       "breadcrumb": "Verkäuferseite",

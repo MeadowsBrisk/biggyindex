@@ -217,6 +217,20 @@ export default async function LittleBiggyStatusPage({
             <VerifyCard locale={locale} headingKey="heading" className="mt-8" />
           )}
 
+          {/* Real-address block: domain-guess searches (littlebiggy.net,
+              .com, typos) need the literal answer on-page. */}
+          <section className="mt-12">
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              {t("addresses.heading")}
+            </h2>
+            <p className="text-sm text-muted leading-relaxed">
+              {t("addresses.body")}
+            </p>
+            <p className="mt-2 text-sm text-muted leading-relaxed">
+              {t("addresses.tip")}
+            </p>
+          </section>
+
           {/* Guide sections */}
           <div className="mt-12 space-y-10">
             {SECTION_KEYS.map((key) => (

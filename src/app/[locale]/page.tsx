@@ -30,7 +30,7 @@ export async function generateMetadata({
   return pageMetadata({
     market,
     path: "/",
-    title: `BiggyIndex | ${t("tagline")}`,
+    title: `${t("tagline")} | BiggyIndex`,
     description: t("description"),
   });
 }

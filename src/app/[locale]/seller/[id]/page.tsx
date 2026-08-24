@@ -3,6 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { loadItems, loadSellerDetail, loadSellers } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
@@ -430,6 +431,8 @@ export default async function SellerPage({ params }: SellerPageProps) {
         market={data.market}
         sellerId={sellerId}
       />
+
+      <SiteFooter hideBrowseCta locale={locale} />
     </>
   );
 }

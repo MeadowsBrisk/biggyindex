@@ -74,6 +74,12 @@ function legacyRedirect(request: NextRequest): NextResponse | null {
     );
   }
 
+  // Retired v1 endpoint with no v2 equivalent. 410 tells crawlers the URL
+  // is gone for good; a redirect or 404 would keep them retrying.
+  if (pathname === "/cf-image-proxy") {
+    return new NextResponse(null, { status: 410 });
+  }
+
   const rename = PAGE_RENAMES[pathname];
   if (rename) {
     return NextResponse.redirect(new URL(rename + search, request.url), 301);

@@ -23,6 +23,7 @@ import { LocalizedText } from "@/components/LocalizedText";
 import { OutboundLink } from "@/components/OutboundLink";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
+import { SiteFooter } from "@/components/SiteFooter";
 import {
   firstEffectValue,
   isStrainGroup,
@@ -1287,6 +1288,10 @@ export default async function ItemPage({ params }: ItemPageProps) {
           subcategories={item.sc}
         />
       </main>
+
+      {/* Site chrome: item pages are ~99% of crawlable URLs, and the footer
+          is their only crawlable path back to categories and hubs. */}
+      <SiteFooter hideBrowseCta locale={locale} />
     </>
   );
 }

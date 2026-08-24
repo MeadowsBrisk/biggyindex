@@ -74,7 +74,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(marketBaseUrl(market)),
     applicationName: site.title,
-    title: `${site.title} | ${site.tagline}`,
+    title: `${site.tagline} | ${site.title}`,
     description: site.description,
     // Re-declared here (not just on the root layout): a child segment's
     // `icons` replaces the parent's, so omitting it would blank the tab icon

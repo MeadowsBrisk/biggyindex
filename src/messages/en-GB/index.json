@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Browse UK Cannabis on Little Biggy",
+    "tagline": "The Little Biggy Index — Every Listing, Seller & Price",
     "description": "Browse UK cannabis on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
   },
   "nav": {
@@ -95,7 +95,7 @@
       "button": "Join the Telegram channel"
     },
     "meta": {
-      "title": "Is Little Biggy Down? Live Status & Access Guide | BiggyIndex",
+      "title": "littlebiggy.org — Is It Down? Real Address & Live Status",
       "description": "Is littlebiggy.org up or down right now? A live status check with uptime history, the official address, login help and what to do during an outage — refreshed every few minutes."
     },
     "heading": "Is Little Biggy down?",
@@ -137,6 +137,11 @@
       "heading": "Make sure you're on the real Little Biggy",
       "headingDown": "Can't reach it? Try these",
       "body": "Phishing clones of Little Biggy exist. These are the pages that prove you're in the real ecosystem — and where the community posts during an outage."
+    },
+    "addresses": {
+      "heading": "Which address is the real Little Biggy?",
+      "body": "The marketplace lives at littlebiggy.org — that is the only official address. Verified mirror domains are listed at littlebiggy.zone. Sites at littlebiggy.net, littlebiggy.com or similar spellings are not the marketplace and may be phishing clones.",
+      "tip": "Bookmark littlebiggy.org, or check this page whenever you are unsure."
     },
     "sections": {
       "isDown": {
@@ -482,7 +487,7 @@
       "metadataTitle": "Browse {count}+ Cannabis Listings on Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Browse Cannabis Listings on Little Biggy | BiggyIndex",
       "heading": "Browse Cannabis Listings on Little Biggy",
-      "metadataDescription": "The live index of every Little Biggy listing — filter by price, category and seller ratings, plus price history and review stats Little Biggy doesn't show."
+      "metadataDescription": "Browse Little Biggy items in one live index — filter by price, category and seller rating, plus price history and review stats Little Biggy doesn't show."
     },
     "allCategories": "All Categories",
     "noResults": "No products match your filters",
@@ -767,10 +772,10 @@
       "relatedInCategory": "More {category} on Little Biggy"
     },
     "meta": {
-      "title": "{name} by {seller} — Reviews & Prices | BiggyIndex",
-      "titleNoSeller": "{name} — Reviews & Prices | BiggyIndex",
-      "titleArchived": "{name} by {seller} {suffix} | BiggyIndex",
-      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "title": "{name} by {seller} — Reviews & Prices",
+      "titleNoSeller": "{name} — Reviews & Prices",
+      "titleArchived": "{name} by {seller} {suffix}",
+      "titleArchivedNoSeller": "{name} {suffix}",
       "soldBy": "Sold by {seller} on Little Biggy.",
       "browseFallback": "Browse {name} from {seller} on Little Biggy.",
       "browseFallbackNoSeller": "Browse {name} on Little Biggy.",
@@ -850,7 +855,7 @@
       "noSellersFound": "No sellers found"
     },
     "detail": {
-      "metadataTitle": "{seller} — Reviews & Trust | BiggyIndex",
+      "metadataTitle": "{seller} on Little Biggy — Reviews & Trust",
       "notFoundTitle": "Seller not found | BiggyIndex",
       "backToSellers": "Sellers",
       "breadcrumb": "Seller page",

@@ -41,17 +41,18 @@ $locales:
 
 site:
   title: BiggyIndex
+  # Front-loads the marketplace name — most visitors search for Little Biggy,
+  # not for BiggyIndex. The page title template appends "| BiggyIndex".
   tagline:
-    en-GB: Browse UK Cannabis on Little Biggy
-    en-IE: Browse Cannabis in Ireland on Little Biggy
-    de-DE: Cannabis auf Little Biggy durchsuchen
-    fr-FR: Parcourez le cannabis sur Little Biggy
-    pt-PT: Navegue pela canábis no Little Biggy
-    it-IT: Esplora la cannabis su Little Biggy
-    es-ES: Explora el cannabis en Little Biggy
-    el-GR: Βρείτε κάνναβη στο Little Biggy
-    cs-CZ: Procházejte nabídky konopí na Little Biggy
-    pl-PL: Przeglądaj oferty konopi na Little Biggy
+    en-GB: "The Little Biggy Index — Every Listing, Seller & Price"
+    de-DE: "Der Little Biggy Index — Alle Angebote, Verkäufer & Preise"
+    fr-FR: "Le Little Biggy Index — Toutes les annonces, vendeurs & prix"
+    pt-PT: "O Little Biggy Index — Todos os anúncios, vendedores e preços"
+    it-IT: "Il Little Biggy Index — Tutti gli annunci, venditori e prezzi"
+    es-ES: "El Little Biggy Index — Todos los anuncios, vendedores y precios"
+    el-GR: "Ο Little Biggy Index — Όλες οι καταχωρίσεις, πωλητές & τιμές"
+    cs-CZ: "Little Biggy Index — Všechny nabídky, prodejci a ceny"
+    pl-PL: "Little Biggy Index — Wszystkie oferty, sprzedawcy i ceny"
   description:
     en-GB: "Browse UK cannabis on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
     en-IE: "Browse cannabis in Ireland on Little Biggy: every littlebiggy listing indexed by category, price, seller, reviews, and shipping."
@@ -129,7 +130,7 @@ categories:
     pl-PL: Susz
   Shake:
     en-GB: Shake
-    de-DE: Schütteln
+    de-DE: Shake
     fr-FR: Shake
     pt-PT: Shake
     it-IT: Shake
@@ -687,16 +688,17 @@ littleBiggyStatus:
       cs-CZ: "Připojit se ke kanálu na Telegramu"
       pl-PL: "Dołącz do kanału na Telegramie"
   meta:
+    # Leads with the literal domain — most visitors arrive by guessing one.
     title:
-      en-GB: "Is Little Biggy Down? Live Status & Access Guide | BiggyIndex"
-      de-DE: "Ist Little Biggy down? Live-Status & Zugangs-Guide | BiggyIndex"
-      fr-FR: "Little Biggy est-il en panne ? Statut en direct & guide d'accès | BiggyIndex"
-      pt-PT: "O Little Biggy está em baixo? Estado ao vivo & guia de acesso | BiggyIndex"
-      it-IT: "Little Biggy è offline? Stato in tempo reale e guida all'accesso | BiggyIndex"
-      es-ES: "¿Little Biggy está caído? Estado en vivo y guía de acceso | BiggyIndex"
-      el-GR: "Είναι το Little Biggy εκτός λειτουργίας; Ζωντανή κατάσταση & οδηγός | BiggyIndex"
-      cs-CZ: "Je Little Biggy mimo provoz? Živý stav a průvodce | BiggyIndex"
-      pl-PL: "Czy Little Biggy nie działa? Status na żywo i przewodnik | BiggyIndex"
+      en-GB: "littlebiggy.org — Is It Down? Real Address & Live Status"
+      de-DE: "littlebiggy.org — Ist es down? Echte Adresse & Live-Status"
+      fr-FR: "littlebiggy.org — En panne ? Vraie adresse & statut en direct"
+      pt-PT: "littlebiggy.org — Está em baixo? Endereço real e estado ao vivo"
+      it-IT: "littlebiggy.org — È offline? Indirizzo reale e stato live"
+      es-ES: "littlebiggy.org — ¿Está caído? Dirección real y estado en vivo"
+      el-GR: "littlebiggy.org — Λειτουργεί; Πραγματική διεύθυνση & κατάσταση"
+      cs-CZ: "littlebiggy.org — Je mimo provoz? Skutečná adresa a živý stav"
+      pl-PL: "littlebiggy.org — Czy działa? Prawdziwy adres i status na żywo"
     description:
       en-GB: "Is littlebiggy.org up or down right now? A live status check with uptime history, the official address, login help and what to do during an outage — refreshed every few minutes."
       de-DE: "Ist littlebiggy.org gerade online oder offline? Ein Live-Status mit Verlauf, der offiziellen Adresse, Login-Hilfe und Tipps bei Ausfällen — alle paar Minuten aktualisiert."
@@ -1071,6 +1073,39 @@ littleBiggyStatus:
       el-GR: Υπάρχουν κλώνοι phishing του Little Biggy. Αυτές είναι οι σελίδες που αποδεικνύουν ότι βρίσκεστε στο πραγματικό οικοσύστημα — και εκεί δημοσιεύει η κοινότητα σε διακοπή.
       cs-CZ: Existují phishingové klony Little Biggy. Toto jsou stránky, které dokazují, že jste ve skutečném ekosystému — a kde komunita píše během výpadku.
       pl-PL: Istnieją phishingowe klony Little Biggy. To są strony, które potwierdzają, że jesteś w prawdziwym ekosystemie — i gdzie społeczność pisze podczas awarii.
+  # Answers the domain-guessing searches (.net, .com and other misspellings)
+  # that land on this page. Domain names stay literal in every locale.
+  addresses:
+    heading:
+      en-GB: Which address is the real Little Biggy?
+      de-DE: Welche Adresse ist das echte Little Biggy?
+      fr-FR: Quelle adresse est le vrai Little Biggy ?
+      pt-PT: Qual é o endereço verdadeiro do Little Biggy?
+      it-IT: Qual è il vero indirizzo di Little Biggy?
+      es-ES: ¿Cuál es la dirección real de Little Biggy?
+      el-GR: Ποια διεύθυνση είναι το πραγματικό Little Biggy;
+      cs-CZ: Která adresa je skutečný Little Biggy?
+      pl-PL: Który adres to prawdziwy Little Biggy?
+    body:
+      en-GB: The marketplace lives at littlebiggy.org — that is the only official address. Verified mirror domains are listed at littlebiggy.zone. Sites at littlebiggy.net, littlebiggy.com or similar spellings are not the marketplace and may be phishing clones.
+      de-DE: Der Marktplatz liegt unter littlebiggy.org — das ist die einzige offizielle Adresse. Geprüfte Spiegel-Domains stehen auf littlebiggy.zone. Seiten unter littlebiggy.net, littlebiggy.com oder ähnlichen Schreibweisen sind nicht der Marktplatz und können Phishing-Klone sein.
+      fr-FR: La marketplace se trouve sur littlebiggy.org — c'est la seule adresse officielle. Les domaines miroirs vérifiés sont listés sur littlebiggy.zone. Les sites en littlebiggy.net, littlebiggy.com ou aux orthographes voisines ne sont pas la marketplace et peuvent être des clones de phishing.
+      pt-PT: O marketplace fica em littlebiggy.org — é o único endereço oficial. Os domínios espelho verificados estão listados em littlebiggy.zone. Sites em littlebiggy.net, littlebiggy.com ou com grafias semelhantes não são o marketplace e podem ser clones de phishing.
+      it-IT: Il marketplace si trova su littlebiggy.org — è l'unico indirizzo ufficiale. I domini mirror verificati sono elencati su littlebiggy.zone. I siti su littlebiggy.net, littlebiggy.com o con grafie simili non sono il marketplace e possono essere cloni di phishing.
+      es-ES: El marketplace está en littlebiggy.org — es la única dirección oficial. Los dominios espejo verificados se listan en littlebiggy.zone. Los sitios en littlebiggy.net, littlebiggy.com o con grafías parecidas no son el marketplace y pueden ser clones de phishing.
+      el-GR: Η αγορά βρίσκεται στο littlebiggy.org — είναι η μόνη επίσημη διεύθυνση. Οι επαληθευμένοι τομείς-καθρέφτες αναφέρονται στο littlebiggy.zone. Ιστότοποι σε littlebiggy.net, littlebiggy.com ή με παρόμοια γραφή δεν είναι η αγορά και μπορεί να είναι κλώνοι phishing.
+      cs-CZ: Tržiště najdete na littlebiggy.org — to je jediná oficiální adresa. Ověřené zrcadlové domény jsou uvedené na littlebiggy.zone. Weby na littlebiggy.net, littlebiggy.com nebo s podobným zápisem tržiště nejsou a mohou to být phishingové klony.
+      pl-PL: Rynek działa pod adresem littlebiggy.org — to jedyny oficjalny adres. Zweryfikowane domeny lustrzane są wymienione na littlebiggy.zone. Strony pod littlebiggy.net, littlebiggy.com lub o podobnej pisowni nie są tym rynkiem i mogą być phishingowymi klonami.
+    tip:
+      en-GB: Bookmark littlebiggy.org, or check this page whenever you are unsure.
+      de-DE: Speichere littlebiggy.org als Lesezeichen oder schau bei Zweifeln auf dieser Seite nach.
+      fr-FR: Ajoute littlebiggy.org à tes favoris, ou consulte cette page en cas de doute.
+      pt-PT: Guarda littlebiggy.org nos favoritos, ou consulta esta página sempre que tiveres dúvidas.
+      it-IT: Aggiungi littlebiggy.org ai preferiti, oppure consulta questa pagina quando hai dubbi.
+      es-ES: Guarda littlebiggy.org en favoritos, o consulta esta página siempre que tengas dudas.
+      el-GR: Αποθηκεύστε το littlebiggy.org στους σελιδοδείκτες ή ελέγξτε αυτήν τη σελίδα όποτε έχετε αμφιβολίες.
+      cs-CZ: Uložte si littlebiggy.org do záložek, nebo se při pochybnostech podívejte na tuto stránku.
+      pl-PL: Dodaj littlebiggy.org do zakładek albo sprawdź tę stronę, gdy masz wątpliwości.
   sections:
     isDown:
       heading:
@@ -3246,15 +3281,15 @@ browse:
       cs-CZ: Nabídky konopí na Little Biggy
       pl-PL: Oferty konopi na Little Biggy
     metadataDescription:
-      en-GB: The live index of every Little Biggy listing — filter by price, category and seller ratings, plus price history and review stats Little Biggy doesn't show.
-      de-DE: Der Live-Index aller Little-Biggy-Angebote — filtern nach Preis, Kategorie und Verkäuferbewertungen, mit Preisverlauf und Bewertungsdaten, die Little Biggy selbst nicht zeigt.
-      fr-FR: L'index en direct de chaque annonce Little Biggy — filtrez par prix, catégorie et notes des vendeurs, avec l'historique des prix et des stats d'avis que Little Biggy ne montre pas.
-      pt-PT: O índice em direto de todos os anúncios do Little Biggy — filtra por preço, categoria e avaliações de vendedores, com histórico de preços e estatísticas que o Little Biggy não mostra.
-      it-IT: L'indice in tempo reale di ogni annuncio di Little Biggy — filtra per prezzo, categoria e valutazioni dei venditori, con storico prezzi e statistiche che Little Biggy non mostra.
-      es-ES: "El índice en vivo de cada anuncio de Little Biggy: filtra por precio, categoría y valoraciones de vendedores, con historial de precios y estadísticas que Little Biggy no muestra."
-      el-GR: Ο ζωντανός δείκτης κάθε καταχώρισης του Little Biggy — φιλτράρετε ανά τιμή, κατηγορία και βαθμολογίες πωλητών, με ιστορικό τιμών και στατιστικά κριτικών που δεν δείχνει το Little Biggy.
-      cs-CZ: Živý index všech nabídek na Little Biggy — filtrujte podle ceny, kategorie a hodnocení prodejců, s historií cen a statistikami recenzí, které samotné Little Biggy nezobrazuje.
-      pl-PL: Aktualny indeks wszystkich ofert Little Biggy — filtruj według ceny, kategorii i ocen sprzedawców, z historią cen i statystykami recenzji, których samo Little Biggy nie pokazuje.
+      en-GB: "Browse Little Biggy items in one live index — filter by price, category and seller rating, plus price history and review stats Little Biggy doesn't show."
+      de-DE: "Alle Little Biggy Artikel in einem Live-Index — filtern nach Preis, Kategorie und Verkäuferbewertung, plus Preisverlauf und Bewertungsdaten."
+      fr-FR: "Tous les articles Little Biggy dans un index en direct — filtrez par prix, catégorie et note du vendeur, avec historique des prix et stats d'avis."
+      pt-PT: "Todos os artigos do Little Biggy num índice em direto — filtra por preço, categoria e avaliação do vendedor, com histórico de preços e estatísticas."
+      it-IT: "Tutti gli articoli di Little Biggy in un indice live — filtra per prezzo, categoria e valutazione del venditore, con storico prezzi e statistiche."
+      es-ES: "Todos los artículos de Little Biggy en un índice en vivo — filtra por precio, categoría y valoración del vendedor, con historial de precios y reseñas."
+      el-GR: "Όλα τα προϊόντα του Little Biggy σε έναν ζωντανό δείκτη — φιλτράρετε ανά τιμή, κατηγορία και βαθμολογία πωλητή, με ιστορικό τιμών και στατιστικά."
+      cs-CZ: "Všechny položky z Little Biggy v jednom živém indexu — filtrujte podle ceny, kategorie a hodnocení prodejce, s historií cen a statistikami recenzí."
+      pl-PL: "Wszystkie przedmioty z Little Biggy w jednym żywym indeksie — filtruj według ceny, kategorii i oceny sprzedawcy, z historią cen i statystykami recenzji."
   allCategories:
     en-GB: All Categories
     de-DE: Alle Kategorien
@@ -5603,37 +5638,39 @@ item:
   # Archived (delisted) item pages — /item/[ref] rendering from the
   # crawler's archive snapshots.
   meta:
+    # No "| BiggyIndex" suffix here — item names are long and the tail gets
+    # truncated in search results anyway.
     title:
-      en-GB: "{name} by {seller} — Reviews & Prices | BiggyIndex"
-      de-DE: "{name} von {seller} — Bewertungen & Preise | BiggyIndex"
-      fr-FR: "{name} par {seller} — Avis & Prix | BiggyIndex"
-      pt-PT: "{name} de {seller} — Avaliações e Preços | BiggyIndex"
-      it-IT: "{name} di {seller} — Recensioni e Prezzi | BiggyIndex"
-      es-ES: "{name} de {seller} — Reseñas y Precios | BiggyIndex"
-      el-GR: "{name} από {seller} — Κριτικές & Τιμές | BiggyIndex"
-      cs-CZ: "{name} od {seller} — Recenze a ceny | BiggyIndex"
-      pl-PL: "{name} od {seller} — Recenzje i ceny | BiggyIndex"
+      en-GB: "{name} by {seller} — Reviews & Prices"
+      de-DE: "{name} von {seller} — Bewertungen & Preise"
+      fr-FR: "{name} par {seller} — Avis & Prix"
+      pt-PT: "{name} de {seller} — Avaliações e Preços"
+      it-IT: "{name} di {seller} — Recensioni e Prezzi"
+      es-ES: "{name} de {seller} — Reseñas y Precios"
+      el-GR: "{name} από {seller} — Κριτικές & Τιμές"
+      cs-CZ: "{name} od {seller} — Recenze a ceny"
+      pl-PL: "{name} od {seller} — Recenzje i ceny"
     titleNoSeller:
-      en-GB: "{name} — Reviews & Prices | BiggyIndex"
-      de-DE: "{name} — Bewertungen & Preise | BiggyIndex"
-      fr-FR: "{name} — Avis & Prix | BiggyIndex"
-      pt-PT: "{name} — Avaliações e Preços | BiggyIndex"
-      it-IT: "{name} — Recensioni e Prezzi | BiggyIndex"
-      es-ES: "{name} — Reseñas y Precios | BiggyIndex"
-      el-GR: "{name} — Κριτικές & Τιμές | BiggyIndex"
-      cs-CZ: "{name} — Recenze a ceny | BiggyIndex"
-      pl-PL: "{name} — Recenzje i ceny | BiggyIndex"
+      en-GB: "{name} — Reviews & Prices"
+      de-DE: "{name} — Bewertungen & Preise"
+      fr-FR: "{name} — Avis & Prix"
+      pt-PT: "{name} — Avaliações e Preços"
+      it-IT: "{name} — Recensioni e Prezzi"
+      es-ES: "{name} — Reseñas y Precios"
+      el-GR: "{name} — Κριτικές & Τιμές"
+      cs-CZ: "{name} — Recenze a ceny"
+      pl-PL: "{name} — Recenzje i ceny"
     titleArchived:
-      en-GB: "{name} by {seller} {suffix} | BiggyIndex"
-      de-DE: "{name} von {seller} {suffix} | BiggyIndex"
-      fr-FR: "{name} par {seller} {suffix} | BiggyIndex"
-      pt-PT: "{name} de {seller} {suffix} | BiggyIndex"
-      it-IT: "{name} di {seller} {suffix} | BiggyIndex"
-      es-ES: "{name} de {seller} {suffix} | BiggyIndex"
-      el-GR: "{name} από {seller} {suffix} | BiggyIndex"
-      cs-CZ: "{name} od {seller} {suffix} | BiggyIndex"
-      pl-PL: "{name} od {seller} {suffix} | BiggyIndex"
-    titleArchivedNoSeller: "{name} {suffix} | BiggyIndex"
+      en-GB: "{name} by {seller} {suffix}"
+      de-DE: "{name} von {seller} {suffix}"
+      fr-FR: "{name} par {seller} {suffix}"
+      pt-PT: "{name} de {seller} {suffix}"
+      it-IT: "{name} di {seller} {suffix}"
+      es-ES: "{name} de {seller} {suffix}"
+      el-GR: "{name} από {seller} {suffix}"
+      cs-CZ: "{name} od {seller} {suffix}"
+      pl-PL: "{name} od {seller} {suffix}"
+    titleArchivedNoSeller: "{name} {suffix}"
     soldBy:
       en-GB: "Sold by {seller} on Little Biggy."
       de-DE: "Verkauft von {seller} auf Little Biggy."
@@ -6273,16 +6310,17 @@ seller:
       cs-CZ: Žádní prodejci nalezeni
       pl-PL: Nie znaleziono sprzedawców
   detail:
+    # Names the marketplace so "littlebiggy {seller}" searches can match.
     metadataTitle:
-      en-GB: "{seller} — Reviews & Trust | BiggyIndex"
-      de-DE: "{seller} — Bewertungen & Vertrauen | BiggyIndex"
-      fr-FR: "{seller} — Avis & Confiance | BiggyIndex"
-      pt-PT: "{seller} — Avaliações e Confiança | BiggyIndex"
-      it-IT: "{seller} — Recensioni e Affidabilità | BiggyIndex"
-      es-ES: "{seller} — Reseñas y Confianza | BiggyIndex"
-      el-GR: "{seller} — Κριτικές & Αξιοπιστία | BiggyIndex"
-      cs-CZ: "{seller} — Recenze a důvěryhodnost | BiggyIndex"
-      pl-PL: "{seller} — Recenzje i zaufanie | BiggyIndex"
+      en-GB: "{seller} on Little Biggy — Reviews & Trust"
+      de-DE: "{seller} auf Little Biggy — Bewertungen & Vertrauen"
+      fr-FR: "{seller} sur Little Biggy — Avis & Confiance"
+      pt-PT: "{seller} no Little Biggy — Avaliações e Confiança"
+      it-IT: "{seller} su Little Biggy — Recensioni e Affidabilità"
+      es-ES: "{seller} en Little Biggy — Reseñas y Confianza"
+      el-GR: "{seller} στο Little Biggy — Κριτικές & Αξιοπιστία"
+      cs-CZ: "{seller} na Little Biggy — Recenze a důvěryhodnost"
+      pl-PL: "{seller} na Little Biggy — Recenzje i zaufanie"
     notFoundTitle:
       en-GB: Seller not found | BiggyIndex
       de-DE: Verkäufer nicht gefunden | BiggyIndex

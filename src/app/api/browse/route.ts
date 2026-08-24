@@ -1,6 +1,6 @@
 import { browseDataVersion, loadItems, loadVariantWidths } from "@/lib/data";
 import { itemVariantMasks } from "@/lib/images";
-import { ALL_MARKETS } from "@/lib/market/market";
+import { ALL_MARKETS, getMarketFromHost } from "@/lib/market/market";
 
 /**
  * Browse dataset endpoint — serves the full (browse-stripped) item array for
@@ -15,10 +15,14 @@ const VALID_MARKETS = new Set(ALL_MARKETS.map((code) => code.toLowerCase()));
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const mktParam = (url.searchParams.get("mkt") ?? "gb").toLowerCase();
-  // Reject junk markets — each unique query string is a CDN cache key, so
-  // unvalidated values would let anyone fill the cache with 404 payloads.
-  const mkt = VALID_MARKETS.has(mktParam) ? mktParam : "gb";
+  // Default the market from the Host, not "gb": the CDN collapses query
+  // variants into one entry per host, so a bare-URL fetch on a locale host
+  // must still cache that host's own catalogue.
+  const hostMarket = getMarketFromHost(
+    request.headers.get("host"),
+  ).toLowerCase();
+  const mktParam = (url.searchParams.get("mkt") ?? hostMarket).toLowerCase();
+  const mkt = VALID_MARKETS.has(mktParam) ? mktParam : hostMarket;
 
   const items = await loadItems(mkt);
 
@@ -52,6 +56,8 @@ export async function GET(request: Request) {
     // against the same version. A short TTL just buys billed origin renders.
     "Netlify-CDN-Cache-Control":
       "public, durable, s-maxage=21600, stale-while-revalidate=86400",
+    // Key the CDN entry on the market/version params, not just the host.
+    "Netlify-Vary": "query=mkt|v|__nextDataReq|_rsc",
     Vary: "Accept-Encoding",
   };
 

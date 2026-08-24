@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Parcourez le cannabis sur Little Biggy",
+    "tagline": "Le Little Biggy Index — Toutes les annonces, vendeurs & prix",
     "description": "Parcourez le cannabis sur Little Biggy : toutes les annonces littlebiggy indexées par catégorie, prix, vendeur, avis et livraison."
   },
   "nav": {
@@ -95,7 +95,7 @@
       "button": "Rejoindre le canal Telegram"
     },
     "meta": {
-      "title": "Little Biggy est-il en panne ? Statut en direct & guide d'accès | BiggyIndex",
+      "title": "littlebiggy.org — En panne ? Vraie adresse & statut en direct",
       "description": "littlebiggy.org est-il en ligne ou en panne ? Un statut en direct avec historique, l'adresse officielle, une aide à la connexion et que faire en cas de panne — actualisé en continu."
     },
     "heading": "Little Biggy est-il en panne ?",
@@ -137,6 +137,11 @@
       "heading": "Assure-toi d'être sur le vrai Little Biggy",
       "headingDown": "Impossible d'y accéder ? Essaie ceci",
       "body": "Des clones de phishing de Little Biggy existent. Ce sont les pages qui prouvent que tu es dans le vrai écosystème — et où la communauté publie pendant une panne."
+    },
+    "addresses": {
+      "heading": "Quelle adresse est le vrai Little Biggy ?",
+      "body": "La marketplace se trouve sur littlebiggy.org — c'est la seule adresse officielle. Les domaines miroirs vérifiés sont listés sur littlebiggy.zone. Les sites en littlebiggy.net, littlebiggy.com ou aux orthographes voisines ne sont pas la marketplace et peuvent être des clones de phishing.",
+      "tip": "Ajoute littlebiggy.org à tes favoris, ou consulte cette page en cas de doute."
     },
     "sections": {
       "isDown": {
@@ -482,7 +487,7 @@
       "metadataTitle": "{count}+ annonces de cannabis sur Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Annonces de cannabis sur Little Biggy | BiggyIndex",
       "heading": "Annonces de cannabis sur Little Biggy",
-      "metadataDescription": "L'index en direct de chaque annonce Little Biggy — filtrez par prix, catégorie et notes des vendeurs, avec l'historique des prix et des stats d'avis que Little Biggy ne montre pas."
+      "metadataDescription": "Tous les articles Little Biggy dans un index en direct — filtrez par prix, catégorie et note du vendeur, avec historique des prix et stats d'avis."
     },
     "allCategories": "Toutes les catégories",
     "noResults": "Aucun produit ne correspond à vos filtres",
@@ -767,10 +772,10 @@
       "relatedInCategory": "Plus de {category} sur Little Biggy"
     },
     "meta": {
-      "title": "{name} par {seller} — Avis & Prix | BiggyIndex",
-      "titleNoSeller": "{name} — Avis & Prix | BiggyIndex",
-      "titleArchived": "{name} par {seller} {suffix} | BiggyIndex",
-      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "title": "{name} par {seller} — Avis & Prix",
+      "titleNoSeller": "{name} — Avis & Prix",
+      "titleArchived": "{name} par {seller} {suffix}",
+      "titleArchivedNoSeller": "{name} {suffix}",
       "soldBy": "Vendu par {seller} sur Little Biggy.",
       "browseFallback": "Découvrez {name} de {seller} sur Little Biggy.",
       "browseFallbackNoSeller": "Découvrez {name} sur Little Biggy.",
@@ -850,7 +855,7 @@
       "noSellersFound": "Aucun vendeur trouvé"
     },
     "detail": {
-      "metadataTitle": "{seller} — Avis & Confiance | BiggyIndex",
+      "metadataTitle": "{seller} sur Little Biggy — Avis & Confiance",
       "notFoundTitle": "Vendeur introuvable | BiggyIndex",
       "backToSellers": "Vendeurs",
       "breadcrumb": "Page du vendeur",

@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Βρείτε κάνναβη στο Little Biggy",
+    "tagline": "Ο Little Biggy Index — Όλες οι καταχωρίσεις, πωλητές & τιμές",
     "description": "Βρείτε κάνναβη στο Little Biggy: όλες οι καταχωρίσεις littlebiggy ανά κατηγορία, τιμή, πωλητή, κριτικές και αποστολή."
   },
   "nav": {
@@ -95,7 +95,7 @@
       "button": "Μπείτε στο κανάλι Telegram"
     },
     "meta": {
-      "title": "Είναι το Little Biggy εκτός λειτουργίας; Ζωντανή κατάσταση & οδηγός | BiggyIndex",
+      "title": "littlebiggy.org — Λειτουργεί; Πραγματική διεύθυνση & κατάσταση",
       "description": "Λειτουργεί το littlebiggy.org τώρα; Ζωντανή κατάσταση με ιστορικό, η επίσημη διεύθυνση, βοήθεια σύνδεσης και τι να κάνετε σε διακοπή — ανανεώνεται συχνά."
     },
     "heading": "Είναι το Little Biggy εκτός λειτουργίας;",
@@ -137,6 +137,11 @@
       "heading": "Βεβαιωθείτε ότι βρίσκεστε στο πραγματικό Little Biggy",
       "headingDown": "Δεν μπορείτε να συνδεθείτε; Δοκιμάστε αυτά",
       "body": "Υπάρχουν κλώνοι phishing του Little Biggy. Αυτές είναι οι σελίδες που αποδεικνύουν ότι βρίσκεστε στο πραγματικό οικοσύστημα — και εκεί δημοσιεύει η κοινότητα σε διακοπή."
+    },
+    "addresses": {
+      "heading": "Ποια διεύθυνση είναι το πραγματικό Little Biggy;",
+      "body": "Η αγορά βρίσκεται στο littlebiggy.org — είναι η μόνη επίσημη διεύθυνση. Οι επαληθευμένοι τομείς-καθρέφτες αναφέρονται στο littlebiggy.zone. Ιστότοποι σε littlebiggy.net, littlebiggy.com ή με παρόμοια γραφή δεν είναι η αγορά και μπορεί να είναι κλώνοι phishing.",
+      "tip": "Αποθηκεύστε το littlebiggy.org στους σελιδοδείκτες ή ελέγξτε αυτήν τη σελίδα όποτε έχετε αμφιβολίες."
     },
     "sections": {
       "isDown": {
@@ -482,7 +487,7 @@
       "metadataTitle": "{count}+ καταχωρίσεις κάνναβης στο Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Καταχωρίσεις κάνναβης στο Little Biggy | BiggyIndex",
       "heading": "Καταχωρίσεις κάνναβης στο Little Biggy",
-      "metadataDescription": "Ο ζωντανός δείκτης κάθε καταχώρισης του Little Biggy — φιλτράρετε ανά τιμή, κατηγορία και βαθμολογίες πωλητών, με ιστορικό τιμών και στατιστικά κριτικών που δεν δείχνει το Little Biggy."
+      "metadataDescription": "Όλα τα προϊόντα του Little Biggy σε έναν ζωντανό δείκτη — φιλτράρετε ανά τιμή, κατηγορία και βαθμολογία πωλητή, με ιστορικό τιμών και στατιστικά."
     },
     "allCategories": "Όλες οι Κατηγορίες",
     "noResults": "Κανένα προϊόν δεν ταιριάζει με τα φίλτρα σας",
@@ -767,10 +772,10 @@
       "relatedInCategory": "Περισσότερα {category} στο Little Biggy"
     },
     "meta": {
-      "title": "{name} από {seller} — Κριτικές & Τιμές | BiggyIndex",
-      "titleNoSeller": "{name} — Κριτικές & Τιμές | BiggyIndex",
-      "titleArchived": "{name} από {seller} {suffix} | BiggyIndex",
-      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "title": "{name} από {seller} — Κριτικές & Τιμές",
+      "titleNoSeller": "{name} — Κριτικές & Τιμές",
+      "titleArchived": "{name} από {seller} {suffix}",
+      "titleArchivedNoSeller": "{name} {suffix}",
       "soldBy": "Πωλείται από {seller} στο Little Biggy.",
       "browseFallback": "Δείτε {name} από {seller} στο Little Biggy.",
       "browseFallbackNoSeller": "Δείτε {name} στο Little Biggy.",
@@ -850,7 +855,7 @@
       "noSellersFound": "Δεν βρέθηκαν πωλητές"
     },
     "detail": {
-      "metadataTitle": "{seller} — Κριτικές & Αξιοπιστία | BiggyIndex",
+      "metadataTitle": "{seller} στο Little Biggy — Κριτικές & Αξιοπιστία",
       "notFoundTitle": "Ο πωλητής δεν βρέθηκε | BiggyIndex",
       "backToSellers": "Πωλητές",
       "breadcrumb": "Σελίδα πωλητή",

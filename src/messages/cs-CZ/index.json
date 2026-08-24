@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "BiggyIndex",
-    "tagline": "Procházejte nabídky konopí na Little Biggy",
+    "tagline": "Little Biggy Index — Všechny nabídky, prodejci a ceny",
     "description": "Procházejte nabídky konopí na Little Biggy: všechny nabídky littlebiggy podle kategorie, ceny, prodejce, recenzí a dopravy."
   },
   "nav": {
@@ -95,7 +95,7 @@
       "button": "Připojit se ke kanálu na Telegramu"
     },
     "meta": {
-      "title": "Je Little Biggy mimo provoz? Živý stav a průvodce | BiggyIndex",
+      "title": "littlebiggy.org — Je mimo provoz? Skutečná adresa a živý stav",
       "description": "Funguje littlebiggy.org právě teď? Živý stav s historií, oficiální adresa, pomoc s přihlášením a co dělat při výpadku — pravidelně aktualizováno."
     },
     "heading": "Je Little Biggy mimo provoz?",
@@ -137,6 +137,11 @@
       "heading": "Ujistěte se, že jste na pravém Little Biggy",
       "headingDown": "Nedostanete se tam? Zkuste tyto",
       "body": "Existují phishingové klony Little Biggy. Toto jsou stránky, které dokazují, že jste ve skutečném ekosystému — a kde komunita píše během výpadku."
+    },
+    "addresses": {
+      "heading": "Která adresa je skutečný Little Biggy?",
+      "body": "Tržiště najdete na littlebiggy.org — to je jediná oficiální adresa. Ověřené zrcadlové domény jsou uvedené na littlebiggy.zone. Weby na littlebiggy.net, littlebiggy.com nebo s podobným zápisem tržiště nejsou a mohou to být phishingové klony.",
+      "tip": "Uložte si littlebiggy.org do záložek, nebo se při pochybnostech podívejte na tuto stránku."
     },
     "sections": {
       "isDown": {
@@ -482,7 +487,7 @@
       "metadataTitle": "{count}+ nabídek konopí na Little Biggy | BiggyIndex",
       "metadataTitleNoCount": "Nabídky konopí na Little Biggy | BiggyIndex",
       "heading": "Nabídky konopí na Little Biggy",
-      "metadataDescription": "Živý index všech nabídek na Little Biggy — filtrujte podle ceny, kategorie a hodnocení prodejců, s historií cen a statistikami recenzí, které samotné Little Biggy nezobrazuje."
+      "metadataDescription": "Všechny položky z Little Biggy v jednom živém indexu — filtrujte podle ceny, kategorie a hodnocení prodejce, s historií cen a statistikami recenzí."
     },
     "allCategories": "Všechny kategorie",
     "noResults": "Žádné produkty neodpovídají vašim filtrům",
@@ -767,10 +772,10 @@
       "relatedInCategory": "Další {category} na Little Biggy"
     },
     "meta": {
-      "title": "{name} od {seller} — Recenze a ceny | BiggyIndex",
-      "titleNoSeller": "{name} — Recenze a ceny | BiggyIndex",
-      "titleArchived": "{name} od {seller} {suffix} | BiggyIndex",
-      "titleArchivedNoSeller": "{name} {suffix} | BiggyIndex",
+      "title": "{name} od {seller} — Recenze a ceny",
+      "titleNoSeller": "{name} — Recenze a ceny",
+      "titleArchived": "{name} od {seller} {suffix}",
+      "titleArchivedNoSeller": "{name} {suffix}",
       "soldBy": "Prodává {seller} na Little Biggy.",
       "browseFallback": "Prohlédněte si {name} od {seller} na Little Biggy.",
       "browseFallbackNoSeller": "Prohlédněte si {name} na Little Biggy.",
@@ -850,7 +855,7 @@
       "noSellersFound": "Žádní prodejci nalezeni"
     },
     "detail": {
-      "metadataTitle": "{seller} — Recenze a důvěryhodnost | BiggyIndex",
+      "metadataTitle": "{seller} na Little Biggy — Recenze a důvěryhodnost",
       "notFoundTitle": "Prodejce nenalezen | BiggyIndex",
       "backToSellers": "Prodejci",
       "breadcrumb": "Stránka prodejce",
