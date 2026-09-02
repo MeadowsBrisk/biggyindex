@@ -210,7 +210,13 @@ function SeedCard({
             >
               {item.sn}
             </p>
-            {item.p ? (
+            {item.p && item.so === 1 ? (
+              <p className="mt-1">
+                <span className="seller-card__badge seller-card__badge--soldout">
+                  {item.p}
+                </span>
+              </p>
+            ) : item.p ? (
               <p className="mt-1 font-bold" style={{ fontSize: "13px" }}>
                 {item.p}
               </p>
@@ -245,7 +251,13 @@ function SeedCard({
               )}
             </div>
             <p className="text-xs text-muted truncate mt-1">{item.sn}</p>
-            {item.p ? (
+            {item.p && item.so === 1 ? (
+              <p className="mt-1">
+                <span className="seller-card__badge seller-card__badge--soldout">
+                  {item.p}
+                </span>
+              </p>
+            ) : item.p ? (
               <p className="text-sm font-semibold mt-1">{item.p}</p>
             ) : (
               <p aria-hidden="true" className="text-sm font-semibold mt-1">

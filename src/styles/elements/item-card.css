@@ -914,6 +914,17 @@ html.bi-seed-hide [data-seed-skeleton] {
   }
 }
 
+/* Stands in for the price on a listing the seller has parked out of stock. */
+.seller-card__badge--soldout {
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.1);
+
+  @variant dark {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.14);
+  }
+}
+
 /* ==========================================================================
    Seller Avatar Tooltip — cursor-following preview
    ========================================================================== */

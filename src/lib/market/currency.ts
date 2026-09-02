@@ -15,6 +15,7 @@
 
 import { cacheLife } from "next/cache";
 import type { MarketCode } from "@/lib/market/market";
+import { FALLBACK_USD_RATES } from "@/lib/market/rates";
 
 export type CurrencyCode = "USD" | "GBP" | "EUR" | "CZK" | "PLN";
 
@@ -81,13 +82,24 @@ export interface ServerCurrency {
   rate: number;
 }
 
+export interface ServerCurrencyOptions {
+  /**
+   * On rate-lookup failure: `false` (default) falls back to USD amounts with
+   * "$"; `true` keeps the market currency at the shared approximate rate —
+   * preferred for cached HTML, where a USD amount would read as local.
+   */
+  approximateFallback?: boolean;
+}
+
 /**
  * Resolve the display currency for a market with a live USD→native rate.
  * Falls back to USD ("$", rate 1) when the rate is unavailable, matching
- * the "never print a wrong symbol" rule for server-rendered prices.
+ * the "never print a wrong symbol" rule for server-rendered prices — or to
+ * an approximate native rate when `approximateFallback` is set.
  */
 export async function getServerCurrency(
   market: MarketCode,
+  { approximateFallback = false }: ServerCurrencyOptions = {},
 ): Promise<ServerCurrency> {
   const code = MARKET_CURRENCY_CODE[market];
   if (code === "USD") return { code: "USD", symbol: "$", rate: 1 };
@@ -99,7 +111,14 @@ export async function getServerCurrency(
       return { code, symbol: CURRENCY_SYMBOLS[code], rate };
     }
   } catch {
-    // Fall through to the USD fallback below.
+    // Fall through to the fallbacks below.
+  }
+
+  if (approximateFallback) {
+    const rate = FALLBACK_USD_RATES[code];
+    if (typeof rate === "number" && rate > 0) {
+      return { code, symbol: CURRENCY_SYMBOLS[code], rate };
+    }
   }
   return { code: "USD", symbol: "$", rate: 1 };
 }

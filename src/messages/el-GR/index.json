@@ -366,6 +366,7 @@
       }
     },
     "whatsNewSection": {
+      "soldOut": "Εξαντλήθηκε",
       "eyebrow": "Φρέσκια δραστηριότητα",
       "heading": "Πρόσφατα ευρετηριασμένα στοιχεία",
       "description": "Δείτε τα πιο πρόσφατα ή πιο πρόσφατα ενημερωμένα στοιχεία στο Little Biggy.",
@@ -607,6 +608,7 @@
       "maximum": "Μέγιστη τιμή"
     },
     "card": {
+      "soldOut": "Εξαντλήθηκε",
       "lowConfidence": "Αβέβαιη κατηγορία ({percent}% εμπιστοσύνης)",
       "lowConfidenceAria": "Χαμηλή εμπιστοσύνη κατηγοριοποίησης: {percent}%",
       "preview": "Προεπισκόπηση {item}",
@@ -691,6 +693,7 @@
         "addedToBasket": "Προστέθηκε {variant} στο καλάθι",
         "removedFromBasket": "Αφαιρέθηκε {variant} από το καλάθι",
         "removeFromBasket": "Αφαίρεση από το καλάθι",
+        "soldOut": "Εξαντλήθηκε",
         "bestValue": "Η καλύτερη αξία",
         "pricePerUnit": "Τιμή ανά {unit}",
         "unit": "μονάδα",
@@ -761,6 +764,7 @@
       "avgDelivery": "{days} ημέρες μέση παράδοση",
       "attributes": "Χαρακτηριστικά",
       "variants": "Παραλλαγές",
+      "soldOut": "Εξαντλήθηκε",
       "bestValue": "Η καλύτερη αξία",
       "shipping": "Αποστολή",
       "free": "Δωρεάν",

@@ -31,6 +31,11 @@ import {
 } from "@/components/StrainTypeChip";
 import { SuggestLink } from "@/components/SuggestLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import {
+  isSoldOut,
+  isVariantSoldOut,
+  realPriceHistory,
+} from "@/lib/browse/item-index";
 import { categoryToSlug } from "@/lib/categories";
 import {
   type ArchivedDetailBlob,
@@ -587,7 +592,12 @@ export default async function ItemPage({ params }: ItemPageProps) {
   const englishDesc = item.dEn ? decodeEntities(item.dEn) : null;
   const images = getItemGalleryImages(item);
   const reviews = itemReviewsFromDetail(item.reviews, item);
-  const priceHistory = (item as MergedDetailBlob).ph ?? [];
+  // Parked out of stock: the listing's amounts are placeholders, so the
+  // headline price, the per-row prices and the change badge all stand down.
+  const soldOut = isSoldOut(item);
+  // Snapshots taken while the listing was parked hold a placeholder, not a
+  // price — history written before that was recognised still contains them.
+  const priceHistory = realPriceHistory((item as MergedDetailBlob).ph);
   const shipOptions = (item as MergedDetailBlob).shOpts ?? [];
   // Archived items have no live listing to link out to — the outbound
   // "View on Little Biggy" CTA is replaced by a seller-page link below.
@@ -613,7 +623,10 @@ export default async function ItemPage({ params }: ItemPageProps) {
       ?.filter((variant) => variant.usd > 0)
       .map((variant, index) => {
         const parsed = parseVariant(variant, variantContext);
-        const ppu = pricePerUnit(variant.usd, parsed);
+        // A parked variant carries a placeholder, so it has no price and no
+        // per-unit figure to compare.
+        const variantSoldOut = isVariantSoldOut(variant);
+        const ppu = variantSoldOut ? null : pricePerUnit(variant.usd, parsed);
         const unitLabel = parsed
           ? (UNIT_DISPLAY_LABEL[parsed.unit] ?? parsed.unit)
           : null;
@@ -622,6 +635,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
           key: variant.vid != null ? String(variant.vid) : String(index),
           label: decodeEntities(variant.d || parsed?.originalLabel || "-"),
           price: variant.usd,
+          soldOut: variantSoldOut,
           ppu,
           unit: parsed?.unit ?? null,
           unitLabel,
@@ -693,21 +707,29 @@ export default async function ItemPage({ params }: ItemPageProps) {
       ? { "@type": "Organization", name: sellerLabel }
       : undefined,
     offers:
-      item.uMin != null
+      // A parked listing has no price to publish — it is offered as
+      // out-of-stock with no amounts rather than quoting the placeholder.
+      soldOut
         ? {
-            "@type": "AggregateOffer",
-            // Converted market-currency amounts + ISO code — never raw
-            // USD numbers behind a local currency code.
-            lowPrice: (item.uMin * currency.rate).toFixed(2),
-            highPrice: ((item.uMax ?? item.uMin) * currency.rate).toFixed(2),
-            priceCurrency: currency.code,
-            offerCount: Math.max(variantRows.length, 1),
-            availability: isArchived
-              ? "https://schema.org/Discontinued"
-              : "https://schema.org/InStock",
+            "@type": "Offer",
+            availability: "https://schema.org/OutOfStock",
             url: canonicalUrl,
           }
-        : undefined,
+        : item.uMin != null
+          ? {
+              "@type": "AggregateOffer",
+              // Converted market-currency amounts + ISO code — never raw
+              // USD numbers behind a local currency code.
+              lowPrice: (item.uMin * currency.rate).toFixed(2),
+              highPrice: ((item.uMax ?? item.uMin) * currency.rate).toFixed(2),
+              priceCurrency: currency.code,
+              offerCount: Math.max(variantRows.length, 1),
+              availability: isArchived
+                ? "https://schema.org/Discontinued"
+                : "https://schema.org/InStock",
+              url: canonicalUrl,
+            }
+          : undefined,
     // Same 1-10 convention as the seller page's AggregateRating.
     aggregateRating:
       item.rs?.cnt && item.rs.avg != null
@@ -882,28 +904,36 @@ export default async function ItemPage({ params }: ItemPageProps) {
                   className="ido-section"
                 >
                   <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="text-lg font-semibold text-primary">
-                      {item.uMin != null
-                        ? fmtMoney(item.uMin)
-                        : t("unavailable")}
-                      {item.uMax != null &&
-                        item.uMax !== item.uMin &&
-                        ` - ${fmtMoney(item.uMax)}`}
-                    </span>
-                    {isArchived && item.uMin != null && (
+                    {soldOut ? (
+                      <span className="ido-price-badge ido-price-badge--soldout">
+                        {t("soldOut")}
+                      </span>
+                    ) : (
+                      <span className="text-lg font-semibold text-primary">
+                        {item.uMin != null
+                          ? fmtMoney(item.uMin)
+                          : t("unavailable")}
+                        {item.uMax != null &&
+                          item.uMax !== item.uMin &&
+                          ` - ${fmtMoney(item.uMax)}`}
+                      </span>
+                    )}
+                    {isArchived && !soldOut && item.uMin != null && (
                       <span className="text-xs font-medium text-muted">
                         {archiveT("lastKnownPrice")}
                       </span>
                     )}
-                    {priceHistory.length >= 2 && item.uMin != null && (
-                      <PriceChangeBadge
-                        history={priceHistory}
-                        current={{
-                          min: item.uMin,
-                          max: item.uMax ?? item.uMin,
-                        }}
-                      />
-                    )}
+                    {!soldOut &&
+                      priceHistory.length >= 2 &&
+                      item.uMin != null && (
+                        <PriceChangeBadge
+                          history={priceHistory}
+                          current={{
+                            min: item.uMin,
+                            max: item.uMax ?? item.uMin,
+                          }}
+                        />
+                      )}
                   </div>
 
                   {variantRows.length > 0 && (
@@ -950,7 +980,9 @@ export default async function ItemPage({ params }: ItemPageProps) {
                                 </span>
                               </td>
                               <td className="ido-table__price">
-                                {fmtMoney(variant.price)}
+                                {variant.soldOut
+                                  ? t("soldOut")
+                                  : fmtMoney(variant.price)}
                               </td>
                               {hasAnyPpu && (
                                 <td className="ido-table__ppu">

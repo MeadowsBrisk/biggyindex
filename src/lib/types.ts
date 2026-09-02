@@ -29,6 +29,8 @@ export interface ItemVariant {
   st?: string;
   /** Seller-format label when it differs from canonical (e.g. "1oz") */
   ol?: string;
+  /** Parked out of stock — `usd` is a placeholder, not a real price */
+  so?: 1;
 }
 
 /** Aggregated review statistics */
@@ -159,6 +161,8 @@ export interface Item {
   at?: ItemAttributes | null;
   /** Categorization confidence (0-1, rounded to 2dp) */
   cf?: number | null;
+  /** Parked out of stock — every variant is a placeholder, so uMin/uMax are not real prices */
+  so?: 1;
 }
 
 // ─── Price History ──────────────────────────────────────────────────
@@ -362,6 +366,8 @@ export interface HomeFeedItemCard {
   h?: number | null;
   fsa?: string | null;
   lua?: string | null;
+  /** Parked out of stock — uMin/uMax are placeholders, not real prices */
+  so?: 1;
 }
 
 /** The complete home-feed.json blob */

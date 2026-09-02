@@ -1442,6 +1442,12 @@
   color: #dc2626;
 }
 
+/* Stands in for the headline price on a listing parked out of stock. */
+.ido-price-badge--soldout {
+  background: color-mix(in srgb, #b45309 12%, transparent);
+  color: #b45309;
+}
+
 @variant dark {
   .ido-price-badge--down {
     background: color-mix(in srgb, #22c55e 15%, transparent);
@@ -1450,6 +1456,10 @@
   .ido-price-badge--up {
     background: color-mix(in srgb, #ef4444 12%, transparent);
     color: #f87171;
+  }
+  .ido-price-badge--soldout {
+    background: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #fbbf24;
   }
 }
 

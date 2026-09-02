@@ -2477,6 +2477,16 @@ home:
             cs-CZ: Zákony o konopí stále platí. Jste odpovědní za dodržování místních předpisů a ověřování každého detailu Little Biggy.
             pl-PL: Przepisy dotyczące konopi nadal obowiązują. Jesteś odpowiedzialny za przestrzeganie lokalnych przepisów i weryfikację każdego szczegółu Little Biggy.
   whatsNewSection:
+    soldOut:
+      en-GB: Sold out
+      de-DE: Ausverkauft
+      fr-FR: Épuisé
+      pt-PT: Esgotado
+      it-IT: Esaurito
+      es-ES: Agotado
+      el-GR: Εξαντλήθηκε
+      cs-CZ: Vyprodáno
+      pl-PL: Wyprzedane
     eyebrow:
       en-GB: Fresh activity
       de-DE: Frische Aktivitäten
@@ -4305,6 +4315,16 @@ browse:
       cs-CZ: Maximální cena
       pl-PL: Cena maksymalna
   card:
+    soldOut:
+      en-GB: Sold out
+      de-DE: Ausverkauft
+      fr-FR: Épuisé
+      pt-PT: Esgotado
+      it-IT: Esaurito
+      es-ES: Agotado
+      el-GR: Εξαντλήθηκε
+      cs-CZ: Vyprodáno
+      pl-PL: Wyprzedane
     lowConfidence:
       en-GB: Uncertain category ({percent}% confidence)
       de-DE: Ungewisse Kategorie ({percent}% Zuversicht)
@@ -5005,6 +5025,16 @@ item:
         el-GR: Αφαίρεση από το καλάθι
         cs-CZ: Odebrat z košíku
         pl-PL: Usuń z koszyka
+      soldOut:
+        en-GB: Sold out
+        de-DE: Ausverkauft
+        fr-FR: Épuisé
+        pt-PT: Esgotado
+        it-IT: Esaurito
+        es-ES: Agotado
+        el-GR: Εξαντλήθηκε
+        cs-CZ: Vyprodáno
+        pl-PL: Wyprzedane
       bestValue:
         en-GB: Best value
         de-DE: Bestes Preis-Leistungs-Verhältnis
@@ -5545,6 +5575,16 @@ item:
       el-GR: Παραλλαγές
       cs-CZ: Varianty
       pl-PL: Warianty
+    soldOut:
+      en-GB: Sold out
+      de-DE: Ausverkauft
+      fr-FR: Épuisé
+      pt-PT: Esgotado
+      it-IT: Esaurito
+      es-ES: Agotado
+      el-GR: Εξαντλήθηκε
+      cs-CZ: Vyprodáno
+      pl-PL: Wyprzedane
     bestValue:
       en-GB: Best value
       de-DE: Bestes Preis-Leistungs-Verhältnis

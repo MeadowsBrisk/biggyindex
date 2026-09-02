@@ -39,6 +39,11 @@ import { useAddToast } from "@/components/Toast";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { useHistoryState } from "@/hooks/useHistoryState";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
+import {
+  isSoldOut,
+  isVariantSoldOut,
+  realPriceHistory,
+} from "@/lib/browse/item-index";
 import { cx } from "@/lib/cn";
 import {
   decodeEntities,
@@ -398,12 +403,18 @@ export function ItemDetailOverlay() {
         (displayItem.sh.min != null && displayItem.sh.min > 0) ||
         (displayItem.sh.max != null && displayItem.sh.max > 0))
     );
+  // Parked out of stock: the listing's amounts are placeholders, so the
+  // headline price, the per-row prices and the change badge all stand down.
+  const soldOut = isSoldOut(displayItem);
+  // Snapshots taken while the listing was parked hold a placeholder, not a
+  // price — history written before that was recognised still contains them.
   const priceHistory = useMemo(
-    () => mergedDetail?.ph ?? [],
+    () => realPriceHistory(mergedDetail?.ph),
     [mergedDetail?.ph],
   );
 
   const latestPriceChange = (() => {
+    if (soldOut) return null;
     if (priceHistory.length < 2 || displayItem?.uMin == null) return null;
 
     const previous = priceHistory[priceHistory.length - 2];
@@ -470,12 +481,18 @@ export function ItemDetailOverlay() {
             }
           }
         }
-        const ppu = pricePerUnit(v.usd, effectiveParsed);
+        // A parked variant carries a placeholder, so it has no price and no
+        // per-unit figure to compare.
+        const variantSoldOut = isVariantSoldOut(v);
+        const ppu = variantSoldOut
+          ? null
+          : pricePerUnit(v.usd, effectiveParsed);
         const unit = effectiveParsed?.unit ?? null;
         return {
           key: v.vid != null ? String(v.vid) : String(i),
           label: decodeEntities(variantDisplayLabel(v, forceEnglish) || "—"),
           price: v.usd,
+          soldOut: variantSoldOut,
           grams,
           ppu,
           qty: effectiveParsed?.qty ?? null,
@@ -689,26 +706,32 @@ export function ItemDetailOverlay() {
                       <section data-section-id="prices" className="ido-section">
                         {/* Price header */}
                         <div className="flex items-baseline gap-2 flex-wrap">
-                          <span
-                            className={`text-lg font-semibold ${selectedShipCost > 0 ? "text-amber-600 dark:text-amber-400" : "text-primary"}`}
-                          >
-                            {fmtPrice(
-                              displayItem.uMin != null
-                                ? displayItem.uMin + selectedShipCost
-                                : displayItem.uMin,
-                              cSym,
-                              cRate,
-                            )}
-                            {displayItem.uMax != null &&
-                              displayItem.uMax !== displayItem.uMin &&
-                              ` – ${fmtPrice(displayItem.uMax + selectedShipCost, cSym, cRate)}`}
-                            {selectedShipCost > 0 && (
-                              <Truck
-                                size={13}
-                                className="inline ml-1.5 -mt-0.5 opacity-70"
-                              />
-                            )}
-                          </span>
+                          {soldOut ? (
+                            <span className="ido-price-badge ido-price-badge--soldout">
+                              {t("variants.soldOut")}
+                            </span>
+                          ) : (
+                            <span
+                              className={`text-lg font-semibold ${selectedShipCost > 0 ? "text-amber-600 dark:text-amber-400" : "text-primary"}`}
+                            >
+                              {fmtPrice(
+                                displayItem.uMin != null
+                                  ? displayItem.uMin + selectedShipCost
+                                  : displayItem.uMin,
+                                cSym,
+                                cRate,
+                              )}
+                              {displayItem.uMax != null &&
+                                displayItem.uMax !== displayItem.uMin &&
+                                ` – ${fmtPrice(displayItem.uMax + selectedShipCost, cSym, cRate)}`}
+                              {selectedShipCost > 0 && (
+                                <Truck
+                                  size={13}
+                                  className="inline ml-1.5 -mt-0.5 opacity-70"
+                                />
+                              )}
+                            </span>
+                          )}
                           {latestPriceChange &&
                             (() => {
                               const isDown =
@@ -815,7 +838,13 @@ export function ItemDetailOverlay() {
                                             </span>
                                           </td>
                                           <td className="ido-table__price">
-                                            {fmtPrice(row.price, cSym, cRate)}
+                                            {row.soldOut
+                                              ? t("variants.soldOut")
+                                              : fmtPrice(
+                                                  row.price,
+                                                  cSym,
+                                                  cRate,
+                                                )}
                                           </td>
                                           {hasAnyPpu && (
                                             <td className="ido-table__ppu">

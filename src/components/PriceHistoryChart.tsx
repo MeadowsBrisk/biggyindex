@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { realPriceHistory } from "@/lib/browse/item-index";
 import type { PriceSnapshot } from "@/lib/types";
 
 /**
@@ -45,8 +46,10 @@ export function PriceHistoryChart({
   const gradientId = useId().replace(/:/g, "");
 
   // Ascending, finite, timestamp-deduped (keep the latest same-day snapshot so
-  // two changes on one day don't stack into a zero-width segment).
-  const parsed = (ph ?? [])
+  // two changes on one day don't stack into a zero-width segment). Snapshots
+  // taken while the listing was parked out of stock hold a placeholder, not a
+  // price, and would draw a spike — they are dropped first.
+  const parsed = realPriceHistory(ph)
     .map((p) => ({
       t: new Date(p.d).getTime(),
       min: p.min,

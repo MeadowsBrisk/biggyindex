@@ -2,6 +2,7 @@
 
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
+import { FALLBACK_USD_RATES } from "@/lib/market/rates";
 import { exchangeRatesAtom } from "@/store/atoms";
 
 /**
@@ -9,16 +10,8 @@ import { exchangeRatesAtom } from "@/store/atoms";
  * Renders nothing — mount once near app root.
  *
  * Fetches from our own API route (which proxies open.er-api.com with edge caching).
- * Falls back to hardcoded rates if fetch fails.
+ * Falls back to the shared approximate rates if the fetch fails.
  */
-
-const FALLBACK_RATES: Record<string, number> = {
-  GBP: 0.79,
-  EUR: 0.92,
-  CZK: 23,
-  PLN: 4,
-  USD: 1,
-};
 
 export function ExchangeRateProvider() {
   const setRates = useSetAtom(exchangeRatesAtom);
@@ -36,7 +29,7 @@ export function ExchangeRateProvider() {
         }
       } catch {
         if (!cancelled) {
-          setRates(FALLBACK_RATES);
+          setRates(FALLBACK_USD_RATES);
         }
       }
     }

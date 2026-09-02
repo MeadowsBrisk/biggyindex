@@ -81,7 +81,7 @@ export default async function BrowsePage({
   const cSym = marketCurrencySymbol(market);
   const t = await getTranslations({ locale, namespace: "browse.page" });
 
-  const [itemList, sellerList, currency, tCategories, variantWidths] =
+  const [itemList, sellerList, currency, tCategories, tCard, variantWidths] =
     await Promise.all([
       loadItems(mkt),
       loadSellers(mkt),
@@ -90,6 +90,9 @@ export default async function BrowsePage({
       // never a wrong symbol on an unconverted number.
       getServerCurrency(market),
       getTranslations({ locale, namespace: "categories" }),
+      // Same namespace the live card reads, so the seed's sold-out label is
+      // the identical string.
+      getTranslations({ locale, namespace: "browse.card" }),
       // Global hash → variant-widths lookup for the seed cards' responsive
       // srcset (live cards get theirs from /api/browse's `vw` field instead).
       loadVariantWidths(),
@@ -111,6 +114,7 @@ export default async function BrowsePage({
     currency: { symbol: currency.symbol, rate: currency.rate },
     translateCategory,
     variantWidths: (hash) => variantWidths[hash],
+    soldOutLabel: tCard("soldOut"),
   });
 
   // Items are NOT inlined into the RSC payload — that costs ~900KB of flight

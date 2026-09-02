@@ -366,6 +366,7 @@
       }
     },
     "whatsNewSection": {
+      "soldOut": "Sold out",
       "eyebrow": "Fresh activity",
       "heading": "Recently indexed items",
       "description": "See the latest or most recently updated items on Little Biggy.",
@@ -607,6 +608,7 @@
       "maximum": "Maximum price"
     },
     "card": {
+      "soldOut": "Sold out",
       "lowConfidence": "Uncertain category ({percent}% confidence)",
       "lowConfidenceAria": "Low categorization confidence: {percent}%",
       "preview": "Preview {item}",
@@ -691,6 +693,7 @@
         "addedToBasket": "Added {variant} to basket",
         "removedFromBasket": "Removed {variant} from basket",
         "removeFromBasket": "Remove from basket",
+        "soldOut": "Sold out",
         "bestValue": "Best value",
         "pricePerUnit": "Price per {unit}",
         "unit": "unit",
@@ -761,6 +764,7 @@
       "avgDelivery": "{days} days avg delivery",
       "attributes": "Attributes",
       "variants": "Variants",
+      "soldOut": "Sold out",
       "bestValue": "Best value",
       "shipping": "Shipping",
       "free": "Free",

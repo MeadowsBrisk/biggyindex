@@ -1,5 +1,5 @@
 import { shipFromCode } from "@/lib/shipFrom";
-import type { Item } from "@/lib/types";
+import type { Item, ItemVariant } from "@/lib/types";
 import {
   groupByQuantity,
   groupByWeight,
@@ -29,6 +29,60 @@ export interface ItemBrowseMeta {
 }
 
 export type ItemIndex = Map<string, ItemBrowseMeta>;
+
+/**
+ * Sellers park out-of-stock listings by repricing every variant to a
+ * placeholder amount. Matched exactly: genuine listings at or above it exist.
+ */
+const SENTINEL_USD_VALUES = [999, 999.99];
+
+/** True when a USD amount is an out-of-stock placeholder rather than a price. */
+export function isSentinelPrice(usd: number | null | undefined): boolean {
+  return usd === 999 || usd === 999.99;
+}
+
+/** Parked out of stock: the crawler's `so` stamp, else every variant is a placeholder. */
+export function isSoldOut(
+  item: Pick<Item, "so" | "v"> | null | undefined,
+): boolean {
+  if (!item) return false;
+  if (item.so === 1) return true;
+
+  let priced = 0;
+  for (const variant of item.v ?? []) {
+    if (typeof variant.usd !== "number" || !Number.isFinite(variant.usd)) {
+      continue;
+    }
+    priced++;
+    if (!isSentinelPrice(variant.usd)) return false;
+  }
+  return priced > 0;
+}
+
+/** True when a single variant is parked out of stock. */
+export function isVariantSoldOut(
+  variant: Pick<ItemVariant, "so" | "usd"> | null | undefined,
+): boolean {
+  if (!variant) return false;
+  return variant.so === 1 || isSentinelPrice(variant.usd);
+}
+
+/** A history snapshot taken while the listing was parked (older history still holds these). */
+export function isSoldOutSnapshot(
+  snapshot: { min: number; max: number } | null | undefined,
+): boolean {
+  if (!snapshot) return false;
+  return isSentinelPrice(snapshot.min) && isSentinelPrice(snapshot.max);
+}
+
+/** Price history with parked-listing snapshots removed. */
+export function realPriceHistory<T extends { min: number; max: number }>(
+  history: T[] | null | undefined,
+): T[] {
+  return (history ?? []).filter((snapshot) => !isSoldOutSnapshot(snapshot));
+}
+
+export { SENTINEL_USD_VALUES };
 
 const WEIGHT_BUCKETS = [1, 2, 3.5, 5, 7, 10, 14, 28, 56, 112] as const;
 
@@ -90,7 +144,9 @@ function buildItemBrowseMeta(item: Item): ItemBrowseMeta {
     if (parsed?.grams == null || parsed.grams <= 0) continue;
 
     weightBuckets.add(bucketGrams(parsed.grams));
-    if (variant.usd > 0) {
+    // Placeholder-priced variants carry no per-gram signal — including them
+    // would rank a parked listing as though it cost hundreds per gram.
+    if (variant.usd > 0 && !isVariantSoldOut(variant)) {
       ppgVariants.push({ grams: parsed.grams, usd: variant.usd });
     }
   }

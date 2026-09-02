@@ -366,6 +366,7 @@
       }
     },
     "whatsNewSection": {
+      "soldOut": "Esaurito",
       "eyebrow": "Attività recente",
       "heading": "Elementi recentemente indicizzati",
       "description": "Consulta gli articoli più recenti o aggiornati su Little Biggy.",
@@ -607,6 +608,7 @@
       "maximum": "Prezzo massimo"
     },
     "card": {
+      "soldOut": "Esaurito",
       "lowConfidence": "Categoria incerta ({percent}% di fiducia)",
       "lowConfidenceAria": "Bassa fiducia nella categorizzazione: {percent}%",
       "preview": "Anteprima {item}",
@@ -691,6 +693,7 @@
         "addedToBasket": "{variant} aggiunto al cestino",
         "removedFromBasket": "{variant} rimosso dal cestino",
         "removeFromBasket": "Rimuovi dal cestino",
+        "soldOut": "Esaurito",
         "bestValue": "Miglior rapporto qualità-prezzo",
         "pricePerUnit": "Prezzo per {unit}",
         "unit": "Unità",
@@ -761,6 +764,7 @@
       "avgDelivery": "{days} giorni di consegna media",
       "attributes": "Attributi",
       "variants": "Varianti",
+      "soldOut": "Esaurito",
       "bestValue": "Miglior rapporto qualità-prezzo",
       "shipping": "Spedizione",
       "free": "Gratis",

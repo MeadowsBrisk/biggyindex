@@ -15,7 +15,7 @@ import {
   buildBrowseResults,
   buildBrowseSnapshot,
 } from "@/lib/browse/filter-engine";
-import { buildItemIndex } from "@/lib/browse/item-index";
+import { buildItemIndex, isSoldOut } from "@/lib/browse/item-index";
 import type { OutboundEvent } from "@/lib/tracking/outbound";
 import type {
   HomeFeedReview,
@@ -270,6 +270,9 @@ export const priceBoundsAtom = atom<{ min: number; max: number }>((get) => {
   let lo = Infinity;
   let hi = 0;
   for (const it of items) {
+    // Parked listings carry a placeholder, not a price — letting one set the
+    // slider ceiling would stretch the whole range around a fake value.
+    if (isSoldOut(it)) continue;
     if (typeof it.uMin === "number" && it.uMin > 0) lo = Math.min(lo, it.uMin);
     if (typeof it.uMax === "number") hi = Math.max(hi, it.uMax);
     else if (typeof it.uMin === "number") hi = Math.max(hi, it.uMin);

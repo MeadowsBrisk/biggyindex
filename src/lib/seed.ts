@@ -1,3 +1,4 @@
+import { isSoldOut } from "./browse/item-index";
 import { getItemPrimaryHash, isItemPrimaryAnimated } from "./images";
 import type { Item } from "./types";
 
@@ -44,6 +45,11 @@ export interface SeedItem {
    * Absent for legacy / animated / no-variant images → plain `thumb.avif` src.
    */
   vw?: number[];
+  /**
+   * Parked out of stock. `p` then carries the sold-out label instead of a
+   * price, and the seed card renders it in the status-pill idiom.
+   */
+  so?: 1;
 }
 
 /**
@@ -80,6 +86,11 @@ export interface BuildSeedOptions {
    * srcset. Omitted → seeds render the plain `thumb.avif`.
    */
   variantWidths?: (hash: string) => number[] | undefined;
+  /**
+   * Localized "Sold out" label. Parked listings carry it in place of a price,
+   * matching the live card. Omitted → parked listings render no price text.
+   */
+  soldOutLabel?: string;
 }
 
 /**
@@ -98,7 +109,13 @@ export function buildSeedItems(
   items: Item[],
   opts: BuildSeedOptions,
 ): SeedItem[] {
-  const { count = 36, currency, translateCategory, variantWidths } = opts;
+  const {
+    count = 36,
+    currency,
+    translateCategory,
+    variantWidths,
+    soldOutLabel,
+  } = opts;
   const { symbol, rate } = currency;
   return [...items]
     .sort((a, b) => (b.h ?? 0) - (a.h ?? 0))
@@ -112,6 +129,9 @@ export function buildSeedItems(
         ? undefined
         : getItemPrimaryHash(item);
       const vw = primaryHash ? variantWidths?.(primaryHash) : undefined;
+      // A parked listing's bounds are placeholders — the seed shows the
+      // sold-out label where the price would be, same as the live card.
+      const soldOut = isSoldOut(item);
       return {
         id: item.id,
         refNum: item.refNum,
@@ -123,10 +143,13 @@ export function buildSeedItems(
         ih: item.ih,
         ia: item.ia,
         sn: item.sn,
-        p: fmtSeedPrice(item.uMin, item.uMax, symbol, rate),
+        p: soldOut
+          ? (soldOutLabel ?? null)
+          : fmtSeedPrice(item.uMin, item.uMax, symbol, rate),
         ra: hasRating ? avg : null,
         rc: hasRating ? (item.rs?.cnt ?? null) : null,
         vw: vw?.length ? vw : undefined,
+        so: soldOut ? (1 as const) : undefined,
       };
     });
 }

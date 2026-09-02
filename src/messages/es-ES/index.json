@@ -366,6 +366,7 @@
       }
     },
     "whatsNewSection": {
+      "soldOut": "Agotado",
       "eyebrow": "Actividad reciente",
       "heading": "Elementos indexados recientemente",
       "description": "Consulta los artículos más recientes o actualizados en Little Biggy.",
@@ -607,6 +608,7 @@
       "maximum": "Precio máximo"
     },
     "card": {
+      "soldOut": "Agotado",
       "lowConfidence": "Categoría incierta ({percent}% de confianza)",
       "lowConfidenceAria": "Baja confianza en la categorización: {percent}%",
       "preview": "Vista previa {item}",
@@ -691,6 +693,7 @@
         "addedToBasket": "Añadido {variant} a la cesta",
         "removedFromBasket": "Eliminado {variant} de la cesta",
         "removeFromBasket": "Quitar de la cesta",
+        "soldOut": "Agotado",
         "bestValue": "Mejor relación calidad-precio",
         "pricePerUnit": "Precio por {unit}",
         "unit": "Unidad",
@@ -761,6 +764,7 @@
       "avgDelivery": "{days} días de media de entrega",
       "attributes": "Atributos",
       "variants": "Variantes",
+      "soldOut": "Agotado",
       "bestValue": "Mejor relación calidad-precio",
       "shipping": "Envío",
       "free": "Gratis",

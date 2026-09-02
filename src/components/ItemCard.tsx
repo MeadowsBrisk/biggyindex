@@ -29,7 +29,11 @@ import { Tooltip } from "@/components/Tooltip";
 import { useEntryAnimation } from "@/hooks/useEntryAnimation";
 import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import { cancelScrollCheck, scheduleScrollCheck } from "@/lib/batchScrollCheck";
-import { getItemBrowseMeta, type ItemIndex } from "@/lib/browse/item-index";
+import {
+  getItemBrowseMeta,
+  type ItemIndex,
+  isSoldOut,
+} from "@/lib/browse/item-index";
 import { MARKETS } from "@/lib/constants";
 import { decodeEntities, formatDateTime } from "@/lib/format";
 import {
@@ -291,6 +295,10 @@ function ItemCardInner({
   const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
   const t = useTranslations("browse.card");
   const locale = useLocale();
+  // Parked out of stock: the listing's amounts are placeholders, so the card
+  // shows a status pill where the price would go and drops every
+  // price-derived figure (per-unit, variant pill prices).
+  const soldOut = isSoldOut(item);
   const seller =
     item.sid != null ? sellersMap.get(String(item.sid)) : undefined;
   const sellerAvatarUrl = getSellerImageUrl(seller?.imageUrl);
@@ -1173,7 +1181,7 @@ function ItemCardInner({
                             onClick={(e) => handleStrainClick(e, strain)}
                           >
                             {decodeEntities(strain)}
-                            {strainUsd != null && (
+                            {strainUsd != null && !soldOut && (
                               <span className="card-pill--strain__price">
                                 {cSym}
                                 {(strainUsd * cRate).toFixed(0)}
@@ -1226,13 +1234,15 @@ function ItemCardInner({
                                 ? decodeEntities(wg.originalLabel)
                                 : formatWeight(wg.grams)}
                             </span>
-                            <span className="variant-size-btn__price">
-                              {strainPrice != null
-                                ? `${cSym}${(strainPrice * cRate).toFixed(2)}`
-                                : hasRange
-                                  ? `${cSym}${(wg.price * cRate).toFixed(0)} – ${cSym}${(wg.priceMax * cRate).toFixed(0)}`
-                                  : `${cSym}${(wg.price * cRate).toFixed(2)}`}
-                            </span>
+                            {!soldOut && (
+                              <span className="variant-size-btn__price">
+                                {strainPrice != null
+                                  ? `${cSym}${(strainPrice * cRate).toFixed(2)}`
+                                  : hasRange
+                                    ? `${cSym}${(wg.price * cRate).toFixed(0)} – ${cSym}${(wg.priceMax * cRate).toFixed(0)}`
+                                    : `${cSym}${(wg.price * cRate).toFixed(2)}`}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -1274,13 +1284,15 @@ function ItemCardInner({
                             <span className="variant-size-btn__size">
                               {decodeEntities(qg.originalLabel || qg.label)}
                             </span>
-                            <span className="variant-size-btn__price">
-                              {strainPrice != null
-                                ? `${cSym}${(strainPrice * cRate).toFixed(2)}`
-                                : hasRange
-                                  ? `${cSym}${(qg.price * cRate).toFixed(0)} – ${cSym}${(qg.priceMax * cRate).toFixed(0)}`
-                                  : `${cSym}${(qg.price * cRate).toFixed(2)}`}
-                            </span>
+                            {!soldOut && (
+                              <span className="variant-size-btn__price">
+                                {strainPrice != null
+                                  ? `${cSym}${(strainPrice * cRate).toFixed(2)}`
+                                  : hasRange
+                                    ? `${cSym}${(qg.price * cRate).toFixed(0)} – ${cSym}${(qg.priceMax * cRate).toFixed(0)}`
+                                    : `${cSym}${(qg.price * cRate).toFixed(2)}`}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -1349,38 +1361,46 @@ function ItemCardInner({
             {/* Price area */}
             <div className="card-price-area">
               <div className="card-price-row">
-                <span
-                  className={`${priceIsRange ? "card-price-main card-price-main--range" : "card-price-main"}${shipSurcharge > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
-                >
-                  {exactPrice != null
-                    ? `${cSym}${((exactPrice + shipSurcharge) * cRate).toFixed(2)}`
-                    : fmtPrice(
-                        displayPrice != null
-                          ? displayPrice + shipSurcharge
-                          : displayPrice,
-                        displayPriceMax != null
-                          ? displayPriceMax + shipSurcharge
-                          : displayPriceMax,
-                        cSym,
-                        cRate,
+                {soldOut ? (
+                  <span className="seller-card__badge seller-card__badge--soldout">
+                    {t("soldOut")}
+                  </span>
+                ) : (
+                  <>
+                    <span
+                      className={`${priceIsRange ? "card-price-main card-price-main--range" : "card-price-main"}${shipSurcharge > 0 ? " text-amber-600 dark:text-amber-400" : ""}`}
+                    >
+                      {exactPrice != null
+                        ? `${cSym}${((exactPrice + shipSurcharge) * cRate).toFixed(2)}`
+                        : fmtPrice(
+                            displayPrice != null
+                              ? displayPrice + shipSurcharge
+                              : displayPrice,
+                            displayPriceMax != null
+                              ? displayPriceMax + shipSurcharge
+                              : displayPriceMax,
+                            cSym,
+                            cRate,
+                          )}
+                      {shipSurcharge > 0 && (
+                        <Truck
+                          size={11}
+                          className="inline ml-1 -mt-0.5 opacity-70"
+                        />
                       )}
-                  {shipSurcharge > 0 && (
-                    <Truck
-                      size={11}
-                      className="inline ml-1 -mt-0.5 opacity-70"
-                    />
-                  )}
-                </span>
-                {ppu != null && (
-                  <span className="card-price-ppg">
-                    {ppu.valueMax != null
-                      ? /* PPU is inverted vs total price (bulk = lower /unit).
+                    </span>
+                    {ppu != null && (
+                      <span className="card-price-ppg">
+                        {ppu.valueMax != null
+                          ? /* PPU is inverted vs total price (bulk = lower /unit).
                            Render max→min so it visually aligns with the price
                            range above (cheap-total ↔ highest-ppu on the left). */
-                        `${cSym}${(ppu.valueMax * cRate).toFixed(2)} – ${cSym}${(ppu.value * cRate).toFixed(2)}`
-                      : `${cSym}${(ppu.value * cRate).toFixed(2)}`}
-                    /{UNIT_DISPLAY_LABEL[ppu.unit] ?? ppu.unit}
-                  </span>
+                            `${cSym}${(ppu.valueMax * cRate).toFixed(2)} – ${cSym}${(ppu.value * cRate).toFixed(2)}`
+                          : `${cSym}${(ppu.value * cRate).toFixed(2)}`}
+                        /{UNIT_DISPLAY_LABEL[ppu.unit] ?? ppu.unit}
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
             </div>

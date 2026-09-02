@@ -1,5 +1,9 @@
 import type { ItemIndex } from "@/lib/browse/item-index";
-import { bucketGrams, getItemBrowseMeta } from "@/lib/browse/item-index";
+import {
+  bucketGrams,
+  getItemBrowseMeta,
+  isSoldOut,
+} from "@/lib/browse/item-index";
 import { shipFromLabel } from "@/lib/shipFrom";
 import type { Item, SortDir, SortKey } from "@/lib/types";
 
@@ -171,6 +175,8 @@ function applyFilters(
   const weightsSet = weights.length > 0 ? new Set(weights) : null;
   const hiddenSellersSet =
     filters.hiddenSellers.length > 0 ? new Set(filters.hiddenSellers) : null;
+  const priceRangeActive =
+    filters.priceRange.min > 0 || Number.isFinite(filters.priceRange.max);
 
   return items.filter((item) => {
     const meta = getItemBrowseMeta(itemIndex, item);
@@ -207,11 +213,18 @@ function applyFilters(
     if (sellersSet && !sellersSet.has(meta.sellerId)) return false;
     if (hiddenSellersSet?.has(meta.sellerId)) return false;
 
-    if (typeof item.uMin === "number" && item.uMin > filters.priceRange.max) {
-      return false;
-    }
-    if (typeof item.uMax === "number" && item.uMax < filters.priceRange.min) {
-      return false;
+    // A parked listing has no price, only a placeholder. It stays browsable
+    // (it is still on the wall) but must never satisfy a price-range query
+    // through that placeholder, so an active range excludes it outright.
+    if (isSoldOut(item)) {
+      if (priceRangeActive) return false;
+    } else {
+      if (typeof item.uMin === "number" && item.uMin > filters.priceRange.max) {
+        return false;
+      }
+      if (typeof item.uMax === "number" && item.uMax < filters.priceRange.min) {
+        return false;
+      }
     }
 
     if (shipIncludeSet && !shipIncludeSet.has(meta.shipFrom)) return false;
@@ -294,12 +307,23 @@ function sortItems(
           latestActivityAt(second),
         );
         break;
-      case "price":
+      case "price": {
+        // Parked listings carry a placeholder instead of a price, so they
+        // sort last in BOTH directions rather than leading a cheap-first
+        // list or topping an expensive-first one.
+        const firstOut = isSoldOut(first);
+        const secondOut = isSoldOut(second);
+        if (firstOut !== secondOut) return firstOut ? 1 : -1;
+        if (firstOut && secondOut) {
+          comparison = 0;
+          break;
+        }
         comparison =
           (first.uMin ?? 0) +
           itemShipCost(first, includeShipping) -
           ((second.uMin ?? 0) + itemShipCost(second, includeShipping));
         break;
+      }
       case "ppg": {
         const firstPpg = cheapestPpg(
           first,
@@ -344,6 +368,8 @@ function cheapestPpg(
   itemIndex?: ItemIndex,
   selectedWeightBuckets?: Set<number> | null,
 ): number {
+  if (isSoldOut(item)) return Infinity;
+
   const meta = getItemBrowseMeta(itemIndex, item);
   if (meta.ppgVariants.length === 0) return Infinity;
 

@@ -25,8 +25,11 @@ import type { Swiper as SwiperInstance } from "swiper/types";
 import type { WhatsNewCarouselSlide } from "@/components/home/WhatsNewCarousel";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
+import type { ServerCurrency } from "@/lib/market/currency";
 import {
   currencyDisplayAtom,
+  displayCurrencyOverrideAtom,
+  exchangeRatesAtom,
   expandedRefNumAtom,
   sellerModalIdAtom,
 } from "@/store/atoms";
@@ -52,6 +55,8 @@ interface NewItem {
   images?: string[] | null;
   priceMin?: number | null;
   priceMax?: number | null;
+  /** Parked out of stock — the bounds are placeholders, not prices */
+  soldOut?: boolean;
   seller?: string | null;
   sellerId?: number | null;
   sellerImageUrl?: string | null;
@@ -65,6 +70,8 @@ interface WhatsNewSectionProps {
   newest: NewItem[];
   recentlyUpdated: NewItem[];
   now: number;
+  /** Market currency resolved on the server, so SSR prices are already local. */
+  currency: ServerCurrency;
 }
 
 type Tab = "newest" | "updated";
@@ -87,6 +94,7 @@ interface TimeAgoCopy {
 
 interface HomeItemCardCopy {
   priceUnavailable: string;
+  soldOut: string;
   unknownSeller: string;
   viewSeller: (seller: string) => string;
   alternateImageAlt: (item: string) => string;
@@ -96,8 +104,8 @@ interface HomeItemCardCopy {
 function formatPrice(
   min?: number | null,
   max?: number | null,
-  symbol = "\u00A3",
-  rate = 0.79,
+  symbol = "$",
+  rate = 1,
   unavailableLabel = "N/A",
 ): string {
   if (min == null) return unavailableLabel;
@@ -356,15 +364,21 @@ function HomeItemCard({
             {/* Price */}
             <div className="card-price-area mt-2">
               <div className="card-price-row">
-                <span className="card-price-main text-base!">
-                  {formatPrice(
-                    item.priceMin,
-                    item.priceMax,
-                    currencySymbol,
-                    exchangeRate,
-                    copy.priceUnavailable,
-                  )}
-                </span>
+                {item.soldOut ? (
+                  <span className="seller-card__badge seller-card__badge--soldout">
+                    {copy.soldOut}
+                  </span>
+                ) : (
+                  <span className="card-price-main text-base!">
+                    {formatPrice(
+                      item.priceMin,
+                      item.priceMax,
+                      currencySymbol,
+                      exchangeRate,
+                      copy.priceUnavailable,
+                    )}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -401,26 +415,45 @@ function HomeItemCard({
   );
 }
 
+/**
+ * Display currency for the cards: the server-resolved one until an explicit
+ * user choice has a loaded rate. The first client render must match the SSR
+ * values, and the atom reports rate 1 until rates arrive.
+ */
+function useDisplayCurrency(server: ServerCurrency): {
+  symbol: string;
+  rate: number;
+} {
+  const chosen = useAtomValue(currencyDisplayAtom);
+  const override = useAtomValue(displayCurrencyOverrideAtom);
+  const rates = useAtomValue(exchangeRatesAtom);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted || override == null || override === server.code) return server;
+  const overrideRate = rates[override];
+  const rateReady =
+    override === "USD" ||
+    (typeof overrideRate === "number" && overrideRate > 0);
+  return rateReady ? chosen : server;
+}
+
 export function WhatsNewSection({
   newest,
   recentlyUpdated,
   now,
+  currency,
 }: WhatsNewSectionProps) {
   const t = useTranslations("home.whatsNewSection");
   const [activeTab, setActiveTab] = useState<Tab>("newest");
-  const { symbol, rate } = useAtomValue(currencyDisplayAtom);
-
-  // Two-pass render: the first render must match SSR output (exchangeRates
-  // starts empty → rate 1) or hydration mismatches. Real rate after mount.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const currencySymbol = mounted ? symbol : "\u00A3";
-  const exchangeRate = mounted ? rate : 1;
+  const { symbol: currencySymbol, rate: exchangeRate } =
+    useDisplayCurrency(currency);
 
   const items = activeTab === "newest" ? newest : recentlyUpdated;
   const itemCardCopy: HomeItemCardCopy = useMemo(
     () => ({
       priceUnavailable: t("priceUnavailable"),
+      soldOut: t("soldOut"),
       unknownSeller: t("unknownSeller"),
       viewSeller: (seller) => t("viewSeller", { seller }),
       alternateImageAlt: (item) => t("alternateImageAlt", { item }),

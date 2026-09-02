@@ -13,7 +13,7 @@ import { Heart, Package, Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
-import { getItemBrowseMeta } from "@/lib/browse/item-index";
+import { getItemBrowseMeta, isSoldOut } from "@/lib/browse/item-index";
 import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
@@ -84,6 +84,8 @@ export function ItemRow({
       ? item.sh.min
       : 0;
   const bestPpu = cheapestPpu(item.v, shipSurcharge, itemVariantContext(item));
+  // Parked out of stock — a status pill stands in for the price and per-unit.
+  const soldOut = isSoldOut(item);
 
   // Compact freshness line under the price — the updated age when the crawler
   // saw a real change, else the listed age. One line only (the row is too
@@ -180,15 +182,23 @@ export function ItemRow({
           )}
         </span>
         <span className="irow-price">
-          <span className="irow-price-main">
-            {fmtPrice(item.uMin, item.uMax, cSym, cRate)}
-          </span>
-          {bestPpu && (
-            <span className="irow-ppu">
-              {cSym}
-              {(bestPpu.ppu * cRate).toFixed(2)}/
-              {UNIT_DISPLAY_LABEL[bestPpu.unit] ?? bestPpu.unit}
+          {soldOut ? (
+            <span className="seller-card__badge seller-card__badge--soldout">
+              {t("soldOut")}
             </span>
+          ) : (
+            <>
+              <span className="irow-price-main">
+                {fmtPrice(item.uMin, item.uMax, cSym, cRate)}
+              </span>
+              {bestPpu && (
+                <span className="irow-ppu">
+                  {cSym}
+                  {(bestPpu.ppu * cRate).toFixed(2)}/
+                  {UNIT_DISPLAY_LABEL[bestPpu.unit] ?? bestPpu.unit}
+                </span>
+              )}
+            </>
           )}
           {rowAge && (
             <span

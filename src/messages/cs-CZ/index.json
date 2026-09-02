@@ -366,6 +366,7 @@
       }
     },
     "whatsNewSection": {
+      "soldOut": "Vyprodáno",
       "eyebrow": "Nová aktivita",
       "heading": "Nedávno indexované položky",
       "description": "Podívejte se na nejnovější nebo naposledy aktualizované položky na Little Biggy.",
@@ -607,6 +608,7 @@
       "maximum": "Maximální cena"
     },
     "card": {
+      "soldOut": "Vyprodáno",
       "lowConfidence": "Nejistá kategorie ({percent}% jistota)",
       "lowConfidenceAria": "Nízká kategorizace sebevědomí: {percent} %",
       "preview": "Náhled {item}",
@@ -691,6 +693,7 @@
         "addedToBasket": "{variant} přidáno do košíku",
         "removedFromBasket": "{variant} odebráno z košíku",
         "removeFromBasket": "Odebrat z košíku",
+        "soldOut": "Vyprodáno",
         "bestValue": "Nejlepší poměr cena/výkon",
         "pricePerUnit": "Cena za {unit}",
         "unit": "Jednotka",
@@ -761,6 +764,7 @@
       "avgDelivery": "{days} dní průměrné doručení",
       "attributes": "Atributy",
       "variants": "Varianty",
+      "soldOut": "Vyprodáno",
       "bestValue": "Nejlepší poměr cena/výkon",
       "shipping": "Doprava",
       "free": "Zdarma",

@@ -11,8 +11,10 @@ import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
 import { WhatsNewSection } from "@/components/home/WhatsNewSection";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
+import { isSentinelPrice } from "@/lib/browse/item-index";
 import { loadHomeFeed } from "@/lib/data";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
+import { getServerCurrency } from "@/lib/market/currency";
 import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
 import { serializeJsonLd } from "@/lib/seo/jsonld";
 import { marketBaseUrl, pageMetadata } from "@/lib/seo/metadata";
@@ -47,6 +49,11 @@ function toNewItem(item: HomeFeedItemCard, dateField: "fsa" | "lua") {
     images: gallery.length > 0 ? gallery : null,
     priceMin: item.uMin ?? null,
     priceMax: item.uMax ?? null,
+    // Home cards carry bounds but no variants, so the placeholder check falls
+    // back to the bounds themselves when the crawler stamp is absent.
+    soldOut:
+      item.so === 1 ||
+      (isSentinelPrice(item.uMin) && isSentinelPrice(item.uMax)),
     seller: item.sn ?? null,
     sellerId: item.sid ?? null,
     sellerImageUrl: getSellerImageUrl(item.si) ?? null,
@@ -68,7 +75,14 @@ export default async function HomePage({
 
   const { locale } = await params;
   const market = localeToMarket(locale);
-  const feed = await loadHomeFeed(market.toLowerCase());
+  const [feed, currency] = await Promise.all([
+    loadHomeFeed(market.toLowerCase()),
+    // Stored prices are USD. Converting here — not after hydration — is what
+    // puts local amounts in the HTML this page is cached and crawled as.
+    // Rates cache with the page; an approximate rate beats a USD number
+    // wearing a local symbol if the lookup is down.
+    getServerCurrency(market, { approximateFallback: true }),
+  ]);
 
   if (!feed) {
     return (
@@ -157,6 +171,7 @@ export default async function HomePage({
         newest={feed.whatsNew.newest.map((i) => toNewItem(i, "fsa"))}
         recentlyUpdated={feed.whatsNew.updated.map((i) => toNewItem(i, "lua"))}
         now={timeReference}
+        currency={currency}
       />
 
       <SellerTrustBoard
