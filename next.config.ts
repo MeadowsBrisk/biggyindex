@@ -51,9 +51,11 @@ const nextConfig: NextConfig = {
      */
     status: { stale: 60, revalidate: 300, expire: 3600 },
   },
-  images: {
-    remotePatterns: [{ hostname: "img.biggyindex.com" }],
-  },
+  // Nothing imports next/image — every image is a plain <img> off the images
+  // CDN, already served pre-optimised in AVIF/WebP at fixed variant widths.
+  // Keeping the optimiser enabled would leave /_next/image open as a
+  // remote-fetch endpoint for no benefit.
+  images: { unoptimized: true },
   // v1 → v2 redirect map. Host-relative, so each market subdomain redirects
   // its own legacy paths. Runs before the next-intl middleware.
   async redirects() {

@@ -58,6 +58,17 @@ const GRID_ITEM_LIMIT = 96;
 const JSONLD_ITEM_LIMIT = 50;
 /** Subcategory names surfaced as plain text (NOT links — ?sub= is robots-blocked). */
 const SUBCATEGORY_LIMIT = 8;
+/**
+ * Categories that get the /prices cross-link. Only cannabis sold by weight
+ * belongs here: /prices quotes per-gram medians, which say nothing useful
+ * about edibles (the food's mass), vapes (per device) or distillate (per ml).
+ */
+const PRICE_NOTE_SLUGS = new Set<string>([
+  "flower",
+  "shake",
+  "hash",
+  "concentrates",
+]);
 
 /**
  * Per-category item counts for metadata titles. Cached with the same profile
@@ -320,6 +331,21 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <p className="mt-4 text-sm leading-relaxed text-muted">
             {t(`intro.${canonicalSlug}`)}
           </p>
+          {PRICE_NOTE_SLUGS.has(canonicalSlug) && (
+            <p className="mt-4 text-sm leading-relaxed text-muted">
+              {t.rich(`priceNote.${canonicalSlug}`, {
+                link: (chunks) => (
+                  <Link
+                    href="/prices"
+                    prefetch={false}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
+          )}
           {topSubcategories.length > 0 && (
             <p className="mt-4 text-sm text-muted">
               <span className="font-semibold text-foreground">

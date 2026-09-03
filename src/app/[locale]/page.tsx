@@ -12,13 +12,16 @@ import { WhatsNewSection } from "@/components/home/WhatsNewSection";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 import { isSentinelPrice } from "@/lib/browse/item-index";
-import { loadHomeFeed } from "@/lib/data";
+import { loadHomeFeed, loadSellers } from "@/lib/data";
+import { HOME_FAQ_KEYS, HOME_FAQ_TABS } from "@/lib/home-faq";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
-import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
-import { serializeJsonLd } from "@/lib/seo/jsonld";
+import { localeToMarket } from "@/lib/market/market";
+import { countActiveSellers } from "@/lib/sellers";
+import { faqPageJsonLd, serializeJsonLd } from "@/lib/seo/jsonld";
 import { marketBaseUrl, pageMetadata } from "@/lib/seo/metadata";
 import type { HomeFeedItemCard } from "@/lib/types";
+import { GITHUB_REPO_URL } from "@/lib/verify-links";
 
 export async function generateMetadata({
   params,
@@ -72,11 +75,17 @@ export default async function HomePage({
   "use cache";
   cacheLife("items");
   cacheTag("items");
+  // The hero's seller count reads sellers.json, so this render has to be
+  // invalidated when seller data moves, not only on an item crawl.
+  cacheTag("sellers");
 
   const { locale } = await params;
   const market = localeToMarket(locale);
-  const [feed, currency] = await Promise.all([
+  const [feed, sellerList, currency] = await Promise.all([
     loadHomeFeed(market.toLowerCase()),
+    // Same source and same rule as /sellers, so the two pages cannot quote
+    // different active-seller counts for one market.
+    loadSellers(market.toLowerCase()),
     // Stored prices are USD. Converting here — not after hydration — is what
     // puts local amounts in the HTML this page is cached and crawled as.
     // Rates cache with the page; an approximate rate beats a USD number
@@ -103,9 +112,16 @@ export default async function HomePage({
   const feedBuiltAt = Date.parse(feed.builtAt);
   const timeReference = Number.isFinite(feedBuiltAt) ? feedBuiltAt : 0;
 
-  // WebSite + Organization structured data. sameAs links the other
-  // market editions of the same organization.
+  // WebSite + Organization structured data.
   const baseUrl = marketBaseUrl(market);
+  // sameAs takes absolute profile URLs, so the optional Telegram channel is
+  // only carried when the env var holds one — a bare handle is skipped
+  // rather than emitted as a broken link.
+  const telegramUrl = process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL;
+  const externalProfiles = [
+    GITHUB_REPO_URL,
+    ...(telegramUrl && /^https?:\/\//.test(telegramUrl) ? [telegramUrl] : []),
+  ];
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -125,10 +141,31 @@ export default async function HomePage({
       "@type": "AboutPage",
       url: `${baseUrl}/about`,
     },
-    sameAs: ALL_MARKETS.filter((m) => m !== market).map(
-      (m) => `${marketBaseUrl(m)}/`,
-    ),
+    // Names people actually search for, including the common misspellings.
+    alternateName: [
+      "Biggy Index",
+      "Little Biggy Index",
+      "littlebiggy index",
+      "biggie index",
+    ],
+    // Profiles this project genuinely operates elsewhere, and nothing else.
+    // The other market editions are the same site under a different host —
+    // that relationship is what hreflang is for, not sameAs.
+    sameAs: externalProfiles,
   };
+
+  // FAQPage built from the same message keys <FaqSection> renders. The
+  // visible accordion is a client component behind a tab, so without this
+  // the answers exist in the DOM but carry no markup.
+  const tFaq = await getTranslations({ locale, namespace: "home.faq" });
+  const faqJsonLd = faqPageJsonLd(
+    HOME_FAQ_TABS.flatMap((tab) =>
+      HOME_FAQ_KEYS[tab].map((key) => ({
+        q: tFaq(`${tab}.items.${key}.q`),
+        a: tFaq(`${tab}.items.${key}.a`),
+      })),
+    ),
+  );
 
   return (
     <PageTransition>
@@ -141,6 +178,10 @@ export default async function HomePage({
         dangerouslySetInnerHTML={{
           __html: serializeJsonLd(organizationJsonLd),
         }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
       />
       {/* Deliberately NO <Suspense> around the home sections. Under
           cacheComponents React outlines every Suspense boundary in the
@@ -163,7 +204,7 @@ export default async function HomePage({
 
       <HeroSection
         totalItems={feed.hero.totalItems}
-        totalSellers={feed.hero.totalSellers}
+        totalSellers={countActiveSellers(sellerList)}
         categoryCounts={categoryCounts}
       />
 

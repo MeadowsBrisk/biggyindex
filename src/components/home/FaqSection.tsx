@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
+import { HOME_FAQ_KEYS, HOME_FAQ_TABS, type HomeFaqTab } from "@/lib/home-faq";
 import { VERIFY_LINKS } from "@/lib/verify-links";
 
 interface FaqItem {
@@ -27,52 +28,28 @@ interface FaqItem {
  */
 const VERIFY_LINKS_FAQ_KEY = "realSite";
 
-type Tab = "about" | "bitcoin";
-
-const TABS: { key: Tab; labelKey: string }[] = [
-  { key: "about", labelKey: "tabs.about" },
-  { key: "bitcoin", labelKey: "tabs.bitcoin" },
-];
-
-const FAQ_KEYS: Record<Tab, string[]> = {
-  about: [
-    "whatIs",
-    "sellOrShip",
-    "realSite",
-    "dataSource",
-    "refreshRate",
-    "timestamps",
-    "endorsements",
-  ],
-  bitcoin: [
-    "payments",
-    "buying",
-    "wallet",
-    "escrow",
-    "mistakes",
-    "clearnet",
-    "legality",
-  ],
-};
+const TABS: { key: HomeFaqTab; labelKey: string }[] = HOME_FAQ_TABS.map(
+  (key) => ({ key, labelKey: `tabs.${key}` }),
+);
 
 export function FaqSection() {
   const t = useTranslations("home.faq");
   // Link labels come from the shared verify namespace so the wording stays in
   // sync with the header popover, drawer, footer and status page.
   const tVerify = useTranslations("header.verify");
-  const [activeTab, setActiveTab] = useState<Tab>("about");
+  const [activeTab, setActiveTab] = useState<HomeFaqTab>("about");
   const [expanded, setExpanded] = useState<number | null>(null);
   const header = useRevealOnScroll<HTMLDivElement>();
   const list = useRevealOnScroll<HTMLDivElement>();
 
-  const faqs: FaqItem[] = FAQ_KEYS[activeTab].map((key) => ({
+  const faqs: FaqItem[] = HOME_FAQ_KEYS[activeTab].map((key) => ({
     id: key,
     q: t(`${activeTab}.items.${key}.q`),
     a: t(`${activeTab}.items.${key}.a`),
     withVerifyLinks: key === VERIFY_LINKS_FAQ_KEY,
   }));
 
-  const handleTabChange = (tab: Tab) => {
+  const handleTabChange = (tab: HomeFaqTab) => {
     setActiveTab(tab);
     setExpanded(null);
   };

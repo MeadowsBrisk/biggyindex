@@ -41,7 +41,10 @@ export function HeroStatusStrip() {
   useEffect(() => {
     let cancelled = false;
     const check = async () => {
-      const blob = await readR2JSON<StatusBlob>(R2Keys.status);
+      // A failed read is indistinguishable from "up" for this strip's purpose.
+      const blob = await readR2JSON<StatusBlob>(R2Keys.status).catch(
+        () => null,
+      );
       if (cancelled || !blob) return;
       if (blob.up !== false) return; // only an EXPLICIT down
       const checkedAt = Date.parse(String(blob.lastCheckedAt ?? ""));

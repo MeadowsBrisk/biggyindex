@@ -78,6 +78,16 @@ nav:
     el-GR: Περιήγηση
     cs-CZ: Procházet
     pl-PL: Przeglądaj
+  prices:
+    en-GB: Prices
+    de-DE: Preise
+    fr-FR: Prix
+    pt-PT: Preços
+    it-IT: Prezzi
+    es-ES: Precios
+    el-GR: Τιμές
+    cs-CZ: Ceny
+    pl-PL: Ceny
   reviews:
     en-GB: Reviews
     de-DE: Rezensionen
@@ -1607,6 +1617,16 @@ home:
         el-GR: Ενεργοί πωλητές
         cs-CZ: Aktivní prodejci
         pl-PL: Aktywni sprzedawcy
+      priceIndex:
+        en-GB: Price index
+        de-DE: Preisindex
+        fr-FR: Indice des prix
+        pt-PT: Índice de preços
+        it-IT: Indice dei prezzi
+        es-ES: Índice de precios
+        el-GR: Δείκτης τιμών
+        cs-CZ: Cenový index
+        pl-PL: Indeks cen
     cta:
       en-GB: Browse Marketplace
       de-DE: Marktplatz durchstöbern
@@ -2302,25 +2322,25 @@ home:
             pl-PL: Pierwszy raz zobaczony/utworzony oznacza, że crawler zaindeksował dany przedmiot po raz pierwszy. Może to obejmować pozycje, które były na LB przed pojawieniem się indeksera. Aktualizacja oznacza, że produkt został edytowany przez sprzedawcę lub że crawler wykrył zmianę (np. cenę, warianty, opis).
         endorsements:
           q:
-            en-GB: What are endorsements?
-            de-DE: Was sind Empfehlungen?
-            fr-FR: Qu’est-ce que les recommandations ?
-            pt-PT: O que são endossos?
-            it-IT: Cosa sono le sponsorizzazioni?
-            es-ES: ¿Qué son los endossos?
-            el-GR: Τι είναι οι εγκρίσεις;
-            cs-CZ: Co jsou to doporučení?
-            pl-PL: Czym są rekomendacje?
+            en-GB: What are seller endorsements and reports?
+            de-DE: Was sind Verkäufer-Empfehlungen und -Meldungen?
+            fr-FR: Que sont les recommandations et les signalements de vendeurs ?
+            pt-PT: O que são recomendações e denúncias de vendedores?
+            it-IT: Cosa sono le raccomandazioni e le segnalazioni sui venditori?
+            es-ES: ¿Qué son las recomendaciones y las denuncias de vendedores?
+            el-GR: Τι είναι οι συστάσεις και οι αναφορές για πωλητές;
+            cs-CZ: Co jsou doporučení a nahlášení prodejců?
+            pl-PL: Czym są polecenia i zgłoszenia sprzedawców?
           a:
-            en-GB: Community votes that highlight popular items without tracking you.
-            de-DE: Community-Abstimmungen, die beliebte Artikel hervorheben, ohne dich zu verfolgen.
-            fr-FR: Des votes communautaires qui mettent en avant les objets populaires sans vous suivre.
-            pt-PT: Votações da comunidade que destacam itens populares sem o acompanhar.
-            it-IT: Voti della community che evidenziano gli oggetti più popolari senza tracciarti.
-            es-ES: Votaciones de la comunidad que destacan objetos populares sin rastrearte.
-            el-GR: Ψήφοι κοινότητας που επισημαίνουν δημοφιλή στοιχεία χωρίς να σας παρακολουθούν.
-            cs-CZ: Komunitní hlasování, která zdůrazňují oblíbené položky, aniž by vás museli sledovat.
-            pl-PL: Głosowania społeczności, które podkreślają popularne przedmioty bez śledzenia Ciebie.
+            en-GB: "Feedback you can leave on a seller's profile: endorse one you had a good experience with, or report one you didn't. A human moderator checks every submission before it appears, and the totals sit on the seller's page beside their review stats."
+            de-DE: "Feedback, das Sie im Profil eines Verkäufers hinterlassen können: empfehlen Sie einen Verkäufer mit guter Erfahrung oder melden Sie einen mit schlechter. Ein menschlicher Moderator prüft jede Einreichung, bevor sie erscheint, und die Summen stehen auf der Verkäuferseite neben den Bewertungsstatistiken."
+            fr-FR: "Des retours que vous pouvez laisser sur la fiche d'un vendeur : recommandez celui avec qui l'expérience a été bonne, signalez celui avec qui elle ne l'a pas été. Un modérateur humain vérifie chaque envoi avant sa publication, et les totaux figurent sur la page du vendeur, à côté de ses statistiques d'avis."
+            pt-PT: "Feedback que pode deixar no perfil de um vendedor: recomende aquele com quem teve uma boa experiência ou denuncie aquele com quem não teve. Um moderador humano verifica cada submissão antes de aparecer, e os totais ficam na página do vendedor, ao lado das estatísticas de avaliações."
+            it-IT: "Feedback che puoi lasciare sul profilo di un venditore: raccomanda chi ti ha dato una buona esperienza o segnala chi no. Un moderatore umano controlla ogni invio prima che venga pubblicato, e i totali compaiono sulla pagina del venditore, accanto alle statistiche delle recensioni."
+            es-ES: "Opiniones que puedes dejar en el perfil de un vendedor: recomienda a aquel con quien tuviste una buena experiencia o denuncia a aquel con quien no. Un moderador humano revisa cada envío antes de publicarse, y los totales aparecen en la página del vendedor, junto a sus estadísticas de reseñas."
+            el-GR: "Σχόλια που μπορείτε να αφήσετε στο προφίλ ενός πωλητή: συστήστε όποιον σας εξυπηρέτησε καλά ή αναφέρετε όποιον όχι. Κάθε υποβολή ελέγχεται από άνθρωπο συντονιστή πριν εμφανιστεί, και τα σύνολα βρίσκονται στη σελίδα του πωλητή, δίπλα στα στατιστικά των κριτικών του."
+            cs-CZ: "Zpětná vazba, kterou můžete zanechat na profilu prodejce: doporučte toho, s nímž jste měli dobrou zkušenost, nebo nahlaste toho, s nímž ne. Každé odeslání před zveřejněním zkontroluje lidský moderátor a součty najdete na stránce prodejce vedle statistik recenzí."
+            pl-PL: "Opinie, które możesz zostawić w profilu sprzedawcy: poleć tego, z którym miałeś dobre doświadczenie, lub zgłoś tego, z którym nie. Każde zgłoszenie sprawdza moderator, zanim się pojawi, a sumy znajdują się na stronie sprzedawcy obok statystyk recenzji."
     bitcoin:
       items:
         payments:
@@ -2722,6 +2742,16 @@ home:
           el-GR: Υψηλότερη αναλογία θετικών κριτικών
           cs-CZ: Nejvyšší poměr pozitivních recenzí
           pl-PL: Najwyższy wskaźnik pozytywnych recenzji
+        empty:
+          en-GB: No seller in this market has enough reviews to rank yet.
+          de-DE: Kein Verkäufer in diesem Markt hat bisher genug Rezensionen für eine Platzierung.
+          fr-FR: Aucun vendeur de ce marché n'a encore assez d'avis pour être classé.
+          pt-PT: Nenhum vendedor deste mercado tem ainda avaliações suficientes para ser classificado.
+          it-IT: Nessun venditore di questo mercato ha ancora abbastanza recensioni per essere classificato.
+          es-ES: Ningún vendedor de este mercado tiene todavía suficientes reseñas para clasificarse.
+          el-GR: Κανένας πωλητής σε αυτή την αγορά δεν έχει ακόμη αρκετές κριτικές για κατάταξη.
+          cs-CZ: Žádný prodejce na tomto trhu zatím nemá dost recenzí, aby se umístil.
+          pl-PL: Żaden sprzedawca na tym rynku nie ma jeszcze dość recenzji, by trafić do rankingu.
       caution:
         title:
           en-GB: Needs Review
@@ -2743,6 +2773,16 @@ home:
           el-GR: Υψηλότερο ποσοστό αρνητικών κριτικών
           cs-CZ: Vyšší podíl negativních recenzí
           pl-PL: Wyższy odsetek negatywnych recenzji
+        empty:
+          en-GB: No seller in this market is carrying enough negative feedback to flag.
+          de-DE: Kein Verkäufer in diesem Markt hat genug negatives Feedback, um aufzufallen.
+          fr-FR: Aucun vendeur de ce marché n'accumule assez d'avis négatifs pour être signalé.
+          pt-PT: Nenhum vendedor deste mercado acumula avaliações negativas suficientes para ser assinalado.
+          it-IT: Nessun venditore di questo mercato accumula abbastanza recensioni negative da essere segnalato.
+          es-ES: Ningún vendedor de este mercado acumula suficientes reseñas negativas como para señalarlo.
+          el-GR: Κανένας πωλητής σε αυτή την αγορά δεν συγκεντρώνει αρκετά αρνητικά σχόλια ώστε να επισημανθεί.
+          cs-CZ: Žádný prodejce na tomto trhu nemá tolik negativní zpětné vazby, aby ho bylo třeba označit.
+          pl-PL: Żaden sprzedawca na tym rynku nie zebrał dość negatywnych opinii, by go oznaczyć.
       reviewsLabel:
         en-GB: Reviews
         de-DE: Rezensionen
@@ -8580,6 +8620,16 @@ notFound:
       el-GR: Όλοι οι πωλητές
       cs-CZ: Všichni prodejci
       pl-PL: Wszyscy sprzedawcy
+    prices:
+      en-GB: Price index
+      de-DE: Preisindex
+      fr-FR: Indice des prix
+      pt-PT: Índice de preços
+      it-IT: Indice dei prezzi
+      es-ES: Índice de precios
+      el-GR: Δείκτης τιμών
+      cs-CZ: Cenový index
+      pl-PL: Indeks cen
     home:
       en-GB: Back to home
       de-DE: Zurück zur Startseite
@@ -8759,15 +8809,15 @@ about:
         cs-CZ: "Co počítáme"
         pl-PL: "Co obliczamy"
       body:
-        en-GB: "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Review stats — ratings and delivery times aggregated from the public reviews on each listing.\n• Seller feedback — endorsements and reports submitted by BiggyIndex visitors; every one is checked by a human moderator before it appears.\n\nSome numbers we deliberately do not compute: the \"Hottest\" sort order and per-item endorsement counts come from Little Biggy itself — we simply display them.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
-        de-DE: "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Bewertungsstatistik – Bewertungen und Lieferzeiten, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n• Verkäufer-Feedback – Empfehlungen und Meldungen, die von BiggyIndex-Besuchern eingereicht werden; jede einzelne wird vor der Veröffentlichung von einem menschlichen Moderator geprüft.\n\nManche Zahlen berechnen wir bewusst nicht: die \"Hottest\"-Sortierung und die Empfehlungszähler der einzelnen Angebote stammen von Little Biggy selbst – wir zeigen sie lediglich an.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
-        fr-FR: "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Statistiques d'avis — notes et délais de livraison agrégés à partir des avis publics de chaque annonce.\n• Retours sur les vendeurs — recommandations et signalements soumis par les visiteurs de BiggyIndex ; chacun est vérifié par un modérateur humain avant d'apparaître.\n\nCertains chiffres ne sont volontairement pas calculés par nous : l'ordre de tri « Hottest » et les compteurs de recommandations des annonces proviennent de Little Biggy lui-même — nous ne faisons que les afficher.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
-        pt-PT: "A maior parte do que vê é copiada diretamente das listagens, mas alguns valores são calculados por nós:\n\n• Histórico de preços — registamos os preços de cada listagem ao longo do tempo para que possa ver se subiram ou desceram.\n• Estatísticas de avaliações — classificações e tempos de entrega agregados a partir das avaliações públicas de cada listagem.\n• Feedback sobre vendedores — recomendações e denúncias submetidas pelos visitantes do BiggyIndex; cada uma é verificada por um moderador humano antes de aparecer.\n\nAlguns números deliberadamente não calculamos: a ordenação \"Hottest\" e os contadores de recomendações de cada item vêm do próprio Little Biggy — limitamo-nos a exibi-los.\n\nNada disto são garantias; são resumos de dados públicos destinados a ajudá-lo a comparar."
-        it-IT: "La maggior parte di ciò che vedi è copiata direttamente dagli annunci, ma alcuni dati li calcoliamo noi:\n\n• Storico dei prezzi — registriamo i prezzi di ogni annuncio nel tempo così puoi vedere se sono saliti o scesi.\n• Statistiche delle recensioni — valutazioni e tempi di consegna aggregati dalle recensioni pubbliche di ogni annuncio.\n• Feedback sui venditori — raccomandazioni e segnalazioni inviate dai visitatori di BiggyIndex; ognuna viene controllata da un moderatore umano prima di apparire.\n\nAlcuni numeri deliberatamente non li calcoliamo: l'ordinamento \"Hottest\" e i contatori di raccomandazioni dei singoli annunci provengono da Little Biggy stesso — noi ci limitiamo a mostrarli.\n\nNessuno di questi è una garanzia; sono riepiloghi di dati pubblici pensati per aiutarti a confrontare."
-        es-ES: "La mayor parte de lo que ves se copia directamente de los anuncios, pero algunas cifras las calculamos nosotros:\n\n• Historial de precios: registramos los precios de cada anuncio a lo largo del tiempo para que veas si han subido o bajado.\n• Estadísticas de reseñas: valoraciones y tiempos de entrega agregados a partir de las reseñas públicas de cada anuncio.\n• Opiniones sobre vendedores: recomendaciones y denuncias enviadas por los visitantes de BiggyIndex; cada una la revisa un moderador humano antes de publicarse.\n\nAlgunas cifras deliberadamente no las calculamos: el orden \"Hottest\" y los contadores de recomendaciones de cada anuncio proceden del propio Little Biggy; nosotros solo los mostramos.\n\nNada de esto son garantías; son resúmenes de datos públicos pensados para ayudarte a comparar."
-        el-GR: "Το μεγαλύτερο μέρος όσων βλέπετε αντιγράφεται απευθείας από τις καταχωρίσεις, αλλά ορισμένα στοιχεία τα υπολογίζουμε εμείς:\n\n• Ιστορικό τιμών — καταγράφουμε τις τιμές κάθε καταχώρισης στον χρόνο, ώστε να βλέπετε αν έχουν ανέβει ή πέσει.\n• Στατιστικά κριτικών — βαθμολογίες και χρόνοι παράδοσης συγκεντρωμένα από τις δημόσιες κριτικές κάθε καταχώρισης.\n• Σχόλια για πωλητές — συστάσεις και αναφορές που υποβάλλουν οι επισκέπτες του BiggyIndex· καθεμία ελέγχεται από άνθρωπο συντονιστή πριν εμφανιστεί.\n\nΟρισμένους αριθμούς σκόπιμα δεν τους υπολογίζουμε: η σειρά ταξινόμησης \"Hottest\" και οι μετρητές συστάσεων των προϊόντων προέρχονται από το ίδιο το Little Biggy — εμείς απλώς τους εμφανίζουμε.\n\nΤίποτα από αυτά δεν αποτελεί εγγύηση· είναι συνόψεις δημόσιων δεδομένων που σκοπό έχουν να σας βοηθήσουν να συγκρίνετε."
-        cs-CZ: "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Statistiky recenzí — hodnocení a doby doručení agregované z veřejných recenzí u každé nabídky.\n• Zpětná vazba k prodejcům — doporučení a nahlášení odeslaná návštěvníky BiggyIndexu; každé před zveřejněním zkontroluje lidský moderátor.\n\nNěkterá čísla záměrně nepočítáme: řazení \"Hottest\" a počty doporučení u jednotlivých položek pocházejí přímo z Little Biggy — my je pouze zobrazujeme.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
-        pl-PL: "Większość tego, co widzisz, jest kopiowana wprost z ofert, ale niektóre dane obliczamy sami:\n\n• Historia cen — zapisujemy ceny każdej oferty w czasie, abyś mógł zobaczyć, czy wzrosły, czy spadły.\n• Statystyki recenzji — oceny i czasy dostawy zagregowane z publicznych recenzji każdej oferty.\n• Opinie o sprzedawcach — polecenia i zgłoszenia przesyłane przez odwiedzających BiggyIndex; każde jest sprawdzane przez moderatora, zanim się pojawi.\n\nNiektórych liczb celowo nie obliczamy: kolejność sortowania \"Hottest\" oraz liczniki poleceń przy poszczególnych ofertach pochodzą z samego Little Biggy — my je tylko wyświetlamy.\n\nŻadna z tych rzeczy nie jest gwarancją; to podsumowania publicznych danych, które mają pomóc Ci w porównaniu."
+        en-GB: "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Review stats — ratings and delivery times aggregated from the public reviews on each listing.\n• Seller feedback — endorsements and reports submitted by BiggyIndex visitors; every one is checked by a human moderator before it appears.\n\nSome numbers we deliberately do not compute: the \"Hottest\" sort order comes from Little Biggy itself — we simply display it.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
+        de-DE: "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Bewertungsstatistik – Bewertungen und Lieferzeiten, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n• Verkäufer-Feedback – Empfehlungen und Meldungen, die von BiggyIndex-Besuchern eingereicht werden; jede einzelne wird vor der Veröffentlichung von einem menschlichen Moderator geprüft.\n\nManche Zahlen berechnen wir bewusst nicht: die \"Hottest\"-Sortierung stammt von Little Biggy selbst – wir zeigen sie lediglich an.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
+        fr-FR: "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Statistiques d'avis — notes et délais de livraison agrégés à partir des avis publics de chaque annonce.\n• Retours sur les vendeurs — recommandations et signalements soumis par les visiteurs de BiggyIndex ; chacun est vérifié par un modérateur humain avant d'apparaître.\n\nCertains chiffres ne sont volontairement pas calculés par nous : l'ordre de tri « Hottest » provient de Little Biggy lui-même — nous ne faisons que l'afficher.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
+        pt-PT: "A maior parte do que vê é copiada diretamente das listagens, mas alguns valores são calculados por nós:\n\n• Histórico de preços — registamos os preços de cada listagem ao longo do tempo para que possa ver se subiram ou desceram.\n• Estatísticas de avaliações — classificações e tempos de entrega agregados a partir das avaliações públicas de cada listagem.\n• Feedback sobre vendedores — recomendações e denúncias submetidas pelos visitantes do BiggyIndex; cada uma é verificada por um moderador humano antes de aparecer.\n\nAlguns números deliberadamente não calculamos: a ordenação \"Hottest\" vem do próprio Little Biggy — limitamo-nos a exibi-la.\n\nNada disto são garantias; são resumos de dados públicos destinados a ajudá-lo a comparar."
+        it-IT: "La maggior parte di ciò che vedi è copiata direttamente dagli annunci, ma alcuni dati li calcoliamo noi:\n\n• Storico dei prezzi — registriamo i prezzi di ogni annuncio nel tempo così puoi vedere se sono saliti o scesi.\n• Statistiche delle recensioni — valutazioni e tempi di consegna aggregati dalle recensioni pubbliche di ogni annuncio.\n• Feedback sui venditori — raccomandazioni e segnalazioni inviate dai visitatori di BiggyIndex; ognuna viene controllata da un moderatore umano prima di apparire.\n\nAlcuni numeri deliberatamente non li calcoliamo: l'ordinamento \"Hottest\" proviene da Little Biggy stesso — noi ci limitiamo a mostrarlo.\n\nNessuno di questi è una garanzia; sono riepiloghi di dati pubblici pensati per aiutarti a confrontare."
+        es-ES: "La mayor parte de lo que ves se copia directamente de los anuncios, pero algunas cifras las calculamos nosotros:\n\n• Historial de precios: registramos los precios de cada anuncio a lo largo del tiempo para que veas si han subido o bajado.\n• Estadísticas de reseñas: valoraciones y tiempos de entrega agregados a partir de las reseñas públicas de cada anuncio.\n• Opiniones sobre vendedores: recomendaciones y denuncias enviadas por los visitantes de BiggyIndex; cada una la revisa un moderador humano antes de publicarse.\n\nAlgunas cifras deliberadamente no las calculamos: el orden \"Hottest\" procede del propio Little Biggy; nosotros solo lo mostramos.\n\nNada de esto son garantías; son resúmenes de datos públicos pensados para ayudarte a comparar."
+        el-GR: "Το μεγαλύτερο μέρος όσων βλέπετε αντιγράφεται απευθείας από τις καταχωρίσεις, αλλά ορισμένα στοιχεία τα υπολογίζουμε εμείς:\n\n• Ιστορικό τιμών — καταγράφουμε τις τιμές κάθε καταχώρισης στον χρόνο, ώστε να βλέπετε αν έχουν ανέβει ή πέσει.\n• Στατιστικά κριτικών — βαθμολογίες και χρόνοι παράδοσης συγκεντρωμένα από τις δημόσιες κριτικές κάθε καταχώρισης.\n• Σχόλια για πωλητές — συστάσεις και αναφορές που υποβάλλουν οι επισκέπτες του BiggyIndex· καθεμία ελέγχεται από άνθρωπο συντονιστή πριν εμφανιστεί.\n\nΟρισμένους αριθμούς σκόπιμα δεν τους υπολογίζουμε: η σειρά ταξινόμησης \"Hottest\" προέρχεται από το ίδιο το Little Biggy — εμείς απλώς την εμφανίζουμε.\n\nΤίποτα από αυτά δεν αποτελεί εγγύηση· είναι συνόψεις δημόσιων δεδομένων που σκοπό έχουν να σας βοηθήσουν να συγκρίνετε."
+        cs-CZ: "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Statistiky recenzí — hodnocení a doby doručení agregované z veřejných recenzí u každé nabídky.\n• Zpětná vazba k prodejcům — doporučení a nahlášení odeslaná návštěvníky BiggyIndexu; každé před zveřejněním zkontroluje lidský moderátor.\n\nNěkterá čísla záměrně nepočítáme: řazení \"Hottest\" pochází přímo z Little Biggy — my je pouze zobrazujeme.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
+        pl-PL: "Większość tego, co widzisz, jest kopiowana wprost z ofert, ale niektóre dane obliczamy sami:\n\n• Historia cen — zapisujemy ceny każdej oferty w czasie, abyś mógł zobaczyć, czy wzrosły, czy spadły.\n• Statystyki recenzji — oceny i czasy dostawy zagregowane z publicznych recenzji każdej oferty.\n• Opinie o sprzedawcach — polecenia i zgłoszenia przesyłane przez odwiedzających BiggyIndex; każde jest sprawdzane przez moderatora, zanim się pojawi.\n\nNiektórych liczb celowo nie obliczamy: kolejność sortowania \"Hottest\" pochodzi z samego Little Biggy — my ją tylko wyświetlamy.\n\nŻadna z tych rzeczy nie jest gwarancją; to podsumowania publicznych danych, które mają pomóc Ci w porównaniu."
     archive:
       heading:
         en-GB: "Archive policy"
@@ -9421,6 +9471,50 @@ category:
       el-GR: Διαδρομή πλοήγησης
       cs-CZ: Drobečková navigace
       pl-PL: Ścieżka nawigacji
+    # One-line cross-link to /prices, weight-sold categories only — per-gram
+    # medians are the figure that page publishes, and they are only
+    # comparable for cannabis sold by weight. <link> wraps the anchor text.
+    priceNote:
+      flower:
+        en-GB: "Working out what a fair price looks like? The <link>cannabis price index</link> tracks live per-gram medians across every flower listing indexed here."
+        de-DE: "Unsicher, was ein fairer Preis ist? Der <link>Cannabis-Preisindex</link> zeigt die aktuellen Median-Grammpreise über alle hier indexierten Blüten-Angebote."
+        fr-FR: "Vous cherchez à situer un prix correct ? L'<link>indice des prix du cannabis</link> suit les médianes au gramme sur toutes les annonces de fleur indexées ici."
+        pt-PT: "Quer saber o que é um preço justo? O <link>índice de preços da canábis</link> acompanha as medianas por grama em todos os anúncios de flor indexados aqui."
+        it-IT: "Vuoi capire qual è un prezzo equo? L'<link>indice dei prezzi della cannabis</link> segue le mediane al grammo su tutti gli annunci di fiori indicizzati qui."
+        es-ES: "¿Quieres saber qué es un precio justo? El <link>índice de precios del cannabis</link> sigue las medianas por gramo de todos los anuncios de flor indexados aquí."
+        el-GR: "Θέλετε να δείτε ποια είναι μια δίκαιη τιμή; Ο <link>δείκτης τιμών κάνναβης</link> παρακολουθεί τις τρέχουσες διάμεσες τιμές ανά γραμμάριο σε όλες τις καταχωρίσεις άνθους εδώ."
+        cs-CZ: "Zajímá vás, jaká cena je férová? <link>Cenový index konopí</link> sleduje aktuální mediány za gram napříč všemi zde indexovanými nabídkami květů."
+        pl-PL: "Zastanawiasz się, jaka cena jest uczciwa? <link>Indeks cen konopi</link> śledzi aktualne mediany za gram we wszystkich indeksowanych tu ofertach suszu."
+      shake:
+        en-GB: "Shake is the cheapest way to buy by weight — the <link>cannabis price index</link> shows how far its per-gram medians sit below flower."
+        de-DE: "Shake ist der günstigste Weg, nach Gewicht zu kaufen — der <link>Cannabis-Preisindex</link> zeigt, wie weit die Grammpreise unter denen von Blüten liegen."
+        fr-FR: "Le shake est la façon la moins chère d'acheter au poids — l'<link>indice des prix du cannabis</link> montre à quel point ses médianes au gramme passent sous celles de la fleur."
+        pt-PT: "O shake é a forma mais barata de comprar a peso — o <link>índice de preços da canábis</link> mostra quanto as suas medianas por grama ficam abaixo da flor."
+        it-IT: "Lo shake è il modo più economico di comprare a peso — l'<link>indice dei prezzi della cannabis</link> mostra quanto le sue mediane al grammo stiano sotto quelle dei fiori."
+        es-ES: "El shake es la forma más barata de comprar por peso — el <link>índice de precios del cannabis</link> muestra cuánto bajan sus medianas por gramo frente a la flor."
+        el-GR: "Το shake είναι ο φθηνότερος τρόπος αγοράς με το βάρος — ο <link>δείκτης τιμών κάνναβης</link> δείχνει πόσο χαμηλότερα από το άνθος βρίσκονται οι τιμές ανά γραμμάριο."
+        cs-CZ: "Shake je nejlevnější způsob nákupu podle váhy — <link>cenový index konopí</link> ukazuje, o kolik jsou jeho mediány za gram nižší než u květů."
+        pl-PL: "Shake to najtańszy sposób zakupu na wagę — <link>indeks cen konopi</link> pokazuje, o ile jego mediany za gram są niższe niż w przypadku suszu."
+      hash:
+        en-GB: "Hash prices swing widely between import grades and solventless — the <link>cannabis price index</link> tracks the live per-gram median and range."
+        de-DE: "Hash-Preise schwanken stark zwischen Importqualitäten und lösungsmittelfreien Extrakten — der <link>Cannabis-Preisindex</link> zeigt den aktuellen Median und die Spanne pro Gramm."
+        fr-FR: "Les prix du hash varient fortement entre qualités d'import et extractions sans solvant — l'<link>indice des prix du cannabis</link> suit la médiane et la fourchette au gramme en direct."
+        pt-PT: "Os preços do hash variam muito entre qualidades de importação e extrações sem solventes — o <link>índice de preços da canábis</link> acompanha a mediana e o intervalo por grama em tempo real."
+        it-IT: "I prezzi dell'hash variano molto tra qualità d'importazione ed estrazioni senza solventi — l'<link>indice dei prezzi della cannabis</link> segue la mediana e l'intervallo al grammo in tempo reale."
+        es-ES: "Los precios del hachís varían mucho entre calidades de importación y extracciones sin disolventes — el <link>índice de precios del cannabis</link> sigue la mediana y el rango por gramo en directo."
+        el-GR: "Οι τιμές του χασίς διαφέρουν πολύ μεταξύ εισαγόμενων ποιοτήτων και εκχυλισμάτων χωρίς διαλύτες — ο <link>δείκτης τιμών κάνναβης</link> παρακολουθεί τη ζωντανή διάμεσο και το εύρος ανά γραμμάριο."
+        cs-CZ: "Ceny hašiše se výrazně liší mezi dovozovými kvalitami a extrakty bez rozpouštědel — <link>cenový index konopí</link> sleduje aktuální medián a rozpětí za gram."
+        pl-PL: "Ceny haszyszu mocno się różnią między jakościami importowymi a ekstraktami bez rozpuszczalników — <link>indeks cen konopi</link> śledzi aktualną medianę i zakres za gram."
+      concentrates:
+        en-GB: "Concentrates carry the highest per-gram figures on the site — the <link>cannabis price index</link> shows where the live median sits."
+        de-DE: "Konzentrate haben die höchsten Grammpreise auf der Seite — der <link>Cannabis-Preisindex</link> zeigt, wo der aktuelle Median liegt."
+        fr-FR: "Les concentrés affichent les prix au gramme les plus élevés du site — l'<link>indice des prix du cannabis</link> indique où se situe la médiane actuelle."
+        pt-PT: "Os concentrados têm os preços por grama mais altos do site — o <link>índice de preços da canábis</link> mostra onde está a mediana atual."
+        it-IT: "I concentrati hanno i prezzi al grammo più alti del sito — l'<link>indice dei prezzi della cannabis</link> mostra dove si trova la mediana attuale."
+        es-ES: "Los concentrados tienen los precios por gramo más altos del sitio — el <link>índice de precios del cannabis</link> muestra dónde está la mediana actual."
+        el-GR: "Τα συμπυκνώματα έχουν τις υψηλότερες τιμές ανά γραμμάριο στον ιστότοπο — ο <link>δείκτης τιμών κάνναβης</link> δείχνει πού βρίσκεται η τρέχουσα διάμεσος."
+        cs-CZ: "Koncentráty mají nejvyšší ceny za gram na webu — <link>cenový index konopí</link> ukazuje, kde se aktuální medián pohybuje."
+        pl-PL: "Koncentraty mają najwyższe ceny za gram w serwisie — <link>indeks cen konopi</link> pokazuje, gdzie znajduje się aktualna mediana."
     # Unique per-category intro copy (80–150 words), translated per locale.
     # Strain-family names (Gelato, Cookies, Runtz, ...) stay in English —
     # they are proper names, not words to translate.

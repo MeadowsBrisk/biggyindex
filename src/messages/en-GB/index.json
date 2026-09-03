@@ -6,6 +6,7 @@
   },
   "nav": {
     "browse": "Browse",
+    "prices": "Prices",
     "reviews": "Reviews",
     "sellers": "Sellers",
     "settings": "Settings"
@@ -215,7 +216,8 @@
       "subtitle": "Faster search, cleaner categories, and at-a-glance seller trust for the Little Biggy marketplace.",
       "stats": {
         "itemsIndexed": "items indexed",
-        "activeSellers": "active sellers"
+        "activeSellers": "active sellers",
+        "priceIndex": "Price index"
       },
       "cta": "Browse Marketplace",
       "markets": "Markets"
@@ -327,8 +329,8 @@
             "a": "First seen/created means that it's the first time the item was indexed by the crawler. This can include items which were on LB before the indexer existed. Updated means that the item was edited by the seller, or that the crawler detected a change (e.g. price, variants, description)."
           },
           "endorsements": {
-            "q": "What are endorsements?",
-            "a": "Community votes that highlight popular items without tracking you."
+            "q": "What are seller endorsements and reports?",
+            "a": "Feedback you can leave on a seller's profile: endorse one you had a good experience with, or report one you didn't. A human moderator checks every submission before it appears, and the totals sit on the seller's page beside their review stats."
           }
         }
       },
@@ -397,11 +399,13 @@
       "panels": {
         "top": {
           "title": "Top Rated",
-          "subtitle": "Highest positive-review ratio"
+          "subtitle": "Highest positive-review ratio",
+          "empty": "No seller in this market has enough reviews to rank yet."
         },
         "caution": {
           "title": "Needs Review",
-          "subtitle": "Higher negative-review rate"
+          "subtitle": "Higher negative-review rate",
+          "empty": "No seller in this market is carrying enough negative feedback to flag."
         },
         "reviewsLabel": "Reviews"
       },
@@ -1155,6 +1159,7 @@
     "cta": {
       "browse": "Browse the index",
       "sellers": "All sellers",
+      "prices": "Price index",
       "home": "Back to home"
     }
   },
@@ -1183,7 +1188,7 @@
       },
       "whatWeCompute": {
         "heading": "What we compute",
-        "body": "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Review stats — ratings and delivery times aggregated from the public reviews on each listing.\n• Seller feedback — endorsements and reports submitted by BiggyIndex visitors; every one is checked by a human moderator before it appears.\n\nSome numbers we deliberately do not compute: the \"Hottest\" sort order and per-item endorsement counts come from Little Biggy itself — we simply display them.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
+        "body": "Most of what you see is copied straight from the listings, but a few figures are worked out by us:\n\n• Price history — we record each listing's prices over time so you can see whether they have risen or fallen.\n• Review stats — ratings and delivery times aggregated from the public reviews on each listing.\n• Seller feedback — endorsements and reports submitted by BiggyIndex visitors; every one is checked by a human moderator before it appears.\n\nSome numbers we deliberately do not compute: the \"Hottest\" sort order comes from Little Biggy itself — we simply display it.\n\nNone of these are guarantees; they are summaries of public data meant to help you compare."
       },
       "archive": {
         "heading": "Archive policy",
@@ -1300,6 +1305,12 @@
       "browseAllCta": "Browse all {category} listings with filters",
       "breadcrumbHome": "Home",
       "breadcrumbLabel": "Breadcrumb",
+      "priceNote": {
+        "flower": "Working out what a fair price looks like? The <link>cannabis price index</link> tracks live per-gram medians across every flower listing indexed here.",
+        "shake": "Shake is the cheapest way to buy by weight — the <link>cannabis price index</link> shows how far its per-gram medians sit below flower.",
+        "hash": "Hash prices swing widely between import grades and solventless — the <link>cannabis price index</link> tracks the live per-gram median and range.",
+        "concentrates": "Concentrates carry the highest per-gram figures on the site — the <link>cannabis price index</link> shows where the live median sits."
+      },
       "intro": {
         "flower": "Flower is the biggest category on Little Biggy, running from budget smalls to imported Cali exotics. Listings are grouped by strain family — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake and more — so you can follow a genetic line you already know instead of guessing from product names. Most sellers offer several weight tiers, and the price per gram usually drops sharply at the 7g and 14g marks. Descriptions tend to note indica, sativa or hybrid leanings along with grow style. Every listing links back to the seller on Little Biggy, with reviews, delivery times and shipping costs indexed here so you can compare growers side by side before ordering.",
         "shake": "Shake is the value end of the flower market: loose shake, trim and small popcorn buds, usually sold by the same growers who list full flower but at a much lower price per gram. It's a popular choice for rolling, cooking and making edibles or extracts at home, where bag appeal matters far less than cost. Quality varies more here than in any other category — some listings are mostly dust and sugar leaf, others are near-whole smalls — so seller reviews are worth reading closely. We split Shake out of Flower in this index precisely so bargain hunters can compare like for like instead of wading through premium listings.",

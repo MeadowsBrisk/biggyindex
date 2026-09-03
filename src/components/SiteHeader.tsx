@@ -9,6 +9,7 @@ import {
   Settings,
   ShoppingCart,
   Star,
+  TrendingUp,
   Users,
   X,
 } from "lucide-react";
@@ -126,6 +127,15 @@ export function SiteHeader() {
               <HeaderNavLink href="/reviews" active={pathname === "/reviews"}>
                 {tNav("reviews")}
               </HeaderNavLink>
+              {/* `md` and up, not `sm`, for the same reason as
+                  <VerifyDropdown>: at 640px the three links above already
+                  fill the bar in the longest-translated locales. Below `md`
+                  the drawer and the footer carry this link. */}
+              <span className="hidden md:block">
+                <HeaderNavLink href="/prices" active={pathname === "/prices"}>
+                  {tNav("prices")}
+                </HeaderNavLink>
+              </span>
             </nav>
           </div>
 
@@ -530,6 +540,7 @@ function MobileNav() {
     { href: "/browse", label: tNav("browse"), Icon: Compass },
     { href: "/sellers", label: tNav("sellers"), Icon: Users },
     { href: "/reviews", label: tNav("reviews"), Icon: Star },
+    { href: "/prices", label: tNav("prices"), Icon: TrendingUp },
   ];
 
   return (

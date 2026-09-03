@@ -25,6 +25,7 @@ import type { Swiper as SwiperInstance } from "swiper/types";
 import type { WhatsNewCarouselSlide } from "@/components/home/WhatsNewCarousel";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
+import { CATEGORIES, type Category } from "@/lib/constants";
 import type { ServerCurrency } from "@/lib/market/currency";
 import {
   currencyDisplayAtom,
@@ -98,6 +99,8 @@ interface HomeItemCardCopy {
   unknownSeller: string;
   viewSeller: (seller: string) => string;
   alternateImageAlt: (item: string) => string;
+  /** Localised category name, same `categories` namespace the hero pills use. */
+  categoryLabel: (category: string) => string;
   time: TimeAgoCopy;
 }
 
@@ -265,7 +268,7 @@ function HomeItemCard({
           {item.category && (
             <div className="card-controls absolute inset-x-0 top-0 z-10 flex items-start p-2 pointer-events-none">
               <span className="card-pill card-pill--image text-[10px] font-medium pointer-events-auto">
-                {item.category === "PreRolls" ? "Pre-Rolls" : item.category}
+                {copy.categoryLabel(item.category)}
               </span>
             </div>
           )}
@@ -445,6 +448,7 @@ export function WhatsNewSection({
   currency,
 }: WhatsNewSectionProps) {
   const t = useTranslations("home.whatsNewSection");
+  const tCategories = useTranslations("categories");
   const [activeTab, setActiveTab] = useState<Tab>("newest");
   const { symbol: currencySymbol, rate: exchangeRate } =
     useDisplayCurrency(currency);
@@ -457,6 +461,12 @@ export function WhatsNewSection({
       unknownSeller: t("unknownSeller"),
       viewSeller: (seller) => t("viewSeller", { seller }),
       alternateImageAlt: (item) => t("alternateImageAlt", { item }),
+      // Categories the crawler emits but the taxonomy doesn't name (yet) fall
+      // back to the raw value rather than rendering a missing-key marker.
+      categoryLabel: (category) =>
+        CATEGORIES.includes(category as Category)
+          ? tCategories(category as Category)
+          : category,
       time: {
         justNow: t("time.justNow"),
         minutesAgo: (count) => t("time.minutesAgo", { count }),
@@ -466,7 +476,7 @@ export function WhatsNewSection({
         monthsAgo: (count) => t("time.monthsAgo", { count }),
       },
     }),
-    [t],
+    [t, tCategories],
   );
   const header = useRevealOnScroll<HTMLDivElement>();
   const carousel = useRevealOnScroll<HTMLDivElement>();

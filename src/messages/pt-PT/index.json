@@ -6,6 +6,7 @@
   },
   "nav": {
     "browse": "Navegar",
+    "prices": "Preços",
     "reviews": "Avaliações",
     "sellers": "Vendedores",
     "settings": "Definições"
@@ -215,7 +216,8 @@
       "subtitle": "Pesquisa mais rápida, categorias mais limpas e confiança rápida dos vendedores no mercado Little Biggy.",
       "stats": {
         "itemsIndexed": "Itens indexados",
-        "activeSellers": "Vendedores ativos"
+        "activeSellers": "Vendedores ativos",
+        "priceIndex": "Índice de preços"
       },
       "cta": "Navegar pelo Marketplace",
       "markets": "Mercados"
@@ -327,8 +329,8 @@
             "a": "Primeiro visto/criado significa que é a primeira vez que o item foi indexado pelo crawler. Isto pode incluir itens que estavam no LB antes do indexador existir. Atualizado significa que o item foi editado pelo vendedor, ou que o crawler detetou uma alteração (por exemplo, preço, variantes, descrição)."
           },
           "endorsements": {
-            "q": "O que são endossos?",
-            "a": "Votações da comunidade que destacam itens populares sem o acompanhar."
+            "q": "O que são recomendações e denúncias de vendedores?",
+            "a": "Feedback que pode deixar no perfil de um vendedor: recomende aquele com quem teve uma boa experiência ou denuncie aquele com quem não teve. Um moderador humano verifica cada submissão antes de aparecer, e os totais ficam na página do vendedor, ao lado das estatísticas de avaliações."
           }
         }
       },
@@ -397,11 +399,13 @@
       "panels": {
         "top": {
           "title": "Mais Bem Classificados",
-          "subtitle": "Maior taxa de avaliações positivas"
+          "subtitle": "Maior taxa de avaliações positivas",
+          "empty": "Nenhum vendedor deste mercado tem ainda avaliações suficientes para ser classificado."
         },
         "caution": {
           "title": "A rever",
-          "subtitle": "Taxa mais alta de avaliações negativas"
+          "subtitle": "Taxa mais alta de avaliações negativas",
+          "empty": "Nenhum vendedor deste mercado acumula avaliações negativas suficientes para ser assinalado."
         },
         "reviewsLabel": "Avaliações"
       },
@@ -1155,6 +1159,7 @@
     "cta": {
       "browse": "Explorar o índice",
       "sellers": "Todos os vendedores",
+      "prices": "Índice de preços",
       "home": "Voltar ao início"
     }
   },
@@ -1183,7 +1188,7 @@
       },
       "whatWeCompute": {
         "heading": "O que calculamos",
-        "body": "A maior parte do que vê é copiada diretamente das listagens, mas alguns valores são calculados por nós:\n\n• Histórico de preços — registamos os preços de cada listagem ao longo do tempo para que possa ver se subiram ou desceram.\n• Estatísticas de avaliações — classificações e tempos de entrega agregados a partir das avaliações públicas de cada listagem.\n• Feedback sobre vendedores — recomendações e denúncias submetidas pelos visitantes do BiggyIndex; cada uma é verificada por um moderador humano antes de aparecer.\n\nAlguns números deliberadamente não calculamos: a ordenação \"Hottest\" e os contadores de recomendações de cada item vêm do próprio Little Biggy — limitamo-nos a exibi-los.\n\nNada disto são garantias; são resumos de dados públicos destinados a ajudá-lo a comparar."
+        "body": "A maior parte do que vê é copiada diretamente das listagens, mas alguns valores são calculados por nós:\n\n• Histórico de preços — registamos os preços de cada listagem ao longo do tempo para que possa ver se subiram ou desceram.\n• Estatísticas de avaliações — classificações e tempos de entrega agregados a partir das avaliações públicas de cada listagem.\n• Feedback sobre vendedores — recomendações e denúncias submetidas pelos visitantes do BiggyIndex; cada uma é verificada por um moderador humano antes de aparecer.\n\nAlguns números deliberadamente não calculamos: a ordenação \"Hottest\" vem do próprio Little Biggy — limitamo-nos a exibi-la.\n\nNada disto são garantias; são resumos de dados públicos destinados a ajudá-lo a comparar."
       },
       "archive": {
         "heading": "Política de arquivo",
@@ -1300,6 +1305,12 @@
       "browseAllCta": "Ver todos os anúncios de {category} com filtros",
       "breadcrumbHome": "Início",
       "breadcrumbLabel": "Navegação estrutural",
+      "priceNote": {
+        "flower": "Quer saber o que é um preço justo? O <link>índice de preços da canábis</link> acompanha as medianas por grama em todos os anúncios de flor indexados aqui.",
+        "shake": "O shake é a forma mais barata de comprar a peso — o <link>índice de preços da canábis</link> mostra quanto as suas medianas por grama ficam abaixo da flor.",
+        "hash": "Os preços do hash variam muito entre qualidades de importação e extrações sem solventes — o <link>índice de preços da canábis</link> acompanha a mediana e o intervalo por grama em tempo real.",
+        "concentrates": "Os concentrados têm os preços por grama mais altos do site — o <link>índice de preços da canábis</link> mostra onde está a mediana atual."
+      },
       "intro": {
         "flower": "A flor é a maior categoria do Little Biggy, desde smalls económicas até exóticas Cali importadas. As listagens estão agrupadas por família de strain — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake e mais — para poder seguir uma linha genética que já conhece em vez de adivinhar pelos nomes dos produtos. A maioria dos vendedores oferece vários escalões de peso, e o preço por grama costuma cair bastante nos 7 g e 14 g. As descrições costumam indicar tendências indica, sativa ou híbrida e o estilo de cultivo. Cada anúncio liga ao vendedor no Little Biggy, com avaliações, prazos de entrega e custos de envio indexados aqui para comparar produtores antes de encomendar.",
         "shake": "O shake é a ponta económica do mercado da flor: shake solto, trim e pequenos buds popcorn, normalmente vendidos pelos mesmos produtores que listam flor inteira, mas a um preço por grama muito mais baixo. É uma escolha popular para enrolar, cozinhar e fazer comestíveis ou extratos em casa, onde o aspeto conta muito menos do que o custo. A qualidade varia aqui mais do que em qualquer outra categoria — algumas listagens são sobretudo pó e folhas, outras são smalls quase inteiras — por isso vale a pena ler bem as avaliações dos vendedores. Separámos o Shake da Flor neste índice precisamente para que os caçadores de pechinchas comparem o que é comparável.",

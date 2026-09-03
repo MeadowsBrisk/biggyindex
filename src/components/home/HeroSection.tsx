@@ -84,10 +84,13 @@ export function HeroSection({
           {t("subtitle")}
         </p>
 
-        {/* Live stats - items and sellers only */}
+        {/* Live stats, plus the price-index link. Wraps below `sm` (the three
+            entries exceed a phone's width on one line), so the third
+            separator is hidden there — a wrapped row would otherwise end on a
+            dangling rule. */}
         <div
           style={{ "--mount-delay": "400ms" } as React.CSSProperties}
-          className="mount-fade mt-6 flex items-center gap-6 text-sm text-muted"
+          className="mount-fade mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted"
         >
           <span>
             <span className="text-foreground font-semibold">
@@ -102,6 +105,16 @@ export function HeroSection({
             </span>{" "}
             {t("stats.activeSellers")}
           </span>
+          <span className="hidden sm:block w-px h-4 bg-[var(--border)]" />
+          {/* The homepage renders no SiteHeader, so this is the hero's only
+              route into the price index. */}
+          <Link
+            href="/prices"
+            prefetch={false}
+            className="font-semibold text-foreground transition-colors hover:text-primary"
+          >
+            {t("stats.priceIndex")}
+          </Link>
         </div>
 
         {/* Category grid — responsive, icon-led, no emojis */}

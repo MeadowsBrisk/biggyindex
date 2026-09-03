@@ -157,7 +157,13 @@ export function browseDataVersion(items: Item[]): string {
 
 // ─── Data loaders ───────────────────────────────────────────────
 
-/** Load all items for a market (browse-optimised). */
+/**
+ * Load all items for a market (browse-optimised).
+ *
+ * Empty means the market has no dataset object (404). A transient read failure
+ * throws instead, so an unreachable bucket is never cached as an empty
+ * catalogue.
+ */
 export async function loadItems(market = "gb"): Promise<Item[]> {
   const items = await readR2JSON<Item[]>(R2Keys.items(market));
   return items ? stripBrowseFields(items, market) : [];
@@ -351,7 +357,9 @@ function isIsoish(value: unknown): value is string {
  * mismatch, so a partial blob can never 500 or render a broken indicator.
  */
 export async function loadLittleBiggyStatus(): Promise<LittleBiggyStatus | null> {
-  const raw = await readR2JSON<unknown>(R2Keys.status);
+  // readR2JSON throws on transient failures so cached pages don't persist
+  // them; here "unknown" IS the designed degraded state, so absorb it.
+  const raw = await readR2JSON<unknown>(R2Keys.status).catch(() => null);
   if (!raw || typeof raw !== "object") return null;
 
   const blob = raw as Record<string, unknown>;

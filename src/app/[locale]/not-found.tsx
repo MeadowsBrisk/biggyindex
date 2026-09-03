@@ -29,6 +29,9 @@ export default async function NotFound() {
         <NotFoundSecondaryLink href="/sellers">
           {tCta("sellers")}
         </NotFoundSecondaryLink>
+        <NotFoundSecondaryLink href="/prices">
+          {tCta("prices")}
+        </NotFoundSecondaryLink>
         <NotFoundSecondaryLink href="/">{tCta("home")}</NotFoundSecondaryLink>
       </div>
     </NotFoundView>

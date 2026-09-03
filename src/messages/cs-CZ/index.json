@@ -6,6 +6,7 @@
   },
   "nav": {
     "browse": "Procházet",
+    "prices": "Ceny",
     "reviews": "Recenze",
     "sellers": "Prodejci",
     "settings": "Nastavení"
@@ -215,7 +216,8 @@
       "subtitle": "Rychlejší vyhledávání, čistší kategorie a okamžitá důvěra prodejců pro Little Biggy trh.",
       "stats": {
         "itemsIndexed": "Položky indexované",
-        "activeSellers": "Aktivní prodejci"
+        "activeSellers": "Aktivní prodejci",
+        "priceIndex": "Cenový index"
       },
       "cta": "Procházet tržiště",
       "markets": "Trhy"
@@ -327,8 +329,8 @@
             "a": "První viděn/vytvořený znamená, že je to poprvé, co byla položka indexována crawlerem. To může zahrnovat položky, které byly na LB před vznikem indexeru. Aktualizováno znamená, že položku upravil prodejce, nebo že crawler zaznamenal změnu (např. cena, varianty, popis)."
           },
           "endorsements": {
-            "q": "Co jsou to doporučení?",
-            "a": "Komunitní hlasování, která zdůrazňují oblíbené položky, aniž by vás museli sledovat."
+            "q": "Co jsou doporučení a nahlášení prodejců?",
+            "a": "Zpětná vazba, kterou můžete zanechat na profilu prodejce: doporučte toho, s nímž jste měli dobrou zkušenost, nebo nahlaste toho, s nímž ne. Každé odeslání před zveřejněním zkontroluje lidský moderátor a součty najdete na stránce prodejce vedle statistik recenzí."
           }
         }
       },
@@ -397,11 +399,13 @@
       "panels": {
         "top": {
           "title": "Nejlépe hodnocené",
-          "subtitle": "Nejvyšší poměr pozitivních recenzí"
+          "subtitle": "Nejvyšší poměr pozitivních recenzí",
+          "empty": "Žádný prodejce na tomto trhu zatím nemá dost recenzí, aby se umístil."
         },
         "caution": {
           "title": "Ke kontrole",
-          "subtitle": "Vyšší podíl negativních recenzí"
+          "subtitle": "Vyšší podíl negativních recenzí",
+          "empty": "Žádný prodejce na tomto trhu nemá tolik negativní zpětné vazby, aby ho bylo třeba označit."
         },
         "reviewsLabel": "Recenze"
       },
@@ -1155,6 +1159,7 @@
     "cta": {
       "browse": "Procházet index",
       "sellers": "Všichni prodejci",
+      "prices": "Cenový index",
       "home": "Zpět na úvod"
     }
   },
@@ -1183,7 +1188,7 @@
       },
       "whatWeCompute": {
         "heading": "Co počítáme",
-        "body": "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Statistiky recenzí — hodnocení a doby doručení agregované z veřejných recenzí u každé nabídky.\n• Zpětná vazba k prodejcům — doporučení a nahlášení odeslaná návštěvníky BiggyIndexu; každé před zveřejněním zkontroluje lidský moderátor.\n\nNěkterá čísla záměrně nepočítáme: řazení \"Hottest\" a počty doporučení u jednotlivých položek pocházejí přímo z Little Biggy — my je pouze zobrazujeme.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
+        "body": "Většina toho, co vidíte, je převzata přímo z nabídek, ale některé hodnoty počítáme my:\n\n• Historie cen — zaznamenáváme ceny každé nabídky v čase, abyste viděli, zda stouply nebo klesly.\n• Statistiky recenzí — hodnocení a doby doručení agregované z veřejných recenzí u každé nabídky.\n• Zpětná vazba k prodejcům — doporučení a nahlášení odeslaná návštěvníky BiggyIndexu; každé před zveřejněním zkontroluje lidský moderátor.\n\nNěkterá čísla záměrně nepočítáme: řazení \"Hottest\" pochází přímo z Little Biggy — my je pouze zobrazujeme.\n\nNic z toho není záruka; jsou to souhrny veřejných dat, které vám mají pomoci porovnávat."
       },
       "archive": {
         "heading": "Zásady archivace",
@@ -1300,6 +1305,12 @@
       "browseAllCta": "Procházet všechny nabídky {category} s filtry",
       "breadcrumbHome": "Domů",
       "breadcrumbLabel": "Drobečková navigace",
+      "priceNote": {
+        "flower": "Zajímá vás, jaká cena je férová? <link>Cenový index konopí</link> sleduje aktuální mediány za gram napříč všemi zde indexovanými nabídkami květů.",
+        "shake": "Shake je nejlevnější způsob nákupu podle váhy — <link>cenový index konopí</link> ukazuje, o kolik jsou jeho mediány za gram nižší než u květů.",
+        "hash": "Ceny hašiše se výrazně liší mezi dovozovými kvalitami a extrakty bez rozpouštědel — <link>cenový index konopí</link> sleduje aktuální medián a rozpětí za gram.",
+        "concentrates": "Koncentráty mají nejvyšší ceny za gram na webu — <link>cenový index konopí</link> ukazuje, kde se aktuální medián pohybuje."
+      },
       "intro": {
         "flower": "Květy jsou největší kategorií na Little Biggy — od levných smalls po dovážené Cali exoty. Nabídky jsou seskupené podle rodin odrůd — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake a další — takže můžete sledovat genetickou linii, kterou už znáte, místo hádání podle názvů produktů. Většina prodejců nabízí několik hmotnostních úrovní a cena za gram obvykle výrazně klesá u 7 g a 14 g. Popisy většinou uvádějí, zda jde o indicu, sativu či hybrid, a styl pěstování. Každá nabídka odkazuje na prodejce na Little Biggy, s recenzemi, dobou doručení a cenou dopravy indexovanými zde, takže můžete pěstitele porovnat ještě před objednávkou.",
         "shake": "Shake je cenově výhodný konec trhu s květy: sypaný shake, trim a malé popcorn palice, obvykle od stejných pěstitelů, kteří nabízejí i celé květy, ale za výrazně nižší cenu za gram. Je oblíbenou volbou na balení, vaření a domácí výrobu jedlých produktů či extraktů, kde vzhled hraje mnohem menší roli než cena. Kvalita se tu liší víc než v kterékoli jiné kategorii — některé nabídky jsou hlavně prach a listy, jiné téměř celé smalls — takže se vyplatí pozorně číst recenze prodejců. Shake jsme v tomto indexu oddělili od Květů právě proto, aby lovci výhodných nabídek srovnávali srovnatelné.",

@@ -6,7 +6,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { loadSellers } from "@/lib/data";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
-import { readR2JSON } from "@/lib/r2";
+import { readR2JSONWithMeta } from "@/lib/r2";
+import { faqPageJsonLd, serializeJsonLd } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { ReviewsPageClient } from "./ReviewsPageClient";
 
@@ -65,11 +66,17 @@ export default async function ReviewsPage({
   const mkt = market.toLowerCase();
   const cSym = marketCurrencySymbol(market);
 
-  const [sellerList, reviews, mediaReviews] = await Promise.all([
+  const [sellerList, reviewsRead, mediaRead] = await Promise.all([
     loadSellers(mkt),
-    readR2JSON<RawReview[]>(`markets/${mkt}/aggregates/recent-reviews.json`),
-    readR2JSON<RawMediaReview[]>(`markets/${mkt}/aggregates/recent-media.json`),
+    readR2JSONWithMeta<RawReview[]>(
+      `markets/${mkt}/aggregates/recent-reviews.json`,
+    ),
+    readR2JSONWithMeta<RawMediaReview[]>(
+      `markets/${mkt}/aggregates/recent-media.json`,
+    ),
   ]);
+  const reviews = reviewsRead.data;
+  const mediaReviews = mediaRead.data;
 
   const sellerImageMap = new Map<string, string>();
   for (const s of sellerList) {
@@ -128,6 +135,19 @@ export default async function ReviewsPage({
     }
   }
 
+  // Reference clock for relative ages, resolved on the server so the cached
+  // HTML carries real ages. Not Date.now() (this render is cached): the
+  // aggregate's Last-Modified, floored by the newest review, moves with the data.
+  const feedWrittenAt = Math.max(
+    reviewsRead.lastModified ?? 0,
+    mediaRead.lastModified ?? 0,
+  );
+  const newestReviewAt = allReviews.reduce((max, r) => {
+    const ms = Date.parse(r.createdAt);
+    return Number.isFinite(ms) && ms > max ? ms : max;
+  }, 0);
+  const timeReference = Math.max(feedWrittenAt, newestReviewAt);
+
   // Aggregate stats for the SSR intro paragraph — prose content for
   // review-intent queries, which an otherwise text-free above-the-fold cannot
   // rank for. Computed inside the cached page body so generateMetadata stays
@@ -151,6 +171,15 @@ export default async function ReviewsPage({
   const t = await getTranslations({ locale, namespace: "reviews.page" });
   const FAQ_KEYS = ["source", "trust", "checkSeller"] as const;
 
+  // FAQPage built from the same keys the visible FAQ below renders, so the
+  // markup can never describe answers the page does not show.
+  const faqJsonLd = faqPageJsonLd(
+    FAQ_KEYS.map((key) => ({
+      q: t(`faq.${key}.q`),
+      a: t(`faq.${key}.a`),
+    })),
+  );
+
   return (
     <>
       <RouteDataLoader
@@ -159,9 +188,14 @@ export default async function ReviewsPage({
         market={market}
       />
       <SiteHeader />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
+      />
       <main className="min-h-screen bg-background">
         <ReviewsPageClient
           reviews={allReviews}
+          now={timeReference}
           intro={
             avgRating != null
               ? avgDelivery != null

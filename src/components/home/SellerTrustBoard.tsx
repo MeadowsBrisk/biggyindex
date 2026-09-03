@@ -268,6 +268,7 @@ function Panel({
   delay,
   copy,
   reviewsLabel,
+  emptyLabel,
   now,
 }: {
   tone: Tone;
@@ -280,6 +281,8 @@ function Panel({
   delay: number;
   copy: SellerTrustCopy;
   reviewsLabel: string;
+  /** Shown instead of rows when no seller in this market qualifies. */
+  emptyLabel: string;
   now: number;
 }) {
   const totalReviews = sellers.reduce((sum, s) => sum + s.totalReviews, 0);
@@ -326,20 +329,28 @@ function Panel({
         </div>
       </header>
 
-      {/* Rows */}
+      {/* Rows. A market can legitimately have nobody on this list — small
+          markets often have no seller with enough negative feedback to flag —
+          so say so rather than leaving the panel's body blank. */}
       <ul className="relative divide-y divide-(--border)/60">
-        {sellers.slice(0, 8).map((seller, i) => (
-          <li key={seller.sellerId}>
-            <SellerRow
-              seller={seller}
-              variant={variant}
-              featured={i === 0}
-              onOpen={onOpen}
-              copy={copy}
-              now={now}
-            />
+        {sellers.length === 0 ? (
+          <li className="px-4 py-6 text-center text-[13px] text-muted-foreground">
+            {emptyLabel}
           </li>
-        ))}
+        ) : (
+          sellers.slice(0, 8).map((seller, i) => (
+            <li key={seller.sellerId}>
+              <SellerRow
+                seller={seller}
+                variant={variant}
+                featured={i === 0}
+                onOpen={onOpen}
+                copy={copy}
+                now={now}
+              />
+            </li>
+          ))
+        )}
       </ul>
     </div>
   );
@@ -406,6 +417,7 @@ export function SellerTrustBoard({
             delay={0.1}
             copy={copy}
             reviewsLabel={t("panels.reviewsLabel")}
+            emptyLabel={t("panels.top.empty")}
             now={now}
           />
           <Panel
@@ -419,6 +431,7 @@ export function SellerTrustBoard({
             delay={0.2}
             copy={copy}
             reviewsLabel={t("panels.reviewsLabel")}
+            emptyLabel={t("panels.caution.empty")}
             now={now}
           />
         </div>

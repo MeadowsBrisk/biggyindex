@@ -24,13 +24,27 @@ export async function GET(request: Request) {
   const mktParam = (url.searchParams.get("mkt") ?? hostMarket).toLowerCase();
   const mkt = VALID_MARKETS.has(mktParam) ? mktParam : hostMarket;
 
-  const items = await loadItems(mkt);
+  let items: Awaited<ReturnType<typeof loadItems>>;
+  let variantWidths: Awaited<ReturnType<typeof loadVariantWidths>>;
+  try {
+    items = await loadItems(mkt);
+    // Augment each item with a compact responsive-variant field `vw` (bitmask
+    // per image slot over CARD_VARIANT_WIDTHS) so client cards can build a
+    // srcset with no extra fetch of image-meta. Omitted when an item has no
+    // variants; animated slots are zeroed. Adds < 1KB brotli to the payload.
+    variantWidths = await loadVariantWidths();
+  } catch {
+    // Transient R2 failure — a durably cached empty catalogue would outlive
+    // the outage by hours, so serve an uncacheable 503 instead.
+    return new Response(JSON.stringify({ error: "unavailable" }), {
+      status: 503,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
+    });
+  }
 
-  // Augment each item with a compact responsive-variant field `vw` (bitmask
-  // per image slot over CARD_VARIANT_WIDTHS) so client cards can build a
-  // srcset with no extra fetch of image-meta. Omitted when an item has no
-  // variants; animated slots are zeroed. Adds < 1KB brotli to the payload.
-  const variantWidths = await loadVariantWidths();
   const lookup = (hash: string): number[] | undefined => variantWidths[hash];
   const payload = items.map((item) => {
     const vw = itemVariantMasks(item, lookup);

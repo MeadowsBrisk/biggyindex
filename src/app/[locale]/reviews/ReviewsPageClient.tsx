@@ -3,14 +3,7 @@
 import { useSetAtom } from "jotai";
 import { Camera, MessageSquare, Star, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 import { ReviewPhotoImg } from "@/components/ReviewPhotoImg";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getReviewPhotoUrl, getSellerImageUrl } from "@/lib/images";
@@ -38,10 +31,11 @@ interface Props {
   /** Server-computed intro paragraph (aggregate stats prose); null when the
       feed is empty or unrated. SSR'd here so it sits under the H1. */
   intro?: string | null;
+  /** Clock the relative ages are measured against. Resolved on the server from
+      the review feed's own write stamp (see the page component) so the ages are
+      already true in the SSR'd HTML and hydration re-renders the same text. */
+  now: number;
 }
-
-/* `now` is computed on the client, never passed in as a prop: a server-side
-   timestamp would make the "use cache" parent render time-dependent. */
 
 type FilterMode = "all" | "with-images" | "with-text";
 
@@ -379,15 +373,8 @@ function ReviewRow({ review, now }: { review: ReviewCardData; now: number }) {
   );
 }
 
-export function ReviewsPageClient({ reviews, intro }: Props) {
+export function ReviewsPageClient({ reviews, intro, now }: Props) {
   const t = useTranslations("reviews.page");
-  const [now, setNow] = useState(0);
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setNow(Date.now());
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
   const filtered = useMemo(() => {

@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
+import { countActiveSellers } from "@/lib/sellers";
 import type { Seller } from "@/lib/types";
 import { sellerModalIdAtom } from "@/store/atoms";
 
@@ -405,7 +406,7 @@ export function SellersPageClient({
     <div className="max-w-5xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold text-foreground mb-1">{t("title")}</h1>
       <p className="text-muted text-sm mb-8">
-        {t("activeSellers", { count: sellers.length })}
+        {t("activeSellers", { count: countActiveSellers(sellers) })}
       </p>
 
       {/* Leaderboard */}

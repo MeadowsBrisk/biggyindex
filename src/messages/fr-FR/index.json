@@ -6,6 +6,7 @@
   },
   "nav": {
     "browse": "Parcourez",
+    "prices": "Prix",
     "reviews": "Avis",
     "sellers": "Vendeurs",
     "settings": "Paramètres"
@@ -215,7 +216,8 @@
       "subtitle": "Recherche plus rapide, catégories plus propres et une confiance vendeur instantanée pour le marché Little Biggy.",
       "stats": {
         "itemsIndexed": "Éléments indexés",
-        "activeSellers": "Vendeurs actifs"
+        "activeSellers": "Vendeurs actifs",
+        "priceIndex": "Indice des prix"
       },
       "cta": "Parcourir le marché",
       "markets": "Marchés"
@@ -327,8 +329,8 @@
             "a": "Vu ou créé en premier signifie que c’est la première fois que l’objet est indexé par le robot. Cela peut inclure les éléments qui étaient sur LB avant l’existence de l’indexeur. Mis à jour signifie que l’article a été modifié par le vendeur, ou que le crawler a détecté un changement (par exemple, prix, variantes, description)."
           },
           "endorsements": {
-            "q": "Qu’est-ce que les recommandations ?",
-            "a": "Des votes communautaires qui mettent en avant les objets populaires sans vous suivre."
+            "q": "Que sont les recommandations et les signalements de vendeurs ?",
+            "a": "Des retours que vous pouvez laisser sur la fiche d'un vendeur : recommandez celui avec qui l'expérience a été bonne, signalez celui avec qui elle ne l'a pas été. Un modérateur humain vérifie chaque envoi avant sa publication, et les totaux figurent sur la page du vendeur, à côté de ses statistiques d'avis."
           }
         }
       },
@@ -397,11 +399,13 @@
       "panels": {
         "top": {
           "title": "Mieux noté",
-          "subtitle": "Taux d’avis positifs le plus élevé"
+          "subtitle": "Taux d’avis positifs le plus élevé",
+          "empty": "Aucun vendeur de ce marché n'a encore assez d'avis pour être classé."
         },
         "caution": {
           "title": "À vérifier",
-          "subtitle": "Taux d'avis négatifs plus élevé"
+          "subtitle": "Taux d'avis négatifs plus élevé",
+          "empty": "Aucun vendeur de ce marché n'accumule assez d'avis négatifs pour être signalé."
         },
         "reviewsLabel": "Avis"
       },
@@ -1155,6 +1159,7 @@
     "cta": {
       "browse": "Parcourir l'index",
       "sellers": "Tous les vendeurs",
+      "prices": "Indice des prix",
       "home": "Retour à l'accueil"
     }
   },
@@ -1183,7 +1188,7 @@
       },
       "whatWeCompute": {
         "heading": "Ce que nous calculons",
-        "body": "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Statistiques d'avis — notes et délais de livraison agrégés à partir des avis publics de chaque annonce.\n• Retours sur les vendeurs — recommandations et signalements soumis par les visiteurs de BiggyIndex ; chacun est vérifié par un modérateur humain avant d'apparaître.\n\nCertains chiffres ne sont volontairement pas calculés par nous : l'ordre de tri « Hottest » et les compteurs de recommandations des annonces proviennent de Little Biggy lui-même — nous ne faisons que les afficher.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
+        "body": "La plupart de ce que vous voyez est repris directement des annonces, mais quelques chiffres sont calculés par nos soins :\n\n• Historique des prix — nous enregistrons les prix de chaque annonce au fil du temps pour que vous puissiez voir s'ils ont augmenté ou baissé.\n• Statistiques d'avis — notes et délais de livraison agrégés à partir des avis publics de chaque annonce.\n• Retours sur les vendeurs — recommandations et signalements soumis par les visiteurs de BiggyIndex ; chacun est vérifié par un modérateur humain avant d'apparaître.\n\nCertains chiffres ne sont volontairement pas calculés par nous : l'ordre de tri « Hottest » provient de Little Biggy lui-même — nous ne faisons que l'afficher.\n\nRien de tout cela n'est une garantie ; ce sont des résumés de données publiques destinés à vous aider à comparer."
       },
       "archive": {
         "heading": "Politique d'archivage",
@@ -1300,6 +1305,12 @@
       "browseAllCta": "Parcourir toutes les annonces {category} avec filtres",
       "breadcrumbHome": "Accueil",
       "breadcrumbLabel": "Fil d'Ariane",
+      "priceNote": {
+        "flower": "Vous cherchez à situer un prix correct ? L'<link>indice des prix du cannabis</link> suit les médianes au gramme sur toutes les annonces de fleur indexées ici.",
+        "shake": "Le shake est la façon la moins chère d'acheter au poids — l'<link>indice des prix du cannabis</link> montre à quel point ses médianes au gramme passent sous celles de la fleur.",
+        "hash": "Les prix du hash varient fortement entre qualités d'import et extractions sans solvant — l'<link>indice des prix du cannabis</link> suit la médiane et la fourchette au gramme en direct.",
+        "concentrates": "Les concentrés affichent les prix au gramme les plus élevés du site — l'<link>indice des prix du cannabis</link> indique où se situe la médiane actuelle."
+      },
       "intro": {
         "flower": "La fleur est la plus grande catégorie de Little Biggy, des petites têtes économiques aux exotiques Cali importées. Les annonces sont regroupées par famille de variétés — Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake et plus — pour suivre une lignée génétique que vous connaissez déjà au lieu de deviner à partir des noms de produits. La plupart des vendeurs proposent plusieurs paliers de poids, et le prix au gramme chute nettement à partir de 7 g et 14 g. Les descriptions précisent en général la tendance indica, sativa ou hybride et le mode de culture. Chaque annonce renvoie au vendeur sur Little Biggy, avec avis, délais de livraison et frais d’envoi indexés ici pour comparer les producteurs avant de commander.",
         "shake": "Le shake est l’entrée de gamme du marché de la fleur : shake en vrac, trim et petites têtes popcorn, généralement vendus par les mêmes producteurs que la fleur entière mais à un prix au gramme bien plus bas. C’est un choix populaire pour rouler, cuisiner et préparer des comestibles ou extraits maison, où l’apparence compte bien moins que le coût. La qualité varie ici plus que dans toute autre catégorie — certaines annonces sont surtout de la poussière et des feuilles sucrées, d’autres des smalls presque entières — ; lisez donc attentivement les avis des vendeurs. Nous avons séparé le shake de la fleur dans cet index précisément pour que les chasseurs de bonnes affaires comparent à armes égales.",

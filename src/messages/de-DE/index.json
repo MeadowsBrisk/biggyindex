@@ -6,6 +6,7 @@
   },
   "nav": {
     "browse": "Durchstöbern",
+    "prices": "Preise",
     "reviews": "Rezensionen",
     "sellers": "Verkäufer",
     "settings": "Einstellungen"
@@ -215,7 +216,8 @@
       "subtitle": "Schnellere Suche, übersichtlichere Kategorien und Verkäufer-Vertrauen auf einen Blick für den Little Biggy Marktplatz.",
       "stats": {
         "itemsIndexed": "Indexierte Elemente",
-        "activeSellers": "Aktive Verkäufer"
+        "activeSellers": "Aktive Verkäufer",
+        "priceIndex": "Preisindex"
       },
       "cta": "Marktplatz durchstöbern",
       "markets": "Märkte"
@@ -327,8 +329,8 @@
             "a": "Zuerst gesehen/erstellt bedeutet, dass der Artikel zum ersten Mal vom Crawler indexiert wurde. Dies kann auch Artikel umfassen, die bereits auf LB waren, bevor der Indexer existierte. Aktualisiert bedeutet, dass der Artikel vom Verkäufer bearbeitet wurde oder dass der Crawler eine Änderung erkannt hat (z. B. Preis, Varianten, Beschreibung)."
           },
           "endorsements": {
-            "q": "Was sind Empfehlungen?",
-            "a": "Community-Abstimmungen, die beliebte Artikel hervorheben, ohne dich zu verfolgen."
+            "q": "Was sind Verkäufer-Empfehlungen und -Meldungen?",
+            "a": "Feedback, das Sie im Profil eines Verkäufers hinterlassen können: empfehlen Sie einen Verkäufer mit guter Erfahrung oder melden Sie einen mit schlechter. Ein menschlicher Moderator prüft jede Einreichung, bevor sie erscheint, und die Summen stehen auf der Verkäuferseite neben den Bewertungsstatistiken."
           }
         }
       },
@@ -397,11 +399,13 @@
       "panels": {
         "top": {
           "title": "Topbewertet",
-          "subtitle": "Höchstes positives Bewertungsverhältnis"
+          "subtitle": "Höchstes positives Bewertungsverhältnis",
+          "empty": "Kein Verkäufer in diesem Markt hat bisher genug Rezensionen für eine Platzierung."
         },
         "caution": {
           "title": "Zu prüfen",
-          "subtitle": "Höhere negative Bewertungsrate"
+          "subtitle": "Höhere negative Bewertungsrate",
+          "empty": "Kein Verkäufer in diesem Markt hat genug negatives Feedback, um aufzufallen."
         },
         "reviewsLabel": "Rezensionen"
       },
@@ -1155,6 +1159,7 @@
     "cta": {
       "browse": "Index durchstöbern",
       "sellers": "Alle Verkäufer",
+      "prices": "Preisindex",
       "home": "Zurück zur Startseite"
     }
   },
@@ -1183,7 +1188,7 @@
       },
       "whatWeCompute": {
         "heading": "Was wir berechnen",
-        "body": "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Bewertungsstatistik – Bewertungen und Lieferzeiten, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n• Verkäufer-Feedback – Empfehlungen und Meldungen, die von BiggyIndex-Besuchern eingereicht werden; jede einzelne wird vor der Veröffentlichung von einem menschlichen Moderator geprüft.\n\nManche Zahlen berechnen wir bewusst nicht: die \"Hottest\"-Sortierung und die Empfehlungszähler der einzelnen Angebote stammen von Little Biggy selbst – wir zeigen sie lediglich an.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
+        "body": "Das meiste, was Sie sehen, ist direkt aus den Angeboten übernommen, doch einige Werte berechnen wir selbst:\n\n• Preisverlauf – wir erfassen die Preise jedes Angebots im Zeitverlauf, damit Sie sehen, ob sie gestiegen oder gefallen sind.\n• Bewertungsstatistik – Bewertungen und Lieferzeiten, aggregiert aus den öffentlichen Rezensionen jedes Angebots.\n• Verkäufer-Feedback – Empfehlungen und Meldungen, die von BiggyIndex-Besuchern eingereicht werden; jede einzelne wird vor der Veröffentlichung von einem menschlichen Moderator geprüft.\n\nManche Zahlen berechnen wir bewusst nicht: die \"Hottest\"-Sortierung stammt von Little Biggy selbst – wir zeigen sie lediglich an.\n\nNichts davon ist eine Garantie; es sind Zusammenfassungen öffentlicher Daten, die Ihnen den Vergleich erleichtern sollen."
       },
       "archive": {
         "heading": "Archiv-Richtlinie",
@@ -1300,6 +1305,12 @@
       "browseAllCta": "Alle {category}-Angebote mit Filtern durchsuchen",
       "breadcrumbHome": "Startseite",
       "breadcrumbLabel": "Brotkrümelnavigation",
+      "priceNote": {
+        "flower": "Unsicher, was ein fairer Preis ist? Der <link>Cannabis-Preisindex</link> zeigt die aktuellen Median-Grammpreise über alle hier indexierten Blüten-Angebote.",
+        "shake": "Shake ist der günstigste Weg, nach Gewicht zu kaufen — der <link>Cannabis-Preisindex</link> zeigt, wie weit die Grammpreise unter denen von Blüten liegen.",
+        "hash": "Hash-Preise schwanken stark zwischen Importqualitäten und lösungsmittelfreien Extrakten — der <link>Cannabis-Preisindex</link> zeigt den aktuellen Median und die Spanne pro Gramm.",
+        "concentrates": "Konzentrate haben die höchsten Grammpreise auf der Seite — der <link>Cannabis-Preisindex</link> zeigt, wo der aktuelle Median liegt."
+      },
       "intro": {
         "flower": "Blüten sind die größte Kategorie auf Little Biggy – von günstigen Smalls bis zu importierten Cali-Exoten. Die Angebote sind nach Strain-Familien gruppiert – Gelato, Cookies, Runtz, OG/Kush, Haze, Zkittlez, Diesel, Cheese, Cake und mehr –, sodass Sie einer Genetik folgen können, die Sie bereits kennen, statt aus Produktnamen zu raten. Die meisten Verkäufer bieten mehrere Gewichtsstufen an, und der Grammpreis fällt meist deutlich ab 7 g und 14 g. Beschreibungen nennen in der Regel Indica-, Sativa- oder Hybrid-Tendenzen sowie den Anbaustil. Jedes Angebot verlinkt zum Verkäufer auf Little Biggy, mit hier indexierten Bewertungen, Lieferzeiten und Versandkosten – so lassen sich Grower vor der Bestellung direkt vergleichen.",
         "shake": "Shake ist das Preis-Leistungs-Ende des Blütenmarkts: loser Shake, Trim und kleine Popcorn-Buds, meist von denselben Growern, die auch ganze Blüten listen – aber zu einem deutlich niedrigeren Grammpreis. Beliebt zum Drehen, Kochen und für selbstgemachte Edibles oder Extrakte, wo die Optik viel weniger zählt als der Preis. Die Qualität schwankt hier stärker als in jeder anderen Kategorie – manche Angebote bestehen überwiegend aus Staub und Zuckerblättern, andere aus fast ganzen Smalls –, daher lohnt sich ein genauer Blick auf die Verkäuferbewertungen. Wir haben Shake in diesem Index bewusst von den Blüten getrennt, damit Schnäppchenjäger Gleiches mit Gleichem vergleichen können, statt sich durch Premium-Angebote zu wühlen.",
