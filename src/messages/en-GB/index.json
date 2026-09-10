@@ -331,6 +331,10 @@
           "endorsements": {
             "q": "What are seller endorsements and reports?",
             "a": "Feedback you can leave on a seller's profile: endorse one you had a good experience with, or report one you didn't. A human moderator checks every submission before it appears, and the totals sit on the seller's page beside their review stats."
+          },
+          "shipsToIreland": {
+            "q": "Does Little Biggy ship to Ireland?",
+            "a": "Yes. Sellers on Little Biggy post to Irish addresses, and this edition only indexes listings a seller will actually send here — the catalogue, the postage and the reported delivery times are all the Irish ones, not the UK ones. Postage is set per order by the seller, so the shipping options on the listing itself are what apply at checkout."
           }
         }
       },
@@ -363,6 +367,10 @@
           "legality": {
             "q": "What about UK legality?",
             "a": "Cannabis laws still apply. You are responsible for staying within local regulations and verifying every detail on Little Biggy."
+          },
+          "euroPrices": {
+            "q": "Are prices in euros, and can I pay in euros?",
+            "a": "Prices on this edition are shown in euros, converted from the seller's asking price at the current exchange rate so you can compare listings at a glance. Payment itself is still Bitcoin only — no card, bank transfer or euro balance — so the amount you send is the Bitcoin equivalent at the moment you pay."
           }
         }
       }
@@ -1171,6 +1179,27 @@
     "backToTop": "Back to top",
     "back": "Back"
   },
+  "ireland": {
+    "ordering": {
+      "eyebrow": "Shipping to Ireland",
+      "heading": "Ordering from Ireland",
+      "intro": "Every listing on this edition is one a seller will post to an Irish address. The figures below are read straight off that catalogue each time it refreshes.",
+      "sellers": {
+        "label": "{count, plural, one {seller ships to Ireland} other {sellers ship to Ireland}}",
+        "meta": "{listings, plural, one {# listing indexed for Ireland} other {# listings indexed for Ireland}}"
+      },
+      "shipping": {
+        "label": "typical postage to Ireland",
+        "meta": "Median seller postage, across the {withShipping} of {listings} listings that publish a price."
+      },
+      "delivery": {
+        "label": "typical time to arrive",
+        "value": "{days, plural, one {# day} other {# days}}",
+        "meta": "Median of the arrival times reported for {sellers, plural, one {# seller} other {# sellers}} shipping here."
+      },
+      "note": "Postage is set per order by the seller and can change with what you buy, so the shipping options on the listing itself are the ones that apply at checkout."
+    }
+  },
   "about": {
     "metadataTitle": "About BiggyIndex — How the Index Works | BiggyIndex",
     "metadataDescription": "How BiggyIndex works: an independent, read-only index of public Little Biggy listings, refreshed roughly every 30 minutes, with price history, review stats and moderated seller feedback.",
@@ -1306,6 +1335,7 @@
       "breadcrumbHome": "Home",
       "breadcrumbLabel": "Breadcrumb",
       "priceNote": {
+        "vapes": "Typical 1ml cart: {price} on Little Biggy — see the <link>price index</link>.",
         "flower": "Working out what a fair price looks like? The <link>cannabis price index</link> tracks live per-gram medians across every flower listing indexed here.",
         "shake": "Shake is the cheapest way to buy by weight — the <link>cannabis price index</link> shows how far its per-gram medians sit below flower.",
         "hash": "Hash prices swing widely between import grades and solventless — the <link>cannabis price index</link> tracks the live per-gram median and range.",
@@ -1330,6 +1360,8 @@
     "meta": {
       "titleGB": "UK Cannabis Prices — Live Price Per Gram Index",
       "title": "Cannabis Prices in {market} — Price Per Gram Index",
+      "titleGBYear": "UK Cannabis Prices {year} — Live Price Per Gram Index",
+      "titleYear": "Cannabis Prices in {market} {year} — Price Per Gram Index",
       "descriptionGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
       "description": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
       "descriptionNoCountGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings.",
@@ -1338,6 +1370,8 @@
     "headingGB": "UK Cannabis Prices: Price Per Gram",
     "heading": "Cannabis Prices in {market}: Price Per Gram",
     "intro": "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}",
+    "weightsIntro": "Prices are broken down by the sizes people actually buy: medians for 1g, 3.5g, 7g, 14g and 28g — an eighth, a quarter, a half ounce and an ounce.",
+    "updated": "Updated {date}",
     "empty": "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up.",
     "stats": {
       "overallMedianLabel": "Median price per gram",
@@ -1353,6 +1387,16 @@
       "range": "Typical range",
       "from": "From",
       "caption": "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+    },
+    "weights": {
+      "heading": "Price by weight: 1g to 28g",
+      "caption": "Median asking price at each standard size, from the listings that offer that exact weight. A size is quoted only where at least three listings sell it.",
+      "size1": "1g",
+      "size3_5": "3.5g (eighth)",
+      "size7": "7g (quarter)",
+      "size14": "14g (half ounce)",
+      "size28": "28g (ounce)",
+      "cellMeta": "{count, plural, one {# listing} other {# listings}}"
     },
     "scopeNote": "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content.",
     "bestValue": {
@@ -1381,6 +1425,26 @@
       "bandLarge": "50ml+",
       "perMl": "{price}/ml",
       "tileMeta": "{count, plural, one {# listing} other {# listings}}"
+    },
+    "faq": {
+      "heading": "Cannabis price FAQ",
+      "ounce": {
+        "q": "How much is an ounce of flower on Little Biggy?",
+        "a": "The median asking price for a 28g ounce of flower is {price}. Ounces are priced well below the single-gram rate, so the figure is nothing like 28 times the 1g price — the weight table above shows every size side by side.",
+        "aPerGram": "Not enough listings quote a 28g flower option to give an honest ounce price for this market right now. The median asking price across all weight-priced listings is {price} per gram."
+      },
+      "hashGram": {
+        "q": "How much is hash per gram?",
+        "a": "The median hash asking price is {price} per gram, taken from every gram-denominated hash option indexed for this market. Single grams sit above that figure and bulk sizes below it."
+      },
+      "vapeCart": {
+        "q": "How much is a vape cart?",
+        "a": "A single {size} cart has a median asking price of {price}. Carts are priced per device rather than by weight, so comparing one against a per-gram flower figure would mislead."
+      },
+      "real": {
+        "q": "Are these real sale prices?",
+        "a": "No — they are asking prices. Every figure is what a seller lists an option at, read from live Little Biggy listings, converted to the market currency and reduced to a median. Nothing here comes from completed sales, and it is not a street-price survey."
+      }
     },
     "methodology": {
       "heading": "Methodology",

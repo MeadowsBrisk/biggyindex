@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { getTranslations } from "next-intl/server";
+import { IrelandOrderingSection } from "@/components/IrelandOrderingSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getServerCurrency } from "@/lib/market/currency";
+import { loadIrelandOrderingFacts } from "@/lib/market/ireland";
 import { localeToMarket } from "@/lib/market/market";
 import { pageMetadata } from "@/lib/seo/metadata";
 
@@ -45,7 +48,21 @@ export default async function AboutPage({
   cacheLife("config");
 
   const { locale } = await params;
+  const market = localeToMarket(locale);
   const t = await getTranslations({ locale, namespace: "about" });
+
+  // Ireland's edition carries a panel of live Irish ordering figures. It is
+  // the only market-specific content on this page, so the catalogue read and
+  // the rate lookup behind it are gated on IE. loadIrelandOrderingFacts()
+  // carries the 'items' tag, which is what keeps the numbers here rolling
+  // over with the catalogue despite this page's own 'config' profile.
+  const [irelandFacts, currency] =
+    market === "IE"
+      ? await Promise.all([
+          loadIrelandOrderingFacts(),
+          getServerCurrency(market, { approximateFallback: true }),
+        ])
+      : [null, null];
 
   return (
     <>
@@ -70,6 +87,15 @@ export default async function AboutPage({
               </section>
             ))}
           </div>
+
+          {irelandFacts && currency && (
+            <IrelandOrderingSection
+              facts={irelandFacts}
+              currency={currency}
+              locale={locale}
+              variant="panel"
+            />
+          )}
         </div>
       </main>
       <SiteFooter locale={locale} />

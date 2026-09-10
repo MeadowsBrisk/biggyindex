@@ -46,6 +46,7 @@ site:
   # not for BiggyIndex. The page title template appends "| BiggyIndex".
   tagline:
     en-GB: "The Little Biggy Index — Every Listing, Seller & Price"
+    en-IE: "The Little Biggy Index for Ireland — Every Listing, Seller & Price"
     de-DE: "Der Little Biggy Index — Alle Angebote, Verkäufer & Preise"
     fr-FR: "Le Little Biggy Index — Toutes les annonces, vendeurs & prix"
     pt-PT: "O Little Biggy Index — Todos os anúncios, vendedores e preços"
@@ -1578,6 +1579,7 @@ home:
         pl-PL: Indeks konopi
       highlight:
         en-GB: Cannabis Index
+        en-IE: Cannabis Index for Ireland
         de-DE: Cannabis-Index
         fr-FR: de Little Biggy
         pt-PT: do Little Biggy
@@ -1588,6 +1590,7 @@ home:
         pl-PL: na Little Biggy
     subtitle:
       en-GB: Faster search, cleaner categories, and at-a-glance seller trust for the Little Biggy marketplace.
+      en-IE: Faster search, cleaner categories, and at-a-glance seller trust for every Little Biggy listing that ships to Ireland.
       de-DE: Schnellere Suche, übersichtlichere Kategorien und Verkäufer-Vertrauen auf einen Blick für den Little Biggy Marktplatz.
       fr-FR: Recherche plus rapide, catégories plus propres et une confiance vendeur instantanée pour le marché Little Biggy.
       pt-PT: Pesquisa mais rápida, categorias mais limpas e confiança rápida dos vendedores no mercado Little Biggy.
@@ -2341,6 +2344,13 @@ home:
             el-GR: "Σχόλια που μπορείτε να αφήσετε στο προφίλ ενός πωλητή: συστήστε όποιον σας εξυπηρέτησε καλά ή αναφέρετε όποιον όχι. Κάθε υποβολή ελέγχεται από άνθρωπο συντονιστή πριν εμφανιστεί, και τα σύνολα βρίσκονται στη σελίδα του πωλητή, δίπλα στα στατιστικά των κριτικών του."
             cs-CZ: "Zpětná vazba, kterou můžete zanechat na profilu prodejce: doporučte toho, s nímž jste měli dobrou zkušenost, nebo nahlaste toho, s nímž ne. Každé odeslání před zveřejněním zkontroluje lidský moderátor a součty najdete na stránce prodejce vedle statistik recenzí."
             pl-PL: "Opinie, które możesz zostawić w profilu sprzedawcy: poleć tego, z którym miałeś dobre doświadczenie, lub zgłoś tego, z którym nie. Każde zgłoszenie sprawdza moderator, zanim się pojawi, a sumy znajdują się na stronie sprzedawcy obok statystyk recenzji."
+        # IE edition only. The answer must stay true without the computed
+        # figures — the JSON-LD copy of it takes no ICU values.
+        shipsToIreland:
+          q:
+            en-GB: Does Little Biggy ship to Ireland?
+          a:
+            en-GB: Yes. Sellers on Little Biggy post to Irish addresses, and this edition only indexes listings a seller will actually send here — the catalogue, the postage and the reported delivery times are all the Irish ones, not the UK ones. Postage is set per order by the seller, so the shipping options on the listing itself are what apply at checkout.
     bitcoin:
       items:
         payments:
@@ -2496,6 +2506,13 @@ home:
             el-GR: Οι νόμοι για την κάνναβη εξακολουθούν να ισχύουν. Είστε υπεύθυνοι για την τήρηση των τοπικών κανονισμών και την επαλήθευση κάθε λεπτομέρειας σχετικά με Little Biggy.
             cs-CZ: Zákony o konopí stále platí. Jste odpovědní za dodržování místních předpisů a ověřování každého detailu Little Biggy.
             pl-PL: Przepisy dotyczące konopi nadal obowiązują. Jesteś odpowiedzialny za przestrzeganie lokalnych przepisów i weryfikację każdego szczegółu Little Biggy.
+        # IE edition only. Prices are converted for reading; the payment
+        # itself is unaffected, which is the whole point of the answer.
+        euroPrices:
+          q:
+            en-GB: Are prices in euros, and can I pay in euros?
+          a:
+            en-GB: Prices on this edition are shown in euros, converted from the seller's asking price at the current exchange rate so you can compare listings at a glance. Payment itself is still Bitcoin only — no card, bank transfer or euro balance — so the amount you send is the Bitcoin equivalent at the moment you pay.
   whatsNewSection:
     soldOut:
       en-GB: Sold out
@@ -8703,9 +8720,31 @@ common:
     cs-CZ: Zpět
     pl-PL: Wstecz
 
+# "Ordering from Ireland" — the IE edition's market fact panel, rendered on
+# the home page and on /about. It is gated on market === "IE", so no other
+# locale ever reaches these keys and en-GB copy is the whole story. Every
+# number is supplied by the page from the live Irish catalogue.
+ireland:
+  ordering:
+    eyebrow: Shipping to Ireland
+    heading: Ordering from Ireland
+    intro: Every listing on this edition is one a seller will post to an Irish address. The figures below are read straight off that catalogue each time it refreshes.
+    sellers:
+      label: "{count, plural, one {seller ships to Ireland} other {sellers ship to Ireland}}"
+      meta: "{listings, plural, one {# listing indexed for Ireland} other {# listings indexed for Ireland}}"
+    shipping:
+      label: typical postage to Ireland
+      meta: "Median seller postage, across the {withShipping} of {listings} listings that publish a price."
+    delivery:
+      label: typical time to arrive
+      value: "{days, plural, one {# day} other {# days}}"
+      meta: "Median of the arrival times reported for {sellers, plural, one {# seller} other {# sellers}} shipping here."
+    note: Postage is set per order by the seller and can change with what you buy, so the shipping options on the listing itself are the ones that apply at checkout.
+
 about:
   metadataTitle:
     en-GB: "About BiggyIndex — How the Index Works | BiggyIndex"
+    en-IE: "About BiggyIndex Ireland — How the Index Works | BiggyIndex"
     de-DE: "Über BiggyIndex — So funktioniert der Index | BiggyIndex"
     fr-FR: "À propos de BiggyIndex — comment fonctionne l'index | BiggyIndex"
     pt-PT: "Sobre o BiggyIndex — como funciona o índice | BiggyIndex"
@@ -8716,6 +8755,7 @@ about:
     pl-PL: "O BiggyIndex — jak działa indeks | BiggyIndex"
   metadataDescription:
     en-GB: "How BiggyIndex works: an independent, read-only index of public Little Biggy listings, refreshed roughly every 30 minutes, with price history, review stats and moderated seller feedback."
+    en-IE: "How BiggyIndex Ireland works: an independent, read-only index of the public Little Biggy listings that ship to Ireland, refreshed roughly every 30 minutes, with price history, review stats and moderated seller feedback."
     de-DE: "Wie BiggyIndex funktioniert: ein unabhängiger, rein lesender Index öffentlicher Little Biggy Angebote, der etwa alle 30 Minuten aktualisiert wird – mit Preisverlauf, Bewertungsstatistiken und moderiertem Verkäufer-Feedback."
     fr-FR: "Comment fonctionne BiggyIndex : un index indépendant, en lecture seule, des annonces publiques Little Biggy, actualisé environ toutes les 30 minutes, avec historique des prix, statistiques d'avis et retours modérés sur les vendeurs."
     pt-PT: "Como funciona o BiggyIndex: um índice independente e só de leitura das listagens públicas do Little Biggy, atualizado cerca de cada 30 minutos, com histórico de preços, estatísticas de avaliações e feedback moderado sobre vendedores."
@@ -8726,6 +8766,7 @@ about:
     pl-PL: "Jak działa BiggyIndex: niezależny, tylko do odczytu indeks publicznych ofert Little Biggy, odświeżany mniej więcej co 30 minut, z historią cen, statystykami recenzji i moderowanymi opiniami o sprzedawcach."
   title:
     en-GB: "About BiggyIndex"
+    en-IE: "About BiggyIndex Ireland"
     de-DE: "Über BiggyIndex"
     fr-FR: "À propos de BiggyIndex"
     pt-PT: "Sobre o BiggyIndex"
@@ -9475,6 +9516,18 @@ category:
     # medians are the figure that page publishes, and they are only
     # comparable for cannabis sold by weight. <link> wraps the anchor text.
     priceNote:
+      # Vapes sell per device, so this quotes a per-cart median rather than
+      # the per-gram figure the weight categories use.
+      vapes:
+        en-GB: "Typical 1ml cart: {price} on Little Biggy — see the <link>price index</link>."
+        de-DE: "Typische 1-ml-Kartusche: {price} auf Little Biggy — siehe den <link>Preisindex</link>."
+        fr-FR: "Cartouche 1 ml typique : {price} sur Little Biggy — voir l'<link>indice des prix</link>."
+        pt-PT: "Cartucho de 1 ml típico: {price} no Little Biggy — ver o <link>índice de preços</link>."
+        it-IT: "Cartuccia da 1 ml tipica: {price} su Little Biggy — vedi l'<link>indice dei prezzi</link>."
+        es-ES: "Cartucho de 1 ml típico: {price} en Little Biggy — consulta el <link>índice de precios</link>."
+        el-GR: "Τυπική κασέτα 1 ml: {price} στο Little Biggy — δείτε τον <link>δείκτη τιμών</link>."
+        cs-CZ: "Typická 1ml náplň: {price} na Little Biggy — viz <link>cenový index</link>."
+        pl-PL: "Typowy wkład 1 ml: {price} na Little Biggy — zobacz <link>indeks cen</link>."
       flower:
         en-GB: "Working out what a fair price looks like? The <link>cannabis price index</link> tracks live per-gram medians across every flower listing indexed here."
         de-DE: "Unsicher, was ein fairer Preis ist? Der <link>Cannabis-Preisindex</link> zeigt die aktuellen Median-Grammpreise über alle hier indexierten Blüten-Angebote."
@@ -10749,69 +10802,712 @@ category:
           tak samo jak zwyczajny.
 
 # ─── /prices — cannabis price-per-gram index ─────────────────────────
-# All copy is en-GB for now; other locales inherit until a batch
-# translation pass fills them in. The *GB keys carry the UK wording used
-# on the apex host; the generic keys interpolate the localized market
-# name from the `markets` namespace.
+# Translated into all locales. The *GB keys carry the UK wording used on the
+# apex host; the generic keys interpolate the localized market name from the
+# `markets` namespace, so their phrasing must stay grammatical with a bare
+# country name substituted in (hence the colon form in cs-CZ / pl-PL).
 prices:
   meta:
-    titleGB: "UK Cannabis Prices — Live Price Per Gram Index"
+    titleGB:
+      en-GB: "UK Cannabis Prices — Live Price Per Gram Index"
+      de-DE: "Cannabis-Preise Großbritannien — Live-Index der Grammpreise"
+      fr-FR: "Prix du cannabis au Royaume-Uni — indice des prix au gramme en direct"
+      pt-PT: "Preços da canábis no Reino Unido — índice de preços por grama em tempo real"
+      it-IT: "Prezzi della cannabis nel Regno Unito — indice dei prezzi al grammo in tempo reale"
+      es-ES: "Precios del cannabis en el Reino Unido — índice de precios por gramo en directo"
+      el-GR: "Τιμές κάνναβης στο Ηνωμένο Βασίλειο — ζωντανός δείκτης τιμών ανά γραμμάριο"
+      cs-CZ: "Ceny konopí ve Velké Británii — živý index ceny za gram"
+      pl-PL: "Ceny konopi w Wielkiej Brytanii — aktualny indeks ceny za gram"
     title:
       en-GB: "Cannabis Prices in {market} — Price Per Gram Index"
       en-NL: "Cannabis Prices in the Netherlands — Price Per Gram Index"
-    descriptionGB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
-    description: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
-    descriptionNoCountGB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
-    descriptionNoCount: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
-  headingGB: "UK Cannabis Prices: Price Per Gram"
-  heading: "Cannabis Prices in {market}: Price Per Gram"
-  intro: "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}"
+      de-DE: "Cannabis-Preise in {market} — Index der Grammpreise"
+      fr-FR: "Prix du cannabis en {market} — indice des prix au gramme"
+      pt-PT: "Preços da canábis em {market} — índice de preços por grama"
+      it-IT: "Prezzi della cannabis in {market} — indice dei prezzi al grammo"
+      es-ES: "Precios del cannabis en {market} — índice de precios por gramo"
+      el-GR: "Τιμές κάνναβης στην {market} — δείκτης τιμών ανά γραμμάριο"
+      cs-CZ: "Ceny konopí: {market} — index ceny za gram"
+      pl-PL: "Ceny konopi: {market} — indeks ceny za gram"
+    # Year-stamped variants, used whenever the data carries a freshness
+    # stamp; the plain keys above remain the fallback.
+    titleGBYear:
+      en-GB: "UK Cannabis Prices {year} — Live Price Per Gram Index"
+      de-DE: "Cannabis-Preise Großbritannien {year} — Live-Index der Grammpreise"
+      fr-FR: "Prix du cannabis au Royaume-Uni {year} — indice des prix au gramme en direct"
+      pt-PT: "Preços da canábis no Reino Unido {year} — índice de preços por grama em tempo real"
+      it-IT: "Prezzi della cannabis nel Regno Unito {year} — indice dei prezzi al grammo in tempo reale"
+      es-ES: "Precios del cannabis en el Reino Unido {year} — índice de precios por gramo en directo"
+      el-GR: "Τιμές κάνναβης στο Ηνωμένο Βασίλειο {year} — ζωντανός δείκτης τιμών ανά γραμμάριο"
+      cs-CZ: "Ceny konopí ve Velké Británii {year} — živý index ceny za gram"
+      pl-PL: "Ceny konopi w Wielkiej Brytanii {year} — aktualny indeks ceny za gram"
+    titleYear:
+      en-GB: "Cannabis Prices in {market} {year} — Price Per Gram Index"
+      en-NL: "Cannabis Prices in the Netherlands {year} — Price Per Gram Index"
+      de-DE: "Cannabis-Preise in {market} {year} — Index der Grammpreise"
+      fr-FR: "Prix du cannabis en {market} {year} — indice des prix au gramme"
+      pt-PT: "Preços da canábis em {market} {year} — índice de preços por grama"
+      it-IT: "Prezzi della cannabis in {market} {year} — indice dei prezzi al grammo"
+      es-ES: "Precios del cannabis en {market} {year} — índice de precios por gramo"
+      el-GR: "Τιμές κάνναβης στην {market} {year} — δείκτης τιμών ανά γραμμάριο"
+      cs-CZ: "Ceny konopí {year}: {market} — index ceny za gram"
+      pl-PL: "Ceny konopi {year}: {market} — indeks ceny za gram"
+    descriptionGB:
+      en-GB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
+      de-DE: "Aktueller Cannabis-Preisindex für Großbritannien: Median-Angebotspreis pro Gramm für Blüten, Hash und mehr, berechnet aus {count}+ Little Biggy Angeboten mit Grammpreis."
+      fr-FR: "Indice des prix du cannabis au Royaume-Uni en direct : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir de {count}+ annonces Little Biggy vendues au gramme."
+      pt-PT: "Índice de preços da canábis no Reino Unido em tempo real: mediana do preço pedido por grama para flor, haxixe e mais, calculada a partir de {count}+ anúncios Little Biggy com preço por grama."
+      it-IT: "Indice dei prezzi della cannabis nel Regno Unito in tempo reale: mediana del prezzo richiesto al grammo per fiori, hash e altro, calcolata su {count}+ annunci Little Biggy con prezzo al grammo."
+      es-ES: "Índice de precios del cannabis en el Reino Unido en directo: mediana del precio pedido por gramo de flor, hachís y más, calculada a partir de {count}+ anuncios de Little Biggy con precio por gramo."
+      el-GR: "Ζωντανός δείκτης τιμών κάνναβης στο Ηνωμένο Βασίλειο: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από {count}+ καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο."
+      cs-CZ: "Živý cenový index konopí ve Velké Británii: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z {count}+ nabídek na Little Biggy s cenou za gram."
+      pl-PL: "Aktualny indeks cen konopi w Wielkiej Brytanii: mediana ceny ofertowej za gram suszu, haszyszu i innych, obliczona z {count}+ ofert na Little Biggy z ceną za gram."
+    description:
+      en-GB: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
+      en-NL: "Live cannabis price index for the Netherlands: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings."
+      de-DE: "Aktueller Cannabis-Preisindex für {market}: Median-Angebotspreis pro Gramm für Blüten, Hash und mehr, berechnet aus {count}+ Little Biggy Angeboten mit Grammpreis."
+      fr-FR: "Indice des prix du cannabis en direct en {market} : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir de {count}+ annonces Little Biggy vendues au gramme."
+      pt-PT: "Índice de preços da canábis em tempo real para {market}: mediana do preço pedido por grama para flor, haxixe e mais, calculada a partir de {count}+ anúncios Little Biggy com preço por grama."
+      it-IT: "Indice dei prezzi della cannabis in tempo reale in {market}: mediana del prezzo richiesto al grammo per fiori, hash e altro, calcolata su {count}+ annunci Little Biggy con prezzo al grammo."
+      es-ES: "Índice de precios del cannabis en directo en {market}: mediana del precio pedido por gramo de flor, hachís y más, calculada a partir de {count}+ anuncios de Little Biggy con precio por gramo."
+      el-GR: "Ζωντανός δείκτης τιμών κάνναβης στην {market}: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από {count}+ καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο."
+      cs-CZ: "Živý cenový index konopí – {market}: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z {count}+ nabídek na Little Biggy s cenou za gram."
+      pl-PL: "Aktualny indeks cen konopi – {market}: mediana ceny ofertowej za gram suszu, haszyszu i innych, obliczona z {count}+ ofert na Little Biggy z ceną za gram."
+    descriptionNoCountGB:
+      en-GB: "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+      de-DE: "Aktueller Cannabis-Preisindex für Großbritannien: Median-Angebotspreis pro Gramm für Blüten, Hash und mehr, berechnet aus Little Biggy Angeboten mit Grammpreis."
+      fr-FR: "Indice des prix du cannabis au Royaume-Uni en direct : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir des annonces Little Biggy vendues au gramme."
+      pt-PT: "Índice de preços da canábis no Reino Unido em tempo real: mediana do preço pedido por grama para flor, haxixe e mais, calculada a partir dos anúncios Little Biggy com preço por grama."
+      it-IT: "Indice dei prezzi della cannabis nel Regno Unito in tempo reale: mediana del prezzo richiesto al grammo per fiori, hash e altro, calcolata sugli annunci Little Biggy con prezzo al grammo."
+      es-ES: "Índice de precios del cannabis en el Reino Unido en directo: mediana del precio pedido por gramo de flor, hachís y más, calculada a partir de los anuncios de Little Biggy con precio por gramo."
+      el-GR: "Ζωντανός δείκτης τιμών κάνναβης στο Ηνωμένο Βασίλειο: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από τις καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο."
+      cs-CZ: "Živý cenový index konopí ve Velké Británii: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z nabídek na Little Biggy s cenou za gram."
+      pl-PL: "Aktualny indeks cen konopi w Wielkiej Brytanii: mediana ceny ofertowej za gram suszu, haszyszu i innych, obliczona z ofert na Little Biggy z ceną za gram."
+    descriptionNoCount:
+      en-GB: "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+      en-NL: "Live cannabis price index for the Netherlands: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+      de-DE: "Aktueller Cannabis-Preisindex für {market}: Median-Angebotspreis pro Gramm für Blüten, Hash und mehr, berechnet aus Little Biggy Angeboten mit Grammpreis."
+      fr-FR: "Indice des prix du cannabis en direct en {market} : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir des annonces Little Biggy vendues au gramme."
+      pt-PT: "Índice de preços da canábis em tempo real para {market}: mediana do preço pedido por grama para flor, haxixe e mais, calculada a partir dos anúncios Little Biggy com preço por grama."
+      it-IT: "Indice dei prezzi della cannabis in tempo reale in {market}: mediana del prezzo richiesto al grammo per fiori, hash e altro, calcolata sugli annunci Little Biggy con prezzo al grammo."
+      es-ES: "Índice de precios del cannabis en directo en {market}: mediana del precio pedido por gramo de flor, hachís y más, calculada a partir de los anuncios de Little Biggy con precio por gramo."
+      el-GR: "Ζωντανός δείκτης τιμών κάνναβης στην {market}: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από τις καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο."
+      cs-CZ: "Živý cenový index konopí – {market}: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z nabídek na Little Biggy s cenou za gram."
+      pl-PL: "Aktualny indeks cen konopi – {market}: mediana ceny ofertowej za gram suszu, haszyszu i innych, obliczona z ofert na Little Biggy z ceną za gram."
+  headingGB:
+    en-GB: "UK Cannabis Prices: Price Per Gram"
+    de-DE: "Cannabis-Preise in Großbritannien: Preis pro Gramm"
+    fr-FR: "Prix du cannabis au Royaume-Uni : prix au gramme"
+    pt-PT: "Preços da canábis no Reino Unido: preço por grama"
+    it-IT: "Prezzi della cannabis nel Regno Unito: prezzo al grammo"
+    es-ES: "Precios del cannabis en el Reino Unido: precio por gramo"
+    el-GR: "Τιμές κάνναβης στο Ηνωμένο Βασίλειο: τιμή ανά γραμμάριο"
+    cs-CZ: "Ceny konopí ve Velké Británii: cena za gram"
+    pl-PL: "Ceny konopi w Wielkiej Brytanii: cena za gram"
+  heading:
+    en-GB: "Cannabis Prices in {market}: Price Per Gram"
+    en-NL: "Cannabis Prices in the Netherlands: Price Per Gram"
+    de-DE: "Cannabis-Preise in {market}: Preis pro Gramm"
+    fr-FR: "Prix du cannabis en {market} : prix au gramme"
+    pt-PT: "Preços da canábis em {market}: preço por grama"
+    it-IT: "Prezzi della cannabis in {market}: prezzo al grammo"
+    es-ES: "Precios del cannabis en {market}: precio por gramo"
+    el-GR: "Τιμές κάνναβης στην {market}: τιμή ανά γραμμάριο"
+    cs-CZ: "Ceny konopí za gram: {market}"
+    pl-PL: "Ceny konopi za gram: {market}"
+  intro:
+    en-GB: "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}"
+    de-DE: "{count, plural, one {Jede Zahl unten ist ein aktueller Angebotspreis auf Little Biggy — pro Gramm in {currency} berechnet aus 1 Angebot mit Grammpreis und mit dem Index aktualisiert.} other {Jede Zahl unten ist ein aktueller Angebotspreis auf Little Biggy — pro Gramm in {currency} berechnet aus # Angeboten mit Grammpreis und mit dem Index aktualisiert.}}"
+    fr-FR: "{count, plural, one {Chaque chiffre ci-dessous est un prix demandé en direct sur Little Biggy — calculé au gramme en {currency} à partir d'une annonce vendue au gramme et actualisé avec l'index.} other {Chaque chiffre ci-dessous est un prix demandé en direct sur Little Biggy — calculé au gramme en {currency} à partir de # annonces vendues au gramme et actualisé avec l'index.}}"
+    pt-PT: "{count, plural, one {Cada valor abaixo é um preço pedido em tempo real no Little Biggy — calculado por grama em {currency} a partir de 1 anúncio com preço por grama e atualizado com o índice.} other {Cada valor abaixo é um preço pedido em tempo real no Little Biggy — calculado por grama em {currency} a partir de # anúncios com preço por grama e atualizado com o índice.}}"
+    it-IT: "{count, plural, one {Ogni cifra qui sotto è un prezzo richiesto in tempo reale su Little Biggy — calcolato al grammo in {currency} su 1 annuncio con prezzo al grammo e aggiornato con l'indice.} other {Ogni cifra qui sotto è un prezzo richiesto in tempo reale su Little Biggy — calcolato al grammo in {currency} su # annunci con prezzo al grammo e aggiornato con l'indice.}}"
+    es-ES: "{count, plural, one {Cada cifra de abajo es un precio pedido en directo en Little Biggy — calculado por gramo en {currency} a partir de 1 anuncio con precio por gramo y actualizado con el índice.} other {Cada cifra de abajo es un precio pedido en directo en Little Biggy — calculado por gramo en {currency} a partir de # anuncios con precio por gramo y actualizado con el índice.}}"
+    el-GR: "{count, plural, one {Κάθε ποσό παρακάτω είναι μια ζωντανή ζητούμενη τιμή στο Little Biggy — υπολογισμένη ανά γραμμάριο σε {currency} από 1 καταχώριση με τιμή ανά γραμμάριο και ανανεώνεται μαζί με τον δείκτη.} other {Κάθε ποσό παρακάτω είναι μια ζωντανή ζητούμενη τιμή στο Little Biggy — υπολογισμένη ανά γραμμάριο σε {currency} από # καταχωρίσεις με τιμή ανά γραμμάριο και ανανεώνεται μαζί με τον δείκτη.}}"
+    cs-CZ: "{count, plural, one {Každé číslo níže je aktuální požadovaná cena na Little Biggy — přepočtená na gram v {currency} z 1 nabídky s cenou za gram a obnovovaná spolu s indexem.} few {Každé číslo níže je aktuální požadovaná cena na Little Biggy — přepočtená na gram v {currency} z # nabídek s cenou za gram a obnovovaná spolu s indexem.} other {Každé číslo níže je aktuální požadovaná cena na Little Biggy — přepočtená na gram v {currency} z # nabídek s cenou za gram a obnovovaná spolu s indexem.}}"
+    pl-PL: "{count, plural, one {Każda liczba poniżej to aktualna cena ofertowa na Little Biggy — przeliczona na gram w {currency} z 1 oferty z ceną za gram i odświeżana razem z indeksem.} few {Każda liczba poniżej to aktualna cena ofertowa na Little Biggy — przeliczona na gram w {currency} z # ofert z ceną za gram i odświeżana razem z indeksem.} many {Każda liczba poniżej to aktualna cena ofertowa na Little Biggy — przeliczona na gram w {currency} z # ofert z ceną za gram i odświeżana razem z indeksem.} other {Każda liczba poniżej to aktualna cena ofertowa na Little Biggy — przeliczona na gram w {currency} z # ofert z ceną za gram i odświeżana razem z indeksem.}}"
+  weightsIntro:
+    en-GB: "Prices are broken down by the sizes people actually buy: medians for 1g, 3.5g, 7g, 14g and 28g — an eighth, a quarter, a half ounce and an ounce."
+    de-DE: "Die Preise sind nach den Mengen aufgeschlüsselt, die tatsächlich gekauft werden: Mediane für 1g, 3.5g, 7g, 14g und 28g — ein Achtel, ein Viertel, eine halbe Unze und eine Unze."
+    fr-FR: "Les prix sont détaillés par les quantités réellement achetées : médianes pour 1g, 3.5g, 7g, 14g et 28g — un huitième, un quart, une demi-once et une once."
+    pt-PT: "Os preços são detalhados pelos tamanhos que as pessoas realmente compram: medianas para 1g, 3.5g, 7g, 14g e 28g — um oitavo, um quarto, meia onça e uma onça."
+    it-IT: "I prezzi sono suddivisi per le quantità che si comprano davvero: mediane per 1g, 3.5g, 7g, 14g e 28g — un ottavo, un quarto, mezza oncia e un'oncia."
+    es-ES: "Los precios se desglosan por las cantidades que realmente se compran: medianas de 1g, 3.5g, 7g, 14g y 28g — un octavo, un cuarto, media onza y una onza."
+    el-GR: "Οι τιμές αναλύονται στις ποσότητες που αγοράζονται πραγματικά: διάμεσες τιμές για 1g, 3.5g, 7g, 14g και 28g — ένα όγδοο, ένα τέταρτο, μισή ουγγιά και μία ουγγιά."
+    cs-CZ: "Ceny jsou rozdělené podle velikostí, které lidé skutečně kupují: mediány pro 1g, 3.5g, 7g, 14g a 28g — osminka, čtvrtka, půl unce a unce."
+    pl-PL: "Ceny są rozbite według rozmiarów, które ludzie faktycznie kupują: mediany dla 1g, 3.5g, 7g, 14g i 28g — jedna ósma, jedna czwarta, pół uncji i uncja."
+  # Date of the freshest listing behind the figures, not the time of viewing.
+  updated:
+    en-GB: "Updated {date}"
+    de-DE: "Aktualisiert am {date}"
+    fr-FR: "Mis à jour le {date}"
+    pt-PT: "Atualizado a {date}"
+    it-IT: "Aggiornato il {date}"
+    es-ES: "Actualizado el {date}"
+    el-GR: "Ενημερώθηκε στις {date}"
+    cs-CZ: "Aktualizováno {date}"
+    pl-PL: "Zaktualizowano {date}"
   # Rendered when a market has no gram-priced listings yet.
-  empty: "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up."
+  empty:
+    en-GB: "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up."
+    de-DE: "Für diesen Markt sind noch keine Angebote mit Grammpreis indexiert. Schauen Sie bald wieder vorbei — die Zahlen erscheinen, sobald der Index sie erfasst."
+    fr-FR: "Aucune annonce vendue au gramme n'est encore indexée pour ce marché. Revenez bientôt — les chiffres apparaissent dès que l'index les détecte."
+    pt-PT: "Ainda não há anúncios com preço por grama indexados para este mercado. Volte em breve — os valores aparecem assim que o índice os detetar."
+    it-IT: "Per questo mercato non ci sono ancora annunci con prezzo al grammo indicizzati. Torna presto — le cifre compaiono appena l'indice le rileva."
+    es-ES: "Todavía no hay anuncios con precio por gramo indexados para este mercado. Vuelve pronto — las cifras aparecen en cuanto el índice las detecta."
+    el-GR: "Δεν έχουν ευρετηριαστεί ακόμη καταχωρίσεις με τιμή ανά γραμμάριο για αυτήν την αγορά. Επιστρέψτε σύντομα — τα στοιχεία εμφανίζονται μόλις τα εντοπίσει ο δείκτης."
+    cs-CZ: "Pro tento trh zatím nejsou indexované žádné nabídky s cenou za gram. Vraťte se brzy — čísla se objeví, jakmile je index zachytí."
+    pl-PL: "Dla tego rynku nie ma jeszcze zaindeksowanych ofert z ceną za gram. Zajrzyj wkrótce — dane pojawią się, gdy tylko indeks je wychwyci."
   stats:
-    overallMedianLabel: "Median price per gram"
-    categoryMedianLabel: "{category} median"
-    cheapestLabel: "Cheapest per gram"
+    overallMedianLabel:
+      en-GB: "Median price per gram"
+      de-DE: "Median-Preis pro Gramm"
+      fr-FR: "Prix médian au gramme"
+      pt-PT: "Preço mediano por grama"
+      it-IT: "Prezzo mediano al grammo"
+      es-ES: "Precio mediano por gramo"
+      el-GR: "Διάμεση τιμή ανά γραμμάριο"
+      cs-CZ: "Medián ceny za gram"
+      pl-PL: "Mediana ceny za gram"
+    categoryMedianLabel:
+      en-GB: "{category} median"
+      de-DE: "Median {category}"
+      fr-FR: "Médiane {category}"
+      pt-PT: "Mediana {category}"
+      it-IT: "Mediana {category}"
+      es-ES: "Mediana {category}"
+      el-GR: "Διάμεσος {category}"
+      cs-CZ: "Medián {category}"
+      pl-PL: "Mediana {category}"
+    cheapestLabel:
+      en-GB: "Cheapest per gram"
+      de-DE: "Günstigster Grammpreis"
+      fr-FR: "Le moins cher au gramme"
+      pt-PT: "Mais barato por grama"
+      it-IT: "Più economico al grammo"
+      es-ES: "Más barato por gramo"
+      el-GR: "Φθηνότερο ανά γραμμάριο"
+      cs-CZ: "Nejlevnější za gram"
+      pl-PL: "Najtańsze za gram"
+    # Pure number format — no words to translate.
     perGram: "{price}/g"
   table:
-    heading: "Price per gram by category"
-    category: Category
-    listings: Listings
-    median: "Median /g"
-    range: "Typical range"
-    from: From
-    caption: "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
-  scopeNote: "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content."
+    heading:
+      en-GB: "Price per gram by category"
+      de-DE: "Grammpreis nach Kategorie"
+      fr-FR: "Prix au gramme par catégorie"
+      pt-PT: "Preço por grama por categoria"
+      it-IT: "Prezzo al grammo per categoria"
+      es-ES: "Precio por gramo por categoría"
+      el-GR: "Τιμή ανά γραμμάριο ανά κατηγορία"
+      cs-CZ: "Cena za gram podle kategorie"
+      pl-PL: "Cena za gram według kategorii"
+    category:
+      en-GB: Category
+      de-DE: Kategorie
+      fr-FR: Catégorie
+      pt-PT: Categoria
+      it-IT: Categoria
+      es-ES: Categoría
+      el-GR: Κατηγορία
+      cs-CZ: Kategorie
+      pl-PL: Kategoria
+    listings:
+      en-GB: Listings
+      de-DE: Angebote
+      fr-FR: Annonces
+      pt-PT: Anúncios
+      it-IT: Annunci
+      es-ES: Anuncios
+      el-GR: Καταχωρίσεις
+      cs-CZ: Nabídky
+      pl-PL: Oferty
+    median:
+      en-GB: "Median /g"
+      de-DE: "Median /g"
+      fr-FR: "Médiane /g"
+      pt-PT: "Mediana /g"
+      it-IT: "Mediana /g"
+      es-ES: "Mediana /g"
+      el-GR: "Διάμεσος /g"
+      cs-CZ: "Medián /g"
+      pl-PL: "Mediana /g"
+    range:
+      en-GB: "Typical range"
+      de-DE: "Typische Spanne"
+      fr-FR: "Fourchette typique"
+      pt-PT: "Intervalo típico"
+      it-IT: "Intervallo tipico"
+      es-ES: "Rango típico"
+      el-GR: "Τυπικό εύρος"
+      cs-CZ: "Typické rozpětí"
+      pl-PL: "Typowy zakres"
+    from:
+      en-GB: From
+      de-DE: Ab
+      fr-FR: À partir de
+      pt-PT: Desde
+      it-IT: Da
+      es-ES: Desde
+      el-GR: Από
+      cs-CZ: Od
+      pl-PL: Od
+    caption:
+      en-GB: "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+      de-DE: "Die typische Spanne umfasst die mittleren 50 % der Angebotspreise (25.–75. Perzentil). „Ab“ ist der niedrigste Grammpreis der Kategorie."
+      fr-FR: "La fourchette typique correspond aux 50 % centraux des prix demandés (25e–75e centile). « À partir de » est le prix au gramme le plus bas de la catégorie."
+      pt-PT: "O intervalo típico corresponde aos 50 % centrais dos preços pedidos (percentil 25–75). «Desde» é o preço por grama mais baixo da categoria."
+      it-IT: "L'intervallo tipico è il 50 % centrale dei prezzi richiesti (25°–75° percentile). «Da» è il prezzo al grammo più basso della categoria."
+      es-ES: "El rango típico es el 50 % central de los precios pedidos (percentil 25–75). «Desde» es el precio por gramo más bajo de la categoría."
+      el-GR: "Το τυπικό εύρος είναι το μεσαίο 50% των ζητούμενων τιμών (25ο–75ο εκατοστημόριο). Το «Από» είναι η χαμηλότερη τιμή ανά γραμμάριο στην κατηγορία."
+      cs-CZ: "Typické rozpětí je prostředních 50 % požadovaných cen (25.–75. percentil). „Od“ je nejnižší cena za gram v kategorii."
+      pl-PL: "Typowy zakres to środkowe 50% cen ofertowych (25.–75. percentyl). „Od” to najniższa cena za gram w kategorii."
+  weights:
+    heading:
+      en-GB: "Price by weight: 1g to 28g"
+      de-DE: "Preis nach Menge: 1g bis 28g"
+      fr-FR: "Prix par quantité : de 1g à 28g"
+      pt-PT: "Preço por peso: de 1g a 28g"
+      it-IT: "Prezzo per quantità: da 1g a 28g"
+      es-ES: "Precio por cantidad: de 1g a 28g"
+      el-GR: "Τιμή ανά βάρος: από 1g έως 28g"
+      cs-CZ: "Cena podle váhy: 1g až 28g"
+      pl-PL: "Cena według wagi: od 1g do 28g"
+    caption:
+      en-GB: "Median asking price at each standard size, from the listings that offer that exact weight. A size is quoted only where at least three listings sell it."
+      de-DE: "Median-Angebotspreis für jede Standardmenge, aus den Angeboten mit genau diesem Gewicht. Eine Menge wird nur angezeigt, wenn sie mindestens drei Angebote verkaufen."
+      fr-FR: "Prix demandé médian pour chaque quantité standard, calculé sur les annonces proposant exactement ce poids. Une quantité n'est affichée que si au moins trois annonces la vendent."
+      pt-PT: "Preço pedido mediano em cada tamanho padrão, a partir dos anúncios que oferecem exatamente esse peso. Um tamanho só é indicado quando pelo menos três anúncios o vendem."
+      it-IT: "Prezzo richiesto mediano per ogni taglio standard, calcolato sugli annunci che offrono esattamente quel peso. Una quantità è indicata solo se almeno tre annunci la vendono."
+      es-ES: "Precio pedido mediano en cada cantidad estándar, a partir de los anuncios que ofrecen exactamente ese peso. Una cantidad solo se muestra cuando al menos tres anuncios la venden."
+      el-GR: "Διάμεση ζητούμενη τιμή για κάθε τυπική ποσότητα, από τις καταχωρίσεις που προσφέρουν ακριβώς αυτό το βάρος. Μια ποσότητα εμφανίζεται μόνο όταν την πωλούν τουλάχιστον τρεις καταχωρίσεις."
+      cs-CZ: "Medián požadované ceny u každé standardní velikosti, spočítaný z nabídek, které přesně tuto váhu nabízejí. Velikost se uvádí jen tam, kde ji prodávají alespoň tři nabídky."
+      pl-PL: "Mediana ceny ofertowej dla każdego standardowego rozmiaru, obliczona z ofert zawierających dokładnie tę wagę. Rozmiar pokazujemy tylko wtedy, gdy sprzedają go co najmniej trzy oferty."
+    # Bare size — nothing to translate.
+    size1: "1g"
+    size3_5:
+      en-GB: "3.5g (eighth)"
+      de-DE: "3.5g (Achtel)"
+      fr-FR: "3.5g (huitième)"
+      pt-PT: "3.5g (oitavo)"
+      it-IT: "3.5g (ottavo)"
+      es-ES: "3.5g (octavo)"
+      el-GR: "3.5g (όγδοο)"
+      cs-CZ: "3.5g (osminka)"
+      pl-PL: "3.5g (jedna ósma)"
+    size7:
+      en-GB: "7g (quarter)"
+      de-DE: "7g (Viertel)"
+      fr-FR: "7g (quart)"
+      pt-PT: "7g (quarto)"
+      it-IT: "7g (quarto)"
+      es-ES: "7g (cuarto)"
+      el-GR: "7g (τέταρτο)"
+      cs-CZ: "7g (čtvrtka)"
+      pl-PL: "7g (jedna czwarta)"
+    size14:
+      en-GB: "14g (half ounce)"
+      de-DE: "14g (halbe Unze)"
+      fr-FR: "14g (demi-once)"
+      pt-PT: "14g (meia onça)"
+      it-IT: "14g (mezza oncia)"
+      es-ES: "14g (media onza)"
+      el-GR: "14g (μισή ουγγιά)"
+      cs-CZ: "14g (půl unce)"
+      pl-PL: "14g (pół uncji)"
+    size28:
+      en-GB: "28g (ounce)"
+      de-DE: "28g (Unze)"
+      fr-FR: "28g (once)"
+      pt-PT: "28g (onça)"
+      it-IT: "28g (oncia)"
+      es-ES: "28g (onza)"
+      el-GR: "28g (ουγγιά)"
+      cs-CZ: "28g (unce)"
+      pl-PL: "28g (uncja)"
+    cellMeta:
+      en-GB: "{count, plural, one {# listing} other {# listings}}"
+      de-DE: "{count, plural, one {# Angebot} other {# Angebote}}"
+      fr-FR: "{count, plural, one {# annonce} other {# annonces}}"
+      pt-PT: "{count, plural, one {# anúncio} other {# anúncios}}"
+      it-IT: "{count, plural, one {# annuncio} other {# annunci}}"
+      es-ES: "{count, plural, one {# anuncio} other {# anuncios}}"
+      el-GR: "{count, plural, one {# καταχώριση} other {# καταχωρίσεις}}"
+      cs-CZ: "{count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}"
+      pl-PL: "{count, plural, one {# oferta} few {# oferty} many {# ofert} other {# ofert}}"
+  scopeNote:
+    en-GB: "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content."
+    de-DE: "Die Grammpreise umfassen Blüten, Shake, Hash und Konzentrate — Produkte, die tatsächlich nach Cannabis-Gewicht verkauft werden. Vapes und Destillat haben weiter unten eigene Abschnitte in den Einheiten, in denen sie wirklich verkauft werden; essbare Produkte bleiben außen vor, weil das angegebene Gewicht dort das des Lebensmittels ist und nicht der Cannabis-Anteil."
+    fr-FR: "Les chiffres au gramme couvrent la fleur, le shake, le hash et les concentrés — des produits réellement vendus au poids de cannabis. Les vapes et le distillat ont leurs propres sections plus bas, dans les unités où ils se vendent vraiment, et les comestibles sont exclus car le poids indiqué y est celui de l'aliment, pas de la teneur en cannabis."
+    pt-PT: "Os valores por grama cobrem flor, shake, haxixe e concentrados — produtos realmente vendidos ao peso de canábis. Os vapes e o destilado têm secções próprias mais abaixo, nas unidades em que são de facto vendidos, e os comestíveis ficam de fora porque o peso indicado é o do alimento e não o teor de canábis."
+    it-IT: "Le cifre al grammo coprono fiori, shake, hash e concentrati — prodotti venduti davvero a peso di cannabis. Vape e distillato hanno sezioni dedicate più sotto, nelle unità in cui vengono effettivamente venduti, e gli edibili restano esclusi perché il peso indicato è quello dell'alimento e non del contenuto di cannabis."
+    es-ES: "Las cifras por gramo cubren flor, shake, hachís y concentrados — productos que se venden realmente al peso de cannabis. Los vapeadores y el destilado tienen sus propias secciones más abajo, en las unidades en que se venden de verdad, y los comestibles quedan fuera porque el peso indicado es el del alimento y no el contenido de cannabis."
+    el-GR: "Τα στοιχεία ανά γραμμάριο καλύπτουν άνθη, σέικ, χασίς και συμπυκνώματα — προϊόντα που πωλούνται πραγματικά με το βάρος της κάνναβης. Τα vapes και το απόσταγμα έχουν δικές τους ενότητες παρακάτω, στις μονάδες που όντως πωλούνται, ενώ τα βρώσιμα εξαιρούνται επειδή το αναγραφόμενο βάρος αφορά το τρόφιμο και όχι την περιεκτικότητα σε κάνναβη."
+    cs-CZ: "Ceny za gram pokrývají květy, shake, hash a koncentráty — produkty, které se opravdu prodávají podle váhy konopí. Vape a destilát mají níže vlastní sekce v jednotkách, ve kterých se skutečně prodávají, a jedlé produkty jsou vyloučené, protože uvedená váha je váhou potraviny, ne obsahu konopí."
+    pl-PL: "Ceny za gram obejmują susz, shake, hash i koncentraty — produkty faktycznie sprzedawane na wagę konopi. E-papierosy i destylat mają poniżej własne sekcje w jednostkach, w których naprawdę się je sprzedaje, a edibles są pominięte, bo podana waga dotyczy jedzenia, a nie zawartości konopi."
   bestValue:
-    heading: "Best value right now"
-    intro: "The cheapest live asking prices per gram, one listing per seller. Bulk shake and trim genuinely undercut everything else, so each category gets its own board rather than one shake-dominated list."
-    flowerBoard: Flower
-    hashBoard: Hash
-    shakeBoard: "Shake & trim"
+    heading:
+      en-GB: "Best value right now"
+      de-DE: "Aktuell günstigste Angebote"
+      fr-FR: "Les meilleures affaires du moment"
+      pt-PT: "As melhores ofertas neste momento"
+      it-IT: "Le migliori offerte in questo momento"
+      es-ES: "Las mejores ofertas ahora mismo"
+      el-GR: "Οι καλύτερες τιμές αυτή τη στιγμή"
+      cs-CZ: "Nejvýhodnější nabídky právě teď"
+      pl-PL: "Najlepsze okazje w tej chwili"
+    intro:
+      en-GB: "The cheapest live asking prices per gram, one listing per seller. Bulk shake and trim genuinely undercut everything else, so each category gets its own board rather than one shake-dominated list."
+      de-DE: "Die günstigsten aktuellen Grammpreise, ein Angebot pro Verkäufer. Shake und Trim in großen Mengen unterbieten alles andere deutlich, deshalb bekommt jede Kategorie ihre eigene Tabelle statt einer von Shake dominierten Liste."
+      fr-FR: "Les prix demandés au gramme les plus bas en direct, une annonce par vendeur. Le shake et le trim en gros cassent vraiment les prix, donc chaque catégorie a son propre tableau plutôt qu'une seule liste dominée par le shake."
+      pt-PT: "Os preços pedidos por grama mais baixos em tempo real, um anúncio por vendedor. O shake e o trim a granel ficam mesmo abaixo de tudo o resto, por isso cada categoria tem o seu próprio quadro em vez de uma lista dominada pelo shake."
+      it-IT: "I prezzi richiesti al grammo più bassi in tempo reale, un annuncio per venditore. Shake e trim all'ingrosso costano davvero meno di tutto il resto, quindi ogni categoria ha la sua classifica invece di un'unica lista dominata dallo shake."
+      es-ES: "Los precios pedidos por gramo más bajos en directo, un anuncio por vendedor. El shake y el trim a granel están realmente por debajo de todo lo demás, así que cada categoría tiene su propia tabla en vez de una única lista dominada por el shake."
+      el-GR: "Οι χαμηλότερες ζωντανές ζητούμενες τιμές ανά γραμμάριο, μία καταχώριση ανά πωλητή. Το σέικ και το trim σε μεγάλες ποσότητες είναι πράγματι φθηνότερα από όλα τα άλλα, γι' αυτό κάθε κατηγορία έχει τον δικό της πίνακα αντί για μία λίστα με κυρίαρχο το σέικ."
+      cs-CZ: "Nejnižší aktuální požadované ceny za gram, jedna nabídka na prodejce. Shake a trim ve větších objemech skutečně podráží všechno ostatní, proto má každá kategorie vlastní tabulku místo jednoho seznamu ovládnutého shakem."
+      pl-PL: "Najniższe aktualne ceny ofertowe za gram, jedna oferta na sprzedawcę. Shake i trim w większych ilościach naprawdę biją wszystko inne ceną, dlatego każda kategoria ma własne zestawienie zamiast jednej listy zdominowanej przez shake."
+    flowerBoard:
+      en-GB: Flower
+      de-DE: Blüten
+      fr-FR: Fleur
+      pt-PT: Flor
+      it-IT: Fiori
+      es-ES: Flor
+      el-GR: Άνθη
+      cs-CZ: Květy
+      pl-PL: Susz
+    hashBoard:
+      en-GB: Hash
+      de-DE: Hash
+      fr-FR: Hash
+      pt-PT: Haxixe
+      it-IT: Hash
+      es-ES: Hash
+      el-GR: Χασίς
+      cs-CZ: Hash
+      pl-PL: Hash
+    shakeBoard:
+      en-GB: "Shake & trim"
+      de-DE: "Shake & Trim"
+      fr-FR: "Shake & trim"
+      pt-PT: "Shake e trim"
+      it-IT: "Shake e trim"
+      es-ES: "Shake y trim"
+      el-GR: "Σέικ & trim"
+      cs-CZ: "Shake a trim"
+      pl-PL: "Shake i trim"
+    # Rank column header — a bare symbol.
     rank: "#"
-    item: Item
-    seller: Seller
-    pricePerGram: "Price /g"
+    item:
+      en-GB: Item
+      de-DE: Produkt
+      fr-FR: Produit
+      pt-PT: Produto
+      it-IT: Prodotto
+      es-ES: Producto
+      el-GR: Προϊόν
+      cs-CZ: Produkt
+      pl-PL: Produkt
+    seller:
+      en-GB: Seller
+      de-DE: Verkäufer
+      fr-FR: Vendeur
+      pt-PT: Vendedor
+      it-IT: Venditore
+      es-ES: Vendedor
+      el-GR: Πωλητής
+      cs-CZ: Prodejce
+      pl-PL: Sprzedawca
+    pricePerGram:
+      en-GB: "Price /g"
+      de-DE: "Preis /g"
+      fr-FR: "Prix /g"
+      pt-PT: "Preço /g"
+      it-IT: "Prezzo /g"
+      es-ES: "Precio /g"
+      el-GR: "Τιμή /g"
+      cs-CZ: "Cena /g"
+      pl-PL: "Cena /g"
   vapes:
-    heading: "Vape carts"
-    intro: "Vapes sell per device, not per gram — sellers list 1g and 1ml carts interchangeably, so a weight comparison against flower would mislead. Typical single-cart asking prices:"
-    tileLabel: "{size} cart"
-    tileMeta: "{items, plural, one {# listing} other {# listings}} · {sellers, plural, one {# seller} other {# sellers}}"
-    medianLabel: "Typical 1ml vape cart price"
+    heading:
+      en-GB: "Vape carts"
+      de-DE: "Vape-Kartuschen"
+      fr-FR: "Cartouches de vape"
+      pt-PT: "Cartuchos de vape"
+      it-IT: "Cartucce vape"
+      es-ES: "Cartuchos de vapeador"
+      el-GR: "Κασέτες vape"
+      cs-CZ: "Vape náplně"
+      pl-PL: "Wkłady do e-papierosów"
+    intro:
+      en-GB: "Vapes sell per device, not per gram — sellers list 1g and 1ml carts interchangeably, so a weight comparison against flower would mislead. Typical single-cart asking prices:"
+      de-DE: "Vapes werden pro Gerät verkauft, nicht pro Gramm — Verkäufer führen 1-g- und 1-ml-Kartuschen austauschbar, deshalb wäre ein Gewichtsvergleich mit Blüten irreführend. Typische Angebotspreise für eine einzelne Kartusche:"
+      fr-FR: "Les vapes se vendent à l'unité, pas au gramme — les vendeurs listent indifféremment des cartouches de 1 g et de 1 ml, donc une comparaison au poids avec la fleur serait trompeuse. Prix demandés typiques pour une cartouche :"
+      pt-PT: "Os vapes vendem-se por dispositivo, não por grama — os vendedores listam cartuchos de 1 g e de 1 ml indiferentemente, por isso uma comparação a peso com a flor seria enganadora. Preços pedidos típicos para um cartucho:"
+      it-IT: "Le vape si vendono a dispositivo, non al grammo — i venditori elencano cartucce da 1 g e da 1 ml in modo intercambiabile, quindi un confronto a peso con i fiori sarebbe fuorviante. Prezzi richiesti tipici per una singola cartuccia:"
+      es-ES: "Los vapeadores se venden por dispositivo, no por gramo — los vendedores listan cartuchos de 1 g y de 1 ml indistintamente, así que compararlos por peso con la flor sería engañoso. Precios pedidos típicos de un solo cartucho:"
+      el-GR: "Τα vapes πωλούνται ανά συσκευή, όχι ανά γραμμάριο — οι πωλητές καταχωρούν κασέτες 1 g και 1 ml εναλλακτικά, οπότε μια σύγκριση κατά βάρος με το άνθος θα ήταν παραπλανητική. Τυπικές ζητούμενες τιμές για μία κασέτα:"
+      cs-CZ: "Vape se prodává po kusech, ne na gramy — prodejci uvádějí 1g a 1ml náplně zaměnitelně, takže srovnání podle váhy s květy by bylo zavádějící. Typické požadované ceny za jednu náplň:"
+      pl-PL: "E-papierosy sprzedaje się na sztuki, nie na gramy — sprzedawcy podają wkłady 1 g i 1 ml zamiennie, więc porównanie wagowe z suszem wprowadzałoby w błąd. Typowe ceny ofertowe pojedynczego wkładu:"
+    tileLabel:
+      en-GB: "{size} cart"
+      de-DE: "Kartusche {size}"
+      fr-FR: "Cartouche {size}"
+      pt-PT: "Cartucho {size}"
+      it-IT: "Cartuccia {size}"
+      es-ES: "Cartucho {size}"
+      el-GR: "Κασέτα {size}"
+      cs-CZ: "Náplň {size}"
+      pl-PL: "Wkład {size}"
+    tileMeta:
+      en-GB: "{items, plural, one {# listing} other {# listings}} · {sellers, plural, one {# seller} other {# sellers}}"
+      de-DE: "{items, plural, one {# Angebot} other {# Angebote}} · {sellers, plural, one {# Verkäufer} other {# Verkäufer}}"
+      fr-FR: "{items, plural, one {# annonce} other {# annonces}} · {sellers, plural, one {# vendeur} other {# vendeurs}}"
+      pt-PT: "{items, plural, one {# anúncio} other {# anúncios}} · {sellers, plural, one {# vendedor} other {# vendedores}}"
+      it-IT: "{items, plural, one {# annuncio} other {# annunci}} · {sellers, plural, one {# venditore} other {# venditori}}"
+      es-ES: "{items, plural, one {# anuncio} other {# anuncios}} · {sellers, plural, one {# vendedor} other {# vendedores}}"
+      el-GR: "{items, plural, one {# καταχώριση} other {# καταχωρίσεις}} · {sellers, plural, one {# πωλητής} other {# πωλητές}}"
+      cs-CZ: "{items, plural, one {# nabídka} few {# nabídky} other {# nabídek}} · {sellers, plural, one {# prodejce} few {# prodejci} other {# prodejců}}"
+      pl-PL: "{items, plural, one {# oferta} few {# oferty} many {# ofert} other {# ofert}} · {sellers, plural, one {# sprzedawca} few {# sprzedawcy} many {# sprzedawców} other {# sprzedawców}}"
+    medianLabel:
+      en-GB: "Typical 1ml vape cart price"
+      de-DE: "Typischer Preis für eine 1-ml-Vape-Kartusche"
+      fr-FR: "Prix typique d'une cartouche de vape 1 ml"
+      pt-PT: "Preço típico de um cartucho de vape de 1 ml"
+      it-IT: "Prezzo tipico di una cartuccia vape da 1 ml"
+      es-ES: "Precio típico de un cartucho de vapeador de 1 ml"
+      el-GR: "Τυπική τιμή κασέτας vape 1 ml"
+      cs-CZ: "Typická cena 1ml vape náplně"
+      pl-PL: "Typowa cena wkładu 1 ml"
   distillate:
-    heading: "Distillate, per ml"
-    intro: "Bulk distillate is volume-priced with steep size discounts — one blended figure would swing with whichever pack sizes happen to be listed, so it's quoted per ml inside a size band."
-    bandSmall: "Up to 5ml"
+    heading:
+      en-GB: "Distillate, per ml"
+      de-DE: "Destillat, pro ml"
+      fr-FR: "Distillat, au ml"
+      pt-PT: "Destilado, por ml"
+      it-IT: "Distillato, al ml"
+      es-ES: "Destilado, por ml"
+      el-GR: "Απόσταγμα, ανά ml"
+      cs-CZ: "Destilát, za ml"
+      pl-PL: "Destylat, za ml"
+    intro:
+      en-GB: "Bulk distillate is volume-priced with steep size discounts — one blended figure would swing with whichever pack sizes happen to be listed, so it's quoted per ml inside a size band."
+      de-DE: "Destillat in großen Mengen wird nach Volumen mit starken Mengenrabatten verkauft — eine einzige Mischzahl würde je nach den gerade gelisteten Gebindegrößen schwanken, deshalb wird pro ml innerhalb einer Größenklasse ausgewiesen."
+      fr-FR: "Le distillat en gros est vendu au volume avec de fortes remises sur quantité — un chiffre unique varierait selon les formats listés à l'instant, il est donc donné au ml à l'intérieur d'une tranche de taille."
+      pt-PT: "O destilado a granel é vendido por volume com descontos acentuados por tamanho — um valor único variaria conforme os formatos listados no momento, por isso é indicado por ml dentro de um escalão de tamanho."
+      it-IT: "Il distillato all'ingrosso è prezzato a volume con forti sconti sulle quantità — una cifra unica oscillerebbe a seconda dei formati elencati al momento, perciò è indicata al ml all'interno di una fascia di formato."
+      es-ES: "El destilado a granel se vende por volumen con fuertes descuentos por cantidad — una cifra única variaría según los formatos listados en cada momento, así que se indica por ml dentro de un tramo de tamaño."
+      el-GR: "Το απόσταγμα σε μεγάλες ποσότητες τιμολογείται ανά όγκο με μεγάλες εκπτώσεις κλίμακας — ένας ενιαίος αριθμός θα άλλαζε ανάλογα με τα μεγέθη που τυχαίνει να είναι καταχωρισμένα, γι' αυτό δίνεται ανά ml μέσα σε μια ζώνη μεγέθους."
+      cs-CZ: "Destilát ve větších objemech se cení podle objemu s výraznými množstevními slevami — jediné souhrnné číslo by kolísalo podle toho, jaká balení jsou zrovna nabízená, proto se uvádí za ml v rámci velikostního pásma."
+      pl-PL: "Destylat w większych ilościach wyceniany jest według objętości z dużymi rabatami ilościowymi — jedna uśredniona liczba wahałaby się zależnie od tego, jakie opakowania akurat są w ofercie, dlatego podajemy cenę za ml w przedziale wielkości."
+    bandSmall:
+      en-GB: "Up to 5ml"
+      de-DE: "Bis 5 ml"
+      fr-FR: "Jusqu'à 5 ml"
+      pt-PT: "Até 5 ml"
+      it-IT: "Fino a 5 ml"
+      es-ES: "Hasta 5 ml"
+      el-GR: "Έως 5 ml"
+      cs-CZ: "Do 5 ml"
+      pl-PL: "Do 5 ml"
+    # Numeric bands and the per-ml format carry no words to translate.
     bandMid: "5–50ml"
     bandLarge: "50ml+"
     perMl: "{price}/ml"
-    tileMeta: "{count, plural, one {# listing} other {# listings}}"
+    tileMeta:
+      en-GB: "{count, plural, one {# listing} other {# listings}}"
+      de-DE: "{count, plural, one {# Angebot} other {# Angebote}}"
+      fr-FR: "{count, plural, one {# annonce} other {# annonces}}"
+      pt-PT: "{count, plural, one {# anúncio} other {# anúncios}}"
+      it-IT: "{count, plural, one {# annuncio} other {# annunci}}"
+      es-ES: "{count, plural, one {# anuncio} other {# anuncios}}"
+      el-GR: "{count, plural, one {# καταχώριση} other {# καταχωρίσεις}}"
+      cs-CZ: "{count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}"
+      pl-PL: "{count, plural, one {# oferta} few {# oferty} many {# ofert} other {# ofert}}"
+  faq:
+    heading:
+      en-GB: "Cannabis price FAQ"
+      de-DE: "FAQ zu Cannabis-Preisen"
+      fr-FR: "FAQ sur les prix du cannabis"
+      pt-PT: "FAQ sobre preços da canábis"
+      it-IT: "FAQ sui prezzi della cannabis"
+      es-ES: "Preguntas frecuentes sobre precios del cannabis"
+      el-GR: "Συχνές ερωτήσεις για τις τιμές κάνναβης"
+      cs-CZ: "Časté dotazy k cenám konopí"
+      pl-PL: "Najczęstsze pytania o ceny konopi"
+    ounce:
+      q:
+        en-GB: "How much is an ounce of flower on Little Biggy?"
+        de-DE: "Wie viel kostet eine Unze Blüten auf Little Biggy?"
+        fr-FR: "Combien coûte une once de fleur sur Little Biggy ?"
+        pt-PT: "Quanto custa uma onça de flor no Little Biggy?"
+        it-IT: "Quanto costa un'oncia di fiori su Little Biggy?"
+        es-ES: "¿Cuánto cuesta una onza de flor en Little Biggy?"
+        el-GR: "Πόσο κοστίζει μια ουγγιά άνθους στο Little Biggy;"
+        cs-CZ: "Kolik stojí unce květů na Little Biggy?"
+        pl-PL: "Ile kosztuje uncja suszu na Little Biggy?"
+      a:
+        en-GB: "The median asking price for a 28g ounce of flower is {price}. Ounces are priced well below the single-gram rate, so the figure is nothing like 28 times the 1g price — the weight table above shows every size side by side."
+        de-DE: "Der Median-Angebotspreis für eine 28-g-Unze Blüten liegt bei {price}. Unzen werden deutlich unter dem Einzelgramm-Preis gehandelt, die Zahl ist also bei Weitem nicht das 28-Fache des 1-g-Preises — die Gewichtstabelle oben zeigt alle Mengen nebeneinander."
+        fr-FR: "Le prix demandé médian pour une once de 28 g de fleur est de {price}. Les onces se vendent bien en dessous du tarif au gramme à l'unité : le chiffre n'a rien à voir avec 28 fois le prix du 1 g — le tableau des quantités ci-dessus les compare toutes."
+        pt-PT: "O preço pedido mediano de uma onça de 28 g de flor é {price}. As onças ficam bem abaixo do preço de um único grama, por isso o valor não é nada parecido com 28 vezes o preço de 1 g — a tabela de pesos acima mostra todos os tamanhos lado a lado."
+        it-IT: "Il prezzo richiesto mediano per un'oncia da 28 g di fiori è {price}. Le once costano ben meno della tariffa al singolo grammo, quindi la cifra non è affatto 28 volte il prezzo di 1 g — la tabella dei pesi qui sopra mette a confronto tutte le quantità."
+        es-ES: "El precio pedido mediano de una onza de 28 g de flor es {price}. Las onzas se venden muy por debajo de la tarifa de un solo gramo, así que la cifra no se parece en nada a 28 veces el precio de 1 g — la tabla de pesos de arriba muestra todas las cantidades juntas."
+        el-GR: "Η διάμεση ζητούμενη τιμή για μια ουγγιά 28 g άνθους είναι {price}. Οι ουγγιές τιμολογούνται πολύ χαμηλότερα από την τιμή του ενός γραμμαρίου, οπότε το ποσό δεν είναι καθόλου 28 φορές η τιμή του 1 g — ο πίνακας βαρών παραπάνω δείχνει όλες τις ποσότητες μαζί."
+        cs-CZ: "Medián požadované ceny za 28g unci květů je {price}. Unce se prodávají výrazně pod cenou jednoho gramu, takže částka není zdaleka 28násobek ceny za 1 g — tabulka vah výše ukazuje všechny velikosti vedle sebe."
+        pl-PL: "Mediana ceny ofertowej za uncję 28 g suszu wynosi {price}. Uncje kosztują znacznie mniej niż stawka za pojedynczy gram, więc kwota nijak nie odpowiada 28-krotności ceny za 1 g — tabela wag powyżej pokazuje wszystkie rozmiary obok siebie."
+      # Used when too few listings quote a 28g flower option to be honest
+      # about an ounce price; the figure passed in is the overall per-gram median.
+      aPerGram:
+        en-GB: "Not enough listings quote a 28g flower option to give an honest ounce price for this market right now. The median asking price across all weight-priced listings is {price} per gram."
+        de-DE: "Zu wenige Angebote führen derzeit eine 28-g-Option für Blüten, um einen ehrlichen Unzenpreis für diesen Markt zu nennen. Der Median-Angebotspreis über alle nach Gewicht ausgezeichneten Angebote liegt bei {price} pro Gramm."
+        fr-FR: "Trop peu d'annonces proposent une option 28 g de fleur pour donner un prix honnête à l'once sur ce marché en ce moment. Le prix demandé médian sur l'ensemble des annonces vendues au poids est de {price} par gramme."
+        pt-PT: "Há poucos anúncios com opção de 28 g de flor para dar um preço honesto por onça neste mercado neste momento. O preço pedido mediano em todos os anúncios vendidos a peso é de {price} por grama."
+        it-IT: "Al momento troppo pochi annunci offrono un'opzione da 28 g di fiori per dare un prezzo onesto all'oncia in questo mercato. Il prezzo richiesto mediano su tutti gli annunci venduti a peso è di {price} al grammo."
+        es-ES: "Ahora mismo hay muy pocos anuncios con opción de 28 g de flor como para dar un precio honesto por onza en este mercado. El precio pedido mediano en todos los anuncios vendidos por peso es de {price} por gramo."
+        el-GR: "Αυτή τη στιγμή δεν υπάρχουν αρκετές καταχωρίσεις με επιλογή 28 g άνθους ώστε να δοθεί μια ειλικρινής τιμή ουγγιάς για αυτήν την αγορά. Η διάμεση ζητούμενη τιμή σε όλες τις καταχωρίσεις με τιμή κατά βάρος είναι {price} ανά γραμμάριο."
+        cs-CZ: "Momentálně nabízí variantu 28 g květů příliš málo nabídek, než aby šlo pro tento trh uvést poctivou cenu za unci. Medián požadované ceny napříč všemi nabídkami s cenou podle váhy je {price} za gram."
+        pl-PL: "W tej chwili zbyt mało ofert zawiera wariant 28 g suszu, by podać uczciwą cenę uncji dla tego rynku. Mediana ceny ofertowej we wszystkich ofertach wycenianych wagowo wynosi {price} za gram."
+    hashGram:
+      q:
+        en-GB: "How much is hash per gram?"
+        de-DE: "Wie viel kostet Hash pro Gramm?"
+        fr-FR: "Combien coûte le hash au gramme ?"
+        pt-PT: "Quanto custa o haxixe por grama?"
+        it-IT: "Quanto costa l'hash al grammo?"
+        es-ES: "¿Cuánto cuesta el hachís por gramo?"
+        el-GR: "Πόσο κοστίζει το χασίς ανά γραμμάριο;"
+        cs-CZ: "Kolik stojí hash za gram?"
+        pl-PL: "Ile kosztuje haszysz za gram?"
+      a:
+        en-GB: "The median hash asking price is {price} per gram, taken from every gram-denominated hash option indexed for this market. Single grams sit above that figure and bulk sizes below it."
+        de-DE: "Der Median-Angebotspreis für Hash liegt bei {price} pro Gramm, ermittelt aus allen in Gramm ausgezeichneten Hash-Optionen, die für diesen Markt indexiert sind. Einzelne Gramm liegen darüber, größere Mengen darunter."
+        fr-FR: "Le prix demandé médian du hash est de {price} par gramme, calculé sur toutes les options de hash libellées en grammes indexées pour ce marché. Les grammes à l'unité se situent au-dessus de ce chiffre et les gros formats en dessous."
+        pt-PT: "O preço pedido mediano do haxixe é de {price} por grama, calculado a partir de todas as opções de haxixe expressas em gramas indexadas para este mercado. Os gramas avulso ficam acima desse valor e os formatos maiores abaixo."
+        it-IT: "Il prezzo richiesto mediano dell'hash è di {price} al grammo, calcolato su tutte le opzioni di hash espresse in grammi indicizzate per questo mercato. I singoli grammi stanno sopra quella cifra e i formati grandi sotto."
+        es-ES: "El precio pedido mediano del hachís es de {price} por gramo, calculado a partir de todas las opciones de hachís expresadas en gramos indexadas para este mercado. Los gramos sueltos quedan por encima de esa cifra y los formatos grandes por debajo."
+        el-GR: "Η διάμεση ζητούμενη τιμή του χασίς είναι {price} ανά γραμμάριο, από όλες τις επιλογές χασίς σε γραμμάρια που είναι ευρετηριασμένες για αυτήν την αγορά. Τα μεμονωμένα γραμμάρια βρίσκονται πάνω από αυτό το ποσό και οι μεγάλες ποσότητες κάτω."
+        cs-CZ: "Medián požadované ceny hašiše je {price} za gram, spočítaný ze všech gramových variant hašiše indexovaných pro tento trh. Jednotlivé gramy leží nad touto částkou, větší balení pod ní."
+        pl-PL: "Mediana ceny ofertowej haszyszu to {price} za gram, obliczona ze wszystkich wariantów haszyszu wyrażonych w gramach zaindeksowanych dla tego rynku. Pojedyncze gramy są powyżej tej kwoty, a większe ilości poniżej."
+    vapeCart:
+      q:
+        en-GB: "How much is a vape cart?"
+        de-DE: "Wie viel kostet eine Vape-Kartusche?"
+        fr-FR: "Combien coûte une cartouche de vape ?"
+        pt-PT: "Quanto custa um cartucho de vape?"
+        it-IT: "Quanto costa una cartuccia vape?"
+        es-ES: "¿Cuánto cuesta un cartucho de vapeador?"
+        el-GR: "Πόσο κοστίζει μια κασέτα vape;"
+        cs-CZ: "Kolik stojí vape náplň?"
+        pl-PL: "Ile kosztuje wkład do e-papierosa?"
+      a:
+        en-GB: "A single {size} cart has a median asking price of {price}. Carts are priced per device rather than by weight, so comparing one against a per-gram flower figure would mislead."
+        de-DE: "Eine einzelne Kartusche mit {size} hat einen Median-Angebotspreis von {price}. Kartuschen werden pro Gerät und nicht nach Gewicht bepreist, ein Vergleich mit dem Grammpreis von Blüten wäre daher irreführend."
+        fr-FR: "Une cartouche de {size} a un prix demandé médian de {price}. Les cartouches sont vendues à l'unité et non au poids, la comparer à un prix au gramme de fleur serait donc trompeur."
+        pt-PT: "Um cartucho de {size} tem um preço pedido mediano de {price}. Os cartuchos são vendidos por dispositivo e não a peso, por isso compará-los com um valor por grama de flor seria enganador."
+        it-IT: "Una singola cartuccia da {size} ha un prezzo richiesto mediano di {price}. Le cartucce si vendono a dispositivo e non a peso, quindi confrontarle con una cifra al grammo dei fiori sarebbe fuorviante."
+        es-ES: "Un solo cartucho de {size} tiene un precio pedido mediano de {price}. Los cartuchos se venden por dispositivo y no por peso, así que compararlos con una cifra por gramo de flor sería engañoso."
+        el-GR: "Μία κασέτα {size} έχει διάμεση ζητούμενη τιμή {price}. Οι κασέτες τιμολογούνται ανά συσκευή και όχι κατά βάρος, οπότε η σύγκριση με τιμή ανά γραμμάριο άνθους θα ήταν παραπλανητική."
+        cs-CZ: "Jedna náplň {size} má medián požadované ceny {price}. Náplně se cení po kusech, ne podle váhy, takže srovnání s cenou květů za gram by bylo zavádějící."
+        pl-PL: "Pojedynczy wkład {size} ma medianę ceny ofertowej {price}. Wkłady wycenia się na sztuki, a nie wagowo, więc porównywanie ich z ceną suszu za gram wprowadzałoby w błąd."
+    real:
+      q:
+        en-GB: "Are these real sale prices?"
+        de-DE: "Sind das echte Verkaufspreise?"
+        fr-FR: "S'agit-il de vrais prix de vente ?"
+        pt-PT: "Estes são preços de venda reais?"
+        it-IT: "Sono prezzi di vendita reali?"
+        es-ES: "¿Son precios de venta reales?"
+        el-GR: "Είναι αυτές πραγματικές τιμές πώλησης;"
+        cs-CZ: "Jsou to skutečné prodejní ceny?"
+        pl-PL: "Czy to rzeczywiste ceny sprzedaży?"
+      a:
+        en-GB: "No — they are asking prices. Every figure is what a seller lists an option at, read from live Little Biggy listings, converted to the market currency and reduced to a median. Nothing here comes from completed sales, and it is not a street-price survey."
+        de-DE: "Nein — es sind Angebotspreise. Jede Zahl ist der Preis, zu dem ein Verkäufer eine Option anbietet, ausgelesen aus aktuellen Little Biggy Angeboten, in die Marktwährung umgerechnet und zum Median zusammengefasst. Nichts davon stammt aus abgeschlossenen Verkäufen, und es ist keine Straßenpreis-Erhebung."
+        fr-FR: "Non — ce sont des prix demandés. Chaque chiffre correspond au prix auquel un vendeur propose une option, relevé sur les annonces Little Biggy en direct, converti dans la devise du marché et ramené à une médiane. Rien ne provient de ventes conclues, et ce n'est pas une enquête sur les prix de rue."
+        pt-PT: "Não — são preços pedidos. Cada valor é aquele a que um vendedor anuncia uma opção, lido dos anúncios Little Biggy em tempo real, convertido para a moeda do mercado e reduzido a uma mediana. Nada aqui vem de vendas concluídas e não é um inquérito a preços de rua."
+        it-IT: "No — sono prezzi richiesti. Ogni cifra è il prezzo a cui un venditore propone un'opzione, letto dagli annunci Little Biggy in tempo reale, convertito nella valuta del mercato e ridotto a una mediana. Nulla proviene da vendite concluse e non è un'indagine sui prezzi di strada."
+        es-ES: "No — son precios pedidos. Cada cifra es el precio al que un vendedor anuncia una opción, leído de los anuncios de Little Biggy en directo, convertido a la moneda del mercado y reducido a una mediana. Nada de esto procede de ventas cerradas ni es un estudio de precios de calle."
+        el-GR: "Όχι — είναι ζητούμενες τιμές. Κάθε ποσό είναι η τιμή στην οποία ένας πωλητής προσφέρει μια επιλογή, από ζωντανές καταχωρίσεις του Little Biggy, μετατρεμμένη στο νόμισμα της αγοράς και συνοψισμένη σε διάμεσο. Τίποτα εδώ δεν προέρχεται από ολοκληρωμένες πωλήσεις και δεν πρόκειται για έρευνα τιμών του δρόμου."
+        cs-CZ: "Ne — jsou to požadované ceny. Každé číslo je cena, za kterou prodejce variantu nabízí, načtená z aktuálních nabídek na Little Biggy, převedená na měnu trhu a shrnutá do mediánu. Nic zde nepochází z uskutečněných prodejů a nejde o průzkum pouličních cen."
+        pl-PL: "Nie — to ceny ofertowe. Każda liczba to cena, za jaką sprzedawca wystawia dany wariant, odczytana z aktualnych ofert na Little Biggy, przeliczona na walutę rynku i sprowadzona do mediany. Nic tu nie pochodzi z zakończonych transakcji i nie jest to badanie cen ulicznych."
   methodology:
-    heading: Methodology
-    source: "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex."
-    scope: "Per-gram statistics include flower, shake, hash and concentrates only. Vapes are quoted per cart and distillate per ml; edibles and other products are excluded because their listed weight is not cannabis weight."
-    inclusion: "Only listings with a weight-denominated option count; price per gram = listed price ÷ grams for each option. Placeholder prices and implausible per-gram figures are dropped."
-    refresh: "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them."
-    honesty: "These are the prices sellers ask, not a street-price survey and not completed-sale data."
-  breadcrumbHome: Home
-  breadcrumbPrices: Prices
+    heading:
+      en-GB: Methodology
+      de-DE: Methodik
+      fr-FR: Méthodologie
+      pt-PT: Metodologia
+      it-IT: Metodologia
+      es-ES: Metodología
+      el-GR: Μεθοδολογία
+      cs-CZ: Metodika
+      pl-PL: Metodologia
+    source:
+      en-GB: "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex."
+      de-DE: "Die Preise sind Angebotspreise aus aktuellen Little Biggy Angeboten, indexiert von BiggyIndex."
+      fr-FR: "Les prix sont des prix demandés, relevés sur les annonces Little Biggy en direct et indexés par BiggyIndex."
+      pt-PT: "Os preços são preços pedidos em anúncios Little Biggy em tempo real, indexados pelo BiggyIndex."
+      it-IT: "I prezzi sono prezzi richiesti negli annunci Little Biggy in tempo reale, indicizzati da BiggyIndex."
+      es-ES: "Los precios son precios pedidos en anuncios de Little Biggy en directo, indexados por BiggyIndex."
+      el-GR: "Οι τιμές είναι ζητούμενες τιμές από ζωντανές καταχωρίσεις του Little Biggy, ευρετηριασμένες από το BiggyIndex."
+      cs-CZ: "Ceny jsou požadované ceny z aktuálních nabídek na Little Biggy, indexované službou BiggyIndex."
+      pl-PL: "Ceny to ceny ofertowe z aktualnych ofert na Little Biggy, indeksowane przez BiggyIndex."
+    scope:
+      en-GB: "Per-gram statistics include flower, shake, hash and concentrates only. Vapes are quoted per cart and distillate per ml; edibles and other products are excluded because their listed weight is not cannabis weight."
+      de-DE: "Die Grammstatistiken umfassen nur Blüten, Shake, Hash und Konzentrate. Vapes werden pro Kartusche ausgewiesen, Destillat pro ml; essbare Produkte und andere Kategorien bleiben außen vor, weil ihr angegebenes Gewicht nicht das Cannabis-Gewicht ist."
+      fr-FR: "Les statistiques au gramme ne couvrent que la fleur, le shake, le hash et les concentrés. Les vapes sont données à la cartouche et le distillat au ml ; les comestibles et les autres produits sont exclus car le poids indiqué n'est pas celui du cannabis."
+      pt-PT: "As estatísticas por grama incluem apenas flor, shake, haxixe e concentrados. Os vapes são indicados por cartucho e o destilado por ml; os comestíveis e outros produtos ficam de fora porque o peso indicado não é o peso da canábis."
+      it-IT: "Le statistiche al grammo comprendono solo fiori, shake, hash e concentrati. Le vape sono indicate a cartuccia e il distillato al ml; edibili e altri prodotti sono esclusi perché il peso indicato non è quello della cannabis."
+      es-ES: "Las estadísticas por gramo incluyen solo flor, shake, hachís y concentrados. Los vapeadores se indican por cartucho y el destilado por ml; los comestibles y otros productos quedan fuera porque su peso indicado no es el peso del cannabis."
+      el-GR: "Τα στατιστικά ανά γραμμάριο περιλαμβάνουν μόνο άνθη, σέικ, χασίς και συμπυκνώματα. Τα vapes δίνονται ανά κασέτα και το απόσταγμα ανά ml· τα βρώσιμα και τα υπόλοιπα προϊόντα εξαιρούνται, επειδή το αναγραφόμενο βάρος τους δεν είναι βάρος κάνναβης."
+      cs-CZ: "Statistiky za gram zahrnují jen květy, shake, hash a koncentráty. Vape se uvádí za náplň a destilát za ml; jedlé produkty a ostatní kategorie jsou vyloučené, protože jejich uvedená váha není váhou konopí."
+      pl-PL: "Statystyki za gram obejmują wyłącznie susz, shake, hash i koncentraty. E-papierosy podajemy za wkład, a destylat za ml; edibles i pozostałe produkty są wyłączone, bo ich podana waga nie jest wagą konopi."
+    inclusion:
+      en-GB: "Only listings with a weight-denominated option count; price per gram = listed price ÷ grams for each option. Placeholder prices and implausible per-gram figures are dropped."
+      de-DE: "Es zählen nur Angebote mit einer nach Gewicht ausgezeichneten Option; Preis pro Gramm = angegebener Preis ÷ Gramm je Option. Platzhalterpreise und unplausible Grammpreise werden verworfen."
+      fr-FR: "Seules les annonces comportant une option libellée au poids sont prises en compte ; prix au gramme = prix affiché ÷ grammes pour chaque option. Les prix fictifs et les valeurs au gramme invraisemblables sont écartés."
+      pt-PT: "Só contam os anúncios com uma opção expressa em peso; preço por grama = preço indicado ÷ gramas em cada opção. Preços fictícios e valores por grama implausíveis são descartados."
+      it-IT: "Contano solo gli annunci con un'opzione espressa a peso; prezzo al grammo = prezzo indicato ÷ grammi per ogni opzione. Prezzi fittizi e valori al grammo non plausibili vengono scartati."
+      es-ES: "Solo cuentan los anuncios con una opción expresada por peso; precio por gramo = precio indicado ÷ gramos en cada opción. Los precios ficticios y las cifras por gramo poco creíbles se descartan."
+      el-GR: "Μετρούν μόνο οι καταχωρίσεις με επιλογή εκφρασμένη σε βάρος· τιμή ανά γραμμάριο = αναγραφόμενη τιμή ÷ γραμμάρια για κάθε επιλογή. Εικονικές τιμές και μη ρεαλιστικά ποσά ανά γραμμάριο απορρίπτονται."
+      cs-CZ: "Počítají se jen nabídky s variantou udanou podle váhy; cena za gram = uvedená cena ÷ gramy u každé varianty. Zástupné ceny a nepravděpodobné částky za gram se vyřazují."
+      pl-PL: "Liczą się tylko oferty z wariantem podanym wagowo; cena za gram = podana cena ÷ gramy dla każdego wariantu. Ceny zastępcze i nieprawdopodobne kwoty za gram są odrzucane."
+    refresh:
+      en-GB: "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them."
+      de-DE: "Die Zahlen aktualisieren sich mit dem Index, etwa stündlich, und folgen den Angeboten, wenn Verkäufer die Preise ändern."
+      fr-FR: "Les chiffres se rafraîchissent avec l'index, environ toutes les heures, et suivent les annonces lorsque les vendeurs modifient leurs prix."
+      pt-PT: "Os valores atualizam-se com o índice, cerca de uma vez por hora, e acompanham os anúncios sempre que os vendedores mudam os preços."
+      it-IT: "Le cifre si aggiornano con l'indice, circa ogni ora, e seguono gli annunci quando i venditori cambiano i prezzi."
+      es-ES: "Las cifras se actualizan con el índice, aproximadamente cada hora, y siguen a los anuncios cuando los vendedores cambian los precios."
+      el-GR: "Τα στοιχεία ανανεώνονται μαζί με τον δείκτη, περίπου κάθε ώρα, και ακολουθούν τις καταχωρίσεις όταν οι πωλητές αλλάζουν τιμές."
+      cs-CZ: "Čísla se obnovují spolu s indexem, zhruba každou hodinu, a sledují nabídky, když prodejci mění ceny."
+      pl-PL: "Dane odświeżają się razem z indeksem, mniej więcej co godzinę, i śledzą oferty, gdy sprzedawcy zmieniają ceny."
+    honesty:
+      en-GB: "These are the prices sellers ask, not a street-price survey and not completed-sale data."
+      de-DE: "Das sind die Preise, die Verkäufer verlangen — keine Straßenpreis-Erhebung und keine Daten aus abgeschlossenen Verkäufen."
+      fr-FR: "Ce sont les prix demandés par les vendeurs, pas une enquête sur les prix de rue ni des données de ventes conclues."
+      pt-PT: "Estes são os preços que os vendedores pedem, não um inquérito a preços de rua nem dados de vendas concluídas."
+      it-IT: "Questi sono i prezzi che i venditori chiedono, non un'indagine sui prezzi di strada né dati di vendite concluse."
+      es-ES: "Estos son los precios que piden los vendedores, no un estudio de precios de calle ni datos de ventas cerradas."
+      el-GR: "Αυτές είναι οι τιμές που ζητούν οι πωλητές, όχι έρευνα τιμών του δρόμου ούτε δεδομένα ολοκληρωμένων πωλήσεων."
+      cs-CZ: "Jsou to ceny, které prodejci požadují — ne průzkum pouličních cen ani data o uskutečněných prodejích."
+      pl-PL: "To ceny, których żądają sprzedawcy — nie badanie cen ulicznych ani dane o zrealizowanych transakcjach."
+  breadcrumbHome:
+    en-GB: Home
+    de-DE: Startseite
+    fr-FR: Accueil
+    pt-PT: Início
+    it-IT: Home
+    es-ES: Inicio
+    el-GR: Αρχική
+    cs-CZ: Domů
+    pl-PL: Strona główna
+  breadcrumbPrices:
+    en-GB: Prices
+    de-DE: Preise
+    fr-FR: Prix
+    pt-PT: Preços
+    it-IT: Prezzi
+    es-ES: Precios
+    el-GR: Τιμές
+    cs-CZ: Ceny
+    pl-PL: Ceny

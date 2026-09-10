@@ -1,18 +1,7 @@
 /**
- * /prices — cannabis price index, fully server-rendered.
- *
- * Every number on this page is an asking price from a live Little Biggy
- * listing, converted to the market currency server-side. Per-gram figures
- * are scoped to categories genuinely sold by cannabis weight (flower,
- * shake, hash, concentrates): edibles list the FOOD's mass, so a chocolate
- * spread at pennies "per gram" would head every table it is allowed into.
- * Vapes sell per device and distillate per ml, so each gets its own
- * section in its own unit. This is deliberately NOT framed as a
- * street-price survey — the methodology section states what the figures
- * are.
- *
- * No client JS beyond the shared header/footer: stats, tables and the
- * best-value boards are plain server markup with crawlable item links.
+ * /prices — server-rendered price index. Every figure is a live asking
+ * price, computed in lib/prices (shared with /api/prices) and converted to
+ * the market currency here. Plain markup with crawlable item links.
  */
 
 import type { Metadata } from "next";
@@ -23,298 +12,21 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { categoryToSlug } from "@/lib/categories";
 import { loadItems } from "@/lib/data";
-import { decodeEntities } from "@/lib/format";
 import { getServerCurrency } from "@/lib/market/currency";
 import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
-import { serializeJsonLd } from "@/lib/seo/jsonld";
+import {
+  buildDistillateBands,
+  buildPriceIndex,
+  buildWeightTable,
+  STANDARD_WEIGHTS,
+} from "@/lib/prices/price-index";
+import { buildVapeTiles } from "@/lib/prices/vapes";
+import {
+  type FaqEntry,
+  faqPageJsonLd,
+  serializeJsonLd,
+} from "@/lib/seo/jsonld";
 import { absoluteUrl, marketBaseUrl, pageMetadata } from "@/lib/seo/metadata";
-import type { Item, ItemVariant } from "@/lib/types";
-
-/** Categories sold by cannabis weight — the only ones where £/g is comparable. */
-const WEIGHT_CATEGORIES = new Set(["Flower", "Shake", "Hash", "Concentrates"]);
-/** Categories that get a best-value board of their own. */
-const BOARD_CATEGORIES = ["Flower", "Hash", "Shake"] as const;
-/** Rows per best-value board (one per seller). */
-const BOARD_ROWS = 5;
-/** Categories need this many gram-priced listings to earn a table row. */
-const MIN_CATEGORY_LISTINGS = 5;
-/** Sellers use 999 as a "sold out" placeholder, not a price. */
-const SENTINEL_USD = 999;
-/** Per-gram sanity ceiling — the legitimate live maximum is ~$200/g hash. */
-const MAX_USD_PER_GRAM = 300;
-/** Shake-grade matter sold inside a Flower listing — keep it off the Flower board. */
-const SHAKE_TEXT_RE = /\b(?:shake|trim|dust|smalls|stems)\b/i;
-/** Battery/hardware rows inside vape listings — never device prices. */
-const VAPE_ACCESSORY_RE =
-  /\bbatter(?:y|ies)\b|\bcharger\b|\bkit\b|\bjuice\b|\bvaporizer\b/i;
-/** Device sizes (ml ≡ g for carts) the vape tiles recognise. */
-const VAPE_SIZES = new Set([0.5, 1, 1.25, 2]);
-
-interface CategoryStats {
-  category: string;
-  listings: number;
-  /** USD per gram over all gram-denominated variants in the category. */
-  median: number;
-  p25: number;
-  p75: number;
-  min: number;
-}
-
-interface BestValueRow {
-  ref: string;
-  name: string;
-  seller: string | null;
-  /** Item's cheapest USD-per-gram across its gram-denominated variants. */
-  usdPerGram: number;
-}
-
-interface BestValueBoard {
-  category: (typeof BOARD_CATEGORIES)[number];
-  rows: BestValueRow[];
-}
-
-interface VapeTile {
-  /** Device size in ml-equivalent (sellers list 1g and 1ml interchangeably). */
-  size: number;
-  /** Median of per-listing median single-device prices, USD. */
-  median: number;
-  items: number;
-  sellers: number;
-}
-
-interface DistillateBand {
-  key: "bandSmall" | "bandMid" | "bandLarge";
-  /** Median USD per ml within the band. */
-  median: number;
-  count: number;
-}
-
-interface PriceIndex {
-  /** Weight-category items with at least one valid gram-denominated variant. */
-  listingCount: number;
-  overallMedian: number;
-  cheapest: number;
-  categories: CategoryStats[];
-  boards: BestValueBoard[];
-}
-
-function validPerGram(usd: number, g: number): boolean {
-  return (
-    Number.isFinite(usd) &&
-    Number.isFinite(g) &&
-    usd > 0 &&
-    g > 0 &&
-    usd !== SENTINEL_USD &&
-    usd / g <= MAX_USD_PER_GRAM
-  );
-}
-
-/** Per-gram asking prices for one item; sentinel and nonsense values dropped. */
-function perGramPrices(item: Item, excludeShakeText = false): number[] {
-  const prices: number[] = [];
-  for (const variant of item.v ?? []) {
-    const { usd, g } = variant;
-    if (typeof usd !== "number" || typeof g !== "number") continue;
-    if (!validPerGram(usd, g)) continue;
-    if (excludeShakeText && SHAKE_TEXT_RE.test(variant.d ?? "")) continue;
-    prices.push(usd / g);
-  }
-  return prices;
-}
-
-/** Linear-interpolated quantile of an ascending-sorted, non-empty array. */
-function quantile(sorted: number[], q: number): number {
-  const pos = (sorted.length - 1) * q;
-  const lo = Math.floor(pos);
-  const hi = Math.ceil(pos);
-  return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
-}
-
-function median(values: number[]): number {
-  return quantile(
-    [...values].sort((a, b) => a - b),
-    0.5,
-  );
-}
-
-function buildPriceIndex(items: Item[]): PriceIndex | null {
-  const byCategory = new Map<string, { prices: number[]; listings: number }>();
-  const allPrices: number[] = [];
-  const candidates = new Map<string, BestValueRow[]>();
-  let listingCount = 0;
-
-  for (const item of items) {
-    if (!item.c || !WEIGHT_CATEGORIES.has(item.c)) continue;
-    const prices = perGramPrices(item);
-    if (prices.length === 0) continue;
-    listingCount++;
-    allPrices.push(...prices);
-
-    let entry = byCategory.get(item.c);
-    if (!entry) {
-      entry = { prices: [], listings: 0 };
-      byCategory.set(item.c, entry);
-    }
-    entry.prices.push(...prices);
-    entry.listings++;
-
-    if ((BOARD_CATEGORIES as readonly string[]).includes(item.c)) {
-      // Flower board only ranks bud: a "28 g shake" tier or a "dust and
-      // stems" listing filed under Flower belongs on the shake board.
-      const boardPrices =
-        item.c === "Flower"
-          ? SHAKE_TEXT_RE.test(item.n)
-            ? []
-            : perGramPrices(item, true)
-          : prices;
-      if (boardPrices.length > 0) {
-        const rows = candidates.get(item.c) ?? [];
-        rows.push({
-          ref: String(item.refNum ?? item.id),
-          name: decodeEntities(item.n),
-          seller: item.sn ?? null,
-          usdPerGram: Math.min(...boardPrices),
-        });
-        candidates.set(item.c, rows);
-      }
-    }
-  }
-
-  if (allPrices.length === 0) return null;
-  allPrices.sort((a, b) => a - b);
-
-  const boards: BestValueBoard[] = BOARD_CATEGORIES.map((category) => {
-    const rows = (candidates.get(category) ?? []).sort(
-      (a, b) => a.usdPerGram - b.usdPerGram,
-    );
-    // One row per seller, so a single seller's menu can't fill the board.
-    const seen = new Set<string>();
-    const deduped: BestValueRow[] = [];
-    for (const row of rows) {
-      const key = row.seller ?? row.ref;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      deduped.push(row);
-      if (deduped.length === BOARD_ROWS) break;
-    }
-    return { category, rows: deduped };
-  }).filter((board) => board.rows.length > 0);
-
-  const categories: CategoryStats[] = [...byCategory.entries()]
-    .filter(([, entry]) => entry.listings >= MIN_CATEGORY_LISTINGS)
-    .map(([category, entry]) => {
-      const sorted = entry.prices.sort((a, b) => a - b);
-      return {
-        category,
-        listings: entry.listings,
-        median: quantile(sorted, 0.5),
-        p25: quantile(sorted, 0.25),
-        p75: quantile(sorted, 0.75),
-        min: sorted[0],
-      };
-    })
-    .sort((a, b) => b.listings - a.listings);
-
-  return {
-    listingCount,
-    overallMedian: quantile(allPrices, 0.5),
-    cheapest: allPrices[0],
-    categories,
-    boards,
-  };
-}
-
-/**
- * Single-device size in ml-equivalent, or null. Sellers list 1g and 1ml
- * carts interchangeably, so stamped grams and ml resolve to one scale.
- * Pack rows (ol "N×Mml" with N>1) are excluded — the tiles quote what one
- * cart costs, not a divided bundle price.
- */
-function vapeDeviceSize(v: ItemVariant): number | null {
-  if (VAPE_ACCESSORY_RE.test(v.d ?? "")) return null;
-  const packMatch = v.ol?.match(/^(\d+)×[\d.]+ml$/);
-  if (packMatch && parseInt(packMatch[1], 10) > 1) return null;
-  if (typeof v.g === "number" && VAPE_SIZES.has(v.g)) return v.g;
-  if (v.u === "ml" && typeof v.q === "number" && VAPE_SIZES.has(v.q)) {
-    return v.q;
-  }
-  return null;
-}
-
-function buildVapeTiles(items: Item[]): VapeTile[] {
-  // size → per-item single-device prices, plus seller ids per size.
-  const bySize = new Map<
-    number,
-    { perItem: Map<string, number[]>; sellers: Set<string> }
-  >();
-  for (const item of items) {
-    if (item.c !== "Vapes") continue;
-    for (const v of item.v ?? []) {
-      if (typeof v.usd !== "number" || v.usd <= 0 || v.usd === SENTINEL_USD)
-        continue;
-      const size = vapeDeviceSize(v);
-      if (size == null) continue;
-      let entry = bySize.get(size);
-      if (!entry) {
-        entry = { perItem: new Map(), sellers: new Set() };
-        bySize.set(size, entry);
-      }
-      const key = String(item.refNum ?? item.id);
-      const prices = entry.perItem.get(key) ?? [];
-      prices.push(v.usd);
-      entry.perItem.set(key, prices);
-      if (item.sid != null) entry.sellers.add(String(item.sid));
-    }
-  }
-
-  // Median of per-listing medians, so one long menu is one vote.
-  return [1, 0.5]
-    .map((size) => {
-      const entry = bySize.get(size);
-      if (!entry || entry.perItem.size < 3) return null;
-      const itemMedians = [...entry.perItem.values()].map(median);
-      return {
-        size,
-        median: median(itemMedians),
-        items: entry.perItem.size,
-        sellers: entry.sellers.size,
-      };
-    })
-    .filter((tile): tile is VapeTile => tile !== null);
-}
-
-function buildDistillateBands(items: Item[]): DistillateBand[] {
-  const bands: Record<
-    DistillateBand["key"],
-    { perMl: number[]; refs: Set<string> }
-  > = {
-    bandSmall: { perMl: [], refs: new Set() },
-    bandMid: { perMl: [], refs: new Set() },
-    bandLarge: { perMl: [], refs: new Set() },
-  };
-  const allRefs = new Set<string>();
-  for (const item of items) {
-    if (item.c !== "Distillate") continue;
-    for (const v of item.v ?? []) {
-      if (v.u !== "ml" || typeof v.q !== "number" || v.q <= 0) continue;
-      if (typeof v.usd !== "number" || v.usd <= 0 || v.usd === SENTINEL_USD)
-        continue;
-      const key = v.q <= 5 ? "bandSmall" : v.q <= 50 ? "bandMid" : "bandLarge";
-      bands[key].perMl.push(v.usd / v.q);
-      const ref = String(item.refNum ?? item.id);
-      bands[key].refs.add(ref);
-      allRefs.add(ref);
-    }
-  }
-  if (allRefs.size < MIN_CATEGORY_LISTINGS) return [];
-  return (Object.keys(bands) as DistillateBand["key"][])
-    .map((key) =>
-      bands[key].perMl.length > 0
-        ? { key, median: median(bands[key].perMl), count: bands[key].refs.size }
-        : null,
-    )
-    .filter((band): band is DistillateBand => band !== null);
-}
 
 /** Round down to a stable "N+" figure so the title doesn't churn per crawl. */
 function roundedCount(count: number): number {
@@ -322,22 +34,43 @@ function roundedCount(count: number): number {
   return Math.floor(count / 10) * 10;
 }
 
+/** Message-key fragment for a standard weight ("3.5" → "3_5"). */
+function sizeKey(size: number): string {
+  return String(size).replace(".", "_");
+}
+
 /**
- * Gram-priced listing count for metadata. Cached with the same profile and
- * tag as the page body (mirrors the category page's categoryCounts) so
+ * Absolute date for the "updated" line, taken from the data's own stamp. A
+ * pure function of (iso, locale) with a fixed zone and NO clock read, so it
+ * is safe to bake into cached HTML.
+ */
+function formatUpdated(iso: string, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeZone: "UTC",
+    }).format(new Date(iso));
+  } catch {
+    return iso.slice(0, 10);
+  }
+}
+
+/**
+ * Listing count and data freshness for metadata. Cached with the same profile
+ * and tag as the page body (mirrors the category page's categoryCounts) so
  * generateMetadata never pays an uncached R2 fetch per request.
  */
-async function gramListingCount(mkt: string): Promise<number> {
+async function priceFacts(
+  mkt: string,
+): Promise<{ count: number; updatedAt: string | null }> {
   "use cache";
   cacheLife("items");
   cacheTag("items");
-  const items = await loadItems(mkt);
-  let count = 0;
-  for (const item of items) {
-    if (!item.c || !WEIGHT_CATEGORIES.has(item.c)) continue;
-    if (perGramPrices(item).length > 0) count++;
-  }
-  return count;
+  const index = buildPriceIndex(await loadItems(mkt));
+  return {
+    count: index?.listingCount ?? 0,
+    updatedAt: index?.updatedAt ?? null,
+  };
 }
 
 export async function generateMetadata({
@@ -349,17 +82,32 @@ export async function generateMetadata({
   const market = localeToMarket(locale);
   const t = await getTranslations({ locale, namespace: "prices" });
   const tMarkets = await getTranslations({ locale, namespace: "markets" });
-  const count = roundedCount(await gramListingCount(market.toLowerCase()));
+  const facts = await priceFacts(market.toLowerCase());
+  const count = roundedCount(facts.count);
 
   // GB keeps the dedicated "UK" wording; other markets interpolate the
   // localized market name. Countless fallback mirrors /browse.
   const isGB = market === "GB";
   const marketName = tMarkets(market);
 
+  // The year comes from the freshest listing stamp, never the clock: the
+  // title is baked into cached HTML, so a wall-clock year would freeze at
+  // whatever filled the cache. Passed as a string so ICU does not group it
+  // into "2,026".
+  const year = facts.updatedAt
+    ? String(new Date(facts.updatedAt).getUTCFullYear())
+    : null;
+
   return pageMetadata({
     market,
     path: "/prices",
-    title: isGB ? t("meta.titleGB") : t("meta.title", { market: marketName }),
+    title: year
+      ? isGB
+        ? t("meta.titleGBYear", { year })
+        : t("meta.titleYear", { market: marketName, year })
+      : isGB
+        ? t("meta.titleGB")
+        : t("meta.title", { market: marketName }),
     description:
       count >= 10
         ? isGB
@@ -396,8 +144,10 @@ export default async function PricesPage({
 
   const marketName = tMarkets(market);
   const index = buildPriceIndex(items);
+  const weightRows = buildWeightTable(items);
   const vapeTiles = buildVapeTiles(items);
   const distillateBands = buildDistillateBands(items);
+  const updatedAt = index?.updatedAt ?? null;
 
   // Unknown category keys fall back to the raw value instead of surfacing a
   // MISSING error string (same guard as the browse seed cards).
@@ -409,7 +159,7 @@ export default async function PricesPage({
     }
   };
 
-  const boardLabel = (category: (typeof BOARD_CATEGORIES)[number]): string =>
+  const boardLabel = (category: string): string =>
     category === "Flower"
       ? t("bestValue.flowerBoard")
       : category === "Hash"
@@ -437,10 +187,59 @@ export default async function PricesPage({
   const vape1ml = vapeTiles.find((tile) => tile.size === 1);
 
   const pageUrl = absoluteUrl(market, "/prices");
+  const dataUrl = absoluteUrl(
+    market,
+    `/api/prices?mkt=${market.toLowerCase()}`,
+  );
   const currencyUnit = `${currency.code}/g`;
 
-  // Dataset structured data. No temporalCoverage: the page renders inside
-  // "use cache" with no clock reads, so it cannot stamp wall-clock dates.
+  // FAQ answers quote the SAME computed figures the tables render, and an
+  // entry is dropped when its figure is unavailable — nothing here can claim
+  // a price the page does not show. The FAQPage markup is built from this
+  // list, so the two cannot drift apart.
+  const flowerOunce = weightRows
+    .find((row) => row.category === "Flower")
+    ?.cells.find((cell) => cell?.size === 28);
+  const faqCart = vape1ml ?? vapeTiles[0];
+  const faqEntries: (FaqEntry & { key: string })[] = index
+    ? [
+        {
+          key: "ounce",
+          q: t("faq.ounce.q"),
+          a: flowerOunce
+            ? t("faq.ounce.a", { price: price(flowerOunce.median) })
+            : t("faq.ounce.aPerGram", { price: price(index.overallMedian) }),
+        },
+        ...(hash
+          ? [
+              {
+                key: "hashGram",
+                q: t("faq.hashGram.q"),
+                a: t("faq.hashGram.a", { price: price(hash.median) }),
+              },
+            ]
+          : []),
+        ...(faqCart
+          ? [
+              {
+                key: "vapeCart",
+                q: t("faq.vapeCart.q"),
+                a: t("faq.vapeCart.a", {
+                  price: price(faqCart.median),
+                  size: `${faqCart.size}ml`,
+                }),
+              },
+            ]
+          : []),
+        { key: "real", q: t("faq.real.q"), a: t("faq.real.a") },
+      ]
+    : [];
+
+  // Dataset structured data. The dates come from the listing stamps
+  // (dateModified = freshest `lua`, temporalCoverage back to the oldest
+  // `fsa`): the page renders inside "use cache" with no clock reads, so a
+  // wall-clock stamp would freeze into the cache. No `license` — the asking
+  // prices are third-party listing data, not ours to license.
   const datasetJsonLd = {
     "@context": "https://schema.org",
     "@type": "Dataset",
@@ -448,11 +247,26 @@ export default async function PricesPage({
     description,
     url: pageUrl,
     isAccessibleForFree: true,
+    keywords: ["cannabis prices", "price per gram", "Little Biggy"],
+    spatialCoverage: marketName,
+    ...(updatedAt ? { dateModified: updatedAt } : {}),
+    ...(updatedAt && index?.firstSeenAt
+      ? {
+          temporalCoverage: `${index.firstSeenAt.slice(0, 10)}/${updatedAt.slice(0, 10)}`,
+        }
+      : {}),
     creator: {
       "@type": "Organization",
       name: "BiggyIndex",
       url: `${marketBaseUrl(market)}/`,
     },
+    distribution: [
+      {
+        "@type": "DataDownload",
+        encodingFormat: "application/json",
+        contentUrl: dataUrl,
+      },
+    ],
     ...(index
       ? {
           variableMeasured: [
@@ -555,6 +369,14 @@ export default async function PricesPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
+      {faqEntries.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(faqPageJsonLd(faqEntries)),
+          }}
+        />
+      )}
 
       <main className="min-h-screen bg-background">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
@@ -566,8 +388,16 @@ export default async function PricesPage({
             })}
           </p>
           <p className="mt-2 text-sm text-muted leading-relaxed">
+            {t("weightsIntro")}
+          </p>
+          <p className="mt-2 text-sm text-muted leading-relaxed">
             {t("scopeNote")}
           </p>
+          {updatedAt && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t("updated", { date: formatUpdated(updatedAt, locale) })}
+            </p>
+          )}
 
           {!index && (
             <p className="mt-8 rounded-2xl border border-border bg-surface p-5 text-sm text-muted leading-relaxed">
@@ -595,7 +425,9 @@ export default async function PricesPage({
                 ))}
               </div>
 
-              {/* Per-category table */}
+              {/* Per-category table. The rows carry the category anchors
+                  other pages deep-link to (#flower, #hash, #shake,
+                  #concentrates). */}
               <section className="mt-12">
                 <h2 className="text-lg font-semibold text-foreground mb-2">
                   {t("table.heading")}
@@ -628,9 +460,8 @@ export default async function PricesPage({
                         return (
                           <tr
                             key={stats.category}
-                            className={
-                              i > 0 ? "border-t border-border" : undefined
-                            }
+                            id={stats.category.toLowerCase()}
+                            className={`scroll-mt-24${i > 0 ? " border-t border-border" : ""}`}
                           >
                             <td
                               className={`${tdClass} font-medium text-foreground`}
@@ -668,6 +499,73 @@ export default async function PricesPage({
                   </table>
                 </div>
               </section>
+
+              {/* Per-size medians — what an eighth, a quarter, a half ounce
+                  and an ounce actually cost. Sizes match the stamped grams
+                  exactly; thin cells are withheld rather than quoted. */}
+              {weightRows.length > 0 && (
+                <section id="weights" className="mt-12 scroll-mt-24">
+                  <h2 className="text-lg font-semibold text-foreground mb-2">
+                    {t("weights.heading")}
+                  </h2>
+                  <p className="text-sm text-muted leading-relaxed">
+                    {t("weights.caption")}
+                  </p>
+                  <div className="mt-4 overflow-x-auto rounded-2xl border border-border bg-surface">
+                    <table className="w-full min-w-[36rem] border-collapse">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className={thClass}>{t("table.category")}</th>
+                          {STANDARD_WEIGHTS.map((size) => (
+                            <th key={size} className={`${thClass} text-right`}>
+                              {t(`weights.size${sizeKey(size)}`)}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {weightRows.map((row, i) => (
+                          <tr
+                            key={row.category}
+                            className={
+                              i > 0 ? "border-t border-border" : undefined
+                            }
+                          >
+                            <td
+                              className={`${tdClass} font-medium text-foreground`}
+                            >
+                              {categoryLabel(row.category)}
+                            </td>
+                            {row.cells.map((cell, ci) => (
+                              <td
+                                key={STANDARD_WEIGHTS[ci]}
+                                className={`${tdClass} text-right`}
+                              >
+                                {cell ? (
+                                  <>
+                                    <span className="font-medium text-foreground">
+                                      {price(cell.median)}
+                                    </span>
+                                    <span className="block text-xs text-muted-foreground leading-snug">
+                                      {t("weights.cellMeta", {
+                                        count: cell.listings,
+                                      })}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-muted-foreground">
+                                    &ndash;
+                                  </span>
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              )}
 
               {/* Best-value boards — crawlable item links, one per seller */}
               <section className="mt-12">
@@ -738,7 +636,7 @@ export default async function PricesPage({
 
               {/* Vape carts — per device, never per gram */}
               {vapeTiles.length > 0 && (
-                <section className="mt-12">
+                <section id="vapes" className="mt-12 scroll-mt-24">
                   <h2 className="text-lg font-semibold text-foreground mb-2">
                     {t("vapes.heading")}
                   </h2>
@@ -771,7 +669,7 @@ export default async function PricesPage({
 
               {/* Distillate — per ml inside a size band */}
               {distillateBands.length > 0 && (
-                <section className="mt-12">
+                <section id="distillate" className="mt-12 scroll-mt-24">
                   <h2 className="text-lg font-semibold text-foreground mb-2">
                     {t("distillate.heading")}
                   </h2>
@@ -801,6 +699,28 @@ export default async function PricesPage({
                 </section>
               )}
             </>
+          )}
+
+          {/* FAQ — the questions people actually type, answered with the
+              figures above. Same list rhythm as the methodology block. */}
+          {faqEntries.length > 0 && (
+            <section className="mt-12">
+              <h2 className="text-lg font-semibold text-foreground mb-2">
+                {t("faq.heading")}
+              </h2>
+              <ul className="mt-4 space-y-4">
+                {faqEntries.map((entry) => (
+                  <li key={entry.key}>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">
+                      {entry.q}
+                    </h3>
+                    <p className="text-sm text-muted leading-relaxed">
+                      {entry.a}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           {/* Methodology — the honesty block */}

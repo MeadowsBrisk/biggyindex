@@ -331,6 +331,10 @@
           "endorsements": {
             "q": "Co jsou doporučení a nahlášení prodejců?",
             "a": "Zpětná vazba, kterou můžete zanechat na profilu prodejce: doporučte toho, s nímž jste měli dobrou zkušenost, nebo nahlaste toho, s nímž ne. Každé odeslání před zveřejněním zkontroluje lidský moderátor a součty najdete na stránce prodejce vedle statistik recenzí."
+          },
+          "shipsToIreland": {
+            "q": "Does Little Biggy ship to Ireland?",
+            "a": "Yes. Sellers on Little Biggy post to Irish addresses, and this edition only indexes listings a seller will actually send here — the catalogue, the postage and the reported delivery times are all the Irish ones, not the UK ones. Postage is set per order by the seller, so the shipping options on the listing itself are what apply at checkout."
           }
         }
       },
@@ -363,6 +367,10 @@
           "legality": {
             "q": "A co legálnost v Česku?",
             "a": "Zákony o konopí stále platí. Jste odpovědní za dodržování místních předpisů a ověřování každého detailu Little Biggy."
+          },
+          "euroPrices": {
+            "q": "Are prices in euros, and can I pay in euros?",
+            "a": "Prices on this edition are shown in euros, converted from the seller's asking price at the current exchange rate so you can compare listings at a glance. Payment itself is still Bitcoin only — no card, bank transfer or euro balance — so the amount you send is the Bitcoin equivalent at the moment you pay."
           }
         }
       }
@@ -1171,6 +1179,27 @@
     "backToTop": "Zpět nahoru",
     "back": "Zpět"
   },
+  "ireland": {
+    "ordering": {
+      "eyebrow": "Shipping to Ireland",
+      "heading": "Ordering from Ireland",
+      "intro": "Every listing on this edition is one a seller will post to an Irish address. The figures below are read straight off that catalogue each time it refreshes.",
+      "sellers": {
+        "label": "{count, plural, one {seller ships to Ireland} other {sellers ship to Ireland}}",
+        "meta": "{listings, plural, one {# listing indexed for Ireland} other {# listings indexed for Ireland}}"
+      },
+      "shipping": {
+        "label": "typical postage to Ireland",
+        "meta": "Median seller postage, across the {withShipping} of {listings} listings that publish a price."
+      },
+      "delivery": {
+        "label": "typical time to arrive",
+        "value": "{days, plural, one {# day} other {# days}}",
+        "meta": "Median of the arrival times reported for {sellers, plural, one {# seller} other {# sellers}} shipping here."
+      },
+      "note": "Postage is set per order by the seller and can change with what you buy, so the shipping options on the listing itself are the ones that apply at checkout."
+    }
+  },
   "about": {
     "metadataTitle": "O BiggyIndexu — jak index funguje | BiggyIndex",
     "metadataDescription": "Jak BiggyIndex funguje: nezávislý index veřejných nabídek Little Biggy určený pouze ke čtení, aktualizovaný zhruba každých 30 minut, s historií cen, statistikami recenzí a moderovanou zpětnou vazbou k prodejcům.",
@@ -1306,6 +1335,7 @@
       "breadcrumbHome": "Domů",
       "breadcrumbLabel": "Drobečková navigace",
       "priceNote": {
+        "vapes": "Typická 1ml náplň: {price} na Little Biggy — viz <link>cenový index</link>.",
         "flower": "Zajímá vás, jaká cena je férová? <link>Cenový index konopí</link> sleduje aktuální mediány za gram napříč všemi zde indexovanými nabídkami květů.",
         "shake": "Shake je nejlevnější způsob nákupu podle váhy — <link>cenový index konopí</link> ukazuje, o kolik jsou jeho mediány za gram nižší než u květů.",
         "hash": "Ceny hašiše se výrazně liší mezi dovozovými kvalitami a extrakty bez rozpouštědel — <link>cenový index konopí</link> sleduje aktuální medián a rozpětí za gram.",
@@ -1328,69 +1358,103 @@
   },
   "prices": {
     "meta": {
-      "titleGB": "UK Cannabis Prices — Live Price Per Gram Index",
-      "title": "Cannabis Prices in {market} — Price Per Gram Index",
-      "descriptionGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
-      "description": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
-      "descriptionNoCountGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings.",
-      "descriptionNoCount": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+      "titleGB": "Ceny konopí ve Velké Británii — živý index ceny za gram",
+      "title": "Ceny konopí: {market} — index ceny za gram",
+      "titleGBYear": "Ceny konopí ve Velké Británii {year} — živý index ceny za gram",
+      "titleYear": "Ceny konopí {year}: {market} — index ceny za gram",
+      "descriptionGB": "Živý cenový index konopí ve Velké Británii: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z {count}+ nabídek na Little Biggy s cenou za gram.",
+      "description": "Živý cenový index konopí – {market}: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z {count}+ nabídek na Little Biggy s cenou za gram.",
+      "descriptionNoCountGB": "Živý cenový index konopí ve Velké Británii: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z nabídek na Little Biggy s cenou za gram.",
+      "descriptionNoCount": "Živý cenový index konopí – {market}: medián požadované ceny za gram u květů, hašiše a dalších, spočítaný z nabídek na Little Biggy s cenou za gram."
     },
-    "headingGB": "UK Cannabis Prices: Price Per Gram",
-    "heading": "Cannabis Prices in {market}: Price Per Gram",
-    "intro": "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}",
-    "empty": "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up.",
+    "headingGB": "Ceny konopí ve Velké Británii: cena za gram",
+    "heading": "Ceny konopí za gram: {market}",
+    "intro": "{count, plural, one {Každé číslo níže je aktuální požadovaná cena na Little Biggy — přepočtená na gram v {currency} z 1 nabídky s cenou za gram a obnovovaná spolu s indexem.} few {Každé číslo níže je aktuální požadovaná cena na Little Biggy — přepočtená na gram v {currency} z # nabídek s cenou za gram a obnovovaná spolu s indexem.} other {Každé číslo níže je aktuální požadovaná cena na Little Biggy — přepočtená na gram v {currency} z # nabídek s cenou za gram a obnovovaná spolu s indexem.}}",
+    "weightsIntro": "Ceny jsou rozdělené podle velikostí, které lidé skutečně kupují: mediány pro 1g, 3.5g, 7g, 14g a 28g — osminka, čtvrtka, půl unce a unce.",
+    "updated": "Aktualizováno {date}",
+    "empty": "Pro tento trh zatím nejsou indexované žádné nabídky s cenou za gram. Vraťte se brzy — čísla se objeví, jakmile je index zachytí.",
     "stats": {
-      "overallMedianLabel": "Median price per gram",
-      "categoryMedianLabel": "{category} median",
-      "cheapestLabel": "Cheapest per gram",
+      "overallMedianLabel": "Medián ceny za gram",
+      "categoryMedianLabel": "Medián {category}",
+      "cheapestLabel": "Nejlevnější za gram",
       "perGram": "{price}/g"
     },
     "table": {
-      "heading": "Price per gram by category",
-      "category": "Category",
-      "listings": "Listings",
-      "median": "Median /g",
-      "range": "Typical range",
-      "from": "From",
-      "caption": "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+      "heading": "Cena za gram podle kategorie",
+      "category": "Kategorie",
+      "listings": "Nabídky",
+      "median": "Medián /g",
+      "range": "Typické rozpětí",
+      "from": "Od",
+      "caption": "Typické rozpětí je prostředních 50 % požadovaných cen (25.–75. percentil). „Od“ je nejnižší cena za gram v kategorii."
     },
-    "scopeNote": "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content.",
+    "weights": {
+      "heading": "Cena podle váhy: 1g až 28g",
+      "caption": "Medián požadované ceny u každé standardní velikosti, spočítaný z nabídek, které přesně tuto váhu nabízejí. Velikost se uvádí jen tam, kde ji prodávají alespoň tři nabídky.",
+      "size1": "1g",
+      "size3_5": "3.5g (osminka)",
+      "size7": "7g (čtvrtka)",
+      "size14": "14g (půl unce)",
+      "size28": "28g (unce)",
+      "cellMeta": "{count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}"
+    },
+    "scopeNote": "Ceny za gram pokrývají květy, shake, hash a koncentráty — produkty, které se opravdu prodávají podle váhy konopí. Vape a destilát mají níže vlastní sekce v jednotkách, ve kterých se skutečně prodávají, a jedlé produkty jsou vyloučené, protože uvedená váha je váhou potraviny, ne obsahu konopí.",
     "bestValue": {
-      "heading": "Best value right now",
-      "intro": "The cheapest live asking prices per gram, one listing per seller. Bulk shake and trim genuinely undercut everything else, so each category gets its own board rather than one shake-dominated list.",
-      "flowerBoard": "Flower",
+      "heading": "Nejvýhodnější nabídky právě teď",
+      "intro": "Nejnižší aktuální požadované ceny za gram, jedna nabídka na prodejce. Shake a trim ve větších objemech skutečně podráží všechno ostatní, proto má každá kategorie vlastní tabulku místo jednoho seznamu ovládnutého shakem.",
+      "flowerBoard": "Květy",
       "hashBoard": "Hash",
-      "shakeBoard": "Shake & trim",
+      "shakeBoard": "Shake a trim",
       "rank": "#",
-      "item": "Item",
-      "seller": "Seller",
-      "pricePerGram": "Price /g"
+      "item": "Produkt",
+      "seller": "Prodejce",
+      "pricePerGram": "Cena /g"
     },
     "vapes": {
-      "heading": "Vape carts",
-      "intro": "Vapes sell per device, not per gram — sellers list 1g and 1ml carts interchangeably, so a weight comparison against flower would mislead. Typical single-cart asking prices:",
-      "tileLabel": "{size} cart",
-      "tileMeta": "{items, plural, one {# listing} other {# listings}} · {sellers, plural, one {# seller} other {# sellers}}",
-      "medianLabel": "Typical 1ml vape cart price"
+      "heading": "Vape náplně",
+      "intro": "Vape se prodává po kusech, ne na gramy — prodejci uvádějí 1g a 1ml náplně zaměnitelně, takže srovnání podle váhy s květy by bylo zavádějící. Typické požadované ceny za jednu náplň:",
+      "tileLabel": "Náplň {size}",
+      "tileMeta": "{items, plural, one {# nabídka} few {# nabídky} other {# nabídek}} · {sellers, plural, one {# prodejce} few {# prodejci} other {# prodejců}}",
+      "medianLabel": "Typická cena 1ml vape náplně"
     },
     "distillate": {
-      "heading": "Distillate, per ml",
-      "intro": "Bulk distillate is volume-priced with steep size discounts — one blended figure would swing with whichever pack sizes happen to be listed, so it's quoted per ml inside a size band.",
-      "bandSmall": "Up to 5ml",
+      "heading": "Destilát, za ml",
+      "intro": "Destilát ve větších objemech se cení podle objemu s výraznými množstevními slevami — jediné souhrnné číslo by kolísalo podle toho, jaká balení jsou zrovna nabízená, proto se uvádí za ml v rámci velikostního pásma.",
+      "bandSmall": "Do 5 ml",
       "bandMid": "5–50ml",
       "bandLarge": "50ml+",
       "perMl": "{price}/ml",
-      "tileMeta": "{count, plural, one {# listing} other {# listings}}"
+      "tileMeta": "{count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}"
+    },
+    "faq": {
+      "heading": "Časté dotazy k cenám konopí",
+      "ounce": {
+        "q": "Kolik stojí unce květů na Little Biggy?",
+        "a": "Medián požadované ceny za 28g unci květů je {price}. Unce se prodávají výrazně pod cenou jednoho gramu, takže částka není zdaleka 28násobek ceny za 1 g — tabulka vah výše ukazuje všechny velikosti vedle sebe.",
+        "aPerGram": "Momentálně nabízí variantu 28 g květů příliš málo nabídek, než aby šlo pro tento trh uvést poctivou cenu za unci. Medián požadované ceny napříč všemi nabídkami s cenou podle váhy je {price} za gram."
+      },
+      "hashGram": {
+        "q": "Kolik stojí hash za gram?",
+        "a": "Medián požadované ceny hašiše je {price} za gram, spočítaný ze všech gramových variant hašiše indexovaných pro tento trh. Jednotlivé gramy leží nad touto částkou, větší balení pod ní."
+      },
+      "vapeCart": {
+        "q": "Kolik stojí vape náplň?",
+        "a": "Jedna náplň {size} má medián požadované ceny {price}. Náplně se cení po kusech, ne podle váhy, takže srovnání s cenou květů za gram by bylo zavádějící."
+      },
+      "real": {
+        "q": "Jsou to skutečné prodejní ceny?",
+        "a": "Ne — jsou to požadované ceny. Každé číslo je cena, za kterou prodejce variantu nabízí, načtená z aktuálních nabídek na Little Biggy, převedená na měnu trhu a shrnutá do mediánu. Nic zde nepochází z uskutečněných prodejů a nejde o průzkum pouličních cen."
+      }
     },
     "methodology": {
-      "heading": "Methodology",
-      "source": "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex.",
-      "scope": "Per-gram statistics include flower, shake, hash and concentrates only. Vapes are quoted per cart and distillate per ml; edibles and other products are excluded because their listed weight is not cannabis weight.",
-      "inclusion": "Only listings with a weight-denominated option count; price per gram = listed price ÷ grams for each option. Placeholder prices and implausible per-gram figures are dropped.",
-      "refresh": "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them.",
-      "honesty": "These are the prices sellers ask, not a street-price survey and not completed-sale data."
+      "heading": "Metodika",
+      "source": "Ceny jsou požadované ceny z aktuálních nabídek na Little Biggy, indexované službou BiggyIndex.",
+      "scope": "Statistiky za gram zahrnují jen květy, shake, hash a koncentráty. Vape se uvádí za náplň a destilát za ml; jedlé produkty a ostatní kategorie jsou vyloučené, protože jejich uvedená váha není váhou konopí.",
+      "inclusion": "Počítají se jen nabídky s variantou udanou podle váhy; cena za gram = uvedená cena ÷ gramy u každé varianty. Zástupné ceny a nepravděpodobné částky za gram se vyřazují.",
+      "refresh": "Čísla se obnovují spolu s indexem, zhruba každou hodinu, a sledují nabídky, když prodejci mění ceny.",
+      "honesty": "Jsou to ceny, které prodejci požadují — ne průzkum pouličních cen ani data o uskutečněných prodejích."
     },
-    "breadcrumbHome": "Home",
-    "breadcrumbPrices": "Prices"
+    "breadcrumbHome": "Domů",
+    "breadcrumbPrices": "Ceny"
   }
 }

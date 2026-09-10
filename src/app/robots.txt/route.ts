@@ -38,10 +38,13 @@ const DOMAINS: Record<string, string> = {
 // while every other filter combo (q/pmin/pmax/sellers/sub/excl) stays blocked.
 // Crawlable != indexable — filtered URLs canonicalise to /browse, so links are
 // followed and pass equity without being indexed.
+// Answer-engine fetchers get the three pages worth quoting and nothing else,
+// so a permissive edge rule can never turn them into long-tail crawlers.
 const BODY_RULES = `User-Agent: *
 Allow: /
 Allow: /api/browse
 Allow: /api/exchange-rates
+Allow: /api/prices
 Allow: /browse?cat=
 Disallow: /api/
 Disallow: /browse?*
@@ -56,6 +59,16 @@ Disallow: /*?excl=*
 User-Agent: BabbarBot
 User-Agent: Barkrowler
 User-Agent: PetalBot
+Disallow: /
+
+User-Agent: OAI-SearchBot
+User-Agent: ChatGPT-User
+User-Agent: Claude-SearchBot
+User-Agent: PerplexityBot
+User-Agent: Applebot
+Allow: /$
+Allow: /littlebiggy-status
+Allow: /prices
 Disallow: /
 `;
 

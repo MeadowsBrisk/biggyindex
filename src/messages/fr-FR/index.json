@@ -331,6 +331,10 @@
           "endorsements": {
             "q": "Que sont les recommandations et les signalements de vendeurs ?",
             "a": "Des retours que vous pouvez laisser sur la fiche d'un vendeur : recommandez celui avec qui l'expérience a été bonne, signalez celui avec qui elle ne l'a pas été. Un modérateur humain vérifie chaque envoi avant sa publication, et les totaux figurent sur la page du vendeur, à côté de ses statistiques d'avis."
+          },
+          "shipsToIreland": {
+            "q": "Does Little Biggy ship to Ireland?",
+            "a": "Yes. Sellers on Little Biggy post to Irish addresses, and this edition only indexes listings a seller will actually send here — the catalogue, the postage and the reported delivery times are all the Irish ones, not the UK ones. Postage is set per order by the seller, so the shipping options on the listing itself are what apply at checkout."
           }
         }
       },
@@ -363,6 +367,10 @@
           "legality": {
             "q": "Qu’en est-il de la légalité en France ?",
             "a": "Les lois sur le cannabis s’appliquent toujours. Vous êtes responsable de respecter les réglementations locales et de vérifier chaque détail de Little Biggy."
+          },
+          "euroPrices": {
+            "q": "Are prices in euros, and can I pay in euros?",
+            "a": "Prices on this edition are shown in euros, converted from the seller's asking price at the current exchange rate so you can compare listings at a glance. Payment itself is still Bitcoin only — no card, bank transfer or euro balance — so the amount you send is the Bitcoin equivalent at the moment you pay."
           }
         }
       }
@@ -1171,6 +1179,27 @@
     "backToTop": "Retour en haut",
     "back": "Retour"
   },
+  "ireland": {
+    "ordering": {
+      "eyebrow": "Shipping to Ireland",
+      "heading": "Ordering from Ireland",
+      "intro": "Every listing on this edition is one a seller will post to an Irish address. The figures below are read straight off that catalogue each time it refreshes.",
+      "sellers": {
+        "label": "{count, plural, one {seller ships to Ireland} other {sellers ship to Ireland}}",
+        "meta": "{listings, plural, one {# listing indexed for Ireland} other {# listings indexed for Ireland}}"
+      },
+      "shipping": {
+        "label": "typical postage to Ireland",
+        "meta": "Median seller postage, across the {withShipping} of {listings} listings that publish a price."
+      },
+      "delivery": {
+        "label": "typical time to arrive",
+        "value": "{days, plural, one {# day} other {# days}}",
+        "meta": "Median of the arrival times reported for {sellers, plural, one {# seller} other {# sellers}} shipping here."
+      },
+      "note": "Postage is set per order by the seller and can change with what you buy, so the shipping options on the listing itself are the ones that apply at checkout."
+    }
+  },
   "about": {
     "metadataTitle": "À propos de BiggyIndex — comment fonctionne l'index | BiggyIndex",
     "metadataDescription": "Comment fonctionne BiggyIndex : un index indépendant, en lecture seule, des annonces publiques Little Biggy, actualisé environ toutes les 30 minutes, avec historique des prix, statistiques d'avis et retours modérés sur les vendeurs.",
@@ -1306,6 +1335,7 @@
       "breadcrumbHome": "Accueil",
       "breadcrumbLabel": "Fil d'Ariane",
       "priceNote": {
+        "vapes": "Cartouche 1 ml typique : {price} sur Little Biggy — voir l'<link>indice des prix</link>.",
         "flower": "Vous cherchez à situer un prix correct ? L'<link>indice des prix du cannabis</link> suit les médianes au gramme sur toutes les annonces de fleur indexées ici.",
         "shake": "Le shake est la façon la moins chère d'acheter au poids — l'<link>indice des prix du cannabis</link> montre à quel point ses médianes au gramme passent sous celles de la fleur.",
         "hash": "Les prix du hash varient fortement entre qualités d'import et extractions sans solvant — l'<link>indice des prix du cannabis</link> suit la médiane et la fourchette au gramme en direct.",
@@ -1328,69 +1358,103 @@
   },
   "prices": {
     "meta": {
-      "titleGB": "UK Cannabis Prices — Live Price Per Gram Index",
-      "title": "Cannabis Prices in {market} — Price Per Gram Index",
-      "descriptionGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
-      "description": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
-      "descriptionNoCountGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings.",
-      "descriptionNoCount": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+      "titleGB": "Prix du cannabis au Royaume-Uni — indice des prix au gramme en direct",
+      "title": "Prix du cannabis en {market} — indice des prix au gramme",
+      "titleGBYear": "Prix du cannabis au Royaume-Uni {year} — indice des prix au gramme en direct",
+      "titleYear": "Prix du cannabis en {market} {year} — indice des prix au gramme",
+      "descriptionGB": "Indice des prix du cannabis au Royaume-Uni en direct : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir de {count}+ annonces Little Biggy vendues au gramme.",
+      "description": "Indice des prix du cannabis en direct en {market} : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir de {count}+ annonces Little Biggy vendues au gramme.",
+      "descriptionNoCountGB": "Indice des prix du cannabis au Royaume-Uni en direct : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir des annonces Little Biggy vendues au gramme.",
+      "descriptionNoCount": "Indice des prix du cannabis en direct en {market} : médiane du prix demandé au gramme pour la fleur, le hash et plus, calculée à partir des annonces Little Biggy vendues au gramme."
     },
-    "headingGB": "UK Cannabis Prices: Price Per Gram",
-    "heading": "Cannabis Prices in {market}: Price Per Gram",
-    "intro": "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}",
-    "empty": "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up.",
+    "headingGB": "Prix du cannabis au Royaume-Uni : prix au gramme",
+    "heading": "Prix du cannabis en {market} : prix au gramme",
+    "intro": "{count, plural, one {Chaque chiffre ci-dessous est un prix demandé en direct sur Little Biggy — calculé au gramme en {currency} à partir d'une annonce vendue au gramme et actualisé avec l'index.} other {Chaque chiffre ci-dessous est un prix demandé en direct sur Little Biggy — calculé au gramme en {currency} à partir de # annonces vendues au gramme et actualisé avec l'index.}}",
+    "weightsIntro": "Les prix sont détaillés par les quantités réellement achetées : médianes pour 1g, 3.5g, 7g, 14g et 28g — un huitième, un quart, une demi-once et une once.",
+    "updated": "Mis à jour le {date}",
+    "empty": "Aucune annonce vendue au gramme n'est encore indexée pour ce marché. Revenez bientôt — les chiffres apparaissent dès que l'index les détecte.",
     "stats": {
-      "overallMedianLabel": "Median price per gram",
-      "categoryMedianLabel": "{category} median",
-      "cheapestLabel": "Cheapest per gram",
+      "overallMedianLabel": "Prix médian au gramme",
+      "categoryMedianLabel": "Médiane {category}",
+      "cheapestLabel": "Le moins cher au gramme",
       "perGram": "{price}/g"
     },
     "table": {
-      "heading": "Price per gram by category",
-      "category": "Category",
-      "listings": "Listings",
-      "median": "Median /g",
-      "range": "Typical range",
-      "from": "From",
-      "caption": "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+      "heading": "Prix au gramme par catégorie",
+      "category": "Catégorie",
+      "listings": "Annonces",
+      "median": "Médiane /g",
+      "range": "Fourchette typique",
+      "from": "À partir de",
+      "caption": "La fourchette typique correspond aux 50 % centraux des prix demandés (25e–75e centile). « À partir de » est le prix au gramme le plus bas de la catégorie."
     },
-    "scopeNote": "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content.",
+    "weights": {
+      "heading": "Prix par quantité : de 1g à 28g",
+      "caption": "Prix demandé médian pour chaque quantité standard, calculé sur les annonces proposant exactement ce poids. Une quantité n'est affichée que si au moins trois annonces la vendent.",
+      "size1": "1g",
+      "size3_5": "3.5g (huitième)",
+      "size7": "7g (quart)",
+      "size14": "14g (demi-once)",
+      "size28": "28g (once)",
+      "cellMeta": "{count, plural, one {# annonce} other {# annonces}}"
+    },
+    "scopeNote": "Les chiffres au gramme couvrent la fleur, le shake, le hash et les concentrés — des produits réellement vendus au poids de cannabis. Les vapes et le distillat ont leurs propres sections plus bas, dans les unités où ils se vendent vraiment, et les comestibles sont exclus car le poids indiqué y est celui de l'aliment, pas de la teneur en cannabis.",
     "bestValue": {
-      "heading": "Best value right now",
-      "intro": "The cheapest live asking prices per gram, one listing per seller. Bulk shake and trim genuinely undercut everything else, so each category gets its own board rather than one shake-dominated list.",
-      "flowerBoard": "Flower",
+      "heading": "Les meilleures affaires du moment",
+      "intro": "Les prix demandés au gramme les plus bas en direct, une annonce par vendeur. Le shake et le trim en gros cassent vraiment les prix, donc chaque catégorie a son propre tableau plutôt qu'une seule liste dominée par le shake.",
+      "flowerBoard": "Fleur",
       "hashBoard": "Hash",
       "shakeBoard": "Shake & trim",
       "rank": "#",
-      "item": "Item",
-      "seller": "Seller",
-      "pricePerGram": "Price /g"
+      "item": "Produit",
+      "seller": "Vendeur",
+      "pricePerGram": "Prix /g"
     },
     "vapes": {
-      "heading": "Vape carts",
-      "intro": "Vapes sell per device, not per gram — sellers list 1g and 1ml carts interchangeably, so a weight comparison against flower would mislead. Typical single-cart asking prices:",
-      "tileLabel": "{size} cart",
-      "tileMeta": "{items, plural, one {# listing} other {# listings}} · {sellers, plural, one {# seller} other {# sellers}}",
-      "medianLabel": "Typical 1ml vape cart price"
+      "heading": "Cartouches de vape",
+      "intro": "Les vapes se vendent à l'unité, pas au gramme — les vendeurs listent indifféremment des cartouches de 1 g et de 1 ml, donc une comparaison au poids avec la fleur serait trompeuse. Prix demandés typiques pour une cartouche :",
+      "tileLabel": "Cartouche {size}",
+      "tileMeta": "{items, plural, one {# annonce} other {# annonces}} · {sellers, plural, one {# vendeur} other {# vendeurs}}",
+      "medianLabel": "Prix typique d'une cartouche de vape 1 ml"
     },
     "distillate": {
-      "heading": "Distillate, per ml",
-      "intro": "Bulk distillate is volume-priced with steep size discounts — one blended figure would swing with whichever pack sizes happen to be listed, so it's quoted per ml inside a size band.",
-      "bandSmall": "Up to 5ml",
+      "heading": "Distillat, au ml",
+      "intro": "Le distillat en gros est vendu au volume avec de fortes remises sur quantité — un chiffre unique varierait selon les formats listés à l'instant, il est donc donné au ml à l'intérieur d'une tranche de taille.",
+      "bandSmall": "Jusqu'à 5 ml",
       "bandMid": "5–50ml",
       "bandLarge": "50ml+",
       "perMl": "{price}/ml",
-      "tileMeta": "{count, plural, one {# listing} other {# listings}}"
+      "tileMeta": "{count, plural, one {# annonce} other {# annonces}}"
+    },
+    "faq": {
+      "heading": "FAQ sur les prix du cannabis",
+      "ounce": {
+        "q": "Combien coûte une once de fleur sur Little Biggy ?",
+        "a": "Le prix demandé médian pour une once de 28 g de fleur est de {price}. Les onces se vendent bien en dessous du tarif au gramme à l'unité : le chiffre n'a rien à voir avec 28 fois le prix du 1 g — le tableau des quantités ci-dessus les compare toutes.",
+        "aPerGram": "Trop peu d'annonces proposent une option 28 g de fleur pour donner un prix honnête à l'once sur ce marché en ce moment. Le prix demandé médian sur l'ensemble des annonces vendues au poids est de {price} par gramme."
+      },
+      "hashGram": {
+        "q": "Combien coûte le hash au gramme ?",
+        "a": "Le prix demandé médian du hash est de {price} par gramme, calculé sur toutes les options de hash libellées en grammes indexées pour ce marché. Les grammes à l'unité se situent au-dessus de ce chiffre et les gros formats en dessous."
+      },
+      "vapeCart": {
+        "q": "Combien coûte une cartouche de vape ?",
+        "a": "Une cartouche de {size} a un prix demandé médian de {price}. Les cartouches sont vendues à l'unité et non au poids, la comparer à un prix au gramme de fleur serait donc trompeur."
+      },
+      "real": {
+        "q": "S'agit-il de vrais prix de vente ?",
+        "a": "Non — ce sont des prix demandés. Chaque chiffre correspond au prix auquel un vendeur propose une option, relevé sur les annonces Little Biggy en direct, converti dans la devise du marché et ramené à une médiane. Rien ne provient de ventes conclues, et ce n'est pas une enquête sur les prix de rue."
+      }
     },
     "methodology": {
-      "heading": "Methodology",
-      "source": "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex.",
-      "scope": "Per-gram statistics include flower, shake, hash and concentrates only. Vapes are quoted per cart and distillate per ml; edibles and other products are excluded because their listed weight is not cannabis weight.",
-      "inclusion": "Only listings with a weight-denominated option count; price per gram = listed price ÷ grams for each option. Placeholder prices and implausible per-gram figures are dropped.",
-      "refresh": "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them.",
-      "honesty": "These are the prices sellers ask, not a street-price survey and not completed-sale data."
+      "heading": "Méthodologie",
+      "source": "Les prix sont des prix demandés, relevés sur les annonces Little Biggy en direct et indexés par BiggyIndex.",
+      "scope": "Les statistiques au gramme ne couvrent que la fleur, le shake, le hash et les concentrés. Les vapes sont données à la cartouche et le distillat au ml ; les comestibles et les autres produits sont exclus car le poids indiqué n'est pas celui du cannabis.",
+      "inclusion": "Seules les annonces comportant une option libellée au poids sont prises en compte ; prix au gramme = prix affiché ÷ grammes pour chaque option. Les prix fictifs et les valeurs au gramme invraisemblables sont écartés.",
+      "refresh": "Les chiffres se rafraîchissent avec l'index, environ toutes les heures, et suivent les annonces lorsque les vendeurs modifient leurs prix.",
+      "honesty": "Ce sont les prix demandés par les vendeurs, pas une enquête sur les prix de rue ni des données de ventes conclues."
     },
-    "breadcrumbHome": "Home",
-    "breadcrumbPrices": "Prices"
+    "breadcrumbHome": "Accueil",
+    "breadcrumbPrices": "Prix"
   }
 }

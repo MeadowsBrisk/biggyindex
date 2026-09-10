@@ -2,10 +2,11 @@
 
 import { ChevronDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRevealOnScroll } from "@/hooks/useRevealOnScroll";
-import { HOME_FAQ_KEYS, HOME_FAQ_TABS, type HomeFaqTab } from "@/lib/home-faq";
+import { HOME_FAQ_TABS, type HomeFaqTab, homeFaqKeys } from "@/lib/home-faq";
+import { localeToMarket } from "@/lib/market/market";
 import { VERIFY_LINKS } from "@/lib/verify-links";
 
 interface FaqItem {
@@ -37,12 +38,16 @@ export function FaqSection() {
   // Link labels come from the shared verify namespace so the wording stays in
   // sync with the header popover, drawer, footer and status page.
   const tVerify = useTranslations("header.verify");
+  // Some questions only earn their place on one market's edition; the
+  // server-rendered FAQPage markup resolves the same list for the same
+  // market, so the two stay identical.
+  const market = localeToMarket(useLocale());
   const [activeTab, setActiveTab] = useState<HomeFaqTab>("about");
   const [expanded, setExpanded] = useState<number | null>(null);
   const header = useRevealOnScroll<HTMLDivElement>();
   const list = useRevealOnScroll<HTMLDivElement>();
 
-  const faqs: FaqItem[] = HOME_FAQ_KEYS[activeTab].map((key) => ({
+  const faqs: FaqItem[] = homeFaqKeys(activeTab, market).map((key) => ({
     id: key,
     q: t(`${activeTab}.items.${key}.q`),
     a: t(`${activeTab}.items.${key}.a`),

@@ -25,14 +25,16 @@ import {
   slugToCategory,
 } from "@/lib/categories";
 import { loadItems, loadVariantWidths } from "@/lib/data";
-import { decodeEntities } from "@/lib/format";
+import { decodeEntities, fmtPrice } from "@/lib/format";
 import {
   getItemPrimaryHash,
   getItemPrimaryImage,
   isItemPrimaryAnimated,
   variantSrcSetForUrl,
 } from "@/lib/images";
+import { getServerCurrency } from "@/lib/market/currency";
 import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
+import { vapeCartMedianUsd } from "@/lib/prices/vapes";
 import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 import type { Item } from "@/lib/types";
 
@@ -69,6 +71,11 @@ const PRICE_NOTE_SLUGS = new Set<string>([
   "hash",
   "concentrates",
 ]);
+/**
+ * Vapes get the cross-link too, but with a per-CART median: a cart is a
+ * device, so a per-gram figure would be meaningless on it.
+ */
+const CART_PRICE_NOTE_SLUG = "vapes";
 
 /**
  * Per-category item counts for metadata titles. Cached with the same profile
@@ -244,6 +251,22 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     .slice(0, SUBCATEGORY_LIMIT)
     .map(([name]) => name);
 
+  // Per-cart median for the vapes cross-link, off the same helper /prices
+  // uses so the two pages can never quote different figures. Stays null when
+  // too few listings carry a usable device price — the note is dropped rather
+  // than shown with an invented number, and the rate lookup is skipped with
+  // it since no other slug renders a price here.
+  let cartMedian: string | null = null;
+  if (canonicalSlug === CART_PRICE_NOTE_SLUG) {
+    const usd = vapeCartMedianUsd(categoryItems);
+    if (usd != null) {
+      const currency = await getServerCurrency(market, {
+        approximateFallback: true,
+      });
+      cartMedian = fmtPrice(usd, currency.symbol, currency.rate);
+    }
+  }
+
   const pageUrl = absoluteUrl(market, `/category/${canonicalSlug}`);
 
   const breadcrumbJsonLd = {
@@ -337,6 +360,22 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 link: (chunks) => (
                   <Link
                     href="/prices"
+                    prefetch={false}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
+          )}
+          {cartMedian && (
+            <p className="mt-4 text-sm leading-relaxed text-muted">
+              {t.rich(`priceNote.${CART_PRICE_NOTE_SLUG}`, {
+                price: cartMedian,
+                link: (chunks) => (
+                  <Link
+                    href="/prices#vapes"
                     prefetch={false}
                     className="font-medium text-primary hover:underline"
                   >

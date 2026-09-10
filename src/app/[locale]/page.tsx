@@ -9,13 +9,15 @@ import { HeroStatusStrip } from "@/components/home/HeroStatusStrip";
 import { QuickStartGuide } from "@/components/home/QuickStartGuide";
 import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
 import { WhatsNewSection } from "@/components/home/WhatsNewSection";
+import { IrelandOrderingSection } from "@/components/IrelandOrderingSection";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 import { isSentinelPrice } from "@/lib/browse/item-index";
 import { loadHomeFeed, loadSellers } from "@/lib/data";
-import { HOME_FAQ_KEYS, HOME_FAQ_TABS } from "@/lib/home-faq";
+import { HOME_FAQ_TABS, homeFaqKeys } from "@/lib/home-faq";
 import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
+import { loadIrelandOrderingFacts } from "@/lib/market/ireland";
 import { localeToMarket } from "@/lib/market/market";
 import { countActiveSellers } from "@/lib/sellers";
 import { faqPageJsonLd, serializeJsonLd } from "@/lib/seo/jsonld";
@@ -104,6 +106,12 @@ export default async function HomePage({
     );
   }
 
+  // Ireland gets a market-specific ordering panel built from its own
+  // catalogue. Gated here so no other edition pays for the extra read; the
+  // nested cache scope carries the 'items' tag up into this render.
+  const irelandFacts =
+    market === "IE" ? await loadIrelandOrderingFacts() : null;
+
   // Category counts with empty emoji (HeroSection adds them)
   const categoryCounts = feed.hero.categoryCounts.map((c) => ({
     ...c,
@@ -160,7 +168,7 @@ export default async function HomePage({
   const tFaq = await getTranslations({ locale, namespace: "home.faq" });
   const faqJsonLd = faqPageJsonLd(
     HOME_FAQ_TABS.flatMap((tab) =>
-      HOME_FAQ_KEYS[tab].map((key) => ({
+      homeFaqKeys(tab, market).map((key) => ({
         q: tFaq(`${tab}.items.${key}.q`),
         a: tFaq(`${tab}.items.${key}.a`),
       })),
@@ -207,6 +215,14 @@ export default async function HomePage({
         totalSellers={countActiveSellers(sellerList)}
         categoryCounts={categoryCounts}
       />
+
+      {irelandFacts && (
+        <IrelandOrderingSection
+          facts={irelandFacts}
+          currency={currency}
+          locale={locale}
+        />
+      )}
 
       <WhatsNewSection
         newest={feed.whatsNew.newest.map((i) => toNewItem(i, "fsa"))}

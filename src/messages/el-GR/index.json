@@ -331,6 +331,10 @@
           "endorsements": {
             "q": "Τι είναι οι συστάσεις και οι αναφορές για πωλητές;",
             "a": "Σχόλια που μπορείτε να αφήσετε στο προφίλ ενός πωλητή: συστήστε όποιον σας εξυπηρέτησε καλά ή αναφέρετε όποιον όχι. Κάθε υποβολή ελέγχεται από άνθρωπο συντονιστή πριν εμφανιστεί, και τα σύνολα βρίσκονται στη σελίδα του πωλητή, δίπλα στα στατιστικά των κριτικών του."
+          },
+          "shipsToIreland": {
+            "q": "Does Little Biggy ship to Ireland?",
+            "a": "Yes. Sellers on Little Biggy post to Irish addresses, and this edition only indexes listings a seller will actually send here — the catalogue, the postage and the reported delivery times are all the Irish ones, not the UK ones. Postage is set per order by the seller, so the shipping options on the listing itself are what apply at checkout."
           }
         }
       },
@@ -363,6 +367,10 @@
           "legality": {
             "q": "Τι ισχύει με τη νομιμότητα στην Ελλάδα;",
             "a": "Οι νόμοι για την κάνναβη εξακολουθούν να ισχύουν. Είστε υπεύθυνοι για την τήρηση των τοπικών κανονισμών και την επαλήθευση κάθε λεπτομέρειας σχετικά με Little Biggy."
+          },
+          "euroPrices": {
+            "q": "Are prices in euros, and can I pay in euros?",
+            "a": "Prices on this edition are shown in euros, converted from the seller's asking price at the current exchange rate so you can compare listings at a glance. Payment itself is still Bitcoin only — no card, bank transfer or euro balance — so the amount you send is the Bitcoin equivalent at the moment you pay."
           }
         }
       }
@@ -1171,6 +1179,27 @@
     "backToTop": "Επιστροφή στην αρχή",
     "back": "Πίσω"
   },
+  "ireland": {
+    "ordering": {
+      "eyebrow": "Shipping to Ireland",
+      "heading": "Ordering from Ireland",
+      "intro": "Every listing on this edition is one a seller will post to an Irish address. The figures below are read straight off that catalogue each time it refreshes.",
+      "sellers": {
+        "label": "{count, plural, one {seller ships to Ireland} other {sellers ship to Ireland}}",
+        "meta": "{listings, plural, one {# listing indexed for Ireland} other {# listings indexed for Ireland}}"
+      },
+      "shipping": {
+        "label": "typical postage to Ireland",
+        "meta": "Median seller postage, across the {withShipping} of {listings} listings that publish a price."
+      },
+      "delivery": {
+        "label": "typical time to arrive",
+        "value": "{days, plural, one {# day} other {# days}}",
+        "meta": "Median of the arrival times reported for {sellers, plural, one {# seller} other {# sellers}} shipping here."
+      },
+      "note": "Postage is set per order by the seller and can change with what you buy, so the shipping options on the listing itself are the ones that apply at checkout."
+    }
+  },
   "about": {
     "metadataTitle": "Σχετικά με το BiggyIndex — Πώς λειτουργεί το ευρετήριο | BiggyIndex",
     "metadataDescription": "Πώς λειτουργεί το BiggyIndex: ένα ανεξάρτητο ευρετήριο μόνο για ανάγνωση των δημόσιων καταχωρίσεων του Little Biggy, που ανανεώνεται περίπου κάθε 30 λεπτά, με ιστορικό τιμών, στατιστικά κριτικών και ελεγμένα σχόλια για πωλητές.",
@@ -1306,6 +1335,7 @@
       "breadcrumbHome": "Αρχική",
       "breadcrumbLabel": "Διαδρομή πλοήγησης",
       "priceNote": {
+        "vapes": "Τυπική κασέτα 1 ml: {price} στο Little Biggy — δείτε τον <link>δείκτη τιμών</link>.",
         "flower": "Θέλετε να δείτε ποια είναι μια δίκαιη τιμή; Ο <link>δείκτης τιμών κάνναβης</link> παρακολουθεί τις τρέχουσες διάμεσες τιμές ανά γραμμάριο σε όλες τις καταχωρίσεις άνθους εδώ.",
         "shake": "Το shake είναι ο φθηνότερος τρόπος αγοράς με το βάρος — ο <link>δείκτης τιμών κάνναβης</link> δείχνει πόσο χαμηλότερα από το άνθος βρίσκονται οι τιμές ανά γραμμάριο.",
         "hash": "Οι τιμές του χασίς διαφέρουν πολύ μεταξύ εισαγόμενων ποιοτήτων και εκχυλισμάτων χωρίς διαλύτες — ο <link>δείκτης τιμών κάνναβης</link> παρακολουθεί τη ζωντανή διάμεσο και το εύρος ανά γραμμάριο.",
@@ -1328,69 +1358,103 @@
   },
   "prices": {
     "meta": {
-      "titleGB": "UK Cannabis Prices — Live Price Per Gram Index",
-      "title": "Cannabis Prices in {market} — Price Per Gram Index",
-      "descriptionGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
-      "description": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from {count}+ gram-priced Little Biggy listings.",
-      "descriptionNoCountGB": "Live UK cannabis price index: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings.",
-      "descriptionNoCount": "Live cannabis price index for {market}: median asking price per gram for flower, hash and more, computed from gram-priced Little Biggy listings."
+      "titleGB": "Τιμές κάνναβης στο Ηνωμένο Βασίλειο — ζωντανός δείκτης τιμών ανά γραμμάριο",
+      "title": "Τιμές κάνναβης στην {market} — δείκτης τιμών ανά γραμμάριο",
+      "titleGBYear": "Τιμές κάνναβης στο Ηνωμένο Βασίλειο {year} — ζωντανός δείκτης τιμών ανά γραμμάριο",
+      "titleYear": "Τιμές κάνναβης στην {market} {year} — δείκτης τιμών ανά γραμμάριο",
+      "descriptionGB": "Ζωντανός δείκτης τιμών κάνναβης στο Ηνωμένο Βασίλειο: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από {count}+ καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο.",
+      "description": "Ζωντανός δείκτης τιμών κάνναβης στην {market}: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από {count}+ καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο.",
+      "descriptionNoCountGB": "Ζωντανός δείκτης τιμών κάνναβης στο Ηνωμένο Βασίλειο: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από τις καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο.",
+      "descriptionNoCount": "Ζωντανός δείκτης τιμών κάνναβης στην {market}: διάμεση ζητούμενη τιμή ανά γραμμάριο για άνθη, χασίς και άλλα, υπολογισμένη από τις καταχωρίσεις Little Biggy με τιμή ανά γραμμάριο."
     },
-    "headingGB": "UK Cannabis Prices: Price Per Gram",
-    "heading": "Cannabis Prices in {market}: Price Per Gram",
-    "intro": "{count, plural, one {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from 1 gram-priced listing and refreshed with the index.} other {Every figure below is a live asking price on Little Biggy — computed per gram in {currency} from # gram-priced listings and refreshed with the index.}}",
-    "empty": "No gram-priced listings are indexed for this market yet. Check back soon — figures appear as soon as the index picks them up.",
+    "headingGB": "Τιμές κάνναβης στο Ηνωμένο Βασίλειο: τιμή ανά γραμμάριο",
+    "heading": "Τιμές κάνναβης στην {market}: τιμή ανά γραμμάριο",
+    "intro": "{count, plural, one {Κάθε ποσό παρακάτω είναι μια ζωντανή ζητούμενη τιμή στο Little Biggy — υπολογισμένη ανά γραμμάριο σε {currency} από 1 καταχώριση με τιμή ανά γραμμάριο και ανανεώνεται μαζί με τον δείκτη.} other {Κάθε ποσό παρακάτω είναι μια ζωντανή ζητούμενη τιμή στο Little Biggy — υπολογισμένη ανά γραμμάριο σε {currency} από # καταχωρίσεις με τιμή ανά γραμμάριο και ανανεώνεται μαζί με τον δείκτη.}}",
+    "weightsIntro": "Οι τιμές αναλύονται στις ποσότητες που αγοράζονται πραγματικά: διάμεσες τιμές για 1g, 3.5g, 7g, 14g και 28g — ένα όγδοο, ένα τέταρτο, μισή ουγγιά και μία ουγγιά.",
+    "updated": "Ενημερώθηκε στις {date}",
+    "empty": "Δεν έχουν ευρετηριαστεί ακόμη καταχωρίσεις με τιμή ανά γραμμάριο για αυτήν την αγορά. Επιστρέψτε σύντομα — τα στοιχεία εμφανίζονται μόλις τα εντοπίσει ο δείκτης.",
     "stats": {
-      "overallMedianLabel": "Median price per gram",
-      "categoryMedianLabel": "{category} median",
-      "cheapestLabel": "Cheapest per gram",
+      "overallMedianLabel": "Διάμεση τιμή ανά γραμμάριο",
+      "categoryMedianLabel": "Διάμεσος {category}",
+      "cheapestLabel": "Φθηνότερο ανά γραμμάριο",
       "perGram": "{price}/g"
     },
     "table": {
-      "heading": "Price per gram by category",
-      "category": "Category",
-      "listings": "Listings",
-      "median": "Median /g",
-      "range": "Typical range",
-      "from": "From",
-      "caption": "Typical range is the middle 50% of asking prices (25th–75th percentile). From is the lowest per-gram asking price in the category."
+      "heading": "Τιμή ανά γραμμάριο ανά κατηγορία",
+      "category": "Κατηγορία",
+      "listings": "Καταχωρίσεις",
+      "median": "Διάμεσος /g",
+      "range": "Τυπικό εύρος",
+      "from": "Από",
+      "caption": "Το τυπικό εύρος είναι το μεσαίο 50% των ζητούμενων τιμών (25ο–75ο εκατοστημόριο). Το «Από» είναι η χαμηλότερη τιμή ανά γραμμάριο στην κατηγορία."
     },
-    "scopeNote": "Per-gram figures cover flower, shake, hash and concentrates — products genuinely sold by cannabis weight. Vapes and distillate have their own sections below in the units they actually sell in, and edibles are excluded because a listed weight there is the food's, not the cannabis content.",
+    "weights": {
+      "heading": "Τιμή ανά βάρος: από 1g έως 28g",
+      "caption": "Διάμεση ζητούμενη τιμή για κάθε τυπική ποσότητα, από τις καταχωρίσεις που προσφέρουν ακριβώς αυτό το βάρος. Μια ποσότητα εμφανίζεται μόνο όταν την πωλούν τουλάχιστον τρεις καταχωρίσεις.",
+      "size1": "1g",
+      "size3_5": "3.5g (όγδοο)",
+      "size7": "7g (τέταρτο)",
+      "size14": "14g (μισή ουγγιά)",
+      "size28": "28g (ουγγιά)",
+      "cellMeta": "{count, plural, one {# καταχώριση} other {# καταχωρίσεις}}"
+    },
+    "scopeNote": "Τα στοιχεία ανά γραμμάριο καλύπτουν άνθη, σέικ, χασίς και συμπυκνώματα — προϊόντα που πωλούνται πραγματικά με το βάρος της κάνναβης. Τα vapes και το απόσταγμα έχουν δικές τους ενότητες παρακάτω, στις μονάδες που όντως πωλούνται, ενώ τα βρώσιμα εξαιρούνται επειδή το αναγραφόμενο βάρος αφορά το τρόφιμο και όχι την περιεκτικότητα σε κάνναβη.",
     "bestValue": {
-      "heading": "Best value right now",
-      "intro": "The cheapest live asking prices per gram, one listing per seller. Bulk shake and trim genuinely undercut everything else, so each category gets its own board rather than one shake-dominated list.",
-      "flowerBoard": "Flower",
-      "hashBoard": "Hash",
-      "shakeBoard": "Shake & trim",
+      "heading": "Οι καλύτερες τιμές αυτή τη στιγμή",
+      "intro": "Οι χαμηλότερες ζωντανές ζητούμενες τιμές ανά γραμμάριο, μία καταχώριση ανά πωλητή. Το σέικ και το trim σε μεγάλες ποσότητες είναι πράγματι φθηνότερα από όλα τα άλλα, γι' αυτό κάθε κατηγορία έχει τον δικό της πίνακα αντί για μία λίστα με κυρίαρχο το σέικ.",
+      "flowerBoard": "Άνθη",
+      "hashBoard": "Χασίς",
+      "shakeBoard": "Σέικ & trim",
       "rank": "#",
-      "item": "Item",
-      "seller": "Seller",
-      "pricePerGram": "Price /g"
+      "item": "Προϊόν",
+      "seller": "Πωλητής",
+      "pricePerGram": "Τιμή /g"
     },
     "vapes": {
-      "heading": "Vape carts",
-      "intro": "Vapes sell per device, not per gram — sellers list 1g and 1ml carts interchangeably, so a weight comparison against flower would mislead. Typical single-cart asking prices:",
-      "tileLabel": "{size} cart",
-      "tileMeta": "{items, plural, one {# listing} other {# listings}} · {sellers, plural, one {# seller} other {# sellers}}",
-      "medianLabel": "Typical 1ml vape cart price"
+      "heading": "Κασέτες vape",
+      "intro": "Τα vapes πωλούνται ανά συσκευή, όχι ανά γραμμάριο — οι πωλητές καταχωρούν κασέτες 1 g και 1 ml εναλλακτικά, οπότε μια σύγκριση κατά βάρος με το άνθος θα ήταν παραπλανητική. Τυπικές ζητούμενες τιμές για μία κασέτα:",
+      "tileLabel": "Κασέτα {size}",
+      "tileMeta": "{items, plural, one {# καταχώριση} other {# καταχωρίσεις}} · {sellers, plural, one {# πωλητής} other {# πωλητές}}",
+      "medianLabel": "Τυπική τιμή κασέτας vape 1 ml"
     },
     "distillate": {
-      "heading": "Distillate, per ml",
-      "intro": "Bulk distillate is volume-priced with steep size discounts — one blended figure would swing with whichever pack sizes happen to be listed, so it's quoted per ml inside a size band.",
-      "bandSmall": "Up to 5ml",
+      "heading": "Απόσταγμα, ανά ml",
+      "intro": "Το απόσταγμα σε μεγάλες ποσότητες τιμολογείται ανά όγκο με μεγάλες εκπτώσεις κλίμακας — ένας ενιαίος αριθμός θα άλλαζε ανάλογα με τα μεγέθη που τυχαίνει να είναι καταχωρισμένα, γι' αυτό δίνεται ανά ml μέσα σε μια ζώνη μεγέθους.",
+      "bandSmall": "Έως 5 ml",
       "bandMid": "5–50ml",
       "bandLarge": "50ml+",
       "perMl": "{price}/ml",
-      "tileMeta": "{count, plural, one {# listing} other {# listings}}"
+      "tileMeta": "{count, plural, one {# καταχώριση} other {# καταχωρίσεις}}"
+    },
+    "faq": {
+      "heading": "Συχνές ερωτήσεις για τις τιμές κάνναβης",
+      "ounce": {
+        "q": "Πόσο κοστίζει μια ουγγιά άνθους στο Little Biggy;",
+        "a": "Η διάμεση ζητούμενη τιμή για μια ουγγιά 28 g άνθους είναι {price}. Οι ουγγιές τιμολογούνται πολύ χαμηλότερα από την τιμή του ενός γραμμαρίου, οπότε το ποσό δεν είναι καθόλου 28 φορές η τιμή του 1 g — ο πίνακας βαρών παραπάνω δείχνει όλες τις ποσότητες μαζί.",
+        "aPerGram": "Αυτή τη στιγμή δεν υπάρχουν αρκετές καταχωρίσεις με επιλογή 28 g άνθους ώστε να δοθεί μια ειλικρινής τιμή ουγγιάς για αυτήν την αγορά. Η διάμεση ζητούμενη τιμή σε όλες τις καταχωρίσεις με τιμή κατά βάρος είναι {price} ανά γραμμάριο."
+      },
+      "hashGram": {
+        "q": "Πόσο κοστίζει το χασίς ανά γραμμάριο;",
+        "a": "Η διάμεση ζητούμενη τιμή του χασίς είναι {price} ανά γραμμάριο, από όλες τις επιλογές χασίς σε γραμμάρια που είναι ευρετηριασμένες για αυτήν την αγορά. Τα μεμονωμένα γραμμάρια βρίσκονται πάνω από αυτό το ποσό και οι μεγάλες ποσότητες κάτω."
+      },
+      "vapeCart": {
+        "q": "Πόσο κοστίζει μια κασέτα vape;",
+        "a": "Μία κασέτα {size} έχει διάμεση ζητούμενη τιμή {price}. Οι κασέτες τιμολογούνται ανά συσκευή και όχι κατά βάρος, οπότε η σύγκριση με τιμή ανά γραμμάριο άνθους θα ήταν παραπλανητική."
+      },
+      "real": {
+        "q": "Είναι αυτές πραγματικές τιμές πώλησης;",
+        "a": "Όχι — είναι ζητούμενες τιμές. Κάθε ποσό είναι η τιμή στην οποία ένας πωλητής προσφέρει μια επιλογή, από ζωντανές καταχωρίσεις του Little Biggy, μετατρεμμένη στο νόμισμα της αγοράς και συνοψισμένη σε διάμεσο. Τίποτα εδώ δεν προέρχεται από ολοκληρωμένες πωλήσεις και δεν πρόκειται για έρευνα τιμών του δρόμου."
+      }
     },
     "methodology": {
-      "heading": "Methodology",
-      "source": "Prices are asking prices from live Little Biggy listings, indexed by BiggyIndex.",
-      "scope": "Per-gram statistics include flower, shake, hash and concentrates only. Vapes are quoted per cart and distillate per ml; edibles and other products are excluded because their listed weight is not cannabis weight.",
-      "inclusion": "Only listings with a weight-denominated option count; price per gram = listed price ÷ grams for each option. Placeholder prices and implausible per-gram figures are dropped.",
-      "refresh": "Figures refresh with the index, roughly hourly, and follow listings as sellers reprice them.",
-      "honesty": "These are the prices sellers ask, not a street-price survey and not completed-sale data."
+      "heading": "Μεθοδολογία",
+      "source": "Οι τιμές είναι ζητούμενες τιμές από ζωντανές καταχωρίσεις του Little Biggy, ευρετηριασμένες από το BiggyIndex.",
+      "scope": "Τα στατιστικά ανά γραμμάριο περιλαμβάνουν μόνο άνθη, σέικ, χασίς και συμπυκνώματα. Τα vapes δίνονται ανά κασέτα και το απόσταγμα ανά ml· τα βρώσιμα και τα υπόλοιπα προϊόντα εξαιρούνται, επειδή το αναγραφόμενο βάρος τους δεν είναι βάρος κάνναβης.",
+      "inclusion": "Μετρούν μόνο οι καταχωρίσεις με επιλογή εκφρασμένη σε βάρος· τιμή ανά γραμμάριο = αναγραφόμενη τιμή ÷ γραμμάρια για κάθε επιλογή. Εικονικές τιμές και μη ρεαλιστικά ποσά ανά γραμμάριο απορρίπτονται.",
+      "refresh": "Τα στοιχεία ανανεώνονται μαζί με τον δείκτη, περίπου κάθε ώρα, και ακολουθούν τις καταχωρίσεις όταν οι πωλητές αλλάζουν τιμές.",
+      "honesty": "Αυτές είναι οι τιμές που ζητούν οι πωλητές, όχι έρευνα τιμών του δρόμου ούτε δεδομένα ολοκληρωμένων πωλήσεων."
     },
-    "breadcrumbHome": "Home",
-    "breadcrumbPrices": "Prices"
+    "breadcrumbHome": "Αρχική",
+    "breadcrumbPrices": "Τιμές"
   }
 }

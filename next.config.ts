@@ -176,7 +176,7 @@ const nextConfig: NextConfig = {
     // Any hit past s-maxage still fires one billed background revalidation, so
     // the fresh window — not SWR — is the lever on invocation count.
     const durable =
-      "public, durable, s-maxage=21600, stale-while-revalidate=86400";
+      "public, durable, s-maxage=43200, stale-while-revalidate=86400";
     const durableRules = [
       "/item/:ref*",
       "/seller/:id*",
