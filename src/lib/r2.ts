@@ -52,9 +52,40 @@ export class R2ReadError extends Error {
   }
 }
 
-/** One retry, enough to ride out a single blip without stalling a render. */
-const MAX_RETRIES = 1;
-const RETRY_DELAY_MS = 250;
+interface RetryPolicy {
+  attempts: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
+  attemptTimeoutMs: number;
+}
+
+// Runtime worst case ~12 s per read (function limit 60 s, chains of four);
+// build ~44 s so prerender bursts ride out connect timeouts.
+const RUNTIME_POLICY: RetryPolicy = {
+  attempts: 2,
+  baseDelayMs: 250,
+  maxDelayMs: 250,
+  attemptTimeoutMs: 6000,
+};
+
+const BUILD_POLICY: RetryPolicy = {
+  attempts: 5,
+  baseDelayMs: 500,
+  maxDelayMs: 4000,
+  attemptTimeoutMs: 7000,
+};
+
+// Literal, not next/constants: this module is in the client bundle.
+const POLICY: RetryPolicy =
+  typeof window === "undefined" &&
+  process.env.NEXT_PHASE === "phase-production-build"
+    ? BUILD_POLICY
+    : RUNTIME_POLICY;
+
+function backoffMs(attempt: number): number {
+  const base = Math.min(POLICY.baseDelayMs * 2 ** attempt, POLICY.maxDelayMs);
+  return base + Math.random() * 0.2 * base;
+}
 
 /** A JSON read together with the object metadata some callers need. */
 export interface R2JSONWithMeta<T> {
@@ -75,7 +106,8 @@ export interface R2JSONWithMeta<T> {
  * response metadata.
  *
  * `data` is null ONLY for a 404 (the object genuinely isn't there). Every other
- * outcome throws `R2ReadError` after one retry — see that class for why.
+ * outcome throws `R2ReadError` once the retry policy is spent — see that class
+ * for why.
  */
 export async function readR2JSONWithMeta<T = unknown>(
   key: string,
@@ -90,7 +122,10 @@ export async function readR2JSONWithMeta<T = unknown>(
   for (let attempt = 0; ; attempt++) {
     let failure: R2ReadError;
     try {
-      const res = await fetch(url, { cache: "no-store" });
+      const res = await fetch(url, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(POLICY.attemptTimeoutMs),
+      });
       if (res.status === 404) return { data: null, lastModified: null };
       if (res.ok) {
         const stamp = Date.parse(res.headers.get("last-modified") ?? "");
@@ -108,8 +143,17 @@ export async function readR2JSONWithMeta<T = unknown>(
       // Network failure, abort, or an unparseable body.
       failure = new R2ReadError(key, undefined, { cause });
     }
-    if (attempt >= MAX_RETRIES) throw failure;
-    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    if (attempt >= POLICY.attempts - 1) throw failure;
+    if (typeof window === "undefined") {
+      const reason =
+        failure.cause instanceof Error
+          ? failure.cause.message
+          : failure.message;
+      console.warn(
+        `[r2] retry ${attempt + 1}/${POLICY.attempts - 1} ${key}: ${reason}`,
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, backoffMs(attempt)));
   }
 }
 
@@ -117,7 +161,8 @@ export async function readR2JSONWithMeta<T = unknown>(
  * Read JSON from the R2 data bucket (public, no credentials).
  *
  * Returns null ONLY for a 404 (the object genuinely isn't there). Every other
- * outcome throws `R2ReadError` after one retry — see that class for why.
+ * outcome throws `R2ReadError` once the retry policy is spent — see that class
+ * for why.
  */
 export async function readR2JSON<T = unknown>(key: string): Promise<T | null> {
   return (await readR2JSONWithMeta<T>(key)).data;

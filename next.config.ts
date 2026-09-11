@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
     // cross-fades come from React's <ViewTransition> (components/
     // PageTransition.tsx), and `prefetchInlining` is the default.
     cachedNavigations: true,
+    staticGenerationRetryCount: 3,
   },
   // Keep the AWS SDK external instead of bundling it into server routes —
   // lib/r2-server.ts pulls it in for the authenticated R2 API routes.

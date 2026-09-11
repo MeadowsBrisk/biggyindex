@@ -132,6 +132,37 @@ function normalizeSellerDetail(
   };
 }
 
+/**
+ * Seller → markets, read once for all seller pages. A failed market read
+ * throws: this value is served to every seller page for the cache window.
+ */
+async function sellerMarketPresence(): Promise<Record<string, MarketCode[]>> {
+  "use cache";
+  cacheLife("sellers");
+  cacheTag("sellers");
+
+  const results = await Promise.all(
+    ALL_MARKETS.map(async (candidateMarket) => ({
+      market: candidateMarket,
+      sellers: await loadSellers(candidateMarket.toLowerCase()),
+    })),
+  );
+
+  const presence: Record<string, MarketCode[]> = {};
+  for (const { market: candidateMarket, sellers } of results) {
+    for (const entry of sellers) {
+      const id = String(entry.id);
+      let markets = presence[id];
+      if (!markets) {
+        markets = [];
+        presence[id] = markets;
+      }
+      if (!markets.includes(candidateMarket)) markets.push(candidateMarket);
+    }
+  }
+  return presence;
+}
+
 async function getSellerPageData(
   locale: string,
   sellerId: string,
@@ -143,31 +174,25 @@ async function getSellerPageData(
   const market = localeToMarket(locale);
   const currentMarket = market.toLowerCase();
 
-  const allSellersPromise = Promise.all(
-    ALL_MARKETS.map(async (candidateMarket) => ({
-      market: candidateMarket,
-      sellers: await loadSellers(candidateMarket.toLowerCase()),
-    })),
-  );
-
-  const [allSellerResults, detail, marketItems] = await Promise.all([
-    allSellersPromise,
+  const [presence, currentSellers, detail, marketItems] = await Promise.all([
+    sellerMarketPresence(),
+    loadSellers(currentMarket),
     loadSellerDetail(sellerId),
     loadItems(currentMarket),
   ]);
 
-  const currentSellers =
-    allSellerResults.find((result) => result.market === market)?.sellers ?? [];
   const seller = currentSellers.find((entry) =>
     sameSellerId(entry.id, sellerId),
   );
   if (!seller) return null;
 
-  const sellerMarkets = allSellerResults.flatMap((result) =>
-    result.sellers.some((entry) => sameSellerId(entry.id, sellerId))
-      ? [result.market]
-      : [],
-  );
+  // The current market is authoritative for itself; ALL_MARKETS order sets x-default.
+  const presenceMarkets = presence[sellerId] ?? [];
+  const sellerMarkets = presenceMarkets.includes(market)
+    ? presenceMarkets
+    : ALL_MARKETS.filter(
+        (code) => code === market || presenceMarkets.includes(code),
+      );
 
   const sellerItems = sortSellerItems(
     marketItems.filter((item) => sameSellerId(item.sid, sellerId)),
@@ -321,7 +346,8 @@ export async function generateStaticParams(): Promise<Array<{ id: string }>> {
       ),
     );
     return ids.length > 0 ? ids.map((id) => ({ id })) : [{ id: "0" }];
-  } catch {
+  } catch (error) {
+    console.warn("[seller] generateStaticParams fell back to sentinel:", error);
     return [{ id: "0" }];
   }
 }

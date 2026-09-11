@@ -533,7 +533,8 @@ export async function generateStaticParams(): Promise<Array<{ ref: string }>> {
     return refs.length > 0
       ? refs.map((ref) => ({ ref }))
       : [{ ref: "build-fallback" }];
-  } catch {
+  } catch (error) {
+    console.warn("[item] generateStaticParams fell back to sentinel:", error);
     return [{ ref: "build-fallback" }];
   }
 }
