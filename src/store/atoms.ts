@@ -11,11 +11,15 @@
 
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import type { SetStateAction } from "react";
 import {
   buildBrowseResults,
   buildBrowseSnapshot,
+  EMPTY_SELLER_SELECTION,
+  type SellerSelection,
 } from "@/lib/browse/filter-engine";
 import { buildItemIndex, isSoldOut } from "@/lib/browse/item-index";
+import { isOffWall, isOffWallShown, type OffWallKind } from "@/lib/off-wall";
 import type { OutboundEvent } from "@/lib/tracking/outbound";
 import type {
   HomeFeedReview,
@@ -245,18 +249,63 @@ export const subcategoryAtom = atom<string[]>([]);
 /** Excluded subcategories — items whose `sc` matches any of these are hidden.
  *  Right-click (desktop) a subcategory chip to toggle exclusion. */
 export const excludedSubcategoriesAtom = atom<string[]>([]);
-export const selectedSellersAtom = atom<string[]>([]);
+const selectedSellersBaseAtom = atom<string[]>([]);
+const excludedSellersBaseAtom = atom<string[]>([]);
+const sellersSelectAllBaseAtom = atom<boolean>(false);
+
+// Picking specific sellers (card, modal, URL) always leaves "select all" mode.
+export const selectedSellersAtom = atom(
+  (get) => get(selectedSellersBaseAtom),
+  (get, set, update: SetStateAction<string[]>) => {
+    const next =
+      typeof update === "function"
+        ? update(get(selectedSellersBaseAtom))
+        : update;
+    set(selectedSellersBaseAtom, next);
+    if (next.length > 0) {
+      set(excludedSellersBaseAtom, []);
+      set(sellersSelectAllBaseAtom, false);
+    }
+  },
+);
+
+export const sellerSelectionAtom = atom(
+  (get): SellerSelection => {
+    const all = get(sellersSelectAllBaseAtom);
+    return {
+      selected: all ? [] : get(selectedSellersBaseAtom),
+      excluded: all ? get(excludedSellersBaseAtom) : [],
+      all,
+    };
+  },
+  (_get, set, next: SellerSelection) => {
+    set(selectedSellersBaseAtom, next.all ? [] : next.selected);
+    set(excludedSellersBaseAtom, next.all ? next.excluded : []);
+    set(sellersSelectAllBaseAtom, next.all);
+  },
+);
+
+export const excludedSellersAtom = atom<string[]>(
+  (get) => get(sellerSelectionAtom).excluded,
+);
+
 /** Hidden sellers — persisted list, items from these sellers are always hidden */
 export const hiddenSellersAtom = atomWithStorage<string[]>("hiddenSellers", []);
 /** Toggle a seller in the hidden list */
 export const toggleHiddenSellerAtom = atom<null, [string], void>(
   null,
-  (_get, set, sellerId: string) => {
+  (get, set, sellerId: string) => {
+    const hiding = !get(hiddenSellersAtom).includes(sellerId);
     set(hiddenSellersAtom, (current) =>
       current.includes(sellerId)
         ? current.filter((id) => id !== sellerId)
         : [...current, sellerId],
     );
+    if (hiding && get(excludedSellersBaseAtom).includes(sellerId)) {
+      set(excludedSellersBaseAtom, (current) =>
+        current.filter((id) => id !== sellerId),
+      );
+    }
   },
 );
 export const priceRangeAtom = atom<{ min: number; max: number }>({
@@ -267,9 +316,11 @@ export const priceRangeAtom = atom<{ min: number; max: number }>({
 /** Computed min/max USD prices across all loaded items (for slider bounds) */
 export const priceBoundsAtom = atom<{ min: number; max: number }>((get) => {
   const items = get(itemsAtom);
+  const offWall = get(offWallAtom);
   let lo = Infinity;
   let hi = 0;
   for (const it of items) {
+    if (!isOffWallShown(it, offWall)) continue;
     // Parked listings carry a placeholder, not a price — letting one set the
     // slider ceiling would stretch the whole range around a fake value.
     if (isSoldOut(it)) continue;
@@ -292,6 +343,20 @@ export const excludedShipFromAtom = atom<string[]>([]);
 export const freeShippingOnlyAtom = atom<boolean>(false);
 /** Selected weight tiers in grams (e.g. [3.5, 7, 14, 28]) */
 export const selectedWeightsAtom = atom<number[]>([]);
+/** Off-wall seller kinds to include ("u" unlisted, "f" flagged); empty hides both */
+export const offWallAtom = atom<OffWallKind[]>([]);
+export const hasOffWallItemsAtom = atom<boolean>((get) =>
+  get(itemsAtom).some(isOffWall),
+);
+/** Catalogue size before user filters: every item minus the hidden off-wall kinds */
+export const browsableItemsCountAtom = atom<number>((get) => {
+  const offWall = get(offWallAtom);
+  let count = 0;
+  for (const item of get(itemsAtom)) {
+    if (isOffWallShown(item, offWall)) count++;
+  }
+  return count;
+});
 
 /** When true, add shipping cost to displayed item prices */
 export const includeShippingAtom = atom<boolean>(false);
@@ -320,9 +385,10 @@ export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
   set(attrFiltersAtom, {});
   set(freeShippingOnlyAtom, false);
   set(selectedWeightsAtom, []);
+  set(offWallAtom, []);
   set(bookmarksOnlyAtom, false);
   // Only clear if not pinned
-  if (!get(pinnedSellersAtom)) set(selectedSellersAtom, []);
+  if (!get(pinnedSellersAtom)) set(sellerSelectionAtom, EMPTY_SELLER_SELECTION);
   if (!get(pinnedShipFromAtom)) {
     set(selectedShipFromAtom, []);
     set(excludedShipFromAtom, []);
@@ -563,6 +629,7 @@ const browseInputAtom = atom((get) => {
       excludedSubcategories: get(excludedSubcategoriesAtom),
       query: get(deferredSearchQueryAtom),
       selectedSellers: get(selectedSellersAtom),
+      excludedSellers: get(excludedSellersAtom),
       hiddenSellers: get(hiddenSellersAtom),
       priceRange: get(priceRangeAtom),
       bookmarksOnly,
@@ -572,6 +639,7 @@ const browseInputAtom = atom((get) => {
       excludedShipFrom: get(excludedShipFromAtom),
       freeShippingOnly: get(freeShippingOnlyAtom),
       selectedWeights: get(selectedWeightsAtom),
+      offWall: get(offWallAtom),
     },
     sortKey: get(sortKeyAtom),
     sortDir: get(sortDirAtom),
@@ -627,6 +695,7 @@ export const browseViewSignatureAtom = atom<string>((get) => {
     get(excludedSubcategoriesAtom),
     get(deferredSearchQueryAtom),
     get(selectedSellersAtom),
+    get(excludedSellersAtom),
     get(hiddenSellersAtom),
     pr.min,
     pr.max === Number.POSITIVE_INFINITY ? "inf" : pr.max,
@@ -636,6 +705,7 @@ export const browseViewSignatureAtom = atom<string>((get) => {
     get(excludedShipFromAtom),
     get(freeShippingOnlyAtom),
     get(selectedWeightsAtom),
+    get(offWallAtom),
     get(sortKeyAtom),
     get(sortDirAtom),
     get(includeShippingAtom),
@@ -689,6 +759,7 @@ export const activeFiltersCountAtom = atom<number>((get) => {
   count += get(excludedSubcategoriesAtom).length;
   if (get(searchQueryAtom).trim()) count++;
   if (get(selectedSellersAtom).length > 0) count++;
+  if (get(excludedSellersAtom).length > 0) count++;
   if (get(hiddenSellersAtom).length > 0) count++;
   const pr = get(priceRangeAtom);
   if (pr.min > 0 || pr.max < Infinity) count++;
@@ -696,6 +767,7 @@ export const activeFiltersCountAtom = atom<number>((get) => {
   if (get(excludedShipFromAtom).length > 0) count++;
   if (get(freeShippingOnlyAtom)) count++;
   if (get(selectedWeightsAtom).length > 0) count++;
+  count += get(offWallAtom).length;
   const attrs = get(attrFiltersAtom);
   for (const vals of Object.values(attrs)) {
     if (vals.length > 0) count++;

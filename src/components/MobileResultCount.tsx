@@ -2,7 +2,7 @@
 
 import { useAtomValue } from "jotai";
 import { useLocale, useTranslations } from "next-intl";
-import { filteredItemsAtom, itemsAtom } from "@/store/atoms";
+import { browsableItemsCountAtom, filteredItemsAtom } from "@/store/atoms";
 
 /**
  * Mobile-only result count, rendered as its own muted line directly above the
@@ -20,12 +20,12 @@ export function MobileResultCount({ initialCount }: { initialCount?: number }) {
   // count is server-rendered.
   const locale = useLocale();
   const filtered = useAtomValue(filteredItemsAtom);
-  const total = useAtomValue(itemsAtom);
-  const isFiltered = filtered.length !== total.length;
+  const total = useAtomValue(browsableItemsCountAtom);
+  const isFiltered = filtered.length !== total;
 
   // Server-rendered fallback: the store is empty during SSR/hydration, so
   // fall back to the server-known total until items land client-side.
-  const totalCount = total.length > 0 ? total.length : (initialCount ?? 0);
+  const totalCount = total > 0 ? total : (initialCount ?? 0);
 
   // Distinct sellers among the visible (filtered) items — mirrors ResultCount.
   const sellerCount = new Set(

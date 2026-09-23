@@ -11,7 +11,7 @@
  * no number.
  */
 
-import { ArrowRight, Package } from "lucide-react";
+import { ArrowRight, Package, SlidersHorizontal } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
@@ -34,6 +34,7 @@ import {
 } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
 import { ALL_MARKETS, localeToMarket } from "@/lib/market/market";
+import { isOffWall } from "@/lib/off-wall";
 import { vapeCartMedianUsd } from "@/lib/prices/vapes";
 import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 import type { Item } from "@/lib/types";
@@ -90,7 +91,7 @@ async function categoryCounts(mkt: string): Promise<Record<string, number>> {
   const items = await loadItems(mkt);
   const counts: Record<string, number> = {};
   for (const item of items) {
-    if (!item.c) continue;
+    if (!item.c || isOffWall(item)) continue;
     counts[item.c] = (counts[item.c] ?? 0) + 1;
   }
   return counts;
@@ -233,7 +234,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const variantWidths = (hash: string): number[] | undefined =>
     variantWidthsMap[hash];
   const categoryItems = items
-    .filter((item) => item.c === category)
+    .filter((item) => item.c === category && !isOffWall(item))
     .sort((a, b) => (b.h ?? 0) - (a.h ?? 0));
   const count = categoryItems.length;
   const gridItems = categoryItems.slice(0, GRID_ITEM_LIMIT);
@@ -268,6 +269,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   const pageUrl = absoluteUrl(market, `/category/${canonicalSlug}`);
+  const browseHref = `/browse?cat=${encodeURIComponent(category)}`;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -393,6 +395,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               {topSubcategories.join(" · ")}
             </p>
           )}
+          <div className="mt-6">
+            <Link
+              href={browseHref}
+              prefetch={false}
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/25"
+            >
+              <SlidersHorizontal size={16} />
+              {t("filterCta", { category: categoryName })}
+            </Link>
+          </div>
         </header>
 
         {gridItems.length > 0 && (
@@ -412,7 +424,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             which is fine for a UX link — canonical relevance stays here. */}
         <div className="mt-10 flex justify-center">
           <Link
-            href={`/browse?cat=${encodeURIComponent(category)}`}
+            href={browseHref}
             prefetch={false}
             className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/25"
           >

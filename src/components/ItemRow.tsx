@@ -12,6 +12,7 @@ import { useSetAtom } from "jotai";
 import { Heart, Package, Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { CountryFlag } from "@/components/icons/CountryFlag";
+import { OffWallBadge } from "@/components/OffWall";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getItemBrowseMeta, isSoldOut } from "@/lib/browse/item-index";
 import { cx } from "@/lib/cn";
@@ -172,6 +173,18 @@ export function ItemRow({
               overlay, from which the seller modal is reachable. Keeping it
               non-interactive avoids nesting a button inside the row button. */}
           <span className="irow-seller-name">{item.sn}</span>
+          {seller?.quiet && (
+            <span
+              className="seller-card__badge seller-card__badge--quiet"
+              title={t("quietTitle", {
+                reviewDays: seller.quiet.reviewDays,
+                listingDays: seller.quiet.listingDays,
+              })}
+            >
+              {t("quietBadge", { days: seller.quiet.reviewDays })}
+            </span>
+          )}
+          {item.ow ? <OffWallBadge ow={item.ow} owr={item.owr} /> : null}
           {shipCode && (
             <span
               className="irow-ship-flag"

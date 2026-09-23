@@ -134,6 +134,7 @@ const baseFilters: BrowseFilters = {
   excludedSubcategories: [],
   query: "",
   selectedSellers: [],
+  excludedSellers: [],
   hiddenSellers: [],
   priceRange: { min: 0, max: Infinity },
   bookmarksOnly: false,
@@ -143,6 +144,7 @@ const baseFilters: BrowseFilters = {
   excludedShipFrom: [],
   freeShippingOnly: false,
   selectedWeights: [],
+  offWall: [],
 };
 
 function input(
@@ -245,6 +247,17 @@ assert.deepEqual(
 assert.deepEqual(
   ids(buildBrowseResults(input({ hiddenSellers: ["1"] })).filteredItems),
   ["flower-b", "edible-a"],
+);
+assert.deepEqual(
+  ids(buildBrowseResults(input({ excludedSellers: ["1"] })).filteredItems),
+  ["flower-b", "edible-a"],
+);
+// Excluded sellers stay in the facet (unticked) so they can be re-ticked.
+assert.deepEqual(
+  buildBrowseSnapshot(input({ excludedSellers: ["1"] })).filteredSellers.map(
+    (seller) => seller.id,
+  ),
+  ["1", "2", "3"],
 );
 
 assert.deepEqual(
@@ -371,6 +384,106 @@ assert.deepEqual(
     ).filteredItems,
   ),
   ["string-attr"],
+);
+
+const offWallItems: Item[] = [
+  ...items,
+  {
+    id: "unlisted-a",
+    refNum: "201",
+    n: "Unlisted gelato",
+    sid: 5,
+    sn: "Eve",
+    c: "Flower",
+    sc: ["Gelato"],
+    sf: "United Kingdom",
+    h: 50,
+    uMin: 5,
+    uMax: 5,
+    v: [{ d: "1g", usd: 5 }],
+    ow: 1,
+  },
+  {
+    id: "flagged-a",
+    refNum: "202",
+    n: "Flagged hash",
+    sid: 6,
+    sn: "Mallory",
+    c: "Hash",
+    sc: ["DrySift"],
+    sf: "Spain",
+    h: 40,
+    uMin: 500,
+    uMax: 500,
+    v: [{ d: "5g", usd: 500 }],
+    ow: 2,
+    owr: "fraud",
+  },
+];
+const offWallInput = (filters: Partial<BrowseFilters> = {}) =>
+  input(filters, "hottest", "desc", offWallItems);
+
+// Off-wall items are hidden from results and every facet by default.
+const offWallDefault = buildBrowseSnapshot(offWallInput());
+assert.deepEqual(ids(offWallDefault.sortedItems), [
+  "hash-a",
+  "flower-a",
+  "flower-b",
+  "edible-a",
+]);
+assert.deepEqual(offWallDefault.categoryCounts, flowerSnapshot.categoryCounts);
+assert.deepEqual(
+  offWallDefault.availableSellers.map((seller) => seller.id),
+  ["1", "2", "3"],
+);
+assert.deepEqual(
+  offWallDefault.filteredSellers.map((seller) => seller.id),
+  ["1", "2", "3"],
+);
+assert.equal(
+  offWallDefault.availableShipFrom.reduce((sum, f) => sum + f.count, 0),
+  4,
+);
+assert.deepEqual(
+  buildBrowseSnapshot(offWallInput({ category: "Flower" }))
+    .availableSubcategories,
+  [
+    { name: "Gelato", count: 1 },
+    { name: "Haze", count: 1 },
+  ],
+);
+// An explicit seller pick does not bypass the off-wall gate.
+assert.deepEqual(
+  ids(buildBrowseResults(offWallInput({ selectedSellers: ["5"] })).sortedItems),
+  [],
+);
+// Each flag shows only its own kind; both together show both.
+assert.deepEqual(
+  ids(buildBrowseResults(offWallInput({ offWall: ["u"] })).sortedItems),
+  ["unlisted-a", "hash-a", "flower-a", "flower-b", "edible-a"],
+);
+assert.deepEqual(
+  ids(buildBrowseResults(offWallInput({ offWall: ["f"] })).sortedItems),
+  ["flagged-a", "hash-a", "flower-a", "flower-b", "edible-a"],
+);
+const offWallBoth = buildBrowseSnapshot(offWallInput({ offWall: ["u", "f"] }));
+assert.equal(offWallBoth.sortedItems.length, 6);
+assert.deepEqual(offWallBoth.categoryCounts, {
+  All: 6,
+  Flower: 3,
+  Hash: 2,
+  Edibles: 1,
+});
+assert.deepEqual(
+  offWallBoth.availableSellers.map((seller) => seller.id).sort(),
+  ["1", "2", "3", "5", "6"],
+);
+assert.deepEqual(
+  ids(
+    buildBrowseResults(offWallInput({ offWall: ["u"], selectedSellers: ["5"] }))
+      .sortedItems,
+  ),
+  ["unlisted-a"],
 );
 
 console.log("filter-engine checks passed");

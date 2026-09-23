@@ -84,6 +84,7 @@
     "communityCopy": "Připojte se k diskusi. Sdílejte zkušenosti, ptejte se na otázky nebo kontrolujte reputaci prodejců.",
     "statusLink": "Stav Little Biggy",
     "pricesLink": "Cannabis prices",
+    "submitSellerLink": "Navrhnout prodejce",
     "about": "O nás",
     "privacy": "Soukromí",
     "terms": "Podmínky",
@@ -556,8 +557,10 @@
       "subcategory": "Podkategorie",
       "subcategoryNot": "Kromě",
       "sellers": "Prodejci",
+      "sellersNot": "Vyloučení prodejci",
       "shipFrom": "Z",
       "shipNot": "Ne z",
+      "offWall": "Mimo zeď",
       "weight": "Hmotnost",
       "price": "Cena"
     },
@@ -595,13 +598,26 @@
       },
       "shipFromHelp": "Kliknout: zahrnout. Pravé kliknutí: vyloučit",
       "shippingFrom": "Z",
+      "offWall": {
+        "heading": "Prodejci mimo zeď",
+        "unlisted": "Neuvedení prodejci",
+        "flagged": "S varováním Little Biggy",
+        "unlistedHelp": "Noví nebo malí prodejci, které Little Biggy nezobrazuje na své zdi položek, přidaní z návrhů komunity",
+        "flaggedHelp": "Prodejci, u kterých Little Biggy zobrazuje varování, například podezření z podvodu"
+      },
       "freeShippingOnly": "Pouze doprava zdarma",
       "addShippingToPrices": "Přidat poštovné k cenám",
       "subcategoryExcludeHint": "Kliknout: zahrnout. Pravé kliknutí: vyloučit",
       "subcategoryExcludeRemove": "Pravým kliknutím odeberte vyloučení",
       "searchSellers": "Hledejte prodejce...",
-      "sellerSortAlpha": "Seřazeno od A do Z – kliknutím seřadíte podle počtu položek",
-      "sellerSortCount": "Seřazeno podle počtu položek – klikněte pro A-Z",
+      "sellerSortAlpha": "Seřazeno od A do Z – kliknutím seřadíte podle hodnocení",
+      "sellerSortRating": "Seřazeno podle hodnocení – klikněte pro A-Z",
+      "sellerSortRatingLabel": "Hodnocení",
+      "sellersSelectAll": "Vybrat vše",
+      "sellersSelectAllTitle": "Označit všechny prodejce – pak zrušte ty, které chcete vyloučit",
+      "sellersSelectAllMatchingTitle": "Označit všechny prodejce odpovídající hledání",
+      "sellersClear": "Zrušit",
+      "sellersClearTitle": "Zrušit filtr prodejců (skrytí prodejci zůstanou skrytí)",
       "removeSeller": "Odstraňte {seller}",
       "selectSeller": "Vyberte {seller}",
       "unselectSeller": "Zrušit výběr {seller}",
@@ -632,6 +648,8 @@
       "onlineToday": "Online dnes",
       "freeShipping": "Doprava zdarma",
       "endorsed": "{count, plural, one {1 doporučení} other {# doporučení}}",
+      "quietBadge": "Bez recenzí {days}d",
+      "quietTitle": "Žádné nové recenze {reviewDays} dní a žádné změny nabídek {listingDays} dní",
       "shipsFrom": "Odesílá se z",
       "shipsFromAria": "Odesílá se z {country}",
       "deliveryDays": "~{count}d doručení",
@@ -827,6 +845,35 @@
     }
   },
   "seller": {
+    "offWall": {
+      "badgeUnlisted": "Mimo zeď",
+      "badgeFlagged": "Varování LB",
+      "unlistedNotice": "Tento prodejce není na zdi položek Little Biggy a byl přidán z návrhu komunity.",
+      "flaggedNotice": "Little Biggy u tohoto prodejce uvádí: {reason}",
+      "flaggedNoticeGeneric": "Little Biggy u tohoto prodejce zobrazuje varování.",
+      "reasons": {
+        "fraud": "podezření z podvodu"
+      }
+    },
+    "submit": {
+      "nameLabel": "Jméno prodejce",
+      "namePlaceholder": "Jak je uvedeno na Little Biggy",
+      "linkLabel": "Odkaz nebo ID prodejce na Little Biggy",
+      "linkHint": "Vložte odkaz na profil prodejce, nebo jen číslo na jeho konci.",
+      "noteLabel": "Poznámka",
+      "notePlaceholder": "Cokoli, co nám pomůže prodejce najít nebo ověřit",
+      "optional": "nepovinné",
+      "submit": "Odeslat prodejce",
+      "submitting": "Odesílání…",
+      "success": "Díky, prodejce byl odeslán ke kontrole.",
+      "duplicate": "Díky, tento prodejce už čeká na kontrolu. Váš návrh byl přidán.",
+      "rateLimited": "Už jste odeslali několik návrhů. Zkuste to prosím za hodinu.",
+      "needNameOrLink": "Zadejte jméno prodejce nebo jeho odkaz na Little Biggy.",
+      "badLink": "Nevypadá to jako odkaz nebo ID prodejce na Little Biggy.",
+      "endpointMissing": "Návrhy nejsou na tomto webu nastaveny.",
+      "networkError": "Server není dostupný. Zkuste to prosím znovu.",
+      "error": "Něco se pokazilo (HTTP {status}). Zkuste to prosím znovu."
+    },
     "products": "{count, plural, one {1 produkt} few {# produkty} other {# produktů}}",
     "rating": "Hodnocení",
     "visitStore": "Navštivte obchod",
@@ -843,10 +890,11 @@
       "metadataDescription": "Všichni prodejci Little Biggy s hodnocením důvěryhodnosti, počtem recenzí a hodnocením komunity.",
       "title": "Prodejci Little Biggy",
       "activeSellers": "{count, plural, one {1 aktivní prodejce na Little Biggy} few {# aktivní prodejci na Little Biggy} other {# aktivních prodejců na Little Biggy}}",
+      "submitSellerLink": "Navrhnout prodejce",
       "leaderboard": {
         "title": "Žebříček důvěryhodnosti",
         "allTime": "Za celou dobu",
-        "thisWeek": "Tento týden",
+        "thisWeek": "Posledních 14 dní",
         "topRated": "Nejlépe hodnocené",
         "topRatedSubtitle": "Nejvyšší poměr pozitivních recenzí",
         "useCaution": "Ke kontrole",
@@ -854,6 +902,12 @@
         "reviews": "Recenze",
         "reviewCount": "{count, plural, one {1 recenze} few {# recenze} other {# recenzí}}",
         "negativeCount": "{count, plural, one {1 negativní} few {# negativní} other {# negativních}}"
+      },
+      "ranking": {
+        "title": "Jak řadíme prodejce",
+        "scoring": "„Nejlépe hodnocené“ řadí prodejce podle podílu kladných recenzí (9 nebo 10 z 10) mezi recenzemi, které u nich BiggyIndex zaznamenal, nikoli podle celkového počtu, který ukazuje Little Biggy. Každý prodejce začíná se 40 fiktivními recenzemi, z toho 35 kladnými, a používáme opatrnou mez 95% intervalu spolehlivosti (Wilsonovu dolní mez), aby pár dokonalých recenzí nepředběhlo stovky dobrých. Hodnocení 6–8 se započítávají do celku, ale ne jako kladná; 5 a méně se počítají jako záporná.",
+        "caution": "„Ke kontrole“ uvádí prodejce s alespoň 30 recenzemi a 2 zápornými, jejichž podíl záporných je 4 % nebo více, nebo podíl kladných 85 % nebo méně, od nejhorších; mezi „Nejlépe hodnocené“ se nedostanou. Karta „Posledních 14 dní“ používá stejná pravidla na recenze z posledních 14 dnů (nejvýše 150 nejnovějších na prodejce) s prahy 10 recenzí a 5 %. Řadíme jen prodejce s aktivními nabídkami na tomto trhu a při shodě rozhoduje nejnovější recenze.",
+        "limits": "Doba doručení, čerstvost recenzí, stáří účtu ani doporučení či nahlášení komunity zatím pořadí neovlivňují. Vzorec je open source na <link>GitHubu</link>, takže ho kdokoli může ověřit nebo navrhnout lepší."
       },
       "allSellers": "Všichni prodejci",
       "search": "Hledat...",
@@ -888,6 +942,8 @@
       "close": "Zavřít",
       "zoomProfileImage": "Přiblížit profilový obrázek {seller}",
       "onlineToday": "Online dnes",
+      "quiet": "Žádné nové recenze {reviewDays} dní, žádné změny nabídek {listingDays} dní",
+      "recentNegatives": "{negative} z posledních {total} recenzí s hodnocením 5/10 nebo nižším",
       "lastSeen": "Naposledy viděný {time}",
       "joined": "Členem od {date}",
       "itemCount": "{count, plural, one {1 položka} few {# položky} other {# položek}}",
@@ -946,6 +1002,13 @@
       "description": "Nemohli jsme načíst stránku prodejců. Obvykle je to jen dočasné.",
       "retry": "Zkusit znovu"
     }
+  },
+  "submitSeller": {
+    "metadataTitle": "Navrhnout prodejce Little Biggy | BiggyIndex",
+    "metadataDescription": "Znáte prodejce Little Biggy, který není na zdi položek? Navrhněte ho, aby jeho nabídky mohly být zařazeny do BiggyIndex.",
+    "heading": "Navrhnout prodejce",
+    "intro": "Little Biggy některé prodejce nezobrazuje na své zdi položek, obvykle nové nebo malé obchody. Jejich nabídky se při procházení Little Biggy nikdy neobjeví, takže je BiggyIndex sám nenajde. Pokud nějakého znáte, pošlete ho sem. Po kontrole se jeho nabídky přidají do indexu s označením „Mimo zeď“ a zůstanou skryté, dokud ve filtrech nezapnete „Neuvedení prodejci“.",
+    "flaggedIntro": "Prodejci, u kterých sám Little Biggy zobrazuje varování, například „podezření z podvodu“, jsou vedeni zvlášť: nesou označení „Varování LB“, ukazují varování Little Biggy a zobrazí se jen tehdy, když zapnete „S varováním Little Biggy“."
   },
   "reviews": {
     "page": {
@@ -1332,6 +1395,7 @@
       "countLine": "{count, plural, one {1 nabídka {category} z Little Biggy} few {# nabídky {category} z Little Biggy} other {# nabídek {category} z Little Biggy}}",
       "subcategoriesLabel": "Oblíbené typy",
       "browseAllCta": "Procházet všechny nabídky {category} s filtry",
+      "filterCta": "Filtrovat nabídky {category}",
       "breadcrumbHome": "Domů",
       "breadcrumbLabel": "Drobečková navigace",
       "priceNote": {

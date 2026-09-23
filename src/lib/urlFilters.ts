@@ -1,4 +1,5 @@
 import { parseAsArrayOf, parseAsInteger, parseAsString } from "nuqs";
+import { type OffWallKind, toOffWallKinds } from "@/lib/off-wall";
 import type { SortDir, SortKey } from "@/lib/types";
 
 export const DEFAULT_SORT_KEY: SortKey = "hottest";
@@ -21,8 +22,10 @@ export const browseUrlParsers = {
   cat: parseAsString,
   sub: parseAsArrayOf(parseAsString, ","),
   sellers: parseAsArrayOf(parseAsString, ","),
+  xsellers: parseAsArrayOf(parseAsString, ","),
   pmin: parseAsInteger,
   pmax: parseAsInteger,
+  ow: parseAsArrayOf(parseAsString, ","),
 };
 
 export interface BrowseUrlState {
@@ -32,8 +35,10 @@ export interface BrowseUrlState {
   cat?: string | null;
   sub?: string[] | null;
   sellers?: string[] | null;
+  xsellers?: string[] | null;
   pmin?: number | null;
   pmax?: number | null;
+  ow?: string[] | null;
 }
 
 export interface ParsedBrowseUrlFilters {
@@ -43,7 +48,9 @@ export interface ParsedBrowseUrlFilters {
   category?: string;
   subcategories?: string[];
   sellers?: string[];
+  excludedSellers?: string[];
   priceRange?: { min: number; max: number };
+  offWall?: OffWallKind[];
 }
 
 export interface InitialBrowseFilters {
@@ -51,6 +58,8 @@ export interface InitialBrowseFilters {
   category: string;
   subcategories: string[];
   sellers: string[];
+  excludedSellers: string[];
+  offWall: OffWallKind[];
 }
 
 function compactList(values: string[] | null | undefined): string[] {
@@ -96,12 +105,20 @@ export function readBrowseUrlState(
     parsed.sellers = sellers;
   }
 
+  const excludedSellers = compactList(urlState.xsellers);
+  if (!parsed.sellers && excludedSellers.length > 0) {
+    parsed.excludedSellers = excludedSellers;
+  }
+
   if (urlState.pmin != null || urlState.pmax != null) {
     parsed.priceRange = {
       min: urlState.pmin ?? 0,
       max: urlState.pmax ?? Infinity,
     };
   }
+
+  const offWall = toOffWallKinds(urlState.ow);
+  if (offWall.length > 0) parsed.offWall = offWall;
 
   return parsed;
 }
@@ -118,8 +135,10 @@ export function parseBrowseUrlFilters(
     cat: params.has("cat") ? params.get("cat") : undefined,
     sub: parseCsvParam(params.get("sub")),
     sellers: parseCsvParam(params.get("sellers")),
+    xsellers: parseCsvParam(params.get("xsellers")),
     pmin: parseIntegerParam(params.get("pmin")),
     pmax: parseIntegerParam(params.get("pmax")),
+    ow: parseCsvParam(params.get("ow")),
   });
 }
 
@@ -133,6 +152,8 @@ export function getInitialBrowseFilters(
     category: routeCategory ?? parsed.category ?? DEFAULT_CATEGORY,
     subcategories: parsed.subcategories ?? [],
     sellers: parsed.sellers ?? [],
+    excludedSellers: parsed.excludedSellers ?? [],
+    offWall: parsed.offWall ?? [],
   };
 }
 
@@ -143,7 +164,9 @@ export function buildBrowseUrlState({
   category,
   subcategories,
   sellers,
+  excludedSellers,
   priceRange,
+  offWall,
 }: {
   sortKey: SortKey;
   sortDir: SortDir;
@@ -151,8 +174,11 @@ export function buildBrowseUrlState({
   category: string;
   subcategories: string[];
   sellers: string[];
+  excludedSellers: string[];
   priceRange: { min: number; max: number };
+  offWall: OffWallKind[];
 }): Required<BrowseUrlState> {
+  const offWallKinds = toOffWallKinds(offWall);
   return {
     sort: sortKey !== DEFAULT_SORT_KEY ? sortKey : null,
     dir: sortDir !== DEFAULT_SORT_DIR ? sortDir : null,
@@ -160,7 +186,12 @@ export function buildBrowseUrlState({
     cat: category !== DEFAULT_CATEGORY ? category : null,
     sub: subcategories.length > 0 ? subcategories : null,
     sellers: sellers.length > 0 ? sellers : null,
+    xsellers:
+      sellers.length === 0 && excludedSellers.length > 0
+        ? excludedSellers
+        : null,
     pmin: priceRange.min > 0 ? priceRange.min : null,
     pmax: priceRange.max < Infinity ? priceRange.max : null,
+    ow: offWallKinds.length > 0 ? offWallKinds : null,
   };
 }

@@ -26,6 +26,7 @@ import { useLBGuideGate } from "@/hooks/useLBGuideGate";
 import historyManager from "@/lib/historyManager";
 import { getSellerImageUrl } from "@/lib/images";
 import { marketToLocale } from "@/lib/market/market";
+import { offWallKind, sellerBrowseHref } from "@/lib/off-wall";
 import {
   extractLittleBiggyId,
   normalizeLittleBiggyUrl,
@@ -36,6 +37,7 @@ import {
   expandedRefNumAtom,
   forceEnglishAtom,
   marketAtom,
+  offWallAtom,
   selectedSellersAtom,
   sellerModalIdAtom,
   sellersMapAtom,
@@ -69,6 +71,7 @@ export function SellerModal() {
   const [, setRefNum] = useAtom(expandedRefNumAtom);
   const [, setSelectedSellers] = useAtom(selectedSellersAtom);
   const [, setCategory] = useAtom(categoryAtom);
+  const [, setOffWall] = useAtom(offWallAtom);
 
   const [detail, setDetail] = useState<SellerDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -229,6 +232,10 @@ export function SellerModal() {
       // Already on /browse — just tweak atoms, no navigation/scroll jump.
       setSelectedSellers([sellerId]);
       setCategory("All");
+      const kind = offWallKind(indexSeller);
+      if (kind) {
+        setOffWall((prev) => (prev.includes(kind) ? prev : [...prev, kind]));
+      }
       closeViaHistory();
       return;
     }
@@ -237,12 +244,14 @@ export function SellerModal() {
     // destination URL. /browse's DataLoader reads ?sellers= on mount.
     historyManager.remove(`seller-modal-${sellerId}`);
     setSellerId(null);
-    router.push(`/browse?sellers=${encodeURIComponent(sellerId)}`);
+    router.push(sellerBrowseHref(sellerId, indexSeller));
   }, [
     sellerId,
+    indexSeller,
     pathname,
     setSelectedSellers,
     setCategory,
+    setOffWall,
     closeViaHistory,
     setSellerId,
     router,

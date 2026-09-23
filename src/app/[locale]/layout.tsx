@@ -44,6 +44,9 @@ import { marketBaseUrl, SITE_ICONS } from "@/lib/seo/metadata";
  */
 const BOOT_SCRIPT = `(function(){try{var h=document.documentElement;var d=localStorage.getItem('darkMode');var dark=d==='true'||d==='"true"'||d==='1'||d==='dark';h.setAttribute('data-theme',dark?'dark':'light');h.style.backgroundColor=dark?'#0c0f0c':'#f7f9f7';h.style.color=dark?'#e8ece8':'#1a1a1a';h.style.colorScheme=dark?'dark':'light';var a=localStorage.getItem('accentColor');if(a){a=a.replace(/"/g,'');if(a==='custom'){var x=localStorage.getItem('customAccentHex');x=x?x.replace(/"/g,''):'#6366f1';if(/^#[0-9a-fA-F]{6}$/.test(x)){var v=(${computeCustomAccentVars.toString()})(x,dark);h.style.setProperty('--primary',v.primary);h.style.setProperty('--accent',v.accent);h.style.setProperty('--accent-gradient',v.gradient);h.style.setProperty('--primary-foreground',v.foreground)}}else if(a!=='green'){h.setAttribute('data-accent',a)}}var p=localStorage.getItem('pauseGifs');if(p==='true'||p==='"true"')h.setAttribute('data-pause-gifs','true');var f=localStorage.getItem('filterPanelOpen');if(f==='true'||f==='"true"')h.classList.add('bi-panel-open')}catch(e){}})()`;
 
+// React <ViewTransition> hard-crashes WebKit (react#35336); without the API React and its streaming runtime commit without transitions.
+const WEBKIT_VT_GUARD = `(function(){try{var u=navigator.userAgent;if(/iPhone OS|iPad|iPod/.test(u)||(/AppleWebKit/.test(u)&&!/Chrome|Chromium|Edg|OPR|Android/.test(u)))delete Document.prototype.startViewTransition}catch(e){}})()`;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin", "latin-ext"],
@@ -121,6 +124,7 @@ export default async function LocaleLayout({
             above. Keep this before critical styles so the initial canvas is
             correct. */}
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: WEBKIT_VT_GUARD }} />
         {/* Seed-grid guard for /browse — must live HERE (layout, hard loads
             only), not in the page tree: React never executes inline scripts
             re-rendered during client navigation and warns about them.

@@ -616,6 +616,16 @@ footer:
     cs-CZ: Stav Little Biggy
     pl-PL: Status Little Biggy
   pricesLink: Cannabis prices
+  submitSellerLink:
+    en-GB: "Submit a seller"
+    de-DE: "Verkäufer einreichen"
+    fr-FR: "Proposer un vendeur"
+    pt-PT: "Sugerir um vendedor"
+    it-IT: "Segnala un venditore"
+    es-ES: "Enviar un vendedor"
+    el-GR: "Υποβολή πωλητή"
+    cs-CZ: "Navrhnout prodejce"
+    pl-PL: "Zgłoś sprzedawcę"
   about:
     en-GB: About
     de-DE: Über uns
@@ -3844,6 +3854,16 @@ browse:
       el-GR: Πωλητές
       cs-CZ: Prodejci
       pl-PL: Sprzedawcy
+    sellersNot:
+      en-GB: "Excluded sellers"
+      de-DE: "Ausgeschlossene Verkäufer"
+      fr-FR: "Vendeurs exclus"
+      pt-PT: "Vendedores excluídos"
+      it-IT: "Venditori esclusi"
+      es-ES: "Vendedores excluidos"
+      el-GR: "Εξαιρούμενοι πωλητές"
+      cs-CZ: "Vyloučení prodejci"
+      pl-PL: "Wykluczeni sprzedawcy"
     shipFrom:
       en-GB: From
       de-DE: Aus
@@ -3864,6 +3884,16 @@ browse:
       el-GR: Όχι από
       cs-CZ: Ne z
       pl-PL: Nie z
+    offWall:
+      en-GB: "Off-wall"
+      de-DE: "Nicht gelistet"
+      fr-FR: "Hors mur"
+      pt-PT: "Fora do mural"
+      it-IT: "Fuori bacheca"
+      es-ES: "Fuera del muro"
+      el-GR: "Εκτός τοίχου"
+      cs-CZ: "Mimo zeď"
+      pl-PL: "Poza ścianą"
     weight:
       en-GB: Weight
       de-DE: Gewicht
@@ -4159,6 +4189,57 @@ browse:
       el-GR: Από
       cs-CZ: Z
       pl-PL: Z
+    offWall:
+      heading:
+        en-GB: "Off-wall sellers"
+        de-DE: "Verkäufer außerhalb der Artikelwand"
+        fr-FR: "Vendeurs hors mur"
+        pt-PT: "Vendedores fora do mural"
+        it-IT: "Venditori fuori bacheca"
+        es-ES: "Vendedores fuera del muro"
+        el-GR: "Πωλητές εκτός τοίχου"
+        cs-CZ: "Prodejci mimo zeď"
+        pl-PL: "Sprzedawcy poza ścianą"
+      unlisted:
+        en-GB: "Unlisted sellers"
+        de-DE: "Nicht gelistete Verkäufer"
+        fr-FR: "Vendeurs non listés"
+        pt-PT: "Vendedores não listados"
+        it-IT: "Venditori non elencati"
+        es-ES: "Vendedores no listados"
+        el-GR: "Μη καταχωρισμένοι πωλητές"
+        cs-CZ: "Neuvedení prodejci"
+        pl-PL: "Sprzedawcy spoza listy"
+      flagged:
+        en-GB: "Flagged by Little Biggy"
+        de-DE: "Von Little Biggy markiert"
+        fr-FR: "Signalés par Little Biggy"
+        pt-PT: "Assinalados pelo Little Biggy"
+        it-IT: "Segnalati da Little Biggy"
+        es-ES: "Marcados por Little Biggy"
+        el-GR: "Επισημασμένοι από το Little Biggy"
+        cs-CZ: "S varováním Little Biggy"
+        pl-PL: "Oznaczeni przez Little Biggy"
+      unlistedHelp:
+        en-GB: "New or small sellers Little Biggy keeps off its items wall, added from community submissions"
+        de-DE: "Neue oder kleine Verkäufer, die Little Biggy nicht auf seiner Artikelwand zeigt, aus Community-Einsendungen hinzugefügt"
+        fr-FR: "Vendeurs nouveaux ou petits que Little Biggy garde hors de son mur d’articles, ajoutés via les propositions de la communauté"
+        pt-PT: "Vendedores novos ou pequenos que o Little Biggy mantém fora do seu mural de artigos, adicionados a partir de sugestões da comunidade"
+        it-IT: "Venditori nuovi o piccoli che Little Biggy tiene fuori dalla sua bacheca degli articoli, aggiunti dalle segnalazioni della community"
+        es-ES: "Vendedores nuevos o pequeños que Little Biggy mantiene fuera de su muro de artículos, añadidos a partir de envíos de la comunidad"
+        el-GR: "Νέοι ή μικροί πωλητές που το Little Biggy κρατά εκτός του τοίχου αγγελιών του, προστέθηκαν από υποβολές της κοινότητας"
+        cs-CZ: "Noví nebo malí prodejci, které Little Biggy nezobrazuje na své zdi položek, přidaní z návrhů komunity"
+        pl-PL: "Nowi lub mali sprzedawcy, których Little Biggy nie pokazuje na swojej ścianie ofert, dodani ze zgłoszeń społeczności"
+      flaggedHelp:
+        en-GB: "Sellers Little Biggy shows a warning banner on, such as suspected fraud"
+        de-DE: "Verkäufer, bei denen Little Biggy einen Warnhinweis zeigt, etwa bei Betrugsverdacht"
+        fr-FR: "Vendeurs sur lesquels Little Biggy affiche un bandeau d’avertissement, par exemple pour suspicion de fraude"
+        pt-PT: "Vendedores em que o Little Biggy mostra um aviso, por exemplo suspeita de fraude"
+        it-IT: "Venditori su cui Little Biggy mostra un avviso, ad esempio per sospetta frode"
+        es-ES: "Vendedores en los que Little Biggy muestra un aviso, por ejemplo por sospecha de fraude"
+        el-GR: "Πωλητές στους οποίους το Little Biggy εμφανίζει προειδοποίηση, όπως υποψία απάτης"
+        cs-CZ: "Prodejci, u kterých Little Biggy zobrazuje varování, například podezření z podvodu"
+        pl-PL: "Sprzedawcy, przy których Little Biggy wyświetla ostrzeżenie, np. podejrzenie oszustwa"
     # Shipping-cost toggles (moved from the toolbar into the sidebar)
     freeShippingOnly:
       en-GB: Free shipping only
@@ -4211,25 +4292,85 @@ browse:
       cs-CZ: Hledejte prodejce...
       pl-PL: Szukaj sprzedawców...
     sellerSortAlpha:
-      en-GB: Sorted A-Z - click for most items first
-      de-DE: Sortiert A–Z – klicken, um nach Artikelanzahl zu sortieren
-      fr-FR: Trié de A à Z - cliquez pour trier par nombre d’articles
-      pt-PT: Ordenado de A a Z - clique para ordenar por número de itens
-      it-IT: Ordinato dalla A alla Z - clicca per ordinare per numero di articoli
-      es-ES: Ordenado de la A a la Z - haz clic para ordenar por número de artículos
-      el-GR: Ταξινόμηση Α-Ω - κάντε κλικ για ταξινόμηση κατά αριθμό αντικειμένων
-      cs-CZ: Seřazeno od A do Z – kliknutím seřadíte podle počtu položek
-      pl-PL: Posortowane od A do Z – kliknij, aby sortować według liczby przedmiotów
-    sellerSortCount:
-      en-GB: Sorted by item count - click for A-Z
-      de-DE: Sortiert nach Artikelanzahl – klicken für A–Z
-      fr-FR: Trié par nombre d’éléments - cliquez pour A à Z
-      pt-PT: Ordenado por número de itens - clique para A-Z
-      it-IT: Ordinato per numero di oggetti - clicca per A-Z
-      es-ES: Ordenado por recuento de elementos - haz clic para ver de la A a la Z
-      el-GR: Ταξινόμηση κατά αριθμό αντικειμένων - κάντε κλικ για Α-Ω
-      cs-CZ: Seřazeno podle počtu položek – klikněte pro A-Z
-      pl-PL: Posortowane według liczby przedmiotów – kliknij dla A-Z
+      en-GB: "Sorted A-Z - click for highest rated first"
+      de-DE: "Sortiert A–Z – klicken, um nach Bewertung zu sortieren"
+      fr-FR: "Trié de A à Z - cliquez pour trier par note"
+      pt-PT: "Ordenado de A a Z - clique para ordenar por avaliação"
+      it-IT: "Ordinato dalla A alla Z - clicca per ordinare per valutazione"
+      es-ES: "Ordenado de la A a la Z - haz clic para ordenar por valoración"
+      el-GR: "Ταξινόμηση Α-Ω - κάντε κλικ για ταξινόμηση κατά βαθμολογία"
+      cs-CZ: "Seřazeno od A do Z – kliknutím seřadíte podle hodnocení"
+      pl-PL: "Posortowane od A do Z – kliknij, aby sortować według oceny"
+    sellerSortRating:
+      en-GB: "Sorted by rating - click for A-Z"
+      de-DE: "Sortiert nach Bewertung – klicken für A–Z"
+      fr-FR: "Trié par note - cliquez pour A à Z"
+      pt-PT: "Ordenado por avaliação - clique para A-Z"
+      it-IT: "Ordinato per valutazione - clicca per A-Z"
+      es-ES: "Ordenado por valoración - haz clic para ver de la A a la Z"
+      el-GR: "Ταξινόμηση κατά βαθμολογία - κάντε κλικ για Α-Ω"
+      cs-CZ: "Seřazeno podle hodnocení – klikněte pro A-Z"
+      pl-PL: "Posortowane według oceny – kliknij dla A-Z"
+    sellerSortRatingLabel:
+      en-GB: "Rating"
+      de-DE: "Bewertung"
+      fr-FR: "Note"
+      pt-PT: "Avaliação"
+      it-IT: "Voto"
+      es-ES: "Valoración"
+      el-GR: "Βαθμολογία"
+      cs-CZ: "Hodnocení"
+      pl-PL: "Ocena"
+    sellersSelectAll:
+      en-GB: "Select all"
+      de-DE: "Alle auswählen"
+      fr-FR: "Tout sélectionner"
+      pt-PT: "Selecionar tudo"
+      it-IT: "Seleziona tutti"
+      es-ES: "Seleccionar todo"
+      el-GR: "Επιλογή όλων"
+      cs-CZ: "Vybrat vše"
+      pl-PL: "Zaznacz wszystko"
+    sellersSelectAllTitle:
+      en-GB: "Tick every seller - then untick any you want to leave out"
+      de-DE: "Alle Verkäufer auswählen – dann einzelne abwählen, um sie auszuschließen"
+      fr-FR: "Cocher tous les vendeurs - puis décocher ceux à exclure"
+      pt-PT: "Marcar todos os vendedores - depois desmarque os que quer excluir"
+      it-IT: "Seleziona tutti i venditori - poi deseleziona quelli da escludere"
+      es-ES: "Marcar todos los vendedores - luego desmarca los que quieras excluir"
+      el-GR: "Επιλογή όλων των πωλητών - μετά αποεπιλέξτε όσους θέλετε να εξαιρέσετε"
+      cs-CZ: "Označit všechny prodejce – pak zrušte ty, které chcete vyloučit"
+      pl-PL: "Zaznacz wszystkich sprzedawców – potem odznacz tych, których chcesz wykluczyć"
+    sellersSelectAllMatchingTitle:
+      en-GB: "Tick every seller matching your search"
+      de-DE: "Alle Verkäufer auswählen, die zur Suche passen"
+      fr-FR: "Cocher tous les vendeurs correspondant à la recherche"
+      pt-PT: "Marcar todos os vendedores que correspondem à pesquisa"
+      it-IT: "Seleziona tutti i venditori che corrispondono alla ricerca"
+      es-ES: "Marcar todos los vendedores que coinciden con la búsqueda"
+      el-GR: "Επιλογή όλων των πωλητών που ταιριάζουν στην αναζήτηση"
+      cs-CZ: "Označit všechny prodejce odpovídající hledání"
+      pl-PL: "Zaznacz wszystkich sprzedawców pasujących do wyszukiwania"
+    sellersClear:
+      en-GB: "Clear"
+      de-DE: "Zurücksetzen"
+      fr-FR: "Effacer"
+      pt-PT: "Limpar"
+      it-IT: "Cancella"
+      es-ES: "Borrar"
+      el-GR: "Εκκαθάριση"
+      cs-CZ: "Zrušit"
+      pl-PL: "Wyczyść"
+    sellersClearTitle:
+      en-GB: "Clear the seller filter (hidden sellers stay hidden)"
+      de-DE: "Verkäuferfilter zurücksetzen (ausgeblendete Verkäufer bleiben ausgeblendet)"
+      fr-FR: "Effacer le filtre vendeurs (les vendeurs masqués restent masqués)"
+      pt-PT: "Limpar o filtro de vendedores (os vendedores ocultos continuam ocultos)"
+      it-IT: "Cancella il filtro venditori (i venditori nascosti restano nascosti)"
+      es-ES: "Borrar el filtro de vendedores (los vendedores ocultos siguen ocultos)"
+      el-GR: "Εκκαθάριση φίλτρου πωλητών (οι κρυμμένοι πωλητές παραμένουν κρυμμένοι)"
+      cs-CZ: "Zrušit filtr prodejců (skrytí prodejci zůstanou skrytí)"
+      pl-PL: "Wyczyść filtr sprzedawców (ukryci sprzedawcy pozostają ukryci)"
     removeSeller:
       en-GB: Remove {seller}
       de-DE: Entfernen Sie {seller}
@@ -4492,6 +4633,26 @@ browse:
       el-GR: "{count, plural, one {1 σύσταση} other {# συστάσεις}}"
       cs-CZ: "{count, plural, one {1 doporučení} other {# doporučení}}"
       pl-PL: "{count, plural, one {1 polecenie} few {# polecenia} many {# poleceń} other {# polecenia}}"
+    quietBadge:
+      en-GB: "No reviews in {days}d"
+      de-DE: "Keine Bewertungen seit {days}d"
+      fr-FR: "Aucun avis depuis {days}d"
+      pt-PT: "Sem avaliações há {days}d"
+      it-IT: "Nessuna recensione da {days}d"
+      es-ES: "Sin reseñas en {days}d"
+      el-GR: "Χωρίς κριτικές εδώ και {days}d"
+      cs-CZ: "Bez recenzí {days}d"
+      pl-PL: "Brak recenzji od {days}d"
+    quietTitle:
+      en-GB: "No new reviews in {reviewDays} days and no listing changes in {listingDays} days"
+      de-DE: "Seit {reviewDays} Tagen keine neuen Bewertungen und seit {listingDays} Tagen keine Angebotsänderungen"
+      fr-FR: "Aucun nouvel avis depuis {reviewDays} jours et aucune modification d’annonce depuis {listingDays} jours"
+      pt-PT: "Sem novas avaliações há {reviewDays} dias e sem alterações aos anúncios há {listingDays} dias"
+      it-IT: "Nessuna nuova recensione da {reviewDays} giorni e nessuna modifica agli annunci da {listingDays} giorni"
+      es-ES: "Sin reseñas nuevas en {reviewDays} días y sin cambios en los anuncios en {listingDays} días"
+      el-GR: "Καμία νέα κριτική εδώ και {reviewDays} ημέρες και καμία αλλαγή αγγελιών εδώ και {listingDays} ημέρες"
+      cs-CZ: "Žádné nové recenze {reviewDays} dní a žádné změny nabídek {listingDays} dní"
+      pl-PL: "Brak nowych recenzji od {reviewDays} dni i brak zmian w ofertach od {listingDays} dni"
     shipsFrom:
       en-GB: Ships from
       de-DE: Versand aus
@@ -6052,6 +6213,239 @@ item:
       pl-PL: Cała strona
 
 seller:
+  offWall:
+    badgeUnlisted:
+      en-GB: "Off-wall"
+      de-DE: "Nicht gelistet"
+      fr-FR: "Hors mur"
+      pt-PT: "Fora do mural"
+      it-IT: "Fuori bacheca"
+      es-ES: "Fuera del muro"
+      el-GR: "Εκτός τοίχου"
+      cs-CZ: "Mimo zeď"
+      pl-PL: "Poza ścianą"
+    badgeFlagged:
+      en-GB: "Flagged by LB"
+      de-DE: "Von LB markiert"
+      fr-FR: "Signalé par LB"
+      pt-PT: "Assinalado pelo LB"
+      it-IT: "Segnalato da LB"
+      es-ES: "Marcado por LB"
+      el-GR: "Επισήμανση LB"
+      cs-CZ: "Varování LB"
+      pl-PL: "Oznaczony przez LB"
+    unlistedNotice:
+      en-GB: "This seller is not on Little Biggy's items wall and was added from a community submission."
+      de-DE: "Dieser Verkäufer steht nicht auf der Artikelwand von Little Biggy und wurde über eine Community-Einsendung hinzugefügt."
+      fr-FR: "Ce vendeur n’apparaît pas sur le mur d’articles de Little Biggy et a été ajouté via une proposition de la communauté."
+      pt-PT: "Este vendedor não está no mural de artigos do Little Biggy e foi adicionado a partir de uma sugestão da comunidade."
+      it-IT: "Questo venditore non è sulla bacheca degli articoli di Little Biggy ed è stato aggiunto da una segnalazione della community."
+      es-ES: "Este vendedor no está en el muro de artículos de Little Biggy y se añadió a partir de un envío de la comunidad."
+      el-GR: "Αυτός ο πωλητής δεν εμφανίζεται στον τοίχο αγγελιών του Little Biggy και προστέθηκε από υποβολή της κοινότητας."
+      cs-CZ: "Tento prodejce není na zdi položek Little Biggy a byl přidán z návrhu komunity."
+      pl-PL: "Tego sprzedawcy nie ma na ścianie ofert Little Biggy; został dodany ze zgłoszenia społeczności."
+    flaggedNotice:
+      en-GB: "Little Biggy marks this seller: {reason}"
+      de-DE: "Little Biggy markiert diesen Verkäufer: {reason}"
+      fr-FR: "Little Biggy signale ce vendeur : {reason}"
+      pt-PT: "O Little Biggy assinala este vendedor: {reason}"
+      it-IT: "Little Biggy segnala questo venditore: {reason}"
+      es-ES: "Little Biggy marca a este vendedor: {reason}"
+      el-GR: "Το Little Biggy επισημαίνει αυτόν τον πωλητή: {reason}"
+      cs-CZ: "Little Biggy u tohoto prodejce uvádí: {reason}"
+      pl-PL: "Little Biggy oznacza tego sprzedawcę: {reason}"
+    flaggedNoticeGeneric:
+      en-GB: "Little Biggy shows a warning banner on this seller."
+      de-DE: "Little Biggy zeigt bei diesem Verkäufer einen Warnhinweis."
+      fr-FR: "Little Biggy affiche un bandeau d’avertissement sur ce vendeur."
+      pt-PT: "O Little Biggy mostra um aviso neste vendedor."
+      it-IT: "Little Biggy mostra un avviso su questo venditore."
+      es-ES: "Little Biggy muestra un aviso sobre este vendedor."
+      el-GR: "Το Little Biggy εμφανίζει προειδοποίηση για αυτόν τον πωλητή."
+      cs-CZ: "Little Biggy u tohoto prodejce zobrazuje varování."
+      pl-PL: "Little Biggy wyświetla ostrzeżenie przy tym sprzedawcy."
+    reasons:
+      fraud:
+        en-GB: "fraud suspected"
+        de-DE: "Betrugsverdacht"
+        fr-FR: "suspicion de fraude"
+        pt-PT: "suspeita de fraude"
+        it-IT: "sospetta frode"
+        es-ES: "sospecha de fraude"
+        el-GR: "υποψία απάτης"
+        cs-CZ: "podezření z podvodu"
+        pl-PL: "podejrzenie oszustwa"
+  submit:
+    nameLabel:
+      en-GB: "Seller name"
+      de-DE: "Name des Verkäufers"
+      fr-FR: "Nom du vendeur"
+      pt-PT: "Nome do vendedor"
+      it-IT: "Nome del venditore"
+      es-ES: "Nombre del vendedor"
+      el-GR: "Όνομα πωλητή"
+      cs-CZ: "Jméno prodejce"
+      pl-PL: "Nazwa sprzedawcy"
+    namePlaceholder:
+      en-GB: "As shown on Little Biggy"
+      de-DE: "Wie auf Little Biggy angezeigt"
+      fr-FR: "Tel qu’affiché sur Little Biggy"
+      pt-PT: "Tal como aparece no Little Biggy"
+      it-IT: "Come appare su Little Biggy"
+      es-ES: "Tal como aparece en Little Biggy"
+      el-GR: "Όπως εμφανίζεται στο Little Biggy"
+      cs-CZ: "Jak je uvedeno na Little Biggy"
+      pl-PL: "Tak jak na Little Biggy"
+    linkLabel:
+      en-GB: "Little Biggy seller link or ID"
+      de-DE: "Little-Biggy-Verkäuferlink oder ID"
+      fr-FR: "Lien ou ID du vendeur sur Little Biggy"
+      pt-PT: "Link ou ID do vendedor no Little Biggy"
+      it-IT: "Link o ID del venditore su Little Biggy"
+      es-ES: "Enlace o ID del vendedor en Little Biggy"
+      el-GR: "Σύνδεσμος ή ID πωλητή στο Little Biggy"
+      cs-CZ: "Odkaz nebo ID prodejce na Little Biggy"
+      pl-PL: "Link lub ID sprzedawcy na Little Biggy"
+    linkHint:
+      en-GB: "Paste the seller's profile link, or just the number at the end of it."
+      de-DE: "Füge den Profillink des Verkäufers ein oder nur die Nummer am Ende."
+      fr-FR: "Colle le lien du profil du vendeur, ou seulement le numéro à la fin."
+      pt-PT: "Cole o link do perfil do vendedor, ou apenas o número no final."
+      it-IT: "Incolla il link del profilo del venditore, o solo il numero finale."
+      es-ES: "Pega el enlace del perfil del vendedor, o solo el número del final."
+      el-GR: "Επικολλήστε τον σύνδεσμο προφίλ του πωλητή ή μόνο τον αριθμό στο τέλος του."
+      cs-CZ: "Vložte odkaz na profil prodejce, nebo jen číslo na jeho konci."
+      pl-PL: "Wklej link do profilu sprzedawcy albo tylko numer na jego końcu."
+    noteLabel:
+      en-GB: "Note"
+      de-DE: "Notiz"
+      fr-FR: "Remarque"
+      pt-PT: "Nota"
+      it-IT: "Nota"
+      es-ES: "Nota"
+      el-GR: "Σημείωση"
+      cs-CZ: "Poznámka"
+      pl-PL: "Uwaga"
+    notePlaceholder:
+      en-GB: "Anything that helps us find or check this seller"
+      de-DE: "Alles, was uns hilft, diesen Verkäufer zu finden oder zu prüfen"
+      fr-FR: "Tout ce qui nous aide à trouver ou vérifier ce vendeur"
+      pt-PT: "Algo que nos ajude a encontrar ou verificar este vendedor"
+      it-IT: "Qualsiasi cosa ci aiuti a trovare o verificare questo venditore"
+      es-ES: "Cualquier dato que nos ayude a encontrar o verificar a este vendedor"
+      el-GR: "Οτιδήποτε μας βοηθά να βρούμε ή να ελέγξουμε αυτόν τον πωλητή"
+      cs-CZ: "Cokoli, co nám pomůže prodejce najít nebo ověřit"
+      pl-PL: "Wszystko, co pomoże nam znaleźć lub sprawdzić tego sprzedawcę"
+    optional:
+      en-GB: "optional"
+      de-DE: "optional"
+      fr-FR: "facultatif"
+      pt-PT: "opcional"
+      it-IT: "facoltativo"
+      es-ES: "opcional"
+      el-GR: "προαιρετικό"
+      cs-CZ: "nepovinné"
+      pl-PL: "opcjonalnie"
+    submit:
+      en-GB: "Submit seller"
+      de-DE: "Verkäufer einreichen"
+      fr-FR: "Proposer le vendeur"
+      pt-PT: "Enviar vendedor"
+      it-IT: "Invia venditore"
+      es-ES: "Enviar vendedor"
+      el-GR: "Υποβολή πωλητή"
+      cs-CZ: "Odeslat prodejce"
+      pl-PL: "Zgłoś sprzedawcę"
+    submitting:
+      en-GB: "Submitting…"
+      de-DE: "Wird gesendet…"
+      fr-FR: "Envoi…"
+      pt-PT: "A enviar…"
+      it-IT: "Invio in corso…"
+      es-ES: "Enviando…"
+      el-GR: "Υποβολή…"
+      cs-CZ: "Odesílání…"
+      pl-PL: "Wysyłanie…"
+    success:
+      en-GB: "Thanks, the seller has been submitted for review."
+      de-DE: "Danke, der Verkäufer wurde zur Prüfung eingereicht."
+      fr-FR: "Merci, le vendeur a été soumis pour vérification."
+      pt-PT: "Obrigado, o vendedor foi enviado para revisão."
+      it-IT: "Grazie, il venditore è stato inviato per la revisione."
+      es-ES: "Gracias, el vendedor se ha enviado para su revisión."
+      el-GR: "Ευχαριστούμε, ο πωλητής υποβλήθηκε για έλεγχο."
+      cs-CZ: "Díky, prodejce byl odeslán ke kontrole."
+      pl-PL: "Dziękujemy, sprzedawca został zgłoszony do weryfikacji."
+    duplicate:
+      en-GB: "Thanks, this seller is already waiting for review. Your submission was added to it."
+      de-DE: "Danke, dieser Verkäufer wartet bereits auf die Prüfung. Deine Einsendung wurde hinzugefügt."
+      fr-FR: "Merci, ce vendeur est déjà en attente de vérification. Ta proposition y a été ajoutée."
+      pt-PT: "Obrigado, este vendedor já aguarda revisão. A sua sugestão foi adicionada."
+      it-IT: "Grazie, questo venditore è già in attesa di revisione. La tua segnalazione è stata aggiunta."
+      es-ES: "Gracias, este vendedor ya está pendiente de revisión. Tu envío se ha sumado."
+      el-GR: "Ευχαριστούμε, αυτός ο πωλητής περιμένει ήδη έλεγχο. Η υποβολή σας προστέθηκε."
+      cs-CZ: "Díky, tento prodejce už čeká na kontrolu. Váš návrh byl přidán."
+      pl-PL: "Dziękujemy, ten sprzedawca czeka już na weryfikację. Twoje zgłoszenie zostało dołączone."
+    rateLimited:
+      en-GB: "You've sent a few submissions already. Please try again in an hour."
+      de-DE: "Du hast schon einige Einsendungen geschickt. Bitte versuche es in einer Stunde erneut."
+      fr-FR: "Tu as déjà envoyé plusieurs propositions. Réessaie dans une heure."
+      pt-PT: "Já enviou várias sugestões. Tente novamente dentro de uma hora."
+      it-IT: "Hai già inviato diverse segnalazioni. Riprova tra un'ora."
+      es-ES: "Ya has enviado varios envíos. Vuelve a intentarlo en una hora."
+      el-GR: "Έχετε ήδη στείλει αρκετές υποβολές. Δοκιμάστε ξανά σε μία ώρα."
+      cs-CZ: "Už jste odeslali několik návrhů. Zkuste to prosím za hodinu."
+      pl-PL: "Wysłano już kilka zgłoszeń. Spróbuj ponownie za godzinę."
+    needNameOrLink:
+      en-GB: "Enter the seller's name or their Little Biggy link."
+      de-DE: "Gib den Namen des Verkäufers oder seinen Little-Biggy-Link ein."
+      fr-FR: "Indique le nom du vendeur ou son lien Little Biggy."
+      pt-PT: "Indique o nome do vendedor ou o link do Little Biggy."
+      it-IT: "Inserisci il nome del venditore o il suo link Little Biggy."
+      es-ES: "Introduce el nombre del vendedor o su enlace de Little Biggy."
+      el-GR: "Εισαγάγετε το όνομα του πωλητή ή τον σύνδεσμό του στο Little Biggy."
+      cs-CZ: "Zadejte jméno prodejce nebo jeho odkaz na Little Biggy."
+      pl-PL: "Podaj nazwę sprzedawcy lub jego link do Little Biggy."
+    badLink:
+      en-GB: "That doesn't look like a Little Biggy seller link or ID."
+      de-DE: "Das sieht nicht nach einem Little-Biggy-Verkäuferlink oder einer ID aus."
+      fr-FR: "Cela ne ressemble pas à un lien ou un ID de vendeur Little Biggy."
+      pt-PT: "Isto não parece um link ou ID de vendedor do Little Biggy."
+      it-IT: "Non sembra un link o un ID di venditore Little Biggy."
+      es-ES: "Eso no parece un enlace o ID de vendedor de Little Biggy."
+      el-GR: "Αυτό δεν μοιάζει με σύνδεσμο ή ID πωλητή του Little Biggy."
+      cs-CZ: "Nevypadá to jako odkaz nebo ID prodejce na Little Biggy."
+      pl-PL: "To nie wygląda na link ani ID sprzedawcy Little Biggy."
+    endpointMissing:
+      en-GB: "Submissions are not configured on this site."
+      de-DE: "Einsendungen sind auf dieser Seite nicht eingerichtet."
+      fr-FR: "Les propositions ne sont pas configurées sur ce site."
+      pt-PT: "As sugestões não estão configuradas neste site."
+      it-IT: "Le segnalazioni non sono configurate su questo sito."
+      es-ES: "Los envíos no están configurados en este sitio."
+      el-GR: "Οι υποβολές δεν έχουν ρυθμιστεί σε αυτόν τον ιστότοπο."
+      cs-CZ: "Návrhy nejsou na tomto webu nastaveny."
+      pl-PL: "Zgłoszenia nie są skonfigurowane w tej witrynie."
+    networkError:
+      en-GB: "Could not reach the server. Please try again."
+      de-DE: "Der Server ist nicht erreichbar. Bitte versuche es erneut."
+      fr-FR: "Impossible de joindre le serveur. Réessaie."
+      pt-PT: "Não foi possível contactar o servidor. Tente novamente."
+      it-IT: "Impossibile raggiungere il server. Riprova."
+      es-ES: "No se pudo contactar con el servidor. Inténtalo de nuevo."
+      el-GR: "Δεν ήταν δυνατή η σύνδεση με τον διακομιστή. Δοκιμάστε ξανά."
+      cs-CZ: "Server není dostupný. Zkuste to prosím znovu."
+      pl-PL: "Nie można połączyć się z serwerem. Spróbuj ponownie."
+    error:
+      en-GB: "Something went wrong (HTTP {status}). Please try again."
+      de-DE: "Etwas ist schiefgelaufen (HTTP {status}). Bitte versuche es erneut."
+      fr-FR: "Une erreur s’est produite (HTTP {status}). Réessaie."
+      pt-PT: "Algo correu mal (HTTP {status}). Tente novamente."
+      it-IT: "Qualcosa è andato storto (HTTP {status}). Riprova."
+      es-ES: "Algo salió mal (HTTP {status}). Inténtalo de nuevo."
+      el-GR: "Κάτι πήγε στραβά (HTTP {status}). Δοκιμάστε ξανά."
+      cs-CZ: "Něco se pokazilo (HTTP {status}). Zkuste to prosím znovu."
+      pl-PL: "Coś poszło nie tak (HTTP {status}). Spróbuj ponownie."
   products:
     en-GB: "{count, plural, one {1 product} other {# products}}"
     de-DE: "{count, plural, one {1 Produkt} other {# Produkte}}"
@@ -6184,6 +6578,16 @@ seller:
       el-GR: "{count, plural, one {1 ενεργός πωλητής στο Little Biggy} other {# ενεργοί πωλητές στο Little Biggy}}"
       cs-CZ: "{count, plural, one {1 aktivní prodejce na Little Biggy} few {# aktivní prodejci na Little Biggy} other {# aktivních prodejců na Little Biggy}}"
       pl-PL: "{count, plural, one {1 aktywny sprzedawca na Little Biggy} few {# aktywnych sprzedawców na Little Biggy} many {# aktywnych sprzedawców na Little Biggy} other {# aktywnego sprzedawcy na Little Biggy}}"
+    submitSellerLink:
+      en-GB: "Submit a seller"
+      de-DE: "Verkäufer einreichen"
+      fr-FR: "Proposer un vendeur"
+      pt-PT: "Sugerir um vendedor"
+      it-IT: "Segnala un venditore"
+      es-ES: "Enviar un vendedor"
+      el-GR: "Υποβολή πωλητή"
+      cs-CZ: "Navrhnout prodejce"
+      pl-PL: "Zgłoś sprzedawcę"
     leaderboard:
       title:
         en-GB: Trust Leaderboard
@@ -6206,15 +6610,15 @@ seller:
         cs-CZ: Za celou dobu
         pl-PL: Od początku
       thisWeek:
-        en-GB: This week
-        de-DE: Diese Woche
-        fr-FR: Cette semaine
-        pt-PT: Esta semana
-        it-IT: Questa settimana
-        es-ES: Esta semana
-        el-GR: Αυτή την εβδομάδα
-        cs-CZ: Tento týden
-        pl-PL: W tym tygodniu
+        en-GB: Last 14 days
+        de-DE: Letzte 14 Tage
+        fr-FR: 14 derniers jours
+        pt-PT: Últimos 14 dias
+        it-IT: Ultimi 14 giorni
+        es-ES: Últimos 14 días
+        el-GR: Τελευταίες 14 ημέρες
+        cs-CZ: Posledních 14 dní
+        pl-PL: Ostatnie 14 dni
       topRated:
         en-GB: Top Rated
         de-DE: Topbewertet
@@ -6285,6 +6689,47 @@ seller:
         el-GR: "{count, plural, one {1 αρνητική} other {# αρνητικές}}"
         cs-CZ: "{count, plural, one {1 negativní} few {# negativní} other {# negativních}}"
         pl-PL: "{count, plural, one {1 negatywna} few {# negatywne} many {# negatywnych} other {# negatywnej}}"
+    ranking:
+      title:
+        en-GB: How sellers are ranked
+        de-DE: So werden Verkäufer eingestuft
+        fr-FR: Comment les vendeurs sont classés
+        pt-PT: Como os vendedores são classificados
+        it-IT: Come vengono classificati i venditori
+        es-ES: Cómo se clasifica a los vendedores
+        el-GR: Πώς κατατάσσονται οι πωλητές
+        cs-CZ: Jak řadíme prodejce
+        pl-PL: Jak ustalamy ranking sprzedawców
+      scoring:
+        en-GB: "Top Rated ranks sellers by their share of positive reviews (9 or 10 out of 10) among the reviews BiggyIndex has recorded for them, not the lifetime total Little Biggy shows. Every seller starts with 40 imaginary reviews, 35 of them positive, and we use the cautious end of a 95% confidence range (the Wilson lower bound), so a few perfect reviews can’t outrank hundreds of good ones. Ratings of 6–8 count towards the total but not as positive, and 5 or below count as negative."
+        de-DE: "„Topbewertet“ sortiert Verkäufer nach ihrem Anteil positiver Bewertungen (9 oder 10 von 10) unter den Bewertungen, die BiggyIndex für sie erfasst hat – nicht nach der Gesamtzahl, die Little Biggy anzeigt. Jeder Verkäufer startet mit 40 fiktiven Bewertungen, davon 35 positiv, und wir nehmen das vorsichtige Ende eines 95-%-Konfidenzbereichs (die Wilson-Untergrenze), damit ein paar perfekte Bewertungen nicht Hunderte guter überholen. Bewertungen von 6–8 zählen zur Gesamtzahl, aber nicht als positiv; 5 oder weniger gelten als negativ."
+        fr-FR: "« Mieux noté » classe les vendeurs selon leur part d’avis positifs (9 ou 10 sur 10) parmi les avis que BiggyIndex a enregistrés pour eux, et non selon le total affiché par Little Biggy. Chaque vendeur part avec 40 avis fictifs, dont 35 positifs, et nous retenons la borne prudente d’un intervalle de confiance à 95 % (la borne inférieure de Wilson), afin que quelques avis parfaits ne dépassent pas des centaines de bons avis. Les notes de 6 à 8 comptent dans le total mais pas comme positives ; 5 ou moins comptent comme négatives."
+        pt-PT: "«Mais Bem Classificados» ordena os vendedores pela proporção de avaliações positivas (9 ou 10 em 10) entre as avaliações que o BiggyIndex registou para eles, e não pelo total que o Little Biggy mostra. Cada vendedor começa com 40 avaliações fictícias, 35 delas positivas, e usamos o extremo prudente de um intervalo de confiança de 95% (o limite inferior de Wilson), para que algumas avaliações perfeitas não ultrapassem centenas de boas. Notas de 6 a 8 contam para o total mas não como positivas; 5 ou menos contam como negativas."
+        it-IT: "«Più valutati» ordina i venditori in base alla quota di recensioni positive (9 o 10 su 10) tra quelle registrate da BiggyIndex, non al totale mostrato da Little Biggy. Ogni venditore parte con 40 recensioni fittizie, di cui 35 positive, e usiamo l’estremo prudente di un intervallo di confidenza al 95% (il limite inferiore di Wilson), così poche recensioni perfette non superano centinaia di recensioni buone. I voti da 6 a 8 contano nel totale ma non come positivi; 5 o meno contano come negativi."
+        es-ES: "«Mejor valorado» ordena a los vendedores por su proporción de reseñas positivas (9 o 10 sobre 10) entre las reseñas que BiggyIndex ha registrado de ellos, no por el total que muestra Little Biggy. Cada vendedor empieza con 40 reseñas ficticias, 35 de ellas positivas, y usamos el extremo prudente de un intervalo de confianza del 95 % (el límite inferior de Wilson), para que unas pocas reseñas perfectas no superen a cientos de buenas. Las notas de 6 a 8 cuentan en el total pero no como positivas; 5 o menos cuentan como negativas."
+        el-GR: "Η «Κορυφαία βαθμολογία» κατατάσσει τους πωλητές με βάση το ποσοστό θετικών κριτικών (9 ή 10 στα 10) στις κριτικές που έχει καταγράψει το BiggyIndex για αυτούς, όχι με βάση το σύνολο που δείχνει το Little Biggy. Κάθε πωλητής ξεκινά με 40 εικονικές κριτικές, από τις οποίες 35 θετικές, και χρησιμοποιούμε το συντηρητικό άκρο ενός διαστήματος εμπιστοσύνης 95% (το κατώτερο όριο Wilson), ώστε λίγες τέλειες κριτικές να μην ξεπερνούν εκατοντάδες καλές. Οι βαθμολογίες 6–8 μετρούν στο σύνολο αλλά όχι ως θετικές· 5 ή λιγότερο μετρούν ως αρνητικές."
+        cs-CZ: "„Nejlépe hodnocené“ řadí prodejce podle podílu kladných recenzí (9 nebo 10 z 10) mezi recenzemi, které u nich BiggyIndex zaznamenal, nikoli podle celkového počtu, který ukazuje Little Biggy. Každý prodejce začíná se 40 fiktivními recenzemi, z toho 35 kladnými, a používáme opatrnou mez 95% intervalu spolehlivosti (Wilsonovu dolní mez), aby pár dokonalých recenzí nepředběhlo stovky dobrých. Hodnocení 6–8 se započítávají do celku, ale ne jako kladná; 5 a méně se počítají jako záporná."
+        pl-PL: "„Najwyższa ocena” szereguje sprzedawców według odsetka pozytywnych recenzji (9 lub 10 na 10) wśród recenzji, które BiggyIndex dla nich zapisał, a nie według łącznej liczby pokazywanej przez Little Biggy. Każdy sprzedawca startuje z 40 fikcyjnymi recenzjami, w tym 35 pozytywnymi, a my bierzemy ostrożny kraniec 95-procentowego przedziału ufności (dolną granicę Wilsona), aby kilka idealnych recenzji nie wyprzedziło setek dobrych. Oceny 6–8 wliczają się do sumy, ale nie jako pozytywne; 5 lub mniej liczą się jako negatywne."
+      caution:
+        en-GB: "Needs Review lists sellers with at least 30 reviews and 2 negatives whose negative share is 4% or more, or whose positive share is 85% or less, worst first; they are kept out of Top Rated. The “Last 14 days” tab applies the same rules to reviews from the last 14 days (at most each seller’s latest 150), with thresholds of 10 reviews and 5%. Only sellers with live listings in this market are ranked, and ties go to the most recent review."
+        de-DE: "„Zu prüfen“ zeigt Verkäufer mit mindestens 30 Bewertungen und 2 negativen, deren Negativanteil bei 4 % oder mehr oder deren Positivanteil bei 85 % oder weniger liegt, die schlechtesten zuerst; sie erscheinen nicht unter „Topbewertet“. Der Tab „Letzte 14 Tage“ wendet dieselben Regeln auf Bewertungen der letzten 14 Tage an (höchstens die neuesten 150 pro Verkäufer), mit Schwellen von 10 Bewertungen und 5 %. Eingestuft werden nur Verkäufer mit aktiven Angeboten in diesem Markt; bei Gleichstand entscheidet die neueste Bewertung."
+        fr-FR: "« À vérifier » liste les vendeurs ayant au moins 30 avis et 2 avis négatifs dont la part négative atteint 4 % ou plus, ou dont la part positive est de 85 % ou moins, les pires en premier ; ils sont exclus de « Mieux noté ». L’onglet « 14 derniers jours » applique les mêmes règles aux avis des 14 derniers jours (au plus les 150 plus récents par vendeur), avec des seuils de 10 avis et 5 %. Seuls les vendeurs ayant des annonces actives sur ce marché sont classés, et en cas d’égalité l’avis le plus récent départage."
+        pt-PT: "«A rever» lista vendedores com pelo menos 30 avaliações e 2 negativas cuja proporção negativa é de 4% ou mais, ou cuja proporção positiva é de 85% ou menos, os piores primeiro; ficam fora de «Mais Bem Classificados». O separador «Últimos 14 dias» aplica as mesmas regras às avaliações dos últimos 14 dias (no máximo as 150 mais recentes de cada vendedor), com limiares de 10 avaliações e 5%. Só são classificados vendedores com anúncios ativos neste mercado, e os empates são decididos pela avaliação mais recente."
+        it-IT: "«Da verificare» elenca i venditori con almeno 30 recensioni e 2 negative la cui quota negativa è pari o superiore al 4%, o la cui quota positiva è pari o inferiore all’85%, dal peggiore; sono esclusi da «Più valutati». La scheda «Ultimi 14 giorni» applica le stesse regole alle recensioni degli ultimi 14 giorni (al massimo le 150 più recenti per venditore), con soglie di 10 recensioni e 5%. Vengono classificati solo i venditori con annunci attivi in questo mercato e, a parità, conta la recensione più recente."
+        es-ES: "«Para revisar» muestra a los vendedores con al menos 30 reseñas y 2 negativas cuya proporción negativa es del 4 % o más, o cuya proporción positiva es del 85 % o menos, los peores primero; quedan fuera de «Mejor valorado». La pestaña «Últimos 14 días» aplica las mismas reglas a las reseñas de los últimos 14 días (como máximo las 150 más recientes de cada vendedor), con umbrales de 10 reseñas y 5 %. Solo se clasifica a vendedores con anuncios activos en este mercado, y los empates se resuelven por la reseña más reciente."
+        el-GR: "Το «Χρειάζεται έλεγχο» δείχνει πωλητές με τουλάχιστον 30 κριτικές και 2 αρνητικές, των οποίων το αρνητικό ποσοστό είναι 4% ή περισσότερο ή το θετικό ποσοστό 85% ή λιγότερο, με τους χειρότερους πρώτους· αυτοί δεν εμφανίζονται στην «Κορυφαία βαθμολογία». Η καρτέλα «Τελευταίες 14 ημέρες» εφαρμόζει τους ίδιους κανόνες στις κριτικές των τελευταίων 14 ημερών (το πολύ τις 150 πιο πρόσφατες ανά πωλητή), με όρια 10 κριτικών και 5%. Κατατάσσονται μόνο πωλητές με ενεργές αγγελίες σε αυτή την αγορά, και σε ισοβαθμία προηγείται η πιο πρόσφατη κριτική."
+        cs-CZ: "„Ke kontrole“ uvádí prodejce s alespoň 30 recenzemi a 2 zápornými, jejichž podíl záporných je 4 % nebo více, nebo podíl kladných 85 % nebo méně, od nejhorších; mezi „Nejlépe hodnocené“ se nedostanou. Karta „Posledních 14 dní“ používá stejná pravidla na recenze z posledních 14 dnů (nejvýše 150 nejnovějších na prodejce) s prahy 10 recenzí a 5 %. Řadíme jen prodejce s aktivními nabídkami na tomto trhu a při shodě rozhoduje nejnovější recenze."
+        pl-PL: "„Do sprawdzenia” pokazuje sprzedawców z co najmniej 30 recenzjami i 2 negatywnymi, u których odsetek negatywnych wynosi 4% lub więcej albo odsetek pozytywnych 85% lub mniej, od najgorszych; nie trafiają oni do „Najwyższej oceny”. Karta „Ostatnie 14 dni” stosuje te same zasady do recenzji z ostatnich 14 dni (maksymalnie 150 najnowszych na sprzedawcę), z progami 10 recenzji i 5%. Klasyfikujemy tylko sprzedawców z aktywnymi ofertami na tym rynku, a przy remisie decyduje najnowsza recenzja."
+      limits:
+        en-GB: "Delivery time, review recency, account age and community endorsements or reports don’t affect the ranking yet. The formula is open source on <link>GitHub</link>, so anyone can check it or suggest a better one."
+        de-DE: "Lieferzeit, Aktualität der Bewertungen, Kontoalter sowie Community-Empfehlungen und -Meldungen fließen noch nicht in die Einstufung ein. Die Formel ist Open Source auf <link>GitHub</link> – jeder kann sie prüfen oder eine bessere vorschlagen."
+        fr-FR: "Le délai de livraison, la fraîcheur des avis, l’ancienneté du compte et les recommandations ou signalements de la communauté n’influencent pas encore le classement. La formule est open source sur <link>GitHub</link> : chacun peut la vérifier ou en proposer une meilleure."
+        pt-PT: "O prazo de entrega, a atualidade das avaliações, a antiguidade da conta e as recomendações ou denúncias da comunidade ainda não afetam a classificação. A fórmula é open source no <link>GitHub</link>, por isso qualquer pessoa a pode verificar ou propor uma melhor."
+        it-IT: "Tempi di consegna, attualità delle recensioni, anzianità dell’account e approvazioni o segnalazioni della community non influiscono ancora sulla classifica. La formula è open source su <link>GitHub</link>, quindi chiunque può verificarla o proporne una migliore."
+        es-ES: "El plazo de entrega, la actualidad de las reseñas, la antigüedad de la cuenta y las recomendaciones o denuncias de la comunidad aún no influyen en la clasificación. La fórmula es de código abierto en <link>GitHub</link>, así que cualquiera puede comprobarla o proponer una mejor."
+        el-GR: "Ο χρόνος παράδοσης, η επικαιρότητα των κριτικών, η παλαιότητα του λογαριασμού και οι συστάσεις ή αναφορές της κοινότητας δεν επηρεάζουν ακόμη την κατάταξη. Ο τύπος είναι ανοιχτού κώδικα στο <link>GitHub</link>, ώστε ο καθένας να μπορεί να τον ελέγξει ή να προτείνει καλύτερο."
+        cs-CZ: "Doba doručení, čerstvost recenzí, stáří účtu ani doporučení či nahlášení komunity zatím pořadí neovlivňují. Vzorec je open source na <link>GitHubu</link>, takže ho kdokoli může ověřit nebo navrhnout lepší."
+        pl-PL: "Czas dostawy, świeżość recenzji, wiek konta ani rekomendacje czy zgłoszenia społeczności nie wpływają jeszcze na ranking. Formuła jest open source na <link>GitHubie</link>, więc każdy może ją sprawdzić lub zaproponować lepszą."
     allSellers:
       en-GB: All Sellers
       de-DE: Alle Verkäufer
@@ -6559,6 +7004,26 @@ seller:
       el-GR: Online σήμερα
       cs-CZ: Online dnes
       pl-PL: Online dziś
+    quiet:
+      en-GB: "No new reviews in {reviewDays} days, no listing changes in {listingDays} days"
+      de-DE: "Seit {reviewDays} Tagen keine neuen Bewertungen, seit {listingDays} Tagen keine Angebotsänderungen"
+      fr-FR: "Aucun nouvel avis depuis {reviewDays} jours, aucune modification d’annonce depuis {listingDays} jours"
+      pt-PT: "Sem novas avaliações há {reviewDays} dias, sem alterações aos anúncios há {listingDays} dias"
+      it-IT: "Nessuna nuova recensione da {reviewDays} giorni, nessuna modifica agli annunci da {listingDays} giorni"
+      es-ES: "Sin reseñas nuevas en {reviewDays} días, sin cambios en los anuncios en {listingDays} días"
+      el-GR: "Καμία νέα κριτική εδώ και {reviewDays} ημέρες, καμία αλλαγή αγγελιών εδώ και {listingDays} ημέρες"
+      cs-CZ: "Žádné nové recenze {reviewDays} dní, žádné změny nabídek {listingDays} dní"
+      pl-PL: "Brak nowych recenzji od {reviewDays} dni, brak zmian w ofertach od {listingDays} dni"
+    recentNegatives:
+      en-GB: "{negative} of the last {total} reviews rated 5/10 or lower"
+      de-DE: "{negative} der letzten {total} Bewertungen mit 5/10 oder weniger"
+      fr-FR: "{negative} des {total} derniers avis notés 5/10 ou moins"
+      pt-PT: "{negative} das últimas {total} avaliações com 5/10 ou menos"
+      it-IT: "{negative} delle ultime {total} recensioni con 5/10 o meno"
+      es-ES: "{negative} de las últimas {total} reseñas con 5/10 o menos"
+      el-GR: "{negative} από τις τελευταίες {total} κριτικές με 5/10 ή λιγότερο"
+      cs-CZ: "{negative} z posledních {total} recenzí s hodnocením 5/10 nebo nižším"
+      pl-PL: "{negative} z ostatnich {total} recenzji z oceną 5/10 lub niższą"
     lastSeen:
       en-GB: Last seen {time}
       de-DE: Zuletzt gesehen {time}
@@ -7072,6 +7537,58 @@ seller:
       el-GR: Επανάληψη
       cs-CZ: Zkusit znovu
       pl-PL: Spróbuj ponownie
+
+submitSeller:
+  metadataTitle:
+    en-GB: "Submit a Little Biggy seller | BiggyIndex"
+    de-DE: "Little-Biggy-Verkäufer einreichen | BiggyIndex"
+    fr-FR: "Proposer un vendeur Little Biggy | BiggyIndex"
+    pt-PT: "Sugerir um vendedor Little Biggy | BiggyIndex"
+    it-IT: "Segnala un venditore Little Biggy | BiggyIndex"
+    es-ES: "Enviar un vendedor de Little Biggy | BiggyIndex"
+    el-GR: "Υποβολή πωλητή Little Biggy | BiggyIndex"
+    cs-CZ: "Navrhnout prodejce Little Biggy | BiggyIndex"
+    pl-PL: "Zgłoś sprzedawcę Little Biggy | BiggyIndex"
+  metadataDescription:
+    en-GB: "Know a Little Biggy seller that isn't on the items wall? Submit them so their listings can be indexed on BiggyIndex."
+    de-DE: "Kennst du einen Little-Biggy-Verkäufer, der nicht auf der Artikelwand steht? Reiche ihn ein, damit seine Angebote auf BiggyIndex erfasst werden können."
+    fr-FR: "Tu connais un vendeur Little Biggy absent du mur d’articles ? Propose-le pour que ses annonces puissent être indexées sur BiggyIndex."
+    pt-PT: "Conhece um vendedor do Little Biggy que não está no mural de artigos? Sugira-o para que os seus anúncios possam ser indexados no BiggyIndex."
+    it-IT: "Conosci un venditore Little Biggy che non è sulla bacheca degli articoli? Segnalalo perché i suoi annunci possano essere indicizzati su BiggyIndex."
+    es-ES: "¿Conoces a un vendedor de Little Biggy que no está en el muro de artículos? Envíalo para que sus anuncios puedan indexarse en BiggyIndex."
+    el-GR: "Γνωρίζετε πωλητή του Little Biggy που δεν εμφανίζεται στον τοίχο αγγελιών; Υποβάλετέ τον ώστε οι αγγελίες του να καταχωριστούν στο BiggyIndex."
+    cs-CZ: "Znáte prodejce Little Biggy, který není na zdi položek? Navrhněte ho, aby jeho nabídky mohly být zařazeny do BiggyIndex."
+    pl-PL: "Znasz sprzedawcę Little Biggy, którego nie ma na ścianie ofert? Zgłoś go, aby jego oferty mogły trafić do BiggyIndex."
+  heading:
+    en-GB: "Submit a seller"
+    de-DE: "Verkäufer einreichen"
+    fr-FR: "Proposer un vendeur"
+    pt-PT: "Sugerir um vendedor"
+    it-IT: "Segnala un venditore"
+    es-ES: "Enviar un vendedor"
+    el-GR: "Υποβολή πωλητή"
+    cs-CZ: "Navrhnout prodejce"
+    pl-PL: "Zgłoś sprzedawcę"
+  intro:
+    en-GB: "Little Biggy keeps some sellers off its items wall, usually new or small shops. Their listings never appear when you browse Little Biggy, so BiggyIndex can't find them on its own. If you know one, send it here. Once reviewed, their listings join the index marked “Off-wall” and stay hidden until you switch on “Unlisted sellers” in the filters."
+    de-DE: "Little Biggy zeigt manche Verkäufer nicht auf seiner Artikelwand, meist neue oder kleine Shops. Ihre Angebote erscheinen beim Stöbern auf Little Biggy nie, deshalb findet BiggyIndex sie nicht von selbst. Wenn du einen kennst, reiche ihn hier ein. Nach der Prüfung kommen seine Angebote mit der Markierung „Nicht gelistet“ in den Index und bleiben verborgen, bis du in den Filtern „Nicht gelistete Verkäufer“ einschaltest."
+    fr-FR: "Little Biggy garde certains vendeurs hors de son mur d’articles, généralement des boutiques nouvelles ou petites. Leurs annonces n’apparaissent jamais quand tu parcours Little Biggy, donc BiggyIndex ne peut pas les trouver seul. Si tu en connais un, propose-le ici. Après vérification, ses annonces rejoignent l’index avec la mention « Hors mur » et restent masquées tant que tu n’actives pas « Vendeurs non listés » dans les filtres."
+    pt-PT: "O Little Biggy mantém alguns vendedores fora do seu mural de artigos, normalmente lojas novas ou pequenas. Os seus anúncios nunca aparecem quando navega no Little Biggy, por isso o BiggyIndex não os consegue encontrar sozinho. Se conhecer algum, envie-o aqui. Depois de revistos, os seus anúncios entram no índice marcados como “Fora do mural” e ficam ocultos até ativar “Vendedores não listados” nos filtros."
+    it-IT: "Little Biggy tiene alcuni venditori fuori dalla sua bacheca degli articoli, di solito negozi nuovi o piccoli. I loro annunci non compaiono mai quando sfogli Little Biggy, quindi BiggyIndex non può trovarli da solo. Se ne conosci uno, segnalalo qui. Dopo la revisione, i suoi annunci entrano nell'indice con l'etichetta “Fuori bacheca” e restano nascosti finché non attivi “Venditori non elencati” nei filtri."
+    es-ES: "Little Biggy mantiene a algunos vendedores fuera de su muro de artículos, normalmente tiendas nuevas o pequeñas. Sus anuncios nunca aparecen cuando navegas por Little Biggy, así que BiggyIndex no puede encontrarlos por sí solo. Si conoces alguno, envíalo aquí. Tras la revisión, sus anuncios se suman al índice marcados como «Fuera del muro» y permanecen ocultos hasta que actives «Vendedores no listados» en los filtros."
+    el-GR: "Το Little Biggy κρατά ορισμένους πωλητές εκτός του τοίχου αγγελιών του, συνήθως νέα ή μικρά καταστήματα. Οι αγγελίες τους δεν εμφανίζονται ποτέ όταν περιηγείστε στο Little Biggy, οπότε το BiggyIndex δεν μπορεί να τους βρει μόνο του. Αν γνωρίζετε κάποιον, υποβάλετέ τον εδώ. Μετά τον έλεγχο, οι αγγελίες του μπαίνουν στο ευρετήριο με την ένδειξη «Εκτός τοίχου» και μένουν κρυφές μέχρι να ενεργοποιήσετε το «Μη καταχωρισμένοι πωλητές» στα φίλτρα."
+    cs-CZ: "Little Biggy některé prodejce nezobrazuje na své zdi položek, obvykle nové nebo malé obchody. Jejich nabídky se při procházení Little Biggy nikdy neobjeví, takže je BiggyIndex sám nenajde. Pokud nějakého znáte, pošlete ho sem. Po kontrole se jeho nabídky přidají do indexu s označením „Mimo zeď“ a zůstanou skryté, dokud ve filtrech nezapnete „Neuvedení prodejci“."
+    pl-PL: "Little Biggy nie pokazuje niektórych sprzedawców na swojej ścianie ofert, zwykle nowych lub małych sklepów. Ich oferty nigdy nie pojawiają się podczas przeglądania Little Biggy, więc BiggyIndex nie znajdzie ich sam. Jeśli znasz takiego sprzedawcę, zgłoś go tutaj. Po weryfikacji jego oferty trafią do indeksu z oznaczeniem „Poza ścianą” i pozostaną ukryte, dopóki nie włączysz w filtrach opcji „Sprzedawcy spoza listy”."
+  flaggedIntro:
+    en-GB: "Sellers that Little Biggy itself marks with a warning banner, such as “fraud suspected”, are kept separate: they are labelled “Flagged by LB”, carry Little Biggy's warning, and only show when you switch on “Flagged by Little Biggy”."
+    de-DE: "Verkäufer, die Little Biggy selbst mit einem Warnhinweis versieht, etwa „Betrugsverdacht“, werden getrennt geführt: Sie tragen die Markierung „Von LB markiert“, zeigen die Warnung von Little Biggy und erscheinen nur, wenn du „Von Little Biggy markiert“ einschaltest."
+    fr-FR: "Les vendeurs que Little Biggy signale lui-même par un bandeau d’avertissement, comme « suspicion de fraude », sont traités à part : ils portent la mention « Signalé par LB », affichent l’avertissement de Little Biggy et n’apparaissent que si tu actives « Signalés par Little Biggy »."
+    pt-PT: "Os vendedores que o próprio Little Biggy assinala com um aviso, como “suspeita de fraude”, ficam à parte: têm a etiqueta “Assinalado pelo LB”, mostram o aviso do Little Biggy e só aparecem quando ativa “Assinalados pelo Little Biggy”."
+    it-IT: "I venditori che Little Biggy stesso segnala con un avviso, come “sospetta frode”, sono tenuti separati: hanno l'etichetta “Segnalato da LB”, riportano l'avviso di Little Biggy e compaiono solo se attivi “Segnalati da Little Biggy”."
+    es-ES: "Los vendedores que el propio Little Biggy marca con un aviso, como «sospecha de fraude», se muestran aparte: llevan la etiqueta «Marcado por LB», incluyen el aviso de Little Biggy y solo aparecen si activas «Marcados por Little Biggy»."
+    el-GR: "Οι πωλητές που το ίδιο το Little Biggy επισημαίνει με προειδοποίηση, όπως «υποψία απάτης», εμφανίζονται χωριστά: φέρουν την ένδειξη «Επισήμανση LB», δείχνουν την προειδοποίηση του Little Biggy και εμφανίζονται μόνο αν ενεργοποιήσετε το «Επισημασμένοι από το Little Biggy»."
+    cs-CZ: "Prodejci, u kterých sám Little Biggy zobrazuje varování, například „podezření z podvodu“, jsou vedeni zvlášť: nesou označení „Varování LB“, ukazují varování Little Biggy a zobrazí se jen tehdy, když zapnete „S varováním Little Biggy“."
+    pl-PL: "Sprzedawcy, których sam Little Biggy oznacza ostrzeżeniem, np. „podejrzenie oszustwa”, są pokazywani osobno: mają etykietę „Oznaczony przez LB”, wyświetlają ostrzeżenie Little Biggy i pojawiają się tylko po włączeniu opcji „Oznaczeni przez Little Biggy”."
 
 reviews:
   page:
@@ -9492,6 +10009,16 @@ category:
       el-GR: "Δείτε όλες τις καταχωρίσεις {category} με φίλτρα"
       cs-CZ: "Procházet všechny nabídky {category} s filtry"
       pl-PL: "Przeglądaj wszystkie oferty {category} z filtrami"
+    filterCta:
+      en-GB: "Filter {category} listings"
+      de-DE: "{category}-Angebote filtern"
+      fr-FR: "Filtrer les annonces {category}"
+      pt-PT: "Filtrar anúncios de {category}"
+      it-IT: "Filtra gli annunci di {category}"
+      es-ES: "Filtrar anuncios de {category}"
+      el-GR: "Φιλτράρετε τις καταχωρίσεις {category}"
+      cs-CZ: "Filtrovat nabídky {category}"
+      pl-PL: "Filtruj oferty {category}"
     breadcrumbHome:
       en-GB: Home
       de-DE: Startseite

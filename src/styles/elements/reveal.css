@@ -39,22 +39,24 @@
 }
 
 /* Mount-time fade / fade+scale entrances (hero).
-   Runs once when the element first renders; stagger with --mount-delay. */
+   Runs once when the element first renders; stagger with --mount-delay.
+   No base opacity: 0 — WebKit doesn't restart these on a cached route re-shown from display: none. */
 .mount-fade {
-  opacity: 0;
-  animation: mount-fade 600ms ease-out forwards;
+  animation: mount-fade 600ms ease-out both;
   animation-delay: var(--mount-delay, 0ms);
 }
 
 @keyframes mount-fade {
+  from {
+    opacity: 0;
+  }
   to {
     opacity: 1;
   }
 }
 
 .mount-fade-scale {
-  opacity: 0;
-  animation: mount-fade-scale 600ms ease-out forwards;
+  animation: mount-fade-scale 600ms ease-out both;
   animation-delay: var(--mount-delay, 0ms);
 }
 

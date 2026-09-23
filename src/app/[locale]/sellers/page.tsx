@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { loadSellers } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import { isOffWall } from "@/lib/off-wall";
 import { readR2JSON } from "@/lib/r2";
 import { serializeJsonLd } from "@/lib/seo/jsonld";
 import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
@@ -101,8 +102,19 @@ export default async function SellersPage({
     ),
   ]);
 
-  const allTime = leaderboard?.all ?? { top: [], bottom: [] };
-  const weekly = leaderboard?.week ?? { top: [], bottom: [] };
+  // Off-wall sellers stay in the store (card/modal lookups) but never in this directory.
+  const wallSellers = sellerList.filter((seller) => !isOffWall(seller));
+  const offWallIds = new Set(
+    sellerList.filter(isOffWall).map((seller) => String(seller.id)),
+  );
+  const onWall = (
+    period: LeaderboardPeriod | undefined,
+  ): LeaderboardPeriod => ({
+    top: (period?.top ?? []).filter((e) => !offWallIds.has(e.sellerId)),
+    bottom: (period?.bottom ?? []).filter((e) => !offWallIds.has(e.sellerId)),
+  });
+  const allTime = onWall(leaderboard?.all);
+  const weekly = onWall(leaderboard?.week);
 
   // Build a map of sellerId → lifetime stats for fast lookup in the table
   const analyticsMap: Record<string, SellerAnalyticsLifetime> = {};
@@ -114,7 +126,7 @@ export default async function SellersPage({
   const sellerListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: sellerList.map((seller, index) => ({
+    itemListElement: wallSellers.map((seller, index) => ({
       "@type": "ListItem",
       position: index + 1,
       url: absoluteUrl(
@@ -140,7 +152,7 @@ export default async function SellersPage({
       <main className="min-h-screen bg-background">
         <Suspense>
           <SellersPageClient
-            sellers={sellerList}
+            sellers={wallSellers}
             analyticsMap={analyticsMap}
             leaderboardAllTime={allTime}
             leaderboardWeekly={weekly}

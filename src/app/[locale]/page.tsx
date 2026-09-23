@@ -19,10 +19,11 @@ import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
 import { loadIrelandOrderingFacts } from "@/lib/market/ireland";
 import { localeToMarket } from "@/lib/market/market";
+import { isOffWall, withoutOffWall } from "@/lib/off-wall";
 import { countActiveSellers } from "@/lib/sellers";
 import { faqPageJsonLd, serializeJsonLd } from "@/lib/seo/jsonld";
 import { marketBaseUrl, pageMetadata } from "@/lib/seo/metadata";
-import type { HomeFeedItemCard } from "@/lib/types";
+import type { HomeFeedItemCard, HomeFeedLeaderboardEntry } from "@/lib/types";
 import { GITHUB_REPO_URL } from "@/lib/verify-links";
 
 export async function generateMetadata({
@@ -117,6 +118,17 @@ export default async function HomePage({
     ...c,
     emoji: "",
   }));
+  const offWallSellers = new Set(
+    sellerList.filter(isOffWall).map((seller) => String(seller.id)),
+  );
+  const onWall = (entries: HomeFeedLeaderboardEntry[]) =>
+    entries.filter(
+      (entry) => !isOffWall(entry) && !offWallSellers.has(entry.sellerId),
+    );
+  const onWallItems = (items: HomeFeedItemCard[]) =>
+    withoutOffWall(items).filter(
+      (item) => item.sid == null || !offWallSellers.has(String(item.sid)),
+    );
   const feedBuiltAt = Date.parse(feed.builtAt);
   const timeReference = Number.isFinite(feedBuiltAt) ? feedBuiltAt : 0;
 
@@ -225,16 +237,20 @@ export default async function HomePage({
       )}
 
       <WhatsNewSection
-        newest={feed.whatsNew.newest.map((i) => toNewItem(i, "fsa"))}
-        recentlyUpdated={feed.whatsNew.updated.map((i) => toNewItem(i, "lua"))}
+        newest={onWallItems(feed.whatsNew.newest).map((i) =>
+          toNewItem(i, "fsa"),
+        )}
+        recentlyUpdated={onWallItems(feed.whatsNew.updated).map((i) =>
+          toNewItem(i, "lua"),
+        )}
         now={timeReference}
         currency={currency}
       />
 
       <SellerTrustBoard
-        topSellers={feed.sellers.top}
-        bottomSellers={feed.sellers.bottom}
-        recentlyJoined={feed.sellers.recentlyJoined}
+        topSellers={onWall(feed.sellers.top)}
+        bottomSellers={onWall(feed.sellers.bottom)}
+        recentlyJoined={onWall(feed.sellers.recentlyJoined)}
         now={timeReference}
       />
 

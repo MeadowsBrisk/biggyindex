@@ -11,6 +11,7 @@ import { getTranslations } from "next-intl/server";
 import { loadItems } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage } from "@/lib/images";
+import { isOffWall } from "@/lib/off-wall";
 import type { Item } from "@/lib/types";
 
 const SECTION_LIMIT = 6;
@@ -135,7 +136,12 @@ export async function RelatedItemsSections({
 
   const relatedItems = category
     ? items
-        .filter((item) => item.c === category && !shownRefs.has(itemRef(item)))
+        .filter(
+          (item) =>
+            item.c === category &&
+            !isOffWall(item) &&
+            !shownRefs.has(itemRef(item)),
+        )
         .sort((a, b) => {
           const overlapDiff = overlap(b) - overlap(a);
           if (overlapDiff !== 0) return overlapDiff;

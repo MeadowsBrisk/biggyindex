@@ -23,6 +23,7 @@ import {
   useState,
 } from "react";
 import { CountryFlag } from "@/components/icons/CountryFlag";
+import { OffWallBadge } from "@/components/OffWall";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { useAddToast } from "@/components/Toast";
 import { Tooltip } from "@/components/Tooltip";
@@ -1054,6 +1055,20 @@ function ItemCardInner({
                         {communityEndorsements}
                       </span>
                     )}
+                    {seller?.quiet && (
+                      <span
+                        className="seller-card__badge seller-card__badge--quiet"
+                        title={t("quietTitle", {
+                          reviewDays: seller.quiet.reviewDays,
+                          listingDays: seller.quiet.listingDays,
+                        })}
+                      >
+                        {t("quietBadge", { days: seller.quiet.reviewDays })}
+                      </span>
+                    )}
+                    {item.ow ? (
+                      <OffWallBadge ow={item.ow} owr={item.owr} />
+                    ) : null}
                     {shippingIsFree ? (
                       <span className="seller-card__badge seller-card__badge--free">
                         <Truck size={10} /> {t("freeShipping")}

@@ -6,18 +6,19 @@ import {
   ChevronDown,
   ChevronUp,
   Circle,
-  Package,
   Search,
   ShieldCheck,
   Star,
   Truck,
 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { getSellerImageUrl } from "@/lib/images";
 import { countActiveSellers } from "@/lib/sellers";
 import type { Seller } from "@/lib/types";
+import { GITHUB_REPO_URL } from "@/lib/verify-links";
 import { sellerModalIdAtom } from "@/store/atoms";
 
 interface LeaderboardEntry {
@@ -332,6 +333,7 @@ export function SellersPageClient({
   const [sortKey, setSortKey] = useState<SortKey>("reviews");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [leaderboardTab, setLeaderboardTab] = useState<"all" | "week">("all");
+  const [rankingOpen, setRankingOpen] = useState(false);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -407,6 +409,14 @@ export function SellersPageClient({
       <h1 className="text-3xl font-bold text-foreground mb-1">{t("title")}</h1>
       <p className="text-muted text-sm mb-8">
         {t("activeSellers", { count: countActiveSellers(sellers) })}
+        {" · "}
+        <Link
+          href="/submit-seller"
+          prefetch={false}
+          className="font-medium text-primary hover:underline"
+        >
+          {t("submitSellerLink")}
+        </Link>
       </p>
 
       {/* Leaderboard */}
@@ -449,6 +459,52 @@ export function SellersPageClient({
             entries={leaderboard.bottom}
             variant="bottom"
           />
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setRankingOpen((open) => !open)}
+            aria-expanded={rankingOpen}
+            aria-controls="seller-ranking-explainer"
+            className="w-full flex items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-[var(--card-hover)]"
+          >
+            <span className="text-sm font-semibold text-foreground">
+              {t("ranking.title")}
+            </span>
+            <ChevronDown
+              size={16}
+              className={`shrink-0 text-muted transition-transform duration-200 ${rankingOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          <div
+            id="seller-ranking-explainer"
+            className="collapse-rows"
+            data-open={rankingOpen}
+            aria-hidden={!rankingOpen}
+            inert={!rankingOpen}
+          >
+            <div>
+              <div className="px-5 pb-5 pt-4 space-y-3 text-sm text-muted leading-relaxed border-t border-[var(--border)]">
+                <p>{t("ranking.scoring")}</p>
+                <p>{t("ranking.caution")}</p>
+                <p>
+                  {t.rich("ranking.limits", {
+                    link: (chunks) => (
+                      <a
+                        href={GITHUB_REPO_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {chunks}
+                      </a>
+                    ),
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

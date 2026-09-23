@@ -35,7 +35,7 @@ const DOMAINS: Record<string, string> = {
 // "/browse?cat=" opens ONLY the category-filter form for crawling: under
 // Google's longest-match rule the allow's 12 literal chars beat the
 // "/browse?*" disallow's 8 ("/browse?"), so /browse?cat=Flower is fetchable
-// while every other filter combo (q/pmin/pmax/sellers/sub/excl) stays blocked.
+// while every other filter combo (q/pmin/pmax/sellers/sub/excl/ow) stays blocked.
 // Crawlable != indexable — filtered URLs canonicalise to /browse, so links are
 // followed and pass equity without being indexed.
 // Answer-engine fetchers get the three pages worth quoting and nothing else,
@@ -53,8 +53,10 @@ Disallow: /*?ref=*
 Disallow: /*?pmin=*
 Disallow: /*?pmax=*
 Disallow: /*?sellers=*
+Disallow: /*?xsellers=*
 Disallow: /*?sub=*
 Disallow: /*?excl=*
+Disallow: /*?ow=*
 
 User-Agent: BabbarBot
 User-Agent: Barkrowler

@@ -13,11 +13,13 @@ import {
   clearFiltersAtom,
   excludedShipFromAtom,
   excludedSubcategoriesAtom,
+  offWallAtom,
   priceRangeAtom,
   searchQueryAtom,
   selectedSellersAtom,
   selectedShipFromAtom,
   selectedWeightsAtom,
+  sellerSelectionAtom,
   subcategoryAtom,
 } from "@/store/atoms";
 
@@ -58,6 +60,8 @@ export function ActiveFilterBar() {
   const setExcludedSubcategory = useSetAtom(excludedSubcategoriesAtom);
   const sellers = useAtomValue(selectedSellersAtom);
   const setSellers = useSetAtom(selectedSellersAtom);
+  const sellerSelection = useAtomValue(sellerSelectionAtom);
+  const setSellerSelection = useSetAtom(sellerSelectionAtom);
   const allSellers = useAtomValue(availableSellersAtom);
   const shipInclude = useAtomValue(selectedShipFromAtom);
   const setShipInclude = useSetAtom(selectedShipFromAtom);
@@ -65,6 +69,8 @@ export function ActiveFilterBar() {
   const setShipExclude = useSetAtom(excludedShipFromAtom);
   const weights = useAtomValue(selectedWeightsAtom);
   const setWeights = useSetAtom(selectedWeightsAtom);
+  const offWall = useAtomValue(offWallAtom);
+  const setOffWall = useSetAtom(offWallAtom);
   const attrs = useAtomValue(attrFiltersAtom);
   const setAttrs = useSetAtom(attrFiltersAtom);
   const priceRange = useAtomValue(priceRangeAtom);
@@ -150,6 +156,24 @@ export function ActiveFilterBar() {
       })),
     });
   }
+  if (sellerSelection.excluded.length > 0) {
+    groups.push({
+      key: "sellers-exclude",
+      label: t("sellersNot"),
+      chips: sellerSelection.excluded.map((sid) => ({
+        key: sid,
+        label: sellerMap.get(sid) ?? `#${sid}`,
+        excluded: true,
+        clear: () =>
+          tx(() =>
+            setSellerSelection({
+              ...sellerSelection,
+              excluded: sellerSelection.excluded.filter((s) => s !== sid),
+            }),
+          ),
+      })),
+    });
+  }
   if (shipInclude.length > 0) {
     groups.push({
       key: "ship-include",
@@ -185,6 +209,18 @@ export function ActiveFilterBar() {
         label: `${w}g`,
         clear: () =>
           tx(() => setWeights((prev) => prev.filter((g) => g !== w))),
+      })),
+    });
+  }
+  if (offWall.length > 0) {
+    groups.push({
+      key: "off-wall",
+      label: t("offWall"),
+      chips: offWall.map((kind) => ({
+        key: kind,
+        label: tFilters(kind === "f" ? "offWall.flagged" : "offWall.unlisted"),
+        clear: () =>
+          tx(() => setOffWall((prev) => prev.filter((k) => k !== kind))),
       })),
     });
   }

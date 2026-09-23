@@ -4,8 +4,9 @@ import {
   getItemBrowseMeta,
   isSoldOut,
 } from "@/lib/browse/item-index";
+import { isOffWallShown, type OffWallKind } from "@/lib/off-wall";
 import { shipFromLabel } from "@/lib/shipFrom";
-import type { Item, SortDir, SortKey } from "@/lib/types";
+import type { Item, Seller, SortDir, SortKey } from "@/lib/types";
 
 export interface BrowseFilters {
   category: string;
@@ -13,6 +14,7 @@ export interface BrowseFilters {
   excludedSubcategories: string[];
   query: string;
   selectedSellers: string[];
+  excludedSellers: string[];
   hiddenSellers: string[];
   priceRange: { min: number; max: number };
   bookmarksOnly: boolean;
@@ -22,6 +24,8 @@ export interface BrowseFilters {
   excludedShipFrom: string[];
   freeShippingOnly: boolean;
   selectedWeights: number[];
+  // Off-wall kinds to show; items of any other off-wall kind never enter results or facets.
+  offWall: OffWallKind[];
 }
 
 export interface BrowseSnapshotInput {
@@ -39,6 +43,105 @@ export interface SellerFacet {
   id: string;
   name: string;
   count: number;
+}
+
+// all=true means every seller except `excluded`, so "all but two" never becomes a long id list.
+export interface SellerSelection {
+  selected: string[];
+  excluded: string[];
+  all: boolean;
+}
+
+export const EMPTY_SELLER_SELECTION: SellerSelection = {
+  selected: [],
+  excluded: [],
+  all: false,
+};
+
+export function isSellerTicked(
+  selection: SellerSelection,
+  sellerId: string,
+): boolean {
+  return selection.all
+    ? !selection.excluded.includes(sellerId)
+    : selection.selected.includes(sellerId);
+}
+
+export function toggleSellerTick(
+  selection: SellerSelection,
+  sellerId: string,
+): SellerSelection {
+  if (selection.all) {
+    return {
+      selected: [],
+      excluded: toggleId(selection.excluded, sellerId),
+      all: true,
+    };
+  }
+  return {
+    selected: toggleId(selection.selected, sellerId),
+    excluded: [],
+    all: false,
+  };
+}
+
+export function tickSellers(
+  selection: SellerSelection,
+  listedIds: string[],
+  isFullList: boolean,
+): SellerSelection {
+  if (isFullList) return { selected: [], excluded: [], all: true };
+  const listed = new Set(listedIds);
+  if (selection.all) {
+    return {
+      selected: [],
+      excluded: selection.excluded.filter((id) => !listed.has(id)),
+      all: true,
+    };
+  }
+  const selected = [...selection.selected];
+  for (const id of listedIds) if (!selected.includes(id)) selected.push(id);
+  return { selected, excluded: [], all: false };
+}
+
+export function hasSellerSelection(selection: SellerSelection): boolean {
+  return selection.all || selection.selected.length > 0;
+}
+
+function toggleId(ids: string[], id: string): string[] {
+  return ids.includes(id) ? ids.filter((entry) => entry !== id) : [...ids, id];
+}
+
+export type SellerRatingLookup = Map<
+  string,
+  Pick<Seller, "averageRating" | "numberOfReviews">
+>;
+
+export function sortSellersByRating<T extends { id: string; name: string }>(
+  sellers: T[],
+  ratings: SellerRatingLookup,
+): T[] {
+  const ratingOf = (id: string) => {
+    const seller = ratings.get(id);
+    const rating = seller?.averageRating;
+    return typeof rating === "number" && rating > 0
+      ? { rating, reviews: seller?.numberOfReviews ?? 0 }
+      : null;
+  };
+  return [...sellers].sort((first, second) => {
+    const a = ratingOf(first.id);
+    const b = ratingOf(second.id);
+    if (a && b) {
+      return (
+        b.rating - a.rating ||
+        b.reviews - a.reviews ||
+        first.name.localeCompare(second.name)
+      );
+    }
+    if (a) return -1;
+    if (b) return 1;
+    return first.name.localeCompare(second.name);
+  });
 }
 
 export interface CountFacet {
@@ -102,7 +205,11 @@ export function buildBrowseSnapshot(
       input.filters,
       input.itemIndex,
     ),
-    availableSellers: buildAvailableSellers(input.items, input.itemIndex),
+    availableSellers: buildAvailableSellers(
+      input.items,
+      input.filters,
+      input.itemIndex,
+    ),
     availableShipFrom: buildAvailableShipFrom(
       input.items,
       input.filters,
@@ -160,6 +267,9 @@ function applyFilters(
   const query = filters.query.toLowerCase().trim();
   const sellers = options.skipSellers ? [] : filters.selectedSellers;
   const sellersSet = sellers.length > 0 ? new Set(sellers) : null;
+  const excludedSellers = options.skipSellers ? [] : filters.excludedSellers;
+  const excludedSellersSet =
+    excludedSellers.length > 0 ? new Set(excludedSellers) : null;
   const attrs = options.skipAttrs === true ? {} : filters.attrFilters;
   const skipAttrKey =
     typeof options.skipAttrs === "string" ? options.skipAttrs : null;
@@ -179,6 +289,8 @@ function applyFilters(
     filters.priceRange.min > 0 || Number.isFinite(filters.priceRange.max);
 
   return items.filter((item) => {
+    if (!isOffWallShown(item, filters.offWall)) return false;
+
     const meta = getItemBrowseMeta(itemIndex, item);
 
     if (
@@ -211,6 +323,7 @@ function applyFilters(
     }
 
     if (sellersSet && !sellersSet.has(meta.sellerId)) return false;
+    if (excludedSellersSet?.has(meta.sellerId)) return false;
     if (hiddenSellersSet?.has(meta.sellerId)) return false;
 
     // A parked listing has no price, only a placeholder. It stays browsable
@@ -482,11 +595,13 @@ function buildFilteredSellers(
 
 function buildAvailableSellers(
   items: Item[],
+  filters: BrowseFilters,
   itemIndex?: ItemIndex,
 ): SellerFacet[] {
   const sellerMap = new Map<string, { name: string; count: number }>();
 
   for (const item of items) {
+    if (!isOffWallShown(item, filters.offWall)) continue;
     if (item.sid != null && item.sn) {
       const id = getItemBrowseMeta(itemIndex, item).sellerId;
       const entry = sellerMap.get(id);

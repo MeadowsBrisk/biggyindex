@@ -34,7 +34,18 @@ export interface SeedFlags {
 export function computeSeedFlags(search: string): SeedFlags {
   let hide = false;
   const params = new URLSearchParams(search);
-  const keys = ["cat", "sub", "q", "sellers", "pmin", "pmax", "sort", "dir"];
+  const keys = [
+    "cat",
+    "sub",
+    "q",
+    "sellers",
+    "xsellers",
+    "pmin",
+    "pmax",
+    "ow",
+    "sort",
+    "dir",
+  ];
   for (let i = 0; i < keys.length; i++) {
     if (params.has(keys[i])) {
       hide = true;

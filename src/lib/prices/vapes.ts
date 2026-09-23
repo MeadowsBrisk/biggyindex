@@ -7,6 +7,7 @@
  * 1ml figure — both call in here so the two can never disagree.
  */
 
+import { isOffWall } from "@/lib/off-wall";
 import { median, SENTINEL_USD } from "@/lib/prices/stats";
 import type { Item, ItemVariant } from "@/lib/types";
 
@@ -59,7 +60,7 @@ export function buildVapeTiles(items: Item[]): VapeTile[] {
     { perItem: Map<string, number[]>; sellers: Set<string> }
   >();
   for (const item of items) {
-    if (item.c !== "Vapes") continue;
+    if (item.c !== "Vapes" || isOffWall(item)) continue;
     for (const v of item.v ?? []) {
       if (typeof v.usd !== "number" || v.usd <= 0 || v.usd === SENTINEL_USD)
         continue;

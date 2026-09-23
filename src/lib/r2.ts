@@ -220,6 +220,10 @@ export const R2Keys = {
   /** Seller summaries per market */
   sellers: (market: string) => `markets/${market}/sellers.json`,
 
+  /** Per-market seller analytics (lifetime review stats, newest review seen) */
+  marketSellerAnalytics: (market: string) =>
+    `markets/${market}/aggregates/seller-analytics.json`,
+
   /** Pre-built home feed (items + sellers + manifest) */
   homeFeed: (market: string) => `markets/${market}/home-feed.json`,
 

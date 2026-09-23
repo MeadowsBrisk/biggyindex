@@ -163,6 +163,10 @@ export interface Item {
   cf?: number | null;
   /** Parked out of stock — every variant is a placeholder, so uMin/uMax are not real prices */
   so?: 1;
+  /** Off-wall seller: 1 = unlisted (not on LB's items wall), 2 = flagged by LB */
+  ow?: 1 | 2;
+  /** Reason code for LB's warning banner (e.g. "fraud"), only when ow = 2 */
+  owr?: string;
 }
 
 // ─── Price History ──────────────────────────────────────────────────
@@ -228,6 +232,22 @@ export interface Seller {
   communityEndorsements?: number | null;
   /** Accepted community reports from BiggyIndex users */
   communityReportCount?: number | null;
+  /** Present only when the quiet threshold is met (lib/seller-activity.ts) */
+  quiet?: SellerQuiet;
+  /** Off-wall seller: 1 = unlisted (not on LB's items wall), 2 = flagged by LB */
+  ow?: 1 | 2;
+  /** Reason code for LB's warning banner (e.g. "fraud"), only when ow = 2 */
+  owr?: string;
+}
+
+export interface SellerQuiet {
+  reviewDays: number;
+  listingDays: number;
+}
+
+export interface SellerNegativeReviews {
+  negative: number;
+  total: number;
 }
 
 /** Seller review entry from shared/sellers/{id}.json. */
@@ -339,6 +359,7 @@ export interface HomeFeedLeaderboardEntry {
   totalReviews: number;
   lastReviewAt?: string;
   joined?: string;
+  ow?: 1 | 2;
 }
 
 /** Lightweight item card for What's New section */
@@ -368,6 +389,7 @@ export interface HomeFeedItemCard {
   lua?: string | null;
   /** Parked out of stock — uMin/uMax are placeholders, not real prices */
   so?: 1;
+  ow?: 1 | 2;
 }
 
 /** The complete home-feed.json blob */

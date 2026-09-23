@@ -904,7 +904,8 @@ html.bi-seed-hide [data-seed-skeleton] {
   }
 }
 
-.seller-card__badge--shipping {
+.seller-card__badge--shipping,
+.seller-card__badge--offwall {
   color: #6b7280;
   background: rgba(107, 114, 128, 0.1);
 
@@ -914,8 +915,10 @@ html.bi-seed-hide [data-seed-skeleton] {
   }
 }
 
-/* Stands in for the price on a listing the seller has parked out of stock. */
-.seller-card__badge--soldout {
+/* Caution status: a listing parked out of stock, a seller gone quiet, or one Little Biggy flags. */
+.seller-card__badge--soldout,
+.seller-card__badge--quiet,
+.seller-card__badge--flagged {
   color: #b45309;
   background: rgba(180, 83, 9, 0.1);
 

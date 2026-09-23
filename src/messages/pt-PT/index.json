@@ -84,6 +84,7 @@
     "communityCopy": "Junte-se à conversa. Partilhe experiências, faça perguntas ou verifique a reputação dos vendedores.",
     "statusLink": "Estado do Little Biggy",
     "pricesLink": "Cannabis prices",
+    "submitSellerLink": "Sugerir um vendedor",
     "about": "Sobre",
     "privacy": "Privacidade",
     "terms": "Termos",
@@ -556,8 +557,10 @@
       "subcategory": "Subcategoria",
       "subcategoryNot": "Excluindo",
       "sellers": "Vendedores",
+      "sellersNot": "Vendedores excluídos",
       "shipFrom": "De",
       "shipNot": "Não de",
+      "offWall": "Fora do mural",
       "weight": "Peso",
       "price": "Preço"
     },
@@ -595,13 +598,26 @@
       },
       "shipFromHelp": "Clicar: incluir. Clicar com o botão direito: excluir",
       "shippingFrom": "De",
+      "offWall": {
+        "heading": "Vendedores fora do mural",
+        "unlisted": "Vendedores não listados",
+        "flagged": "Assinalados pelo Little Biggy",
+        "unlistedHelp": "Vendedores novos ou pequenos que o Little Biggy mantém fora do seu mural de artigos, adicionados a partir de sugestões da comunidade",
+        "flaggedHelp": "Vendedores em que o Little Biggy mostra um aviso, por exemplo suspeita de fraude"
+      },
       "freeShippingOnly": "Apenas envio grátis",
       "addShippingToPrices": "Adicionar envio aos preços",
       "subcategoryExcludeHint": "Clicar: incluir. Clicar com o botão direito: excluir",
       "subcategoryExcludeRemove": "Clique com o botão direito para remover a exclusão",
       "searchSellers": "Procurar vendedores...",
-      "sellerSortAlpha": "Ordenado de A a Z - clique para ordenar por número de itens",
-      "sellerSortCount": "Ordenado por número de itens - clique para A-Z",
+      "sellerSortAlpha": "Ordenado de A a Z - clique para ordenar por avaliação",
+      "sellerSortRating": "Ordenado por avaliação - clique para A-Z",
+      "sellerSortRatingLabel": "Avaliação",
+      "sellersSelectAll": "Selecionar tudo",
+      "sellersSelectAllTitle": "Marcar todos os vendedores - depois desmarque os que quer excluir",
+      "sellersSelectAllMatchingTitle": "Marcar todos os vendedores que correspondem à pesquisa",
+      "sellersClear": "Limpar",
+      "sellersClearTitle": "Limpar o filtro de vendedores (os vendedores ocultos continuam ocultos)",
       "removeSeller": "Remover {seller}",
       "selectSeller": "Selecionar {seller}",
       "unselectSeller": "Desselecionar {seller}",
@@ -632,6 +648,8 @@
       "onlineToday": "Online hoje",
       "freeShipping": "Envio grátis",
       "endorsed": "{count, plural, one {1 recomendação} other {# recomendações}}",
+      "quietBadge": "Sem avaliações há {days}d",
+      "quietTitle": "Sem novas avaliações há {reviewDays} dias e sem alterações aos anúncios há {listingDays} dias",
       "shipsFrom": "Enviado de",
       "shipsFromAria": "Enviado de {country}",
       "deliveryDays": "~{count}d entrega",
@@ -827,6 +845,35 @@
     }
   },
   "seller": {
+    "offWall": {
+      "badgeUnlisted": "Fora do mural",
+      "badgeFlagged": "Assinalado pelo LB",
+      "unlistedNotice": "Este vendedor não está no mural de artigos do Little Biggy e foi adicionado a partir de uma sugestão da comunidade.",
+      "flaggedNotice": "O Little Biggy assinala este vendedor: {reason}",
+      "flaggedNoticeGeneric": "O Little Biggy mostra um aviso neste vendedor.",
+      "reasons": {
+        "fraud": "suspeita de fraude"
+      }
+    },
+    "submit": {
+      "nameLabel": "Nome do vendedor",
+      "namePlaceholder": "Tal como aparece no Little Biggy",
+      "linkLabel": "Link ou ID do vendedor no Little Biggy",
+      "linkHint": "Cole o link do perfil do vendedor, ou apenas o número no final.",
+      "noteLabel": "Nota",
+      "notePlaceholder": "Algo que nos ajude a encontrar ou verificar este vendedor",
+      "optional": "opcional",
+      "submit": "Enviar vendedor",
+      "submitting": "A enviar…",
+      "success": "Obrigado, o vendedor foi enviado para revisão.",
+      "duplicate": "Obrigado, este vendedor já aguarda revisão. A sua sugestão foi adicionada.",
+      "rateLimited": "Já enviou várias sugestões. Tente novamente dentro de uma hora.",
+      "needNameOrLink": "Indique o nome do vendedor ou o link do Little Biggy.",
+      "badLink": "Isto não parece um link ou ID de vendedor do Little Biggy.",
+      "endpointMissing": "As sugestões não estão configuradas neste site.",
+      "networkError": "Não foi possível contactar o servidor. Tente novamente.",
+      "error": "Algo correu mal (HTTP {status}). Tente novamente."
+    },
     "products": "{count, plural, one {1 produto} other {# produtos}}",
     "rating": "Classificação",
     "visitStore": "Visitar loja",
@@ -843,10 +890,11 @@
       "metadataDescription": "Todos os vendedores Little Biggy com pontuações de confiança, número de avaliações e classificações da comunidade.",
       "title": "Vendedores Little Biggy",
       "activeSellers": "{count, plural, one {1 vendedor ativo no Little Biggy} other {# vendedores ativos no Little Biggy}}",
+      "submitSellerLink": "Sugerir um vendedor",
       "leaderboard": {
         "title": "Tabela de confiança",
         "allTime": "Todos os tempos",
-        "thisWeek": "Esta semana",
+        "thisWeek": "Últimos 14 dias",
         "topRated": "Mais Bem Classificados",
         "topRatedSubtitle": "Maior taxa de avaliações positivas",
         "useCaution": "A rever",
@@ -854,6 +902,12 @@
         "reviews": "Avaliações",
         "reviewCount": "{count, plural, one {1 avaliação} other {# avaliações}}",
         "negativeCount": "{count, plural, one {1 negativa} other {# negativas}}"
+      },
+      "ranking": {
+        "title": "Como os vendedores são classificados",
+        "scoring": "«Mais Bem Classificados» ordena os vendedores pela proporção de avaliações positivas (9 ou 10 em 10) entre as avaliações que o BiggyIndex registou para eles, e não pelo total que o Little Biggy mostra. Cada vendedor começa com 40 avaliações fictícias, 35 delas positivas, e usamos o extremo prudente de um intervalo de confiança de 95% (o limite inferior de Wilson), para que algumas avaliações perfeitas não ultrapassem centenas de boas. Notas de 6 a 8 contam para o total mas não como positivas; 5 ou menos contam como negativas.",
+        "caution": "«A rever» lista vendedores com pelo menos 30 avaliações e 2 negativas cuja proporção negativa é de 4% ou mais, ou cuja proporção positiva é de 85% ou menos, os piores primeiro; ficam fora de «Mais Bem Classificados». O separador «Últimos 14 dias» aplica as mesmas regras às avaliações dos últimos 14 dias (no máximo as 150 mais recentes de cada vendedor), com limiares de 10 avaliações e 5%. Só são classificados vendedores com anúncios ativos neste mercado, e os empates são decididos pela avaliação mais recente.",
+        "limits": "O prazo de entrega, a atualidade das avaliações, a antiguidade da conta e as recomendações ou denúncias da comunidade ainda não afetam a classificação. A fórmula é open source no <link>GitHub</link>, por isso qualquer pessoa a pode verificar ou propor uma melhor."
       },
       "allSellers": "Todos os Vendedores",
       "search": "Procurar...",
@@ -888,6 +942,8 @@
       "close": "Fechar",
       "zoomProfileImage": "Ampliar a imagem de perfil de {seller}",
       "onlineToday": "Online hoje",
+      "quiet": "Sem novas avaliações há {reviewDays} dias, sem alterações aos anúncios há {listingDays} dias",
+      "recentNegatives": "{negative} das últimas {total} avaliações com 5/10 ou menos",
       "lastSeen": "Visto pela última vez {time}",
       "joined": "Juntou-se {date}",
       "itemCount": "{count, plural, one {1 item} other {# itens}}",
@@ -946,6 +1002,13 @@
       "description": "Não conseguimos carregar a página do vendedor. Isto normalmente é temporário.",
       "retry": "Tentar novamente"
     }
+  },
+  "submitSeller": {
+    "metadataTitle": "Sugerir um vendedor Little Biggy | BiggyIndex",
+    "metadataDescription": "Conhece um vendedor do Little Biggy que não está no mural de artigos? Sugira-o para que os seus anúncios possam ser indexados no BiggyIndex.",
+    "heading": "Sugerir um vendedor",
+    "intro": "O Little Biggy mantém alguns vendedores fora do seu mural de artigos, normalmente lojas novas ou pequenas. Os seus anúncios nunca aparecem quando navega no Little Biggy, por isso o BiggyIndex não os consegue encontrar sozinho. Se conhecer algum, envie-o aqui. Depois de revistos, os seus anúncios entram no índice marcados como “Fora do mural” e ficam ocultos até ativar “Vendedores não listados” nos filtros.",
+    "flaggedIntro": "Os vendedores que o próprio Little Biggy assinala com um aviso, como “suspeita de fraude”, ficam à parte: têm a etiqueta “Assinalado pelo LB”, mostram o aviso do Little Biggy e só aparecem quando ativa “Assinalados pelo Little Biggy”."
   },
   "reviews": {
     "page": {
@@ -1332,6 +1395,7 @@
       "countLine": "{count, plural, one {1 anúncio de {category} indexado do Little Biggy} other {# anúncios de {category} indexados do Little Biggy}}",
       "subcategoriesLabel": "Tipos populares",
       "browseAllCta": "Ver todos os anúncios de {category} com filtros",
+      "filterCta": "Filtrar anúncios de {category}",
       "breadcrumbHome": "Início",
       "breadcrumbLabel": "Navegação estrutural",
       "priceNote": {

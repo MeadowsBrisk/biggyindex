@@ -8,6 +8,7 @@
 
 import { cacheLife, cacheTag } from "next/cache";
 import { loadItems } from "@/lib/data";
+import { withoutOffWall } from "@/lib/off-wall";
 import { median } from "@/lib/prices/stats";
 import type { Item } from "@/lib/types";
 
@@ -36,8 +37,9 @@ function medianAcrossSellers(perSeller: Map<string, number[]>): number | null {
 }
 
 export function computeIrelandOrderingFacts(
-  items: Item[],
+  allItems: Item[],
 ): IrelandOrderingFacts | null {
+  const items = withoutOffWall(allItems);
   if (items.length === 0) return null;
 
   const sellers = new Set<string>();

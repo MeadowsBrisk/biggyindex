@@ -30,6 +30,7 @@ import {
   ItemReviewsBlock,
 } from "@/components/ItemReviewsBlock";
 import { LinkedText } from "@/components/LinkedText";
+import { OffWallNotice } from "@/components/OffWall";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
@@ -331,6 +332,13 @@ export function ItemDetailOverlay() {
 
   // ── Effective item: atom (browse page) or merged detail (other pages) ──
   const displayItem: Item | null = item ?? mergedDetail;
+  const displaySeller =
+    displayItem?.sid != null ? sellersMap.get(String(displayItem.sid)) : null;
+  const offWall = displayItem?.ow
+    ? displayItem
+    : displaySeller?.ow
+      ? displaySeller
+      : null;
   const [clientNow, setClientNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -695,6 +703,12 @@ export function ItemDetailOverlay() {
                             </button>
                           );
                         })()}
+
+                      {offWall?.ow && (
+                        <div className="text-xs text-muted">
+                          <OffWallNotice ow={offWall.ow} owr={offWall.owr} />
+                        </div>
+                      )}
                     </div>
 
                     {/* Sticky scroll-spy tabs (direct child of scroll container) */}

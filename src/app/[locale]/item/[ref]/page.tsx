@@ -20,6 +20,7 @@ import {
   ItemReviewsBlock,
 } from "@/components/ItemReviewsBlock";
 import { LocalizedText } from "@/components/LocalizedText";
+import { OffWallNotice } from "@/components/OffWall";
 import { OutboundLink } from "@/components/OutboundLink";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { ShowOriginalToggle } from "@/components/ShowOriginalToggle";
@@ -888,6 +889,12 @@ export default async function ItemPage({ params }: ItemPageProps) {
                         {t("shipsFrom", { country: item.sf })}
                       </span>
                     )}
+                  </div>
+                )}
+
+                {item.ow && (
+                  <div className="text-xs text-muted">
+                    <OffWallNotice ow={item.ow} owr={item.owr} />
                   </div>
                 )}
               </div>

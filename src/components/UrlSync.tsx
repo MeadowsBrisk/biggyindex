@@ -6,7 +6,7 @@
  * URL params:
  *   sort=hottest  dir=asc  q=flower  cat=Flower  sub=Kush
  *   Default sort is hottest desc; explicit sort params override it.
- *   sellers=4772053  pmin=20  pmax=200
+ *   sellers=4772053  xsellers=4772053  pmin=20  pmax=200  ow=u,f
  */
 
 import { useAtom, useAtomValue } from "jotai";
@@ -22,9 +22,10 @@ import {
   deferredSearchQueryAtom,
   expandedRefNumAtom,
   isLoadingAtom,
+  offWallAtom,
   priceRangeAtom,
   searchQueryAtom,
-  selectedSellersAtom,
+  sellerSelectionAtom,
   sortDirAtom,
   sortKeyAtom,
   subcategoryAtom,
@@ -46,8 +47,9 @@ export function UrlSync() {
   const [, setDeferredSearch] = useAtom(deferredSearchQueryAtom);
   const [category, setCategory] = useAtom(categoryAtom);
   const [subcategory, setSubcategory] = useAtom(subcategoryAtom);
-  const [sellers, setSellers] = useAtom(selectedSellersAtom);
+  const [sellerSelection, setSellerSelection] = useAtom(sellerSelectionAtom);
   const [priceRange, setPriceRange] = useAtom(priceRangeAtom);
+  const [offWall, setOffWall] = useAtom(offWallAtom);
   const expandedRefNum = useAtomValue(expandedRefNumAtom);
 
   const hydratedRef = useRef(false);
@@ -68,8 +70,21 @@ export function UrlSync() {
     }
     if (parsed.category != null) setCategory(parsed.category);
     if (parsed.subcategories) setSubcategory(parsed.subcategories);
-    if (parsed.sellers) setSellers(parsed.sellers);
+    if (parsed.sellers) {
+      setSellerSelection({
+        selected: parsed.sellers,
+        excluded: [],
+        all: false,
+      });
+    } else if (parsed.excludedSellers) {
+      setSellerSelection({
+        selected: [],
+        excluded: parsed.excludedSellers,
+        all: true,
+      });
+    }
     if (parsed.priceRange) setPriceRange(parsed.priceRange);
+    if (parsed.offWall) setOffWall(parsed.offWall);
 
     hydratedRef.current = true;
     setUrlSyncDone(true);
@@ -86,8 +101,9 @@ export function UrlSync() {
     setDeferredSearch,
     setCategory,
     setSubcategory,
-    setSellers,
+    setSellerSelection,
     setPriceRange,
+    setOffWall,
     setUrlSyncDone,
   ]);
 
@@ -104,8 +120,10 @@ export function UrlSync() {
         search,
         category,
         subcategories: subcategory,
-        sellers,
+        sellers: sellerSelection.selected,
+        excludedSellers: sellerSelection.excluded,
         priceRange,
+        offWall,
       }),
     );
   }, [
@@ -114,8 +132,9 @@ export function UrlSync() {
     search,
     category,
     subcategory,
-    sellers,
+    sellerSelection,
     priceRange,
+    offWall,
     expandedRefNum,
     setUrlState,
   ]);

@@ -16,7 +16,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
+import {
+  EMPTY_SELLER_SELECTION,
+  hasSellerSelection,
+  isSellerTicked,
+  sortSellersByRating,
+  tickSellers,
+  toggleSellerTick,
+} from "@/lib/browse/filter-engine";
 import { CATEGORIES } from "@/lib/constants";
+import { type OffWallKind, toOffWallKinds } from "@/lib/off-wall";
 import { shipFromLabel } from "@/lib/shipFrom";
 import {
   activeFiltersCountAtom,
@@ -33,8 +42,10 @@ import {
   excludedSubcategoriesAtom,
   filteredSellersAtom,
   freeShippingOnlyAtom,
+  hasOffWallItemsAtom,
   hiddenSellersAtom,
   includeShippingAtom,
+  offWallAtom,
   pinnedSellersAtom,
   pinnedShipFromAtom,
   searchQueryAtom,
@@ -42,6 +53,8 @@ import {
   selectedSellersAtom,
   selectedShipFromAtom,
   selectedWeightsAtom,
+  sellerSelectionAtom,
+  sellersMapAtom,
   subcategoryAtom,
   toggleHiddenSellerAtom,
 } from "@/store/atoms";
@@ -136,6 +149,8 @@ export function FilterPanelContent({
   const allSellers = useAtomValue(availableSellersAtom);
   const filteredSellers = useAtomValue(filteredSellersAtom);
   const [selectedSellers, setSelectedSellers] = useAtom(selectedSellersAtom);
+  const [sellerSelection, setSellerSelection] = useAtom(sellerSelectionAtom);
+  const sellersMap = useAtomValue(sellersMapAtom);
   const hiddenSellers = useAtomValue(hiddenSellersAtom);
   const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
   const [attrFilters, setAttrFilters] = useAtom(attrFiltersAtom);
@@ -144,6 +159,8 @@ export function FilterPanelContent({
   const [shipExclude, setShipExclude] = useAtom(excludedShipFromAtom);
   const [freeShippingOnly, setFreeShippingOnly] = useAtom(freeShippingOnlyAtom);
   const [includeShipping, setIncludeShipping] = useAtom(includeShippingAtom);
+  const [offWall, setOffWall] = useAtom(offWallAtom);
+  const hasOffWallItems = useAtomValue(hasOffWallItemsAtom);
   const weightOptions = useAtomValue(availableWeightsAtom);
   const [selectedWeights, setSelectedWeights] = useAtom(selectedWeightsAtom);
   const [pinnedSellers, setPinnedSellers] = useAtom(pinnedSellersAtom);
@@ -156,7 +173,7 @@ export function FilterPanelContent({
 
   const [sellerQuery, setSellerQuery] = useState("");
   const [showAllSellers, setShowAllSellers] = useState(false);
-  const [sellerSort, setSellerSort] = useState<"alpha" | "count">("alpha");
+  const [sellerSort, setSellerSort] = useState<"alpha" | "rating">("alpha");
   const sellerSearchInputRef = useRef<HTMLInputElement>(null);
   const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
 
@@ -169,8 +186,8 @@ export function FilterPanelContent({
     if (sellerSort === "alpha") {
       return [...base].sort((a, b) => a.name.localeCompare(b.name));
     }
-    return base;
-  }, [filteredSellers, hiddenSet, sellerSort]);
+    return sortSellersByRating(base, sellersMap);
+  }, [filteredSellers, hiddenSet, sellerSort, sellersMap]);
 
   const querySellers = useMemo(() => {
     const query = sellerQuery.toLowerCase().trim();
@@ -233,15 +250,31 @@ export function FilterPanelContent({
 
   const toggleSeller = useCallback(
     (id: string) => {
-      setSelectedSellers((prev) =>
-        prev.includes(id)
-          ? prev.filter((sellerId) => sellerId !== id)
-          : [...prev, id],
-      );
+      setSellerSelection(toggleSellerTick(sellerSelection, id));
       scrollResultsToTop();
     },
-    [setSelectedSellers],
+    [sellerSelection, setSellerSelection],
   );
+
+  const allListedTicked = querySellers.every((seller) =>
+    isSellerTicked(sellerSelection, seller.id),
+  );
+
+  const selectAllSellers = useCallback(() => {
+    setSellerSelection(
+      tickSellers(
+        sellerSelection,
+        querySellers.map((seller) => seller.id),
+        !sellerQuery.trim(),
+      ),
+    );
+    scrollResultsToTop();
+  }, [sellerSelection, setSellerSelection, querySellers, sellerQuery]);
+
+  const clearSellers = useCallback(() => {
+    setSellerSelection(EMPTY_SELLER_SELECTION);
+    scrollResultsToTop();
+  }, [setSellerSelection]);
 
   const clearSellerQuery = useCallback(() => {
     setSellerQuery("");
@@ -271,6 +304,20 @@ export function FilterPanelContent({
       scrollResultsToTop();
     },
     [shipInclude, shipExclude, setShipInclude, setShipExclude],
+  );
+
+  const toggleOffWall = useCallback(
+    (kind: OffWallKind) => {
+      setOffWall((prev) =>
+        toOffWallKinds(
+          prev.includes(kind)
+            ? prev.filter((entry) => entry !== kind)
+            : [...prev, kind],
+        ),
+      );
+      scrollResultsToTop();
+    },
+    [setOffWall],
   );
 
   const toggleWeight = useCallback(
@@ -480,7 +527,8 @@ export function FilterPanelContent({
             shipInclude.length +
             shipExclude.length +
             (freeShippingOnly ? 1 : 0) +
-            (includeShipping ? 1 : 0)
+            (includeShipping ? 1 : 0) +
+            offWall.length
           }
           trailing={
             shipFromOptions.length > 0 ? (
@@ -573,6 +621,28 @@ export function FilterPanelContent({
               </div>
             </>
           )}
+
+          {(hasOffWallItems || offWall.length > 0) && (
+            <div className="mt-3">
+              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+                {t("offWall.heading")}
+              </div>
+              <div className="flex flex-col gap-2">
+                <ShippingSwitch
+                  label={t("offWall.unlisted")}
+                  title={t("offWall.unlistedHelp")}
+                  checked={offWall.includes("u")}
+                  onChange={() => toggleOffWall("u")}
+                />
+                <ShippingSwitch
+                  label={t("offWall.flagged")}
+                  title={t("offWall.flaggedHelp")}
+                  checked={offWall.includes("f")}
+                  onChange={() => toggleOffWall("f")}
+                />
+              </div>
+            </div>
+          )}
         </Section>
 
         {weightOptions.length > 0 && (
@@ -611,7 +681,9 @@ export function FilterPanelContent({
         {visibleSellers.length > 0 && (
           <Section
             title={t("sections.sellers")}
-            activeCount={selectedSellers.length}
+            activeCount={
+              sellerSelection.selected.length + sellerSelection.excluded.length
+            }
             trailing={
               <button
                 type="button"
@@ -663,19 +735,68 @@ export function FilterPanelContent({
                 type="button"
                 onClick={() =>
                   setSellerSort((value) =>
-                    value === "alpha" ? "count" : "alpha",
+                    value === "alpha" ? "rating" : "alpha",
                   )
                 }
                 title={
                   sellerSort === "alpha"
                     ? t("sellerSortAlpha")
-                    : t("sellerSortCount")
+                    : t("sellerSortRating")
                 }
                 className="shrink-0 rounded-md border border-border bg-surface px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
               >
-                {sellerSort === "alpha" ? "A-Z" : "No."}
+                {sellerSort === "alpha" ? "A-Z" : t("sellerSortRatingLabel")}
               </button>
             </div>
+
+            <div className="mb-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={selectAllSellers}
+                disabled={querySellers.length === 0 || allListedTicked}
+                title={
+                  sellerQuery.trim()
+                    ? t("sellersSelectAllMatchingTitle")
+                    : t("sellersSelectAllTitle")
+                }
+                className="rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted enabled:hover:text-foreground transition-colors cursor-pointer disabled:cursor-default disabled:opacity-60"
+              >
+                {t("sellersSelectAll")}
+              </button>
+              <button
+                type="button"
+                onClick={clearSellers}
+                disabled={!hasSellerSelection(sellerSelection)}
+                title={t("sellersClearTitle")}
+                className="rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted enabled:hover:text-foreground transition-colors cursor-pointer disabled:cursor-default disabled:opacity-60"
+              >
+                {t("sellersClear")}
+              </button>
+            </div>
+
+            {sellerSelection.excluded.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {sellerSelection.excluded.map((id) => {
+                  const seller =
+                    visibleSellers.find((entry) => entry.id === id) ??
+                    allSellers.find((entry) => entry.id === id);
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => toggleSeller(id)}
+                      className="inline-flex items-center gap-1 rounded-md bg-red-500/20 px-2 py-0.5 text-[11px] text-red-400 line-through cursor-pointer"
+                      title={t("selectSeller", { seller: seller?.name ?? id })}
+                    >
+                      <span className="truncate max-w-24">
+                        {seller?.name ?? `#${id}`}
+                      </span>
+                      <X size={10} className="shrink-0 opacity-60" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {selectedSellers.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
@@ -711,7 +832,10 @@ export function FilterPanelContent({
               >
                 <div className="grid grid-cols-2">
                   {sellerRows.map((seller, index) => {
-                    const isSelected = selectedSellers.includes(seller.id);
+                    const isSelected = isSellerTicked(
+                      sellerSelection,
+                      seller.id,
+                    );
                     const isRightCol = index % 2 === 1;
                     const rowsCount = Math.ceil(sellerRows.length / 2);
                     const isLastRow = Math.floor(index / 2) === rowsCount - 1;
@@ -751,7 +875,7 @@ export function FilterPanelContent({
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
-                            if (isSelected) {
+                            if (isSelected && !sellerSelection.all) {
                               setSelectedSellers((prev) =>
                                 prev.filter((id) => id !== seller.id),
                               );
@@ -810,10 +934,12 @@ export function FilterPanelContent({
  */
 function ShippingSwitch({
   label,
+  title,
   checked,
   onChange,
 }: {
   label: string;
+  title?: string;
   checked: boolean;
   onChange: () => void;
 }) {
@@ -822,6 +948,7 @@ function ShippingSwitch({
       type="button"
       role="switch"
       aria-checked={checked}
+      title={title}
       onClick={onChange}
       className="group flex w-full items-center justify-between gap-2 rounded-md px-1 py-1 text-xs font-medium cursor-pointer transition-colors text-muted hover:text-foreground"
     >

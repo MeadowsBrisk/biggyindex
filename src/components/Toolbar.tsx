@@ -21,8 +21,8 @@ import { DEFAULT_SORT_DIR, DEFAULT_SORT_KEY } from "@/lib/urlFilters";
 import {
   activeBookmarksCountAtom,
   bookmarksOnlyAtom,
+  browsableItemsCountAtom,
   filteredItemsAtom,
-  itemsAtom,
   randomSeedAtom,
   sortDirAtom,
   sortKeyAtom,
@@ -156,12 +156,12 @@ function ResultCount({ initialCount }: { initialCount?: number }) {
   // mismatches on non-English markets since the count is server-rendered.
   const locale = useLocale();
   const filtered = useAtomValue(filteredItemsAtom);
-  const total = useAtomValue(itemsAtom);
-  const isFiltered = filtered.length !== total.length;
+  const total = useAtomValue(browsableItemsCountAtom);
+  const isFiltered = filtered.length !== total;
 
   // Server-rendered fallback: the store is empty during SSR/hydration, so
   // fall back to the server-known total until items land client-side.
-  const totalCount = total.length > 0 ? total.length : (initialCount ?? 0);
+  const totalCount = total > 0 ? total : (initialCount ?? 0);
 
   // Distinct sellers among the currently-visible (filtered) items. Derive
   // from the visible set rather than the seller-facet atom so the count stays

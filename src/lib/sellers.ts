@@ -1,9 +1,10 @@
 /** Shared seller-count rules. */
 
+import { isOffWall } from "./off-wall";
 import type { Seller } from "./types";
 
 /**
- * "Active" = the seller has at least one live listing in this market.
+ * "Active" = an on-wall seller with at least one live listing in this market.
  *
  * The home page hero and the /sellers header both quote an active-seller
  * count. They read the same per-market `sellers.json`, but each used to apply
@@ -15,7 +16,7 @@ import type { Seller } from "./types";
  * seller who has emptied their store or stopped shipping here drops out.
  */
 export function isActiveSeller(seller: Seller): boolean {
-  return (seller.itemsCount ?? 0) > 0;
+  return (seller.itemsCount ?? 0) > 0 && !isOffWall(seller);
 }
 
 /** Number of sellers with at least one live listing in this market. */

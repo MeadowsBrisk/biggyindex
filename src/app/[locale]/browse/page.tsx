@@ -16,13 +16,16 @@ import { Toolbar } from "@/components/Toolbar";
 import {
   browseDataVersion,
   loadItems,
+  loadSellerReviewStamps,
   loadSellers,
   loadVariantWidths,
 } from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import { getServerCurrency } from "@/lib/market/currency";
 import { localeToMarket, marketCurrencySymbol } from "@/lib/market/market";
+import { withoutOffWall } from "@/lib/off-wall";
 import { buildSeedItems } from "@/lib/seed";
+import { EMPTY_REVIEW_STAMPS, withQuietSellers } from "@/lib/seller-activity";
 import { serializeJsonLd } from "@/lib/seo/jsonld";
 import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
 
@@ -36,7 +39,7 @@ async function browseItemCount(mkt: string): Promise<number> {
   cacheLife("items");
   cacheTag("items");
   const items = await loadItems(mkt);
-  return items.length;
+  return withoutOffWall(items).length;
 }
 
 /** Round down to a stable "N+" figure so the title doesn't churn per crawl. */
@@ -81,22 +84,34 @@ export default async function BrowsePage({
   const cSym = marketCurrencySymbol(market);
   const t = await getTranslations({ locale, namespace: "browse.page" });
 
-  const [itemList, sellerList, currency, tCategories, tCard, variantWidths] =
-    await Promise.all([
-      loadItems(mkt),
-      loadSellers(mkt),
-      // Server-side USD→native conversion for real seed prices (same upstream
-      // as the client's exchange-rate atoms). Falls back to "$"/USD on failure —
-      // never a wrong symbol on an unconverted number.
-      getServerCurrency(market),
-      getTranslations({ locale, namespace: "categories" }),
-      // Same namespace the live card reads, so the seed's sold-out label is
-      // the identical string.
-      getTranslations({ locale, namespace: "browse.card" }),
-      // Global hash → variant-widths lookup for the seed cards' responsive
-      // srcset (live cards get theirs from /api/browse's `vw` field instead).
-      loadVariantWidths(),
-    ]);
+  const [
+    itemList,
+    rawSellerList,
+    reviewStamps,
+    currency,
+    tCategories,
+    tCard,
+    variantWidths,
+  ] = await Promise.all([
+    loadItems(mkt),
+    loadSellers(mkt),
+    // The quiet-seller badge is supplementary: a failed read drops it rather than the page.
+    loadSellerReviewStamps(mkt).catch(() => EMPTY_REVIEW_STAMPS),
+    // Server-side USD→native conversion for real seed prices (same upstream
+    // as the client's exchange-rate atoms). Falls back to "$"/USD on failure —
+    // never a wrong symbol on an unconverted number.
+    getServerCurrency(market),
+    getTranslations({ locale, namespace: "categories" }),
+    // Same namespace the live card reads, so the seed's sold-out label is
+    // the identical string.
+    getTranslations({ locale, namespace: "browse.card" }),
+    // Global hash → variant-widths lookup for the seed cards' responsive
+    // srcset (live cards get theirs from /api/browse's `vw` field instead).
+    loadVariantWidths(),
+  ]);
+
+  const sellerList = withQuietSellers(rawSellerList, itemList, reviewStamps);
+  const wallItems = withoutOffWall(itemList);
 
   // Translate the seed category pill to the display locale, matching the live
   // CardPill. Unknown keys (shouldn't happen — crawler emits the 10 canonical
@@ -125,7 +140,7 @@ export default async function BrowsePage({
 
   // ItemList structured data: top 50 by hotness — mirrors the grid's
   // default "hottest" sort. Names + absolute URLs only (lean payload).
-  const topByHotness = [...itemList]
+  const topByHotness = [...wallItems]
     .sort((a, b) => Number(b.h ?? 0) - Number(a.h ?? 0))
     .slice(0, 50);
   const itemListJsonLd = {
@@ -162,7 +177,7 @@ export default async function BrowsePage({
       </Suspense>
 
       <SiteHeader />
-      <Toolbar initialCount={itemList.length} />
+      <Toolbar initialCount={wallItems.length} />
 
       {/* Horizontal gutters only — vertical padding is dropped so the sidebar's
           right border runs flush into the toolbar. */}
@@ -180,7 +195,7 @@ export default async function BrowsePage({
               reads as tappable; on desktop it is the gap from the sidebar. */}
           <div className="flex-1 min-w-0 py-4 pl-4">
             <ActiveFilterBar />
-            <MobileResultCount initialCount={itemList.length} />
+            <MobileResultCount initialCount={wallItems.length} />
             <ItemGrid seedItems={seedItems} />
           </div>
         </div>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { LinkedText } from "@/components/LinkedText";
+import { OffWallNotice } from "@/components/OffWall";
 import { OutboundLink } from "@/components/OutboundLink";
 import { type Review, ReviewCard } from "@/components/ReviewCard";
 import { SellerAvatarTooltip } from "@/components/SellerAvatarTooltip";
@@ -19,7 +20,14 @@ import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
 import { type MarketCode, marketToLocale } from "@/lib/market/market";
-import type { Item, Seller, SellerDetail, SellerReview } from "@/lib/types";
+import { sellerBrowseHref } from "@/lib/off-wall";
+import type {
+  Item,
+  Seller,
+  SellerDetail,
+  SellerNegativeReviews,
+  SellerReview,
+} from "@/lib/types";
 import { forceEnglishAtom } from "@/store/atoms";
 
 const ImageZoomPreview = lazy(() => import("@/components/ImageZoomPreview"));
@@ -31,6 +39,7 @@ interface SellerPageClientProps {
   itemTotal: number;
   market: MarketCode;
   sellerId: string;
+  negativeReviews: SellerNegativeReviews | null;
 }
 
 function ratingBucketClass(rating: number): string {
@@ -128,6 +137,7 @@ export function SellerPageClient({
   itemTotal,
   market,
   sellerId,
+  negativeReviews,
 }: SellerPageClientProps) {
   const t = useTranslations("seller.modal");
   const pageT = useTranslations("seller.detail");
@@ -144,6 +154,8 @@ export function SellerPageClient({
   const image = getSellerImageUrl(rawImage) ?? undefined;
   const zoomImage = getSellerImageUrl(rawImage, "full") ?? image;
   const online = detail.sellerOnline ?? detail.online ?? seller.online ?? null;
+  const offWall = seller.ow ? seller : (items.find((item) => item.ow) ?? null);
+  const browseHref = sellerBrowseHref(sellerId, offWall);
   const reviews = useMemo(() => cleanReviews(detail.reviews), [detail.reviews]);
   const shareLink = detail.share || detail.sellerUrl || null;
   const targetLocale = marketToLocale(market);
@@ -274,6 +286,33 @@ export function SellerPageClient({
                             {t("joined", { date: detail.sellerJoined })}
                           </span>
                         )}
+                        {seller.quiet && (
+                          <span className="inline-flex items-center gap-1">
+                            <Circle
+                              size={7}
+                              className="fill-current text-yellow-500"
+                            />
+                            {t("quiet", {
+                              reviewDays: seller.quiet.reviewDays,
+                              listingDays: seller.quiet.listingDays,
+                            })}
+                          </span>
+                        )}
+                        {negativeReviews && (
+                          <span className="inline-flex items-center gap-1">
+                            <Circle
+                              size={7}
+                              className="fill-current text-yellow-500"
+                            />
+                            {t("recentNegatives", {
+                              negative: negativeReviews.negative,
+                              total: negativeReviews.total,
+                            })}
+                          </span>
+                        )}
+                        {offWall && (
+                          <OffWallNotice ow={offWall.ow} owr={offWall.owr} />
+                        )}
                       </div>
                     </div>
                     {translatedManifesto && (
@@ -283,7 +322,7 @@ export function SellerPageClient({
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
                     <Link
-                      href={`/browse?sellers=${encodeURIComponent(sellerId)}`}
+                      href={browseHref}
                       prefetch={false}
                       className="hover:text-primary"
                     >
@@ -364,7 +403,7 @@ export function SellerPageClient({
                   </p>
                 </div>
                 <Link
-                  href={`/browse?sellers=${encodeURIComponent(sellerId)}`}
+                  href={browseHref}
                   prefetch={false}
                   className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-primary/40 hover:text-primary"
                 >

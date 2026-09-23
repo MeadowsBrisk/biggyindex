@@ -84,6 +84,7 @@
     "communityCopy": "Join the conversation. Share experiences, ask questions, or check seller reputations.",
     "statusLink": "Little Biggy status",
     "pricesLink": "Cannabis prices",
+    "submitSellerLink": "Submit a seller",
     "about": "About",
     "privacy": "Privacy",
     "terms": "Terms",
@@ -556,8 +557,10 @@
       "subcategory": "Subcategory",
       "subcategoryNot": "Excluding",
       "sellers": "Sellers",
+      "sellersNot": "Excluded sellers",
       "shipFrom": "From",
       "shipNot": "Not from",
+      "offWall": "Off-wall",
       "weight": "Weight",
       "price": "Price"
     },
@@ -595,13 +598,26 @@
       },
       "shipFromHelp": "Click: include. Right-click: exclude",
       "shippingFrom": "From",
+      "offWall": {
+        "heading": "Off-wall sellers",
+        "unlisted": "Unlisted sellers",
+        "flagged": "Flagged by Little Biggy",
+        "unlistedHelp": "New or small sellers Little Biggy keeps off its items wall, added from community submissions",
+        "flaggedHelp": "Sellers Little Biggy shows a warning banner on, such as suspected fraud"
+      },
       "freeShippingOnly": "Free shipping only",
       "addShippingToPrices": "Add shipping to prices",
       "subcategoryExcludeHint": "Click: include. Right-click: exclude",
       "subcategoryExcludeRemove": "Right-click to remove exclusion",
       "searchSellers": "Search sellers...",
-      "sellerSortAlpha": "Sorted A-Z - click for most items first",
-      "sellerSortCount": "Sorted by item count - click for A-Z",
+      "sellerSortAlpha": "Sorted A-Z - click for highest rated first",
+      "sellerSortRating": "Sorted by rating - click for A-Z",
+      "sellerSortRatingLabel": "Rating",
+      "sellersSelectAll": "Select all",
+      "sellersSelectAllTitle": "Tick every seller - then untick any you want to leave out",
+      "sellersSelectAllMatchingTitle": "Tick every seller matching your search",
+      "sellersClear": "Clear",
+      "sellersClearTitle": "Clear the seller filter (hidden sellers stay hidden)",
       "removeSeller": "Remove {seller}",
       "selectSeller": "Select {seller}",
       "unselectSeller": "Unselect {seller}",
@@ -632,6 +648,8 @@
       "onlineToday": "Online today",
       "freeShipping": "Free shipping",
       "endorsed": "{count, plural, one {1 endorsed} other {# endorsed}}",
+      "quietBadge": "No reviews in {days}d",
+      "quietTitle": "No new reviews in {reviewDays} days and no listing changes in {listingDays} days",
       "shipsFrom": "Ships from",
       "shipsFromAria": "Ships from {country}",
       "deliveryDays": "~{count}d delivery",
@@ -827,6 +845,35 @@
     }
   },
   "seller": {
+    "offWall": {
+      "badgeUnlisted": "Off-wall",
+      "badgeFlagged": "Flagged by LB",
+      "unlistedNotice": "This seller is not on Little Biggy's items wall and was added from a community submission.",
+      "flaggedNotice": "Little Biggy marks this seller: {reason}",
+      "flaggedNoticeGeneric": "Little Biggy shows a warning banner on this seller.",
+      "reasons": {
+        "fraud": "fraud suspected"
+      }
+    },
+    "submit": {
+      "nameLabel": "Seller name",
+      "namePlaceholder": "As shown on Little Biggy",
+      "linkLabel": "Little Biggy seller link or ID",
+      "linkHint": "Paste the seller's profile link, or just the number at the end of it.",
+      "noteLabel": "Note",
+      "notePlaceholder": "Anything that helps us find or check this seller",
+      "optional": "optional",
+      "submit": "Submit seller",
+      "submitting": "Submitting…",
+      "success": "Thanks, the seller has been submitted for review.",
+      "duplicate": "Thanks, this seller is already waiting for review. Your submission was added to it.",
+      "rateLimited": "You've sent a few submissions already. Please try again in an hour.",
+      "needNameOrLink": "Enter the seller's name or their Little Biggy link.",
+      "badLink": "That doesn't look like a Little Biggy seller link or ID.",
+      "endpointMissing": "Submissions are not configured on this site.",
+      "networkError": "Could not reach the server. Please try again.",
+      "error": "Something went wrong (HTTP {status}). Please try again."
+    },
     "products": "{count, plural, one {1 product} other {# products}}",
     "rating": "Rating",
     "visitStore": "Visit store",
@@ -843,10 +890,11 @@
       "metadataDescription": "Compare Little Biggy sellers with trust scores, review counts, and community ratings — all littlebiggy vendors ranked in one index.",
       "title": "Little Biggy Sellers",
       "activeSellers": "{count, plural, one {1 active seller on Little Biggy} other {# active sellers on Little Biggy}}",
+      "submitSellerLink": "Submit a seller",
       "leaderboard": {
         "title": "Trust Leaderboard",
         "allTime": "All time",
-        "thisWeek": "This week",
+        "thisWeek": "Last 14 days",
         "topRated": "Top Rated",
         "topRatedSubtitle": "Highest positive-review ratio",
         "useCaution": "Needs Review",
@@ -854,6 +902,12 @@
         "reviews": "Reviews",
         "reviewCount": "{count, plural, one {1 review} other {# reviews}}",
         "negativeCount": "{count, plural, one {1 negative} other {# negative}}"
+      },
+      "ranking": {
+        "title": "How sellers are ranked",
+        "scoring": "Top Rated ranks sellers by their share of positive reviews (9 or 10 out of 10) among the reviews BiggyIndex has recorded for them, not the lifetime total Little Biggy shows. Every seller starts with 40 imaginary reviews, 35 of them positive, and we use the cautious end of a 95% confidence range (the Wilson lower bound), so a few perfect reviews can’t outrank hundreds of good ones. Ratings of 6–8 count towards the total but not as positive, and 5 or below count as negative.",
+        "caution": "Needs Review lists sellers with at least 30 reviews and 2 negatives whose negative share is 4% or more, or whose positive share is 85% or less, worst first; they are kept out of Top Rated. The “Last 14 days” tab applies the same rules to reviews from the last 14 days (at most each seller’s latest 150), with thresholds of 10 reviews and 5%. Only sellers with live listings in this market are ranked, and ties go to the most recent review.",
+        "limits": "Delivery time, review recency, account age and community endorsements or reports don’t affect the ranking yet. The formula is open source on <link>GitHub</link>, so anyone can check it or suggest a better one."
       },
       "allSellers": "All Sellers",
       "search": "Search...",
@@ -888,6 +942,8 @@
       "close": "Close",
       "zoomProfileImage": "Zoom {seller}'s profile image",
       "onlineToday": "Online today",
+      "quiet": "No new reviews in {reviewDays} days, no listing changes in {listingDays} days",
+      "recentNegatives": "{negative} of the last {total} reviews rated 5/10 or lower",
       "lastSeen": "Last seen {time}",
       "joined": "Joined {date}",
       "itemCount": "{count, plural, one {1 item} other {# items}}",
@@ -946,6 +1002,13 @@
       "description": "We couldn't load the sellers page. This is usually temporary.",
       "retry": "Retry"
     }
+  },
+  "submitSeller": {
+    "metadataTitle": "Submit a Little Biggy seller | BiggyIndex",
+    "metadataDescription": "Know a Little Biggy seller that isn't on the items wall? Submit them so their listings can be indexed on BiggyIndex.",
+    "heading": "Submit a seller",
+    "intro": "Little Biggy keeps some sellers off its items wall, usually new or small shops. Their listings never appear when you browse Little Biggy, so BiggyIndex can't find them on its own. If you know one, send it here. Once reviewed, their listings join the index marked “Off-wall” and stay hidden until you switch on “Unlisted sellers” in the filters.",
+    "flaggedIntro": "Sellers that Little Biggy itself marks with a warning banner, such as “fraud suspected”, are kept separate: they are labelled “Flagged by LB”, carry Little Biggy's warning, and only show when you switch on “Flagged by Little Biggy”."
   },
   "reviews": {
     "page": {
@@ -1332,6 +1395,7 @@
       "countLine": "{count, plural, one {1 {category} listing indexed from Little Biggy} other {# {category} listings indexed from Little Biggy}}",
       "subcategoriesLabel": "Popular types",
       "browseAllCta": "Browse all {category} listings with filters",
+      "filterCta": "Filter {category} listings",
       "breadcrumbHome": "Home",
       "breadcrumbLabel": "Breadcrumb",
       "priceNote": {

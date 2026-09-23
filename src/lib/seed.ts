@@ -1,5 +1,6 @@
 import { isSoldOut } from "./browse/item-index";
 import { getItemPrimaryHash, isItemPrimaryAnimated } from "./images";
+import { withoutOffWall } from "./off-wall";
 import type { Item } from "./types";
 
 /** Display currency context used to pre-format seed prices server-side. */
@@ -117,7 +118,7 @@ export function buildSeedItems(
     soldOutLabel,
   } = opts;
   const { symbol, rate } = currency;
-  return [...items]
+  return withoutOffWall(items)
     .sort((a, b) => (b.h ?? 0) - (a.h ?? 0))
     .slice(0, count)
     .map((item) => {

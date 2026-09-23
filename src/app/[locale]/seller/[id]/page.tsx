@@ -5,7 +5,12 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { loadItems, loadSellerDetail, loadSellers } from "@/lib/data";
+import {
+  loadItems,
+  loadSellerDetail,
+  loadSellerReviewStamps,
+  loadSellers,
+} from "@/lib/data";
 import { decodeEntities } from "@/lib/format";
 import {
   ALL_MARKETS,
@@ -13,9 +18,20 @@ import {
   type MarketCode,
   marketToHost,
 } from "@/lib/market/market";
+import {
+  EMPTY_REVIEW_STAMPS,
+  recentNegativeReviews,
+  type SellerReviewStamps,
+  withQuietSellers,
+} from "@/lib/seller-activity";
 import { serializeJsonLd } from "@/lib/seo/jsonld";
 import { absoluteUrl, pageMetadata } from "@/lib/seo/metadata";
-import type { Item, Seller, SellerDetail } from "@/lib/types";
+import type {
+  Item,
+  Seller,
+  SellerDetail,
+  SellerNegativeReviews,
+} from "@/lib/types";
 import { SellerPageClient } from "./SellerPageClient";
 
 interface SellerPageProps {
@@ -30,6 +46,7 @@ interface SellerPageData {
   items: Item[];
   itemTotal: number;
   sellerMarkets: MarketCode[];
+  negativeReviews: SellerNegativeReviews | null;
 }
 
 type Translator = Awaited<ReturnType<typeof getTranslations>>;
@@ -163,6 +180,14 @@ async function sellerMarketPresence(): Promise<Record<string, MarketCode[]>> {
   return presence;
 }
 
+// Read once per market for all seller pages, like sellerMarketPresence.
+async function sellerReviewStamps(market: string): Promise<SellerReviewStamps> {
+  "use cache";
+  cacheLife("sellers");
+  cacheTag("sellers");
+  return loadSellerReviewStamps(market).catch(() => EMPTY_REVIEW_STAMPS);
+}
+
 async function getSellerPageData(
   locale: string,
   sellerId: string,
@@ -174,17 +199,20 @@ async function getSellerPageData(
   const market = localeToMarket(locale);
   const currentMarket = market.toLowerCase();
 
-  const [presence, currentSellers, detail, marketItems] = await Promise.all([
-    sellerMarketPresence(),
-    loadSellers(currentMarket),
-    loadSellerDetail(sellerId),
-    loadItems(currentMarket),
-  ]);
+  const [presence, currentSellers, detail, marketItems, reviewStamps] =
+    await Promise.all([
+      sellerMarketPresence(),
+      loadSellers(currentMarket),
+      loadSellerDetail(sellerId),
+      loadItems(currentMarket),
+      sellerReviewStamps(currentMarket),
+    ]);
 
-  const seller = currentSellers.find((entry) =>
+  const listedSeller = currentSellers.find((entry) =>
     sameSellerId(entry.id, sellerId),
   );
-  if (!seller) return null;
+  if (!listedSeller) return null;
+  const [seller] = withQuietSellers([listedSeller], marketItems, reviewStamps);
 
   // The current market is authoritative for itself; ALL_MARKETS order sets x-default.
   const presenceMarkets = presence[sellerId] ?? [];
@@ -198,14 +226,17 @@ async function getSellerPageData(
     marketItems.filter((item) => sameSellerId(item.sid, sellerId)),
   );
 
+  const normalizedDetail = normalizeSellerDetail(sellerId, seller, detail);
+
   return {
     sellerId,
     market,
     seller,
-    detail: normalizeSellerDetail(sellerId, seller, detail),
+    detail: normalizedDetail,
     items: sellerItems.slice(0, SELLER_ITEM_LIMIT),
     itemTotal: sellerItems.length,
     sellerMarkets,
+    negativeReviews: recentNegativeReviews(normalizedDetail.reviews),
   };
 }
 
@@ -456,6 +487,7 @@ export default async function SellerPage({ params }: SellerPageProps) {
         itemTotal={data.itemTotal}
         market={data.market}
         sellerId={sellerId}
+        negativeReviews={data.negativeReviews}
       />
 
       <SiteFooter hideBrowseCta locale={locale} />

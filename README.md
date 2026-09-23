@@ -127,9 +127,8 @@ src/
 ## Issues & feedback
 
 **Bug reports and suggestions are very welcome as issues**: broken pages, wrong data
-(miscategorised items, stale prices — the crawler isn't in this repo, but file those
-here anyway), translation mistakes, accessibility problems. If something looks off,
-say so; you don't need a patch attached.
+(miscategorised items, stale prices — this is the frontend repo, but file those
+here anyway), translation mistakes, accessibility problems.
 
 ## License
 

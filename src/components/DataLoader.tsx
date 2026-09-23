@@ -16,9 +16,10 @@ import {
   dataLoaderActiveAtom,
   deferredSearchQueryAtom,
   isLoadingAtom,
+  offWallAtom,
   priceRangeAtom,
   searchQueryAtom,
-  selectedSellersAtom,
+  sellerSelectionAtom,
   setItemsAtom,
   setSellersAtom,
   sortDirAtom,
@@ -83,11 +84,12 @@ export function DataLoader({
   const setSubcategory = useSetAtom(subcategoryAtom);
   const setSearch = useSetAtom(searchQueryAtom);
   const setDeferredSearch = useSetAtom(deferredSearchQueryAtom);
-  const setSelectedSellers = useSetAtom(selectedSellersAtom);
+  const setSellerSelection = useSetAtom(sellerSelectionAtom);
   const setAttrFilters = useSetAtom(attrFiltersAtom);
   const setSortKey = useSetAtom(sortKeyAtom);
   const setSortDir = useSetAtom(sortDirAtom);
   const setPriceRange = useSetAtom(priceRangeAtom);
+  const setOffWall = useSetAtom(offWallAtom);
   const setCurrencySymbol = useSetAtom(currencySymbolAtom);
 
   // Kick the dataset fetch off during render (idempotent via module cache)
@@ -118,8 +120,13 @@ export function DataLoader({
     setSearch(initialFilters.search);
     setDeferredSearch(initialFilters.search);
     setSubcategory(initialFilters.subcategories);
-    setSelectedSellers(initialFilters.sellers);
+    setSellerSelection({
+      selected: initialFilters.sellers,
+      excluded: initialFilters.excludedSellers,
+      all: initialFilters.excludedSellers.length > 0,
+    });
     setAttrFilters({});
+    setOffWall(initialFilters.offWall);
 
     if (parsedUrlFilters.sortKey) setSortKey(parsedUrlFilters.sortKey);
     if (parsedUrlFilters.sortDir) setSortDir(parsedUrlFilters.sortDir);
@@ -169,11 +176,12 @@ export function DataLoader({
     setSubcategory,
     setSearch,
     setDeferredSearch,
-    setSelectedSellers,
+    setSellerSelection,
     setAttrFilters,
     setSortKey,
     setSortDir,
     setPriceRange,
+    setOffWall,
     setCurrencySymbol,
   ]);
 

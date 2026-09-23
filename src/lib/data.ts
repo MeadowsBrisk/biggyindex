@@ -3,6 +3,10 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { IMAGE_VARIANT_VERSION } from "./imageVariants";
 import { R2Keys, readR2JSON } from "./r2";
+import {
+  EMPTY_REVIEW_STAMPS,
+  type SellerReviewStamps,
+} from "./seller-activity";
 import type {
   HomeFeed,
   Item,
@@ -149,7 +153,7 @@ export function browseDataVersion(items: Item[]): string {
   mix(String(items.length));
   for (const item of items) {
     mix(
-      `|${item.id}:${item.lua ?? ""}:${item.lur ?? ""}:${item.uMin ?? ""}:${item.uMax ?? ""}:${item.v?.length ?? 0}:${item.c ?? ""}:${item.sc?.join("+") ?? ""}`,
+      `|${item.id}:${item.lua ?? ""}:${item.lur ?? ""}:${item.uMin ?? ""}:${item.uMax ?? ""}:${item.v?.length ?? 0}:${item.c ?? ""}:${item.sc?.join("+") ?? ""}:${item.ow ?? ""}${item.owr ?? ""}`,
     );
   }
   return (h >>> 0).toString(36);
@@ -229,6 +233,33 @@ export async function loadVariantWidths(): Promise<VariantWidthsByHash> {
 export async function loadSellers(market = "gb"): Promise<Seller[]> {
   const sellers = await readR2JSON<Seller[]>(R2Keys.sellers(market));
   return sellers ? stripSellerFields(sellers) : [];
+}
+
+interface SellerAnalyticsBlob {
+  generatedAt?: string;
+  sellers?: Array<{
+    sellerId?: string | number;
+    lifetime?: { newestReviewSeen?: string | null };
+  }>;
+}
+
+export async function loadSellerReviewStamps(
+  market = "gb",
+): Promise<SellerReviewStamps> {
+  const blob = await readR2JSON<SellerAnalyticsBlob>(
+    R2Keys.marketSellerAnalytics(market),
+  );
+  const asOf = blob?.generatedAt ? Date.parse(blob.generatedAt) : Number.NaN;
+  if (!blob || !Number.isFinite(asOf)) return EMPTY_REVIEW_STAMPS;
+  const lastReview: Record<string, number> = {};
+  for (const entry of blob.sellers ?? []) {
+    const newest = entry?.lifetime?.newestReviewSeen;
+    const ms = newest ? Date.parse(newest) : Number.NaN;
+    if (entry?.sellerId != null && Number.isFinite(ms)) {
+      lastReview[String(entry.sellerId)] = ms;
+    }
+  }
+  return { asOf, lastReview };
 }
 
 /** Load full shared seller detail. */

@@ -6,6 +6,7 @@
  */
 
 import { decodeEntities } from "@/lib/format";
+import { isOffWall } from "@/lib/off-wall";
 import { median, quantile, SENTINEL_USD } from "@/lib/prices/stats";
 import type { Item } from "@/lib/types";
 
@@ -140,7 +141,7 @@ export function buildPriceIndex(items: Item[]): PriceIndex | null {
   let firstSeenAt: string | null = null;
 
   for (const item of items) {
-    if (!item.c || !WEIGHT_CATEGORIES.has(item.c)) continue;
+    if (!item.c || !WEIGHT_CATEGORIES.has(item.c) || isOffWall(item)) continue;
     const prices = perGramPrices(item);
     if (prices.length === 0) continue;
     listingCount++;
@@ -238,7 +239,7 @@ export function buildWeightTable(items: Item[]): WeightRow[] {
   const byCategory = new Map<string, Map<number, Map<string, number[]>>>();
 
   for (const item of items) {
-    if (!item.c || !WEIGHT_CATEGORIES.has(item.c)) continue;
+    if (!item.c || !WEIGHT_CATEGORIES.has(item.c) || isOffWall(item)) continue;
     // Parked listings carry placeholder prices, not asking prices.
     if (item.so) continue;
     for (const variant of item.v ?? []) {
@@ -298,7 +299,7 @@ export function buildDistillateBands(items: Item[]): DistillateBand[] {
   };
   const allRefs = new Set<string>();
   for (const item of items) {
-    if (item.c !== "Distillate") continue;
+    if (item.c !== "Distillate" || isOffWall(item)) continue;
     for (const v of item.v ?? []) {
       if (v.u !== "ml" || typeof v.q !== "number" || v.q <= 0) continue;
       if (typeof v.usd !== "number" || v.usd <= 0 || v.usd === SENTINEL_USD)
