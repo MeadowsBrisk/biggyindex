@@ -627,13 +627,30 @@
       "noSellersAvailable": "Žádní prodejci nejsou k dispozici",
       "showLess": "Zobrazit méně",
       "showAll": "Zobrazit všech {count}",
-      "hiddenSellers": "{count, plural, one {1 prodejce skryt – spravovat v nastavení} few {# prodejci skryti – spravovat v nastavení} other {# prodejců skryto – spravovat v nastavení}}"
+      "hiddenSellers": "{count, plural, one {1 prodejce skryt – spravovat v nastavení} few {# prodejci skryti – spravovat v nastavení} other {# prodejců skryto – spravovat v nastavení}}",
+      "sellerViewList": "Zobrazení seznamu",
+      "sellerViewChips": "Kompaktní zobrazení",
+      "sellerOnly": "Pouze",
+      "sellerOnlyTitle": "Zobrazit pouze {seller}",
+      "sellerExclude": "Vyloučit",
+      "sellerExcludeTitle": "Zobrazit všechny kromě {seller}",
+      "sellerInclude": "Zahrnout",
+      "sellerIncludeTitle": "Přestat vylučovat {seller}",
+      "sellerHide": "Skrýt",
+      "sellerMoreActions": "Další akce pro {seller}",
+      "sellerReviewsTitle": "{rating} v průměru z {count, plural, one {1 recenze} few {# recenze} other {# recenzí}}"
     },
     "priceRange": {
       "title": "Cena",
       "reset": "Resetovat cenový filtr",
       "minimum": "Minimální cena",
-      "maximum": "Maximální cena"
+      "maximum": "Maximální cena",
+      "presets": {
+        "label": "Rychlá cenová rozpětí",
+        "under": "Do {max}",
+        "between": "{min}–{max}",
+        "over": "Od {min}"
+      }
     },
     "card": {
       "soldOut": "Vyprodáno",

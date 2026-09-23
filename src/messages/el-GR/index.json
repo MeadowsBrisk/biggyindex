@@ -627,13 +627,30 @@
       "noSellersAvailable": "Δεν υπάρχουν διαθέσιμοι πωλητές",
       "showLess": "Εμφάνιση λιγότερων",
       "showAll": "Εμφάνιση όλων {count}",
-      "hiddenSellers": "{count, plural, one {1 πωλητής κρυμμένος - διαχείριση στις ρυθμίσεις} other {# πωλητές κρυμμένοι - διαχείριση στις ρυθμίσεις}}"
+      "hiddenSellers": "{count, plural, one {1 πωλητής κρυμμένος - διαχείριση στις ρυθμίσεις} other {# πωλητές κρυμμένοι - διαχείριση στις ρυθμίσεις}}",
+      "sellerViewList": "Προβολή λίστας",
+      "sellerViewChips": "Συμπαγής προβολή",
+      "sellerOnly": "Μόνο",
+      "sellerOnlyTitle": "Εμφάνιση μόνο {seller}",
+      "sellerExclude": "Εξαίρεση",
+      "sellerExcludeTitle": "Εμφάνιση όλων εκτός από {seller}",
+      "sellerInclude": "Συμπερίληψη",
+      "sellerIncludeTitle": "Διακοπή εξαίρεσης του {seller}",
+      "sellerHide": "Απόκρυψη",
+      "sellerMoreActions": "Περισσότερες ενέργειες για {seller}",
+      "sellerReviewsTitle": "{rating} μέσος όρος από {count, plural, one {1 κριτική} other {# κριτικές}}"
     },
     "priceRange": {
       "title": "Τιμή",
       "reset": "Επαναφορά φίλτρου τιμών",
       "minimum": "Ελάχιστη τιμή",
-      "maximum": "Μέγιστη τιμή"
+      "maximum": "Μέγιστη τιμή",
+      "presets": {
+        "label": "Γρήγορα εύρη τιμών",
+        "under": "Κάτω από {max}",
+        "between": "{min}–{max}",
+        "over": "{min} και άνω"
+      }
     },
     "card": {
       "soldOut": "Εξαντλήθηκε",

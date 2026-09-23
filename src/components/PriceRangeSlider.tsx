@@ -6,9 +6,19 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   currencyDisplayAtom,
+  type DisplayCurrency,
+  displayCurrencyAtom,
   priceBoundsAtom,
   priceRangeAtom,
 } from "@/store/atoms";
+
+const PRESET_THRESHOLDS: Record<DisplayCurrency, readonly number[]> = {
+  GBP: [20, 50, 100, 200],
+  EUR: [25, 50, 100, 200],
+  USD: [25, 50, 100, 200],
+  PLN: [100, 250, 500, 1000],
+  CZK: [500, 1250, 2500, 5000],
+};
 
 /**
  * Dual-thumb price range slider for the filter panel.
@@ -24,6 +34,7 @@ export function PriceRangeSlider({
   const [priceRange, setPriceRange] = useAtom(priceRangeAtom);
   const bounds = useAtomValue(priceBoundsAtom);
   const { symbol, rate } = useAtomValue(currencyDisplayAtom);
+  const currency = useAtomValue(displayCurrencyAtom);
   const t = useTranslations("browse.priceRange");
 
   // Don't render if we have no price data
@@ -46,11 +57,34 @@ export function PriceRangeSlider({
   const displayMin = toDisplay(absMin);
   const displayMax = toDisplay(absMax);
 
+  const thresholds = PRESET_THRESHOLDS[currency];
+  const fmt = (display: number) => `${symbol}${display}`;
+  // Within half a dollar of the converted edge: pmin/pmax are whole USD, so a
+  // one-step slider move always falls outside it.
+  const edgeMatches = (usd: number, display: number) =>
+    display === 0
+      ? usd <= 0
+      : display === Infinity
+        ? usd === Infinity
+        : Math.abs(usd - display / rate) <= 0.5;
+  const presets = [0, ...thresholds].map((lo, index) => {
+    const hi = thresholds[index] ?? Infinity;
+    return {
+      lo,
+      hi,
+      label:
+        lo === 0
+          ? t("presets.under", { max: fmt(hi) })
+          : hi === Infinity
+            ? t("presets.over", { min: fmt(lo) })
+            : t("presets.between", { min: fmt(lo), max: fmt(hi) }),
+      active:
+        edgeMatches(priceRange.min, lo) && edgeMatches(priceRange.max, hi),
+    };
+  });
+
   return (
-    // px-2 reserves 8px on each side so the thumbs (which use -translate-x-1/2
-    // and hang half-width past the track edges) aren't sheared off by the
-    // parent Section's overflow-hidden clip.
-    <div className="mb-4 px-2">
+    <div>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
           {t("title")}
@@ -70,54 +104,97 @@ export function PriceRangeSlider({
         )}
       </div>
 
-      <DualSlider
-        absMin={absMin}
-        absMax={absMax}
-        curMin={curMin}
-        curMax={curMax}
-        onCommit={onFilterChange}
-        onChange={(min, max) => {
-          setPriceRange({
-            min: min <= absMin ? 0 : min,
-            max: max >= absMax ? Infinity : max,
-          });
-        }}
-      />
+      <div className="flex flex-col gap-3">
+        <fieldset
+          aria-label={t("presets.label")}
+          className="flex min-w-0 flex-wrap gap-1.5"
+        >
+          {presets.map((preset) => (
+            <button
+              key={preset.lo}
+              type="button"
+              aria-pressed={preset.active}
+              onClick={() => {
+                setPriceRange(
+                  preset.active
+                    ? { min: 0, max: Infinity }
+                    : {
+                        min: preset.lo === 0 ? 0 : Math.round(preset.lo / rate),
+                        max:
+                          preset.hi === Infinity
+                            ? Infinity
+                            : Math.round(preset.hi / rate),
+                      },
+                );
+                onFilterChange?.();
+              }}
+              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer transition-colors border ${
+                preset.active
+                  ? "border-primary/40 bg-primary/20 text-primary"
+                  : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </fieldset>
 
-      {/* Min / Max inputs */}
-      <div className="mt-2 flex items-center gap-2 text-[11px]">
-        <PriceInput
-          value={toDisplay(curMin)}
-          min={displayMin}
-          max={toDisplay(curMax)}
-          symbol={symbol}
-          onChange={(v) => {
-            const usd = toUsd(v);
-            setPriceRange((prev) => ({
-              ...prev,
-              min:
-                usd <= absMin
-                  ? 0
-                  : Math.min(usd, prev.max === Infinity ? absMax : prev.max),
-            }));
-            onFilterChange?.();
-          }}
-        />
-        <span className="text-muted">—</span>
-        <PriceInput
-          value={toDisplay(curMax)}
-          min={toDisplay(curMin)}
-          max={displayMax}
-          symbol={symbol}
-          onChange={(v) => {
-            const usd = toUsd(v);
-            setPriceRange((prev) => ({
-              ...prev,
-              max: usd >= absMax ? Infinity : Math.max(usd, prev.min),
-            }));
-            onFilterChange?.();
-          }}
-        />
+        <div>
+          {/* px-2 keeps the thumbs, which hang half-width past the track ends, inside the Section's overflow clip. */}
+          <div className="px-2">
+            <DualSlider
+              absMin={absMin}
+              absMax={absMax}
+              curMin={curMin}
+              curMax={curMax}
+              onCommit={onFilterChange}
+              onChange={(min, max) => {
+                setPriceRange({
+                  min: min <= absMin ? 0 : min,
+                  max: max >= absMax ? Infinity : max,
+                });
+              }}
+            />
+          </div>
+
+          <div className="mt-2 flex items-center gap-2 text-[11px]">
+            <PriceInput
+              value={toDisplay(curMin)}
+              min={displayMin}
+              max={toDisplay(curMax)}
+              symbol={symbol}
+              onChange={(v) => {
+                const usd = toUsd(v);
+                setPriceRange((prev) => ({
+                  ...prev,
+                  min:
+                    usd <= absMin
+                      ? 0
+                      : Math.min(
+                          usd,
+                          prev.max === Infinity ? absMax : prev.max,
+                        ),
+                }));
+                onFilterChange?.();
+              }}
+            />
+            <span className="text-muted">—</span>
+            <PriceInput
+              value={toDisplay(curMax)}
+              min={toDisplay(curMin)}
+              max={displayMax}
+              symbol={symbol}
+              onChange={(v) => {
+                const usd = toUsd(v);
+                setPriceRange((prev) => ({
+                  ...prev,
+                  max: usd >= absMax ? Infinity : Math.max(usd, prev.min),
+                }));
+                onFilterChange?.();
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

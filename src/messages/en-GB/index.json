@@ -627,13 +627,30 @@
       "noSellersAvailable": "No sellers available",
       "showLess": "Show less",
       "showAll": "Show all {count}",
-      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}"
+      "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}",
+      "sellerViewList": "List view",
+      "sellerViewChips": "Compact view",
+      "sellerOnly": "Only",
+      "sellerOnlyTitle": "Show only {seller}",
+      "sellerExclude": "Exclude",
+      "sellerExcludeTitle": "Show everyone except {seller}",
+      "sellerInclude": "Include",
+      "sellerIncludeTitle": "Stop excluding {seller}",
+      "sellerHide": "Hide",
+      "sellerMoreActions": "More actions for {seller}",
+      "sellerReviewsTitle": "{rating} average from {count, plural, one {1 review} other {# reviews}}"
     },
     "priceRange": {
       "title": "Price",
       "reset": "Reset price filter",
       "minimum": "Minimum price",
-      "maximum": "Maximum price"
+      "maximum": "Maximum price",
+      "presets": {
+        "label": "Quick price ranges",
+        "under": "Under {max}",
+        "between": "{min}–{max}",
+        "over": "{min} and up"
+      }
     },
     "card": {
       "soldOut": "Sold out",

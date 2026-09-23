@@ -3,7 +3,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   ChevronDown,
-  EyeOff,
   Pin,
   RotateCcw,
   Search,
@@ -12,18 +11,12 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { MouseEvent, ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
+import { Section } from "@/components/filters/Section";
+import { SellerFacet } from "@/components/filters/SellerFacet";
 import { getCategoryMeta } from "@/components/icons/CategoryIcons";
 import { CountryFlag } from "@/components/icons/CountryFlag";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
-import {
-  EMPTY_SELLER_SELECTION,
-  hasSellerSelection,
-  isSellerTicked,
-  sortSellersByRating,
-  tickSellers,
-  toggleSellerTick,
-} from "@/lib/browse/filter-engine";
 import { CATEGORIES } from "@/lib/constants";
 import { type OffWallKind, toOffWallKinds } from "@/lib/off-wall";
 import { shipFromLabel } from "@/lib/shipFrom";
@@ -31,7 +24,6 @@ import {
   activeFiltersCountAtom,
   attrFiltersAtom,
   attrOptionCountsAtom,
-  availableSellersAtom,
   availableShipFromAtom,
   availableSubcategoriesAtom,
   availableWeightsAtom,
@@ -40,85 +32,22 @@ import {
   clearFiltersAtom,
   excludedShipFromAtom,
   excludedSubcategoriesAtom,
-  filteredSellersAtom,
   freeShippingOnlyAtom,
   hasOffWallItemsAtom,
-  hiddenSellersAtom,
   includeShippingAtom,
   offWallAtom,
-  pinnedSellersAtom,
   pinnedShipFromAtom,
   searchQueryAtom,
   sectionOpenAtom,
-  selectedSellersAtom,
   selectedShipFromAtom,
   selectedWeightsAtom,
-  sellerSelectionAtom,
-  sellersMapAtom,
   subcategoryAtom,
-  toggleHiddenSellerAtom,
 } from "@/store/atoms";
 
-function Section({
-  title,
-  children,
-  defaultOpen = true,
-  storageKey,
-  activeCount,
-  trailing,
-}: {
-  title: string;
-  children: ReactNode;
-  defaultOpen?: boolean;
-  storageKey?: string;
-  activeCount?: number;
-  trailing?: ReactNode;
-}) {
-  const sectionKey = storageKey ?? title.toLowerCase().replace(/\s+/g, "-");
-  const [sections, setSections] = useAtom(sectionOpenAtom);
-  const open = sections[sectionKey] ?? defaultOpen;
-
-  const toggle = () => {
-    setSections((prev) => ({ ...prev, [sectionKey]: !open }));
-  };
-
-  return (
-    <div className="border-b border-border last:border-0">
-      <div className="flex w-full items-center justify-between py-2.5 text-xs font-medium uppercase tracking-wider text-muted">
-        <button
-          type="button"
-          onClick={toggle}
-          className="flex flex-1 items-center justify-between cursor-pointer transition-colors hover:text-foreground"
-        >
-          <span className="flex items-center gap-1.5">
-            {title}
-            {!open && activeCount != null && activeCount > 0 && (
-              <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground normal-case tracking-normal">
-                {activeCount}
-              </span>
-            )}
-          </span>
-          <ChevronDown
-            size={14}
-            className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          />
-        </button>
-        {trailing && <span className="ml-1 flex items-center">{trailing}</span>}
-      </div>
-      <div
-        className={`overflow-hidden transition-all duration-200 ${
-          open ? "max-h-500 opacity-100 pb-3" : "max-h-0 opacity-0"
-        }`}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
+// Effect spans most categories; AttrFilterGroup hides it when results carry none.
+const ALWAYS_ATTR_KEYS: { key: string }[] = [{ key: "effect" }];
 
 const ATTR_KEYS_BY_CATEGORY: Record<string, { key: string }[]> = {
-  Flower: [{ key: "effect" }],
-  Shake: [{ key: "effect" }],
   Hash: [{ key: "micron" }, { key: "filtration" }, { key: "texture" }],
   Concentrates: [{ key: "process" }, { key: "form" }],
   Vapes: [{ key: "extract" }, { key: "form" }],
@@ -146,13 +75,6 @@ export function FilterPanelContent({
   const [search, setSearch] = useAtom(searchQueryAtom);
   const categoryCounts = useAtomValue(categoryCountsAtom);
   const subcategories = useAtomValue(availableSubcategoriesAtom);
-  const allSellers = useAtomValue(availableSellersAtom);
-  const filteredSellers = useAtomValue(filteredSellersAtom);
-  const [selectedSellers, setSelectedSellers] = useAtom(selectedSellersAtom);
-  const [sellerSelection, setSellerSelection] = useAtom(sellerSelectionAtom);
-  const sellersMap = useAtomValue(sellersMapAtom);
-  const hiddenSellers = useAtomValue(hiddenSellersAtom);
-  const toggleHiddenSeller = useSetAtom(toggleHiddenSellerAtom);
   const [attrFilters, setAttrFilters] = useAtom(attrFiltersAtom);
   const shipFromOptions = useAtomValue(availableShipFromAtom);
   const [shipInclude, setShipInclude] = useAtom(selectedShipFromAtom);
@@ -163,7 +85,6 @@ export function FilterPanelContent({
   const hasOffWallItems = useAtomValue(hasOffWallItemsAtom);
   const weightOptions = useAtomValue(availableWeightsAtom);
   const [selectedWeights, setSelectedWeights] = useAtom(selectedWeightsAtom);
-  const [pinnedSellers, setPinnedSellers] = useAtom(pinnedSellersAtom);
   const [pinnedShipFrom, setPinnedShipFrom] = useAtom(pinnedShipFromAtom);
   const clearFilters = useSetAtom(clearFiltersAtom);
   const filterCount = useAtomValue(activeFiltersCountAtom);
@@ -171,40 +92,9 @@ export function FilterPanelContent({
   const tCategories = useTranslations("categories");
   const locale = useLocale();
 
-  const [sellerQuery, setSellerQuery] = useState("");
-  const [showAllSellers, setShowAllSellers] = useState(false);
-  const [sellerSort, setSellerSort] = useState<"alpha" | "rating">("alpha");
-  const sellerSearchInputRef = useRef<HTMLInputElement>(null);
-  const hiddenSet = useMemo(() => new Set(hiddenSellers), [hiddenSellers]);
-
   useEffect(() => {
     onReady?.();
   }, [onReady]);
-
-  const visibleSellers = useMemo(() => {
-    const base = filteredSellers.filter((seller) => !hiddenSet.has(seller.id));
-    if (sellerSort === "alpha") {
-      return [...base].sort((a, b) => a.name.localeCompare(b.name));
-    }
-    return sortSellersByRating(base, sellersMap);
-  }, [filteredSellers, hiddenSet, sellerSort, sellersMap]);
-
-  const querySellers = useMemo(() => {
-    const query = sellerQuery.toLowerCase().trim();
-    if (!query) return visibleSellers;
-    return visibleSellers.filter((seller) =>
-      seller.name.toLowerCase().includes(query),
-    );
-  }, [sellerQuery, visibleSellers]);
-
-  const SELLER_COLLAPSED_COUNT = 6;
-  const sellerRows = useMemo(
-    () =>
-      showAllSellers || sellerQuery.trim()
-        ? querySellers
-        : querySellers.slice(0, SELLER_COLLAPSED_COUNT),
-    [querySellers, showAllSellers, sellerQuery],
-  );
 
   const handleCategoryClick = useCallback(
     (cat: string) => {
@@ -247,39 +137,6 @@ export function FilterPanelContent({
     },
     [setSubcategory, setExcludedSubcategory],
   );
-
-  const toggleSeller = useCallback(
-    (id: string) => {
-      setSellerSelection(toggleSellerTick(sellerSelection, id));
-      scrollResultsToTop();
-    },
-    [sellerSelection, setSellerSelection],
-  );
-
-  const allListedTicked = querySellers.every((seller) =>
-    isSellerTicked(sellerSelection, seller.id),
-  );
-
-  const selectAllSellers = useCallback(() => {
-    setSellerSelection(
-      tickSellers(
-        sellerSelection,
-        querySellers.map((seller) => seller.id),
-        !sellerQuery.trim(),
-      ),
-    );
-    scrollResultsToTop();
-  }, [sellerSelection, setSellerSelection, querySellers, sellerQuery]);
-
-  const clearSellers = useCallback(() => {
-    setSellerSelection(EMPTY_SELLER_SELECTION);
-    scrollResultsToTop();
-  }, [setSellerSelection]);
-
-  const clearSellerQuery = useCallback(() => {
-    setSellerQuery("");
-    window.requestAnimationFrame(() => sellerSearchInputRef.current?.focus());
-  }, []);
 
   // Left-click toggles INCLUDE. Right-click (desktop) handler below
   // toggles EXCLUDE. Previous behaviour was a 3-state cycle on every
@@ -346,8 +203,10 @@ export function FilterPanelContent({
     [setAttrFilters],
   );
 
-  const attrDefs =
-    category !== "All" ? (ATTR_KEYS_BY_CATEGORY[category] ?? []) : [];
+  const attrDefs = [
+    ...ALWAYS_ATTR_KEYS,
+    ...(ATTR_KEYS_BY_CATEGORY[category] ?? []),
+  ];
 
   return (
     <div className="flex h-full flex-col">
@@ -553,96 +412,99 @@ export function FilterPanelContent({
             ) : undefined
           }
         >
-          {/* Cost toggles: free-only filter + add-shipping-to-prices. */}
-          <div className="mb-3 flex flex-col gap-2">
-            <ShippingSwitch
-              label={t("freeShippingOnly")}
-              checked={freeShippingOnly}
-              onChange={() => {
-                setFreeShippingOnly((value) => !value);
-                scrollResultsToTop();
-              }}
-            />
-            <ShippingSwitch
-              label={t("addShippingToPrices")}
-              checked={includeShipping}
-              onChange={() => setIncludeShipping((value) => !value)}
-            />
-          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <ShippingSwitch
+                label={t("freeShippingOnly")}
+                checked={freeShippingOnly}
+                onChange={() => {
+                  setFreeShippingOnly((value) => !value);
+                  scrollResultsToTop();
+                }}
+              />
+              <ShippingSwitch
+                label={t("addShippingToPrices")}
+                checked={includeShipping}
+                onChange={() => setIncludeShipping((value) => !value)}
+              />
+            </div>
 
-          {shipFromOptions.length > 0 && (
-            <>
-              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
-                {t("shippingFrom")}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {shipFromOptions.map((shipFrom) => {
-                  const isIncluded = shipInclude.includes(shipFrom.value);
-                  const isExcluded = shipExclude.includes(shipFrom.value);
-                  const label = shipFromLabel(shipFrom.value, locale);
-                  return (
-                    <button
-                      key={shipFrom.value}
-                      type="button"
-                      onClick={(event) => cycleShipFrom(shipFrom.value, event)}
-                      onContextMenu={(event) => {
-                        event.preventDefault();
-                        if (shipExclude.includes(shipFrom.value)) {
-                          setShipExclude((prev) =>
-                            prev.filter((value) => value !== shipFrom.value),
-                          );
-                        } else {
-                          setShipInclude((prev) =>
-                            prev.filter((value) => value !== shipFrom.value),
-                          );
-                          setShipExclude((prev) => [...prev, shipFrom.value]);
+            {shipFromOptions.length > 0 && (
+              <div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
+                  {t("shippingFrom")}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {shipFromOptions.map((shipFrom) => {
+                    const isIncluded = shipInclude.includes(shipFrom.value);
+                    const isExcluded = shipExclude.includes(shipFrom.value);
+                    const label = shipFromLabel(shipFrom.value, locale);
+                    return (
+                      <button
+                        key={shipFrom.value}
+                        type="button"
+                        onClick={(event) =>
+                          cycleShipFrom(shipFrom.value, event)
                         }
-                        scrollResultsToTop();
-                      }}
-                      title={t("shipFromHelp")}
-                      className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
-                        isIncluded
-                          ? "border-transparent bg-primary/20 text-primary"
-                          : isExcluded
-                            ? "border-transparent bg-red-500/20 text-red-400 line-through"
-                            : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
-                      }`}
-                    >
-                      {/* shipFrom.value is already a normalized code
+                        onContextMenu={(event) => {
+                          event.preventDefault();
+                          if (shipExclude.includes(shipFrom.value)) {
+                            setShipExclude((prev) =>
+                              prev.filter((value) => value !== shipFrom.value),
+                            );
+                          } else {
+                            setShipInclude((prev) =>
+                              prev.filter((value) => value !== shipFrom.value),
+                            );
+                            setShipExclude((prev) => [...prev, shipFrom.value]);
+                          }
+                          scrollResultsToTop();
+                        }}
+                        title={t("shipFromHelp")}
+                        className={`rounded-md border px-3 py-1 text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 ${
+                          isIncluded
+                            ? "border-transparent bg-primary/20 text-primary"
+                            : isExcluded
+                              ? "border-transparent bg-red-500/20 text-red-400 line-through"
+                              : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
+                        }`}
+                      >
+                        {/* shipFrom.value is already a normalized code
                           (gb / nl / multi / unknown) coming from
                           item-index.ts. CountryFlag renders synthetic
                           codes (multi → globe, unknown → ?) too. */}
-                      <CountryFlag code={shipFrom.value} size={12} />
-                      {label}{" "}
-                      <span className="opacity-60">{shipFrom.count}</span>
-                    </button>
-                  );
-                })}
+                        <CountryFlag code={shipFrom.value} size={12} />
+                        {label}{" "}
+                        <span className="opacity-60">{shipFrom.count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </>
-          )}
+            )}
 
-          {(hasOffWallItems || offWall.length > 0) && (
-            <div className="mt-3">
-              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted">
-                {t("offWall.heading")}
+            {(hasOffWallItems || offWall.length > 0) && (
+              <div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">
+                  {t("offWall.heading")}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <ShippingSwitch
+                    label={t("offWall.unlisted")}
+                    title={t("offWall.unlistedHelp")}
+                    checked={offWall.includes("u")}
+                    onChange={() => toggleOffWall("u")}
+                  />
+                  <ShippingSwitch
+                    label={t("offWall.flagged")}
+                    title={t("offWall.flaggedHelp")}
+                    checked={offWall.includes("f")}
+                    onChange={() => toggleOffWall("f")}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <ShippingSwitch
-                  label={t("offWall.unlisted")}
-                  title={t("offWall.unlistedHelp")}
-                  checked={offWall.includes("u")}
-                  onChange={() => toggleOffWall("u")}
-                />
-                <ShippingSwitch
-                  label={t("offWall.flagged")}
-                  title={t("offWall.flaggedHelp")}
-                  checked={offWall.includes("f")}
-                  onChange={() => toggleOffWall("f")}
-                />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </Section>
 
         {weightOptions.length > 0 && (
@@ -678,251 +540,7 @@ export function FilterPanelContent({
           <PriceRangeSlider onFilterChange={scrollResultsToTop} />
         </Section>
 
-        {visibleSellers.length > 0 && (
-          <Section
-            title={t("sections.sellers")}
-            activeCount={
-              sellerSelection.selected.length + sellerSelection.excluded.length
-            }
-            trailing={
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setPinnedSellers((value) => !value);
-                }}
-                title={pinnedSellers ? t("pin.unpin") : t("pin.pin")}
-                className={`p-0.5 rounded transition-colors cursor-pointer ${
-                  pinnedSellers
-                    ? "text-primary"
-                    : "text-muted/40 hover:text-muted"
-                }`}
-              >
-                <Pin
-                  size={12}
-                  className={pinnedSellers ? "fill-current" : ""}
-                />
-              </button>
-            }
-          >
-            <div className="mb-2 flex items-center gap-1.5">
-              <div className="relative flex-1">
-                <Search
-                  size={12}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted"
-                />
-                <input
-                  ref={sellerSearchInputRef}
-                  type="text"
-                  placeholder={t("searchSellers")}
-                  value={sellerQuery}
-                  onChange={(event) => setSellerQuery(event.target.value)}
-                  className="w-full rounded-md border border-border bg-surface py-1.5 pl-7 pr-7 text-[11px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
-                />
-                {sellerQuery && (
-                  <button
-                    type="button"
-                    onClick={clearSellerQuery}
-                    title={t("clearSearch")}
-                    aria-label={t("clearSearch")}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted transition-colors hover:bg-surface-hover hover:text-foreground cursor-pointer"
-                  >
-                    <X size={12} />
-                  </button>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setSellerSort((value) =>
-                    value === "alpha" ? "rating" : "alpha",
-                  )
-                }
-                title={
-                  sellerSort === "alpha"
-                    ? t("sellerSortAlpha")
-                    : t("sellerSortRating")
-                }
-                className="shrink-0 rounded-md border border-border bg-surface px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer"
-              >
-                {sellerSort === "alpha" ? "A-Z" : t("sellerSortRatingLabel")}
-              </button>
-            </div>
-
-            <div className="mb-2 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={selectAllSellers}
-                disabled={querySellers.length === 0 || allListedTicked}
-                title={
-                  sellerQuery.trim()
-                    ? t("sellersSelectAllMatchingTitle")
-                    : t("sellersSelectAllTitle")
-                }
-                className="rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted enabled:hover:text-foreground transition-colors cursor-pointer disabled:cursor-default disabled:opacity-60"
-              >
-                {t("sellersSelectAll")}
-              </button>
-              <button
-                type="button"
-                onClick={clearSellers}
-                disabled={!hasSellerSelection(sellerSelection)}
-                title={t("sellersClearTitle")}
-                className="rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted enabled:hover:text-foreground transition-colors cursor-pointer disabled:cursor-default disabled:opacity-60"
-              >
-                {t("sellersClear")}
-              </button>
-            </div>
-
-            {sellerSelection.excluded.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-2">
-                {sellerSelection.excluded.map((id) => {
-                  const seller =
-                    visibleSellers.find((entry) => entry.id === id) ??
-                    allSellers.find((entry) => entry.id === id);
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => toggleSeller(id)}
-                      className="inline-flex items-center gap-1 rounded-md bg-red-500/20 px-2 py-0.5 text-[11px] text-red-400 line-through cursor-pointer"
-                      title={t("selectSeller", { seller: seller?.name ?? id })}
-                    >
-                      <span className="truncate max-w-24">
-                        {seller?.name ?? `#${id}`}
-                      </span>
-                      <X size={10} className="shrink-0 opacity-60" />
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {selectedSellers.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-2">
-                {selectedSellers.map((id) => {
-                  const seller =
-                    visibleSellers.find((entry) => entry.id === id) ??
-                    allSellers.find((entry) => entry.id === id);
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => toggleSeller(id)}
-                      className="inline-flex items-center gap-1 rounded-md bg-primary/15 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-                      title={t("removeSeller", { seller: seller?.name ?? id })}
-                    >
-                      <span className="truncate max-w-24">
-                        {seller?.name ?? `#${id}`}
-                      </span>
-                      <X size={10} className="shrink-0 opacity-60" />
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {sellerRows.length > 0 ? (
-              <div
-                className={`rounded-md border border-border bg-surface overflow-hidden ${
-                  showAllSellers || sellerQuery.trim()
-                    ? "sidebar-scroll max-h-76 overflow-y-auto"
-                    : ""
-                }`}
-              >
-                <div className="grid grid-cols-2">
-                  {sellerRows.map((seller, index) => {
-                    const isSelected = isSellerTicked(
-                      sellerSelection,
-                      seller.id,
-                    );
-                    const isRightCol = index % 2 === 1;
-                    const rowsCount = Math.ceil(sellerRows.length / 2);
-                    const isLastRow = Math.floor(index / 2) === rowsCount - 1;
-                    return (
-                      <div
-                        key={seller.id}
-                        className={`group relative flex items-center text-[11px] transition-colors ${
-                          !isRightCol ? "border-r border-border" : ""
-                        } ${!isLastRow ? "border-b border-border" : ""} ${
-                          isSelected
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted hover:bg-surface-hover hover:text-foreground"
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            toggleSeller(seller.id);
-                            if (sellerQuery.trim()) {
-                              setSellerQuery("");
-                              setShowAllSellers(false);
-                            }
-                          }}
-                          className="flex flex-1 items-center gap-1.5 px-2 py-1.5 text-left cursor-pointer min-w-0"
-                          title={
-                            isSelected
-                              ? t("unselectSeller", { seller: seller.name })
-                              : t("selectSeller", { seller: seller.name })
-                          }
-                        >
-                          <span className="truncate flex-1">{seller.name}</span>
-                          <span className="tabular-nums opacity-50 text-[10px] shrink-0">
-                            {seller.count}
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            if (isSelected && !sellerSelection.all) {
-                              setSelectedSellers((prev) =>
-                                prev.filter((id) => id !== seller.id),
-                              );
-                            }
-                            toggleHiddenSeller(seller.id);
-                          }}
-                          title={t("hideSeller", { seller: seller.name })}
-                          aria-label={t("hideSellerAria", {
-                            seller: seller.name,
-                          })}
-                          className="absolute right-0 top-0 bottom-0 flex items-center px-1.5 bg-inherit text-muted/50 hover:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none transition-opacity cursor-pointer"
-                        >
-                          <EyeOff size={12} />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-md border border-dashed border-border px-2 py-3 text-center text-[11px] text-muted">
-                {sellerQuery.trim()
-                  ? t("noSellersMatch")
-                  : t("noSellersAvailable")}
-              </div>
-            )}
-
-            {!sellerQuery.trim() &&
-              querySellers.length > SELLER_COLLAPSED_COUNT && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllSellers((value) => !value)}
-                  className="mt-1.5 w-full rounded-md py-1 text-[10px] font-medium uppercase tracking-wider text-muted hover:text-foreground transition-colors cursor-pointer"
-                >
-                  {showAllSellers
-                    ? t("showLess")
-                    : t("showAll", { count: querySellers.length })}
-                </button>
-              )}
-
-            {hiddenSellers.length > 0 && (
-              <div className="mt-1.5 text-[10px] text-muted italic">
-                {t("hiddenSellers", { count: hiddenSellers.length })}
-              </div>
-            )}
-          </Section>
-        )}
+        <SellerFacet />
       </div>
     </div>
   );
@@ -950,7 +568,7 @@ function ShippingSwitch({
       aria-checked={checked}
       title={title}
       onClick={onChange}
-      className="group flex w-full items-center justify-between gap-2 rounded-md px-1 py-1 text-xs font-medium cursor-pointer transition-colors text-muted hover:text-foreground"
+      className="group flex w-full items-center justify-between gap-2 rounded-md py-1 text-xs font-medium cursor-pointer transition-colors text-muted hover:text-foreground"
     >
       <span>{label}</span>
       <span

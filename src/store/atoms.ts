@@ -368,6 +368,11 @@ export const pinnedSellersAtom = atomWithStorage<boolean>(
   "pinnedSellers",
   false,
 );
+/** Seller facet layout in the filter panel */
+export const sellerFacetViewAtom = atomWithStorage<"list" | "chips">(
+  "sellerFacetView",
+  "list",
+);
 /** When pinned, "Clear filters" won't reset ships-from filters */
 export const pinnedShipFromAtom = atomWithStorage<boolean>(
   "pinnedShipFrom",

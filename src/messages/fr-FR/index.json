@@ -627,13 +627,30 @@
       "noSellersAvailable": "Aucun vendeur disponible",
       "showLess": "Afficher moins",
       "showAll": "Afficher tout {count}",
-      "hiddenSellers": "{count, plural, one {1 vendeur masqué - à gérer dans les paramètres} other {# vendeurs masqués - à gérer dans les paramètres}}"
+      "hiddenSellers": "{count, plural, one {1 vendeur masqué - à gérer dans les paramètres} other {# vendeurs masqués - à gérer dans les paramètres}}",
+      "sellerViewList": "Vue en liste",
+      "sellerViewChips": "Vue compacte",
+      "sellerOnly": "Seulement",
+      "sellerOnlyTitle": "Afficher uniquement {seller}",
+      "sellerExclude": "Exclure",
+      "sellerExcludeTitle": "Afficher tout le monde sauf {seller}",
+      "sellerInclude": "Inclure",
+      "sellerIncludeTitle": "Ne plus exclure {seller}",
+      "sellerHide": "Masquer",
+      "sellerMoreActions": "Plus d'actions pour {seller}",
+      "sellerReviewsTitle": "{rating} de moyenne sur {count, plural, one {1 avis} other {# avis}}"
     },
     "priceRange": {
       "title": "Prix",
       "reset": "Réinitialiser le filtre des prix",
       "minimum": "Prix minimum",
-      "maximum": "Prix maximal"
+      "maximum": "Prix maximal",
+      "presets": {
+        "label": "Fourchettes de prix rapides",
+        "under": "Moins de {max}",
+        "between": "{min}–{max}",
+        "over": "{min} et plus"
+      }
     },
     "card": {
       "soldOut": "Épuisé",

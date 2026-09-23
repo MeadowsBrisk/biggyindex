@@ -11,6 +11,7 @@ import {
   availableSellersAtom,
   categoryAtom,
   clearFiltersAtom,
+  currencyDisplayAtom,
   excludedShipFromAtom,
   excludedSubcategoriesAtom,
   offWallAtom,
@@ -50,6 +51,7 @@ export function ActiveFilterBar() {
   const tFilters = useTranslations("browse.filters");
   const tToolbar = useTranslations("browse.toolbar");
   const locale = useLocale();
+  const { symbol, rate } = useAtomValue(currencyDisplayAtom);
   const search = useAtomValue(searchQueryAtom);
   const setSearch = useSetAtom(searchQueryAtom);
   const category = useAtomValue(categoryAtom);
@@ -233,8 +235,8 @@ export function ActiveFilterBar() {
           key: "price",
           label:
             priceRange.max < Infinity
-              ? `£${priceRange.min}–£${priceRange.max}`
-              : `£${priceRange.min}+`,
+              ? `${symbol}${Math.round(priceRange.min * rate)}–${symbol}${Math.round(priceRange.max * rate)}`
+              : `${symbol}${Math.round(priceRange.min * rate)}+`,
           clear: () => tx(() => setPriceRange({ min: 0, max: Infinity })),
         },
       ],

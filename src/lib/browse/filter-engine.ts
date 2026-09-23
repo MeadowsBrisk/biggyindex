@@ -108,6 +108,19 @@ export function hasSellerSelection(selection: SellerSelection): boolean {
   return selection.all || selection.selected.length > 0;
 }
 
+export function onlySeller(sellerId: string): SellerSelection {
+  return { selected: [sellerId], excluded: [], all: false };
+}
+
+// From a picked list this jumps to "everyone except", since an exclusion only means something against all.
+export function excludeSeller(
+  selection: SellerSelection,
+  sellerId: string,
+): SellerSelection {
+  if (selection.all) return toggleSellerTick(selection, sellerId);
+  return { selected: [], excluded: [sellerId], all: true };
+}
+
 function toggleId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids.filter((entry) => entry !== id) : [...ids, id];
 }
