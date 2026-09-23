@@ -33,10 +33,13 @@ export function withoutOffWall<T extends OffWallStamp>(entries: T[]): T[] {
   return entries.filter((entry) => !isOffWall(entry));
 }
 
+// Flagged sellers are a subset of off-wall, so "f" alone still means the wall is open.
 export function toOffWallKinds(
   values: readonly string[] | null | undefined,
 ): OffWallKind[] {
-  return OFF_WALL_KINDS.filter((kind) => values?.includes(kind));
+  return values?.includes("f")
+    ? [...OFF_WALL_KINDS]
+    : OFF_WALL_KINDS.filter((kind) => values?.includes(kind));
 }
 
 export function offWallReasonKey(

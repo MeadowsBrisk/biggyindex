@@ -1,6 +1,6 @@
 "use client";
 
-import { Circle } from "lucide-react";
+import { AlertTriangle, Circle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cx } from "@/lib/cn";
 import { offWallKind, offWallReasonKey } from "@/lib/off-wall";
@@ -30,14 +30,21 @@ function useOffWallCopy({ ow, owr }: OffWallProps) {
 export function OffWallBadge(props: OffWallProps) {
   const copy = useOffWallCopy(props);
   if (!copy) return null;
+  if (copy.kind === "f") {
+    return (
+      <span
+        role="img"
+        className="seller-card__badge seller-card__badge--flagged"
+        title={copy.notice}
+        aria-label={copy.badge}
+      >
+        <AlertTriangle size={10} aria-hidden="true" />
+      </span>
+    );
+  }
   return (
     <span
-      className={cx(
-        "seller-card__badge",
-        copy.kind === "f"
-          ? "seller-card__badge--flagged"
-          : "seller-card__badge--offwall",
-      )}
+      className="seller-card__badge seller-card__badge--offwall"
       title={copy.notice}
     >
       {copy.badge}

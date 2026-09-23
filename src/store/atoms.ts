@@ -308,6 +308,21 @@ export const toggleHiddenSellerAtom = atom<null, [string], void>(
     }
   },
 );
+/** Favourite sellers — persisted; they float to the top of the seller facet */
+export const favouriteSellersAtom = atomWithStorage<string[]>(
+  "favouriteSellers",
+  [],
+);
+export const toggleFavouriteSellerAtom = atom<null, [string], void>(
+  null,
+  (_get, set, sellerId: string) => {
+    set(favouriteSellersAtom, (current) =>
+      current.includes(sellerId)
+        ? current.filter((id) => id !== sellerId)
+        : [...current, sellerId],
+    );
+  },
+);
 export const priceRangeAtom = atom<{ min: number; max: number }>({
   min: 0,
   max: Infinity,
@@ -330,6 +345,32 @@ export const priceBoundsAtom = atom<{ min: number; max: number }>((get) => {
   }
   if (!Number.isFinite(lo)) lo = 0;
   return { min: Math.floor(lo), max: Math.ceil(hi) };
+});
+
+/** Slider knots in USD: min, p25, p50, p75, p90, p99 — the track past the last knot means "and up", so outliers never stretch it */
+export const priceKnotsAtom = atom<number[]>((get) => {
+  const offWall = get(offWallAtom);
+  const prices: number[] = [];
+  for (const it of get(itemsAtom)) {
+    if (!isOffWallShown(it, offWall) || isSoldOut(it)) continue;
+    if (typeof it.uMin === "number" && it.uMin > 0) prices.push(it.uMin);
+  }
+  prices.sort((a, b) => a - b);
+  if (prices.length === 0) return [];
+  const at = (q: number) => prices[Math.floor(q * (prices.length - 1))];
+  const knots: number[] = [];
+  for (const value of [
+    prices[0],
+    at(0.25),
+    at(0.5),
+    at(0.75),
+    at(0.9),
+    at(0.99),
+  ]) {
+    const rounded = knots.length === 0 ? Math.floor(value) : Math.ceil(value);
+    if (rounded > (knots[knots.length - 1] ?? -1)) knots.push(rounded);
+  }
+  return knots;
 });
 
 /** v2 attribute-based filters: { filterKey: ['selected', 'values'] } */
@@ -390,7 +431,6 @@ export const clearFiltersAtom = atom<null, [], void>(null, (get, set) => {
   set(attrFiltersAtom, {});
   set(freeShippingOnlyAtom, false);
   set(selectedWeightsAtom, []);
-  set(offWallAtom, []);
   set(bookmarksOnlyAtom, false);
   // Only clear if not pinned
   if (!get(pinnedSellersAtom)) set(sellerSelectionAtom, EMPTY_SELLER_SELECTION);
@@ -772,7 +812,6 @@ export const activeFiltersCountAtom = atom<number>((get) => {
   if (get(excludedShipFromAtom).length > 0) count++;
   if (get(freeShippingOnlyAtom)) count++;
   if (get(selectedWeightsAtom).length > 0) count++;
-  count += get(offWallAtom).length;
   const attrs = get(attrFiltersAtom);
   for (const vals of Object.values(attrs)) {
     if (vals.length > 0) count++;

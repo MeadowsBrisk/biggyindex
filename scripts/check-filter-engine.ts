@@ -486,4 +486,16 @@ assert.deepEqual(
   ["unlisted-a"],
 );
 
+// Off-wall listings trail every wall item under the time sorts, in both directions.
+for (const sortKey of ["newest", "updated"] as const) {
+  for (const sortDir of ["desc", "asc"] as const) {
+    const ordered = ids(
+      buildBrowseResults(
+        input({ offWall: ["u", "f"] }, sortKey, sortDir, offWallItems),
+      ).sortedItems,
+    );
+    assert.deepEqual(ordered.slice(-2).sort(), ["flagged-a", "unlisted-a"]);
+  }
+}
+
 console.log("filter-engine checks passed");

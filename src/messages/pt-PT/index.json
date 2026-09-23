@@ -600,7 +600,8 @@
       "shippingFrom": "De",
       "offWall": {
         "heading": "Vendedores fora do mural",
-        "unlisted": "Vendedores não listados",
+        "show": "Mostrar vendedores fora do mural",
+        "includeFlagged": "Incluir vendedores assinalados pelo Little Biggy",
         "flagged": "Assinalados pelo Little Biggy",
         "unlistedHelp": "Vendedores novos ou pequenos que o Little Biggy mantém fora do seu mural de artigos, adicionados a partir de sugestões da comunidade",
         "flaggedHelp": "Vendedores em que o Little Biggy mostra um aviso, por exemplo suspeita de fraude"
@@ -628,6 +629,9 @@
       "showLess": "Mostrar menos",
       "showAll": "Mostrar tudo {count}",
       "hiddenSellers": "{count, plural, one {1 vendedor oculto - gerir nas definições} other {# vendedores ocultos - gerir nas definições}}",
+      "favouriteSeller": "Adicionar {seller} aos favoritos",
+      "unfavouriteSeller": "Remover {seller} dos favoritos",
+      "openSeller": "Abrir {seller}",
       "sellerViewList": "Vista de lista",
       "sellerViewChips": "Vista compacta",
       "sellerOnly": "Apenas",
@@ -646,11 +650,13 @@
       "minimum": "Preço mínimo",
       "maximum": "Preço máximo",
       "presets": {
-        "label": "Faixas de preço rápidas",
+        "label": "Faixas rápidas",
         "under": "Menos de {max}",
         "between": "{min}–{max}",
         "over": "{min} ou mais"
-      }
+      },
+      "matches": "{count, plural, one {# artigo} other {# artigos}}",
+      "custom": "Intervalo personalizado"
     },
     "card": {
       "soldOut": "Esgotado",

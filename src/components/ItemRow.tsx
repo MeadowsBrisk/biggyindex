@@ -18,6 +18,7 @@ import { getItemBrowseMeta, isSoldOut } from "@/lib/browse/item-index";
 import { cx } from "@/lib/cn";
 import { decodeEntities } from "@/lib/format";
 import { getItemPrimaryImage, getSellerImageUrl } from "@/lib/images";
+import { offWallKind } from "@/lib/off-wall";
 import { shipFromCode, shipFromLabel } from "@/lib/shipFrom";
 import type { Item } from "@/lib/types";
 import {
@@ -95,7 +96,7 @@ export function ItemRow({
     item.lua && item.lur && item.lur !== "N"
       ? relativeAge(item.lua, clientNow)
       : null;
-  const listedAge = relativeAge(item.fsa, clientNow);
+  const listedAge = item.ow ? null : relativeAge(item.fsa, clientNow);
   const rowAge: { key: "updated" | "listed"; age: RelativeAge } | null =
     updatedAge
       ? { key: "updated", age: updatedAge }
@@ -104,7 +105,7 @@ export function ItemRow({
         : null;
 
   return (
-    <div className="irow">
+    <div className="irow" data-off-wall={offWallKind(item) ?? undefined}>
       <button
         type="button"
         className="irow-main"

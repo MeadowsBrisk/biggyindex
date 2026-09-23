@@ -600,7 +600,8 @@
       "shippingFrom": "Z",
       "offWall": {
         "heading": "Prodejci mimo zeď",
-        "unlisted": "Neuvedení prodejci",
+        "show": "Zobrazit prodejce mimo zeď",
+        "includeFlagged": "Zahrnout prodejce s varováním Little Biggy",
         "flagged": "S varováním Little Biggy",
         "unlistedHelp": "Noví nebo malí prodejci, které Little Biggy nezobrazuje na své zdi položek, přidaní z návrhů komunity",
         "flaggedHelp": "Prodejci, u kterých Little Biggy zobrazuje varování, například podezření z podvodu"
@@ -628,6 +629,9 @@
       "showLess": "Zobrazit méně",
       "showAll": "Zobrazit všech {count}",
       "hiddenSellers": "{count, plural, one {1 prodejce skryt – spravovat v nastavení} few {# prodejci skryti – spravovat v nastavení} other {# prodejců skryto – spravovat v nastavení}}",
+      "favouriteSeller": "Přidat {seller} do oblíbených",
+      "unfavouriteSeller": "Odebrat {seller} z oblíbených",
+      "openSeller": "Otevřít {seller}",
       "sellerViewList": "Zobrazení seznamu",
       "sellerViewChips": "Kompaktní zobrazení",
       "sellerOnly": "Pouze",
@@ -646,11 +650,13 @@
       "minimum": "Minimální cena",
       "maximum": "Maximální cena",
       "presets": {
-        "label": "Rychlá cenová rozpětí",
+        "label": "Rychlá rozpětí",
         "under": "Do {max}",
         "between": "{min}–{max}",
         "over": "Od {min}"
-      }
+      },
+      "matches": "{count, plural, one {# položka} few {# položky} other {# položek}}",
+      "custom": "Vlastní rozpětí"
     },
     "card": {
       "soldOut": "Vyprodáno",

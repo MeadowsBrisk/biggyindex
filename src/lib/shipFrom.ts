@@ -145,6 +145,17 @@ export function shipFromLabel(code: string, locale?: string): string {
   );
 }
 
+/** Compact chip label: "UK", "DE", "Multi", "?" — full name stays in the tooltip. */
+export function shipFromShortLabel(code: string): string {
+  const normalized = code.trim().toLowerCase();
+  if (normalized === SHIP_FROM_MULTI) return "Multi";
+  if (normalized === SHIP_FROM_UNKNOWN) return "?";
+  if (normalized === "gb") return "UK";
+  return /^[a-z]{2}$/.test(normalized)
+    ? normalized.toUpperCase()
+    : shipFromLabel(normalized);
+}
+
 /** ship-from values that mean "ships from several countries". */
 const MULTI_VALUES = new Set([
   "multiple countries",

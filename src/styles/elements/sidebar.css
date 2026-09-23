@@ -8,6 +8,11 @@
 /* Do NOT add `scrollbar-width`/`scrollbar-color` here: in Chromium their mere
    presence disables ::-webkit-scrollbar and the wide native scrollbar (with
    arrows) comes back. */
+/* The seller facet re-anchors the clicked row itself; native anchoring would double-correct. */
+.sidebar-scroll {
+  overflow-anchor: none;
+}
+
 .sidebar-scroll::-webkit-scrollbar {
   width: 10px;
   height: 10px;

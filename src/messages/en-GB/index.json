@@ -600,7 +600,8 @@
       "shippingFrom": "From",
       "offWall": {
         "heading": "Off-wall sellers",
-        "unlisted": "Unlisted sellers",
+        "show": "Show off-wall sellers",
+        "includeFlagged": "Include sellers flagged by Little Biggy",
         "flagged": "Flagged by Little Biggy",
         "unlistedHelp": "New or small sellers Little Biggy keeps off its items wall, added from community submissions",
         "flaggedHelp": "Sellers Little Biggy shows a warning banner on, such as suspected fraud"
@@ -628,6 +629,9 @@
       "showLess": "Show less",
       "showAll": "Show all {count}",
       "hiddenSellers": "{count, plural, one {1 seller hidden - manage in Settings} other {# sellers hidden - manage in Settings}}",
+      "favouriteSeller": "Add {seller} to favourites",
+      "unfavouriteSeller": "Remove {seller} from favourites",
+      "openSeller": "Open {seller}",
       "sellerViewList": "List view",
       "sellerViewChips": "Compact view",
       "sellerOnly": "Only",
@@ -646,11 +650,13 @@
       "minimum": "Minimum price",
       "maximum": "Maximum price",
       "presets": {
-        "label": "Quick price ranges",
+        "label": "Quick ranges",
         "under": "Under {max}",
         "between": "{min}–{max}",
         "over": "{min} and up"
-      }
+      },
+      "matches": "{count, plural, one {# item} other {# items}}",
+      "custom": "Custom range"
     },
     "card": {
       "soldOut": "Sold out",

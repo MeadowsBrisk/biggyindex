@@ -1,14 +1,15 @@
 "use client";
 
 import { useAtom, useAtomValue } from "jotai";
-import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FilterChip, SubLabel } from "@/components/filters/primitives";
 import {
   currencyDisplayAtom,
   type DisplayCurrency,
   displayCurrencyAtom,
-  priceBoundsAtom,
+  filteredItemsAtom,
+  priceKnotsAtom,
   priceRangeAtom,
 } from "@/store/atoms";
 
@@ -32,30 +33,24 @@ export function PriceRangeSlider({
   onFilterChange?: () => void;
 } = {}) {
   const [priceRange, setPriceRange] = useAtom(priceRangeAtom);
-  const bounds = useAtomValue(priceBoundsAtom);
+  const knots = useAtomValue(priceKnotsAtom);
+  const matches = useAtomValue(filteredItemsAtom).length;
   const { symbol, rate } = useAtomValue(currencyDisplayAtom);
   const currency = useAtomValue(displayCurrencyAtom);
   const t = useTranslations("browse.priceRange");
 
-  // Don't render if we have no price data
-  if (bounds.max <= 0) return null;
+  if (knots.length < 2) return null;
 
-  const absMin = bounds.min;
-  const absMax = bounds.max;
+  const absMin = knots[0];
+  const trackMax = knots[knots.length - 1];
 
-  // Current values clamped to bounds
   const curMin =
     priceRange.min <= 0 ? absMin : Math.max(priceRange.min, absMin);
-  const curMax =
-    priceRange.max >= Infinity ? absMax : Math.min(priceRange.max, absMax);
-
-  const isActive = priceRange.min > 0 || priceRange.max < Infinity;
+  const curMax = priceRange.max;
+  const openEnded = curMax === Infinity;
 
   const toDisplay = (usd: number) => Math.round(usd * rate);
   const toUsd = (display: number) => display / rate;
-
-  const displayMin = toDisplay(absMin);
-  const displayMax = toDisplay(absMax);
 
   const thresholds = PRESET_THRESHOLDS[currency];
   const fmt = (display: number) => `${symbol}${display}`;
@@ -84,36 +79,18 @@ export function PriceRangeSlider({
   });
 
   return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
-          {t("title")}
-        </h3>
-        {isActive && (
-          <button
-            type="button"
-            onClick={() => {
-              setPriceRange({ min: 0, max: Infinity });
-              onFilterChange?.();
-            }}
-            className="p-0.5 rounded text-muted/40 hover:text-muted transition-colors cursor-pointer"
-            title={t("reset")}
-          >
-            <RotateCcw size={12} />
-          </button>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
+      <div>
+        <SubLabel>{t("presets.label")}</SubLabel>
         <fieldset
           aria-label={t("presets.label")}
           className="flex min-w-0 flex-wrap gap-1.5"
         >
           {presets.map((preset) => (
-            <button
+            <FilterChip
               key={preset.lo}
-              type="button"
-              aria-pressed={preset.active}
+              tone={preset.active ? "selected" : "neutral"}
+              pressed={preset.active}
               onClick={() => {
                 setPriceRange(
                   preset.active
@@ -128,72 +105,68 @@ export function PriceRangeSlider({
                 );
                 onFilterChange?.();
               }}
-              className={`rounded-md px-3 py-1 text-xs font-medium cursor-pointer transition-colors border ${
-                preset.active
-                  ? "border-primary/40 bg-primary/20 text-primary"
-                  : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
-              }`}
             >
               {preset.label}
-            </button>
+            </FilterChip>
           ))}
         </fieldset>
+      </div>
 
-        <div>
-          {/* px-2 keeps the thumbs, which hang half-width past the track ends, inside the Section's overflow clip. */}
-          <div className="px-2">
-            <DualSlider
-              absMin={absMin}
-              absMax={absMax}
-              curMin={curMin}
-              curMax={curMax}
-              onCommit={onFilterChange}
-              onChange={(min, max) => {
-                setPriceRange({
-                  min: min <= absMin ? 0 : min,
-                  max: max >= absMax ? Infinity : max,
-                });
-              }}
-            />
-          </div>
+      <div>
+        <SubLabel>{t("custom")}</SubLabel>
+        {/* px-2 keeps the thumbs, which hang half-width past the track ends, inside the Section's overflow clip. */}
+        <div className="px-2">
+          <DualSlider
+            knots={knots}
+            curMin={curMin}
+            curMax={curMax}
+            openEndedLabel={`${fmt(toDisplay(trackMax))}+`}
+            onCommit={onFilterChange}
+            onChange={(min, max) => {
+              setPriceRange({ min: min <= absMin ? 0 : min, max });
+            }}
+          />
+        </div>
 
-          <div className="mt-2 flex items-center gap-2 text-[11px]">
-            <PriceInput
-              value={toDisplay(curMin)}
-              min={displayMin}
-              max={toDisplay(curMax)}
-              symbol={symbol}
-              onChange={(v) => {
-                const usd = toUsd(v);
-                setPriceRange((prev) => ({
-                  ...prev,
-                  min:
-                    usd <= absMin
-                      ? 0
-                      : Math.min(
-                          usd,
-                          prev.max === Infinity ? absMax : prev.max,
-                        ),
-                }));
-                onFilterChange?.();
-              }}
-            />
-            <span className="text-muted">—</span>
-            <PriceInput
-              value={toDisplay(curMax)}
-              min={toDisplay(curMin)}
-              max={displayMax}
-              symbol={symbol}
-              onChange={(v) => {
-                const usd = toUsd(v);
-                setPriceRange((prev) => ({
-                  ...prev,
-                  max: usd >= absMax ? Infinity : Math.max(usd, prev.min),
-                }));
-                onFilterChange?.();
-              }}
-            />
-          </div>
+        <div className="mt-2 flex items-center gap-2 text-xs">
+          <PriceInput
+            value={toDisplay(curMin)}
+            min={toDisplay(absMin)}
+            max={openEnded ? Number.MAX_SAFE_INTEGER : toDisplay(curMax)}
+            symbol={symbol}
+            onChange={(v) => {
+              const usd = toUsd(v);
+              setPriceRange((prev) => ({
+                ...prev,
+                min:
+                  usd <= absMin
+                    ? 0
+                    : prev.max === Infinity
+                      ? usd
+                      : Math.min(usd, prev.max),
+              }));
+              onFilterChange?.();
+            }}
+          />
+          <span className="text-muted">—</span>
+          <PriceInput
+            value={toDisplay(openEnded ? trackMax : curMax)}
+            min={toDisplay(curMin)}
+            max={Number.MAX_SAFE_INTEGER}
+            symbol={symbol}
+            suffix={openEnded ? "+" : undefined}
+            onChange={(v) => {
+              const usd = toUsd(v);
+              setPriceRange((prev) => ({
+                ...prev,
+                max: usd >= trackMax ? Infinity : Math.max(usd, prev.min),
+              }));
+              onFilterChange?.();
+            }}
+          />
+          <span className="ml-auto opacity-60 tabular-nums">
+            {t("matches", { count: matches })}
+          </span>
         </div>
       </div>
     </div>
@@ -202,31 +175,50 @@ export function PriceRangeSlider({
 
 // ── Dual-thumb slider ──────────────────────────────────────────
 
+// Piecewise-linear track over the price percentiles: each knot gap gets an equal share, the final share is "and up".
+function knotScale(knots: number[]) {
+  const segments = knots.length;
+  const lastPct = ((segments - 1) / segments) * 100;
+  const pct = (value: number) => {
+    if (value === Infinity) return 100;
+    if (value >= knots[segments - 1]) return lastPct;
+    if (value <= knots[0]) return 0;
+    let index = 0;
+    while (knots[index + 1] < value) index++;
+    const span = knots[index + 1] - knots[index];
+    return ((index + (value - knots[index]) / span) / segments) * 100;
+  };
+  const value = (p: number, openEnd: boolean) => {
+    if (p >= lastPct) return openEnd ? Infinity : knots[segments - 1];
+    if (p <= 0) return knots[0];
+    const position = (p / 100) * segments;
+    const index = Math.min(segments - 2, Math.floor(position));
+    return Math.round(
+      knots[index] + (position - index) * (knots[index + 1] - knots[index]),
+    );
+  };
+  return { pct, value, lastPct };
+}
+
 function DualSlider({
-  absMin,
-  absMax,
+  knots,
   curMin,
   curMax,
+  openEndedLabel,
   onChange,
   onCommit,
 }: {
-  absMin: number;
-  absMax: number;
+  knots: number[];
   curMin: number;
   curMax: number;
+  openEndedLabel: string;
   onChange: (min: number, max: number) => void;
   onCommit?: () => void;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("browse.priceRange");
-
-  const pct = (val: number) =>
-    absMax === absMin ? 0 : ((val - absMin) / (absMax - absMin)) * 100;
-
-  const valFromPct = useCallback(
-    (p: number) => Math.round(absMin + (p / 100) * (absMax - absMin)),
-    [absMin, absMax],
-  );
+  const scale = knotScale(knots);
+  const trackMax = knots[knots.length - 1];
 
   const getPointerPct = useCallback((e: React.PointerEvent | PointerEvent) => {
     const rect = trackRef.current?.getBoundingClientRect();
@@ -248,27 +240,25 @@ function DualSlider({
     [],
   );
 
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!dragging.current) return;
-      const p = getPointerPct(e);
-      const v = valFromPct(p);
-      if (dragging.current === "min") {
-        onChange(Math.min(v, curMax), curMax);
-      } else {
-        onChange(curMin, Math.max(v, curMin));
-      }
-    },
-    [getPointerPct, onChange, curMin, curMax, valFromPct],
-  );
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    const p = getPointerPct(e);
+    if (dragging.current === "min") {
+      const v = scale.value(p, false);
+      onChange(Math.min(v, curMax === Infinity ? v : curMax), curMax);
+    } else {
+      const v = scale.value(p, true);
+      onChange(curMin, v === Infinity ? v : Math.max(v, curMin));
+    }
+  };
 
   const onPointerUp = useCallback(() => {
     if (dragging.current) onCommit?.();
     dragging.current = null;
   }, [onCommit]);
 
-  const leftPct = pct(curMin);
-  const rightPct = pct(curMax);
+  const leftPct = scale.pct(curMin);
+  const rightPct = scale.pct(curMax);
 
   return (
     <div
@@ -293,8 +283,8 @@ function DualSlider({
         onPointerDown={onPointerDown("min")}
         role="slider"
         aria-label={t("minimum")}
-        aria-valuemin={absMin}
-        aria-valuemax={absMax}
+        aria-valuemin={knots[0]}
+        aria-valuemax={trackMax}
         aria-valuenow={curMin}
         tabIndex={0}
       />
@@ -306,9 +296,10 @@ function DualSlider({
         onPointerDown={onPointerDown("max")}
         role="slider"
         aria-label={t("maximum")}
-        aria-valuemin={absMin}
-        aria-valuemax={absMax}
-        aria-valuenow={curMax}
+        aria-valuemin={knots[0]}
+        aria-valuemax={trackMax}
+        aria-valuenow={curMax === Infinity ? trackMax : curMax}
+        aria-valuetext={curMax === Infinity ? openEndedLabel : undefined}
         tabIndex={0}
       />
     </div>
@@ -322,12 +313,14 @@ function PriceInput({
   min,
   max,
   symbol,
+  suffix,
   onChange,
 }: {
   value: number;
   min: number;
   max: number;
   symbol: string;
+  suffix?: string;
   onChange: (v: number) => void;
 }) {
   const [local, setLocal] = useState(String(value));
@@ -347,17 +340,18 @@ function PriceInput({
   };
 
   return (
-    <div className="flex items-center gap-0.5 rounded-md border border-border px-2 py-1 focus-within:border-primary transition-colors">
-      <span className="text-muted text-[10px]">{symbol}</span>
+    <div className="flex h-7 items-center gap-0.5 rounded-md border border-border px-2 focus-within:border-primary transition-colors">
+      <span className="text-muted">{symbol}</span>
       <input
         type="text"
         inputMode="numeric"
-        className="w-12 bg-transparent text-[11px] text-foreground outline-none"
+        className="w-12 bg-transparent text-xs text-foreground outline-none"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => e.key === "Enter" && commit()}
       />
+      {suffix && <span className="text-muted">{suffix}</span>}
     </div>
   );
 }

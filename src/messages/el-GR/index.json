@@ -600,7 +600,8 @@
       "shippingFrom": "Από",
       "offWall": {
         "heading": "Πωλητές εκτός τοίχου",
-        "unlisted": "Μη καταχωρισμένοι πωλητές",
+        "show": "Εμφάνιση πωλητών εκτός τοίχου",
+        "includeFlagged": "Συμπερίληψη πωλητών που έχει επισημάνει το Little Biggy",
         "flagged": "Επισημασμένοι από το Little Biggy",
         "unlistedHelp": "Νέοι ή μικροί πωλητές που το Little Biggy κρατά εκτός του τοίχου αγγελιών του, προστέθηκαν από υποβολές της κοινότητας",
         "flaggedHelp": "Πωλητές στους οποίους το Little Biggy εμφανίζει προειδοποίηση, όπως υποψία απάτης"
@@ -628,6 +629,9 @@
       "showLess": "Εμφάνιση λιγότερων",
       "showAll": "Εμφάνιση όλων {count}",
       "hiddenSellers": "{count, plural, one {1 πωλητής κρυμμένος - διαχείριση στις ρυθμίσεις} other {# πωλητές κρυμμένοι - διαχείριση στις ρυθμίσεις}}",
+      "favouriteSeller": "Προσθήκη του {seller} στα αγαπημένα",
+      "unfavouriteSeller": "Αφαίρεση του {seller} από τα αγαπημένα",
+      "openSeller": "Άνοιγμα του {seller}",
       "sellerViewList": "Προβολή λίστας",
       "sellerViewChips": "Συμπαγής προβολή",
       "sellerOnly": "Μόνο",
@@ -646,11 +650,13 @@
       "minimum": "Ελάχιστη τιμή",
       "maximum": "Μέγιστη τιμή",
       "presets": {
-        "label": "Γρήγορα εύρη τιμών",
+        "label": "Γρήγορα εύρη",
         "under": "Κάτω από {max}",
         "between": "{min}–{max}",
         "over": "{min} και άνω"
-      }
+      },
+      "matches": "{count, plural, one {# προϊόν} other {# προϊόντα}}",
+      "custom": "Προσαρμοσμένο εύρος"
     },
     "card": {
       "soldOut": "Εξαντλήθηκε",

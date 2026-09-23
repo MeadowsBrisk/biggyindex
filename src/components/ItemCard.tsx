@@ -44,6 +44,7 @@ import {
   getItemPrimaryImage,
   getSellerImageUrl,
 } from "@/lib/images";
+import { offWallKind } from "@/lib/off-wall";
 import { type RelativeAge, relativeAge } from "@/lib/relative-age";
 import { formatShipFrom, shipFromCode, shipFromLabel } from "@/lib/shipFrom";
 import { getLittleBiggyItemUrl } from "@/lib/tracking/littlebiggy";
@@ -821,6 +822,7 @@ function ItemCardInner({
       data-entered={entered}
       data-scroll-reveal={scrollReveal}
       data-animated={animDone}
+      data-off-wall={offWallKind(item) ?? undefined}
     >
       <div
         className={`item-card-inner${isBookmarked ? " bookmark-card-inner" : ""}`}
@@ -1446,7 +1448,8 @@ function ItemCardInner({
                     {t("updated", { time: formatAge(updated) })}
                   </span>
                 )}
-                {listedAge ? (
+                {/* Off-wall listings carry no "listed" age: that date is when we indexed them, not when they went on sale. */}
+                {item.ow ? null : listedAge ? (
                   <span
                     className="text-[10px] leading-none text-muted-foreground cursor-default"
                     title={item.fsa ?? undefined}

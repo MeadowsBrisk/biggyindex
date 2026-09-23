@@ -4,7 +4,7 @@ import {
   getItemBrowseMeta,
   isSoldOut,
 } from "@/lib/browse/item-index";
-import { isOffWallShown, type OffWallKind } from "@/lib/off-wall";
+import { isOffWall, isOffWallShown, type OffWallKind } from "@/lib/off-wall";
 import { shipFromLabel } from "@/lib/shipFrom";
 import type { Item, Seller, SortDir, SortKey } from "@/lib/types";
 
@@ -419,6 +419,13 @@ function sortItems(
       : null;
 
   return [...items].sort((first, second) => {
+    // Off-wall listings are never "new": under the time sorts they follow every wall item in either direction.
+    if (sortKey === "newest" || sortKey === "updated") {
+      const firstOff = isOffWall(first);
+      const secondOff = isOffWall(second);
+      if (firstOff !== secondOff) return firstOff ? 1 : -1;
+    }
+
     let comparison = 0;
 
     switch (sortKey) {

@@ -14,7 +14,7 @@ import {
   currencyDisplayAtom,
   excludedShipFromAtom,
   excludedSubcategoriesAtom,
-  offWallAtom,
+  freeShippingOnlyAtom,
   priceRangeAtom,
   searchQueryAtom,
   selectedSellersAtom,
@@ -71,8 +71,8 @@ export function ActiveFilterBar() {
   const setShipExclude = useSetAtom(excludedShipFromAtom);
   const weights = useAtomValue(selectedWeightsAtom);
   const setWeights = useSetAtom(selectedWeightsAtom);
-  const offWall = useAtomValue(offWallAtom);
-  const setOffWall = useSetAtom(offWallAtom);
+  const freeShippingOnly = useAtomValue(freeShippingOnlyAtom);
+  const setFreeShippingOnly = useSetAtom(freeShippingOnlyAtom);
   const attrs = useAtomValue(attrFiltersAtom);
   const setAttrs = useSetAtom(attrFiltersAtom);
   const priceRange = useAtomValue(priceRangeAtom);
@@ -202,6 +202,19 @@ export function ActiveFilterBar() {
       })),
     });
   }
+  if (freeShippingOnly) {
+    groups.push({
+      key: "shipping",
+      label: tFilters("sections.shipping"),
+      chips: [
+        {
+          key: "free",
+          label: tFilters("freeShippingOnly"),
+          clear: () => tx(() => setFreeShippingOnly(false)),
+        },
+      ],
+    });
+  }
   if (weights.length > 0) {
     groups.push({
       key: "weights",
@@ -211,18 +224,6 @@ export function ActiveFilterBar() {
         label: `${w}g`,
         clear: () =>
           tx(() => setWeights((prev) => prev.filter((g) => g !== w))),
-      })),
-    });
-  }
-  if (offWall.length > 0) {
-    groups.push({
-      key: "off-wall",
-      label: t("offWall"),
-      chips: offWall.map((kind) => ({
-        key: kind,
-        label: tFilters(kind === "f" ? "offWall.flagged" : "offWall.unlisted"),
-        clear: () =>
-          tx(() => setOffWall((prev) => prev.filter((k) => k !== kind))),
       })),
     });
   }

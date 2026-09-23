@@ -127,6 +127,25 @@ html.bi-seed-hide [data-seed-skeleton] {
   background: var(--card-hover, var(--surface));
 }
 
+/* Flagged seller: caution-tinted edge and a faint inner wash; the badge row carries the glyph. */
+.item-card[data-off-wall="f"],
+.irow[data-off-wall="f"] {
+  border-color: color-mix(in srgb, #b45309 30%, var(--border));
+
+  @variant dark {
+    border-color: color-mix(in srgb, #fbbf24 28%, var(--border));
+  }
+}
+
+.item-card[data-off-wall="f"] .item-card-inner,
+.irow[data-off-wall="f"] {
+  background: color-mix(in srgb, #b45309 4%, var(--card));
+
+  @variant dark {
+    background: color-mix(in srgb, #fbbf24 5%, var(--card));
+  }
+}
+
 /* Scroll-revealed cards: start hidden, animate in when scrolled into view */
 .item-card[data-scroll-reveal="true"] {
   opacity: 0;
