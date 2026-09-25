@@ -1609,37 +1609,443 @@ home:
       el-GR: Ταχύτερη αναζήτηση, καθαρότερες κατηγορίες και εμπιστοσύνη πωλητών με μια ματιά για την αγορά Little Biggy.
       cs-CZ: Rychlejší vyhledávání, čistší kategorie a okamžitá důvěra prodejců pro Little Biggy trh.
       pl-PL: Szybsze wyszukiwanie, czystsze kategorie i szybkie zaufanie sprzedawców na rynku Little Biggy.
-    stats:
-      itemsIndexed:
-        en-GB: items indexed
-        de-DE: Indexierte Elemente
-        fr-FR: Éléments indexés
-        pt-PT: Itens indexados
-        it-IT: Oggetti indicizzati
-        es-ES: Elementos indexados
-        el-GR: Στοιχεία που έχουν ευρετηριαστεί
-        cs-CZ: Položky indexované
-        pl-PL: Przedmioty indeksowane
-      activeSellers:
-        en-GB: active sellers
-        de-DE: Aktive Verkäufer
-        fr-FR: Vendeurs actifs
-        pt-PT: Vendedores ativos
-        it-IT: Venditori attivi
-        es-ES: Vendedores activos
-        el-GR: Ενεργοί πωλητές
-        cs-CZ: Aktivní prodejci
-        pl-PL: Aktywni sprzedawcy
+    eyebrow:
+      en-GB: "Independent · Updated hourly"
+      de-DE: "Unabhängig · Stündlich aktualisiert"
+      fr-FR: "Indépendant · Mis à jour toutes les heures"
+      pt-PT: "Independente · Atualizado a cada hora"
+      it-IT: "Indipendente · Aggiornato ogni ora"
+      es-ES: "Independiente · Actualizado cada hora"
+      el-GR: "Ανεξάρτητο · Ενημερώνεται κάθε ώρα"
+      cs-CZ: "Nezávislý · Aktualizováno každou hodinu"
+      pl-PL: "Niezależny · Aktualizowany co godzinę"
+    leaf:
+      aria:
+        en-GB: "Categories drawn as a cannabis leaf. Each leaflet is a category, sized by its number of listings."
+        de-DE: "Kategorien als Cannabisblatt dargestellt. Jedes Teilblatt ist eine Kategorie, seine Größe richtet sich nach der Zahl der Angebote."
+        fr-FR: "Les catégories dessinées comme une feuille de cannabis. Chaque foliole est une catégorie, dimensionnée selon son nombre d'annonces."
+        pt-PT: "Categorias desenhadas como uma folha de canábis. Cada folíolo é uma categoria, com tamanho proporcional ao número de anúncios."
+        it-IT: "Categorie disegnate come una foglia di cannabis. Ogni fogliolina è una categoria, dimensionata in base al numero di annunci."
+        es-ES: "Categorías dibujadas como una hoja de cannabis. Cada foliolo es una categoría, con un tamaño según su número de anuncios."
+        el-GR: "Οι κατηγορίες σχεδιασμένες ως φύλλο κάνναβης. Κάθε φυλλάριο είναι μια κατηγορία, με μέγεθος ανάλογο του αριθμού καταχωρίσεων."
+        cs-CZ: "Kategorie nakreslené jako list konopí. Každý lístek je jedna kategorie, jeho velikost odpovídá počtu nabídek."
+        pl-PL: "Kategorie narysowane jako liść konopi. Każdy listek to jedna kategoria, a jego wielkość zależy od liczby ofert."
+      leaflet:
+        en-GB: "{name}: {count, plural, one {# listing} other {# listings}}"
+        de-DE: "{name}: {count, plural, one {# Angebot} other {# Angebote}}"
+        fr-FR: "{name} : {count, plural, one {# annonce} other {# annonces}}"
+        pt-PT: "{name}: {count, plural, one {# anúncio} other {# anúncios}}"
+        it-IT: "{name}: {count, plural, one {# annuncio} other {# annunci}}"
+        es-ES: "{name}: {count, plural, one {# anuncio} other {# anuncios}}"
+        el-GR: "{name}: {count, plural, one {# καταχώριση} other {# καταχωρίσεις}}"
+        cs-CZ: "{name}: {count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}"
+        pl-PL: "{name}: {count, plural, one {# oferta} few {# oferty} many {# ofert} other {# oferty}}"
+      leafletNew:
+        en-GB: "{count} new this week"
+        de-DE: "{count} neu diese Woche"
+        fr-FR: "{count, plural, one {# nouvelle cette semaine} other {# nouvelles cette semaine}}"
+        pt-PT: "{count, plural, one {# novo esta semana} other {# novos esta semana}}"
+        it-IT: "{count, plural, one {# nuovo questa settimana} other {# nuovi questa settimana}}"
+        es-ES: "{count, plural, one {# nuevo esta semana} other {# nuevos esta semana}}"
+        el-GR: "{count, plural, one {# νέα αυτή την εβδομάδα} other {# νέες αυτή την εβδομάδα}}"
+        cs-CZ: "{count, plural, one {# nová tento týden} few {# nové tento týden} other {# nových tento týden}}"
+        pl-PL: "{count, plural, one {# nowa w tym tygodniu} few {# nowe w tym tygodniu} many {# nowych w tym tygodniu} other {# nowej w tym tygodniu}}"
+      leafletDrops:
+        en-GB: "{count, plural, one {# price drop} other {# price drops}}"
+        de-DE: "{count, plural, one {# Preissenkung} other {# Preissenkungen}}"
+        fr-FR: "{count, plural, one {# baisse de prix} other {# baisses de prix}}"
+        pt-PT: "{count, plural, one {# descida de preço} other {# descidas de preço}}"
+        it-IT: "{count, plural, one {# ribasso di prezzo} other {# ribassi di prezzo}}"
+        es-ES: "{count, plural, one {# bajada de precio} other {# bajadas de precio}}"
+        el-GR: "{count, plural, one {# πτώση τιμής} other {# πτώσεις τιμών}}"
+        cs-CZ: "{count, plural, one {# zlevnění} few {# zlevnění} other {# zlevnění}}"
+        pl-PL: "{count, plural, one {# obniżka ceny} few {# obniżki cen} many {# obniżek cen} other {# obniżki ceny}}"
+      newShort:
+        en-GB: "+{count} new"
+        de-DE: "+{count} neu"
+        fr-FR: "{count, plural, one {+# nouvelle} other {+# nouvelles}}"
+        pt-PT: "{count, plural, one {+# novo} other {+# novos}}"
+        it-IT: "{count, plural, one {+# nuovo} other {+# nuovi}}"
+        es-ES: "{count, plural, one {+# nuevo} other {+# nuevos}}"
+        el-GR: "{count, plural, one {+# νέα} other {+# νέες}}"
+        cs-CZ: "{count, plural, one {+# nová} few {+# nové} other {+# nových}}"
+        pl-PL: "{count, plural, one {+# nowa} few {+# nowe} many {+# nowych} other {+# nowej}}"
+      dropShort:
+        en-GB: "{count} cheaper"
+        de-DE: "{count} günstiger"
+        fr-FR: "{count, plural, one {# moins chère} other {# moins chères}}"
+        pt-PT: "{count, plural, one {# mais barato} other {# mais baratos}}"
+        it-IT: "{count, plural, one {# ribassato} other {# ribassati}}"
+        es-ES: "{count, plural, one {# más barato} other {# más baratos}}"
+        el-GR: "{count, plural, one {# φθηνότερη} other {# φθηνότερες}}"
+        cs-CZ: "{count, plural, one {# levnější} few {# levnější} other {# levnějších}}"
+        pl-PL: "{count, plural, one {# tańsza} few {# tańsze} many {# tańszych} other {# tańszej}}"
+      hint:
+        en-GB: "Hover or tap a leaflet"
+        de-DE: "Fahre über ein Blatt oder tippe darauf"
+        fr-FR: "Survolez ou touchez une foliole"
+        pt-PT: "Passe o cursor ou toque num folíolo"
+        it-IT: "Passa sopra o tocca una fogliolina"
+        es-ES: "Pasa el cursor o toca un foliolo"
+        el-GR: "Περάστε τον δείκτη ή πατήστε ένα φυλλάριο"
+        cs-CZ: "Najeďte na lístek nebo na něj klepněte"
+        pl-PL: "Najedź na listek lub go dotknij"
+      lastScan:
+        en-GB: "Last scan"
+        de-DE: "Letzter Scan"
+        fr-FR: "Dernier scan"
+        pt-PT: "Última verificação"
+        it-IT: "Ultima scansione"
+        es-ES: "Último escaneo"
+        el-GR: "Τελευταία σάρωση"
+        cs-CZ: "Poslední sken"
+        pl-PL: "Ostatni skan"
+      scope:
+        market:
+          en-GB: "Market"
+          de-DE: "Markt"
+          fr-FR: "Marché"
+          pt-PT: "Mercado"
+          it-IT: "Mercato"
+          es-ES: "Mercado"
+          el-GR: "Αγορά"
+          cs-CZ: "Trh"
+          pl-PL: "Rynek"
+        preview:
+          en-GB: "Preview"
+          de-DE: "Vorschau"
+          fr-FR: "Aperçu"
+          pt-PT: "Pré-visualização"
+          it-IT: "Anteprima"
+          es-ES: "Vista previa"
+          el-GR: "Προεπισκόπηση"
+          cs-CZ: "Náhled"
+          pl-PL: "Podgląd"
+        category:
+          en-GB: "Category"
+          de-DE: "Kategorie"
+          fr-FR: "Catégorie"
+          pt-PT: "Categoria"
+          it-IT: "Categoria"
+          es-ES: "Categoría"
+          el-GR: "Κατηγορία"
+          cs-CZ: "Kategorie"
+          pl-PL: "Kategoria"
+      allCategories:
+        en-GB: "All categories"
+        de-DE: "Alle Kategorien"
+        fr-FR: "Toutes les catégories"
+        pt-PT: "Todas as categorias"
+        it-IT: "Tutte le categorie"
+        es-ES: "Todas las categorías"
+        el-GR: "Όλες οι κατηγορίες"
+        cs-CZ: "Všechny kategorie"
+        pl-PL: "Wszystkie kategorie"
+      clear:
+        en-GB: "Show all categories"
+        de-DE: "Alle Kategorien anzeigen"
+        fr-FR: "Afficher toutes les catégories"
+        pt-PT: "Mostrar todas as categorias"
+        it-IT: "Mostra tutte le categorie"
+        es-ES: "Mostrar todas las categorías"
+        el-GR: "Εμφάνιση όλων των κατηγοριών"
+        cs-CZ: "Zobrazit všechny kategorie"
+        pl-PL: "Pokaż wszystkie kategorie"
+      browseAll:
+        en-GB: "Browse all"
+        de-DE: "Alle durchsuchen"
+        fr-FR: "Tout parcourir"
+        pt-PT: "Ver tudo"
+        it-IT: "Sfoglia tutto"
+        es-ES: "Ver todo"
+        el-GR: "Περιήγηση σε όλα"
+        cs-CZ: "Procházet vše"
+        pl-PL: "Przeglądaj wszystko"
+      browseCategory:
+        en-GB: "Browse {category}"
+        de-DE: "{category} durchsuchen"
+        fr-FR: "Parcourir {category}"
+        pt-PT: "Ver {category}"
+        it-IT: "Sfoglia {category}"
+        es-ES: "Ver {category}"
+        el-GR: "Περιήγηση: {category}"
+        cs-CZ: "Procházet: {category}"
+        pl-PL: "Przeglądaj: {category}"
+      stats:
+        listings:
+          en-GB: "Listings"
+          de-DE: "Angebote"
+          fr-FR: "Annonces"
+          pt-PT: "Anúncios"
+          it-IT: "Annunci"
+          es-ES: "Anuncios"
+          el-GR: "Καταχωρίσεις"
+          cs-CZ: "Nabídky"
+          pl-PL: "Oferty"
+        sellers:
+          en-GB: "Sellers"
+          de-DE: "Verkäufer"
+          fr-FR: "Vendeurs"
+          pt-PT: "Vendedores"
+          it-IT: "Venditori"
+          es-ES: "Vendedores"
+          el-GR: "Πωλητές"
+          cs-CZ: "Prodejci"
+          pl-PL: "Sprzedawcy"
+        new:
+          en-GB: "New"
+          de-DE: "Neu"
+          fr-FR: "Nouveaux"
+          pt-PT: "Novos"
+          it-IT: "Nuovi"
+          es-ES: "Nuevos"
+          el-GR: "Νέα"
+          cs-CZ: "Nové"
+          pl-PL: "Nowe"
+        drops:
+          en-GB: "Drops"
+          de-DE: "Gesenkt"
+          fr-FR: "Baisses"
+          pt-PT: "Descidas"
+          it-IT: "Ribassi"
+          es-ES: "Bajadas"
+          el-GR: "Πτώσεις"
+          cs-CZ: "Zlevněno"
+          pl-PL: "Obniżki"
+      insight:
+        prices:
+          en-GB: "From <b>{min}</b>, typically <b>{median}</b>"
+          de-DE: "Ab <b>{min}</b>, meist <b>{median}</b>"
+          fr-FR: "Dès <b>{min}</b>, en général <b>{median}</b>"
+          pt-PT: "Desde <b>{min}</b>, normalmente <b>{median}</b>"
+          it-IT: "Da <b>{min}</b>, di solito <b>{median}</b>"
+          es-ES: "Desde <b>{min}</b>, normalmente <b>{median}</b>"
+          el-GR: "Από <b>{min}</b>, συνήθως <b>{median}</b>"
+          cs-CZ: "Od <b>{min}</b>, obvykle <b>{median}</b>"
+          pl-PL: "Od <b>{min}</b>, zwykle <b>{median}</b>"
+        topSeller:
+          en-GB: "most listings: <b>{seller}</b>"
+          de-DE: "meiste Angebote: <b>{seller}</b>"
+          fr-FR: "le plus d'annonces : <b>{seller}</b>"
+          pt-PT: "mais anúncios: <b>{seller}</b>"
+          it-IT: "più annunci: <b>{seller}</b>"
+          es-ES: "más anuncios: <b>{seller}</b>"
+          el-GR: "περισσότερες καταχωρίσεις: <b>{seller}</b>"
+          cs-CZ: "nejvíc nabídek: <b>{seller}</b>"
+          pl-PL: "najwięcej ofert: <b>{seller}</b>"
+        mostNew:
+          en-GB: "Most new stock this week: <b>{category}</b> (+{count})"
+          de-DE: "Die meisten Neuheiten diese Woche: <b>{category}</b> (+{count})"
+          fr-FR: "Le plus de nouveautés cette semaine : <b>{category}</b> (+{count})"
+          pt-PT: "Mais novidades esta semana: <b>{category}</b> (+{count})"
+          it-IT: "Più novità questa settimana: <b>{category}</b> (+{count})"
+          es-ES: "Más novedades esta semana: <b>{category}</b> (+{count})"
+          el-GR: "Περισσότερα νέα αυτή την εβδομάδα: <b>{category}</b> (+{count})"
+          cs-CZ: "Nejvíc novinek tento týden: <b>{category}</b> (+{count})"
+          pl-PL: "Najwięcej nowości w tym tygodniu: <b>{category}</b> (+{count})"
+        summary:
+          en-GB: "{categories, plural, one {# category} other {# categories}} · {sellers, plural, one {# active seller} other {# active sellers}}"
+          de-DE: "{categories, plural, one {# Kategorie} other {# Kategorien}} · {sellers, plural, one {# aktiver Verkäufer} other {# aktive Verkäufer}}"
+          fr-FR: "{categories, plural, one {# catégorie} other {# catégories}} · {sellers, plural, one {# vendeur actif} other {# vendeurs actifs}}"
+          pt-PT: "{categories, plural, one {# categoria} other {# categorias}} · {sellers, plural, one {# vendedor ativo} other {# vendedores ativos}}"
+          it-IT: "{categories, plural, one {# categoria} other {# categorie}} · {sellers, plural, one {# venditore attivo} other {# venditori attivi}}"
+          es-ES: "{categories, plural, one {# categoría} other {# categorías}} · {sellers, plural, one {# vendedor activo} other {# vendedores activos}}"
+          el-GR: "{categories, plural, one {# κατηγορία} other {# κατηγορίες}} · {sellers, plural, one {# ενεργός πωλητής} other {# ενεργοί πωλητές}}"
+          cs-CZ: "{categories, plural, one {# kategorie} few {# kategorie} other {# kategorií}} · {sellers, plural, one {# aktivní prodejce} few {# aktivní prodejci} other {# aktivních prodejců}}"
+          pl-PL: "{categories, plural, one {# kategoria} few {# kategorie} many {# kategorii} other {# kategorii}} · {sellers, plural, one {# aktywny sprzedawca} few {# aktywnych sprzedawców} many {# aktywnych sprzedawców} other {# aktywnego sprzedawcy}}"
       priceIndex:
-        en-GB: Price index
-        de-DE: Preisindex
-        fr-FR: Indice des prix
-        pt-PT: Índice de preços
-        it-IT: Indice dei prezzi
-        es-ES: Índice de precios
-        el-GR: Δείκτης τιμών
-        cs-CZ: Cenový index
-        pl-PL: Indeks cen
+        en-GB: "Price index"
+        de-DE: "Preisindex"
+        fr-FR: "Indice des prix"
+        pt-PT: "Índice de preços"
+        it-IT: "Indice dei prezzi"
+        es-ES: "Índice de precios"
+        el-GR: "Δείκτης τιμών"
+        cs-CZ: "Cenový index"
+        pl-PL: "Indeks cen"
+      badge:
+        new:
+          en-GB: "New"
+          de-DE: "Neu"
+          fr-FR: "Nouveau"
+          pt-PT: "Novo"
+          it-IT: "Nuovo"
+          es-ES: "Nuevo"
+          el-GR: "Νέο"
+          cs-CZ: "Nové"
+          pl-PL: "Nowe"
+        cheapest:
+          en-GB: "Cheapest"
+          de-DE: "Am günstigsten"
+          fr-FR: "Le moins cher"
+          pt-PT: "Mais barato"
+          it-IT: "Più economico"
+          es-ES: "Más barato"
+          el-GR: "Φθηνότερο"
+          cs-CZ: "Nejlevnější"
+          pl-PL: "Najtańsze"
+      prevListing:
+        en-GB: "Previous listing"
+        de-DE: "Vorheriges Angebot"
+        fr-FR: "Annonce précédente"
+        pt-PT: "Anúncio anterior"
+        it-IT: "Annuncio precedente"
+        es-ES: "Anuncio anterior"
+        el-GR: "Προηγούμενη καταχώριση"
+        cs-CZ: "Předchozí nabídka"
+        pl-PL: "Poprzednia oferta"
+      nextListing:
+        en-GB: "Next listing"
+        de-DE: "Nächstes Angebot"
+        fr-FR: "Annonce suivante"
+        pt-PT: "Próximo anúncio"
+        it-IT: "Annuncio successivo"
+        es-ES: "Anuncio siguiente"
+        el-GR: "Επόμενη καταχώριση"
+        cs-CZ: "Další nabídka"
+        pl-PL: "Następna oferta"
+    try:
+      label:
+        en-GB: "Try"
+        de-DE: "Probiere"
+        fr-FR: "Essayez"
+        pt-PT: "Experimente"
+        it-IT: "Prova"
+        es-ES: "Prueba"
+        el-GR: "Δοκιμάστε"
+        cs-CZ: "Zkuste"
+        pl-PL: "Wypróbuj"
+      gelato:
+        en-GB: "Gelato"
+        de-DE: "Gelato"
+        fr-FR: "Gelato"
+        pt-PT: "Gelato"
+        it-IT: "Gelato"
+        es-ES: "Gelato"
+        el-GR: "Gelato"
+        cs-CZ: "Gelato"
+        pl-PL: "Gelato"
+      freeShipping:
+        en-GB: "Free shipping"
+        de-DE: "Kostenloser Versand"
+        fr-FR: "Livraison gratuite"
+        pt-PT: "Envio grátis"
+        it-IT: "Spedizione gratuita"
+        es-ES: "Envío gratis"
+        el-GR: "Δωρεάν αποστολή"
+        cs-CZ: "Doprava zdarma"
+        pl-PL: "Darmowa wysyłka"
+      under:
+        en-GB: "Under {price}"
+        de-DE: "Unter {price}"
+        fr-FR: "Moins de {price}"
+        pt-PT: "Menos de {price}"
+        it-IT: "Sotto {price}"
+        es-ES: "Menos de {price}"
+        el-GR: "Κάτω από {price}"
+        cs-CZ: "Do {price}"
+        pl-PL: "Poniżej {price}"
+    search:
+      placeholder:
+        en-GB: "Search {count} listings, sellers, categories…"
+        de-DE: "{count} Angebote, Verkäufer, Kategorien durchsuchen…"
+        fr-FR: "Rechercher parmi {count} annonces, vendeurs, catégories…"
+        pt-PT: "Pesquisar {count} anúncios, vendedores, categorias…"
+        it-IT: "Cerca tra {count} annunci, venditori, categorie…"
+        es-ES: "Buscar en {count} anuncios, vendedores, categorías…"
+        el-GR: "Αναζήτηση σε {count} καταχωρίσεις, πωλητές, κατηγορίες…"
+        cs-CZ: "Hledat v {count} nabídkách, prodejcích, kategoriích…"
+        pl-PL: "Szukaj wśród {count} ofert, sprzedawców, kategorii…"
+      button:
+        en-GB: "Search"
+        de-DE: "Suchen"
+        fr-FR: "Rechercher"
+        pt-PT: "Pesquisar"
+        it-IT: "Cerca"
+        es-ES: "Buscar"
+        el-GR: "Αναζήτηση"
+        cs-CZ: "Hledat"
+        pl-PL: "Szukaj"
+      items:
+        en-GB: "Listings"
+        de-DE: "Angebote"
+        fr-FR: "Annonces"
+        pt-PT: "Anúncios"
+        it-IT: "Annunci"
+        es-ES: "Anuncios"
+        el-GR: "Καταχωρίσεις"
+        cs-CZ: "Nabídky"
+        pl-PL: "Oferty"
+      sellers:
+        en-GB: "Sellers"
+        de-DE: "Verkäufer"
+        fr-FR: "Vendeurs"
+        pt-PT: "Vendedores"
+        it-IT: "Venditori"
+        es-ES: "Vendedores"
+        el-GR: "Πωλητές"
+        cs-CZ: "Prodejci"
+        pl-PL: "Sprzedawcy"
+      categories:
+        en-GB: "Categories"
+        de-DE: "Kategorien"
+        fr-FR: "Catégories"
+        pt-PT: "Categorias"
+        it-IT: "Categorie"
+        es-ES: "Categorías"
+        el-GR: "Κατηγορίες"
+        cs-CZ: "Kategorie"
+        pl-PL: "Kategorie"
+      listings:
+        en-GB: "{count, plural, one {# listing} other {# listings}}"
+        de-DE: "{count, plural, one {# Angebot} other {# Angebote}}"
+        fr-FR: "{count, plural, one {# annonce} other {# annonces}}"
+        pt-PT: "{count, plural, one {# anúncio} other {# anúncios}}"
+        it-IT: "{count, plural, one {# annuncio} other {# annunci}}"
+        es-ES: "{count, plural, one {# anuncio} other {# anuncios}}"
+        el-GR: "{count, plural, one {# καταχώριση} other {# καταχωρίσεις}}"
+        cs-CZ: "{count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}"
+        pl-PL: "{count, plural, one {# oferta} few {# oferty} other {# ofert}}"
+      noMatches:
+        en-GB: "No matches for “{term}” — try a strain, seller or category."
+        de-DE: "Keine Treffer für „{term}“ – versuche eine Sorte, einen Verkäufer oder eine Kategorie."
+        fr-FR: "Aucun résultat pour « {term} » — essayez une variété, un vendeur ou une catégorie."
+        pt-PT: "Sem resultados para “{term}” — tente uma variedade, vendedor ou categoria."
+        it-IT: "Nessun risultato per “{term}” — prova una varietà, un venditore o una categoria."
+        es-ES: "Sin resultados para “{term}” — prueba con una variedad, vendedor o categoría."
+        el-GR: "Κανένα αποτέλεσμα για «{term}» — δοκιμάστε ποικιλία, πωλητή ή κατηγορία."
+        cs-CZ: "Žádné výsledky pro „{term}“ – zkuste odrůdu, prodejce nebo kategorii."
+        pl-PL: "Brak wyników dla „{term}” — spróbuj odmiany, sprzedawcy lub kategorii."
+      seeAll:
+        en-GB: "See all results for “{term}”"
+        de-DE: "Alle Ergebnisse für „{term}“"
+        fr-FR: "Voir tous les résultats pour « {term} »"
+        pt-PT: "Ver todos os resultados para “{term}”"
+        it-IT: "Vedi tutti i risultati per “{term}”"
+        es-ES: "Ver todos los resultados de “{term}”"
+        el-GR: "Όλα τα αποτελέσματα για «{term}»"
+        cs-CZ: "Všechny výsledky pro „{term}“"
+        pl-PL: "Wszystkie wyniki dla „{term}”"
+      loading:
+        en-GB: "Searching…"
+        de-DE: "Suche…"
+        fr-FR: "Recherche…"
+        pt-PT: "A pesquisar…"
+        it-IT: "Ricerca…"
+        es-ES: "Buscando…"
+        el-GR: "Αναζήτηση…"
+        cs-CZ: "Hledám…"
+        pl-PL: "Szukam…"
+      resultsAria:
+        en-GB: "Search results"
+        de-DE: "Suchergebnisse"
+        fr-FR: "Résultats de recherche"
+        pt-PT: "Resultados da pesquisa"
+        it-IT: "Risultati della ricerca"
+        es-ES: "Resultados de búsqueda"
+        el-GR: "Αποτελέσματα αναζήτησης"
+        cs-CZ: "Výsledky hledání"
+        pl-PL: "Wyniki wyszukiwania"
     cta:
       en-GB: Browse Marketplace
       de-DE: Marktplatz durchstöbern
@@ -1650,16 +2056,36 @@ home:
       el-GR: Περιήγηση στο Marketplace
       cs-CZ: Procházet tržiště
       pl-PL: Przeglądaj Marketplace
-    markets:
-      en-GB: Markets
-      de-DE: Märkte
-      fr-FR: Marchés
-      pt-PT: Mercados
-      it-IT: Mercati
-      es-ES: Mercados
-      el-GR: Αγορές
-      cs-CZ: Trhy
-      pl-PL: Rynki
+    ctaSellers:
+      en-GB: "Browse sellers"
+      de-DE: "Verkäufer durchstöbern"
+      fr-FR: "Parcourir les vendeurs"
+      pt-PT: "Ver vendedores"
+      it-IT: "Sfoglia i venditori"
+      es-ES: "Explorar vendedores"
+      el-GR: "Περιήγηση στους πωλητές"
+      cs-CZ: "Procházet prodejce"
+      pl-PL: "Przeglądaj sprzedawców"
+    browseByCategory:
+      en-GB: "Browse by category"
+      de-DE: "Nach Kategorie stöbern"
+      fr-FR: "Parcourir par catégorie"
+      pt-PT: "Navegar por categoria"
+      it-IT: "Sfoglia per categoria"
+      es-ES: "Explorar por categoría"
+      el-GR: "Περιήγηση ανά κατηγορία"
+      cs-CZ: "Procházet podle kategorie"
+      pl-PL: "Przeglądaj według kategorii"
+    editions:
+      en-GB: "Editions"
+      de-DE: "Ausgaben"
+      fr-FR: "Éditions"
+      pt-PT: "Edições"
+      it-IT: "Edizioni"
+      es-ES: "Ediciones"
+      el-GR: "Εκδόσεις"
+      cs-CZ: "Edice"
+      pl-PL: "Edycje"
   quickStart:
     heading:
       en-GB: How It Works
@@ -2523,7 +2949,7 @@ home:
             en-GB: Are prices in euros, and can I pay in euros?
           a:
             en-GB: Prices on this edition are shown in euros, converted from the seller's asking price at the current exchange rate so you can compare listings at a glance. Payment itself is still Bitcoin only — no card, bank transfer or euro balance — so the amount you send is the Bitcoin equivalent at the moment you pay.
-  whatsNewSection:
+  feed:
     soldOut:
       en-GB: Sold out
       de-DE: Ausverkauft
@@ -2534,87 +2960,6 @@ home:
       el-GR: Εξαντλήθηκε
       cs-CZ: Vyprodáno
       pl-PL: Wyprzedane
-    eyebrow:
-      en-GB: Fresh activity
-      de-DE: Frische Aktivitäten
-      fr-FR: Nouvelle activité
-      pt-PT: Atividade recente
-      it-IT: Attività recente
-      es-ES: Actividad reciente
-      el-GR: Φρέσκια δραστηριότητα
-      cs-CZ: Nová aktivita
-      pl-PL: Świeża aktywność
-    heading:
-      en-GB: Recently indexed items
-      de-DE: Kürzlich indexierte Einträge
-      fr-FR: Éléments récemment indexés
-      pt-PT: Itens recentemente indexados
-      it-IT: Elementi recentemente indicizzati
-      es-ES: Elementos indexados recientemente
-      el-GR: Πρόσφατα ευρετηριασμένα στοιχεία
-      cs-CZ: Nedávno indexované položky
-      pl-PL: Ostatnio indeksowane pozycje
-    description:
-      en-GB: See the latest or most recently updated items on Little Biggy.
-      de-DE: Sehen Sie sich die neuesten oder aktuellsten Artikel auf Little Biggy an.
-      fr-FR: Consultez les articles les plus récents ou ceux mis à jour dernièrement sur Little Biggy.
-      pt-PT: Consulte os itens mais recentes ou atualizados no Little Biggy.
-      it-IT: Consulta gli articoli più recenti o aggiornati su Little Biggy.
-      es-ES: Consulta los artículos más recientes o actualizados en Little Biggy.
-      el-GR: Δείτε τα πιο πρόσφατα ή πιο πρόσφατα ενημερωμένα στοιχεία στο Little Biggy.
-      cs-CZ: Podívejte se na nejnovější nebo naposledy aktualizované položky na Little Biggy.
-      pl-PL: Zobacz najnowsze lub ostatnio zaktualizowane przedmioty na Little Biggy.
-    tabs:
-      newest:
-        en-GB: Recently added
-        de-DE: Kürzlich hinzugefügt
-        fr-FR: Ajouté récemment
-        pt-PT: Adicionado recentemente
-        it-IT: Aggiunto di recente
-        es-ES: Añadido recientemente
-        el-GR: Προστέθηκε πρόσφατα
-        cs-CZ: Nedávno přidáno
-        pl-PL: Niedawno dodane
-      updated:
-        en-GB: Recently updated
-        de-DE: Kürzlich aktualisiert
-        fr-FR: Mise à jour récente
-        pt-PT: Atualizado recentemente
-        it-IT: Aggiornato di recente
-        es-ES: Actualizado recientemente
-        el-GR: Πρόσφατα ενημερωμένο
-        cs-CZ: Nedávno aktualizováno
-        pl-PL: Niedawno zaktualizowano
-    browseAll:
-      en-GB: Browse all items
-      de-DE: Durchstöbern Sie alle Artikel
-      fr-FR: Parcourez tous les articles
-      pt-PT: Navegar por todos os itens
-      it-IT: Sfoglia tutti gli articoli
-      es-ES: Explora todos los artículos
-      el-GR: Περιήγηση σε όλα τα στοιχεία
-      cs-CZ: Procházejte všechny položky
-      pl-PL: Przeglądaj wszystkie przedmioty
-    scrollLeft:
-      en-GB: Scroll left
-      de-DE: Scroll nach links
-      fr-FR: Faire défiler vers la gauche
-      pt-PT: Deslocar para a esquerda
-      it-IT: Scorri a sinistra
-      es-ES: Desplazar a la izquierda
-      el-GR: Κύλιση προς τα αριστερά
-      cs-CZ: Posunout doleva
-      pl-PL: Przewiń w lewo
-    scrollRight:
-      en-GB: Scroll right
-      de-DE: Nach rechts scrollen
-      fr-FR: Faire défiler vers la droite
-      pt-PT: Deslocar para a direita
-      it-IT: Scorri a destra
-      es-ES: Desplázate a la derecha
-      el-GR: Κύλιση προς τα δεξιά
-      cs-CZ: Posunout doprava
-      pl-PL: Przewiń w prawo
     priceUnavailable:
       en-GB: N/A
       de-DE: N/A
@@ -2655,67 +3000,211 @@ home:
       el-GR: "{item} εναλλακτικό"
       cs-CZ: "{item} alternativa"
       pl-PL: "{item} alternatywa"
-    time:
-      justNow:
-        en-GB: Just now
-        de-DE: Gerade eben
-        fr-FR: À l’instant
-        pt-PT: Agora mesmo
-        it-IT: Proprio adesso
-        es-ES: Justo ahora
-        el-GR: Μόλις τώρα
-        cs-CZ: Právě teď
-        pl-PL: Przed chwilą
-      minutesAgo:
-        en-GB: "{count}m ago"
-        de-DE: Vor {count}m
-        fr-FR: Il y a {count}m
-        pt-PT: "{count}m atrás"
-        it-IT: "{count}m fa"
-        es-ES: "{count}m"
-        el-GR: "{count}m πριν"
-        cs-CZ: "{count}m"
-        pl-PL: "{count}m temu"
-      hoursAgo:
-        en-GB: "{count}h ago"
-        de-DE: Vor {count}h
-        fr-FR: Il y a {count}h
-        pt-PT: "{count}h atrás"
-        it-IT: "{count}h fa"
-        es-ES: Hace {count}h
-        el-GR: "{count}h πριν"
-        cs-CZ: "{count}h"
-        pl-PL: "{count}h temu"
-      oneDayAgo:
-        en-GB: 1 day ago
-        de-DE: Vor 1 Tag
-        fr-FR: Il y a 1 jour
-        pt-PT: Há 1 dia
-        it-IT: 1 giorno fa
-        es-ES: Hace 1 día
-        el-GR: 1 ημέρα Πριν
-        cs-CZ: Před 1 dnem
-        pl-PL: 1 dzień temu
-      daysAgo:
-        en-GB: "{count} days ago"
-        de-DE: Vor {count} Tagen
-        fr-FR: Il y a {count} jours
-        pt-PT: "{count} dias atrás"
-        it-IT: "{count} giorni fa"
-        es-ES: "{count} días"
-        el-GR: "{count} μέρες πριν"
-        cs-CZ: "{count} dny zpátky"
-        pl-PL: "{count} dni temu"
-      monthsAgo:
-        en-GB: "{count}mo ago"
-        de-DE: Vor {count}mo
-        fr-FR: Il y a {count}mo
-        pt-PT: "{count}mo atrás"
-        it-IT: "{count}mo fa"
-        es-ES: "{count}mo"
-        el-GR: "{count}mo πριν"
-        cs-CZ: "{count}mo"
-        pl-PL: "{count}mo temu"
+    scrollLeft:
+      en-GB: Scroll left
+      de-DE: Scroll nach links
+      fr-FR: Faire défiler vers la gauche
+      pt-PT: Deslocar para a esquerda
+      it-IT: Scorri a sinistra
+      es-ES: Desplazar a la izquierda
+      el-GR: Κύλιση προς τα αριστερά
+      cs-CZ: Posunout doleva
+      pl-PL: Przewiń w lewo
+    scrollRight:
+      en-GB: Scroll right
+      de-DE: Nach rechts scrollen
+      fr-FR: Faire défiler vers la droite
+      pt-PT: Deslocar para a direita
+      it-IT: Scorri a destra
+      es-ES: Desplázate a la derecha
+      el-GR: Κύλιση προς τα δεξιά
+      cs-CZ: Posunout doprava
+      pl-PL: Przewiń w prawo
+    tabs:
+      new:
+        en-GB: "New"
+        de-DE: "Neu"
+        fr-FR: "Nouveau"
+        pt-PT: "Novo"
+        it-IT: "Nuovo"
+        es-ES: "Nuevo"
+        el-GR: "Νέο"
+        cs-CZ: "Nové"
+        pl-PL: "Nowe"
+      drops:
+        en-GB: "Price drops"
+        de-DE: "Preissenkungen"
+        fr-FR: "Baisses de prix"
+        pt-PT: "Descidas de preço"
+        it-IT: "Ribassi di prezzo"
+        es-ES: "Bajadas de precio"
+        el-GR: "Πτώσεις τιμών"
+        cs-CZ: "Zlevněno"
+        pl-PL: "Obniżki cen"
+      restock:
+        en-GB: "Back in stock"
+        de-DE: "Wieder verfügbar"
+        fr-FR: "De retour en stock"
+        pt-PT: "De volta ao stock"
+        it-IT: "Di nuovo disponibile"
+        es-ES: "De nuevo en stock"
+        el-GR: "Ξανά σε απόθεμα"
+        cs-CZ: "Znovu skladem"
+        pl-PL: "Ponownie w magazynie"
+    timeLabel:
+      new:
+        en-GB: "Listed"
+        de-DE: "Gelistet"
+        fr-FR: "Publié"
+        pt-PT: "Publicado"
+        it-IT: "Pubblicato"
+        es-ES: "Publicado"
+        el-GR: "Καταχωρήθηκε"
+        cs-CZ: "Zveřejněno"
+        pl-PL: "Dodano"
+      drop:
+        en-GB: "Dropped"
+        de-DE: "Gesenkt"
+        fr-FR: "Baissé"
+        pt-PT: "Baixou"
+        it-IT: "Ribassato"
+        es-ES: "Bajó"
+        el-GR: "Έπεσε"
+        cs-CZ: "Zlevněno"
+        pl-PL: "Obniżono"
+      restock:
+        en-GB: "Restocked"
+        de-DE: "Wieder da"
+        fr-FR: "Réapprovisionné"
+        pt-PT: "Reposto"
+        it-IT: "Rifornito"
+        es-ES: "Repuesto"
+        el-GR: "Ξανά διαθέσιμο"
+        cs-CZ: "Znovu naskladněno"
+        pl-PL: "Uzupełniono"
+  time:
+    justNow:
+      en-GB: Just now
+      de-DE: Gerade eben
+      fr-FR: À l’instant
+      pt-PT: Agora mesmo
+      it-IT: Proprio adesso
+      es-ES: Justo ahora
+      el-GR: Μόλις τώρα
+      cs-CZ: Právě teď
+      pl-PL: Przed chwilą
+    minutesAgo:
+      en-GB: "{count}m ago"
+      de-DE: Vor {count}m
+      fr-FR: Il y a {count}m
+      pt-PT: "{count}m atrás"
+      it-IT: "{count}m fa"
+      es-ES: "{count}m"
+      el-GR: "{count}m πριν"
+      cs-CZ: "{count}m"
+      pl-PL: "{count}m temu"
+    hoursAgo:
+      en-GB: "{count}h ago"
+      de-DE: Vor {count}h
+      fr-FR: Il y a {count}h
+      pt-PT: "{count}h atrás"
+      it-IT: "{count}h fa"
+      es-ES: Hace {count}h
+      el-GR: "{count}h πριν"
+      cs-CZ: "{count}h"
+      pl-PL: "{count}h temu"
+    oneDayAgo:
+      en-GB: 1 day ago
+      de-DE: Vor 1 Tag
+      fr-FR: Il y a 1 jour
+      pt-PT: Há 1 dia
+      it-IT: 1 giorno fa
+      es-ES: Hace 1 día
+      el-GR: 1 ημέρα Πριν
+      cs-CZ: Před 1 dnem
+      pl-PL: 1 dzień temu
+    daysAgo:
+      en-GB: "{count} days ago"
+      de-DE: Vor {count} Tagen
+      fr-FR: Il y a {count} jours
+      pt-PT: "{count} dias atrás"
+      it-IT: "{count} giorni fa"
+      es-ES: "{count} días"
+      el-GR: "{count} μέρες πριν"
+      cs-CZ: "{count} dny zpátky"
+      pl-PL: "{count} dni temu"
+    monthsAgo:
+      en-GB: "{count}mo ago"
+      de-DE: Vor {count}mo
+      fr-FR: Il y a {count}mo
+      pt-PT: "{count}mo atrás"
+      it-IT: "{count}mo fa"
+      es-ES: "{count}mo"
+      el-GR: "{count}mo πριν"
+      cs-CZ: "{count}mo"
+      pl-PL: "{count}mo temu"
+  ticker:
+    label:
+      en-GB: "Recent"
+      de-DE: "Aktuell"
+      fr-FR: "Récent"
+      pt-PT: "Recente"
+      it-IT: "Recenti"
+      es-ES: "Reciente"
+      el-GR: "Πρόσφατα"
+      cs-CZ: "Nedávné"
+      pl-PL: "Ostatnie"
+    kinds:
+      new:
+        en-GB: "New"
+        de-DE: "Neu"
+        fr-FR: "Nouveau"
+        pt-PT: "Novo"
+        it-IT: "Nuovo"
+        es-ES: "Nuevo"
+        el-GR: "Νέο"
+        cs-CZ: "Nové"
+        pl-PL: "Nowe"
+      drop:
+        en-GB: "Price ↓"
+        de-DE: "Preis ↓"
+        fr-FR: "Prix ↓"
+        pt-PT: "Preço ↓"
+        it-IT: "Prezzo ↓"
+        es-ES: "Precio ↓"
+        el-GR: "Τιμή ↓"
+        cs-CZ: "Cena ↓"
+        pl-PL: "Cena ↓"
+      restock:
+        en-GB: "Restocked"
+        de-DE: "Wieder da"
+        fr-FR: "Réapprovisionné"
+        pt-PT: "Reposto"
+        it-IT: "Rifornito"
+        es-ES: "Repuesto"
+        el-GR: "Ξανά διαθέσιμο"
+        cs-CZ: "Znovu naskladněno"
+        pl-PL: "Uzupełniono"
+    seen:
+      en-GB: "seen"
+      de-DE: "gesehen"
+      fr-FR: "vu"
+      pt-PT: "visto"
+      it-IT: "visto"
+      es-ES: "visto"
+      el-GR: "εμφανίστηκε"
+      cs-CZ: "zaznamenáno"
+      pl-PL: "zauważono"
+    view:
+      en-GB: "View {name}"
+      de-DE: "{name} ansehen"
+      fr-FR: "Voir {name}"
+      pt-PT: "Ver {name}"
+      it-IT: "Vedi {name}"
+      es-ES: "Ver {name}"
+      el-GR: "Προβολή {name}"
+      cs-CZ: "Zobrazit {name}"
+      pl-PL: "Zobacz {name}"
   sellerTrust:
     eyebrow:
       en-GB: Community Trust

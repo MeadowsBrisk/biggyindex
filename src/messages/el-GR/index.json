@@ -215,13 +215,67 @@
         "highlight": "του Little Biggy"
       },
       "subtitle": "Ταχύτερη αναζήτηση, καθαρότερες κατηγορίες και εμπιστοσύνη πωλητών με μια ματιά για την αγορά Little Biggy.",
-      "stats": {
-        "itemsIndexed": "Στοιχεία που έχουν ευρετηριαστεί",
-        "activeSellers": "Ενεργοί πωλητές",
-        "priceIndex": "Δείκτης τιμών"
+      "eyebrow": "Ανεξάρτητο · Ενημερώνεται κάθε ώρα",
+      "leaf": {
+        "aria": "Οι κατηγορίες σχεδιασμένες ως φύλλο κάνναβης. Κάθε φυλλάριο είναι μια κατηγορία, με μέγεθος ανάλογο του αριθμού καταχωρίσεων.",
+        "leaflet": "{name}: {count, plural, one {# καταχώριση} other {# καταχωρίσεις}}",
+        "leafletNew": "{count, plural, one {# νέα αυτή την εβδομάδα} other {# νέες αυτή την εβδομάδα}}",
+        "leafletDrops": "{count, plural, one {# πτώση τιμής} other {# πτώσεις τιμών}}",
+        "newShort": "{count, plural, one {+# νέα} other {+# νέες}}",
+        "dropShort": "{count, plural, one {# φθηνότερη} other {# φθηνότερες}}",
+        "hint": "Περάστε τον δείκτη ή πατήστε ένα φυλλάριο",
+        "lastScan": "Τελευταία σάρωση",
+        "scope": {
+          "market": "Αγορά",
+          "preview": "Προεπισκόπηση",
+          "category": "Κατηγορία"
+        },
+        "allCategories": "Όλες οι κατηγορίες",
+        "clear": "Εμφάνιση όλων των κατηγοριών",
+        "browseAll": "Περιήγηση σε όλα",
+        "browseCategory": "Περιήγηση: {category}",
+        "stats": {
+          "listings": "Καταχωρίσεις",
+          "sellers": "Πωλητές",
+          "new": "Νέα",
+          "drops": "Πτώσεις"
+        },
+        "insight": {
+          "prices": "Από <b>{min}</b>, συνήθως <b>{median}</b>",
+          "topSeller": "περισσότερες καταχωρίσεις: <b>{seller}</b>",
+          "mostNew": "Περισσότερα νέα αυτή την εβδομάδα: <b>{category}</b> (+{count})",
+          "summary": "{categories, plural, one {# κατηγορία} other {# κατηγορίες}} · {sellers, plural, one {# ενεργός πωλητής} other {# ενεργοί πωλητές}}"
+        },
+        "priceIndex": "Δείκτης τιμών",
+        "badge": {
+          "new": "Νέο",
+          "cheapest": "Φθηνότερο"
+        },
+        "prevListing": "Προηγούμενη καταχώριση",
+        "nextListing": "Επόμενη καταχώριση"
+      },
+      "try": {
+        "label": "Δοκιμάστε",
+        "gelato": "Gelato",
+        "freeShipping": "Δωρεάν αποστολή",
+        "under": "Κάτω από {price}"
+      },
+      "search": {
+        "placeholder": "Αναζήτηση σε {count} καταχωρίσεις, πωλητές, κατηγορίες…",
+        "button": "Αναζήτηση",
+        "items": "Καταχωρίσεις",
+        "sellers": "Πωλητές",
+        "categories": "Κατηγορίες",
+        "listings": "{count, plural, one {# καταχώριση} other {# καταχωρίσεις}}",
+        "noMatches": "Κανένα αποτέλεσμα για «{term}» — δοκιμάστε ποικιλία, πωλητή ή κατηγορία.",
+        "seeAll": "Όλα τα αποτελέσματα για «{term}»",
+        "loading": "Αναζήτηση…",
+        "resultsAria": "Αποτελέσματα αναζήτησης"
       },
       "cta": "Περιήγηση στο Marketplace",
-      "markets": "Αγορές"
+      "ctaSellers": "Περιήγηση στους πωλητές",
+      "browseByCategory": "Περιήγηση ανά κατηγορία",
+      "editions": "Εκδόσεις"
     },
     "quickStart": {
       "heading": "Πως δουλεύει",
@@ -376,30 +430,42 @@
         }
       }
     },
-    "whatsNewSection": {
+    "feed": {
       "soldOut": "Εξαντλήθηκε",
-      "eyebrow": "Φρέσκια δραστηριότητα",
-      "heading": "Πρόσφατα ευρετηριασμένα στοιχεία",
-      "description": "Δείτε τα πιο πρόσφατα ή πιο πρόσφατα ενημερωμένα στοιχεία στο Little Biggy.",
-      "tabs": {
-        "newest": "Προστέθηκε πρόσφατα",
-        "updated": "Πρόσφατα ενημερωμένο"
-      },
-      "browseAll": "Περιήγηση σε όλα τα στοιχεία",
-      "scrollLeft": "Κύλιση προς τα αριστερά",
-      "scrollRight": "Κύλιση προς τα δεξιά",
       "priceUnavailable": "Δ/Υ",
       "unknownSeller": "Άγνωστος πωλητής",
       "viewSeller": "Προβολή πωλητή {seller}",
       "alternateImageAlt": "{item} εναλλακτικό",
-      "time": {
-        "justNow": "Μόλις τώρα",
-        "minutesAgo": "{count}m πριν",
-        "hoursAgo": "{count}h πριν",
-        "oneDayAgo": "1 ημέρα Πριν",
-        "daysAgo": "{count} μέρες πριν",
-        "monthsAgo": "{count}mo πριν"
+      "scrollLeft": "Κύλιση προς τα αριστερά",
+      "scrollRight": "Κύλιση προς τα δεξιά",
+      "tabs": {
+        "new": "Νέο",
+        "drops": "Πτώσεις τιμών",
+        "restock": "Ξανά σε απόθεμα"
+      },
+      "timeLabel": {
+        "new": "Καταχωρήθηκε",
+        "drop": "Έπεσε",
+        "restock": "Ξανά διαθέσιμο"
       }
+    },
+    "time": {
+      "justNow": "Μόλις τώρα",
+      "minutesAgo": "{count}m πριν",
+      "hoursAgo": "{count}h πριν",
+      "oneDayAgo": "1 ημέρα Πριν",
+      "daysAgo": "{count} μέρες πριν",
+      "monthsAgo": "{count}mo πριν"
+    },
+    "ticker": {
+      "label": "Πρόσφατα",
+      "kinds": {
+        "new": "Νέο",
+        "drop": "Τιμή ↓",
+        "restock": "Ξανά διαθέσιμο"
+      },
+      "seen": "εμφανίστηκε",
+      "view": "Προβολή {name}"
     },
     "sellerTrust": {
       "eyebrow": "Κοινοτική εμπιστοσύνη",

@@ -215,13 +215,67 @@
         "highlight": "na Little Biggy"
       },
       "subtitle": "Rychlejší vyhledávání, čistší kategorie a okamžitá důvěra prodejců pro Little Biggy trh.",
-      "stats": {
-        "itemsIndexed": "Položky indexované",
-        "activeSellers": "Aktivní prodejci",
-        "priceIndex": "Cenový index"
+      "eyebrow": "Nezávislý · Aktualizováno každou hodinu",
+      "leaf": {
+        "aria": "Kategorie nakreslené jako list konopí. Každý lístek je jedna kategorie, jeho velikost odpovídá počtu nabídek.",
+        "leaflet": "{name}: {count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}",
+        "leafletNew": "{count, plural, one {# nová tento týden} few {# nové tento týden} other {# nových tento týden}}",
+        "leafletDrops": "{count, plural, one {# zlevnění} few {# zlevnění} other {# zlevnění}}",
+        "newShort": "{count, plural, one {+# nová} few {+# nové} other {+# nových}}",
+        "dropShort": "{count, plural, one {# levnější} few {# levnější} other {# levnějších}}",
+        "hint": "Najeďte na lístek nebo na něj klepněte",
+        "lastScan": "Poslední sken",
+        "scope": {
+          "market": "Trh",
+          "preview": "Náhled",
+          "category": "Kategorie"
+        },
+        "allCategories": "Všechny kategorie",
+        "clear": "Zobrazit všechny kategorie",
+        "browseAll": "Procházet vše",
+        "browseCategory": "Procházet: {category}",
+        "stats": {
+          "listings": "Nabídky",
+          "sellers": "Prodejci",
+          "new": "Nové",
+          "drops": "Zlevněno"
+        },
+        "insight": {
+          "prices": "Od <b>{min}</b>, obvykle <b>{median}</b>",
+          "topSeller": "nejvíc nabídek: <b>{seller}</b>",
+          "mostNew": "Nejvíc novinek tento týden: <b>{category}</b> (+{count})",
+          "summary": "{categories, plural, one {# kategorie} few {# kategorie} other {# kategorií}} · {sellers, plural, one {# aktivní prodejce} few {# aktivní prodejci} other {# aktivních prodejců}}"
+        },
+        "priceIndex": "Cenový index",
+        "badge": {
+          "new": "Nové",
+          "cheapest": "Nejlevnější"
+        },
+        "prevListing": "Předchozí nabídka",
+        "nextListing": "Další nabídka"
+      },
+      "try": {
+        "label": "Zkuste",
+        "gelato": "Gelato",
+        "freeShipping": "Doprava zdarma",
+        "under": "Do {price}"
+      },
+      "search": {
+        "placeholder": "Hledat v {count} nabídkách, prodejcích, kategoriích…",
+        "button": "Hledat",
+        "items": "Nabídky",
+        "sellers": "Prodejci",
+        "categories": "Kategorie",
+        "listings": "{count, plural, one {# nabídka} few {# nabídky} other {# nabídek}}",
+        "noMatches": "Žádné výsledky pro „{term}“ – zkuste odrůdu, prodejce nebo kategorii.",
+        "seeAll": "Všechny výsledky pro „{term}“",
+        "loading": "Hledám…",
+        "resultsAria": "Výsledky hledání"
       },
       "cta": "Procházet tržiště",
-      "markets": "Trhy"
+      "ctaSellers": "Procházet prodejce",
+      "browseByCategory": "Procházet podle kategorie",
+      "editions": "Edice"
     },
     "quickStart": {
       "heading": "Jak to funguje",
@@ -376,30 +430,42 @@
         }
       }
     },
-    "whatsNewSection": {
+    "feed": {
       "soldOut": "Vyprodáno",
-      "eyebrow": "Nová aktivita",
-      "heading": "Nedávno indexované položky",
-      "description": "Podívejte se na nejnovější nebo naposledy aktualizované položky na Little Biggy.",
-      "tabs": {
-        "newest": "Nedávno přidáno",
-        "updated": "Nedávno aktualizováno"
-      },
-      "browseAll": "Procházejte všechny položky",
-      "scrollLeft": "Posunout doleva",
-      "scrollRight": "Posunout doprava",
       "priceUnavailable": "N/A",
       "unknownSeller": "Neznámý prodejce",
       "viewSeller": "Zobrazit prodejce {seller}",
       "alternateImageAlt": "{item} alternativa",
-      "time": {
-        "justNow": "Právě teď",
-        "minutesAgo": "{count}m",
-        "hoursAgo": "{count}h",
-        "oneDayAgo": "Před 1 dnem",
-        "daysAgo": "{count} dny zpátky",
-        "monthsAgo": "{count}mo"
+      "scrollLeft": "Posunout doleva",
+      "scrollRight": "Posunout doprava",
+      "tabs": {
+        "new": "Nové",
+        "drops": "Zlevněno",
+        "restock": "Znovu skladem"
+      },
+      "timeLabel": {
+        "new": "Zveřejněno",
+        "drop": "Zlevněno",
+        "restock": "Znovu naskladněno"
       }
+    },
+    "time": {
+      "justNow": "Právě teď",
+      "minutesAgo": "{count}m",
+      "hoursAgo": "{count}h",
+      "oneDayAgo": "Před 1 dnem",
+      "daysAgo": "{count} dny zpátky",
+      "monthsAgo": "{count}mo"
+    },
+    "ticker": {
+      "label": "Nedávné",
+      "kinds": {
+        "new": "Nové",
+        "drop": "Cena ↓",
+        "restock": "Znovu naskladněno"
+      },
+      "seen": "zaznamenáno",
+      "view": "Zobrazit {name}"
     },
     "sellerTrust": {
       "eyebrow": "Důvěra komunity",

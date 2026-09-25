@@ -392,6 +392,44 @@ export interface HomeFeedItemCard {
   ow?: 1 | 2;
 }
 
+/** Last index run for the market and the new listings it found */
+export interface HomeFeedScan {
+  at: string;
+  newCount?: number | null;
+}
+
+export type HomeEventKind = "new" | "drop" | "restock";
+
+/** Ticker event (newest first, max 12) */
+export interface HomeFeedEvent {
+  k: HomeEventKind;
+  ref: string;
+  id: string | number;
+  n: string;
+  sid?: number | null;
+  sn?: string | null;
+  c?: string | null;
+  /** Current uMin (USD) */
+  u?: number | null;
+  /** Previous uMin (USD), drops only */
+  was?: number | null;
+  at: string;
+  ih?: string | null;
+}
+
+/** Tab card: a home card plus the event timestamp (and previous price for drops) */
+export interface HomeFeedTabItem extends HomeFeedItemCard {
+  at?: string | null;
+  was?: number | null;
+}
+
+export interface HomeFeedTabs {
+  new: HomeFeedTabItem[];
+  drops: HomeFeedTabItem[];
+  /** Empty until the crawler stamps relists; the tab hides when empty */
+  restock: HomeFeedTabItem[];
+}
+
 /** The complete home-feed.json blob */
 export interface HomeFeed {
   hero: {
@@ -413,4 +451,45 @@ export interface HomeFeed {
     stats: HomeFeedReviewStats;
   };
   builtAt: string;
+  /** Optional until the crawler writes them; consumers must tolerate absence */
+  scan?: HomeFeedScan | null;
+  events?: HomeFeedEvent[] | null;
+  tabs?: Partial<HomeFeedTabs> | null;
+}
+
+// ─── Home search index (markets/{m}/search-index.json) ──────────────
+
+export interface SearchIndexItem {
+  r: string;
+  n: string;
+  s: string;
+  sid: number;
+  c: string;
+  sc?: string[];
+  st?: string[];
+  a?: string[];
+  /** uMin (USD); the sold-out placeholder when `so` is set */
+  u?: number | null;
+  ih?: string | null;
+  so?: 1;
+}
+
+export interface SearchIndexSeller {
+  id: number;
+  n: string;
+  cnt: number;
+  /** Image hash or source URL */
+  img?: string | null;
+}
+
+export interface SearchIndexCategory {
+  n: string;
+  cnt: number;
+}
+
+export interface SearchIndex {
+  builtAt: string;
+  i: SearchIndexItem[];
+  s: SearchIndexSeller[];
+  c: SearchIndexCategory[];
 }

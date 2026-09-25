@@ -215,13 +215,67 @@
         "highlight": "Cannabis Index"
       },
       "subtitle": "Faster search, cleaner categories, and at-a-glance seller trust for the Little Biggy marketplace.",
-      "stats": {
-        "itemsIndexed": "items indexed",
-        "activeSellers": "active sellers",
-        "priceIndex": "Price index"
+      "eyebrow": "Independent · Updated hourly",
+      "leaf": {
+        "aria": "Categories drawn as a cannabis leaf. Each leaflet is a category, sized by its number of listings.",
+        "leaflet": "{name}: {count, plural, one {# listing} other {# listings}}",
+        "leafletNew": "{count} new this week",
+        "leafletDrops": "{count, plural, one {# price drop} other {# price drops}}",
+        "newShort": "+{count} new",
+        "dropShort": "{count} cheaper",
+        "hint": "Hover or tap a leaflet",
+        "lastScan": "Last scan",
+        "scope": {
+          "market": "Market",
+          "preview": "Preview",
+          "category": "Category"
+        },
+        "allCategories": "All categories",
+        "clear": "Show all categories",
+        "browseAll": "Browse all",
+        "browseCategory": "Browse {category}",
+        "stats": {
+          "listings": "Listings",
+          "sellers": "Sellers",
+          "new": "New",
+          "drops": "Drops"
+        },
+        "insight": {
+          "prices": "From <b>{min}</b>, typically <b>{median}</b>",
+          "topSeller": "most listings: <b>{seller}</b>",
+          "mostNew": "Most new stock this week: <b>{category}</b> (+{count})",
+          "summary": "{categories, plural, one {# category} other {# categories}} · {sellers, plural, one {# active seller} other {# active sellers}}"
+        },
+        "priceIndex": "Price index",
+        "badge": {
+          "new": "New",
+          "cheapest": "Cheapest"
+        },
+        "prevListing": "Previous listing",
+        "nextListing": "Next listing"
+      },
+      "try": {
+        "label": "Try",
+        "gelato": "Gelato",
+        "freeShipping": "Free shipping",
+        "under": "Under {price}"
+      },
+      "search": {
+        "placeholder": "Search {count} listings, sellers, categories…",
+        "button": "Search",
+        "items": "Listings",
+        "sellers": "Sellers",
+        "categories": "Categories",
+        "listings": "{count, plural, one {# listing} other {# listings}}",
+        "noMatches": "No matches for “{term}” — try a strain, seller or category.",
+        "seeAll": "See all results for “{term}”",
+        "loading": "Searching…",
+        "resultsAria": "Search results"
       },
       "cta": "Browse Marketplace",
-      "markets": "Markets"
+      "ctaSellers": "Browse sellers",
+      "browseByCategory": "Browse by category",
+      "editions": "Editions"
     },
     "quickStart": {
       "heading": "How It Works",
@@ -376,30 +430,42 @@
         }
       }
     },
-    "whatsNewSection": {
+    "feed": {
       "soldOut": "Sold out",
-      "eyebrow": "Fresh activity",
-      "heading": "Recently indexed items",
-      "description": "See the latest or most recently updated items on Little Biggy.",
-      "tabs": {
-        "newest": "Recently added",
-        "updated": "Recently updated"
-      },
-      "browseAll": "Browse all items",
-      "scrollLeft": "Scroll left",
-      "scrollRight": "Scroll right",
       "priceUnavailable": "N/A",
       "unknownSeller": "Unknown seller",
       "viewSeller": "View seller {seller}",
       "alternateImageAlt": "{item} alternate",
-      "time": {
-        "justNow": "Just now",
-        "minutesAgo": "{count}m ago",
-        "hoursAgo": "{count}h ago",
-        "oneDayAgo": "1 day ago",
-        "daysAgo": "{count} days ago",
-        "monthsAgo": "{count}mo ago"
+      "scrollLeft": "Scroll left",
+      "scrollRight": "Scroll right",
+      "tabs": {
+        "new": "New",
+        "drops": "Price drops",
+        "restock": "Back in stock"
+      },
+      "timeLabel": {
+        "new": "Listed",
+        "drop": "Dropped",
+        "restock": "Restocked"
       }
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "oneDayAgo": "1 day ago",
+      "daysAgo": "{count} days ago",
+      "monthsAgo": "{count}mo ago"
+    },
+    "ticker": {
+      "label": "Recent",
+      "kinds": {
+        "new": "New",
+        "drop": "Price ↓",
+        "restock": "Restocked"
+      },
+      "seen": "seen",
+      "view": "View {name}"
     },
     "sellerTrust": {
       "eyebrow": "Community Trust",

@@ -215,13 +215,67 @@
         "highlight": "di Little Biggy"
       },
       "subtitle": "Ricerca più veloce, categorie più pulite e fiducia immediata tra i venditori per il mercato Little Biggy.",
-      "stats": {
-        "itemsIndexed": "Oggetti indicizzati",
-        "activeSellers": "Venditori attivi",
-        "priceIndex": "Indice dei prezzi"
+      "eyebrow": "Indipendente · Aggiornato ogni ora",
+      "leaf": {
+        "aria": "Categorie disegnate come una foglia di cannabis. Ogni fogliolina è una categoria, dimensionata in base al numero di annunci.",
+        "leaflet": "{name}: {count, plural, one {# annuncio} other {# annunci}}",
+        "leafletNew": "{count, plural, one {# nuovo questa settimana} other {# nuovi questa settimana}}",
+        "leafletDrops": "{count, plural, one {# ribasso di prezzo} other {# ribassi di prezzo}}",
+        "newShort": "{count, plural, one {+# nuovo} other {+# nuovi}}",
+        "dropShort": "{count, plural, one {# ribassato} other {# ribassati}}",
+        "hint": "Passa sopra o tocca una fogliolina",
+        "lastScan": "Ultima scansione",
+        "scope": {
+          "market": "Mercato",
+          "preview": "Anteprima",
+          "category": "Categoria"
+        },
+        "allCategories": "Tutte le categorie",
+        "clear": "Mostra tutte le categorie",
+        "browseAll": "Sfoglia tutto",
+        "browseCategory": "Sfoglia {category}",
+        "stats": {
+          "listings": "Annunci",
+          "sellers": "Venditori",
+          "new": "Nuovi",
+          "drops": "Ribassi"
+        },
+        "insight": {
+          "prices": "Da <b>{min}</b>, di solito <b>{median}</b>",
+          "topSeller": "più annunci: <b>{seller}</b>",
+          "mostNew": "Più novità questa settimana: <b>{category}</b> (+{count})",
+          "summary": "{categories, plural, one {# categoria} other {# categorie}} · {sellers, plural, one {# venditore attivo} other {# venditori attivi}}"
+        },
+        "priceIndex": "Indice dei prezzi",
+        "badge": {
+          "new": "Nuovo",
+          "cheapest": "Più economico"
+        },
+        "prevListing": "Annuncio precedente",
+        "nextListing": "Annuncio successivo"
+      },
+      "try": {
+        "label": "Prova",
+        "gelato": "Gelato",
+        "freeShipping": "Spedizione gratuita",
+        "under": "Sotto {price}"
+      },
+      "search": {
+        "placeholder": "Cerca tra {count} annunci, venditori, categorie…",
+        "button": "Cerca",
+        "items": "Annunci",
+        "sellers": "Venditori",
+        "categories": "Categorie",
+        "listings": "{count, plural, one {# annuncio} other {# annunci}}",
+        "noMatches": "Nessun risultato per “{term}” — prova una varietà, un venditore o una categoria.",
+        "seeAll": "Vedi tutti i risultati per “{term}”",
+        "loading": "Ricerca…",
+        "resultsAria": "Risultati della ricerca"
       },
       "cta": "Naviga nel Marketplace",
-      "markets": "Mercati"
+      "ctaSellers": "Sfoglia i venditori",
+      "browseByCategory": "Sfoglia per categoria",
+      "editions": "Edizioni"
     },
     "quickStart": {
       "heading": "Come funziona",
@@ -376,30 +430,42 @@
         }
       }
     },
-    "whatsNewSection": {
+    "feed": {
       "soldOut": "Esaurito",
-      "eyebrow": "Attività recente",
-      "heading": "Elementi recentemente indicizzati",
-      "description": "Consulta gli articoli più recenti o aggiornati su Little Biggy.",
-      "tabs": {
-        "newest": "Aggiunto di recente",
-        "updated": "Aggiornato di recente"
-      },
-      "browseAll": "Sfoglia tutti gli articoli",
-      "scrollLeft": "Scorri a sinistra",
-      "scrollRight": "Scorri a destra",
       "priceUnavailable": "N/A",
       "unknownSeller": "Venditore sconosciuto",
       "viewSeller": "Visualizza il venditore {seller}",
       "alternateImageAlt": "{item} alternativa",
-      "time": {
-        "justNow": "Proprio adesso",
-        "minutesAgo": "{count}m fa",
-        "hoursAgo": "{count}h fa",
-        "oneDayAgo": "1 giorno fa",
-        "daysAgo": "{count} giorni fa",
-        "monthsAgo": "{count}mo fa"
+      "scrollLeft": "Scorri a sinistra",
+      "scrollRight": "Scorri a destra",
+      "tabs": {
+        "new": "Nuovo",
+        "drops": "Ribassi di prezzo",
+        "restock": "Di nuovo disponibile"
+      },
+      "timeLabel": {
+        "new": "Pubblicato",
+        "drop": "Ribassato",
+        "restock": "Rifornito"
       }
+    },
+    "time": {
+      "justNow": "Proprio adesso",
+      "minutesAgo": "{count}m fa",
+      "hoursAgo": "{count}h fa",
+      "oneDayAgo": "1 giorno fa",
+      "daysAgo": "{count} giorni fa",
+      "monthsAgo": "{count}mo fa"
+    },
+    "ticker": {
+      "label": "Recenti",
+      "kinds": {
+        "new": "Nuovo",
+        "drop": "Prezzo ↓",
+        "restock": "Rifornito"
+      },
+      "seen": "visto",
+      "view": "Vedi {name}"
     },
     "sellerTrust": {
       "eyebrow": "Fiducia della community",

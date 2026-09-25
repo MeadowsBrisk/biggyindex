@@ -226,6 +226,9 @@ export const R2Keys = {
 
   /** Pre-built home feed (items + sellers + manifest) */
   homeFeed: (market: string) => `markets/${market}/home-feed.json`,
+  searchIndex: (market: string) => `markets/${market}/search-index.json`,
+  /** Last index run across markets: { at, ok, ms } */
+  runHeartbeat: "shared/run-heartbeat/index-all-markets-background.json",
 
   /** Individual seller detail */
   sellerDetail: (id: string | number) => `shared/sellers/${id}.json`,

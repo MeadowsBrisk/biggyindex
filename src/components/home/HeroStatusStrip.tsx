@@ -70,13 +70,10 @@ export function HeroStatusStrip() {
   // page's rose-600/400, because it sits on a tinted band (rose-600 on the
   // light tint is ~4.6:1; rose-700 is ~6.4:1). Do not "fix" it back.
   //
-  // KEEP THIS IN NORMAL FLOW. Absolutely positioning it inside HeroSection to
-  // avoid layout shift does not work: HeroSection is `min-h-[100svh]
-  // justify-center`, so once its content column is taller than the viewport
-  // the column clamps to top:0 and paints straight over the band's text. In
-  // flow the band simply pushes the hero down and can never overlap. The up
-  // state stays shift-free either way — it renders an empty zero-height
-  // wrapper — and a shift when the site is down is correct banner behaviour.
+  // KEEP THIS IN NORMAL FLOW, above the hero: in flow the band pushes the
+  // hero down and can never overlap it. The up state stays shift-free (an
+  // empty zero-height wrapper), and a shift when the site is down is correct
+  // banner behaviour.
   //
   // `min-h-11` is a FLOOR, not a fixed height: locales that wrap to two lines
   // grow the band, which is fine.

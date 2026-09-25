@@ -4,26 +4,27 @@ import { getTranslations } from "next-intl/server";
 import { CommunityReviews } from "@/components/home/CommunityReviews";
 import { EmbassySection } from "@/components/home/EmbassySection";
 import { FaqSection } from "@/components/home/FaqSection";
-import { HeroSection } from "@/components/home/HeroSection";
 import { HeroStatusStrip } from "@/components/home/HeroStatusStrip";
+import { HomeHero } from "@/components/home/HomeHero";
+import { HomeTabs } from "@/components/home/HomeTabs";
 import { QuickStartGuide } from "@/components/home/QuickStartGuide";
 import { SellerTrustBoard } from "@/components/home/SellerTrustBoard";
-import { WhatsNewSection } from "@/components/home/WhatsNewSection";
+import { Ticker } from "@/components/home/Ticker";
 import { IrelandOrderingSection } from "@/components/IrelandOrderingSection";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
-import { isSentinelPrice } from "@/lib/browse/item-index";
-import { loadHomeFeed, loadSellers } from "@/lib/data";
+import { loadHomeFeed, loadItems, loadSellers } from "@/lib/data";
+import { homeEvents, homeTabs, toHomeCard } from "@/lib/home/feed";
+import { buildLeafData } from "@/lib/home/leaf-data";
 import { HOME_FAQ_TABS, homeFaqKeys } from "@/lib/home-faq";
-import { getItemGalleryImages, getSellerImageUrl } from "@/lib/images";
 import { getServerCurrency } from "@/lib/market/currency";
 import { loadIrelandOrderingFacts } from "@/lib/market/ireland";
 import { localeToMarket } from "@/lib/market/market";
-import { isOffWall, withoutOffWall } from "@/lib/off-wall";
+import { isOffWall } from "@/lib/off-wall";
 import { countActiveSellers } from "@/lib/sellers";
 import { faqPageJsonLd, serializeJsonLd } from "@/lib/seo/jsonld";
 import { marketBaseUrl, pageMetadata } from "@/lib/seo/metadata";
-import type { HomeFeedItemCard, HomeFeedLeaderboardEntry } from "@/lib/types";
+import type { HomeFeedLeaderboardEntry } from "@/lib/types";
 import { GITHUB_REPO_URL } from "@/lib/verify-links";
 
 export async function generateMetadata({
@@ -43,33 +44,6 @@ export async function generateMetadata({
   });
 }
 
-/** Map a pre-shaped item card to the WhatsNewSection's NewItem shape */
-function toNewItem(item: HomeFeedItemCard, dateField: "fsa" | "lua") {
-  const gallery = getItemGalleryImages(item, "thumb", { forceStatic: true });
-  const date = dateField === "lua" ? (item.lua ?? item.fsa) : item.fsa;
-  return {
-    id: item.id,
-    refNum: item.refNum,
-    name: item.n,
-    image: gallery[0] ?? null,
-    images: gallery.length > 0 ? gallery : null,
-    priceMin: item.uMin ?? null,
-    priceMax: item.uMax ?? null,
-    // Home cards carry bounds but no variants, so the placeholder check falls
-    // back to the bounds themselves when the crawler stamp is absent.
-    soldOut:
-      item.so === 1 ||
-      (isSentinelPrice(item.uMin) && isSentinelPrice(item.uMax)),
-    seller: item.sn ?? null,
-    sellerId: item.sid ?? null,
-    sellerImageUrl: getSellerImageUrl(item.si) ?? null,
-    category: item.c ?? null,
-    date: date ?? "",
-    reviewStats: item.rs ?? null,
-    shipsFrom: item.sf ?? null,
-  };
-}
-
 export default async function HomePage({
   params,
 }: {
@@ -84,7 +58,7 @@ export default async function HomePage({
 
   const { locale } = await params;
   const market = localeToMarket(locale);
-  const [feed, sellerList, currency] = await Promise.all([
+  const [feed, sellerList, currency, items] = await Promise.all([
     loadHomeFeed(market.toLowerCase()),
     // Same source and same rule as /sellers, so the two pages cannot quote
     // different active-seller counts for one market.
@@ -94,6 +68,7 @@ export default async function HomePage({
     // Rates cache with the page; an approximate rate beats a USD number
     // wearing a local symbol if the lookup is down.
     getServerCurrency(market, { approximateFallback: true }),
+    loadItems(market.toLowerCase()),
   ]);
 
   if (!feed) {
@@ -113,11 +88,6 @@ export default async function HomePage({
   const irelandFacts =
     market === "IE" ? await loadIrelandOrderingFacts() : null;
 
-  // Category counts with empty emoji (HeroSection adds them)
-  const categoryCounts = feed.hero.categoryCounts.map((c) => ({
-    ...c,
-    emoji: "",
-  }));
   const offWallSellers = new Set(
     sellerList.filter(isOffWall).map((seller) => String(seller.id)),
   );
@@ -125,12 +95,33 @@ export default async function HomePage({
     entries.filter(
       (entry) => !isOffWall(entry) && !offWallSellers.has(entry.sellerId),
     );
-  const onWallItems = (items: HomeFeedItemCard[]) =>
-    withoutOffWall(items).filter(
-      (item) => item.sid == null || !offWallSellers.has(String(item.sid)),
-    );
+  const tabs = homeTabs(feed, offWallSellers);
+  const tabLists = {
+    new: tabs.new.map(toHomeCard),
+    drops: tabs.drops.map(toHomeCard),
+    restock: tabs.restock.map(toHomeCard),
+  };
+  const events = homeEvents(feed, offWallSellers);
   const feedBuiltAt = Date.parse(feed.builtAt);
   const timeReference = Number.isFinite(feedBuiltAt) ? feedBuiltAt : 0;
+  const weekAgo = timeReference - 7 * 24 * 60 * 60 * 1000;
+  const heroStats = {
+    listings: feed.hero.totalItems,
+    sellers: countActiveSellers(sellerList),
+    newThisWeek: tabs.new.filter((item) => {
+      const at = Date.parse(item.at ?? item.fsa ?? "");
+      return Number.isFinite(at) && at >= weekAgo;
+    }).length,
+    priceDrops: tabs.drops.length,
+  };
+  const leaf = buildLeafData({
+    seed: feed.builtAt,
+    categoryCounts: feed.hero.categoryCounts,
+    tabs,
+    items,
+    offWallSellers,
+    weekAgo,
+  });
 
   // WebSite + Organization structured data.
   const baseUrl = marketBaseUrl(market);
@@ -211,22 +202,22 @@ export default async function HomePage({
           All data here is already awaited inside this cached render and no
           section uses dynamic APIs, so inlining costs nothing at request time
           and makes first paint layout-stable. */}
-      {/* Outage strip — IN FLOW, ABOVE the hero. It renders a zero-height
-          wrapper unless the upstream marketplace is explicitly down on a fresh
-          check, so the up-state costs nothing. It cannot live inside
-          HeroSection: that section is `min-h-[100svh] justify-center`, so once
-          its content column exceeds the viewport the column clamps to top:0 and
-          an absolutely-positioned band underneath it is painted over by the
-          logo (tens of px of overlap at phone widths). In flow it simply
-          pushes the hero down during an outage, which
-          is the correct behaviour for an outage banner. */}
+      {/* Outage strip stays IN FLOW above the hero: in flow it simply pushes
+          the hero down during an outage, and the up-state renders a
+          zero-height wrapper that costs nothing. */}
       <HeroStatusStrip />
 
-      <HeroSection
-        totalItems={feed.hero.totalItems}
-        totalSellers={countActiveSellers(sellerList)}
-        categoryCounts={categoryCounts}
+      <HomeHero
+        locale={locale}
+        market={market}
+        stats={heroStats}
+        categoryCounts={feed.hero.categoryCounts}
+        leaf={leaf}
+        scan={feed.scan ?? null}
+        currency={currency}
       />
+
+      <Ticker events={events} currency={currency} />
 
       {irelandFacts && (
         <IrelandOrderingSection
@@ -236,16 +227,7 @@ export default async function HomePage({
         />
       )}
 
-      <WhatsNewSection
-        newest={onWallItems(feed.whatsNew.newest).map((i) =>
-          toNewItem(i, "fsa"),
-        )}
-        recentlyUpdated={onWallItems(feed.whatsNew.updated).map((i) =>
-          toNewItem(i, "lua"),
-        )}
-        now={timeReference}
-        currency={currency}
-      />
+      <HomeTabs lists={tabLists} currency={currency} />
 
       <SellerTrustBoard
         topSellers={onWall(feed.sellers.top)}

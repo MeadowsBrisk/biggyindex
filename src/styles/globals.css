@@ -12,7 +12,7 @@
 @import "../styles/elements/active-bar.css";
 @import "../styles/elements/reveal.css";
 @import "../styles/elements/sidebar.css";
-@import "../styles/elements/whats-new.css";
+@import "../styles/components/home.css";
 
 @keyframes fadeIn {
   from {

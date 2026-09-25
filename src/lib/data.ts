@@ -284,6 +284,14 @@ export async function loadSellerDetail(
 
 /** Load the pre-built home feed (one R2 read for the whole page). */
 export async function loadHomeFeed(market = "gb"): Promise<HomeFeed | null> {
+  // Dev fixture override: the same base the client search uses for its index.
+  const override = process.env.NEXT_PUBLIC_HOME_DATA_URL;
+  if (override) {
+    const res = await fetch(`${override}/${R2Keys.homeFeed(market)}`, {
+      cache: "no-store",
+    });
+    return res.ok ? ((await res.json()) as HomeFeed) : null;
+  }
   return readR2JSON<HomeFeed>(R2Keys.homeFeed(market));
 }
 
